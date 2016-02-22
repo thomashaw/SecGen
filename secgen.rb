@@ -1,5 +1,4 @@
-# Security Simulator
-# This program allows you to use a large amount of virtual machines and install vulnerable software to create a learning environment.
+# Wrapper for secgen components
 
 require 'getoptlong'
 require 'fileutils'
@@ -10,7 +9,7 @@ require_relative 'vagrant.rb'
 
 # coloured logo
 puts "\e[34m"
-puts 'Security Simulator - An application for creating randomized vulnerable environments.'
+puts 'SecGen - An application for creating randomized vulnerable environments.'
 puts "\e[0m"
 
 def usage
