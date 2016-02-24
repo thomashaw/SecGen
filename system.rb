@@ -37,7 +37,7 @@ class System
     end
 end
 
-
+# This is an example of a code change on a tracked file
 class Network
     attr_accessor :name, :range
 
