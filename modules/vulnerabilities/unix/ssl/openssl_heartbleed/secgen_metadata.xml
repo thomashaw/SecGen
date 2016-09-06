@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>OpenSSL Heartbleed information leak</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>
+    Buffer Overread vulnerability. Bug was introduced to OpenSSL in December 2011 and has been out in the wild since OpenSSL
+    release 1.0.1 on 14th of March 2012. OpenSSL 1.0.1g released on 7th of April 2014 fixes the bug.
+  </description>
+
+  <type>ssl</type>
+  <privilege>user</privilege>
+  <access>local</access>
+  <platform>linux</platform>
+
+  <!--optional vulnerability details-->
+  <difficulty>low</difficulty>
+  <cve>CVE-2014-0160</cve>
+  <cvss_base_score>5.0</cvss_base_score>
+  <!--<cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>-->
+  <reference>http://heartbleed.com/</reference>
+  <reference>https://www.rapid7.com/db/modules/auxiliary/scanner/ssl/openssl_heartbleed</reference>
+  <software_name>ssl</software_name>
+  <software_license>Apache</software_license>
+
+  <!--optional breadcrumb (info that is leaked and required to exploit)-->
+  <!--<breadcrumb></breadcrumb>-->
+
+  <!--optional hints-->
+  <!--<msf_module>exploits/unix/ftp/proftpd_133c_backdoor.rb</msf_module>-->
+  <!--<hint>A backdoor in a service</hint>-->
+  <!--<solution>Remotely exploitable backdoor in the FTP service</solution>-->
+
+</vulnerability>
