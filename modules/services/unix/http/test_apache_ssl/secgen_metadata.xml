@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Apache with SSL</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Apache installation with SSL enabled.</description>
+
+  <type>httpd</type>
+  <platform>unix</platform>
+
+  <reference>https://httpd.apache.org/</reference>
+  <software_license>Apache v2</software_license>
+
+  <requires>
+    <module_path>modules/services/unix/http/apache</module_path>
+  </requires>
+
+</service>

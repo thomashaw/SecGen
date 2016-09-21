@@ -12,12 +12,12 @@
   </description>
 
   <type>ssl</type>
-  <privilege>user</privilege>
-  <access>local</access>
+  <privilege>none</privilege>
+  <access>remote</access>
   <platform>linux</platform>
 
   <!--optional vulnerability details-->
-  <difficulty>low</difficulty>
+  <difficulty>medium</difficulty>
   <cve>CVE-2014-0160</cve>
   <cvss_base_score>5.0</cvss_base_score>
   <!--<cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>-->
