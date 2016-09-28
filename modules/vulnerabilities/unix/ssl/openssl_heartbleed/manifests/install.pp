@@ -1,6 +1,6 @@
 class openssl_heartbleed::install {
 
-  package { ['openssl, libssl-dev']:
+  package { ['openssl', 'libssl-dev']:
     ensure => purged,
   }
 
@@ -17,7 +17,6 @@ class openssl_heartbleed::install {
   }
 
   # remove current openssl and libssl packages as they are patched for heartbleed.
-
   exec { 'unpack-heartbleed-archive':
     cwd => '/usr/local/src',
     command => "/bin/tar -xzf $archive_path",

@@ -4,7 +4,7 @@ class Module
   #Vulnerability attributes hash
   attr_accessor :module_path # vulnerabilities/unix/ftp/vsftp_234_backdoor
   attr_accessor :module_type # vulnerability|service|utility
-  attr_accessor :attributes  # attributes are hashes that contain arrays of values
+  attr_accessor :attributes # attributes are hashes that contain arrays of values
   # Each attribute is stored in a hash containing an array of values (because elements such as author can repeat).
   # Module *selectors*, store filters in the attributes hash.
   # XML validity ensures valid and complete information.
@@ -26,7 +26,7 @@ class Module
   # @return [Object] a string for console output
   def to_s
     (<<-END)
-    #{module_type}: #{module_path}
+#{module_type}: #{module_path}
       attributes: #{attributes.inspect}
       conflicts: #{conflicts.inspect}
       requires: #{requires.inspect}
@@ -54,7 +54,7 @@ class Module
   # @return [Object] the module path with _ rather than / for use as a variable name
   def module_path_name
     module_path_name = module_path.clone
-    module_path_name.gsub!('/','_')
+    module_path_name.gsub!('/', '_')
   end
 
   # @return [Object] a list of attributes that can be used to re-select the same modules
@@ -97,6 +97,9 @@ class Module
         self.attributes["#{require_key}"].each do |value|
           # for each value in the required list
           required["#{require_key}"].each do |required_value|
+            if require_key == 'module_path'             # wraps the string between <module_path> tags
+              required_value = "^#{required_value}$"    # with regex ^ and $ to specify start/end of string.
+            end
             if Regexp.new(required_value).match(value)
               key_matched = true
             end

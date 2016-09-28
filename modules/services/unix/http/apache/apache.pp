@@ -14,5 +14,5 @@
 # }
 
 class { 'apache':
-  mpm_module => 'prefork'
+  mpm_module => 'prefork',
 }

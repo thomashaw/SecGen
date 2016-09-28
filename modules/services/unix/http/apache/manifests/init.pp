@@ -67,7 +67,7 @@ class apache (
   $logroot                = $::apache::params::logroot,
   $logroot_mode           = $::apache::params::logroot_mode,
   $log_level              = $::apache::params::log_level,
-  $log_formats            = {},
+  $log_formats            = { },
   $ports_file             = $::apache::params::ports_file,
   $docroot                = $::apache::params::docroot,
   $apache_version         = $::apache::version::default,
@@ -269,37 +269,37 @@ class apache (
         $scriptalias          = '/usr/local/www/apache24/cgi-bin'
         $access_log_file      = 'httpd-access.log'
       } 'gentoo': {
-        $error_log            = 'error.log'
-        $error_documents_path = '/usr/share/apache2/error'
-        $scriptalias          = '/var/www/localhost/cgi-bin'
-        $access_log_file      = 'access.log'
+      $error_log            = 'error.log'
+      $error_documents_path = '/usr/share/apache2/error'
+      $scriptalias          = '/var/www/localhost/cgi-bin'
+      $access_log_file      = 'access.log'
 
-        if is_array($default_mods) {
-          if versioncmp($apache_version, '2.4') >= 0 {
-            if defined('apache::mod::ssl') {
-              ::portage::makeconf { 'apache2_modules':
-                content => concat($default_mods, [ 'authz_core', 'socache_shmcb' ]),
-              }
-            } else {
-              ::portage::makeconf { 'apache2_modules':
-                content => concat($default_mods, 'authz_core'),
-              }
+      if is_array($default_mods) {
+        if versioncmp($apache_version, '2.4') >= 0 {
+          if defined('apache::mod::ssl') {
+            ::portage::makeconf { 'apache2_modules':
+              content => concat($default_mods, [ 'authz_core', 'socache_shmcb' ]),
             }
           } else {
             ::portage::makeconf { 'apache2_modules':
-              content => $default_mods,
+              content => concat($default_mods, 'authz_core'),
             }
           }
-        }
-
-        file { [
-          '/etc/apache2/modules.d/.keep_www-servers_apache-2',
-          '/etc/apache2/vhosts.d/.keep_www-servers_apache-2'
-        ]:
-          ensure  => absent,
-          require => Package['httpd'],
+        } else {
+          ::portage::makeconf { 'apache2_modules':
+            content => $default_mods,
+          }
         }
       }
+
+      file { [
+        '/etc/apache2/modules.d/.keep_www-servers_apache-2',
+        '/etc/apache2/vhosts.d/.keep_www-servers_apache-2'
+      ]:
+        ensure  => absent,
+        require => Package['httpd'],
+      }
+    }
       'Suse': {
         $error_log            = 'error.log'
         $scriptalias          = '/usr/lib/cgi-bin'

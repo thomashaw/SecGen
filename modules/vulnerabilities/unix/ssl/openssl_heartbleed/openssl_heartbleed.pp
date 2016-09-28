@@ -1,1 +1,1 @@
-require openssl_heartbleed::install
+require openssl_heartbleed
