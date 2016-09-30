@@ -14,12 +14,8 @@
   <reference>https://httpd.apache.org/</reference>
   <software_license>Apache v2</software_license>
 
-  <requires>
-    <module_path>modules/services/unix/http/apache</module_path>
-  </requires>
-
-  <requires>
-    <module_path>modules/utilities/unix/ssl/openssl</module_path>
-  </requires>
+  <!--<requires>-->
+    <!--<module_path>modules/services/unix/http/apache</module_path>-->
+  <!--</requires>-->
 
 </service>

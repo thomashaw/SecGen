@@ -1,0 +1,35 @@
+# managed by puppet.
+
+[req]
+prompt = no
+distinguished_name = distinguished_name
+<% if @subject_alt_name -%>
+x509_extensions = x509_extensions
+<% end -%>
+
+[distinguished_name]
+CN = <%= @common_name %>
+<% if @email_address -%>
+emailAddress = <%= @email_address %>
+<% end -%>
+<% if @country -%>
+C = <%= @country %>
+<% end -%>
+<% if @state -%>
+ST = <%= @state %>
+<% end -%>
+<% if @locality -%>
+L = <%= @locality %>
+<% end -%>
+<% if @organization -%>
+O = <%= @organization %>
+<% end -%>
+<% if @unit -%>
+OU = <%= @unit %>
+<% end -%>
+
+<% if @subject_alt_name -%>
+[x509_extensions]
+subjectAltName = <%= @subject_alt_name %>
+<% end -%>
+

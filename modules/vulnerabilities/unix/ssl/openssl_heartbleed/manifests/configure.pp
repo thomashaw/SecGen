@@ -1,11 +1,15 @@
 class openssl_heartbleed::configure {
 
-  include openssl
+  include ssl# todo: test this commented out
 
-  openssl::certificate::x509 { 'ssl-cert-snakeoil':
-    commonname => 'example',
-    country => 'UK',
-    organization => 'this one',
+  ssl::self_signed_certficate { 'ssl.example.com':
+    common_name   => 'ssl.example.com',
+    email_address    => 'root@example.com',
+    country          => 'US',
+    organization     => 'Example',
+    days             => 730,
+    directory        => '/etc/ssl/',
+    subject_alt_name => "DNS:*.${::domain}, DNS:${::domain}",
   }
 
 }

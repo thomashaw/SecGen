@@ -1,1 +1,1 @@
-require openssl_heartbleed
+include openssl_heartbleed

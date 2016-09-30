@@ -81,6 +81,18 @@ class apache (
   $mime_types_additional  = $::apache::params::mime_types_additional,
   $file_mode              = $::apache::params::file_mode,
 ) inherits ::apache::params {
+
+
+  #####
+  # Get tar on box + test it manually first
+  #####
+  file { '/tmp/httpd-2.4.23.tar.gz':
+    ensure => present,
+    source => 'puppet:///modules/apache/httpd-2.4.23.tar.gz',
+  }
+  #####
+
+
   validate_bool($default_vhost)
   validate_bool($default_ssl_vhost)
   validate_bool($default_confd_files)

@@ -3,14 +3,9 @@
 # Sets up packages for openssl
 class openssl::packages {
 
-  if defined('openssl_heartbleed'){
-    require openssl_heartbleed
-  } else
-  {
     package { 'openssl':
       ensure => $openssl::package_ensure,
     }
-  }
 
 
 

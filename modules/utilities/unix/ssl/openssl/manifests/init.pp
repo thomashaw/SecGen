@@ -17,6 +17,11 @@ class openssl (
   $package_ensure         = present,
   $ca_certificates_ensure = present,
 ){
-  class { '::openssl::packages': } ->
-  Class['openssl']
+  if !defined('openssl_heartbleed'){
+    class { '::openssl::packages': } ->
+    Class['openssl']
+  }
+  else {
+    require openssl_heartbleed
+  }
 }
