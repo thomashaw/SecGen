@@ -1,3 +1,4 @@
 class apache_from_source {
-  require apache_from_source::install
+  class { '::apache_from_source::vulnerabilities': } ->
+  class { '::apache_from_source::install': }
 }

@@ -13,7 +13,7 @@ class apache_from_source::install {
   }
 
   exec { 'unpack-apache':
-    cwd => '/usr/local/src/',
+    cwd     => '/usr/local/src/',
     command => "tar -xzf $archive",
   }
 
@@ -23,10 +23,9 @@ class apache_from_source::install {
   }
 
   exec { 'unpack-apr':
-    cwd => '/usr/local/src/',
-    command => "tar -xzf $apr_archive -C $httpd/srclib/; mv apr-1.5.2 apr",
+    cwd     => '/usr/local/src/',
+    command => "tar -xzf $apr_archive -C $httpd/srclib/; mv $httpd/srclib/apr-1.5.2 $httpd/srclib/apr",
   }
-
 
   file { "/usr/local/src/$apr_util_archive":
     ensure => present,
@@ -34,13 +33,35 @@ class apache_from_source::install {
   }
 
   exec { 'unpack-apr-util':
-    cwd => '/usr/local/src/',
-    command => "tar -xzf $apr_util_archive -C $httpd/srclib/; mv apr-util-1.5.4 apr-util",
+    cwd     => '/usr/local/src/',
+    command => "tar -xzf $apr_util_archive -C $httpd/srclib/; mv $httpd/srclib/apr-util-1.5.4 $httpd/srclib/apr-util",
   }
 
-  ##
-  # ./configure --use-ssl=/usr/bin
-  ##
+  package { ['libpcre3','libpcre3-dev']:
+    ensure => installed,
+  }
 
+  exec { 'configure-apache':
+    cwd     => "/usr/local/src/$httpd",
+    command => 'bash configure --with-included-apr --enable-ssl --with-ssl=/usr/bin --enable-ssl-staticlib-deps --enable-mods-static=ssl',
+  }
+
+  exec { 'make-apache':
+    cwd     => "/usr/local/src/$httpd",
+    command => 'make',
+  }
+
+  exec { 'make-install-apache':
+    cwd     => "/usr/local/src/$httpd",
+    command => 'make install',
+  }
+
+  file { '/etc/init.d/apache2':
+    ensure => file,
+    owner   => root,
+    group   => root,
+    mode    => '0755',
+    source => 'puppet:///modules/apache_from_source/apache2.init.d',
+  }
 
 }

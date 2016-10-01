@@ -14,4 +14,8 @@
   <reference>https://httpd.apache.org/</reference>
   <software_license>Apache v2</software_license>
 
+  <requires>
+    <type>update</type>
+  </requires>
+
 </service>

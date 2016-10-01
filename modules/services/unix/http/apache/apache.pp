@@ -13,6 +13,4 @@
 #   docroot => '/var/www/wordpress'
 # }
 
-class { 'apache':
-  mpm_module => 'prefork',
-}
+class { 'apache': }
