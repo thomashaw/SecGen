@@ -67,7 +67,7 @@ elif [ -f /etc/default/apache2 ] ; then
 	. /etc/default/apache2
 fi
 
-APACHE2CTL="$ENV /usr/sbin/apache2ctl"
+APACHE2CTL="$ENV /usr/sbin/apachectl"
 HTCACHECLEAN="$ENV /usr/sbin/htcacheclean"
 
 PIDFILE=$(. $APACHE_ENVVARS && echo $APACHE_PID_FILE)
@@ -86,7 +86,7 @@ check_htcacheclean() {
 	[ "$HTCACHECLEAN_RUN"  = "auto" \
 	  -a -e ${MODSDIR:-$APACHE_CONFDIR/mods-enabled}/disk_cache.load ] && \
 		return 0
-	
+
 	return 1
 }
 
@@ -94,7 +94,7 @@ start_htcacheclean() {
 	if [ ! -d "$HTCACHECLEAN_PATH" ] ; then
 		echo "... directory $HTCACHECLEAN_PATH does not exist!" >&2
 		return 1
-	fi	
+	fi
 	$HTCACHECLEAN $HTCACHECLEAN_OPTIONS -d$HTCACHECLEAN_DAEMON_INTERVAL \
 			-i -p$HTCACHECLEAN_PATH -l$HTCACHECLEAN_SIZE
 }

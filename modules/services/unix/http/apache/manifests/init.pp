@@ -81,18 +81,6 @@ class apache (
   $mime_types_additional  = $::apache::params::mime_types_additional,
   $file_mode              = $::apache::params::file_mode,
 ) inherits ::apache::params {
-
-
-  #####
-  # Get tar on box + test it manually first
-  #####
-  file { '/tmp/httpd-2.4.23.tar.gz':
-    ensure => present,
-    source => 'puppet:///modules/apache/httpd-2.4.23.tar.gz',
-  }
-  #####
-
-
   validate_bool($default_vhost)
   validate_bool($default_ssl_vhost)
   validate_bool($default_confd_files)
@@ -112,6 +100,10 @@ class apache (
 
   if $allow_encoded_slashes {
     validate_re($allow_encoded_slashes, '(^on$|^off$|^nodecode$)', "${allow_encoded_slashes} is not permitted for allow_encoded_slashes. Allowed values are 'on', 'off' or 'nodecode'.")
+  }
+
+  if defined('openssl_heartbleed') {
+    require openssl_heartbleed
   }
 
   # NOTE: on FreeBSD it's mpm module's responsibility to install httpd package.
