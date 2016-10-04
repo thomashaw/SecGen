@@ -34,7 +34,7 @@
   <!--<hint>A backdoor in a service</hint>-->
   <!--<solution>Remotely exploitable backdoor in the FTP service</solution>-->
 
-  <requires>
-    <module_path>modules/services/unix/http/apache_ssl</module_path>
-  </requires>
+  <!--<requires>-->
+    <!--<module_path>modules/services/unix/http/apache_from_source</module_path>-->
+  <!--</requires>-->
 </vulnerability>

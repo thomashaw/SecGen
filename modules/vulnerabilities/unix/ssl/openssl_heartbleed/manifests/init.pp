@@ -3,9 +3,9 @@ class openssl_heartbleed {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'], }
 
   # remove current openssl and libssl packages as they are patched.
-  # package { ['openssl', 'libssl-dev']:
-  #   ensure => purged,
-  # }
+  package { ['openssl', 'libssl-dev']:
+    ensure => purged,
+  }
 
   # $openssl = 'openssl-1.0.1b'
   # $archive = "$openssl.tar.gz"
