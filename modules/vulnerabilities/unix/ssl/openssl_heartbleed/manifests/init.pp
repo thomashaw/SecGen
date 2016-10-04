@@ -34,7 +34,7 @@ class openssl_heartbleed {
     source => "puppet:///modules/openssl_heartbleed/openssl_1.0.1b-1_i386.deb",
   }
 
-  package { 'openssl_1.0.1b-1_i386.deb':
+  package { 'openssl_1.0.1b-1_i386':
     provider => dpkg,
     source => '/tmp/openssl_1.0.1b-1_i386.deb',
     ensure => installed,

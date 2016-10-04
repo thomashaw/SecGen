@@ -111,7 +111,41 @@ class apache (
   # should delete the 'if' block below and modify all MPM modules' manifests
   # such that they include apache::package class (currently event.pp, itk.pp,
   # peruser.pp, prefork.pp, worker.pp).
-  if $::osfamily != 'FreeBSD' {
+  #
+  # NOTE: on heartbleed, if defined require the heartbleed module then install the old version from deb package
+
+  $heartbleed = defined('openssl_heartbleed')
+
+  if $heartbleed {
+    require openssl_heartbleed
+
+    file { '/tmp/httpd_2.4.23-1_i386.deb':
+      source => 'puppet:///modules/apache/httpd_2.4.23-1_i386.deb',
+      ensure => file,
+    }
+
+    package { 'httpd':
+      source   => '/tmp/httpd_2.4.23-1_i386.deb',
+      provider => dpkg,
+      ensure   => installed,
+    }
+
+    file { '/etc/apache2/envvars':
+      ensure => file,
+      source => 'puppet:///modules/apache/envvars',
+    }
+
+    file { '/etc/init.d/apache2':
+      require => File['/etc/apache2/envvars'],
+      ensure  => file,
+      owner   => root,
+      group   => root,
+      mode    => '0755',
+      source  => 'puppet:///modules/apache/apache2.init.d',
+      notify   => Class['Apache::Service'],
+    }
+
+  } elsif $::osfamily != 'FreeBSD' {
     package { 'httpd':
       ensure => $package_ensure,
       name   => $apache_name,

@@ -13,4 +13,6 @@
 #   docroot => '/var/www/wordpress'
 # }
 
-class { 'apache': }
+class { 'apache':
+  default_mods => false,
+}
