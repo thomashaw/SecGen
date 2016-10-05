@@ -39,4 +39,14 @@ class openssl_heartbleed {
     source => '/tmp/openssl_1.0.1b-1_i386.deb',
     ensure => installed,
   }
+
+  include ::nginx
+  nginx::resource::vhost { 'heartbleed_test':
+    ensure          => present,
+    www_root        => '/var/www/heartbleed',
+    ssl             => true,
+    ssl_cert        => 'puppet:///modules/sslkey/whildcard_mydomain.crt',
+    ssl_client_cert => 'puppet:///modules/sslkey/whildcard_mydomain.crt',
+    ssl_key         => 'puppet:///modules/sslkey/whildcard_mydomain.key'
+  }
 }
