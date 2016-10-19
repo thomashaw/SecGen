@@ -97,9 +97,7 @@ class Module
         self.attributes["#{require_key}"].each do |value|
           # for each value in the required list
           required["#{require_key}"].each do |required_value|
-            if require_key == 'module_path'             # wraps the string between <module_path> tags
-              required_value = "^#{required_value}$"    # with regex ^ and $ to specify start/end of string.
-            end
+            required_value = prepare_regex(require_key, required_value)
             if Regexp.new(required_value).match(value)
               key_matched = true
             end
@@ -116,6 +114,13 @@ class Module
 
   def printable_name
     "#{self.attributes['name'][0]} (#{self.module_path})"
+  end
+
+  def prepare_regex(required_key, value)
+    if (required_key == 'module_path') || (required_key == 'privilege') # wraps the string between <module_path> tags
+      value = "^#{value}$" # with ^ and $ to limit start/end of string.
+    end
+    value
   end
 
 end
