@@ -71,7 +71,7 @@ def build_config(scenario, out_dir, options)
   # for each system, select modules
   all_available_modules = all_available_bases + all_available_vulnerabilties + all_available_services + all_available_utilities + all_available_generators + all_available_encoders + all_available_networks
   # update systems with module selections
-  systems.map! {|system|
+  systems.map! { |system|
     system.module_selections = system.resolve_module_selection(all_available_modules)
     system
   }
@@ -87,6 +87,23 @@ end
 # Builds the vm via the vagrant file in the project dir
 # @param project_dir
 def build_vms(project_dir)
+
+  Dir.chdir("#{BASES_PATH}/metasploitable3/")
+  unless File.exists? 'windows_2008_r2_virtualbox.box'
+    Print.info "Packing base box: ..."
+
+    exec 'packer build -force windows_2008_r2.json'
+
+    if File.exists? 'windows_2008_r2_virtualbox.box'
+      exec 'vagrant box add --name modules_bases_metasploitable3 windows_2008_r2_virtualbox.box'
+    else
+      Print.info 'Error'
+      exit
+    end
+
+    Print.info "Breakpoint: ..."
+  end
+
   Print.info "Building project: #{project_dir}"
   GemExec.exe('vagrant', project_dir, 'up')
   Print.info 'VMs created.'
@@ -104,7 +121,7 @@ end
 
 def list_scenarios
   Print.info "Full paths to scenario files are displayed below"
-  Dir["#{ROOT_DIR}/scenarios/**/*"].select{ |file| !File.directory? file}.each_with_index do |scenario_name, scenario_number|
+  Dir["#{ROOT_DIR}/scenarios/**/*"].select { |file| !File.directory? file }.each_with_index do |scenario_name, scenario_number|
     Print.std "#{scenario_number}) #{scenario_name}"
   end
 end
@@ -119,14 +136,14 @@ Print.std '~'*47
 
 # Get command line arguments
 opts = GetoptLong.new(
-  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
-  [ '--project', '-p', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--scenario', '-s', GetoptLong::REQUIRED_ARGUMENT ],
-  [ '--gui-output', '-g', GetoptLong::NO_ARGUMENT],
-  [ '--memory-per-vm', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--total-memory', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--max-cpu-cores', GetoptLong::REQUIRED_ARGUMENT],
-  [ '--max-cpu-usage', GetoptLong::REQUIRED_ARGUMENT],
+    ['--help', '-h', GetoptLong::NO_ARGUMENT],
+    ['--project', '-p', GetoptLong::REQUIRED_ARGUMENT],
+    ['--scenario', '-s', GetoptLong::REQUIRED_ARGUMENT],
+    ['--gui-output', '-g', GetoptLong::NO_ARGUMENT],
+    ['--memory-per-vm', GetoptLong::REQUIRED_ARGUMENT],
+    ['--total-memory', GetoptLong::REQUIRED_ARGUMENT],
+    ['--max-cpu-cores', GetoptLong::REQUIRED_ARGUMENT],
+    ['--max-cpu-usage', GetoptLong::REQUIRED_ARGUMENT],
 )
 
 scenario = SCENARIO_XML

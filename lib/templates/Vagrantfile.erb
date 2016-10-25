@@ -74,7 +74,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #      cleanup.manifests_path = "<%="#{ROOT_DIR}/mount/puppet/manifest"%>"
 #      cleanup.manifest_file = "cleanup.pp"
 #    end
-    <%= system.name %>.vm.provision :shell, :inline => "history -c && history -w"
+#    <%= system.name %>.vm.provision :shell, :inline => "history -c && history -w"
 #    <%= system.name %>.vm.provision :shell, :inline => "umount /mount/"
   end
 <% end %>
