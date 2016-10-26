@@ -3,3 +3,6 @@ unusedcode
 .DS_Store
 .idea
 mount
+modules/bases/metasploitable3/iso/
+modules/bases/metasploitable3/packer_cache/
+modules/bases/metasploitable3/windows_2008_r2_virtualbox.box

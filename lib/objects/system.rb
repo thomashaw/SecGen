@@ -34,6 +34,11 @@ class System
       module_selectors.each do |module_filter|
         selected_modules += select_modules(module_filter.module_type, module_filter.attributes, available_modules, selected_modules, module_filter.unique_id, module_filter.write_output_variable, module_filter.write_to_module_with_id, module_filter.received_inputs)
       end
+
+      if selected_modules[0].attributes['platform'] == 'windows' # if selected base is windows
+        validate_windows_base
+      end
+
       selected_modules
 
     rescue RuntimeError=>e
@@ -185,6 +190,24 @@ class System
       end
     end
     modules_to_add
+  end
+
+  def validate_windows_base
+    metasploitable_path = "#{BASES_PATH}metasploitable3/"
+    packed_box = 'windows_2008_r2_virtualbox.box'
+
+    Dir.chdir metasploitable_path
+    unless File.exists? packed_box
+      Print.info "Packing windows base box: This may take a while ..."
+      GemExec.exe('packer', metasploitable_path, 'build -force windows_2008_r2.json')
+      if File.exists? packed_box
+        GemExec.exe('vagrant', metasploitable_path,
+                    'box add --name modules_bases_metasploitable3 windows_2008_r2_virtualbox.box')
+      else
+        Print.err 'Error packing windows_2008_r2_virtualbox.box'
+        exit
+      end
+    end
   end
 
 end

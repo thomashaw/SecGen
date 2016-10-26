@@ -87,23 +87,6 @@ end
 # Builds the vm via the vagrant file in the project dir
 # @param project_dir
 def build_vms(project_dir)
-
-  Dir.chdir("#{BASES_PATH}/metasploitable3/")
-  unless File.exists? 'windows_2008_r2_virtualbox.box'
-    Print.info "Packing base box: ..."
-
-    exec 'packer build -force windows_2008_r2.json'
-
-    if File.exists? 'windows_2008_r2_virtualbox.box'
-      exec 'vagrant box add --name modules_bases_metasploitable3 windows_2008_r2_virtualbox.box'
-    else
-      Print.info 'Error'
-      exit
-    end
-
-    Print.info "Breakpoint: ..."
-  end
-
   Print.info "Building project: #{project_dir}"
   GemExec.exe('vagrant', project_dir, 'up')
   Print.info 'VMs created.'

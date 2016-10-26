@@ -20,7 +20,7 @@ class GemExec
       unless File.file? gem_path
         Print.err "Executable for #{gem_name} not found: #{e.message}"
         # vagrant can be executed via the gem path, but not installed this way
-        unless gem_name == 'vagrant'
+        unless gem_name == 'vagrant' || gem_name == 'packer'
           Print.err "Installing #{gem_name} gem by running 'sudo gem install #{gem_name}'..."
           system "sudo gem install #{gem_name}"
           begin
@@ -33,8 +33,7 @@ class GemExec
     end
 
     Dir.chdir(working_dir)
-
-    system gem_path, argument
+    system "#{gem_path} #{argument}"
 
   end
 end
