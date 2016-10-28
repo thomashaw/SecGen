@@ -1,0 +1,3 @@
+class wamp::service {
+
+}

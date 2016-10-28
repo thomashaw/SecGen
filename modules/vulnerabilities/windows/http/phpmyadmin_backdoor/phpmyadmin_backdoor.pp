@@ -1,0 +1,1 @@
+include phpmyadmin_backdoor::install

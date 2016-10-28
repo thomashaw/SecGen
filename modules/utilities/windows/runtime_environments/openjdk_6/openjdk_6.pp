@@ -1,0 +1,1 @@
+include openjdk_6::install

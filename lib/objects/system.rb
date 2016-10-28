@@ -35,7 +35,8 @@ class System
         selected_modules += select_modules(module_filter.module_type, module_filter.attributes, available_modules, selected_modules, module_filter.unique_id, module_filter.write_output_variable, module_filter.write_to_module_with_id, module_filter.received_inputs)
       end
 
-      if selected_modules[0].attributes['platform'] == 'windows' # if selected base is windows
+      # TODO: Move somewhere / make sure that box only packed if secgen input is run/r and not build-project/p
+      if selected_modules[0].attributes['platform'][0] == 'windows' # if selected base is windows
         validate_windows_base
       end
 
@@ -82,6 +83,13 @@ class System
         x.module_type != module_type
       }
     end
+
+   search_list.delete_if{ |x|
+     x.attributes['platform'] != required_attributes['platform']
+     # or
+
+     # previously_selected_modules[0] i.e. the base
+   }
 
     # filter to those that satisfy the attribute filters
     search_list.delete_if{|module_for_possible_exclusion|
@@ -197,7 +205,7 @@ class System
     packed_box = 'windows_2008_r2_virtualbox.box'
 
     Dir.chdir metasploitable_path
-    unless File.exists? packed_box
+    unless File.exists? packed_box  # TODO: Change this so that it checks box is registered in vagrant instead of .box file
       Print.info "Packing windows base box: This may take a while ..."
       GemExec.exe('packer', metasploitable_path, 'build -force windows_2008_r2.json')
       if File.exists? packed_box

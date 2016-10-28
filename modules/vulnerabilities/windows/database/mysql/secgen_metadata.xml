@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Unpatched FTP Server</name>
+  <author>Metasploitable3</author>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Unpatched FTP module converted from the metasploitable3 project.</description>
+
+  <type>ftp</type>
+  <privilege>root</privilege> <!-- TODO-->
+  <access>remote</access>
+  <platform>windows</platform>
+
+  <requires>
+    <software_name>WAMP</software_name>
+  </requires>
+
+</vulnerability>

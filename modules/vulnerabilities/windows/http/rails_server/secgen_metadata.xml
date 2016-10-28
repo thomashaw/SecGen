@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Rails Server Vulnerability</name>
+  <author>Metasploitable3</author>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Rails Server Vulnerability</description>
+
+  <type>http</type>
+  <privilege>user</privilege>
+  <access>remote</access>
+  <platform>windows</platform>
+
+  <requires>
+    <module_path>utilities/windows/runtime_environments/ruby</module_path>
+  </requires>
+
+</vulnerability>
