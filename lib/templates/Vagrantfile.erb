@@ -31,6 +31,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 <%= if (@options.has_key? :max_cpu_usage)
 "      vb.customize ['modifyvm', :id, '--cpuexecutioncap', '#{@options[:max_cpu_usage]}']"
     end %>
+
+<%= if system.base_platform == 'windows'
+"   config.vm.guest = :windows
+   config.vm.communicator = \"winrm\"
+   config.vm.boot_timeout = 600
+   config.vm.graceful_halt_timeout = 600"
+    end %>
     end
 
     # SecGen modules

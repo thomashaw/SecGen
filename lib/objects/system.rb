@@ -87,13 +87,6 @@ class System
       }
     end
 
-    # Remove modules for other platforms
-    if self.base_platform != nil
-      search_list.delete_if{ |x|
-        x.attributes['platform'][0] != self.base_platform
-      }
-    end
-
     # filter to those that satisfy the attribute filters
     search_list.delete_if{|module_for_possible_exclusion|
       !module_for_possible_exclusion.matches_attributes_requirement(required_attributes)

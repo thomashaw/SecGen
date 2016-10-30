@@ -3,7 +3,7 @@
 <utility xmlns="http://www.github/cliffe/SecGen/utility"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
-  <name>7zip for Windows</name>
+  <name>sevenzip for Windows</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
   <description>A 7zip utility module for windows</description>

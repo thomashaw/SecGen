@@ -5,9 +5,9 @@
 	   xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
 	<system>
-		<system_name>sevenzip_windows</system_name>
+		<system_name>windows</system_name>
 		<base platform="windows"/>
-		<utility module_path="modules/utilities/windows/compression/sevenzip"/>
+		<utility platform="windows"/>
 	</system>
 
 </scenario>
