@@ -4,6 +4,7 @@ class System
 
   attr_accessor :name
   attr_accessor :attributes # (basebox selection)
+  attr_accessor :base_platform # (unix/linux/windows)
   attr_accessor :module_selectors # (filters)
   attr_accessor :module_selections # (after resolution)
   attr_accessor :num_actioned_module_conflicts
@@ -33,10 +34,12 @@ class System
       # for each module specified in the scenario
       module_selectors.each do |module_filter|
         selected_modules += select_modules(module_filter.module_type, module_filter.attributes, available_modules, selected_modules, module_filter.unique_id, module_filter.write_output_variable, module_filter.write_to_module_with_id, module_filter.received_inputs)
+        if selected_modules.size == 1  # First iteration, the base box
+          self.base_platform = selected_modules[0].attributes['platform'][0]
+        end
       end
 
-      # TODO: Move somewhere / make sure that box only packed if secgen input is run/r and not build-project/p
-      if selected_modules[0].attributes['platform'][0] == 'windows' # if selected base is windows
+      if base_platform == 'windows'
         validate_windows_base
       end
 
@@ -84,12 +87,12 @@ class System
       }
     end
 
-   search_list.delete_if{ |x|
-     x.attributes['platform'] != required_attributes['platform']
-     # or
-
-     # previously_selected_modules[0] i.e. the base
-   }
+    # Remove modules for other platforms
+    if self.base_platform != nil
+      search_list.delete_if{ |x|
+        x.attributes['platform'][0] != self.base_platform
+      }
+    end
 
     # filter to those that satisfy the attribute filters
     search_list.delete_if{|module_for_possible_exclusion|
