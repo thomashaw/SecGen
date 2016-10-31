@@ -15,12 +15,15 @@ GENERATOR_SCHEMA_FILE = "#{ROOT_DIR}/lib/schemas/generator_metadata_schema.xsd"
 ENCODER_SCHEMA_FILE = "#{ROOT_DIR}/lib/schemas/encoder_metadata_schema.xsd"
 NETWORK_SCHEMA_FILE = "#{ROOT_DIR}/lib/schemas/network_metadata_schema.xsd"
 BASE_SCHEMA_FILE = "#{ROOT_DIR}/lib/schemas/base_metadata_schema.xsd"
+BUILDS_SCHEMA_FILE = "#{ROOT_DIR}/lib/schemas/build_metadata_schema.xsd"
 
 # Path to projects directory
 PROJECTS_DIR = "#{ROOT_DIR}/projects"
 
-# Path to environments directory
-ENVIRONMENTS_PATH = "#{ROOT_DIR}/modules/build/environments"
+# Path to build directory
+BUILDS_PATH = "#{ROOT_DIR}/modules/build"
+ENVIRONMENTS_PATH = "#{BUILDS_PATH}/environments"
+CHOCOLATEY_PATH = "#{BUILDS_PATH}/windows/chocolatey"
 
 # Path to modules directories
 MODULES_PATH = "#{ROOT_DIR}/modules/"

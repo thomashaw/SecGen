@@ -35,12 +35,13 @@ class System
       module_selectors.each do |module_filter|
         selected_modules += select_modules(module_filter.module_type, module_filter.attributes, available_modules, selected_modules, module_filter.unique_id, module_filter.write_output_variable, module_filter.write_to_module_with_id, module_filter.received_inputs)
         if selected_modules.size == 1  # First iteration, the base box
-          self.base_platform = selected_modules[0].attributes['platform'][0]
+          base_box = selected_modules[0]
+          self.base_platform = base_box.attributes['platform'][0]
+          if base_platform == 'windows'
+            validate_windows_base
+            selected_modules += get_windows_build_modules(available_modules)
+          end
         end
-      end
-
-      if base_platform == 'windows'
-        validate_windows_base
       end
 
       selected_modules
@@ -214,4 +215,14 @@ class System
     end
   end
 
+  def get_windows_build_modules(available_modules)
+    windows_build_modules = []
+    available_modules.each do |mod|
+      if mod.attributes['module_path'][0] == 'modules/build/windows/chocolatey'
+        Print.std "Module added: #{mod.printable_name}"
+        windows_build_modules += [mod]
+      end
+    end
+    windows_build_modules
+  end
 end

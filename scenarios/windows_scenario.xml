@@ -7,7 +7,7 @@
 	<system>
 		<system_name>windows</system_name>
 		<base platform="windows"/>
-		<utility platform="windows"/>
+		<utility platform="windows" type="compression"/>
 	</system>
 
 </scenario>
