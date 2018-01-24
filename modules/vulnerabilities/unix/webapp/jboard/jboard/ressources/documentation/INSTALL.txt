@@ -1,0 +1,258 @@
+jboard is a java bulletin board.
+version $Name:  $
+http://sourceforge.net/projects/jboard/
+Copyright (C) 2003 Charles GAY
+This file is part of jboard.
+jboard is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+jboard is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with jboard; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+ jboard installation notes:
+ --------------------------
+
+1.basic requirements
+
+
+a database like:
+
+-a Postgresql database (http://www.postgresql.org).
+jboard has been tested with a win32 7.2.1 postgresql port.
+a 7.2.1 version or higher is required.
+you can download it here:
+http://www.postgresql.org/mirrors-ftp.html
+
+OR
+
+- an oracle database (www.oracle.com)
+jboard has been tested with a win32 oracle 10g database.
+
+OR
+
+- a mysql database(www.mysql.com).
+jboard has been tested with a 4.0 mysql database.
+
+
+
+
+-j2se (java 2 standard edition ) 1.4 or higher 
+you can download an inplementation here provided by sun (http://www.sun.com):
+http://java.sun.com/j2se/downloads.html
+we recommand to set the JAVA_HOME system variable
+(which represent the directory where the active j2se is installed).
+
+some others implementations are available;these are provided by vendors like IBM(http://www.ibm.com),
+or open source organisation(http://www.blackdown.org) by example.
+
+jboard has been tested on java 1.4.2-b28 from sun.
+
+-a 2.3 servlet specification compliant servlet engine (jsp 1.2) like Tomcat 4.x.x or 
+higher (http://jakarta.apache.org/tomcat).
+you can download a tomcat version here:
+http://jakarta.apache.org/site/binindex.cgi
+
+otherwise,another servlet engine can be used,
+like the open source web and servlet engine server jetty (http://jetty.mortbay.org/jetty/index.html),
+or the commercial servers products.
+
+jboard has been tested on tomcat 4.1.24.
+
+
+2.jboard installation:
+
+ 
+ you should unzip the zip file called jboard-0.30.zip (you can unzip the archive with the jar -xvf jboard.zip command).
+ this file contains:
+  + the jboard-0.30.war archive
+  + a 'documentation' directory
+  + a 'requiredServerLibraries' directory
+  + a 'security' directory
+  
+  a) unzip the jboard.war archive in the ${CATALINA_HOME}/webapps/
+ 
+  you can unzip the archive with the command jar -xvf jboard-0.30.war.
+  note that the CATALINA_HOME system variable, must be set only for the tomcat servlet engine (4.x.x and higher).
+  
+  b)place into the ${CATALINA_HOME}/commons/lib directory these files located in the 'required server libraries'
+  directory:
+  -commons-pool-1.1.jar
+  -commons-dbcp-1.1.jar
+  
+  
+  another option is to download these libraries at 
+  the commons/DBCP website(http://jakarta.apache.org/commons/dbcp/),
+  and the postgresql jdbc drivers website(http://jdbc.postgresql.org/).
+  you will have the last up-to-date drivers.
+  
+  c) download your jdbc driver(a jar file), and place it, for tomcat, in the ${CATALINA_HOME}/commons/lib
+  for oracle 9i and 10g, this driver is ojdbc14.jar.
+  
+  for oracle8i this driver file is classes12.jar.
+  for postgresql 7.2.1 this driver file is  pg73jdbc3.jar.
+  for mysql 4.0, his driver file is  mysql-connector-java-3.0.11-stable-bin.jar.
+  
+  d)create your database and database schema if required. create a user for the application.
+    (see the specific database vendor documentation).
+     run the database corresponding sql script (scripts for mysql, postgresql, or oracle database are provided under
+   the documentation/sql directory.
+  
+  
+  e)place the 'jboard.loginScheme' file in your ${JAVA_HOME}/jre/lib/security directory.
+  this file is located under the jboard zip archive 'security' directory.
+  
+  f)insert this line in your java.security file, located in your ${JAVA_HOME}/jre/lib/security directory,
+  under the commented block which start by '# Default login configuration file':
+  login.config.url.1=file:${java.home}/lib/security/jboard.loginScheme
+  
+  a java.security example is provided under the jboard zip archive 'security' directory.
+  
+  these two steps are mandatory for the authentication mechanism.
+  this mechanism is based on the secure and standard JAAS authentication.
+  more information on JAAS is available at http://java.sun.com/products/jaas/  .
+  
+  
+  
+3.jboard configuration
+
+  a)configure properly your server.xml file, in inspiration of the file called server.xml,
+  provided in this distribution.
+  another option, at your convenience, is to place an xml file called jboard.xml, with the context balise,
+  based on contextexample, directly in the webapps directory.
+  
+  b)configure the jboard webapp.
+  jboard can be configured with the struts-config.xml file, located on the jboard/WEB-INF/conf/struts directory.
+  it is recommenced to use a gui interface to modify this file, to prevent errors (the xml file must be well-formed).
+  a recommended tool is StrutsConsole,a swing application(http://www.jamesholmes.com/struts/console/),
+  which can be used standalone,  or integrated with your prefered IDE (Eclipse is mine).
+  
+  I)plugins
+  
+  CAUTION:
+  you can configure the plugins section at your conveniance;
+  but many default settings like userTable in the securityPlugin, are in relation with sql scripts provided.
+  
+  
+  
+  you should focus on four plugins:
+  
+     - the Log4JPlugin
+     - the DatabasePlugin
+     - the SecurityPlugin
+     - the Quartz Plugin
+   
+  - the Log4JPlugin contains two interesting fields to customize:
+   
+    log4JConfigFileName : the log4J configuration fileName.
+    log4j.properties is the default file name.   
+    
+    the refreshTime field : the delay between log4j checks a modification,
+    on the log4J configuration file(log4j.properties by default).
+  
+  
+  - the Database Plugin contains two interesting fields to customize:
+  
+    forumDatasourceName : the JNDI forum ressource name; 
+    caution:this field must be in agreement with the JNDI ressource declared in your server.xml file.
+    
+    forumDaoImpl : the forumDAO implemetation.
+    the only value which works today is HibernateDAO.the old value was PostgresqlDAO.
+    this setting was controlling a deprecated code,which is still present in this release,for curiosity.
+    the next release will not contain this jdbc example (O/R mapping like hibernate do the same job easier).
+    
+  - the SecurityPlugin which contains seven interesting fields to customize
+  
+    regAuthenticationDatasourceName which indicate the JNDI JAAS ressource name;
+    caution:this field must be in agreement with the JNDI ressource declared in your server.xml file.
+    
+    userTable : the database users table name for JAAS authentication.
+    
+    roleMapTable : the database mapping table(between userTable and roleTable) name for JAAS authentication.
+    
+    roleTable : the database roles table name for JAAS authentication.
+    
+    initialAdminLogin : the initial admin login when jboard 
+    initialize in database the required users.
+    
+    initialAdminPassword : the initial admin password when jboard 
+    initialize in database the required users.
+    
+    regDaoImpl : the persistance implementation for the registration datasource
+    the only accepted value is also HibernateDAO.
+    
+    
+  - the scheduler Plugin contains one field:
+  
+    cronExpression:this field manage the Quartz scheduler with a cron expression.
+    
+    this scheduler is launched with this application, but is not yet used.
+    a future use is planned(more precisions soon).
+  
+  
+  II)hibernate
+  the jboard persistance service use the great hibernate library.
+  you should configure two files(located under WEB-INF/classes) to adapt this library to your database:
+  - forum.cfg.xml 
+  - reg.cfg.xml
+  these two files are, by default, configured for the postgresql database.
+  you can comment the postresql related lines, and uncomment your database related configuration lines.
+  => respectively the connection.datasource property (which refers to the datasource define in your tomcat server.xml),
+  and the dialect property (which indicates your specific database).
+  jdbc.batch_size property is 0 because my postgresql 7.2.1 don't support this feature.
+  you can change this value if your database support it.
+  
+  there are two files because you can have one datasource(only a database for this release) to authenticate users,
+  and another datasource for the forum.
+  
+  
+  III)logging system(log4j)
+  
+  
+  the logging system can be also customised itself, by modify the log4j config file without restarting(a great feature!).
+  you can activate or passivate somme loggers on the fly!!!
+  for more details, you should look at the log4j website (http://logging.apache.org/log4j/docs/).
+    
+  
+  
+  4)TROUBLESHOOTINGS
+  
+  -if at startup, you have these erors message:
+   "WARN [main] (SettingsFactory.java:95) - Could not obtain connection metadata
+  org.apache.commons.dbcp.SQLNestedException: Cannot create PoolableConnectionFactory, cause: 
+  Connection refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections."
+  
+  => it seems that your database is not started, or your server.xml is not properly configured.
+  maybe, it does not point to a right jdbc url
+  
+  
+  -"LoginContext cannot be created......."
+  or, "java.lang.SecurityException:....at com.sun.security.auth.login.ConfigFile.<init>(Unknown Source)"
+  => you have not put the jboard.loginScheme at the right place.
+  
+  - "java.lang.SecurityException Caused by: java.io.IOException:impossible to locate configuration file"
+  
+  => you have not specified in your java.security config file,the jboard configuration file jboard.loginScheme
+  
+  you MUST place this line at the right place:
+  login.config.url.1=file:${java.home}/lib/security/jboard.loginScheme
+  
+  5)Architecture
+  a pdf file called jboardDesign is provided to explain the jboard architecture.
+  
+  
+  if you have some troubles with jboard,
+  you can post your comments on the jboard website(http://sourceforge.net/projects/jboard/).
+
+  have fun with jboard!
+
+  charles gay(diabolo512[at]users.sourceforge.net).
+    

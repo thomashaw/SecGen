@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Pebble - blogging tools written in Java</title>
+    <link rel="stylesheet" href="../pebble.css" type="text/css" />
+    </script>
+  </head>
+
+  <body>
+  <table width="100%" cellspacing="0" cellpadding="8" class="header">
+    <tr>
+      <td colspan="2" align="center">
+        <a href="http://pebble.sourceforge.net"><img src="../images/pebble.jpg" alt="Pebble" border="0"/></a>
+        <br />
+        Blogging tools written in Java
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" cellspacing="0" cellpadding="8" class="bodyContent">
+    <tr>
+      <td align="center">
+
+
+<table width="100%" cellspacing="0" cellpadding="8" class="item">
+  <tr class="itemHeader">
+    <td>
+      Quick Start with Tomcat
+    </td>
+  </tr>
+  <tr class="itemBody">
+    <td>
+
+      <p>
+      If you want to get started quickly and have a Tomcat installation up and running, Pebble can be deployed in a couple of minutes by following some simple steps.
+      <ol>
+        <li>Download Pebble from <a href="http://sourceforge.net/project/showfiles.php?group_id=79200">here</a>.</li>
+        <li>Copy <code>pebble.war</code> from <code>pebble-weblog</code> into <code>$TOMCAT_HOME/webapps</code>.</li>
+        <li>Add the followng line into the <code>$TOMCAT_HOME/conf/tomcat-users.xml</code> file, before the final closing tag.
+      <pre>
+      &lt;user username="someuser" password="password" roles="blog-owner,blog-contributor"/&gt;</pre></li>
+        <li>Restart Tomcat and (assuming a default local installation) point your browser to <a href="http://localhost:8080/pebble/">http://localhost:8080/pebble/</a>.</li>
+        <li>Pebble should now be running and you can login via the <b>Login</b> link at the bottom of the page.</li>
+      </ol>
+      </p>
+
+      <p>
+      <div align="center">
+      <img src="./images/getting-started-1.jpg" />
+      </div>
+      </p>
+
+    </td>
+  </tr>
+</table>
+
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" cellpadding="8" cellspacing="0" class="footer">
+    <tr>
+      <td align="center">
+        <a href="../index.html">Home</a> |
+        <a href="../weblog/index.html">Weblog</a> |
+        <a href="../deskblog/index.html">Deskblog</a> |
+        <a href="../moblog/index.html">Moblog</a> |
+        <a href="../antblog/index.html">Antblog</a> |
+        <a href="http://sourceforge.net/project/showfiles.php?group_id=79200">Download</a>
+      </td>
+    </tr>
+  </table>
+  </body>
+</html>

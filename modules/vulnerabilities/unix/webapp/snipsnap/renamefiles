@@ -1,0 +1,10 @@
+#!/bin/bash
+
+for x in *.rbdd ; do
+  if [[ -f $x ]]; 
+  then
+      y=`basename $x .rbdd`
+      echo "Moving $x to $y.bdd"
+      mv $x "$y.bdd"
+  fi
+done

@@ -1,0 +1,26 @@
+<!DOCTYPE form-validation PUBLIC "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.0//EN" "http://jakarta.apache.org/commons/dtds/validator_1_0.dtd">
+<form-validation>
+   <global>
+      <constant>
+        <constant-name>phone</constant-name>
+        <constant-value>^\(?(\d{3})\)?[-| ]?(\d{3})[-| ]?(\d{4})$</constant-value>
+      </constant>
+      <constant>
+        <constant-name>zip</constant-name>
+        <constant-value>^\d{5}\d*$</constant-value>
+      </constant>
+   </global>
+   <formset>
+      
+ 
+      
+   <form name="forumForm">
+            <field property="title" depends="required">
+                    
+             <arg0 key="label_forum_title" /><msg key="label_forum_title" /></field>
+         
+        </form>
+ </formset>
+   
+   
+</form-validation>

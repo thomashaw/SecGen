@@ -1,0 +1,98 @@
+## Attributes in the context:
+## pagetitle - String - title of page
+## repository - Repository - current Repository (probably not needed, same as $thisCategory.repository)
+## blogpath - String - URL path after username
+## thisCategory - Category - current category
+## prefix - String - URL path up to, and including, username
+## shortPrefix - String - URL path up to, but not including, username
+## labels - HashMap - language strings from the properties file
+## dateFormat - DateFormat - for displaying Date instances
+<html>
+<head>
+	<title>$pagetitle</title>
+<style>
+#set( $bordercolor = "rgb(30%,50%,100%)" )
+body {
+	font-family: Garamond, Georgia, Times New Roman, serif;
+}
+td.label {
+	background-color: $bordercolor;
+	padding-left:1em;
+	padding-right:1em;
+}
+td.content {
+	padding=0.3em;
+	border-left-width: 5px;
+	border-right-width: 5px;
+	border-left: solid $bordercolor;
+	border-right: solid $bordercolor;
+}
+td.catpath {
+	padding=0.3em;
+	border-bottom-width: 5px;
+	border-bottom: solid $bordercolor;
+	border-left-width: 5px;
+	border-right-width: 5px;
+	border-left: solid $bordercolor;
+	border-right: solid $bordercolor;
+}
+td.empty {
+	font-size: 0.5em;
+}
+td.linkheading {
+	background-color: blue;
+}
+td.linklist {
+
+}
+td.linklistindex {
+	text-align: right;
+}
+</style>
+</head>
+
+<body>
+<h1>$thisCategory.name</h1>
+<table><tr><td valign="top">
+
+#if( $thisCategory.linkList.size() > 0 )
+	<table>
+	<tr><td colspan="2" class="linkheading">$labels.getString("label.links")</td></tr>
+	#foreach( $link in $thisCategory.linkList )
+		<tr><td class="linklistindex">$velocityCount</td><td class="linklist"><a href="$link.uri">$link.name</a></td></tr>
+	#end
+	</table>
+#end
+
+</td><td valign="top">
+<table>
+#if( $thisCategory.parent )
+	<tr>
+	<td>$labels.getString("label.parent"): </td><td><a href="$prefix$thisCategory.parent.urlPath">$thisCategory.parent.name</a></td>
+	</tr>
+#end
+<tr>
+#if( $thisCategory.subCategories.size() > 0 )
+	<td>$labels.getString("label.subcategories"): </td><td><i>
+	#foreach( $subcat in $thisCategory.subCategories )
+		<a href="$prefix$subcat.urlPath">$subcat.name</a>
+		#if( $velocityCount < $thisCategory.subCategories.size() )&nbsp;&nbsp;&mdash;&nbsp;&nbsp;#end
+	#end
+	</i></td></tr>
+#end
+</table>
+
+<table cellspacing="0">
+#foreach( $blog in $thisCategory.getRecentBlogs(10, true) )
+	<tr><td class="label"><i>${dateFormat.format($blog.lastUpdated)}</i> &ndash; <b>$blog.rawTitle</b></td></tr>
+		<tr><td class="content">$blog.formattedContent</td></tr>
+		<tr><td class="catpath">
+			$labels.getString("label.user"): <a href="$shortPrefix$blog.category.repository.owner$blog.category.urlPath">$blog.category.repository.owner</a>
+		</td></tr>
+	<tr><td class="empty">&nbsp;</td></tr>
+#end
+</table>
+
+</td></tr></table>
+</body>
+</html>

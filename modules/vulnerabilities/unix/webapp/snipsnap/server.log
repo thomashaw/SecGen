@@ -1,0 +1,13 @@
+19:23:49.891 EVENT  Starting Jetty/4.2.16
+19:23:49.939 EVENT  Started org.mortbay.http.NCSARequestLog@87a5cc
+19:23:49.948 EVENT  Checking Resource aliases
+19:23:50.499 EVENT  Started WebApplicationContext[/install,SnipSnap Boostrap Installer]
+19:23:51.156 EVENT  Started SocketListener on 0.0.0.0:8668
+19:23:51.157 EVENT  Started org.mortbay.jetty.Server@1e51060
+19:26:01.768 EVENT  Application: stopping server
+19:26:01.770 EVENT  Stopping Acceptor ServerSocket[addr=0.0.0.0/0.0.0.0,port=0,localport=8668]
+19:26:02.018 EVENT  Stopped SocketListener on 0.0.0.0:8668
+19:26:02.018 EVENT  Stopped WebApplicationContext[/install,SnipSnap Boostrap Installer]
+19:26:02.019 EVENT  Stopped org.mortbay.http.NCSARequestLog@87a5cc
+19:26:02.019 EVENT  Stopped org.mortbay.jetty.Server@1e51060
+19:26:02.020 EVENT  Application: stopped server

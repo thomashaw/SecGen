@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="net.eyde.personalblog.beans.Post" table="t_posts">
+        <id name="id" column="post_id" type="string">
+          <generator class="uuid.hex"/>
+        </id>
+        <version name="version"/>
+        <property name="category"/>
+        <property name="reference"/>
+        <property name="content"/>
+        <property name="created"/>
+        <property name="modified"/>
+        <property name="emailComments"/>
+        <property name="title"/>
+        <set name="comments" order-by="created desc" cascade="all">
+		   <key column="post_id"/>
+		   <one-to-many class="net.eyde.personalblog.beans.Comment"/>
+		</set>
+    </class>
+
+</hibernate-mapping>

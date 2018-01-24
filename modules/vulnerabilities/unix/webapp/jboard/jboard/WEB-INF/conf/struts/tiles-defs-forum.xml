@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+<tiles-definitions>
+<!-- definitions pour le module forum  -->
+   <!-- definition par défaut du module forum -->
+<definition name=".forum.basic" extends=".root.common" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard forum module" />
+</definition>
+<definition name=".forum.panorama" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum panorama page" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/forumPanorama.jsp" />
+</definition>
+<definition name=".forum.forumItemContent" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum ForumItemContent" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/forumItemContent.jsp" />
+</definition>
+<definition name=".forum.forumThreadContent" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum ForumThreadContent" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/forumThreadContent.jsp" />
+</definition>
+<definition name=".forum.postACategory" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum Post a Category" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/postACategory.jsp" />
+</definition>
+<definition name=".forum.updateACategory" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum update a Category" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/updateACategory.jsp" />
+</definition>
+<definition name=".forum.updateForumItem" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum update a ForumItem" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/updateAForumItem.jsp" />
+</definition>
+<definition name=".forum.updateForumThread" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum update a ForumThread" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/updateAForumThread.jsp" />
+</definition>
+<definition name=".forum.updateAMessage" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum update a Message" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/updateAMessage.jsp" />
+</definition>
+<definition name=".forum.postAForumItem" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum Post a ForumItem" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/postAForumItem.jsp" />
+</definition>
+<definition name=".forum.postAForumThread" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum Post a ForumThread" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/postAForumThread.jsp" />
+</definition>
+<definition name=".forum.postAMessage" extends=".forum.basic" page="/WEB-INF/modules/forum/tiles/layouts/forumLayout.jsp">
+        <put name="title"  value="jboard Forum Post a Message" />
+        <put name="body"   value="/WEB-INF/modules/forum/tiles/postAMessage.jsp" />
+</definition>
+</tiles-definitions>

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.roller.business.HitCountData"
+        table="referer"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="string"
+            unsaved-value="null"
+        >
+            <generator class="uuid.hex">
+            </generator>
+        </id>
+
+        <property
+            name="dayHitCount"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="dayhits"
+            unique="false"
+        />
+
+        <property
+            name="totalHitCount"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="totalhits"
+            unique="false"
+        />
+
+        <many-to-one
+            name="website"
+            class="org.roller.pojos.WebsiteData"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="websiteid"
+            not-null="true"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-HitCountData.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

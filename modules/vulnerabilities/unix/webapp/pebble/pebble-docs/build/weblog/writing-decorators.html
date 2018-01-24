@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Pebble - blogging tools written in Java</title>
+    <link rel="stylesheet" href="../pebble.css" type="text/css" />
+    </script>
+  </head>
+
+  <body>
+  <table width="100%" cellspacing="0" cellpadding="8" class="header">
+    <tr>
+      <td colspan="2" align="center">
+        <a href="http://pebble.sourceforge.net"><img src="../images/pebble.jpg" alt="Pebble" border="0"/></a>
+        <br />
+        Blogging tools written in Java
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" cellspacing="0" cellpadding="8" class="bodyContent">
+    <tr>
+      <td align="center">
+
+
+<table width="100%" cellspacing="0" cellpadding="8" class="item">
+  <tr class="itemHeader">
+    <td>
+      Writing blog entry decorators
+    </td>
+  </tr>
+  <tr class="itemBody">
+    <td>
+      <p>
+      Blog entry decorators are a type of Pebble plugin that allow you to extend the way that
+      blog entries are displayed in the HTML pages of your blog and the XML newsfeeds that are
+      generated. The following features have been externalized into decorators and are included
+      in the distribution.
+      <ul>
+        <li><b>EscapeMarkupDecorator</b> - escapes HTML markup between &lt;escape&gt; tags (like <a href="http://www.simongbrown.com/blog/2004/05/05/1083760455000.html">this</a> except that the tags are maintained and simply decorated out at runtime)</li>
+        <li><b>RelativeUriDecorator</b> - replaces relative URIs with absolute URLs so that they are rendered properly in browsers and newsreaders (Pebble currently does this but it's hardcoded)</li>
+        <li><b>DisableResponseDecorator</b> - disables comments and TrackBacks for the blog entry (useful if you are worried about spam when you don't have access to your blog, such as on holiday)</li>
+      </ul>
+      </p>
+
+      <p>
+      To write your own custom decorator, you need to write a Java class that implements the <a href="../javadoc/pebble/decorator/BlogEntryDecorator.html">pebble.decorator.BlogEntryDecorator</a> interface. A
+      default implementation is also available to subclass from called <a href="../javadoc/pebble/decorator/BlogEntryDecoratorSupport.html">pebble.decorator.BlogEntryDecoratorSupport</a>.
+      </p>
+
+      <p>
+      The code for the <b>DisableResponseDecorator</b> is shown here as an example.
+<pre>  package pebble.decorator;
+
+  import pebble.blog.BlogEntry;
+
+  /**
+   * Disables comments and TrackBacks for the blog entry.
+   *
+   * @author Simon Brown
+   */
+  public class DisableResponseDecorator extends BlogEntryDecoratorSupport {
+
+    /**
+     * Executes the logic associated with this decorator.
+     *
+     * @param blogEntry   the BlogEntry to run against
+     * @param context     the context in which the decoration is running
+     * @throws BlogEntryDecoratorException
+     *          if something goes wrong when running the decorator
+     */
+    public void decorate(BlogEntry blogEntry, BlogEntryDecoratorContext context)
+        throws BlogEntryDecoratorException {
+      blogEntry.setCommentsEnabled(false);
+      blogEntry.setTrackBacksEnabled(false);
+    }
+
+    /**
+     * Gets the name of this decorator.
+     *
+     * @return the name of this decorator as a String
+     */
+    public String getName() {
+      return "Disable response decorator";
+    }
+
+  }</pre>
+      </p>
+
+      <p>
+      To use your decorator, you must add your compiled class to the classpath of the Pebble web application. To do this,
+      either place the class file(s) underneath the <code>/WEB-INF/classes</code> directory or inside a JAR file
+      placed underneath the <code>/WEB-INF/lib</code> directory. Next, log in to your blog, click the <b>Blog properties</b>
+      and enter the fully qualified class name in the <b>Blog entry decorators</b> section towards the bottom of the page.
+      </p>
+
+      <p>
+      <div align="center">
+      <img src="./images/writing-decorators-1.jpg" alt="" />
+      </div>
+      </p>
+
+      <p>
+      After saving the blog properties, click the <b>Reload blog</b> link so that the new plugin is started. If you've added
+      new classes to the web application classpath, you'll need to restart the web application so that they are
+      picked up by the servlet container.
+      </p>
+    </td>
+  </tr>
+</table>
+
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" cellpadding="8" cellspacing="0" class="footer">
+    <tr>
+      <td align="center">
+        <a href="../index.html">Home</a> |
+        <a href="../weblog/index.html">Weblog</a> |
+        <a href="../deskblog/index.html">Deskblog</a> |
+        <a href="../moblog/index.html">Moblog</a> |
+        <a href="../antblog/index.html">Antblog</a> |
+        <a href="http://sourceforge.net/project/showfiles.php?group_id=79200">Download</a>
+      </td>
+    </tr>
+  </table>
+  </body>
+</html>

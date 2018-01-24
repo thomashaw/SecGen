@@ -1,0 +1,37 @@
+<project name="pebble-website" default="build" basedir=".">
+
+  <property name="src.dir" value="${basedir}/content"/>
+  <property name="build.dir" value="${basedir}/build"/>
+
+  <property environment="env"/>
+
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+  </target>
+
+  <target name="build" depends="init">
+    <loadfile property="header" srcFile="${src.dir}/header.html"/>
+    <loadfile property="footer" srcFile="${src.dir}/footer.html"/>
+
+    <copy todir="${build.dir}">
+      <fileset dir="${src.dir}" />
+    </copy>
+
+    <replace dir="${build.dir}" token="@header@" value="${header}">
+      <include name="**/*.html"/>
+    </replace>
+    <replace dir="${build.dir}" token="@footer@" value="${footer}">
+      <include name="**/*.html"/>
+    </replace>
+
+    <delete file="${build.dir}/header.html" />
+    <delete file="${build.dir}/footer.html" />
+
+    <copy file="../changelog.txt" todir="${build.dir}" />
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+</project>

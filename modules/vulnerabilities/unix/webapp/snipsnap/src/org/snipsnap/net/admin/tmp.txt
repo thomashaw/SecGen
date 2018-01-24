@@ -1,0 +1,6 @@
+ConfigureServlet.java:185 (Configuration) @ doGet() quad 39
+ConfigureServlet.java:207 Return value of doGet() quad 105 => newInstance()*
+ConfigureServlet.java:212 Return value of doGet() quad 108 => newInstance()*
+ConfigureServlet.java:263 Return value of doGet() quad 233 => getUser()
+ConfigureServlet.java:265 (List) @ doGet() quad 256
+ConfigureServlet.java:352 Return value of doGet() quad 565 => addSteps()*

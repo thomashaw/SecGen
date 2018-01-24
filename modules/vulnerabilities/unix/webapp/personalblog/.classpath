@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="src" path="source"/>
+    <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+    <classpathentry kind="lib" path="lib/commons-beanutils.jar"/>
+    <classpathentry kind="lib" path="lib/commons-collections.jar"/>
+    <classpathentry kind="lib" path="lib/commons-digester.jar"/>
+    <classpathentry kind="lib" path="lib/commons-fileupload.jar"/>
+    <classpathentry kind="lib" path="lib/commons-lang.jar"/>
+    <classpathentry kind="lib" path="lib/commons-logging.jar"/>
+    <classpathentry kind="lib" path="lib/commons-validator.jar"/>
+    <classpathentry kind="lib" path="lib/jakarta-oro.jar"/>
+    <classpathentry kind="lib" path="lib/log4j-1.2.8.jar"/>
+    <classpathentry kind="lib" path="lib/struts.jar"/>
+    <classpathentry kind="lib" path="lib_build/servlet.jar"/>
+    <classpathentry kind="lib" path="lib/commons-dbcp.jar"/>
+    <classpathentry kind="lib" path="lib/mail.jar"/>
+    <classpathentry kind="lib" path="lib/hibernate2.jar"/>
+    <classpathentry kind="lib" path="lib/dom4j.jar"/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>

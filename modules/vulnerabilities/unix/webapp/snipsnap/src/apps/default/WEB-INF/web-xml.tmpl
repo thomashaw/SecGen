@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<!--
+  ** Web application configuration.
+  ** @author Matthias L. Jugel
+  ** @version $Id: web-xml.tmpl,v 1.27 2004/06/22 13:12:13 leo Exp $
+  -->
+<web-app>
+  <display-name>SnipSnap @VERSION@</display-name>
+
+  <context-param>
+    <param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+    <param-value>en</param-value>
+  </context-param>
+  <context-param>
+    <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+    <param-value>i18n.messages</param-value>
+  </context-param>
+
+  <!--
+  <filter>
+    <filter-name>org.snipsnap.net.filter.GZIPFilter</filter-name>
+    <filter-class>org.snipsnap.net.filter.GZIPFilter</filter-class>
+  </filter>
+  -->
+  <filter>
+    <filter-name>org.snipsnap.net.filter.InitFilter</filter-name>
+    <filter-class>org.snipsnap.net.filter.InitFilter</filter-class>
+  </filter>
+
+  <!--
+  <filter-mapping>
+    <filter-name>org.snipsnap.net.filter.GZIPFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  -->
+  
+  <filter-mapping>
+    <filter-name>org.snipsnap.net.filter.InitFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <listener>
+    <listener-class>org.snipsnap.user.SessionListener</listener-class>
+  </listener>
+
+  <listener>
+    <listener-class>org.snipsnap.net.ApplicationContextListener</listener-class>
+  </listener>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.Layouter</servlet-name>
+    <servlet-class>org.snipsnap.net.Layouter</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.PluginServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.PluginServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.CssHandlerServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.CssHandlerServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.ThemeImageServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.ThemeImageServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.FileUploadServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.FileUploadServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.FileDownloadServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.FileDownloadServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.StoreLabelServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.StoreLabelServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.LabelsServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.LabelsServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipViewServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipViewServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.HistoryServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.HistoryServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipVersionServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipVersionServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.DiffServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.DiffServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.RenderServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.RenderServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.NameSpaceServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.NameSpaceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.RdfServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.RdfServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipRawServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipRawServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.VersionServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.VersionServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.RssServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.RssServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.RsdServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.RsdServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.XmlRpcServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.XmlRpcServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipCopyServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipCopyServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipEditServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipEditServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipLockServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipLockServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipStoreServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipStoreServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipRemoveServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipRemoveServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.SnipSearchServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.SnipSearchServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.PostStoreServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.PostStoreServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.CommentViewServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.CommentViewServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.CommentStoreServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.CommentStoreServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.ChangePasswordServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.ChangePasswordServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.MailPasswordKeyServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.MailPasswordKeyServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.LoginServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.LoginServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.NewUserServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.NewUserServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.iCalServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.iCalServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.RobotServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.RobotServlet</servlet-class>
+  </servlet>
+
+  <!-- setup and configuration -->
+  <servlet>
+    <servlet-name>org.snipsnap.net.admin.ConfigureServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.admin.ConfigureServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>org.snipsnap.net.admin.ThemeImageServlet</servlet-name>
+    <servlet-class>org.snipsnap.net.admin.ThemeImageServlet</servlet-class>
+  </servlet>
+
+  <!-- include precompiled servlet mappings -->
+  @PRECOMPILED-JSP@
+
+  <!-- servlet mappings -->
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipRawServlet</servlet-name>
+    <url-pattern>/raw/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipViewServlet</servlet-name>
+    <url-pattern>/space/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.CommentViewServlet</servlet-name>
+    <url-pattern>/comments/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.PluginServlet</servlet-name>
+    <url-pattern>/plugin/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.Layouter</servlet-name>
+    <url-pattern>/exec/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.iCalServlet</servlet-name>
+    <url-pattern>/exec/ical/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.CssHandlerServlet</servlet-name>
+    <url-pattern>/theme/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.ThemeImageServlet</servlet-name>
+    <url-pattern>/theme/images/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.RdfServlet</servlet-name>
+    <url-pattern>/rdf/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.HistoryServlet</servlet-name>
+    <url-pattern>/exec/history</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipVersionServlet</servlet-name>
+    <url-pattern>/exec/version</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.DiffServlet</servlet-name>
+    <url-pattern>/exec/diff</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.RenderServlet</servlet-name>
+    <url-pattern>/exec/render</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.NameSpaceServlet</servlet-name>
+    <url-pattern>/exec/namespace</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.FileUploadServlet</servlet-name>
+    <url-pattern>/exec/upload</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipLockServlet</servlet-name>
+    <url-pattern>/exec/lock</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.XmlRpcServlet</servlet-name>
+    <url-pattern>/RPC2</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.RssServlet</servlet-name>
+    <url-pattern>/exec/rss</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.RsdServlet</servlet-name>
+    <url-pattern>/exec/rsd</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.VersionServlet</servlet-name>
+    <url-pattern>/rest/version</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.LabelsServlet</servlet-name>
+    <url-pattern>/exec/labels</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.StoreLabelServlet</servlet-name>
+    <url-pattern>/exec/storelabel</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipEditServlet</servlet-name>
+    <url-pattern>/exec/new</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipCopyServlet</servlet-name>
+    <url-pattern>/exec/copy</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipEditServlet</servlet-name>
+    <url-pattern>/exec/edit</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipStoreServlet</servlet-name>
+    <url-pattern>/exec/store</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipRemoveServlet</servlet-name>
+    <url-pattern>/exec/remove</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.SnipSearchServlet</servlet-name>
+    <url-pattern>/exec/search</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.PostStoreServlet</servlet-name>
+    <url-pattern>/exec/storepost</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.CommentStoreServlet</servlet-name>
+    <url-pattern>/exec/storecomment</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.ChangePasswordServlet</servlet-name>
+    <url-pattern>/exec/changepass</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.MailPasswordKeyServlet</servlet-name>
+    <url-pattern>/exec/mailkey</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.LoginServlet</servlet-name>
+    <url-pattern>/exec/authenticate</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.NewUserServlet</servlet-name>
+    <url-pattern>/exec/newuser</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.RobotServlet</servlet-name>
+    <url-pattern>/robots.txt</url-pattern>
+  </servlet-mapping>
+
+  <!-- ADMIN -->
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.admin.ConfigureServlet</servlet-name>
+    <url-pattern>/admin/configure</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>org.snipsnap.net.admin.ThemeImageServlet</servlet-name>
+    <url-pattern>/admin/themeimage</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- ERROR PAGES -->
+  <error-page>
+    <error-code>500</error-code>
+    <location>/error.jsp</location>
+  </error-page>
+
+  <error-page>
+    <exception-type>javax.servlet.ServletException</exception-type>
+    <location>/error.jsp</location>
+  </error-page>
+
+  <!-- TAGLIBS -->
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+    <taglib-location>/WEB-INF/c.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/fmt</taglib-uri>
+    <taglib-location>/WEB-INF/fmt.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>http://snipsnap.com/snipsnap</taglib-uri>
+    <taglib-location>/WEB-INF/snipsnap.tld</taglib-location>
+  </taglib>
+
+</web-app>

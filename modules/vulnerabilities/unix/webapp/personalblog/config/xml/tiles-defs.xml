@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE tiles-definitions PUBLIC
+          "-//Apache Software Foundation//DTD Tiles Configuration//EN"
+          "http://jakarta.apache.org/struts/dtds/tiles-config.dtd">
+
+<tiles-definitions>
+<!-- Master Abstract definitions -->
+	<definition name="PortalDefinition"
+	            path="/layout.jsp">
+		<put name="header"
+		     value="/header.jsp"/>
+		<put name="footer"
+		     value="/footer.jsp"/>
+		<put name="rail"
+		     value="/rail.jsp"/>
+	</definition>
+
+	<definition name="LitePortalDefinition" path="/layoutlite.jsp">
+		<put name="header"
+		     value="/headerlite.jsp"/>
+		<put name="footer"
+		     value="/footerlite.jsp"/>
+	</definition>
+	
+<!-- Concrete Definitions -->
+
+	<definition name="Read" extends="PortalDefinition">
+		<put name="body" value="/read.jsp"/>
+	</definition>
+
+	<definition name="Logon" extends="PortalDefinition">
+		<put name="body"
+		     value="/logon.jsp"/>
+	</definition>
+
+	<definition name="Initialize" path="/initialize.jsp"/>
+
+	<definition name="NewPost" extends="PortalDefinition">
+		<put name="body" value="/newpost.jsp"/>
+	</definition>
+	
+	<definition name="EditPost" extends="PortalDefinition">
+		<put name="body" value="/editpost.jsp"/>
+	</definition>
+	
+	<definition name="DeletePost" extends="PortalDefinition">
+		<put name="body"
+		     value="/deletepost.jsp"/>
+	</definition>
+	
+	<definition name="NewComment" extends="PortalDefinition">
+		<put name="body" value="/newcomment.jsp"/>
+	</definition>
+	
+	<definition name="LastComment" extends="PortalDefinition">
+		<put name="body" value="/lastcomment.jsp"/>
+	</definition>
+
+	<definition name="Search" extends="PortalDefinition">
+		<put name="body" value="/search.jsp"/>
+	</definition>
+	
+	<definition name="EditProperties" extends="PortalDefinition">
+		<put name="body" value="/editprop.jsp"/>
+	</definition>
+	
+	<definition name="ReadPost" extends="PortalDefinition">
+		<put name="body" value="/readpost.jsp"/>
+	</definition>
+	
+	<definition name="ReadPosts" extends="PortalDefinition">
+		<put name="body" value="/read.jsp"/>
+	</definition>
+
+	<definition name="ReadLite" extends="LitePortalDefinition">
+		<put name="body" value="/readlite.jsp"/>
+	</definition>
+
+	<definition name="Import" extends="PortalDefinition">
+		<put name="body" value="/import.jsp"/>
+	</definition>
+	
+</tiles-definitions>

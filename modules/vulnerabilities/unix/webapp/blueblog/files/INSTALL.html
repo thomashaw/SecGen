@@ -1,0 +1,110 @@
+<html>
+
+<head>
+	<title>BlueBlog installation and configuration</title>
+</head>
+
+<body>
+
+<h1>BlueBlog installation and configuration</h1>
+
+<p>
+<b>Congratulations on downloading BlueBlog weblog application!</b>
+</p>
+
+<p>
+This document will get you ready to start blogging within minutes.
+But first, we'll need to make sure you have the other components
+needed by BlueBlog.
+</p>
+
+<h1>Necessary components</h1>
+
+<p>
+To get BlueBlog running in its simplest form, you will need to
+have downloaded and installed a Java 2 Standard Environment
+(version 1.4 or later) and a Servlet Engine like Jakarta Tomcat,
+Resin, Jetty or other. This document will only cover working with
+Tomcat. Please refer to the servlet engine documentation to install
+BlueBlog with other servlet engines.
+</p>
+
+<p>
+If you already have a recent J2SE and Tomcat up and running,
+you can skip to the <a href="#addcontext">Add Context</a> section
+below.
+</p>
+
+<h2>Download and install a Java Environment</h2>
+
+<p>TBD</p>
+
+<h2>Download and install Jakarta Tomcat</h2>
+
+<p>TBD</p>
+
+<a name="addcontext">
+<h1>Add a web application context for BlueBlog in Tomcat</h1>
+</a>
+
+<p>
+Application contexts in Tomcat are defined in the <tt>server.xml</tt>
+file located in the <tt>conf</tt> directory under the Jakarta Tomcat
+root directory. Open this file in a text editor like Wordpad (in
+Windows) or Emacs (in Unix/Linux). Find the first <tt>&lt;Context</tt>
+element, inside of a <tt>&lt;Host</tt> element. You'll need to add
+a new Context for BlueBlog, and you may want to remove any contexts
+that are already there, especially if they have the same context path that
+you want to use for BlueBlog. (For instance &ndash; by default Tomcat installs
+an <tt>/examples</tt> context.)
+</p>
+
+<p>
+Add a new Context for BlueBlog by adding this text:
+</p>
+
+<pre class="code">
+&lt;Context path="/blueblog" docBase="c:\blueblog\web" debug="1" reloadable="true"/>
+</pre>
+
+<p>
+The entry above assumed that BlueBlog was installed in the c:\blueblog
+directory. Change this entry to whereever you installed the files.
+Also, the entry installed BlueBlog in the context path <tt>/blueblog</tt>.
+You can change this to whatever suits you. If you want to install BlueBlog
+as the default (or "root") context, leave the path attribute empty, like this:
+</p>
+
+<pre class="code">
+&lt;Context path="" docBase="c:\blueblog\web" debug="1" reloadable="true"/>
+</pre>
+
+<p>
+If you don't have any other web applications installed on the same server,
+the above is the recommended way of installing BlueBlog!
+</p>
+
+<h1>Make a quick test-run</h1>
+
+<h1 style="color:red">Kanske ska resten flyttas till en mer generell quickstart-fil?</h1>
+
+<h1>Configure your blogroot path</h1>
+
+<p>TBD</p>
+
+<h1>Starting to blog</h1>
+
+<p>Blogs and Categories...</p>
+
+<p>Changing stuff in the .settings dir</p>
+
+<h1>Setting up a MetaRepository</h1>
+
+<p>TBD</p>
+
+<h1>Other kinds of repositories</h1>
+
+<p>Something for the future...</p>
+
+</body>
+</html>

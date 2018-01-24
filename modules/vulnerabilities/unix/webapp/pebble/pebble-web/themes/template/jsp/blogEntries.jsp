@@ -1,0 +1,1 @@
+<%@ include file="/themes/default/jsp/blogEntries.jsp" %>

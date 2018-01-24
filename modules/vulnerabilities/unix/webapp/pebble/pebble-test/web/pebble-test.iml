@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4" relativePaths="true" type="J2EE_WEB_MODULE">
+  <component name="ModuleRootManager" />
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/classes" />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="jdk" jdkName="java version &quot;1.4.2_03&quot;" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/WEB-INF/lib/.cvsignore" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/WEB-INF/lib/CVS" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/WEB-INF/lib/pebble-test.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/WEB-INF/lib/tagunit.jar" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="pebble" />
+    <orderEntry type="library" name="Jakarta Tomcat 4.1.27" level="application" />
+  </component>
+  <component name="WebModuleBuildComponent">
+    <setting name="EXPLODED_URL" value="file://$MODULE_DIR$" />
+    <setting name="EXPLODED_ENABLED" value="true" />
+    <setting name="JAR_URL" value="file://" />
+    <setting name="JAR_ENABLED" value="false" />
+    <setting name="RUN_JASPER_VALIDATION" value="false" />
+  </component>
+  <component name="WebModuleProperties">
+    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/WEB-INF/web.xml" version="2.3" />
+    <webroots>
+      <root url="file://$MODULE_DIR$" relative="/" />
+    </webroots>
+    <orderEntriesWatcher>
+      <pairs>
+        <key>
+          <option name="value" value="1" />
+        </key>
+        <value predicate="moduleLibrary">
+          <url>file://$MODULE_DIR$/WEB-INF/lib/.cvsignore</url>
+        </value>
+      </pairs>
+      <pairs>
+        <key>
+          <option name="value" value="2" />
+        </key>
+        <value predicate="moduleLibrary">
+          <url>file://$MODULE_DIR$/WEB-INF/lib/CVS</url>
+        </value>
+      </pairs>
+      <pairs>
+        <key>
+          <option name="value" value="3" />
+        </key>
+        <value predicate="moduleLibrary">
+          <url>file://$MODULE_DIR$/WEB-INF/lib/pebble-test.jar</url>
+        </value>
+      </pairs>
+      <pairs>
+        <key>
+          <option name="value" value="4" />
+        </key>
+        <value predicate="moduleLibrary">
+          <url>file://$MODULE_DIR$/WEB-INF/lib/tagunit.jar</url>
+        </value>
+      </pairs>
+      <pairs>
+        <key>
+          <option name="value" value="5" />
+        </key>
+        <value predicate="dependencyModule" moduleName="pebble" />
+      </pairs>
+      <pairs>
+        <key>
+          <option name="value" value="6" />
+        </key>
+        <value predicate="higherLibrary" level="application" libraryName="Jakarta Tomcat 4.1.27" />
+      </pairs>
+    </orderEntriesWatcher>
+    <order-entry-info>
+      <info>
+        <key>
+          <option name="value" value="1" />
+        </key>
+        <value>
+          <setting name="copy" value="false" />
+          <setting name="URI" value="" />
+        </value>
+      </info>
+      <info>
+        <key>
+          <option name="value" value="2" />
+        </key>
+        <value>
+          <setting name="copy" value="false" />
+          <setting name="URI" value="" />
+        </value>
+      </info>
+      <info>
+        <key>
+          <option name="value" value="3" />
+        </key>
+        <value>
+          <setting name="copy" value="false" />
+          <setting name="URI" value="" />
+        </value>
+      </info>
+      <info>
+        <key>
+          <option name="value" value="4" />
+        </key>
+        <value>
+          <setting name="copy" value="false" />
+          <setting name="URI" value="" />
+        </value>
+      </info>
+      <info>
+        <key>
+          <option name="value" value="5" />
+        </key>
+        <value>
+          <setting name="copy" value="false" />
+          <setting name="URI" value="" />
+        </value>
+      </info>
+      <info>
+        <key>
+          <option name="value" value="6" />
+        </key>
+        <value>
+          <setting name="copy" value="false" />
+          <setting name="URI" value="" />
+        </value>
+      </info>
+    </order-entry-info>
+    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/WEB-INF/web.xml" version="2.3" />
+  </component>
+</module>
+

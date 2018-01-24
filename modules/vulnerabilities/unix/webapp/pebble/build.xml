@@ -1,0 +1,319 @@
+<project name="pebble" default="build" basedir=".">
+
+  <property name="project.name" value="pebble"/>
+  <property name="clover.dir" value="clover"/>
+  <property name="build.dir" value="build"/>
+  <property name="dist.dir" value="dist"/>
+
+  <property environment="env"/>
+
+  <target name="init">
+    <propertyfile file="pebble-build.properties" comment="Build information">
+        <!-- <entry key="build.date" type="date" value="now" pattern="dd MMMM yyyy HH:mm:ss ZZZ"/> -->
+        <entry key="build.version" value="1.6-beta2"/>
+    </propertyfile>
+    <loadproperties srcFile="pebble-build.properties"/>
+
+    <available property="midp.available" file="${env.MIDP_HOME}" />
+    <echo message="MIDP available : ${midp.available}" />
+    <available property="clover.available" file="${env.CLOVER_HOME}" />
+  </target>
+
+  <target name="build" depends="build.pebble-core,build.pebble-desktop,build.pebble-mobile,build.pebble-docs" />
+
+  <target name="build.pebble-core" depends="init">
+    <ant dir="pebble-core" inheritrefs="true" />
+
+    <copy todir="pebble-web/WEB-INF/lib">
+      <fileset dir="pebble-core/build">
+        <include name="pebble.jar"/>
+      </fileset>
+    </copy>
+
+    <copy todir="pebble-web/WEB-INF/lib">
+      <fileset dir="./lib">
+        <include name="*.jar"/>
+        <exclude name="junit.jar"/>
+        <exclude name="junitee.jar"/>
+        <exclude name="servlet.jar"/>
+        <exclude name="xercesImpl.jar"/>
+        <exclude name="xmlParserAPIs.jar"/>
+        <exclude name="Tidy.jar"/>
+        <exclude name="httpunit.jar"/>
+        <exclude name="nekohtml.jar"/>
+        <exclude name="js.jar"/>
+      </fileset>
+    </copy>
+
+    <!-- copy license/readme information -->
+    <copy todir="pebble-web">
+      <fileset dir=".">
+        <include name="license.txt"/>
+        <include name="apache-license.txt"/>
+        <include name="changelog.txt"/>
+      </fileset>
+    </copy>
+
+    <mkdir dir="pebble-web/WEB-INF/classes"/>
+    <copy todir="pebble-web/WEB-INF/classes">
+      <fileset dir="pebble-core/etc">
+        <include name="log4j.properties"/>
+        <include name="pebble.properties"/>
+        <include name="action.properties"/>
+        <include name="secure-action.properties"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="build.pebble-desktop" depends="init,build.pebble-core">
+    <ant dir="pebble-desktop" inheritrefs="true" />
+  </target>
+
+  <target name="build.pebble-mobile" depends="init" if="midp.available">
+    <echo message="Building Pebble moblog" />
+    <ant dir="pebble-mobile" inheritrefs="true" />
+  </target>
+
+  <target name="build.pebble-docs" depends="init">
+    <echo message="Building Pebble documentation" />
+    <ant dir="pebble-docs" inheritrefs="true" />
+  </target>
+
+  <target name="test" depends="build">
+    <ant dir="pebble-core" target="test" inheritrefs="true" />
+  </target>
+
+  <target name="pebble-test" depends="build">
+    <copy todir="pebble-test/web/WEB-INF/classes">
+      <fileset dir="pebble-core/etc">
+        <include name="log4j.properties"/>
+        <include name="pebble.properties"/>
+      </fileset>
+    </copy>
+
+    <copy file="pebble-core/lib/pebble-test.jar" todir="pebble-test/web/WEB-INF/lib"/>
+    <copy file="${env.CLOVER_HOME}/lib/clover.jar" todir="pebble-test/web/WEB-INF/lib" failonerror="false"/>
+
+    <copy todir="pebble-test/web/WEB-INF/lib">
+      <fileset dir="./lib">
+        <include name="*.jar"/>
+        <exclude name="servlet.jar"/>
+        <exclude name="xercesImpl.jar"/>
+        <exclude name="xmlParserAPIs.jar"/>
+        <exclude name="Tidy.jar"/>
+        <exclude name="httpunit.jar"/>
+        <exclude name="nekohtml.jar"/>
+        <exclude name="js.jar"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="tagunit">
+    <taskdef name="tagunit" classname="org.tagunit.ant.TagUnitTask"/>
+    <tagunit url="http://localhost:8080/pebble-test/tagunit/servlet/RunTests?uri=/tagunit/pebble.jsp"
+             stopOnFail="false"/>
+  </target>
+
+  <target name="dist" depends="clean,init,build,test">
+    <property name="release.dir" value="${build.dir}/${project.name}-${build.version}"/>
+    <mkdir dir="${release.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+
+    <!-- copy pebble antblog into the distribution -->
+    <mkdir dir="${release.dir}/pebble-antblog"/>
+    <copy todir="${release.dir}/pebble-antblog">
+      <fileset dir="pebble-core/build">
+        <include name="pebble-antblog.jar"/>
+      </fileset>
+      <fileset dir="lib">
+        <include name="xmlrpc-1.2-b1.jar"/>
+      </fileset>
+      <fileset dir=".">
+        <include name="pebble-antblog.xml"/>
+      </fileset>
+    </copy>
+
+    <!-- copy pebble.war into the distribution -->
+    <mkdir dir="${release.dir}/pebble-weblog"/>
+    <zip zipfile="${release.dir}/pebble-weblog/pebble.war">
+      <fileset dir="pebble-web">
+        <exclude name="pebble-web.iml"/>
+        <exclude name="themes/blog/"/>
+        <exclude name="themes/photoblog/"/>
+        <exclude name="themes/test/"/>
+        <exclude name="themes/blog1/"/>
+        <exclude name="themes/blog2/"/>
+        <exclude name="themes/blog3/"/>
+        <exclude name="themes/custom/"/>
+        <exclude name="themes/javaranch/"/>
+        <exclude name="themes/radio/"/>
+        <exclude name="themes/simon/"/>
+        <exclude name="WEB-INF/tmp/"/>
+        <exclude name="WEB-INF/work/"/>
+      </fileset>
+    </zip>
+
+    <!-- copy pebble deskblog into the distribution -->
+    <mkdir dir="${release.dir}/pebble-deskblog"/>
+    <copy todir="${release.dir}/pebble-deskblog">
+      <fileset dir="pebble-core/build">
+        <include name="pebble.jar"/>
+      </fileset>
+      <fileset dir="pebble-desktop/build">
+        <include name="pebble-deskblog.jar"/>
+      </fileset>
+      <fileset dir="lib">
+        <include name="commons-logging.jar"/>
+        <include name="log4j.jar"/>
+        <include name="lucene-1.4.1.jar"/>
+      </fileset>
+    </copy>
+
+    <!-- copy pebble moblog into the distribution -->
+    <mkdir dir="${release.dir}/pebble-moblog"/>
+    <copy todir="${release.dir}/pebble-moblog">
+      <fileset dir="pebble-mobile/build">
+        <include name="pebble-moblog.jar"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${release.dir}">
+      <fileset dir=".">
+        <include name="license.txt"/>
+        <include name="apache-license.txt"/>
+        <include name="changelog.txt"/>
+        <include name="readme.txt"/>
+      </fileset>
+    </copy>
+
+    <mkdir dir="${release.dir}/docs"/>
+    <copy todir="${release.dir}/docs">
+      <fileset dir="pebble-docs/build"/>
+    </copy>
+
+    <mkdir dir="${release.dir}/docs/javadoc"/>
+    <ant dir="pebble-core" target="javadoc"/>
+    <copy todir="${release.dir}/docs/javadoc">
+      <fileset dir="pebble-core/javadoc"/>
+    </copy>
+
+    <zip zipfile="${dist.dir}/${project.name}-${build.version}.zip">
+      <fileset dir="${build.dir}"/>
+    </zip>
+  </target>
+
+  <target name="with.clover" depends="init">
+    <taskdef resource="clovertasks" />
+    <typedef resource="clovertypes" />
+
+    <mkdir dir="${clover.dir}"/>
+
+    <clover-setup initstring="${clover.dir}/coverage.db" enabled="true" relative="true">
+      <fileset dir="pebble-core/src"/>
+    </clover-setup>
+  </target>
+
+  <target name="clover" depends="with.clover,build,clover.report">
+  </target>
+
+  <target name="clover.report" depends="with.clover">
+    <clover-report>
+      <current outfile="${clover.dir}" title="Coverage Report for Pebble">
+        <format type="html"/>
+      </current>
+    </clover-report>
+  </target>
+
+  <target name="website" depends="build">
+    <property name="website.dir" value="${build.dir}/website"/>
+    <mkdir dir="${website.dir}"/>
+    <copy todir="${website.dir}">
+      <fileset dir="pebble-docs/build" />
+      <fileset dir=".">
+        <include name="license.txt"/>
+        <include name="apache-license.txt"/>
+        <include name="changelog.txt"/>
+      </fileset>
+    </copy>
+    <mkdir dir="${website.dir}/javadoc"/>
+    <ant dir="pebble-core" target="javadoc"/>
+    <copy todir="${website.dir}/javadoc">
+      <fileset dir="pebble-core/javadoc"/>
+    </copy>
+    <copy todir="${website.dir}/deskblog/lib">
+      <fileset file="pebble-core/build/pebble.jar"/>
+      <fileset file="pebble-desktop/build/pebble-deskblog.jar"/>
+      <fileset dir="lib">
+        <include name="commons-logging-api.jar"/>
+        <include name="log4j.jar"/>
+        <include name="lucene-1.4.1.jar"/>
+      </fileset>
+    </copy>
+    <copy todir="${website.dir}/deskblog">
+      <fileset file="pebble-desktop/etc/pebble-deskblog.jnlp"/>
+    </copy>
+    <zip destfile="${build.dir}/website.zip" basedir="${build.dir}/website" />
+  </target>
+
+  <target name="release" depends="dist,website">
+  </target>
+
+  <target name="jspc" depends="build">
+    <path id="jspc.classpath">
+      <pathelement location="${env.JAVA_HOME}/lib/tools.jar"/>
+      <fileset dir="${env.TOMCAT_HOME}/server/lib">
+        <include name="*.jar"/>
+      </fileset>
+      <fileset dir="${env.TOMCAT_HOME}/common/lib">
+        <include name="*.jar"/>
+      </fileset>
+    </path>
+    <taskdef classname="org.apache.jasper.JspC" name="jasper2" classpathref="jspc.classpath">
+    </taskdef>
+
+    <jasper2
+             validateXml="false"
+             uriroot="pebble-web"
+             webXmlFragment="pebble-web/WEB-INF/generated_web.xml"
+             outputDir="pebble-web/WEB-INF/src" />
+
+    <javac destdir="pebble-web/WEB-INF/classes"
+           optimize="off"
+           debug="on" failonerror="false"
+           srcdir="pebble-web/WEB-INF/src"
+           excludes="**/*.smap">
+      <classpath>
+        <pathelement location="pebble-web/WEB-INF/classes"/>
+        <fileset dir="pebble-web/WEB-INF/lib">
+          <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${env.TOMCAT_HOME}/common/classes"/>
+        <fileset dir="${env.TOMCAT_HOME}/common/lib">
+          <include name="*.jar"/>
+        </fileset>
+        <pathelement location="${env.TOMCAT_HOME}/shared/classes"/>
+        <fileset dir="${env.TOMCAT_HOME}/shared/lib">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>
+      <include name="**" />
+      <exclude name="tags/**" />
+    </javac>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${clover.dir}"/>
+    <ant dir="pebble-core" target="clean"/>
+    <delete dir="pebble-web/WEB-INF/classes"/>
+    <delete dir="pebble-web/WEB-INF/src"/>
+    <delete dir="pebble-web/WEB-INF/tmp"/>
+    <delete dir="pebble-web/WEB-INF/work"/>
+    <delete file="pebble-web/WEB-INF/generated_web.xml"/>
+    <ant dir="pebble-desktop" target="clean"/>
+    <ant dir="pebble-mobile" target="clean" />
+    <ant dir="pebble-docs" target="clean" />
+  </target>
+
+</project>

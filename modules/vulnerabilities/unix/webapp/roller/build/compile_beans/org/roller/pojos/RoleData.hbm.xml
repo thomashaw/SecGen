@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.roller.pojos.RoleData"
+        table="userrole"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="string"
+            unsaved-value="null"
+        >
+            <generator class="uuid.hex">
+            </generator>
+        </id>
+
+        <property
+            name="userName"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="username"
+            unique="false"
+        />
+
+        <property
+            name="userId"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="userid"
+            unique="false"
+        />
+
+        <property
+            name="role"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="rolename"
+            unique="false"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-RoleData.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,16 @@
+## Attributes in the context:
+## pagetitle - String - title of page
+## prefix - String - URL path up to, and including, username
+## usernames - List - List of all usernames (Strings) from all RepositoryManagers
+<html>
+<head><title>$pagetitle</title></head>
+<body>
+
+<h1>$pagetitle</h1>
+<ul>
+#foreach( $username in $usernames )
+<li><a href="$prefix$username">$username</a></li>
+#end
+</ul>
+</body>
+</html>

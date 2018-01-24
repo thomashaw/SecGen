@@ -1,0 +1,200 @@
+body {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+	font-family: verdana, arial, helvetica, sans-serif;
+	color: #000000;
+	background-color: #ffffff;
+	}
+a {
+	font-size: 10px;
+	text-decoration: none;
+	font-weight: bold;
+	color:  #000000;
+	outline: none;
+	}
+a:visited {
+	color:  #000000;
+	}
+a:active {
+	color:  #ccc;
+	}
+a:hover {
+	color: #ccc;
+	text-decoration: underline;
+	}
+.ahem {
+	display: none;
+	}
+strong, b {
+	font-weight: bold;
+	}
+p {
+	font-size: 12px;
+	line-height: 15px;
+	margin-top: 5px;
+	margin-bottom: 5px; 
+	}
+
+/* weird ie5win bug: all line-height to font-size ratios must agree or box gets pushed around. UPDATE: this has turned out to be very rare. my current recommendation is IGNORE this warning. at the moment i'm leaving it in only in case the issue turns up again. possibly the original bug in march 2001 was caused by an unusual combination of factors, although this solved it at the time.*/
+
+h1 {
+	color: #907d6e;
+	font-size: 28px;
+	line-height: 44px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+	}
+h2 {
+	font-size: 18px;
+	line-height: 40px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+	}
+h3 {
+	color: #907d6e;
+	font-size: 16px;
+	line-height: 22px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+	}
+h4 {
+	font-size: 14px;
+	line-height: 26px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+	}
+h5 {
+	font-size: 12px;
+	line-height: 22px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+	}
+h6 {
+	font-size: 10px;
+	line-height: 18px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+	}
+img {
+	border: 0px none;
+	}
+.nowrap {
+	white-space: nowrap;
+	font-size: 10px;
+	font-weight: bold;
+	margin-top: 0;
+	margin-bottom: 0;
+/* must be combined with nobr in html for ie5win */
+	}
+.tiny {
+	font-size: 9px;
+	line-height: 16px;
+	margin-top: 15px;
+	margin-bottom: 5px; 
+	}	
+#top {
+	margin: 20px 20px 0px 20px;
+	padding: 10px;
+	border: 5px outset #ccc;
+	background: #cccc99;
+	voice-family: "\"}\"";
+	voice-family:inherit;
+	height: 70px;
+	}
+html>body #top {
+	height: 70px; /* ie5win fudge ends */
+	}
+#left {
+	position: absolute;
+	top: 130px;
+	left: 0px;
+	margin: 20px;
+	padding: 10px;
+	border: 1px solid #000000;
+	background: #dddddd;
+	width: 160px;
+	font-size: 10px;
+	}
+html>body #left {
+	width: 160px; /* ie5win fudge ends */
+	}
+#middle {
+	margin: 10px 220px 20px 220px;
+	font-size: 10px;
+	}
+#section {
+	padding: 4px;
+	border: 1px solid #000000;
+	background: #dddddd;
+	}
+#right {
+	position: absolute;
+	top: 130px;
+	right: 0px; /* Opera5.02 will show a space at right when there is no scroll bar */
+	margin: 20px;
+	padding: 10px;
+	border: 1px solid #000000;
+	background: #dddddd;
+	width: 160px;
+	font-size: 10px;
+	}
+html>body #right {
+	width: 160px; /* ie5win fudge ends */
+	}
+pre {
+	font-size: 12px;
+	line-height: 22px;
+	margin-top: 20px;
+	margin-bottom: 10px; 
+	}
+
+.calendar {
+	font-family: verdana, arial, helvetica, sans-serif;
+        color:#000000;
+        font-size:8px;
+        font-weight:normal;
+        padding:2px;
+}
+
+.calendarhead {
+	font-family: verdana, arial, helvetica, sans-serif;
+        color:#000000;
+        font-size:14px;
+        font-weight:bold;
+}
+.calendartitle {
+	font-family: verdana, arial, helvetica, sans-serif;
+        color:#000000;
+        font-size:10px;
+        font-weight:bold;
+}
+.sidetitle {
+	color: #907d6e;
+	font-size: 16px;
+	line-height: 22px;
+	font-weight: bold;
+	margin-top: 20px;
+	margin-bottom: 0;
+        border-bottom:1px solid #CCC;
+}
+.date	{
+	font-family: verdana, arial, helvetica, sans-serif;
+        font-size: 18px;
+        color: #000000;
+        font-weight:bold;
+        width=100%;
+}
+
+.commentTimeStamp	{
+	font-family: verdana, arial, helvetica, sans-serif;
+        font-size: 10px;
+        color: #000000;
+        font-weight:bold;
+        width=100%;
+}

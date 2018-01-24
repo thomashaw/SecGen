@@ -1,0 +1,6 @@
+<Context path="/blog" docBase="/home/someuserid/pebble" debug="0" privileged="true">
+
+  <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+             debug="0" digest="sha" resourceName="UserDatabase"/>
+
+</Context>

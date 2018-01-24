@@ -1,0 +1,161 @@
+body {
+  font-family: Lucida Grande, Verdana, Arial, Helvetica, sans-serif;
+  background : white;
+  color : black;
+  font-size: 12px;
+  text-align: left;
+  margin: 16px 16px 16px 16px;
+}
+blockquote {
+  font-style: italic;
+}
+.small {
+  font-size: 10px;
+}
+.photo {
+  padding-top: 4px;
+  padding-right: 4px;
+  padding-bottom: 4px;
+  padding-left: 4px;
+  border-top: solid black 1px;
+  border-right: solid black 1px;
+  border-bottom: solid black 1px;
+  border-left: solid black 1px;
+  text-align: center;
+}
+a:link, a:visited, a:active {
+  color: black;
+}
+
+.header {
+  background : #4169AA;
+  color: white;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-weight: bold;
+}
+.header a:link, .header a:visited, .header a:active {
+  color : white;
+}
+.bodyContent {
+  background : white;
+}
+.bodyContentEven {
+  background: lightgrey;
+}
+.bodyContentOdd {
+  background: white;
+}
+.footer {
+  background : #4169AA;
+  color : white;
+  font-size: 10px;
+}
+.footer a:link, .footer a:visited, .footer a:active {
+  color : white;
+}
+
+.blogName, .blogName a:link, .blogName a:visited, .blogName a:active {
+  font-size: 32px;
+  font-weight: bold;
+  text-decoration: none;
+}
+.blogDescription {
+  font-weight: bold;
+}
+
+.calendar {
+  font-size: 10px;
+  text-align: center;
+}
+.calendarDayHeader {
+  text-align: center;
+}
+.calendarDay {
+  text-align: right;
+}
+.calendarDayWithEntries, .calendarDayWithEntries a:link, .calendarDayWithEntries a:visited, .calendarDayWithEntries a:active {
+  font-weight: bold;
+  text-align: right;
+}
+.calendarToday, .calendarToday a:link, .calendarToday a:visited, .calendarToday a:active {
+  background : #4169AA;
+  color: white;
+  font-weight: bold;
+  text-align: right;
+}
+
+.item {
+  border-top: dashed gray 1px;
+  border-right: dashed gray 1px;
+  border-bottom: dashed gray 1px;
+  border-left: dashed gray 1px;
+  text-align: left;
+}
+.itemHeader, .itemHeader a:link, .itemHeader a:visited, .itemHeader a:active {
+  background : #4169AA;
+  color: white;
+  font-weight: bold;
+}
+.itemBody {
+  background: white;
+}
+.itemBodyEven {
+  background: lightgrey;
+}
+.itemBodyOdd {
+  background: white;
+}
+.itemMetadata, .itemMetadata a:link, .itemMetadata a:visited, .itemMetadata a:active {
+  color: gray;
+  font-size: 10px;
+}
+
+.blogEntry {
+  border-top: dashed gray 1px;
+  border-right: dashed gray 1px;
+  border-bottom: dashed gray 1px;
+  border-left: dashed gray 1px;
+  text-align: left;
+}
+.blogEntryHeader, .blogEntryHeader a:link, .blogEntryHeader a:visited, .blogEntryHeader a:active {
+  background : #4169AA;
+  color: white;
+  font-weight: bold;
+}
+.blogEntryBody {
+  background: white;
+}
+.blogEntryMetadata, .blogEntryMetadata a:link, .blogEntryMetadata a:visited, .blogEntryMetadata a:active {
+  background: white;
+  color: gray;
+  font-size: 10px;
+}
+
+.trackback {
+}
+.trackbackHeader, .trackbackHeader a:link, .trackbackHeader a:visited, .trackbackHeader a:active {
+  font-weight: bold;
+}
+.trackbackBody {
+}
+.trackbackMetadata, .trackbackMetadata a:link, .trackbackMetadata a:visited, .trackbackMetadata a:active {
+  color: gray;
+  font-size: 10px;
+}
+.comment {
+}
+.commentHeader, .commentHeader a:link, .commentHeader a:visited, .commentHeader a:active {
+  font-weight: bold;
+}
+.commentBody {
+}
+.commentMetadata, .commentMetadata a:link, .commentMetadata a:visited, .commentMetadata a:active {
+  color: gray;
+  font-size: 10px;
+}
+
+.validationError {
+  color: white;
+  background-color: #B20D1C;
+}

@@ -1,0 +1,4 @@
+#
+# Change these settings to reflect your local environment.
+#
+servletjar=/u/livshits/work/benchmarks/java/security_applications/blueblog/web/WEB-INF/lib/servlet-2.3.jar

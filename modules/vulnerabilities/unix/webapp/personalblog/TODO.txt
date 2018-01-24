@@ -1,0 +1,29 @@
+
+- divide ApplicationResources related with app and those relate with user
+- Add optional boolean column on t_posts (more direct : adding a boolean field at Post bean)- (sutter2k)
+  column will serve as a flag indicating to email "Post" author when comments are made against a post. 
+  	
+- create a link to resset users access (number and list)
+- order list (by number)
+- why i18n don't work? (tried to use locale=true, as struts book says, but got an error, no worked)
+- why JSP error don't show up at the log (compiler error)??? 
+- Create a build target to copy JSP's to tomcat webapps dir without compiling deployin, and all those fucking targets 
+- create some junit/httpunit tests
+- record favorites id  on line (reaproveitar a antiga do arquivo de configuração se não criar)
+- Create online configuration and space for aditional blogger info .(can be a separate JSP ). 
+- Configure how many posts will be showed by Read.jsp
+- Conf objet will all the fields or name/value?
+- Have to implement a way (using tokens) to avoid users refreshing main page, see what happend :
+
+
+
+2003-06-26 01:58:00,739 DEBUG [Thread-32] action.ReadAction (ReadAction.java:111
+) - prevMonth2003-05-01
+2003-06-26 01:58:00,809 ERROR [Thread-2] service.PersonalBlogService (PersonalBl
+ogService.java:551) - cirrus.hibernate.AssertionFailure: Hibernate has a bug pro
+cessing collections
+
+ - internationalize (english and portugues, any help wanted) 
+ obs: a little done
+ - create a style mechanism (may change at runtime)
+ - use the css classes in the calendar, it still use styles from JS (not that bad)

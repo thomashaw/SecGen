@@ -1,0 +1,47 @@
+<%@ page import="java.util.*,
+                 javax.servlet.jsp.jstl.core.Config,
+                 pebble.blog.*,
+                 pebble.Constants,
+                 pebble.blog.BlogManager"%>
+<%@ page errorPage="/error.action" %>
+<%@ page session="true" %>
+
+<%@ taglib uri="http://java.sun.com/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://www.simongbrown.com/pebble" prefix="pebble" %>
+
+<%
+  Blog blog = (Blog)request.getAttribute(Constants.BLOG_KEY);
+  response.setContentType("text/html; charset=" + blog.getCharacterEncoding());
+  Config.set(request, Config.FMT_LOCALE, blog.getLocale());
+%>
+<fmt:setTimeZone value="${blog.timeZoneId}" scope="request" />
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <base href="<c:out value="${blog.url}"/>" />
+    <meta http-equiv="Content-Type" content="text/html; charset=<%= blog.getCharacterEncoding() %>"/>
+    <title><c:out value="${title}" escapeXml="false"><c:out value="${blog.name}" escapeXml="false"/></c:out></title>
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="<c:out value="${blog.url}"/>rss.xml" />
+    <link rel="alternate" type="application/atom+xml" title="Atom" href="<c:out value="${blog.url}"/>atom.xml" />
+    <%
+      if (blog instanceof SimpleBlog && request.getAttribute("pebble.useCommonTheme") == null) {
+    %>
+    <link rel="stylesheet" href="<pebble:theme/>/theme.css" type="text/css" />
+    <%
+      } else {
+    %>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/pebble.css" type="text/css" />
+    <%
+      }
+    %>
+    <script type="text/javascript" src="<%= request.getContextPath() %>/pebble.js">
+    </script>
+  </head>
+
+  <body>
+    <table width="100%" cellpadding="0" cellspacing="0" class="bodyContent">
+      <tr>
+        <td>
+

@@ -1,0 +1,198 @@
+/**
+ * Snip block display stylesheet definitions.
+ * @author Matthias L. Jugel
+ * @version $Id: snip.css,v 1.8 2003/06/02 08:32:54 leo Exp $
+ */
+
+.snip-wrapper {
+}
+
+.snip-path {
+  font-height: 10px;
+}
+
+.snip-title {
+  display: table;
+  width: 100%;
+  text-align: left;
+  padding: 0px;
+}
+
+.snip-name {
+  font-weight: bold;
+  font-size: 150%;
+  color: black;
+  background-color: inherit;
+  clear: left;
+}
+
+.snip-commented-snip {
+  font-size: 100%;
+}
+
+.snip-buttons {
+  float: right;
+  border: 0;
+  width: 49%;
+  text-align: right;
+}
+
+.snip-info {
+  float: left;
+  border: 0;
+  width: 49%;
+}
+
+.snip-content {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Wrapper for Snip Meta-Information */
+.snip-meta {
+  position: relative;
+  float: right;
+  clear: right;
+  min-width: 15%;
+}
+
+.snip-label {
+  padding: 3px;
+  width: auto;
+  background:#ffc;
+  border:1px solid #cc6;
+  font-size: 8px;
+  line-height: 8px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  clear: right;
+  width: 100%;
+}
+
+.snip-attachments {
+  border: 1px solid #eeeeee;
+  padding: 3px;
+  width: auto;
+  font-size: 8px;
+  line-height: 8px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  clear: right;
+  width: 100%;
+}
+
+.snip-post-comments {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.snip-sniplinks {
+  margin-top: 20px;
+}
+
+.snip-sniplinks table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.snip-sniplinks caption {
+  text-align: left;
+  color: #999999;
+  background-color: inherit;
+}
+
+.snip-sniplinks td, th {
+  padding: 4px;
+}
+
+.snip-backlinks {
+  margin-top: 20px;
+}
+
+.snip-backlinks .list {
+  list-style-type: none;
+  margin-top: 0;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.snip-backlinks .caption {
+  text-align: left;
+  color: #999999;
+  background-color: inherit;
+}
+
+span.content {
+}
+
+span.count {
+  margin-right: 4px;
+}
+
+span.count:before {
+  content: "";
+}
+
+span.count:after {
+  content: ": ";
+}
+
+/**************************************************/
+/* snip edit part                                 */
+
+.snip-input {
+  margin-top: 20px;
+}
+
+.snip-input img {
+  width: 20px
+}
+
+.form {
+}
+
+.form .form-buttons {
+  text-align: right;
+}
+
+.form input[type=submit] {
+  vertical-align: text-bottom;
+}
+
+/**************************************************/
+/* snip with comments part                        */
+
+.snip-comments {
+}
+
+.comment-title {
+  margin-top: 20px;
+}
+
+.comment-title h2.comment-name {
+  display: inline;
+  font-weight: normal;
+  font-size: 100%;
+}
+
+.comment-buttons {
+  display: inline;
+}
+
+.comment-content {
+  margin-top: 5px;
+  margin-left: 20px;
+}
+
+.comment-input {
+  margin-top: 20px;
+}
+
+/**************************************************/
+/* preview formatting                             */
+
+
+.preview {
+  background-color: #eeeeee;
+  color: inherit;
+}

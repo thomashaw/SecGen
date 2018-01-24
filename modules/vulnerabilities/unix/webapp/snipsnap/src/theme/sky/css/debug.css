@@ -1,0 +1,19 @@
+/**
+ * Debug Stylesheet definitions.
+ * @author Matthias L. Jugel
+ * @version $Id: debug.css,v 1.1 2002/11/20 14:45:42 leo Exp $
+ */
+
+.debug {
+  color: inherit;
+  background-color: #ffff99;
+}
+
+.debug-title {
+  text-align: center;
+}
+
+.debug-entry {
+  font-family: courier, courier new, monospaced;
+  font-size: 100%;
+}

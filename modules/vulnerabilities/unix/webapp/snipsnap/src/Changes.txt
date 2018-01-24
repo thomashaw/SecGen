@@ -1,0 +1,315 @@
+0.5.2 
+
+- Added feature: internationalization
+- Many other bugfixes, see http://bugs.snipsnap.org/
+- Added Stream based import/export
+- Added Referrer SPAM blacklist
+- Merged multi-instance SnipSnap changes into Trunk
+- Added version information to database dump
+- Fixed compatibility with tomcat (use connector attribute URIEncoding="UTF-8")
+
+0.5.1 - 2004-01-22 (2004-02-13)
+
+- Fixed bug: SnipGraph didn't work
+- Added feature: HTTP request buiadded to macro parameters
+- Fixed bug: Country sorting in Setup fixed
+- Fixed bug: UserManager added again
+- Fixed bug: 0.4.2a themes
+- Added feature: copy snips and subsnips
+- Developer: Added javadoc target to build
+- Added feature: Snips with a Type:Template label can be used as templates on snip creation
+- Added feature: Choosing the parent snip for the namespace when creating new snips
+- Improvement: Only the last name of a namespace snip is displayed.
+
+0.5 - 2003-12-23
+
+- Fixed bug: Backlinks and SnipLinks are escaped now
+- Fixed bug: RSS feed escapes XML characters now
+- Fixed bug: special characters in snip names and links are now detected
+- Added feature: ThemeImageServlet for theme style images
+- Added feature: FileSnipStorage und FileUserStorage to store users and snips in files (properties or XML)
+- Refactored Import/Export
+- Changed Installation and Setup
+- Added feature: Version history of snips
+- Added feature: Each post can be a single snip (with comments etc.)
+- Developer: Upgrade to Radeox 0.9
+- Developer: Moved aspects into container
+- Developer: Moved the rest of the XML-RPC handlers into container
+- Developer: Upgrade to PicoContainer 1.0-BETA-3
+- Improvement: Added edit button to weblog snips
+- Fixed bug: SnipSnap XML-RPC handlers are now authentication protected
+- Added feature: Multiple weblogs
+- Fixed bug: Reimplemented Weblog
+- Added feature: new Snip button for Snip creation
+- Fixed bug: removed hard coded references to 'start' with getStartSnip
+- Added feature: space encoding (+) is now configurable
+- Added feature: File system storage for Snips
+- Added feature: Stylesheets are now contained within the SnipSpace
+- Developer: Macro, Servlet and ContentRenderer for rendering inline content (PNG, ...)
+- Added feature: Rendering MindMaps and Organigrams
+- Improvement: New Installer (first time run installs a basic SnipSnap applicaton)
+- Fixed bug: cyclic dependency temp. fixed for component loading
+- Added feature: Snips can be displayed as RDF
+- Developer: Added interfaces for XML-RPC webservices (MetaWeblog, ...) and stuffed this in Pico
+- Developer: Moved more stuff to Pico
+- Added feature: Support for NameFormatters to change the look of snip names (like capitalize etc.)
+- Added feature: RenderEngineLabel allows to set a different engine for a snip
+- Fixed bug: display login warning instead of edit field when snip auto-create is on
+- Fixed bug: attachment download working with deep namespace now
+- Added feature: RenderEngineLabel to change rendering of content
+- Added feature: /robots.txt editable via Snip
+- Added feature: moved configuration settings into SnipSpace
+- Added feature: Installer for WAR (w/ Localization)
+- Developer: Added support for PicoContainer
+- Added feature: moved some messages to messages_en.properties for language packs
+- Added feature: target=... in image macro {image}
+- Added feature: parameter for Mail-To-Blog POP3 polling (app.mail.pop3.interval in minutes)
+- Added feature: instead of snip-notfound SnipSnap can now display a create page (see app.perm.createSnips)
+- Added feature: some basic labels
+- Added feature: path is show for snips with namespaces, e.g. SnipSnap > developer > stephan
+- Added feature: blog posts are now namespaces e.g. start/2003-06-02
+- Added feature: made snip names slash '/' insensitive
+- Fixed bug: links and images no longer contain complete URLs
+- Fixed bug: Reworked URL detection
+- Developer: completely reorganized Configuration (macros need recompile!)
+- Developer: separated Server and AppConfiguration
+- Developer: JSP precompilation switch (build.properties)
+- Added feature: Label support (Carsten Pfeiffer, Marco Mosconi)
+- Added feature: Support for nested lists (Davar)
+- Fixed bug: commenting order beyond 10 was wrong
+- Added feature: name parameter to notfound snip. You can add [{$name}] to the snip to add [create name] on the page
+- Fixed bug: strike through with dashes, --Test-Text-- did not render
+- Developer: Refactored blog functionality to class Blog
+- Developer: Refactored missing to MissingInterceptor in SnipSpace
+- Developer: Added first Interceptor unit test
+- Fixed bug: /raw/ had problems with UTF-8 characters
+- Added feature: Aliases for links [alias|link]
+- Added feature: app.perm.register=deny prevents registering
+
+0.4.2 - 2003-03-18
+
+- Fixed bug: fixed a major security bug
+- Fixed bug: fixed shutdown behaviour to cleanly close database
+
+0.4.1 - 2003-03-24
+
+- Fixed bug: fixed performance bug for MacroFilter
+- startup message requiring JAVA_HOME removed (unnecessary)
+- removed -server command line option from startup scripts
+
+0.4 - 2003-03-18
+
+- Fixed bug: Added more methods to XML-RPC Blogger API
+- Added feature: XML-RPC MetaWeblog API support
+- Fixed bug: Some links did not detect that the snips was created (when someone changed upper/lowercase)
+- fixed css bugs
+- Removed URL detection that brakes absolute URLs behind a proxy
+- File Upload changed to store files relative to snips
+- Fixed bug: zero bytes when decoding %xx encoded urls
+- Fixed bug: URLs in [...] made the LinkFilter not process any [...]
+- Fixed bug: Sometimes comments were in wrong order
+- Fixed bug: Some urls (search) missed a '/'
+- Fixed bug: Under some circumstances SnipSnap escaped HTML
+- Added feature: Added {online-time} which displays a string since when the weblog was created
+- Added feature: Permalink for comments
+- Added feature: Snips from persons now have a icon in the listing
+- Added feature: {snip-count-by-user:stephan} macro
+- Fixed bug: create link did not follow [create name] format
+- Fixed bug: Correct date format in Dublin core dc:date
+- Security: Fixed posting and editing by unauthorized users
+- Introduced a Launcher to start SnipSnap directly from JAR
+- Changed Attachments file store concept (WEB-INF/files/SnipName/file.ext)
+
+0.3.4 - 2003-02-21
+
+- Added feature: use Java2Html instead of regex [by Zohar], currently additional as "njava"
+- Fixed bug: implemented getPost in BloggerAPI
+- Security: Added warning when weblogs ping is on
+- Fixed bug: SnipSnap install has now a SnipSnap snip
+- Fixed bug: relative Images and Links in RSS feeds
+- Added feature: RSS posts are now determined by headers (post titles) not by day
+- Fixed bug: HTML encoding and & encoding in RSS feeds
+- Added feature: {table} understands SUM, AVG, MAX, MIN, e.g. =SUM(A1:A3)
+- Fixed bug: Mail-To-Weblog didn't work because user "stephan" was used, now admin is used
+- Added feature: Configurable weblogs ping. Configuration is read from conf/weblogsping.txt
+- Fixed bug: better logging
+- Fixed bug: implemented getUserBlogs, getRecentPosts [by Calvin Yu] in BloggerAPI
+- Added Feature: Attachments for snips
+- WAR: introduced configuration properties for indexer and config files
+- Developer: Refactored the rendering engine to form sub-project Radeox
+- Developer: Added Service class for plugin loading (instead of undocumented sun class)
+- Removed Transliterate in favour of UTF-8
+- Developer: Added getParamDescription() to MacroParameter
+- Fixed bug: RSS would display to many items
+- Added feature: SnipSnap has XML-RPC interface with method "generator.version()" to get SnipSnap version
+- Added feature: SnipSnap displays version in HTML with META generator tag
+- Added feature: SnipSnap displays version information about itself with .../rest/version
+- Fixed bug: external images didn't display
+
+0.3.3 - 2003-01-22
+
+- Fixed bug: web GUI import, multi-value html form parameter recognised for multipart/form-data
+- Fixed bug: RSS feed truncated entities, e.g. &x32...
+- Added feature: RFC macro {rfc:123} or {rfc:123|Great RFC} links to RFCs
+- Fixed bug: RSS was accidently refactored and didn't work
+- Added feature: "Recently changed" links comments to threads, not to individual posts
+- Fixed bug: always find Java under MacOS X (no need for JAVA_HOME setting)
+- Added feature: Increase and decrease the shown month in the calendar view
+- Added feature: Calendar now displays correct day names with the correct locale
+
+0.3.2 - 2003-01-10
+
+- Added feature: geoURL support, add app.geoCoordinates=x.x, y.y
+- Fixed bug: Weblog dates use app.locale (e.g. app.locale=de, default is "en")
+- Fixed bug: XML feeds (RSD, RSS) should no be legal UTF-8
+- Developer: Refactored Snip to use interface and introduced interceptors (AOP)
+- Fixed bug: RSD <api> was not closed
+- Added feature: /raw/<snip-name> displays the raw content of a snip
+- Added feature: uploading of images for a snip
+- Added UNICODE (UTF-8 by default) support
+- Added feature: importing snips from web frontend
+- Fixed bug: referer corrected after multiple login tries
+- Added feature: upgraded to RSD 1.0
+- Added feature: link into a snip with [sniname#anchor]. Useful for pointing to sub postings
+- Fixed bug: double encrypten when importing dump from 0.3a
+- Added feature: support for SVG files
+- Added feature: password reset by mailing a key
+- Added feature: file-path macro displays a filepath
+- Fixed bug: RSD <settings> was at the wrong place
+- Fixed bug: detection of encrypted passwords on import
+
+0.3.1 - 2002-12-11
+
+- Fixed bug: run.bat classpath corrected
+- Fixed bug: urls were double decoded (now only '+' is decoded by servlet)
+- Fixed bug: some regexp consumed leading/following characters
+- Added feature: Plugin architecture for source code formatters
+- Added feature: Title for sub blogpost, added permalink to each sub blogpost
+- Added feature: anchor Macro
+- Fixed bug: Preview in comments
+- Added feature: Preview in post blog
+- Fixed some smaler bugs
+- Refactored heavily the backend to use in-memory queries instead of SQL queries. This
+  should allow us to move to Prevalyer easier
+
+0.3 - 2002-11-21
+
+- Added feature: Sky and Oranges themes
+- Changed to newer versions of McKoi and ORO Regex
+- Added feature: NullCodeFilter, {code:none} will now display the content
+  without colorization, useful for e.g. pre formatted texts like shell examples
+- We use RSS/XHTML/CSS buttons from http://www.antipixel.com and
+  icons from chris http:/www.langreiter.com , thanks.
+- Added feature: UserCountMacro displays number of registered users
+- Added feature: SnipCountMacro displays number of snips (all)
+- Added feature: TypographyFilter will replace "..." with ellepsis entity
+- Required JAR libararies are now included in snipsnap-template.war
+- Added feature: {api} now reads from conf/apidocs.txt so {api}
+  can point to other online api documentation
+- re-validated XHTML 1.0
+- Fixed bug: correct context path in cookies
+- Added feature: {backlinks} macro lists backlinks, e.g. {backlinks:10}
+- Added feature: {sniplinks} macro lists sniplinks, e.g. {sniplinks:4}
+- Fixed bug: escape '-' and '*' within code macro
+- Fixed bug: first start on a different port than 8668
+- Added feature: Introduced themes for SnipSnap, using a more
+  Weblog like theme similiar to MovableType
+- Added feature: Interwiki (e.g. [Wiki@MoinMoin]) reads from a standard
+  intermap file in conf/intermap.txt
+- Added Feature: {isbn} macro now reads books services from conf/bookservices.txt
+- Changed logo/validation images
+- Introduced snipsnap-copyright snip for page bottom
+- Changed semantics of {image} macro, expect images as image-name-id
+- Added feature: import/export from web interface
+- Fixed bug: list detection
+- Changed macro interface: User Writer instead of StringBuffer and Refactoring
+  "Introduce Parameter Object"
+- Added Feature: {image} tag allows positioned and floating images
+- Added snipsnap-help to default snips (contains text formatting)
+- Introduced: {list-of-macros}
+- Replaced {snips-by-recent} by {recent-changes} macro
+- Defaults snips are now loaded from conf/snipsnap.snip
+- Added feature: bullet, square, numerated (numbers, alpha, greek, japanese)
+- Changed feature: Post blog prepends to the post
+- Fixed bug: SnipSnap now uses <dc:title> in RSS and DC.Title in HTML
+- Added feature: Introduced portlet snip snipsnap-portlet-<number>
+- Added feature: VerticalListFormatter introduced
+- Added feature: {logins} macro
+- Added feature: {calendar} macro
+- Changed <s:snip> JSTL tag
+- Switched to DIV from TABLE layout
+- Worked on Accessibility
+- Fixed a lot of smaller bugs
+
+0.2.7 - 2002-10-10
+
+- Fixed bug: Editing users failed when email field was empty
+- Fixed bug: wrong manifest for snipsnap.jar
+- Added feature: a installed blog pings to SnipSnap.org and is featured on SnipSnap.org
+- Added feature: ping blog.gs with extendedPing
+- Added feature: weblogs.ping is now asynchron, so posting is faster with the ping on
+- Fixed bug: weblogs.ping now works and is default on (can be turned of in the configuration)
+- Added feature: Detect search engine bots (Googlebot, Fast Webcrawler)
+- Switched to RSS 2.0 by default
+- Added feature: {version} macro displays SnipSnap version.
+- Added feature: Added description to RSS, remove HTML from snip content
+- Fixed bug: AdminServer did not receive shutdown command
+- Fixed bug: application dirs must not contain space (replaced by _ now)
+- Fixed smaller bugs
+
+0.2.6 - 2002-10-01
+
+- Added feature: Dublin Core support
+- Added feature: Broader search: searching for tree will no also find treehouse
+- Added feature: Snip names are case insensitive
+- Added feature: Jabber notification for new snips and User logins
+- Added feature: {since-last-visit:funzel} to show all changed snips since last visit for funzel
+- Added feature: --strike-- for strike through text
+- Added feature: {quote}this is a quote{quote}
+- Fixed bug: # in external links didn't work, <ul><ul> was rendered in weblogs, double images in
+  external links in weblog
+- Added feature: RSS Autodiscovery, RSS
+- Added feature: {image:http://boing.org/boing.gif} for external images
+- Added feature: create snip at search, when snip does not exist
+- Added feature: XML-RPC Blogger API newPost()
+- Added feature: automatic re-login via cookie
+- Added feature: configurable list formatter, made {index:AtoZ} for A to Z listing
+
+0.2.5 - 2002-09-18
+
+- Added feature: SnipSnap is multi-server capable
+- SnipSnap stores information about snip views, clicked links between snips and incoming snips
+- storing information about users, like lastlogin and creation time. Added owner to snips to seperate creator and owner
+- Added some macros (like {last-login:funzel}, {snips-by-hotness})
+- Preview Button
+- Following Jakob Nielsen, start and the logo are no longer clickable on the start page
+- Basic RSS support
+- Fixed HTML to XHTML 1.0 and CSS to validated CSS
+
+0.1a-200207241333 - 2002-07-24
+
+- Added feature: Fulltext search now looks in titles and text
+- Added feature: User management improved
+- Added feature: Updating procedure from admin tool
+- Added feature: Rights management (lock/unlock, delete snips)
+- Fixed several bugs
+
+unknown - 2002-07-19
+
+- Added feature: fulltext search engine
+- Added feature: user management
+
+unknown - 2002-07-17
+
+- no more JDK 1.4
+- run.sh start and stop
+
+unknown - 2002-07-15
+
+- Added feature: snipsnap-index
+- Fixed quite a few bugs
+- Added feature: {image} macro
+
+0.1 - 2002-07-12
+
+- Initial public alpha release

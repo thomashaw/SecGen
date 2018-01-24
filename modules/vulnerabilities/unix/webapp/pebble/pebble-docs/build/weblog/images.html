@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Pebble - blogging tools written in Java</title>
+    <link rel="stylesheet" href="../pebble.css" type="text/css" />
+    </script>
+  </head>
+
+  <body>
+  <table width="100%" cellspacing="0" cellpadding="8" class="header">
+    <tr>
+      <td colspan="2" align="center">
+        <a href="http://pebble.sourceforge.net"><img src="../images/pebble.jpg" alt="Pebble" border="0"/></a>
+        <br />
+        Blogging tools written in Java
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" cellspacing="0" cellpadding="8" class="bodyContent">
+    <tr>
+      <td align="center">
+
+
+<table width="100%" cellspacing="0" cellpadding="8" class="item">
+  <tr class="itemHeader">
+    <td>
+      Images
+    </td>
+  </tr>
+  <tr class="itemBody">
+    <td>
+      <p>
+      Since blog entries are just short HTML fragments, the HTML <code>&lt;img&gt;</code> tag can be used to reference and include images. For convenience, Pebble provides a mechanism for you to upload images to your blog so that they can be included in your blog entries. Typically images are placed somewhere underneath the root of the web application from which they are referenced. However, Pebble provides a facility whereby you can store your images in the same location that your blog entries are stored on disk. This helps to maintain the separation between your data and the Pebble web application and allows you to easily upgrade the Pebble web application independently of your blog content.
+      </p>
+
+      <p>
+      <h5>Uploading Images</h5>
+      <img src="./images/images-1.jpg" hspace="8" align="right" />To upload the images to your blog directory, you have a couple of options. One of these is to simply copy or FTP the images to the server where your blog entries are stored, placing them in a directory called <code>images</code> underneath the <code>blog.dir</code> directory. While this is quick and easy, it is often not possible if you are frequently behind a firewall that blocks FTP access. For this reason, Pebble provides a mechanism for you to upload images to your blog through your web browser. To do this, after logging in, click the <b>Images</b> link.
+      </p>
+
+      <p>
+      To upload an image, choose the file that you would like to upload and click the <b>Upload File</b> button. The <b>Save As</b> field represents tells Pebble what the file should be called when being saved on the server and this defaults to the same name as the local file. When the file has been uploaded, the window will be refreshed confirming that the file has been uploaded.
+      </p>
+
+      <p>
+      <h5>Using Images</h5>
+      To use this image in a blog entry and help ensure that your blog content is unaffected if you choose to move your blog, it's recommended that you access the image using a relative URI as follows.
+      <pre>  &lt;img src="./images/about-this-mac-panther.jpg" /&gt;</pre>
+      </p>
+
+      <p>
+      <h5>Managing Images</h5>
+      Other links in the images window allow you to copy, rename, delete and view files. Also, directories can be created and the entire contents of the current directory can be exported (downloaded) as a ZIP file.
+      </p>
+
+      <p>
+      <h5>Quotas</h5>
+      Although more relevant to team and multi-user blogs, quotas can be enforced to restrict how much disk space each blog has to store images and arbitrary files. By default, the maximum size of file that can be uploaded is 2048KB and quotas are not enabled.
+      To modify these values, open the <code>/WEB-INF/classes/pebble.properties</code> file and edit the <code>blog.uploadFileSize</code> and <code>blog.uploadFileQuota</code> properties. You will need to restart Pebble for these changes to take effect. When quotas are enabled, all of the stored images, files and files in your theme count toward this.
+      </p>
+    </td>
+  </tr>
+</table>
+
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" cellpadding="8" cellspacing="0" class="footer">
+    <tr>
+      <td align="center">
+        <a href="../index.html">Home</a> |
+        <a href="../weblog/index.html">Weblog</a> |
+        <a href="../deskblog/index.html">Deskblog</a> |
+        <a href="../moblog/index.html">Moblog</a> |
+        <a href="../antblog/index.html">Antblog</a> |
+        <a href="http://sourceforge.net/project/showfiles.php?group_id=79200">Download</a>
+      </td>
+    </tr>
+  </table>
+  </body>
+</html>

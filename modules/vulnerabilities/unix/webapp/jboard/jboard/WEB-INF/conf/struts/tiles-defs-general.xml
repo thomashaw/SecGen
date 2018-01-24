@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+<tiles-definitions>
+
+   <!-- definitions pour le module general -->
+   <!-- definition par défaut du module general -->
+	<definition name=".general.welcome" extends=".root.common" page="/WEB-INF/modules/general/tiles/layouts/generalBasicLayout.jsp" >
+	        <put name="title"  value="jboard general module" />
+	        <put name="body"   value="/WEB-INF/modules/general/tiles/welcomeBody.jsp" />
+	</definition>
+
+</tiles-definitions>

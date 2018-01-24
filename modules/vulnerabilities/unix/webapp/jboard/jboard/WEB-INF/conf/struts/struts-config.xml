@@ -1,0 +1,281 @@
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<struts-config>
+
+
+
+<!-- ==================================== Data Source Configuration -->
+
+<!--
+
+ <data-sources>
+
+   <data-source>
+
+     <set-property
+
+        property="autoCommit"
+
+        value="false"/>
+
+     <set-property
+
+        property="description"
+
+        value="Example Data Source Configuration"/>
+
+     <set-property
+
+        property="driverClass"
+
+        value="org.postgresql.Driver"/>
+
+     <set-property
+
+        property="maxCount"
+
+        value="4"/>
+
+     <set-property
+
+        property="minCount"
+
+        value="2"/>
+
+     <set-property
+
+        property="password"
+
+        value="mypassword"/>
+
+     <set-property
+
+        property="url"
+
+        value="jdbc:postgresql://localhost/mydatabase"/>
+
+     <set-property
+
+        property="user"
+
+        value="myusername"/>
+
+   </data-source>
+
+ </data-sources>
+
+-->
+
+
+
+<!-- ======================================== Form Bean Definitions -->
+
+
+
+    <form-beans>
+
+
+
+    <!-- sample form bean descriptor for an ActionForm
+
+        <form-bean
+
+            name="inputForm"
+
+            type="app.InputForm"/>
+
+    end sample -->
+
+
+
+    <!-- sample form bean descriptor for a DynaActionForm
+
+        <form-bean
+
+            name="logonForm"
+
+            type="org.apache.struts.action.DynaActionForm">
+
+            <form-property
+
+                name="username"
+
+                type="java.lang.String"/>
+
+            <form-property
+
+                name="password"
+
+                type="java.lang.String"/>
+
+    end sample -->
+
+
+
+    </form-beans>
+
+
+
+
+
+<!-- ================================= Global Exception Definitions -->
+
+
+
+    <global-exceptions>
+
+        <!-- sample exception handler
+
+        <exception
+
+            key="expired.password"
+
+            type="app.ExpiredPasswordException"
+
+            path="/changePassword.jsp"/>
+
+        end sample -->
+
+    </global-exceptions>
+
+
+
+
+
+<!-- =================================== Global Forward Definitions -->
+
+
+
+    <global-forwards>
+
+        <!-- Default forward to "Welcome" action -->
+
+        <!-- Demonstrates using index.jsp to forward -->
+
+        <forward name="welcome" path="/Welcome.do" />
+
+    <forward name="switchToModule" path="/SwitchToModule.do" redirect="false" /><forward name="essai" path="/Essai.do" redirect="false" /><forward name="switchToForumModule" path="/SwitchToForumModule.do" redirect="false" /><forward name="logon" path="/SwitchToModule.do?prefix=/reg&amp;page=/Logon.do" redirect="false" contextRelative="true" /><forward name="register" redirect="false" path="/SwitchToModule.do?prefix=/reg&amp;page=/Register.do" contextRelative="true" /><forward name="logoff" path="/SwitchToModule.do?prefix=/reg&amp;page=/Logoff.do" redirect="false" /></global-forwards>
+
+
+
+
+
+<!-- =================================== Action Mapping Definitions -->
+
+
+
+    <action-mappings>
+
+
+
+            <!-- Default "Welcome" action -->
+
+            <!-- Forwards to Welcome.jsp -->
+
+        <action path="/Welcome" type="org.apache.struts.actions.ForwardAction" parameter=".general.welcome" />
+
+
+
+    <!-- sample input and input submit actions
+
+
+
+        <action
+
+            path="/Input"
+
+            type="org.apache.struts.actions.ForwardAction"
+
+            parameter="/pages/Input.jsp"/>
+
+
+
+        <action
+
+            path="/InputSubmit"
+
+            type="app.InputAction"
+
+            name="inputForm"
+
+            scope="request"
+
+            validate="true"
+
+            input="/pages/Input.jsp"/>
+
+
+
+    end samples -->
+
+
+
+
+
+    <action path="/SwitchToModule" type="org.apache.struts.actions.SwitchAction" /><action path="/Essai" type="org.apache.struts.actions.ForwardAction" parameter=".general.essai" /><action path="/SwitchToForumModule" type="org.apache.struts.actions.SwitchAction" /></action-mappings>
+
+
+
+
+
+<!-- ===================================== Controller Configuration -->
+
+
+
+    <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" contentType="application/xhtml+xml;charset=UTF-8" locale="false" inputForward="true" />
+
+
+
+
+
+<!-- ================================ Message Resources Definitions -->
+
+
+
+    <message-resources parameter="resources.application" />
+
+
+
+
+
+<!-- ======================================= Plug Ins Configuration -->
+
+
+  <!-- ========== Tiles plugin ===================  -->
+  <!--												-->
+  <!--
+     This plugin initialize Tiles definition factory. This later can takes some
+	 parameters explained here after. The plugin first read parameters from web.xml, then
+	 overload them with parameters defined here. All parameters are optional.
+	 The plugin should be declared in each struts-config file.
+       - definitions-config: (optional) 
+            Specify configuration file names. There can be several comma 
+		    separated file names (default: ?? )
+       - moduleAware: (optional - struts1.1) 
+            Specify if the Tiles definition factory is module aware. If true (default), 
+			there will be one factory for each Struts module. 
+			If false, there will be one common factory for all module. In this later case, 
+			it is still needed to declare one plugin per module. The factory will be 
+			initialized with parameters found in the first initialized plugin (generally the
+			one associated with the default module).
+			  true : One factory per module. (default)
+			  false : one single shared factory for all modules
+	   - definitions-parser-validate: (optional)
+	        Specify if xml parser should validate the Tiles configuration file.
+			  true : validate. DTD should be specified in file header. (default)
+			  false : no validation
+			  
+	  Paths found in Tiles definitions are relative to the main context.
+  -->
+  <plug-in className="net.sf.jboard.struts.plugins.Log4JPlugin"><set-property property="log4jConfigFileName" value="log4j.properties" /><set-property property="refreshTime" value="3500" /></plug-in>
+  <plug-in className="org.apache.struts.tiles.TilesPlugin">
+    <set-property property="definitions-config" value="/WEB-INF/conf/struts/tiles-defs-common.xml,/WEB-INF/conf/struts/tiles-defs-general.xml" />
+    <set-property property="moduleAware" value="true" />
+    <set-property property="definitions-parser-validate" value="true" /><set-property property="definitions-debug" value="2" /><set-property property="definitions-parser-details" value="2" /><set-property property="definitions-parser-validate" value="true" />
+  </plug-in>
+
+
+  <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+    <set-property property="pathnames" value="/WEB-INF/conf/struts/validator-rules.xml,/WEB-INF/conf/struts/validation.xml" />
+  </plug-in><plug-in className="net.sf.jboard.struts.plugins.DatabasePlugin"><set-property property="forumDatasourceName" value="jdbc/postgres" /><set-property property="forumDaoImpl" value="HibernateDAO" /></plug-in><plug-in className="net.sf.jboard.struts.plugins.SecurityPlugin"><set-property property="regAuthenticationDatasourceName" value="jdbc/postgres" /><set-property property="userTable" value="UserTable" /><set-property property="roleMapTable" value="RoleMap" /><set-property property="roleTable" value="Role" /><set-property property="initialAdminLogin" value="admin" /><set-property property="initialAdminPassword" value="admin" /><set-property property="regDaoImpl" value="HibernateDAO" /></plug-in><plug-in className="net.sf.jboard.struts.plugins.SchedulerPlugin"><set-property property="cronExpression" value="0 0 2 * * ?" /></plug-in>
+
+</struts-config>

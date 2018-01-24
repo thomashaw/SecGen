@@ -1,0 +1,142 @@
+<html>
+<body>
+
+<p>
+The BlueBlog weblog application is a pure Java/servlet
+application with a flexible architecture and an easy setup.
+</p>
+
+<h1>BlueBlog</h1>
+
+<h2>Introduction</h2>
+
+<p>
+The BlueBlog weblog application is a pure Java/servlet
+application with a flexible architecture and an easy setup.
+(Sorry for the repetition, but there you go...)
+</p>
+
+<p>
+Please see the <tt>INSTALL.html</tt> file in the root directory for
+details on the installation procedure. This text will focus
+on describing the technical architecture and design philosophy
+of the BlueBlog application.
+</p>
+
+<h2>Overall architecture</h2>
+
+<p>
+You need to understand the roles of these main classes to "get"
+the BlueBlog architecture:
+</p>
+
+<ul>
+<li>
+<b>{@link se.bluefish.blueblog.repository.Repository}</b> &ndash;
+represents a single person's weblogs, with
+hierarchies of categories and blogs. A Repository instance also
+represents a single, specific way of storing blogs. For example,
+one Repository instance may take care of the user <b>robert</b>'s
+weblogs, and store them in one directory in the filesystem, while
+another Repository instance takes care of the user <b>peter</b>'s
+weblogs, and stores them in a relational database.
+</li>
+<li>
+<b>{@link se.bluefish.blueblog.blog.Category}</b> &ndash;
+a named collection of blogs and sub-categories. Think of it
+as a directory containing subdirectories (sub-categories) and
+files (blogs). The difference is that when you ask it to give
+you a list of Blogs (see {@link se.bluefish.blueblog.blog.Category#getRecentBlogs(int,boolean)})
+you'll get blogs from both the current category, but also from
+all sub-categories.
+</li>
+<li>
+<b>{@link se.bluefish.blueblog.blog.Blog}</b> &ndash;
+a single weblog entry. The most important properties are its
+title and its contents.
+</li>
+<li>
+<b>{@link se.bluefish.blueblog.repository.RepositoryManager}</b> &ndash;
+Stepping up a bit, the RepositoryManager is responsible for
+managing a set of Repositories, i.e. all the blogs for a set of
+users. Concrete implementations of RepositoryManagers know about
+how to store Blogs in a certain way (filesystem, database, etc)
+and can take any user-defined parameters from the <tt>repositories.xml</tt>
+configuration file.
+</li>
+<li>
+<b>{@link se.bluefish.blueblog.repository.RepositoryFactory}</b> &ndash;
+singleton object that reads the <tt>repositories.xml</tt> configuration
+file and creates the appropriate RepositoryManagers, providing them with
+parameters from the configuration file.
+</li>
+</ul>
+
+<p>
+An URL from the browser is divided in these components:
+</p>
+
+<p>
+<b><tt style="color:black">http://server</tt><tt style="color:blue">/appcontext</tt><tt style="color:green">/bb</tt><tt style="color:red">/username</tt><tt style="color:brown">/category/subcategory</tt></b>
+</p>
+
+<ol>
+<li>
+<b><tt style="color:black">http://server</tt></b> &ndash;
+Your server (domain name). Nothing out of the ordinary here.
+</li>
+<li>
+<b><tt style="color:blue">/appcontext</tt></b> &ndash;
+This is the name you give to the application context when you
+install BlueBlog into your web app container. In Tomcat, for example,
+this is the "<tt>path</tt>" attribute to the "<tt>Context</tt>"
+element in the <tt>server.xml</tt> file. Note that you can install
+BlueBlog as the "default context" or "root context", which means
+that this part of the URL is empty. (In Tomcat you can do this
+by giving the <tt>path</tt> attribute the value of <tt>""</tt>.)
+</li>
+<li>
+<b><tt style="color:green">/bb</tt></b> &ndash;
+This is the URL pattern matching this request to the
+{@link se.bluefish.blueblog.servlet.BBServlet},
+as specified in the <tt>web.xml</tt> file. You <i>can</i> change this,
+but I don't see why you should.
+</li>
+<li>
+<b><tt style="color:red">/username</tt></b> &ndash;
+This is the part of the request URL that tells you whose (i.e. which
+user's) blogs the reader is interested in. This has a one-to-one
+mapping with a {@link se.bluefish.blueblog.repository.Repository},
+so it can also be regarded as the address of a Repository.
+</li>
+<li>
+<b><tt style="color:brown">/category/subcategory</tt></b> &ndash;
+The last part of the URL points out which category (or sub-category,
+any number of levels deep) we should read from. This part can
+be left out altogether, meaning that we want to read the root category
+(topmost category).
+</li>
+</ol>
+
+<p>
+The URL can also end with a few request parameters (separated form
+the path part of the URL with a '?' character). These are handled by the
+{@link se.bluefish.blueblog.servlet.BBServlet} like this:
+</p>
+
+<p>TBD</p>
+
+<h2>Formatters</h2>
+
+<p>TBD</p>
+
+<h2>The Filesystem Repository implementation</h2>
+
+<p>TBD</p>
+
+<h2>The Meta Repository implementation</h2>
+
+<p>TBD</p>
+
+</body>
+</html>

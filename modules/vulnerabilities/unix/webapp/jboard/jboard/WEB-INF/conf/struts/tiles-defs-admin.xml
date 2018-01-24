@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+
+
+<tiles-definitions>
+
+
+    
+   
+   <!-- definitions pour le module admin -->
+   <!-- definition par défaut du module admin -->
+<definition name=".root.common.admin.basic" extends=".root.common" page="/WEB-INF/modules/admin/tiles/layouts/basicLayout.jsp" >
+        <put name="title"  value="jboard general module" />
+        <put name="header" value="WEB-INF/modules/admin/tiles/header.jsp" />
+        <put name="menu"   value="WEB-INF/modules/admin/tiles/menu.jsp" />
+        <put name="body"   value="WEB-INF/modules/admin/tiles/body.jsp" />
+</definition>
+
+
+
+</tiles-definitions>

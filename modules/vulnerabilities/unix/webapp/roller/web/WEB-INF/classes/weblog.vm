@@ -1,0 +1,685 @@
+#**
+ * Macros for displaying weblog entries, comments, and related links.
+ * @author Lance Lavandowska (conversion to Velocimacros)
+ * @author David M Johnson (comment macros)
+ *#
+
+#**
+ * Print status/error message if exists.
+ * Note: "error" and "status" styles should be moved out into
+ * invididual Themes' theme.css files.
+ **#
+#macro( showStatusMessage )
+    #if( $errorMessage )
+        <span class="error">$errorMessage</span>
+    #end
+    #if( $statusMessage )
+        <span class="status">$statusMessage</span>
+    #end
+#end
+
+#**
+ * Set the META tag for ContentType.  We do this rather than
+ * setting the Response header because the header does not get
+ * cached.  So in order to maintain the ContentType we must present
+ * it inside the rendered page itself.
+**#
+#macro( showContentType $charset )
+    $pageHelper.setContentType("text/html;charset=$charset")
+    <meta http-equiv="Content-Type" content="text/html;charset=$charset">
+#end
+
+#**
+ * Set the META tag for ContentLanguage.  We do this rather than
+ * setting the Response header because the header does not get
+ * cached.  So in order to maintain the ContentType we must present
+ * it inside the rendered page itself.
+**#
+#macro( showContentLanguage $lang )
+    <meta http-equiv="Content-Language" content="$lang">
+#end
+
+#**
+ * Use this macro in your day template if you want to override
+ * entry rendering in both your HTML and RSS weblog output by defining
+ * a page template named _entry.
+ *
+ * <p>It is no longer necessary to use a page template named _entry
+ * if you want to override entry rendering in both your
+ * HTML and RSS weblog output (for support of PagePlugins).
+ * However, backwards compatibility for such use is still included,
+ * or if you have some other need to override entry rendering.
+ * The _entry page is now loaded by ContextLoader as $entryPage.</p>
+ *#
+#macro( showEntryText $entry )
+   #if(  $entryPage )
+      #parse($entryPage.id)
+   #else
+      #if ( $entry.plugins )
+         #set( $entryText = $pageHelper.renderPlugins( $entry ) )
+      #else
+         #set( $entryText = $entry.text )
+      #end
+      #if( $entryLength == -1 )
+        $utilities.textToCDATA($entryText)
+      #else
+        #set( $entryText = $utilities.textToCDATA($utilities.removeHTML($entryText)) )
+        $stringUtils.left( $entryText, $entryLength )... [$entryText.length() characters]
+      #end
+   #end
+#end
+
+#**
+ * Use this macro in your day template if you want to override
+ * entry rendering in both your HTML and RSS weblog output by defining
+ * a page template named _desc.
+ *
+ * <p>It is no longer necessary to use a page template named _desc
+ * if you want to override entry rendering in both your
+ * HTML and RSS weblog output (for support of PagePlugins).
+ * However, backwards compatibility for such use is still included,
+ * or if you have some other need to override entry rendering.
+ * The _desc page is now loaded by ContextLoader as $descPage.</p>
+ *#
+#macro( showEntryDescription $entry )
+   #if(  $descPage )
+      #parse($descPage.id)
+   #else
+      #if ( $entry.plugins )
+         #set( $entryText = $pageHelper.renderPlugins( $entry ) )
+      #else
+         #set( $entryText = $entry.text )
+      #end
+      #if( $entryLength == -1 )
+        $utilities.textToXML($entryText)
+      #else
+        #set( $entryText = $utilities.textToXML($utilities.removeHTML($entryText)) )
+        $stringUtils.left( $entryText, $entryLength )... [$entryText.length() characters]
+      #end
+   #end
+#end
+
+#**
+ * Display Permalink for Date.
+ * @param day Date object that specifies day (type java.util.Date).
+ *#
+#macro( showDayPermalink $day )
+    <a href="$baseURL/page/$userName/#formatDate($plainFormat $day )"><img
+        class="daypermalink"
+        src="$ctxPath/images/permalink.gif"
+        title="$text.get( "macro.weblog.daypermalink.title" )"
+        alt="#formatDate( $plainFormat $day )" /></a>
+#end
+
+#**
+ * Display the default Date.toString for date using the 'macro.weblog.date.toStringFormat'
+ * format as defined in the resource bundle.
+ * @param toStringFormat Format string (see java.text.SimpleDateFormat).
+ * @param day Date object that specifies day (type java.util.Date).
+ *#
+#macro( showEntryDate $day )
+    #set( $format=$text.get("macro.weblog.date.toStringFormat") )
+    #formatDate( $format $day )
+    ##formatDate( $toStringFormat $day )
+#end
+
+#**
+ * Display the timestamp for the $day using the 'macro.weblog.date.timestampFormat'
+ * format as defined in the resource bundle.
+ *
+ * @param timestampFormat Format string (see java.text.SimpleDateFormat).
+ * @param day Date object that specifies day (type java.util.Date).
+ *#
+#macro( showTimestamp $day )
+    #set( $format = $text.get("macro.weblog.date.timestampFormat") )
+    #formatDate( $format $day )
+    ##formatDate( $timestampFormat $day )
+#end
+
+#**
+ * Display the Permalink for a weblog entry.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showEntryPermalink $entry )
+    <a href="$baseURL$entry.permaLink"
+        title="$text.get( "macro.weblog.entrypermalink.title" )"
+        class="entrypermalink">Permalink</a>
+    #if ($pageHelper.isUserAuthorizedToEdit())
+        [<a href="$pageHelper.getEntryEditUrl($entry)">$text.get( "macro.weblog.entrypermalink.edit" )</a>]
+    #end
+#end
+
+#**
+ * Display the Trackback URL for a weblog entry.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showTrackbackURL $entry )$absBaseURL/trackback/$userName/$page.link/$entry.Anchor#end
+
+#**
+ * Display the pop-up comments link for a weblog entry.
+ * Use the URL for the href attribute for those who have disabled
+ * javascript or who desire to open the comments window in another (Mozilla) tab.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showCommentsLink $entry )
+    #set( $commentCount = $pageModel.getCommentCount($entry.Id) )
+    #if (($entry.commentsStillAllowed && $website.allowComments) || $commentCount > 0)
+        #set( $link = "$ctxPath/comment.do?method=edit&amp;entryid=$entry.Id" )
+        <a href="$link " onclick="window.open('$link', 'comments',
+            'width=480,height=480,scrollbars=yes,status=yes,resizable'); return false;"
+            class="entrycommentslink">$text.get( "macro.weblog.comments" ) [$commentCount]</a>
+    #end
+#end
+
+#**
+ * Display the in-page comments link for a weblog entry.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showCommentsPageLink $entry )
+    #set( $commentCount = $pageModel.getCommentCount($entry.Id) )
+    #if (($entry.commentsStillAllowed && $website.allowComments) || $commentCount > 0)
+        #set( $link = "$ctxPath/comments/$userName/$page.link/$utilities.encode($entry.anchor)#comments" )
+        <a href="$link" class="entrycommentslink">$text.get( "macro.weblog.comments" ) [$commentCount]</a>
+    #end
+#end
+
+#**
+ * Display link for comments that renders a dynamically (DHTML) generated
+ * comments form - Matt Raible style.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showCommentsDiv $entry )
+    #set( $commentCount = $pageModel.getCommentCount($entry.Id) )
+    #if (($entry.commentsStillAllowed && $website.allowComments) || $commentCount > 0)
+        <div class="comments" id="comments">
+            <div id="commentTwisty$entry.Id" class="commentTwisty"
+                onclick="toggleComments('$entry.Id', '$ctxPath/page/$userName'); return false;">
+            <a href="$ctxPath/comments/$userName/$page.link/$utilities.encode($entry.anchor)" class="plain">
+            #if($commentCount == 0)
+                $text.get( "macro.weblog.addcomment" )
+            #elseif($commentCount == 1)
+                $commentCount $text.get( "macro.weblog.comment" )
+            #else
+                $commentCount $text.get( "macro.weblog.comments" )
+            #end</a></div>
+        </div>
+    #end
+#end
+
+#**
+ * Display comments for an entry.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showComments $entry )
+    $dateFormatter.applyPattern($text.get( "macro.weblog.datepattern" ))
+<div class="comments" id="comments">
+    #if( $previewComments )
+        #set( $comments = $previewComments )
+        <div class="comments-head">$text.get( "macro.weblog.preview" ):</div>
+    #else
+        <div class="comments-head">$text.get( "macro.weblog.comments" ):</div>
+        #set( $comments = $entry.comments )
+    #end
+    #showStatusMessage()
+    <br/>
+    #foreach( $comment in $comments )
+        #set($content = $utilities.encodeEmail($comment.content))
+        #set($email = $utilities.hexEncode($comment.email))
+        #if($escapeHtml)
+            #set($content = $utilities.escapeHTML($content))
+        #end
+        #if($autoformat)
+            #set($content = $stringUtils.replace($content,"\n","<br />"))
+        #end
+        <div class="comment" id="comment${velocityCount}">
+        ${content}
+
+        <p class="comment-details">
+        $text.get("macro.weblog.postedby")
+        #if (!$stringUtils.isEmpty($comment.name) && !$stringUtils.isEmpty($email) && !$stringUtils.isEmpty($comment.remoteHost))
+            <a href="mailto:$email" title="$comment.remoteHost">$comment.name</a>
+        #elseif (!$stringUtils.isEmpty($comment.name) && !$stringUtils.isEmpty($email))
+            <a href="mailto:$email">$comment.name</a>
+        #elseif (!$stringUtils.isEmpty($email) && !$stringUtils.isEmpty($comment.remoteHost))
+            <a href="mailto:$email">$comment.remoteHost</a>
+        #elseif (!$stringUtils.isEmpty($comment.name) && !$stringUtils.isEmpty($comment.remoteHost))
+            <b>$comment.name</b> ($comment.remoteHost)
+        #elseif (!$stringUtils.isEmpty($comment.name))
+            <b>$comment.name</b>
+        #end
+        $text.get("macro.weblog.on") $dateFormatter.format($comment.postTime)
+        #if( $stringUtils.isNotEmpty($comment.url) )
+            $text.get( "macro.weblog.postedbywebsite", [$comment.url, $comment.url] )
+        #end
+        <a href="${ctxPath}/comments/${userName}/${page.link}/${entry.anchor}#comment${velocityCount}"
+           class="entrypermalink"
+           title="$text.get( "macro.weblog.commentpermalink.title" )">#</a>
+        </p>
+        </div>
+    #end
+</div>
+#end
+
+#**
+ * Display comment form for a weblog entry.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showCommentForm $entry )
+    <div class="comments-form">
+    <div class="comments-head">$text.get("macro.weblog.postcommentHeader")</div><br/>
+    <form method="post" action="$ctxPath/comment.do" focus="name"
+        name="form" onsubmit="fixURL(this); return validateComments(this)">
+
+        <!-- is this a publish or a preview -->
+        <input type="hidden" name="method" value="updateFromPage" />
+        <input type="hidden" name="entryid" value="$entry.id" />
+
+        <table cellspacing="0" cellpadding="1" border="0" width="95%">
+        <tr><th>$text.get( "macro.weblog.name" )</th>
+            <td><input type="text" name="name" value="$commentForm.name" size="50" maxlength="255" /></td>
+        </tr>
+
+        <tr><th>$text.get( "macro.weblog.email" )</th>
+            <td><input type="text" name="email" value="$commentForm.email" size="50" maxlength="255" /></td>
+        </tr>
+
+        <tr><th>$text.get( "macro.weblog.url" )</th>
+            <td><input type="text" name="url" value="$commentForm.url" size="50" maxlength="255" /></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <input type="checkbox" id="rememberInfo" name="rememberInfo" />
+                <label for="rememberInfo">$text.get( "macro.weblog.rememberinfo" )</label>
+            </td>
+        </tr>
+        </table>
+        <br/>
+
+        <table>
+        <tr><th>$text.get( "macro.weblog.yourcomment" )</th></tr>
+        <tr>
+            <td>
+            <textarea name="content" cols="50" rows="10">$commentForm.content</textarea><br />
+            <span style="comments-syntax-indicator">
+            $text.get( "macro.weblog.htmlsyntax" )
+            #if( $escapeHtml )
+                <span class="disabled">$text.get( "macro.weblog.htmldisabled" )</span>
+            #else
+                <span class="enabled">$text.get( "macro.weblog.htmlenabled" )</span>
+            #end
+            </span>
+            </td>
+        </tr>
+        </table>
+
+        <table cellspacing="0" cellpadding="1" border="0" width="95%">
+        <tr>
+            <td align="left" nowrap="nowrap">
+               <input type="button" name="post" value="&nbsp;$text.get( "macro.weblog.preview" )&nbsp;"
+                  onClick="this.form.method.value='previewFromPage';this.form.submit()" />
+               <input type="submit" name="post" value="&nbsp;$text.get( "macro.weblog.post" )&nbsp;" />
+            </td>
+            <td align="right">
+               <!-- <input type="button" value="&nbsp;$text.get( "macro.weblog.clear" )&nbsp;" /> -->
+            </td>
+        </tr>
+        </table>
+
+    </form>
+
+    <script type="text/javascript" src="$ctxPath/theme/scripts/roller.js"></script>
+    <script type="text/javascript">
+    var author = getCookie("commentAuthor");
+    var email = getCookie("commentEmail");
+    var url = getCookie("commentUrl");
+    // check each field - IE will render "null"
+    if (author) {
+        theForm.name.value = author;
+    }
+    if (email) {
+        theForm.email.value = email;
+    }
+    if (url) {
+        theForm.url.value = url;
+    }
+
+    if (author || email || url) {
+        theForm.rememberInfo.checked = true;
+    }
+
+    function fixURL(theForm) {
+        if (theForm.url.value != "" &&
+            theForm.url.value.indexOf("http://") == -1) { //prepend http://
+            theForm.url.value = "http://"+theForm.url.value;
+        }
+        saveUserInformation(theForm);
+    }
+
+    function saveUserInformation(theForm) {
+        if (theForm.rememberInfo.checked) {
+            rememberUser(theForm);
+        } else {
+            forgetUser(theForm);
+        }
+    }
+
+    function validateComments(theForm) {
+        if (theForm.content.value == "") {
+            alert("$text.get( "macro.weblog.commentwarning" )");
+            theForm.content.focus();
+            return false;
+        }
+    }
+    </script>
+    </div>
+#end
+
+#**
+ * Display hidden comment form for a weblog entry.
+ * @param entry WeblogEntry object.
+ *#
+#macro( showHiddenCommentForm )
+  <div style="display: none" class="comments">
+    <div id="commentBoxTemplate" class="commentBox">
+    <form class="commentFormBox" id="commentForm"
+        method="post" action="$ctxPath/comment.do"
+        onsubmit="onSubmitComments(this.entryid.value);fixURL(this);return validateComments(this)">
+
+        <table>
+            <tr class="commentFormRow">
+                <td>$text.get( "macro.weblog.name" )</td>
+                <td>
+                    <input name="name" type="text" class="commentFormInput" size="50"/>
+                    <input type="hidden" name="method" value="updateFromPage" />
+                    <input type="hidden" name="entryid" value="" id="entryid" />
+                </td>
+            </tr>
+            <tr class="commentFormRow">
+                <td>$text.get( "macro.weblog.email" )</td>
+                <td><input name="email" type="text" class="commentFormInput" size="50"/></td>
+            </tr>
+            <tr class="commentFormRow">
+                <td>$text.get( "macro.weblog.url" )</td>
+                <td><input name="url" type="text" class="commentFormInput" size="50"/></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="checkbox" id="rememberInfo" name="rememberInfo" />
+                    <label for="rememberInfo">$text.get( "macro.weblog.rememberinfo" )</label>
+                </td>
+        </tr>
+        </table>
+        <div class="commentFormRow">
+            <textarea name="content" class="commentFormTextarea" rows="4" cols="60"></textarea>
+            <div class="htmlSyntax">
+            $text.get( "macro.weblog.htmlsyntax" )
+            #if( $escapeHtml )
+                <span class="disabled">$text.get( "macro.weblog.htmldisabled" )</span>
+            #else
+                <span class="enabled">$text.get( "macro.weblog.htmlenabled" )</span>
+            #end
+            </div>
+        </div>
+        <div class="commentFormRow">
+           <input type="submit" name="post" value="&nbsp;$text.get( "macro.weblog.postcomment" )&nbsp;" />
+        </div>
+      </form>
+    </div>
+    <script type="text/javascript">
+        // add a target to the iframe on the commentForm
+        var commentForm = document.getElementById("commentForm");
+        commentForm.target = "commentFrame";
+    </script>
+
+    <div id="commentTemplate" class="comment">
+      <div class="commentBody" id="commentBody"></div>
+      <div class="commentByline">
+        <a class="commentAuthor" id="commentAuthorLink"></a>
+        <span>&nbsp;on&nbsp;</span><span id="commentTimestamp"></span>
+      </div>
+    </div>
+
+    <iframe name="commentFrame" src="about:blank"></iframe>
+
+    <script type="text/javascript" src="$ctxPath/theme/scripts/roller.js"></script>
+  </div>
+#end
+
+
+#**
+ * Display search form for searching a weblog.  This is only a form, no div
+ * or anything around it.
+ *#
+#macro( showSearchForm )
+    <form id="searchForm" method="get" action="$ctxPath/search/$userName"
+        style="margin: 0; padding: 0" onsubmit="return validateSearch(this)">
+        <p>
+          <input type="text" id="q" name="q" size="20"
+              maxlength="255" value="#if($term)$term#end" />
+          <input type="submit" value="$text.get( "macro.weblog.searchbutton" )" />
+        </p>
+    </form>
+    <script type="text/javascript">
+        function validateSearch(form) {
+            if (form.q.value == "") {
+                alert("$text.get( "macro.weblog.searchalert" )");
+                form.q.focus();
+                return false;
+            }
+            return true;
+        }
+    </script>
+#end
+
+#**
+ * Display search again form
+ *#
+#macro( showSearchAgainForm )
+    <div id="searchAgain">
+        $text.get( "macro.weblog.searchdictionary", [$term, $term, $term] )
+
+        $text.get( "macro.weblog.searchhits", [$hits])
+
+        <form method="get" action="$ctxPath/search/$userName"
+            style="margin: 5px">
+            <input type="text" id="q" name="q" size="31"
+                maxlength="255" value="$term"
+                style="padding-left: 1px" />
+            <input type="submit" value="$text.get( "macro.weblog.searchagain" )" />
+        </form>
+
+        $text.get( "macro.weblog.searchgoogle", [$term, $absBaseURL, $ctxPath, $userName] )
+    </div>
+    <script type="text/javascript"
+        src="$ctxPath/theme/scripts/searchhi.js"></script>
+#end
+
+#**
+ * Shows weblog entries from specified category (and all of it's subcategories)
+ * using specified page as a "day template" for the display of each day.
+ * If a specific weblog entry is specified by the current request (using
+ * the anchor tag), then shows the only the specified entry (using the day
+ * template) along with the comments associated with that entry.
+ *
+ * @param pageName   Page name of page to serve as day template.
+ * @param maxEntries Maximum number of entries to be shown.
+ * @param category   Only display weblog entries from this category.
+ *#
+#macro( showWeblogEntriesInCategory $pageName $maxEntries $category )
+    #if ( $pageModel.getWeblogEntry() )
+        #set( $entry = $pageModel.getWeblogEntry() )
+    #end
+    #set( $dayTemplateId = $pageModel.getPageIdByName($pageName) )
+    #if ( !$dayTemplateId ) ## if no page name, try Preview space
+        #set ( $dayTemplateId = $pageName )
+    #end
+    #if( $entry )
+        #set( $day = $entry.pubTime )
+        #set( $entries = [ $entry ] )
+        #parse( $dayTemplateId )
+        <div class="trackbackUrl">
+           $text.get( "macro.weblog.trackback" ) #showTrackbackURL($entry)
+        </div>
+        #showComments($entry)
+        #if($website.allowComments && $entry.commentsStillAllowed)
+            #showCommentForm($entry)
+        #else
+            $text.get("comments.disabled")
+        #end
+    #else
+        #if( $searchResults )
+            #set( $map = $searchResults )
+            #showSearchAgainForm()
+        #else
+            #set( $map = $pageModel.getRecentWeblogEntries($maxEntries, $category) )
+        #end
+        #foreach( $day in $map.keySet() )
+            #set( $entries = $map.get($day) )
+            #parse( $dayTemplateId )
+        #end
+
+        <div id="nextEntry">
+        #if( $pageModel.previousEntry )
+            #set( $previousEntry = $pageModel.previousEntry )
+            <a href="$baseURL$previousEntry.permaLink"
+                title="Previous Entries"
+                >&laquo; $utilities.truncateNicely($previousEntry.title, 30, 30, "...")</a>
+        #end
+        </div>
+    #end
+#end
+
+#**
+ * Shows weblog entries using specified page as a "day template" for
+ * the display of each day. If a specific weblog entry is specified
+ * by the current request (using the anchor tag), then shows the only
+ * the specified entry (using the day template) along with the comments
+ * associated with that entry.
+ *
+ * @param pageName Page name of page to serve as day template.
+ * @param maxEntries Maximum number of entries to be shown.
+ *#
+#macro( showWeblogEntries $pageName $maxEntries )
+#showWeblogEntriesInCategory($pageName $maxEntries 'nil')
+#end
+
+#**
+ * Show the last $maxEntries number of weblogentry titles in a category,
+ * as links to the individual posts.  Names of fields
+ * must be different than in showWeblogEntries (those
+ * values take precedence for some reason).
+**#
+#macro( showRecentEntriesInCategory $entryCount $catPath )
+   #set( $xmap = $pageModel.getRecentWeblogEntries($entryCount,$catPath) )
+   <ul class="recentposts">
+   #foreach( $day in $xmap.keySet() )
+       #set( $recentEntries = $xmap.get($day) )
+       #foreach ($var in $recentEntries)
+           <li class="recentposts"><a href="$baseURL/page/$userName/?anchor=$utilities.encode($var.anchor)">$var.title</a></li>
+       #end
+   #end
+   </ul>
+#end
+
+#**
+ * Show the last $maxEntries number of weblogentry titles,
+ * as links to the individual posts.  Names of fields
+ * must be different than in showWeblogEntries (those
+ * values take precedence for some reason).
+**#
+#macro( showRecentEntries $entryCount )
+#showRecentEntriesInCategory($entryCount "nil")
+#end
+
+#**
+ * Show the last $maxEntries number of weblogentry titles, as links to
+ * entry links.  Names of fields must be different than in showWeblogEntries
+ * (those values take precedence for some reason).
+**#
+#macro( showRecentEntryLinksInCategory $numEntries $cat)
+   #set( $xmap = $pageModel.getRecentWeblogEntries($numEntries, $cat) )
+   <ul class="linkblog">
+   #foreach( $day in $xmap.keySet() )
+       #set( $recentEntries = $xmap.get($day) )
+       #foreach ($var in $recentEntries)
+           <li class="linkblog">
+           #if ($var.link)
+              <a href="$var.link" title="$utilities.removeAndEscapeHTML($var.text)">$var.title</a>
+           #else
+              $var.title
+           #end
+           #if ($pageHelper.isUserAuthorizedToEdit())
+              &nbsp;[<a href="$pageHelper.getEntryEditUrl($var)">$text.get( "macro.weblog.editentry" )</a>]
+           #end
+           </li>
+       #end
+   #end
+   </ul>
+#end
+
+#**
+ * Show the last $maxEntries number of weblogentry titles, as links to
+ * entry links.  Names of fields must be different than in showWeblogEntries
+ * (those values take precedence for some reason).
+**#
+#macro( showRecentEntryLinks $numEntries )
+#showRecentEntryLinksInCategory($numEntries "nil")
+#end
+
+#**
+ * Display language form for selection a different language.  This is only a form, no div
+ * or anything around it.
+ *#
+#macro( showLanguageForm )
+    ## first check for errors during possible previous langauge change
+    #if ($languageError)
+        <p>$languageError</p>
+    #end
+
+    #set( $locales = $pageHelper.getSupportedLanguages() )
+    #if ($locales)
+       #foreach($locale in $locales)
+          <a class="imageLink" href="$ctxPath/language${pageHelper.getPathInfo()}?language=${locale.getLanguage()}">
+             <img src="$ctxPath/images/flag_${locale.getLanguage()}.gif" alt="${locale.getDisplayLanguage()}" />
+          </a>
+          <br />
+       #end
+    #else
+        <p>$text.get("macro.weblog.nolanguages")</p>
+    #end
+#end
+
+#**
+ * Display links to Previous and/or Next chronological Entry.  Also
+ * display link to "main" page if either is present.
+**#
+#macro( showNextPreviousLinks )
+    <div id="next-previous">
+    #if ($pageModel.previousEntry)
+        #set( $previousEntry = $pageModel.previousEntry )
+        <a href="$baseURL/page/$userName/$defaultPage.link/$utilities.encode($previousEntry.anchor)"
+            title="$previousEntry.title"
+            >&laquo; $utilities.truncateNicely($previousEntry.title, 30, 30, "...")</a> |
+    #end
+
+    #if ( $pageModel.previousEntry || $pageModel.nextEntry)
+        <a href="$baseURL/page/$userName/$defaultPage.link">$defaultPage.name</a>
+    #end
+
+    #if ($pageModel.nextEntry)
+        #set( $nextEntry = $pageModel.nextEntry )
+        | <a href="$baseURL/page/$userName/$defaultPage.link/$utilities.encode($nextEntry.anchor)"
+            title="$nextEntry.title"
+            >$utilities.truncateNicely($nextEntry.title, 30, 30, "...") &raquo;</a>
+    #end
+    </div>
+#end
+
+#**
+ * Method to retrieve a full encoded anchor tag for a WeblogEntry.
+**#
+#macro( showAnchorTag $entry )
+    <a name="$utilities.encode($entry.anchor)" id="$utilities.encode($entry.anchor)"></a>
+#end

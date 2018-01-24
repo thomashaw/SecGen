@@ -1,0 +1,13 @@
+/**
+ * Stylesheet customization for generic formats.
+ * @author Stephan J. Schmidt
+ * @version $Id: default.css,v 1.32 2002/10/22 20:09:00 leo Exp $
+ */
+
+@import url(css/wiki.css);
+@import url(css/snip.css);
+@import url(css/general.css);
+@import url(css/page.css);
+
+@import url(css/debug.css);
+@import url(css/admin.css);

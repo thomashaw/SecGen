@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="ISO_8859-1"?>
+
+<project name="blueblog" default="compile">
+	<property name="src" value="src"/>
+	<property name="web" value="web"/>
+	<property name="lib" value="${web}/WEB-INF/lib"/>
+	<property name="classes" value="${web}/WEB-INF/classes"/>
+	<property name="doc" value="doc"/>
+	<property name="javadoc" value="${doc}/javadoc"/>
+	
+	<property name="propfiletemplate" value="local_settings.template"/>
+	<property name="localpropfile" value="local_settings.properties"/>
+	<property name="app-version" value="1.0"/>
+	<property name="dist-zipfile" value="blueblog-${app-version}.zip"/>
+	<property name="src-zipfile" value="blueblog-src-${app-version}.zip"/>
+	<property name="project-zipfile" value="blueblog-proj-${app-version}.zip"/>
+
+	<target name="createlocalsettings" unless="localfileexists">
+		<echo message="Creating file ${localpropfile}"/>
+		<copy file="${propfiletemplate}" tofile="${localpropfile}"/>
+	</target>
+
+	<target name="init" description="Initializes build script">
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${javadoc}"/>
+		<available file="${localpropfile}" property="localfileexists"/>
+		<antcall target="createlocalsettings"/>
+		<property file="${localpropfile}"/>
+		<path id="project.classpath">
+			<fileset dir="${lib}">
+				<include name="*.jar"/>
+			</fileset>
+			<pathelement location="${servletjar}"/>
+			<pathelement path="${classes}"/>
+		</path>
+	</target>
+
+	<target name="javadoc" depends="init" description="Generates javadoc source documentation">
+		<javadoc destdir="${javadoc}" access="package" use="true"
+			notree="false" nonavbar="false" noindex="false"
+			splitindex="true" author="true" version="true"
+			nodeprecatedlist="false" nodeprecated="false"
+			sourcepath="${src}"
+			classpathref="project.classpath"
+            packagenames="se.bluefish.blueblog.*"
+			overview="${src}/overview.html" doctitle="BlueBlog ${app-version}">
+			
+		</javadoc>
+	</target>
+
+	<target name="compile" description="Compiles the project" depends="init">
+		<javac srcdir="${src}" 
+			destdir="${classes}" 
+			classpathref="project.classpath"
+			debug="true"/>
+		<copy todir="${classes}">
+			<fileset dir="${src}">
+				<include name="*.properties"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist-zip" depends="compile,javadoc" description="Creates a zip file with what is needed to run BlueBlog">
+		<zip destfile="${dist-zipfile}">
+			<zipfileset dir="." includes="INSTALL.html" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="${web}" excludes="CVS,**/*.html" prefix="blueblog-${app-version}/web"/>
+			<zipfileset dir="${doc}" prefix="blueblog-${app-version}/doc"/>
+		</zip>
+	</target>
+	
+	<target name="src-zip" depends="javadoc">
+		<zip destfile="${src-zipfile}">
+			<zipfileset dir="." includes="INSTALL.html" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="." includes="build.xml" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="." includes="local_settings.template" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="${src}" excludes="CVS," prefix="blueblog-${app-version}/src"/>
+			<zipfileset dir="${web}" excludes="**/CVS/**, **/classes/**" prefix="blueblog-${app-version}/web"/>
+			<zipfileset dir="${doc}" prefix="blueblog-${app-version}/doc"/>
+		</zip>
+	</target>
+	
+	<target name="project-zip">
+		<zip destfile="${project-zipfile}">
+			<zipfileset dir="." includes="INSTALL.html" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="." includes="build.xml" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="." includes="local_settings.template" prefix="blueblog-${app-version}"/>
+			<zipfileset dir="${src}" excludes="CVS," prefix="blueblog-${app-version}/src"/>
+			<zipfileset dir="${web}" excludes="**/CVS/**, **/classes/**" prefix="blueblog-${app-version}/web"/>
+			<zipfileset dir="${doc}" excludes="**/CVS/**, **/javadoc/**" prefix="blueblog-${app-version}/doc"/>
+		</zip>
+	</target>
+	
+	<target name="usage" description="Usage info">
+		<echo>
+Try the -projecthelp option to get info on all targets.
+		</echo>
+	</target>
+
+	<target name="clean" description="Remove all files and directories that can be generated from build.xml.">
+		<delete dir="${classes}"/>
+		<delete dir="${javadoc}"/>
+		<delete file="${dist-zipfile}"/>
+		<delete file="${src-zipfile}"/>
+	</target>
+</project>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<taglib>
+  <tlib-version>1.0</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>SnipSnap</short-name>
+  <uri>http://snipsnap.com/snipsnap.tld</uri>
+
+   <tag>
+    <name>debug</name>
+    <tag-class>org.snipsnap.jsp.DebugTag</tag-class>
+   </tag>
+
+   <tag>
+    <name>geoUrl</name>
+    <tag-class>org.snipsnap.jsp.CoordinatesTag</tag-class>
+   </tag>
+
+   <tag>
+    <name>dublinCore</name>
+    <tag-class>org.snipsnap.jsp.DublinCoreTag</tag-class>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to get dublin core information for</description>
+    </attribute>
+    <attribute>
+      <name>format</name>
+      <description>output format, e.g xml, defaults to html</description>
+    </attribute>
+   </tag>
+
+  <tag>
+    <name>pathSelector</name>
+    <tag-class>org.snipsnap.jsp.PathSelectorTag</tag-class>
+    <attribute>
+      <name>parentName</name>
+      <description>name of snip to split path for</description>
+    </attribute>
+    <attribute>
+      <name>selected</name>
+      <description>path that has actually been selected</description>
+    </attribute>
+   </tag>
+
+  <tag>
+    <name>path</name>
+    <tag-class>org.snipsnap.jsp.PathTag</tag-class>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to get path for</description>
+    </attribute>
+   </tag>
+
+  <tag>
+    <name>content</name>
+    <tag-class>org.snipsnap.jsp.ContentTag</tag-class>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to get content for</description>
+    </attribute>
+    <attribute>
+      <name>encode</name>
+      <description>true if HTML code should be encoded</description>
+    </attribute>
+    <attribute>
+      <name>removeHtml</name>
+      <description>true if HTML code should be removed</description>
+    </attribute>
+    <attribute>
+      <name>extract</name>
+      <description>true if only an extract should be displayed</description>
+    </attribute>
+   </tag>
+
+  <tag>
+    <name>backLinks</name>
+    <tag-class>org.snipsnap.jsp.BackLinkTag</tag-class>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to get backlinks for</description>
+    </attribute>
+    <attribute>
+      <name>count</name>
+      <description>number of backlinks to show</description>
+    </attribute>
+   </tag>
+
+
+  <tag>
+    <name>snipLinks</name>
+    <tag-class>org.snipsnap.jsp.SnipLinkTag</tag-class>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to check roles against</description>
+    </attribute>
+    <attribute>
+       <name>start</name>
+       <description>start color</description>
+    </attribute>
+     <attribute>
+       <name>end</name>
+       <description>end color</description>
+    </attribute>
+     <attribute>
+       <name>width</name>
+       <description>width of result table with SnipLinks</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>checkRoles</name>
+    <tag-class>org.snipsnap.jsp.UserAuth</tag-class>
+    <attribute>
+      <name>roles</name>
+      <required>true</required>
+      <description>roles to check user against</description>
+    </attribute>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>name</name>
+      <type>java.lang.String</type>
+      <description>name of snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>invert</name>
+      <type>java.lang.Boolean</type>
+      <description>invert the check</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>check</name>
+    <tag-class>org.snipsnap.jsp.CheckPermission</tag-class>
+    <attribute>
+      <name>permission</name>
+      <description>permission to check</description>
+    </attribute>
+    <attribute>
+      <name>roles</name>
+      <required>true</required>
+      <description>roles to check user against</description>
+    </attribute>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>name</name>
+      <type>java.lang.String</type>
+      <description>name of snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>invert</name>
+      <type>java.lang.Boolean</type>
+      <description>invert the check</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>checkObject</name>
+    <tag-class>org.snipsnap.jsp.ObjectAuth</tag-class>
+    <attribute>
+      <name>permission</name>
+      <description>permission to check</description>
+    </attribute>
+    <attribute>
+      <name>name</name>
+      <type>java.lang.String</type>
+      <description>name of snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>roles</name>
+      <required>true</required>
+      <description>roles to check user against</description>
+    </attribute>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>name</name>
+      <type>java.lang.String</type>
+      <description>name of snip to check roles against</description>
+    </attribute>
+    <attribute>
+      <name>invert</name>
+      <type>java.lang.Boolean</type>
+      <description>invert the check</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>snip</name>
+    <tag-class>org.snipsnap.jsp.SnipTag</tag-class>
+    <attribute>
+      <name>name</name>
+    </attribute>
+    <attribute>
+      <name>snip</name>
+      <type>org.snipsnap.snip.Snip</type>
+      <description>snip for output</description>
+    </attribute>
+  </tag>
+
+  <tag>
+    <name>image</name>
+    <tag-class>org.snipsnap.jsp.ImageTag</tag-class>
+    <attribute>
+      <name>name</name>
+      <required>true</required>
+    </attribute>
+    <attribute>
+      <name>alt</name>
+      <required>false</required>
+    </attribute>
+    <attribute>
+      <name>ext</name>
+      <required>false</required>
+    </attribute>
+    <attribute>
+      <name>root</name>
+      <required>false</required>
+    </attribute>
+  </tag>
+
+</taglib>
+

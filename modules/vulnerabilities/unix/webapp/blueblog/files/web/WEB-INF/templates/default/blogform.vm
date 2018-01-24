@@ -1,0 +1,24 @@
+<html>
+<head>
+<title>$labels.getString("title.blogform")</title>
+</head>
+<body>
+
+## <form action="$actionUrl" method="POST">
+<form action="?cmd=saveBlog" method="POST">
+<table>
+<tr>
+<td><input style="width:50em" type="text" name="title" value=""/></td>
+</tr>
+<tr>
+<td><textarea style="width:50em;height:15em" name="content"></textarea></td>
+</tr>
+<tr>
+<td><input type="submit" value="${labels.getString("label.blog.submit")}"/></td>
+</tr>
+</table>
+
+</form>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+  <!-- Standard Action Servlet Configuration (with debugging) -->
+  <display-name>jboard Bulletin board</display-name>
+  <description>Provides a bulletin board management system.</description>
+    <context-param>
+      <!-- this parameter indicate to the jstl fmt tag where to localize the resourceBundle -->
+    <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+    <param-value>resources.application</param-value>
+    
+  </context-param>  
+  
+   <filter>
+    <filter-name>AccessFilter</filter-name>
+     <description>registration module</description>      
+    <filter-class>net.sf.jboard.filters.AccessFilter</filter-class>
+  </filter>
+     <filter>
+    <filter-name>ForumPersistanceFilter</filter-name>
+     <description>handle open/close hibernate session handling</description>      
+    <filter-class>net.sf.jboard.filters.ForumPersistanceFilter</filter-class>
+    <init-param>
+    	<param-name>hibernateSessionFactory</param-name>
+    	<param-value>/forum.cfg.xml</param-value>
+    	<description>hibernate configuration file</description>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>AccessFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+  </filter-mapping>
+    <filter-mapping>
+    <filter-name>ForumPersistanceFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>action</servlet-name>
+    <description>jboard  struts servlet</description>
+    <servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/conf/struts/struts-config.xml</param-value>
+      <description>general module</description>
+    </init-param>
+    
+    <init-param>
+      <param-name>config/admin</param-name>
+      <param-value>/WEB-INF/conf/struts/struts-config-admin.xml</param-value>
+      <description>administration module</description>
+    </init-param>
+    
+    <init-param>
+      <param-name>config/reg</param-name>
+      <param-value>/WEB-INF/conf/struts/struts-config-reg.xml</param-value>
+      <description>registration module</description>      
+    </init-param>
+    <init-param>
+    
+      <param-name>config/stats</param-name>
+      <param-value>/WEB-INF/conf/struts/struts-config-stats.xml</param-value>
+      <description>stats module</description>            
+    </init-param>
+    <init-param>
+      <param-name>config/forum</param-name>
+      <param-value>/WEB-INF/conf/struts/struts-config-forum.xml</param-value>
+      <description>forum module</description>      
+    </init-param>
+    
+    <init-param>
+      <param-name>locale</param-name>
+      <param-value>false</param-value>
+    </init-param>
+    
+    <init-param>
+      <param-name>debug</param-name>
+      <param-value>2</param-value>
+    </init-param>
+    <init-param>
+      <param-name>detail</param-name>
+      <param-value>2</param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+<servlet>
+  <servlet-name>ServletRedirector</servlet-name>
+  <servlet-class>
+    org.apache.cactus.server.ServletTestRedirector
+  </servlet-class>
+  <init-param>
+    <param-name>param1</param-name>
+    <param-value>value1 used for testing</param-value>
+  </init-param>
+</servlet>
+
+<servlet>
+  <servlet-name>ServletTestRunner</servlet-name>
+  <servlet-class>
+    org.apache.cactus.server.runner.ServletTestRunner
+  </servlet-class>
+</servlet>
+
+  <!-- Standard Action Servlet Mapping -->
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  
+<servlet-mapping>
+    <servlet-name>ServletRedirector</servlet-name>
+    <url-pattern>/ServletRedirector</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+    <servlet-name>ServletTestRunner</servlet-name>
+    <url-pattern>/ServletTestRunner</url-pattern>
+</servlet-mapping>
+
+  <!-- The Usual Welcome File List -->
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+<!-- handling error code thrown by the application -->
+<error-page>
+<error-code>400</error-code>
+<location>/400.jsp</location>
+</error-page>
+<error-page>
+<error-code>401</error-code>
+<location>/401.jsp</location>
+</error-page>
+<error-page>
+<error-code>402</error-code>
+<location>/402.jsp</location>
+</error-page>
+<error-page>
+<error-code>403</error-code>
+<location>/403.jsp</location>
+</error-page>
+<error-page>
+<error-code>404</error-code>
+<location>/404.jsp</location>
+</error-page>
+<error-page>
+<error-code>405</error-code>
+<location>/405.jsp</location>
+</error-page>
+<error-page>
+<error-code>406</error-code>
+<location>/406.jsp</location>
+</error-page>
+<error-page>
+<error-code>407</error-code>
+<location>/407.jsp</location>
+</error-page>
+<error-page>
+<error-code>408</error-code>
+<location>/408.jsp</location>
+</error-page>
+<error-page>
+<error-code>500</error-code>
+<location>/500.jsp</location>
+</error-page>
+<error-page>
+<error-code>501</error-code>
+<location>/501.jsp</location>
+</error-page>
+<error-page>
+<error-code>502</error-code>
+<location>/502.jsp</location>
+</error-page>
+<error-page>
+<error-code>503</error-code>
+<location>/503.jsp</location>
+</error-page>
+<error-page>
+<error-code>504</error-code>
+<location>/504.jsp</location>
+</error-page>
+<error-page>
+<error-code>505</error-code>
+<location>/505.jsp</location>
+</error-page>
+  <!-- Struts Tag Library Descriptors -->
+
+  <taglib>
+    <taglib-uri>/tags/struts-nested</taglib-uri>
+    <taglib-location>/WEB-INF/conf/tld/struts-nested.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/tags/struts-tiles</taglib-uri>
+    <taglib-location>/WEB-INF/conf/tld/struts-tiles.tld</taglib-location>
+  </taglib>
+  <!-- start of additionnal taglibs -->
+  <taglib>
+    <taglib-uri>/tags/struts/bean-el</taglib-uri>
+    <taglib-location>/WEB-INF/conf/tld/struts-bean-el.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/tags/struts/html-el</taglib-uri>
+    <taglib-location>/WEB-INF/conf/tld/struts-html-el.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>/tags/struts/logic-el</taglib-uri>
+    <taglib-location>/WEB-INF/conf/tld/struts-logic-el.tld</taglib-location>
+  </taglib>
+  
+  <taglib>
+    <taglib-uri>/tags/jstl/c</taglib-uri>
+    <taglib-location>/WEB-INF/conf/tld/c.tld</taglib-location>
+  </taglib>
+  <!-- end of additionnal taglibs -->
+<!-- set the JNDI datasource reference for DBCP (database connection pool) -->
+ <resource-ref>
+			 	<description>postgreSQL Datasource example</description>
+			 	<res-ref-name>jdbc/postgres</res-ref-name>
+			 	<res-type>javax.sql.DataSource</res-type>
+			 	<res-auth>Container</res-auth>
+ </resource-ref>
+</web-app>

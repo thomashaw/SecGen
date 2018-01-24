@@ -1,0 +1,9 @@
+build
+eclipse_build
+*.log
+cache
+classes.eclipse
+javadoc.eclipse
+.classpath
+.project
+extras

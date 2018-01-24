@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.roller.pojos.CommentData"
+        table="comment"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="string"
+            unsaved-value="null"
+        >
+            <generator class="uuid.hex">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="weblogEntry"
+            class="org.roller.pojos.WeblogEntryData"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="entryid"
+            not-null="true"
+        />
+
+        <property
+            name="name"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="name"
+            unique="false"
+        />
+
+        <property
+            name="email"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="email"
+            unique="false"
+        />
+
+        <property
+            name="url"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="url"
+            unique="false"
+        />
+
+        <property
+            name="content"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="content"
+            unique="false"
+        />
+
+        <property
+            name="postTime"
+            type="java.sql.Timestamp"
+            update="true"
+            insert="true"
+            column="posttime"
+            unique="false"
+        />
+
+        <property
+            name="spam"
+            type="java.lang.Boolean"
+            update="true"
+            insert="true"
+            column="spam"
+            unique="false"
+        />
+
+        <property
+            name="remoteHost"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="remotehost"
+            unique="false"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-CommentData.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module version="4" relativePaths="false" type="J2EE_WEB_MODULE">
+  <component name="ModuleRootManager" />
+  <component name="NewModuleRootManager">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/pebble-web" />
+    <orderEntry type="jdk" jdkName="java version &quot;1.4.2_03&quot;" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/servlet.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module" module-name="pebble-core" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jstl.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/standard.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntryProperties />
+  </component>
+  <component name="WebModuleBuildComponent">
+    <setting name="EXPLODED_URL" value="file://" />
+    <setting name="EXPLODED_ENABLED" value="false" />
+    <setting name="JAR_URL" value="file://" />
+    <setting name="JAR_ENABLED" value="false" />
+    <setting name="SYNC_EXPLODED_DIR" value="false" />
+    <setting name="BUILD_ON_FRAME_DEACTIVATION" value="false" />
+    <setting name="RUN_JASPER_VALIDATION" value="true" />
+  </component>
+  <component name="WebModuleProperties">
+    <containerElement type="library" level="module">
+      <url>jar://$MODULE_DIR$/lib/jstl.jar!/</url>
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib/jstl.jar" />
+    </containerElement>
+    <containerElement type="library" level="module">
+      <url>jar://$MODULE_DIR$/lib/standard.jar!/</url>
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib/standard.jar" />
+    </containerElement>
+    <containerElement type="library" level="module">
+      <url>jar://$MODULE_DIR$/lib/xmlrpc-1.2-b1.jar!/</url>
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib/xmlrpc-1.2-b1.jar" />
+    </containerElement>
+    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/pebble-web/WEB-INF/web.xml" version="2.3" />
+    <webroots>
+      <root url="" relative="/" />
+    </webroots>
+  </component>
+  <component name="WeblogicWebModuleProperties">
+    <option name="IS_RUN_APPC" value="false" />
+  </component>
+</module>
+

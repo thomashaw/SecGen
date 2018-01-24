@@ -1,0 +1,31 @@
+#!/bin/bash
+
+export CURDIR=`pwd`
+
+cd $1
+
+export CLASSPATH=/u/jwhaley/joeqvm/joeq_core:/u/jwhaley/joeqvm/joeq_core/joeq/Support/javabdd_0.6.jar:.:src:dev/src:build:classes:build/classes:/usr/java/junit3.8.1/junit.jar:/usr/share/java/ant.jar:../build:`cat jarfiles`
+
+if [ ! -e mainclass ]
+then
+  for f in `find . -name \*.java | xargs grep -l "void doGet("`
+  do
+#    echo $f
+    classfilename=`echo $f | sed -e 's/\.java/.class/'`
+    if [ ! -e $classfilename ]
+    then
+      echo $classfilename does not exist.
+      # shortclassname=`grep "public class" $f | awk '{ print $3 }'`
+      nojava=${classfilename%.class}
+      shortclassname=${nojava##*/}
+      echo Short name $shortclassname
+      classfilename=`find . -name $shortclassname.class`
+    fi
+    if [ -n "$classfilename" ]
+    then
+      echo Running on class file $classfilename
+      classname=`java joeq.Main.ClassName $classfilename`
+      echo $classname >>mainclass
+    fi
+  done
+fi

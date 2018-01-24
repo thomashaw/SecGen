@@ -1,0 +1,95 @@
+PersonalBlog Version Changes
+----------------------------
+
+Usage Pattern : 
+rel_M_m_b
+
+M -> major number, just for big changes
+m -> minor number, cicles among development (even) production (odd)  
+b -> build number, changed at each change to cvs
+
+IMPORTANT : Always make sure HEAD is always working, when we have some junit tests it'll be easier to avoid breaking HEAD
+------------------
+Version rel_1_2_6 
+
+- Changed to hibernate 2
+- More i18n pages (wizard,comments)
+- Properties editor (Niel)
+- Three types of editors : simple text, javascript and java applet
+- Comments are now order (descending), changed hibernate configuration (emerson)
+- Comments are now shown with date and time (emerson)
+- Email notification for new comments (Matthew Payne, Niel Eyde)
+- Personalinfo is recorded (in cookies) while commenting (emerson)
+- Installation Wizard : (emerson)
+  - added initialize_hibernate_properties (taken out of initialize.jsp)
+  - renamed initialize.jsp to initialize_properties.jsp
+  - added database_off.jsp and tables_not_created.jsp to the installation wizard (echofloripa)
+  - Took the code from BlogTilesProcessor.java to Initialization.java (echofloripa)
+  - Changed code at bloggeneralAction to act depending on the state of installation (echofloripa)
+- cleaned up code to use individual hibernate sessions instead of one hibernate session variable per service
+- added cvs configuration of the project, this line is to test if email is sent to dev list when a commit occur (echofloripa)
+- Some modification at exception handling of BlogService. I saw some errors but couldn't find why...
+- Added failure foward at most actions - (weakestlink)
+- Added resource keys identifier for fowards and errors. (weakestlink)
+- Solved security problem with a signin attribute at Action superclass (what a stupid idea, mine, Echofloripa:)
+- Solved referrers, not appearing none, I forgot to put the check at superclass... (echofloripa)
+- Use properties for emails paramenters
+------------------
+Version rel_1_2_5
+
+- changed     org.apache.struts.tiles.ActionComponentServlet 
+for org.apache.struts.action.ActionServlet in </servlet-class> tag
+- Calendar in rail.jsp fixed, it was not changing days when the month was changed
+
+
+------------------
+Version rel_1_2_4 
+
+- Refactored common code up to a BlogGeneralAction superclass
+- Bug at rail.jsp (null in the number count) solved
+- SOlved calender bug, it was not showing the month (when no the current one)
+
+
+------------------
+Version rel_1_2_3
+
+ - I had forgotten to copy the i18n keys to AplicationResources.renameit file
+   this renameIt files exists to avoid cvs'ing the real one (so I can use it to production and develop)
+
+------------------
+Version rel_1_2_2 
+
+ - next and previous month of calendar ok
+ - Added users count at right bar, admin can see hosts now, viwers total access 
+   Now it gets just from the ReadAction, but with superclass, it'll the for all actions
+ - Added internationalization (i18n) for rail, header, and logon page (have to test more and add to dates at Read.jsp too)
+ - executeEnd changed to execute Finish, as my proxy at work was blocking thinking it was execu"teen"d / sorry for bothering : )
+
+Version rel_1_2_1 (dev)
+
+- Favorites working
+- deleting post's are working (it was not :)
+- Javascript Calendar working with links and all :) maybe a tooltip (number of posts , or tittle of the first) could help too
+ - next and previous month of calendar ok
+
+todo: see TODO.txt and see tracking SF mechanism
+
+
+------------------
+Version rel_1_2_0 (dev)
+
+- Added Ant build
+- Added log4j logging
+- Added ServiceException to better decouple service layer
+- Added HSQL configuration
+------------------
+
+Version rel_1_1_0 (release)
+
+- changed to hibernate
+
+------------------
+Version rel_1_0_0
+
+
+

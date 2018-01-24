@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<!--
+  ** Web application configuration for jsp precompilation.
+  ** @author Matthias L. Jugel
+  ** @version $Id: web.xml,v 1.45 2004/05/17 10:56:17 leo Exp $
+  -->
+<web-app>
+  <display-name>SnipSnap</display-name>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+
+  <!-- ERROR PAGES -->
+  <error-page>
+    <error-code>500</error-code>
+    <location>/error.jsp</location>
+  </error-page>
+    
+  <error-page>
+    <exception-type>javax.servlet.ServletException</exception-type>
+    <location>/error.jsp</location>
+  </error-page>
+
+  <!-- TAGLIBS -->
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/core</taglib-uri>
+    <taglib-location>/WEB-INF/c.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>http://snipsnap.com/snipsnap</taglib-uri>
+    <taglib-location>/WEB-INF/snipsnap.tld</taglib-location>
+  </taglib>
+
+  <taglib>
+    <taglib-uri>http://java.sun.com/jstl/fmt</taglib-uri>
+    <taglib-location>/WEB-INF/fmt.tld</taglib-location>
+  </taglib>
+
+</web-app>

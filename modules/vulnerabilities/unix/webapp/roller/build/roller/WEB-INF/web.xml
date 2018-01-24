@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app >
+<display-name>Roller Weblogger</display-name>
+
+<!-- RESIN_LOGGER -->
+
+<context-param>
+    <param-name>org.roller.persistence</param-name>
+    <param-value>org.roller.business.hibernate.RollerImpl</param-value>
+</context-param>
+
+<context-param>
+    <param-name>org.roller.authenticatorClass</param-name>
+    <param-value>org.roller.presentation.DefaultAuthenticator</param-value>
+</context-param>
+
+<context-param>
+    <param-name>org.roller.presentation.velocity.toolbox</param-name>
+    <param-value>/WEB-INF/toolbox.xml</param-value>
+</context-param>
+
+<!--
+    Don't change the order of the plugins, but feel free to
+    add and remove them.  ReadMore should always be the last
+    Plugin.  Changing the order could result in unpredictable results.
+-->
+<context-param>
+    <param-name>org.roller.pagePlugins</param-name>
+    <param-value>
+<!--
+        org.roller.presentation.velocity.plugins.jspwiki.WikiPlugin,
+        org.roller.presentation.velocity.plugins.radeox.WikiPlugin,
+-->
+        org.roller.presentation.velocity.plugins.textile.TextilePlugin,
+        org.roller.presentation.velocity.plugins.bookmarks.BookmarkPlugin,
+        org.roller.presentation.velocity.plugins.email.ObfuscateEmailPlugin,
+        org.roller.presentation.velocity.plugins.smileys.SmileysPlugin,
+        org.roller.presentation.velocity.plugins.readmore.ReadMorePlugin
+    </param-value>
+</context-param>
+
+    <filter>
+        <filter-name>RssGzipFilter</filter-name>
+        <filter-class>org.roller.presentation.filters.CompressionFilter</filter-class>
+    </filter>
+
+   <filter>
+      <filter-name>RssCacheFilter</filter-name>
+      <filter-class>org.roller.presentation.pagecache.PageCache</filter-class>
+      <init-param>
+         <param-name>size</param-name>
+         <param-value>50</param-value>
+         <description><![CDATA[Number of pages to keep in cache]]></description>
+      </init-param>
+      <init-param>
+         <param-name>timeoutInterval</param-name>
+         <param-value>1800</param-value>
+         <description><![CDATA[Page Cache timeout interval in seconds (-1 to disable timeout)]]></description>
+      </init-param>
+      <init-param>
+         <param-name>timeoutRatio</param-name>
+         <param-value>1.0</param-value>
+         <description><![CDATA[Ratio of pages to be timed out on interval (1.0 means 100%)]]></description>
+      </init-param>
+   </filter>
+
+    <!-- begin xdoclet generated Filter declarations -->
+
+   <filter>
+      <filter-name>CloseSessionFilter</filter-name>
+      <filter-class>org.roller.presentation.filters.CloseSessionFilter</filter-class>
+   </filter>
+   <filter>
+      <filter-name>loginFilter</filter-name>
+      <display-name>Login Filter</display-name>
+      <filter-class>org.roller.presentation.filters.LoginFilter</filter-class>
+      <init-param>
+         <param-name>enabled</param-name>
+         <param-value>true</param-value>
+      </init-param>
+   </filter>
+   <filter>
+      <filter-name>PageGzipFilter</filter-name>
+      <filter-class>org.roller.presentation.filters.CompressionFilter</filter-class>
+   </filter>
+   <filter>
+      <filter-name>BreadCrumbFilter</filter-name>
+      <filter-class>org.roller.presentation.filters.BreadCrumbFilter</filter-class>
+      <init-param>
+         <param-name>maxStackSize</param-name>
+         <param-value>3</param-value>
+      </init-param>
+   </filter>
+   <filter>
+      <filter-name>RefererFilter</filter-name>
+      <filter-class>org.roller.presentation.filters.RefererFilter</filter-class>
+   </filter>
+   <filter>
+      <filter-name>IfModifiedFilter</filter-name>
+      <filter-class>org.roller.presentation.filters.IfModifiedFilter</filter-class>
+   </filter>
+   <filter>
+      <filter-name>PageCacheFilter</filter-name>
+      <filter-class>org.roller.presentation.pagecache.PageCache</filter-class>
+      <init-param>
+         <param-name>size</param-name>
+         <param-value>100</param-value>
+         <description><![CDATA[Number of pages to keep in cache]]></description>
+      </init-param>
+      <init-param>
+         <param-name>timeoutInterval</param-name>
+         <param-value>1800</param-value>
+         <description><![CDATA[Page Cache timeout interval in seconds (-1 to disable timeout, default is 30 minutes)]]></description>
+      </init-param>
+      <init-param>
+         <param-name>timeoutRatio</param-name>
+         <param-value>1.0</param-value>
+         <description><![CDATA[Ratio of pages to be timed out on interval (1.0 means 100%, default is 1.0)]]></description>
+      </init-param>
+   </filter>
+   <filter>
+      <filter-name>RequestFilter</filter-name>
+      <filter-class>org.roller.presentation.filters.RequestFilter</filter-class>
+   </filter>
+
+<!-- *********************************************************
+    Filter mappings - order IS important here.  Since there is
+    no way to declare order in xdoclet, we must do it by hand.
+    ******************************************************* -->
+
+<!-- Map everything to the CloseSessionFilter -->
+<filter-mapping>
+    <filter-name>CloseSessionFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+
+<!-- Use RequestFilter on all requests except for Newsfeed requests -->
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>/page/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>/comments/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>/preview/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>/flavor/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>/foaf/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RequestFilter</filter-name>
+    <url-pattern>/xmlrpc/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RefererFilter</filter-name>
+    <url-pattern>/page/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RefererFilter</filter-name>
+    <url-pattern>/comments/*</url-pattern>
+</filter-mapping>
+
+<!-- RememberMe Filter -->
+<filter-mapping>
+    <filter-name>loginFilter</filter-name>
+    <url-pattern>/login.jsp</url-pattern>
+    <!-- These are needed by Tomcat 5 since it does a forward to login.jsp -->
+    <!--dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher-->
+</filter-mapping>
+<filter-mapping>
+    <filter-name>loginFilter</filter-name>
+    <url-pattern>/logout-redirect.jsp</url-pattern>
+</filter-mapping>
+
+<!--
+Currently we only support If-Modified-Since using weblog last pub
+time, so the only place we should us it is on the RSS feed.
+-->
+<filter-mapping>
+    <filter-name>IfModifiedFilter</filter-name>
+    <url-pattern>/rss/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>BreadCrumbFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>PageGzipFilter</filter-name>
+    <url-pattern>/page/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>RssGzipFilter</filter-name>
+    <url-pattern>/rss/*</url-pattern>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>RssGzipFilter</filter-name>
+    <url-pattern>/flavor/*</url-pattern>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>RssGzipFilter</filter-name>
+    <url-pattern>/foaf/*</url-pattern>
+</filter-mapping>
+
+<!-- Cache filters should be last in line -->
+<filter-mapping>
+    <filter-name>RssCacheFilter</filter-name>
+    <url-pattern>/rss/*</url-pattern>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>RssCacheFilter</filter-name>
+    <url-pattern>/flavor/*</url-pattern>
+</filter-mapping>
+<filter-mapping>
+    <filter-name>RssCacheFilter</filter-name>
+    <url-pattern>/foaf/*</url-pattern>
+</filter-mapping>
+
+<filter-mapping>
+    <filter-name>PageCacheFilter</filter-name>
+    <url-pattern>/page/*</url-pattern>
+</filter-mapping>
+
+   <listener>
+      <listener-class>org.roller.presentation.RollerSession</listener-class>
+   </listener>
+   <listener>
+      <listener-class>org.roller.presentation.RollerContext</listener-class>
+   </listener>
+
+    <!--
+    To use non XDoclet listeners, create a listeners.xml file that
+    contains the additional listeners and place it in your
+    project's merge dir.
+    -->
+
+<!-- The Struts Servlet -->
+<servlet>
+
+	<servlet-name>action</servlet-name>
+	<servlet-class>org.apache.struts.action.ActionServlet</servlet-class>
+
+	<init-param>
+		<param-name>config</param-name>
+		<param-value>/WEB-INF/struts-config.xml</param-value>
+	</init-param>
+
+	<init-param>
+		<param-name>validate</param-name>
+		<param-value>true</param-value>
+	</init-param>
+
+	<init-param>
+		<param-name>application</param-name>
+		<param-value>org.roller.presentation.ApplicationResources</param-value>
+	</init-param>
+
+	<load-on-startup>2</load-on-startup>
+
+</servlet>
+
+   <servlet>
+      <servlet-name>RssServlet</servlet-name>
+     <servlet-class>org.roller.presentation.velocity.FlavorServlet</servlet-class>
+
+   </servlet>
+   <servlet>
+      <servlet-name>RollerXMLRPCServlet</servlet-name>
+     <servlet-class>org.roller.presentation.xmlrpc.RollerXMLRPCServlet</servlet-class>
+
+   </servlet>
+   <servlet>
+      <servlet-name>TrackbackServlet</servlet-name>
+     <servlet-class>org.roller.presentation.weblog.TrackbackServlet</servlet-class>
+
+   </servlet>
+   <servlet>
+      <servlet-name>SearchServlet</servlet-name>
+     <servlet-class>org.roller.presentation.velocity.SearchServlet</servlet-class>
+
+      <init-param>
+         <param-name>properties</param-name>
+         <param-value>/WEB-INF/velocity.properties</param-value>
+      </init-param>
+
+      <load-on-startup>5</load-on-startup>
+
+   </servlet>
+   <servlet>
+      <servlet-name>PreviewServlet</servlet-name>
+     <servlet-class>org.roller.presentation.velocity.PreviewServlet</servlet-class>
+
+      <init-param>
+         <param-name>properties</param-name>
+         <param-value>/WEB-INF/velocity.properties</param-value>
+      </init-param>
+
+      <load-on-startup>1</load-on-startup>
+
+   </servlet>
+   <servlet>
+      <servlet-name>LanguageServlet</servlet-name>
+     <servlet-class>org.roller.presentation.velocity.LanguageServlet</servlet-class>
+
+      <init-param>
+         <param-name>org.roller.presentation.supported.languages</param-name>
+         <param-value>en,nl,zh,vi</param-value>
+      </init-param>
+
+      <load-on-startup>10</load-on-startup>
+
+   </servlet>
+   <servlet>
+      <servlet-name>PageServlet</servlet-name>
+     <servlet-class>org.roller.presentation.velocity.PageServlet</servlet-class>
+
+      <init-param>
+         <param-name>properties</param-name>
+         <param-value>/WEB-INF/velocity.properties</param-value>
+      </init-param>
+
+      <load-on-startup>0</load-on-startup>
+
+   </servlet>
+   <servlet>
+      <servlet-name>FoafServlet</servlet-name>
+     <servlet-class>org.roller.presentation.velocity.FoafServlet</servlet-class>
+
+   </servlet>
+   <servlet>
+      <servlet-name>login</servlet-name>
+      <display-name>Login Servlet</display-name>
+     <servlet-class>org.roller.presentation.LoginServlet</servlet-class>
+
+      <init-param>
+         <param-name>authURL</param-name>
+         <param-value>/j_security_check</param-value>
+      </init-param>
+
+      <load-on-startup>3</load-on-startup>
+
+   </servlet>
+
+    <servlet-mapping>
+        <servlet-name>action</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>RssServlet</servlet-name>
+      <url-pattern>/rss/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>RssServlet</servlet-name>
+      <url-pattern>/flavor/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>RollerXMLRPCServlet</servlet-name>
+      <url-pattern>/xmlrpc</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>TrackbackServlet</servlet-name>
+      <url-pattern>/trackback/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>SearchServlet</servlet-name>
+      <url-pattern>/search/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>PreviewServlet</servlet-name>
+      <url-pattern>/preview/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>LanguageServlet</servlet-name>
+      <url-pattern>/language/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>PageServlet</servlet-name>
+      <url-pattern>/page/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>PageServlet</servlet-name>
+      <url-pattern>/comments/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>FoafServlet</servlet-name>
+      <url-pattern>/foaf/*</url-pattern>
+   </servlet-mapping>
+   <servlet-mapping>
+      <servlet-name>login</servlet-name>
+      <url-pattern>/auth/*</url-pattern>
+   </servlet-mapping>
+
+   <session-config>
+      <session-timeout>30</session-timeout>
+   </session-config>
+
+   <!--
+   To specify mime mappings, create a file named mime-mappings.xml, put it in your project's mergedir.
+   Organize mime-mappings.xml following this DTD slice:
+
+   <!ELEMENT mime-mapping (extension, mime-type)>
+   -->
+
+       <welcome-file-list>
+        <welcome-file>home.jsp</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+<!-- 
+<error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/error.jsp</location>
+</error-page>
+This results in an access denied error 
+<error-page>
+    <error-code>400</error-code>
+    <location>/login-redirect.jsp</location>
+</error-page>
+-->
+
+<taglib>
+	<taglib-uri>oscache</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/oscache.tld</taglib-location>
+</taglib>
+
+<!--
+<taglib>
+	<taglib-uri>display</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/display.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>roller</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/roller.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>struts-bean</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/struts-bean.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>struts-html</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/struts-html.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>struts-logic</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/struts-logic.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>struts-nested</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/struts-nested.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>struts-template</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/struts-template.tld</taglib-location>
+</taglib>
+
+<taglib>
+	<taglib-uri>core-stl</taglib-uri>
+	<taglib-location>/WEB-INF/tlds/c.tld</taglib-location>
+</taglib>
+
+<taglib>
+  <taglib-uri>string</taglib-uri>
+  <taglib-location>/WEB-INF/tlds/taglibs-string.tld</taglib-location>
+</taglib>
+-->
+
+<!-- TOMCAT RESOURCE REF -->
+    <resource-ref>
+            <res-ref-name>jdbc/rollerdb</res-ref-name>
+            <res-type>javax.sql.DataSource</res-type>
+            <res-auth>Container</res-auth>
+    </resource-ref>
+
+<!-- Only allow editors to access edit-*.jsp pages -->
+<security-constraint>
+
+    <web-resource-collection>
+        <web-resource-name>EditPages</web-resource-name>
+        <description>Only allow editors to access editor pages</description>
+        <url-pattern>/admin/*</url-pattern>
+        <url-pattern>/adminUser.do</url-pattern>
+        <url-pattern>/uploadFiles.do</url-pattern>
+        <url-pattern>/bookmarks/*</url-pattern>        
+        <url-pattern>/bookmark.do</url-pattern>
+        <url-pattern>/bookmark.do</url-pattern>
+        <url-pattern>/folder.do</url-pattern>
+        <url-pattern>/importBookmarks.do</url-pattern>
+        <url-pattern>/bookmarks.do</url-pattern>
+        <url-pattern>/bookmarkEdit.do</url-pattern>
+        <url-pattern>/bookmarkSave.do</url-pattern>
+        <url-pattern>/folderEdit.do</url-pattern>
+        <url-pattern>/folderSave.do</url-pattern>
+        <url-pattern>/weblog/*</url-pattern>
+        <url-pattern>/weblog.do</url-pattern>
+        <url-pattern>/weblogQuery.do</url-pattern>
+        <url-pattern>/categoryEdit.do</url-pattern>
+        <url-pattern>/categorySave.do</url-pattern>
+        <url-pattern>/exportEntries.do</url-pattern>
+        <url-pattern>/importEntries.do</url-pattern>
+        <url-pattern>/referers.do</url-pattern>
+        <url-pattern>/website/*</url-pattern>
+        <url-pattern>/website.do</url-pattern>
+        <url-pattern>/pages/*</url-pattern>
+        <url-pattern>/page.do</url-pattern>
+        <url-pattern>/login-redirect.jsp</url-pattern>
+        <url-pattern>/edit-user.jsp</url-pattern>
+        <url-pattern>/templates/*</url-pattern>
+        <http-method>POST</http-method>
+        <http-method>GET</http-method>
+    </web-resource-collection>
+    <auth-constraint>
+        <description>Only let editors log in</description>
+        <role-name>editor</role-name>
+    </auth-constraint>
+
+</security-constraint>
+
+<!-- Login and login error pages -->
+<login-config>
+
+    <!-- RESIN_AUTHENTICATOR -->
+
+    <auth-method>FORM</auth-method>
+    <form-login-config>
+        <form-login-page>/login.jsp</form-login-page>
+        <form-error-page>/loginerror.jsp</form-error-page>
+    </form-login-config>
+</login-config>
+
+<!-- The editor role -->
+<security-role>
+    <description>The Editor Role</description>
+    <role-name>editor</role-name>
+</security-role>
+
+</web-app>

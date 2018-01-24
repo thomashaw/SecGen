@@ -1,0 +1,17 @@
+net.sf.jboard.filters
+net.sf.jboard.fwk.exception
+net.sf.jboard.model.common
+net.sf.jboard.model.forum.clients
+net.sf.jboard.model.forum.dao
+net.sf.jboard.model.forum.dto
+net.sf.jboard.model.reg.clients
+net.sf.jboard.model.reg.dao
+net.sf.jboard.model.reg.dto
+net.sf.jboard.scheduler.jobs
+net.sf.jboard.security
+net.sf.jboard.struts.forum.actions
+net.sf.jboard.struts.fwk.actions
+net.sf.jboard.struts.plugins
+net.sf.jboard.struts.reg.actions
+net.sf.jboard.struts.stats.actions
+net.sf.jboard.test.cactus

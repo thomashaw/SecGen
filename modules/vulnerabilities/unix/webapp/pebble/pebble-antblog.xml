@@ -1,0 +1,41 @@
+<project name="pebble-antblog" default="example" basedir=".">
+
+  <taskdef name="blogger.newPost" classname="pebble.ant.blogger.NewPostTask"/>
+  <taskdef name="metaWeblog.newPost" classname="pebble.ant.metaweblog.NewPostTask"/>
+  <taskdef name="metaWeblog.newMediaObject" classname="pebble.ant.metaweblog.NewMediaObjectTask"/>
+
+  <!-- content must use escaped HTML/XML tags -->
+  <property name="content" value="&lt;p&gt;Hello from Ant!&lt;/p&gt;"/>
+  <property name="src" value="somefile.txt" />
+  <property name="dest" value="files/somefile.txt" />
+
+  <!-- example of how to post to a blog -->
+  <target name="example">
+    <blogger.newPost
+      url="http://localhost:8080/blog/xmlrpc"
+      blogid="test"
+      username="simon"
+      password="password"
+      title="Posting with Blogger API"
+      content="${content}"
+      category="java" />
+
+    <metaWeblog.newPost
+      url="http://localhost:8080/blog/xmlrpc"
+      blogid="test"
+      username="simon"
+      password="password"
+      title="Posting with MetaWeblog API"
+      content="${content}"
+      category="java" />
+
+    <metaWeblog.newMediaObject
+      url="http://localhost:8080/blog/xmlrpc"
+      blogid="test"
+      username="simon"
+      password="password"
+      src="${src}"
+      dest="${dest}" />
+  </target>
+
+</project>

@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.roller.pojos.PageData"
+        table="webpage"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="string"
+            unsaved-value="null"
+        >
+            <generator class="uuid.hex">
+            </generator>
+        </id>
+
+        <many-to-one
+            name="website"
+            class="org.roller.pojos.WebsiteData"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="websiteid"
+            not-null="true"
+        />
+
+        <property
+            name="name"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="name"
+            unique="false"
+        />
+
+        <property
+            name="description"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="description"
+            unique="false"
+        />
+
+        <property
+            name="link"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="link"
+            unique="false"
+        />
+
+        <property
+            name="template"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="template"
+            unique="false"
+        />
+
+        <property
+            name="updateTime"
+            type="java.util.Date"
+            update="true"
+            insert="true"
+            column="updatetime"
+            unique="false"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-PageData.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

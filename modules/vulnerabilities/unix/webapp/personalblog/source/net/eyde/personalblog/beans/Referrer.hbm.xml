@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class name="net.eyde.personalblog.beans.Referrer" table="t_referrers">
+        <id name="id" column="referrer_id" type="string">
+          <generator class="uuid.hex"/>
+        </id>
+        <version name="version"/>
+        <property name="date"/>
+        <property name="referrer"/>
+        <property name="counter"/>
+        <property name="created"/>
+    </class>
+
+</hibernate-mapping>
+

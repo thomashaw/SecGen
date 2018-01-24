@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN" 
+    "http://hibernate.sourceforge.net/hibernate-mapping-2.0.dtd">
+
+<hibernate-mapping>
+    <class
+        name="org.roller.pojos.BookmarkData"
+        table="bookmark"
+        dynamic-update="false"
+        dynamic-insert="false"
+    >
+
+        <id
+            name="id"
+            column="id"
+            type="string"
+            unsaved-value="null"
+        >
+            <generator class="uuid.hex">
+            </generator>
+        </id>
+
+        <property
+            name="name"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="name"
+            unique="false"
+        />
+
+        <property
+            name="description"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="description"
+            unique="false"
+        />
+
+        <property
+            name="url"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="url"
+            unique="false"
+        />
+
+        <property
+            name="weight"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="weight"
+            unique="false"
+        />
+
+        <property
+            name="priority"
+            type="java.lang.Integer"
+            update="true"
+            insert="true"
+            column="priority"
+            unique="false"
+        />
+
+        <property
+            name="image"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="image"
+            unique="false"
+        />
+
+        <property
+            name="feedUrl"
+            type="java.lang.String"
+            update="true"
+            insert="true"
+            column="feedurl"
+            unique="false"
+        />
+
+        <many-to-one
+            name="folder"
+            class="org.roller.pojos.FolderData"
+            cascade="none"
+            outer-join="auto"
+            update="true"
+            insert="true"
+            column="folderid"
+            not-null="true"
+        />
+
+        <!--
+            To add non XDoclet property mappings, create a file named
+                hibernate-properties-BookmarkData.xml
+            containing the additional properties and place it in your merge dir.
+        -->
+
+    </class>
+
+</hibernate-mapping>

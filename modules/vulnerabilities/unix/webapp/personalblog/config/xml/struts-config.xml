@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE struts-config PUBLIC
+          "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN"
+          "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<struts-config>
+    <data-sources/>
+
+    <form-beans>
+    	
+        <form-bean name="logonForm"
+                   type="net.eyde.personalblog.struts.form.LogonForm"/>
+        <form-bean name="newPostForm"
+                   type="net.eyde.personalblog.struts.form.NewPostForm"/>
+        <form-bean name="editPostForm"
+                   type="net.eyde.personalblog.struts.form.EditPostForm"/>
+        <form-bean name="searchForm"
+                   type="net.eyde.personalblog.struts.form.SearchForm"/>
+        <form-bean name="commentForm"
+                   type="net.eyde.personalblog.struts.form.CommentForm"/>
+        <form-bean name="propertyForm"
+                   type="net.eyde.personalblog.struts.form.PropertyForm"/>
+    </form-beans>
+    <global-exceptions/>
+    <global-forwards>
+        <forward name="welcome"
+                 path="/index.do"/>
+                 
+		<forward name="database_off"
+               path="/database_off.jsp"/>
+		<forward name="tables_not_created"
+               path="/tables_not_created.jsp"/>
+		<forward name="missing_properties"
+               path="/initialize_properties.jsp"/>
+                 
+    </global-forwards>
+    <action-mappings>
+        <action path="/rss"
+                type="net.eyde.personalblog.struts.action.ReadAction"
+                scope="request">
+            <forward name="readposts"
+                     path="/rssout.jsp"/>
+            <forward name="cancel"
+                     path="/rssout.jsp"/>
+        </action>
+        <action path="/indexlite"
+                type="net.eyde.personalblog.struts.action.ReadAction"
+                scope="request">
+            <forward name="readposts"
+                     path="ReadLite"/>
+            <forward name="cancel"
+                     path="ReadLite"/>
+        </action>
+        <action path="/index"
+                type="net.eyde.personalblog.struts.action.ReadAction"
+                scope="request">
+            <forward name="initialize"
+                     path="Initialize"/>                                                          
+            <forward name="readposts"
+                     path="ReadPosts"/>
+            <forward name="readpost"
+                     path="ReadPost"/>
+        </action>
+        <action path="/initialize"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.InitializeAction"
+                name="logonForm"                
+                scope="request">
+            <forward name="success"
+                     path="/index.do"/>
+        </action>
+        <action path="/importInit"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.ImportAction"
+                scope="request">
+            <forward name="success"
+                     path="Import"/>
+            <forward name="failure"
+                     path="Import"/>
+            <forward name="cancel"
+                     path="Error"/>
+        </action>
+        <action path="/import"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.ImportAction"
+                name="logonForm"
+                scope="request"
+                validate="true"
+                input="/logon.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+            <forward name="failure"
+                     path="/index.do"/>
+            <forward name="cancel"
+                     path="/index.do"/>
+        </action>
+        <action path="/logonInit"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.LogonAction"
+                scope="request">
+            <forward name="success"
+                     path="Logon"/>
+            <forward name="failure"
+                     path="Logon"/>
+            <forward name="cancel"
+                     path="Error"/>
+        </action>
+        <action path="/logon"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.LogonAction"
+                name="logonForm"
+                scope="request"
+                validate="true">
+            <forward name="success"
+                     path="/index.do"/>
+            <forward name="failure"
+                     path="/logonInit.do?method=executeStart"/>
+        </action>
+        <action path="/logout"
+                type="net.eyde.personalblog.struts.action.LogoutAction"
+                scope="request"
+                input="/index.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+        </action>
+        <action path="/postInit"
+                parameter="method"
+                name="newPostForm" 
+                type="net.eyde.personalblog.struts.action.PostSaveAction"
+                scope="request">
+            <forward name="success"
+                     path="NewPost"/>
+            <forward name="cancel"
+                     path="/index.do"/>
+        </action>
+        <action path="/postsave"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.PostSaveAction"
+                name="newPostForm"
+                scope="request"
+                validate="true"
+                input="/newpost.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+        </action>
+        <action path="/editInit"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.EditSaveAction"
+                scope="request">
+            <forward name="success"
+                     path="EditPost"/>
+            <forward name="failure"
+                     path="EditPost"/>
+            <forward name="cancel"
+                     path="/index.do"/>
+        </action>
+        <action path="/editsave"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.EditSaveAction"
+                name="editPostForm"
+                scope="request"
+                validate="true"
+                input="/editpost.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+            <forward name="failure"
+                     path="/index.do"/>
+        </action>
+        <action path="/deletePostInit"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.DeletePostAction"
+                scope="request">
+            <forward name="success"
+                     path="DeletePost"/>
+            <forward name="failure"
+                     path="DeletePost"/>
+            <forward name="cancel"
+                     path="/index.do"/>
+        </action>
+        <action path="/deletePost"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.DeletePostAction"
+                name="deletePostForm"
+                scope="request"
+                validate="true"
+                input="/deletepost.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+            <forward name="failure"
+                     path="/index.do"/>
+        </action>
+        <action path="/search"
+                type="net.eyde.personalblog.struts.action.SearchAction"
+                name="searchForm"
+                scope="request"
+                validate="true"
+                input="/index.do">
+            <forward name="success"
+                     path="Search"/>
+        </action>
+        <action path="/commentInit"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.CommentAction"
+                scope="request">
+            <forward name="success"
+                     path="NewComment"/>
+            <forward name="failure"
+                     path="NewComment"/>
+            <forward name="cancel"
+                     path="/index.do"/>
+        </action>
+        <action path="/comment"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.CommentAction"
+                name="commentForm"
+                scope="request"
+                validate="true"
+                input="/comment.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+            <forward name="failure"
+                     path="/index.do"/>
+        </action>
+        <action path="/lastcomments"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.CommentAction"
+                scope="request"
+                validate="true"
+                input="/lastcomments.jsp">
+            <forward name="success"
+                     path="LastComment"/>
+            <forward name="failure"
+                     path="LastComment"/>
+            <forward name="cancel"
+                     path="/index.do"/>
+        </action>
+        <action path="/propertyInit"
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.EditPropertiesAction"
+                name="propertyForm"
+                scope="session">
+            <forward name="success"
+                     path="EditProperties"/>
+        </action>
+        <action path="/property" 
+                parameter="method"
+                type="net.eyde.personalblog.struts.action.EditPropertiesAction"
+                name="propertyForm"
+                scope="session"
+                validate="true"
+                input="/editprop.jsp">
+            <forward name="success"
+                     path="/index.do"/>
+        </action>
+        <action path="/Welcome"
+                type="org.apache.struts.actions.ForwardAction"
+                parameter="/pages/Welcome.jsp"/>
+    </action-mappings>
+    <controller locale="true"  processorClass="net.eyde.personalblog.struts.action.BlogTilesProcessor"/>
+    <message-resources parameter="ApplicationResources"
+                       key="org.apache.struts.action.MESSAGE"/>
+    <plug-in className="org.apache.struts.tiles.TilesPlugin">
+        <set-property property="definitions-config"
+                      value="/WEB-INF/tiles-defs.xml"/>
+        <set-property property="definitions-debug"
+                      value="0"/>
+        <set-property property="definitions-parser-details"
+                      value="0"/>
+        <set-property property="definitions-parser-validate"
+                      value="true"/>
+    </plug-in>
+    <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+        <set-property property="pathnames"
+                      value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+    </plug-in>
+</struts-config>

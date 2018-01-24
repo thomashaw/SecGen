@@ -1,0 +1,101 @@
+<project name="pebble" default="build" basedir=".">
+
+  <property name="etc.dir" value="${basedir}/etc"/>
+  <property name="src.dir" value="${basedir}/src"/>
+  <property name="javadoc.dir" value="${basedir}/javadoc"/>
+  <property name="test.dir" value="${basedir}/test"/>
+  <property name="build.dir" value="${basedir}/build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+
+  <property environment="env"/>
+
+  <path id="project.classpath">
+    <pathelement path="${env.CLOVER_HOME}/lib/clover.jar"/>
+    <fileset dir="../lib">
+      <include name="*.jar"/>
+    </fileset>
+    <dirset dir="etc"/>
+  </path>
+
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${classes.dir}/META-INF"/>
+    <mkdir dir="${javadoc.dir}"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <property name="project.classpath" refid="project.classpath"/>
+    <echo message="Using CLASSPATH of ${project.classpath}"/>
+
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="yes">
+      <classpath refid="project.classpath"/>
+    </javac>
+  </target>
+
+  <target name="build" depends="compile">
+    <copy todir="${classes.dir}" file="../pebble-build.properties" />
+
+    <copy todir="${classes.dir}/META-INF">
+      <fileset dir="${etc.dir}">
+        <include name="*.tld"/>
+      </fileset>
+    </copy>
+
+    <jar jarfile="${build.dir}/pebble.jar">
+      <fileset dir="${classes.dir}">
+        <exclude name="pebble/ant/**"/>
+      </fileset>
+    </jar>
+
+    <jar jarfile="${build.dir}/pebble-antblog.jar">
+      <fileset dir="${classes.dir}">
+        <include name="pebble/ant/**"/>
+        <exclude name="META-INF" />
+      </fileset>
+    </jar>
+
+    <javac srcdir="${test.dir}" destdir="${classes.dir}" debug="yes">
+      <classpath refid="project.classpath"/>
+    </javac>
+
+    <!-- <jar jarfile="${lib.dir}/pebble-test.jar" basedir="${build.dir}"/> -->
+  </target>
+
+  <target name="javadoc" depends="init">
+    <javadoc packagenames="pebble.*"
+      sourcepath="${src.dir}"
+      destdir="${javadoc.dir}"
+      author="true"
+      version="true"
+      use="true"
+      windowtitle="Pebble">
+      <doctitle><![CDATA[<h1>Pebble</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2003-2004 Simon Brown. All Rights Reserved.</i>]]></bottom>
+      <classpath refid="project.classpath"/>
+    </javadoc>
+  </target>
+
+  <target name="test" depends="build">
+    <junit printsummary="withOutAndErr" haltonfailure="yes" fork="no">
+      <classpath>
+        <pathelement location="${classes.dir}"/>
+        <pathelement path="${project.classpath}"/>
+      </classpath>
+
+      <formatter type="plain" usefile="false"/>
+
+      <batchtest todir="${classes.dir}">
+        <fileset dir="${test.dir}">
+          <include name="**/*Test.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete dir="${javadoc.dir}"/>
+  </target>
+
+</project>

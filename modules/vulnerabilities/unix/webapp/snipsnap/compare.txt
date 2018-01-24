@@ -1,0 +1,107 @@
+There are 33 calls in reflection.txt. 
+There are 26 calls in reflection_cast.txt. 
+There are 33 calls to compare. 
+------------------------------------------------------------------------------------------------------------------------
+[  1] javax.xml.parsers.FactoryFinder.findClassLoader(FactoryFinder.java:63)                              
+reflection.txt (   0)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[  2] sun.io.Converters.newConverter(Converters.java:228)                                                 
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[  3] sun.misc.Service$LazyIterator.next(Service.java:270)                                                
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[  4] java.net.URL.getURLStreamHandler(URL.java:1051)                                                     
+reflection.txt (  13)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[  5] sun.misc.Launcher.<init>(Launcher.java:76)                                                          
+reflection.txt (   6)	reflection_cast.txt (   2)	
+------------------------------------------------------------------------------------------------------------------------
+[  6] java.util.ResourceBundle.loadBundle(ResourceBundle.java:1063)                                       
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[  7] org.snipsnap.util.PartialSearcher.<init>(PartialSearcher.java:53)                                   
+reflection.txt (  57)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[  8] org.xml.sax.helpers.NewInstance.newInstance(NewInstance.java:44)                                    
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[  9] org.dom4j.DocumentFactory.createSingleton(DocumentFactory.java:299)                                 
+reflection.txt (   7)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[ 10] org.snipsnap.net.PluginServlet.getServletPlugin(PluginServlet.java:174)                             
+reflection.txt (   1)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 11] org.codehaus.groovy.runtime.InvokerHelper.createScript(InvokerHelper.java:375)                      
+reflection.txt (  19)	reflection_cast.txt (   4)	
+------------------------------------------------------------------------------------------------------------------------
+[ 12] org.snipsnap.util.ApplicationAwareMap.newInstance(ApplicationAwareMap.java:66)                      
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 13] org.xml.sax.helpers.NewInstance.newInstance(NewInstance.java:25)                                    
+reflection.txt (   2)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[ 14] org.snipsnap.serialization.LabelSerializerFactory.createSerializerFor(LabelSerializerFactory.java:22)
+reflection.txt (   4)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 15] sun.nio.cs.AbstractCharsetProvider.lookup(AbstractCharsetProvider.java:130)                         
+reflection.txt (  53)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[ 16] java.net.InetAddress.loadImpl(InetAddress.java:1231)                                                
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 17] java.beans.Introspector.instantiate(Introspector.java:1457)                                         
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 18] java.security.Security.doGetImpl(Security.java:1137)                                                
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 19] groovy.lang.MetaClass.loadReflector(MetaClass.java:1632)                                            
+reflection.txt (   1)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[ 20] sun.misc.Launcher$Factory.createURLStreamHandler(Launcher.java:410)                                 
+reflection.txt (  13)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[ 21] org.snipsnap.util.ApplicationAwareMap.<init>(ApplicationAwareMap.java:51)                           
+reflection.txt (  57)	reflection_cast.txt (  12)	
+------------------------------------------------------------------------------------------------------------------------
+[ 22] javax.xml.parsers.FactoryFinder.newInstance(FactoryFinder.java:95)                                  
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 23] java.net.InetAddress.loadImpl(InetAddress.java:1248)                                                
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 24] java.beans.Introspector.instantiate(Introspector.java:1479)                                         
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 25] java.beans.Introspector.findExplicitBeanInfo(Introspector.java:409)                                 
+reflection.txt (   2)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 26] java.beans.Introspector.instantiate(Introspector.java:1468)                                         
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 27] java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment(GraphicsEnvironment.java:62)               
+reflection.txt (   3)	reflection_cast.txt (   1)	
+------------------------------------------------------------------------------------------------------------------------
+[ 28] javax.activation.MailcapCommandMap.createDataContentHandler(MailcapCommandMap.java:497)             
+reflection.txt (   7)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 29] org.codehaus.groovy.runtime.NewStaticMetaMethod.invoke(NewStaticMetaMethod.java:94)                 
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 30] com.hp.hpl.mesa.rdf.jena.common.RDFWriterFImpl.getWriter(RDFWriterFImpl.java:95)                    
+reflection.txt (   4)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 31] org.radeox.util.Service.loadInstances(Service.java:123)                                             
+reflection.txt (   0)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 32] jwutil.util.Assert.attemptDelegate(Assert.java:105)                                                 
+reflection.txt (   1)	reflection_cast.txt (   0)	
+------------------------------------------------------------------------------------------------------------------------
+[ 33] groovy.lang.MetaClass.loadReflector(MetaClass.java:1615)                                            
+reflection.txt (   1)	reflection_cast.txt (   1)	
+
+
+------------------------------------------------------------------------------------------------------------------------
+reflection.txt ( 251)	reflection_cast.txt (  27)	
+------------------------------------------------------------------------------------------------------------------------

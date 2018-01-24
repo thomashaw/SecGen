@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+	<appender name="STDOUT" class="org.apache.log4j.ConsoleAppender">
+           <layout class="org.apache.log4j.PatternLayout">
+             <param name="ConversionPattern"
+		    value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+           </layout>	    
+	</appender>
+
+<appender name="FILE" class="org.apache.log4j.FileAppender">
+    <param name="File" value="${catalina.home}/logs/personnalBlog-log.txt"/>
+    <param name="Append" value="false"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n"/>
+    </layout>
+  </appender>
+<!-- log detail configuration -->
+	<category name="net.eyde.personalblog">
+	  <priority value="debug" />
+   	   <appender-ref ref="STDOUT" />	  
+   	   <appender-ref ref="FILE" />	     	   
+	</category>
+	
+
+	
+</log4j:configuration>

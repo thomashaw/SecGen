@@ -1,0 +1,5 @@
+jboard{
+
+net.sf.jboard.security.DBViaJNDILogin required;
+
+};

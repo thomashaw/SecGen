@@ -1,0 +1,220 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Server className="org.apache.catalina.core.StandardServer" debug="0" port="8005" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.mbeans.ServerLifecycleListener" debug="0" jsr77Names="false"/>
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" debug="0"/>
+  <GlobalNamingResources>
+    <Environment name="simpleValue" override="true" type="java.lang.Integer" value="30"/>
+    <Resource auth="Container" description="User database that can be updated and saved" name="UserDatabase" scope="Shareable" type="org.apache.catalina.UserDatabase"/>
+    <ResourceParams name="UserDatabase">
+      <parameter>
+        <name>factory</name>
+        <value>org.apache.catalina.users.MemoryUserDatabaseFactory</value>
+      </parameter>
+      <parameter>
+        <name>pathname</name>
+        <value>conf/tomcat-users.xml</value>p
+      </parameter>
+    </ResourceParams>
+    
+  </GlobalNamingResources>
+  <Service className="org.apache.catalina.core.StandardService" debug="0" name="Tomcat-Standalone">
+  <!-- http11 coyoteHandler -->
+    <Connector className="org.apache.coyote.tomcat4.CoyoteConnector" 
+    acceptCount="100" 
+    bufferSize="2048" 
+    compression="off" 
+    connectionLinger="-1" 
+    connectionTimeout="20000" 
+    debug="0" 
+    disableUploadTimeout="true" 
+    enableLookups="true" 
+    maxKeepAliveRequests="100" 
+    maxProcessors="75" 
+    minProcessors="5" 
+    port="808" 
+    protocolHandlerClassName="org.apache.coyote.http11.Http11Protocol" 
+    proxyPort="0" 
+    redirectPort="8443" 
+    scheme="http" 
+    secure="false" 
+    tcpNoDelay="true" 
+    useURIValidationHack="false">
+    
+      <Factory className="org.apache.catalina.net.DefaultServerSocketFactory"/>
+    </Connector>
+    <!-- jkcoyoteHandler -->
+    <Connector className="org.apache.coyote.tomcat4.CoyoteConnector" acceptCount="10" bufferSize="2048" compression="off" connectionLinger="-1" connectionTimeout="20000" debug="0" disableUploadTimeout="false" enableLookups="true" maxKeepAliveRequests="100" maxProcessors="75" minProcessors="5" port="8009" protocolHandlerClassName="org.apache.jk.server.JkCoyoteHandler" proxyPort="0" redirectPort="8443" scheme="http" secure="false" tcpNoDelay="true" useURIValidationHack="false">
+      <Factory className="org.apache.catalina.net.DefaultServerSocketFactory"/>
+    </Connector>
+    <Engine className="org.apache.catalina.core.StandardEngine" debug="0" defaultHost="localhost" mapperClass="org.apache.catalina.core.StandardEngineMapper" name="Standalone">
+      <Host className="org.apache.catalina.core.StandardHost" appBase="webapps" autoDeploy="true" configClass="org.apache.catalina.startup.ContextConfig" contextClass="org.apache.catalina.core.StandardContext" debug="0" deployXML="true" errorReportValveClass="org.apache.catalina.valves.ErrorReportValve" liveDeploy="true" mapperClass="org.apache.catalina.core.StandardHostMapper" name="localhost" unpackWARs="true">
+       <!-- standard contexte -->
+       <Context className="org.apache.catalina.core.StandardContext" cachingAllowed="true" charsetMapperClass="org.apache.catalina.util.CharsetMapper" cookies="true" crossContext="false" debug="0" displayName="Tomcat Administration Application" docBase="../server/webapps/admin" mapperClass="org.apache.catalina.core.StandardContextMapper" path="/admin" privileged="true" reloadable="false" swallowOutput="false" useNaming="true" wrapperClass="org.apache.catalina.core.StandardWrapper">
+          <Logger className="org.apache.catalina.logger.FileLogger" debug="0" directory="logs" prefix="localhost_admin_log." suffix=".txt" timestamp="true" verbosity="1"/>
+        </Context>
+        
+       <!-- jboard context -->
+        <Context className="org.apache.catalina.core.StandardContext" cachingAllowed="true" 
+        charsetMapperClass="org.apache.catalina.util.CharsetMapper" cookies="true" crossContext="false" 
+        debug="0" displayName="jboard Bulletin board" docBase="D:\sauvegardes\sauvegarde_eclipse\jboard" workDir="D:\sauvegardes\sauvegarde_eclipse\jboard\work"
+        mapperClass="org.apache.catalina.core.StandardContextMapper" path="/jboard" 
+        privileged="false" reloadable="true" swallowOutput="false" useNaming="true" 
+        wrapperClass="org.apache.catalina.core.StandardWrapper">
+        
+          <Logger className="org.apache.catalina.logger.SystemOutLogger" debug="0" verbosity="4"/>
+          
+          <Resource name="jdbc/postgres" auth="Container" type="javax.sql.DataSource"/>
+	    <ResourceParams name="jdbc/postgres">
+		    <parameter>
+			<name>factory</name>
+			<value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+		    </parameter>
+		      <parameter>
+			<name>username</name>
+			<value>Charles</value>
+		      </parameter>
+		      <parameter>
+			<name>password</name>
+			<value>Charles</value>
+		      </parameter>
+		      <parameter>
+			<name>driverClassName</name>
+			<value>org.postgresql.Driver</value>
+		      </parameter>
+		      <parameter>
+			<name>url</name>
+			<value>jdbc:postgresql://localhost:5432/DIABOLO</value>
+		      </parameter>
+		      <parameter>
+			<name>maxActive</name>
+			<value>15</value>
+		      </parameter>
+		      <parameter>
+			<name>maxIdle</name>
+			<value>4</value>
+		      </parameter>
+		      <parameter>
+			  <name>maxWait</name>
+			  <value>-1</value>
+		      </parameter>
+		      <parameter>
+			 <name>removeAbandoned</name>
+			 <value>true</value>
+		    </parameter>
+		      <parameter>
+			 <name>removeAbandonedTimeout</name>
+			 <value>40</value>
+		    </parameter>
+		    <parameter>
+			 <name>logAbandoned</name>
+			 <value>true</value>
+		    </parameter>
+  	</ResourceParams>
+        
+        <Resource name="jdbc/mysql" auth="Container" type="javax.sql.DataSource"/>
+		    <ResourceParams name="jdbc/mysql">
+			    <parameter>
+				<name>factory</name>
+				<value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+			    </parameter>
+			      <parameter>
+				<name>username</name>
+				<value>root</value>
+			      </parameter>
+			      <parameter>
+				<name>password</name>
+				<value></value>
+			      </parameter>
+			      <parameter>
+				<name>driverClassName</name>
+				<value>org.gjt.mm.mysql.Driver</value>
+			      </parameter>
+			      <parameter>
+				<name>url</name>
+				<value>jdbc:mysql://192.168.0.2:3306/DIABOLO</value>
+			      </parameter>
+			      <parameter>
+				<name>maxActive</name>
+				<value>15</value>
+			      </parameter>
+			      <parameter>
+				<name>maxIdle</name>
+				<value>4</value>
+			      </parameter>
+			      <parameter>
+				  <name>maxWait</name>
+				  <value>-1</value>
+			      </parameter>
+			      <parameter>
+				 <name>removeAbandoned</name>
+				 <value>true</value>
+			    </parameter>
+			      <parameter>
+				 <name>removeAbandonedTimeout</name>
+				 <value>40</value>
+			    </parameter>
+			    <parameter>
+				 <name>logAbandoned</name>
+				 <value>true</value>
+			    </parameter>
+  	</ResourceParams>
+  	<Resource name="jdbc/oracle10g" auth="Container" type="javax.sql.DataSource"/>
+		    <ResourceParams name="jdbc/oracle10g">
+			    <parameter>
+				<name>factory</name>
+				<value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
+			    </parameter>
+			      <parameter>
+				<name>username</name>
+				<value>system</value>
+			      </parameter>
+			      <parameter>
+				<name>password</name>
+				<value>jboard</value>
+			      </parameter>
+			      <parameter>
+				<name>driverClassName</name>
+				<value>oracle.jdbc.driver.OracleDriver</value>  
+			      </parameter>
+			      <parameter>
+				<name>url</name>
+				<value>jdbc:oracle:thin:@rome.mshome.net:1521:jboard</value>
+			      </parameter>
+			      <parameter>
+				<name>maxActive</name>
+				<value>15</value>
+			      </parameter>
+			      <parameter>
+				<name>maxIdle</name>
+				<value>4</value>
+			      </parameter>
+			      <parameter>
+				  <name>maxWait</name>
+				  <value>-1</value>
+			      </parameter>
+			      <parameter>
+				 <name>removeAbandoned</name>
+				 <value>true</value>
+			    </parameter>
+			      <parameter>
+				 <name>removeAbandonedTimeout</name>
+				 <value>40</value>
+			    </parameter>
+			    <parameter>
+				 <name>logAbandoned</name>
+				 <value>true</value>
+			    </parameter>
+  	</ResourceParams>
+    </Context>
+        <Context className="org.apache.catalina.core.StandardContext" cachingAllowed="true" charsetMapperClass="org.apache.catalina.util.CharsetMapper" cookies="true" crossContext="false" debug="0" displayName="Tomcat Manager Application" docBase="../server/webapps/manager" mapperClass="org.apache.catalina.core.StandardContextMapper" path="/manager" privileged="true" reloadable="false" swallowOutput="false" useNaming="true" wrapperClass="org.apache.catalina.core.StandardWrapper">
+          <ResourceLink global="UserDatabase" name="users" type="org.apache.catalina.UserDatabase"/>
+        </Context>
+        <Context className="org.apache.catalina.core.StandardContext" cachingAllowed="true" charsetMapperClass="org.apache.catalina.util.CharsetMapper" cookies="true" crossContext="false" debug="0" displayName="Welcome to Tomcat" docBase="C:\tomcat\jakarta-tomcat-4.1.24\webapps\ROOT" mapperClass="org.apache.catalina.core.StandardContextMapper" path="" privileged="false" reloadable="false" swallowOutput="false" useNaming="true" wrapperClass="org.apache.catalina.core.StandardWrapper">
+        </Context>
+        <Logger className="org.apache.catalina.logger.FileLogger" debug="0" directory="logs" prefix="localhost_log." suffix=".txt" timestamp="true" verbosity="1"/>
+      </Host>
+      <Logger className="org.apache.catalina.logger.FileLogger" debug="0" directory="logs" prefix="catalina_log." suffix=".txt" timestamp="true" verbosity="1"/>
+      <Realm className="org.apache.catalina.realm.UserDatabaseRealm" debug="0" resourceName="UserDatabase" validate="true"/>
+    </Engine>
+  </Service>
+</Server>

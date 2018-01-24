@@ -1,0 +1,255 @@
+<HTML><HEAD><META content="text/html; charset=utf8" http-equiv="Content-Type"><SCRIPT language="JavaScript" src="resources/script.js" type="text/javascript"></SCRIPT><TITLE>Migrating to Xerces Java Parser</TITLE></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="graphics/faq-migrate-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','resources/button-xml-hi.gif','resources/button-xml-lo.gif');" src="resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','resources/button-asf-hi.gif','resources/button-asf-lo.gif');" src="resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','resources/button-w3c-hi.gif','resources/button-w3c-lo.gif');" src="resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','graphics/ext-2-label-2.jpg','graphics/ext-2-label-3.jpg');" src="graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','graphics/index-label-2.jpg','graphics/index-label-3.jpg');" src="graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-j/" onMouseOut="rolloverOff('side-ext-8');" onMouseOver="rolloverOn('side-ext-8');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-8" onLoad="rolloverLoad('side-ext-8','graphics/ext-8-label-2.jpg','graphics/ext-8-label-3.jpg');" src="graphics/ext-8-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/java/" onMouseOut="rolloverOff('side-ext-10');" onMouseOver="rolloverOn('side-ext-10');"><IMG alt="Repository" border="0" height="12" hspace="0" name="side-ext-10" onLoad="rolloverLoad('side-ext-10','graphics/ext-10-label-2.jpg','graphics/ext-10-label-3.jpg');" src="graphics/ext-10-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','graphics/install-label-2.jpg','graphics/install-label-3.jpg');" src="graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','graphics/api-label-2.jpg','graphics/api-label-3.jpg');" src="graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>
+  
+  <A href="samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','graphics/samples-label-2.jpg','graphics/samples-label-3.jpg');" src="graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  
+  
+  
+  
+  
+  
+  <A href="schema.html" onMouseOut="rolloverOff('side-schema');" onMouseOver="rolloverOn('side-schema');"><IMG alt="Schema" border="0" height="12" hspace="0" name="side-schema" onLoad="rolloverLoad('side-schema','graphics/schema-label-2.jpg','graphics/schema-label-3.jpg');" src="graphics/schema-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="properties.html" onMouseOut="rolloverOff('side-properties');" onMouseOver="rolloverOn('side-properties');"><IMG alt="Properties" border="0" height="12" hspace="0" name="side-properties" onLoad="rolloverLoad('side-properties','graphics/properties-label-2.jpg','graphics/properties-label-3.jpg');" src="graphics/properties-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="features.html" onMouseOut="rolloverOff('side-features');" onMouseOver="rolloverOn('side-features');"><IMG alt="Features" border="0" height="12" hspace="0" name="side-features" onLoad="rolloverLoad('side-features','graphics/features-label-2.jpg','graphics/features-label-3.jpg');" src="graphics/features-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','graphics/faqs-label-2.jpg','graphics/faqs-label-3.jpg');" src="graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>
+	
+
+  <IMG border="0" height="6" hspace="0" src="resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Releases" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','graphics/releases-label-2.jpg','graphics/releases-label-3.jpg');" src="graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="caveats.html" onMouseOut="rolloverOff('side-caveats');" onMouseOver="rolloverOn('side-caveats');"><IMG alt="Caveats" border="0" height="12" hspace="0" name="side-caveats" onLoad="rolloverLoad('side-caveats','graphics/caveats-label-2.jpg','graphics/caveats-label-3.jpg');" src="graphics/caveats-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','graphics/feedback-label-2.jpg','graphics/feedback-label-3.jpg');" src="graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="y2k.html" onMouseOut="rolloverOff('side-y2k');" onMouseOver="rolloverOn('side-y2k');"><IMG alt="Y2K Compliance" border="0" height="12" hspace="0" name="side-y2k" onLoad="rolloverLoad('side-y2k','graphics/y2k-label-2.jpg','graphics/y2k-label-3.jpg');" src="graphics/y2k-label-3.jpg" vspace="0" width="120"></A><BR>
+<IMG border="0" height="14" hspace="0" src="resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="666699" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="resources/void.gif" vspace="0" width="2"><B>Questions</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif"><UL><LI><A href="#faq-1">What should I be aware of when using various DOM parsers?</A></LI><LI><A href="#faq-2">What should I be aware of when using various SAX parsers?</A></LI><LI><A href="#faq-3">Migrating from XML4J Version 2.0.x</A></LI></UL></FONT></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="666699" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="resources/void.gif" vspace="0" width="2"><B>Answers</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif"><BR><A name="faq-1"><!--anchor--></A><TABLE border="0" cellpadding="0" cellspacing="0" width="484"><TR><TD bgcolor="666699" colspan="2" width="484"><TABLE border="0" cellpadding="0" cellspacing="0" width="484"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="482"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="482"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="482"><FONT color="#ffffff" face="arial,helvetica,sanserif"><IMG border="0" height="2" hspace="0" src="resources/void.gif" vspace="0" width="2"><B>What should I be aware of when using various DOM parsers?</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="482"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="482"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="474"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1"><P>There are a couple of points to note when using the various 
+			DOM parsers. This FAQ discusses some of the differences between the 
+			Xerces, Oracle and Sun XML parsers:</P>
+			<OL>
+				<LI><B>Parsing methods:</B>
+					<BR>The Xerces-J and Oracle parsers have a parser object that parses 
+					XML files and constructs a DOM tree which is queried 
+					<I>after</I> parsing. 
+					<BR>The Sun parser calls a static method on the 
+					<CODE><FONT face="courier, monospaced">XmlDocument</FONT></CODE> class 
+					to parse and construct a DOM tree.</LI>
+				<LI><B>Specifying the source file:</B>
+					<BR>All three parsers allow specifying the source of the 
+					XML document using the SAX <CODE><FONT face="courier, monospaced">InputSource</FONT></CODE> object 
+					as well as parsing from <CODE><FONT face="courier, monospaced">java.io.InputStream</FONT></CODE> 
+					and <CODE><FONT face="courier, monospaced">java.io.Reader</FONT></CODE> object.</LI>
+				<LI><B>Error handling:</B>
+					<BR>The Xerces-J parser uses the SAX <CODE><FONT face="courier, monospaced">ErrorHandler</FONT></CODE> mechanism 
+					on all parser types, including DOM. 
+					<BR>The Oracle parser only allows you to specify which 
+					output stream or writer you want the error to be written. 
+					<BR>The Sun parser has no way to request 
+					error notification when parsing XML files into DOM trees. 
+					An exceptions will be thrown if an error occurs during 
+					parsing.</LI>
+				<LI><B>Validation:</B>
+					<BR>The Xerces-J and Oracle DOM parsers use a method to 
+					set validation. 
+					<BR>Because of the way that DOM documents are constructed from XML files 
+					in the Sun parser, validation is set via a parameter to the static 
+					<CODE><FONT face="courier, monospaced">createXmlDocument</FONT></CODE> method.</LI>
+				<LI><B>Standard versus proprietary features:</B>
+					<BR>If the user has written their programs using the W3C DOM API, 
+					then migrating to Xerces-J is easy. If however, the user takes 
+					advantage of non-standard, proprietary features of the Oracle and Sun 
+					parsers and DOM implementations, migration will be harder. 
+					This document does not 
+					go into any detail regarding migration of features specific to each 
+					parser's implementation that are non-standard.</LI>
+			</OL>
+			<P><B>Samples:</B></P>
+			<P>Xerces 1.0.x:</P>
+
+<DIV align="right"><TABLE border="0" cellpadding="0" cellspacing="4" width="464"><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#ffffff" width="462"><FONT size="-1"><PRE>// instantiate parser
+org.apache.xerces.parsers.DOMParser parser;
+parser = new org.apache.xerces.parsers.DOMParser();
+
+// specifying validation
+boolean validate = /* true or false */;
+parser.setFeature(&quot;http://xml.org/sax/features/validation&quot;, validate);
+
+// installing error handler
+org.xml.sax.ErrorHandler handler = /* SAX error handler */;
+parser.setErrorHandler(handler);
+
+// parsing document from URI string
+String uri = /* uri */;
+parser.parse(uri);
+
+// parsing document from input stream
+java.io.InputStream stream = /* input stream */;
+parser.parse(new org.xml.sax.InputSource(stream));
+
+// parsing document from reader
+java.io.Reader reader = /* reader */;
+parser.parse(new org.xml.sax.InputSource(reader));
+
+// querying document after parse
+org.w3c.dom.Document document;
+document = parser.getDocument();</PRE></FONT></TD><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></DIV>
+
+<P>Oracle 2.0.2.x:</P>
+
+<DIV align="right"><TABLE border="0" cellpadding="0" cellspacing="4" width="464"><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#ffffff" width="462"><FONT size="-1"><PRE>// instantiate parser
+oracle.xml.parser.v2.DOMParser parser;
+parser = oracle.xml.parser.v2.DOMParser();
+
+// specifying validation
+boolean validate = /* true or false */;
+parser.setValidationMode(validate);
+
+// installing error stream to output stream (with and without encoding)
+java.io.OutputStream output = /* output stream */;
+String encoding = /* Java encoding name */;
+parser.setErrorStream(output);
+parser.setErrorStream(output, encoding);
+
+// installing error stream to print writer
+java.io.PrintWriter printer = /* print writer */;
+parser.setErrorStream(printer);
+
+// parsing document from URI string
+String uri = /* uri */;
+parser.parse(uri);
+
+// parsing document from input stream
+java.io.InputStream stream = /* input stream */;
+parser.parse(stream);
+
+// parsing document from reader
+java.io.Reader reader = /* reader */;
+parser.parse(reader);
+
+// querying document after parse
+org.w3c.dom.Document document;
+document = parser.getDocument();</PRE></FONT></TD><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></DIV>
+
+<P>Sun TR2:</P>
+
+<DIV align="right"><TABLE border="0" cellpadding="0" cellspacing="4" width="464"><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#ffffff" width="462"><FONT size="-1"><PRE>// parsing document from URI string
+String uri = /* uri */;
+Document document;
+document = com.sun.xml.tree.XmlDocument.createXmlDocument(uri);
+
+// parsing document from URI string (with validation)
+boolean validate = /* true or false */;
+document = com.sun.xml.tree.XmlDocument.createXmlDocument(uri, validate);
+
+// parsing document from input stream
+java.io.InputStream stream = /* input stream */;
+document = com.sun.xml.tree.XmlDocument.createXmlDocument(stream, validate);
+
+// parsing document from reader
+java.io.Reader reader = /* reader */;
+document = com.sun.xml.tree.XmlDocument.createXmlDocument
+           (new org.xml.sax.InputSource(reader), validate);</PRE></FONT></TD><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></DIV>
+		</FONT></TD></TR></TABLE><BR><A name="faq-2"><!--anchor--></A><TABLE border="0" cellpadding="0" cellspacing="0" width="484"><TR><TD bgcolor="666699" colspan="2" width="484"><TABLE border="0" cellpadding="0" cellspacing="0" width="484"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="482"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="482"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="482"><FONT color="#ffffff" face="arial,helvetica,sanserif"><IMG border="0" height="2" hspace="0" src="resources/void.gif" vspace="0" width="2"><B>What should I be aware of when using various SAX parsers?</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="482"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="482"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="474"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1"><P>There are a couple of points to note when using the various 
+		SAX parsers:</P>
+			<P>The SAX API has detailed specifications on how documents are parsed 
+			and entities are resolved, so little migration effort required. 
+			The only change is the construction of the SAX parser. 
+			See the following examples for construction details.</P>
+
+			<TABLE border="0" cellpadding="0" cellspacing="3" width="100%"><TR><TD valign="top" width="20"><IMG alt="Note" border="0" height="24" hspace="0" src="resources/note.gif" vspace="0" width="20"></TD><TD valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1"><I>Regarding validation: 
+			<BR>If a parser is SAX2 
+			compliant, there is a standard way of turning on validation. The 
+			Xerces parser implements the appropriate methods today, even 
+			though they haven't been finalized, yet. The parsers downloaded 
+			from Oracle and Sun do not yet implement these methods. 
+			The Oracle parser has a method to turn validation on and 
+			off. The Sun parser requires you to instantiate a 
+			separate parser object to perform validation.</I></FONT></TD></TR></TABLE>
+			
+			<P><B>Samples:</B></P>
+			<P>Xerces 1.0.x:</P>
+<DIV align="right"><TABLE border="0" cellpadding="0" cellspacing="4" width="464"><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#ffffff" width="462"><FONT size="-1"><PRE>// instantiate parser
+org.apache.xerces.parsers.SAXParser parser;
+parser = new org.apache.xerces.parsers.SAXParser();
+
+// specifying validation
+boolean validate = /* true or false */;
+parser.setFeature(&quot;http://xml.org/sax/features/validation&quot;, validate);
+
+// installing error handler
+org.xml.sax.ErrorHandler errorHandler = /* SAX error handler */;
+parser.setErrorHandler(errorHandler);
+
+// installing document handler
+org.xml.sax.DocumentHandler documentHandler = /* SAX document handler */;
+parser.setDocumentHandler(documentHandler);
+
+// parsing document from URI string
+String uri = /* uri */;
+parser.parse(uri);
+
+// parsing document from input stream
+java.io.InputStream stream = /* input stream */;
+parser.parse(new org.xml.sax.InputSource(stream));
+
+// parsing document from reader
+java.io.Reader reader = /* reader */;
+parser.parse(new org.xml.sax.InputSource(reader));</PRE></FONT></TD><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></DIV>
+			<P>Oracle 2.0.2.x:</P>
+<DIV align="right"><TABLE border="0" cellpadding="0" cellspacing="4" width="464"><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#ffffff" width="462"><FONT size="-1"><PRE>// instantiate parser
+oracle.xml.parser.v2.SAXParser parser;
+parser = oracle.xml.parser.v2.SAXParser();
+
+// specifying validation
+boolean validate = /* true or false */;
+parser.setValidationMode(validate);
+
+// ... the rest is the same as Xerces ...</PRE></FONT></TD><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></DIV>
+			<P>Sun TR2:</P>
+<DIV align="right"><TABLE border="0" cellpadding="0" cellspacing="4" width="464"><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#ffffff" width="462"><FONT size="-1"><PRE>// instantiate parser
+boolean validate = /* true or false */;
+com.sun.xml.parser.Parser parser;
+if (validate) {
+    parser = new com.sun.xml.parser.ValidatingParser();
+}
+else {
+    parser = new com.sun.xml.parser.Parser();
+}
+
+// ... the rest is the same as Xerces ...</PRE></FONT></TD><TD bgcolor="#0086b2" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" height="1" width="462"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="462"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></DIV>
+
+		</FONT></TD></TR></TABLE><BR><A name="faq-3"><!--anchor--></A><TABLE border="0" cellpadding="0" cellspacing="0" width="484"><TR><TD bgcolor="666699" colspan="2" width="484"><TABLE border="0" cellpadding="0" cellspacing="0" width="484"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="482"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="482"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="482"><FONT color="#ffffff" face="arial,helvetica,sanserif"><IMG border="0" height="2" hspace="0" src="resources/void.gif" vspace="0" width="2"><B>How do I migrate my code from XML4J Version 2.0.x?</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="482"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="482"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="474"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">
+	     <P>Migrating from the version 2.0.x native SAX and DOM parser
+	      classes should be straight forward.</P>
+		<TABLE border="0" cellpadding="2" cellspacing="2" width="100%">
+			<TR><TD align="center" bgcolor="#039acc" colspan="1" rowspan="1" valign="center"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="-1"><B>change this XML4J class</B>&nbsp;
+      </FONT></TD><TD align="center" bgcolor="#039acc" colspan="1" rowspan="1" valign="center"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="-1"><B>to this Xerces-J class</B>&nbsp;
+      </FONT></TD></TR>
+			<TR><TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">com.ibm.xml.parsers.SAXParser&nbsp;
+      </FONT></TD> <TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">org.apache.xerces.parsers.SAXParser&nbsp;
+      </FONT></TD></TR>
+			<TR><TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">com.ibm.xml.parsers.ValidatingSAXParser&nbsp;
+      </FONT></TD>  <TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">org.apache.xerces.parsers.SAXParser + switch&nbsp;
+      </FONT></TD></TR>
+			<TR><TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">com.ibm.xml.parsers.NonValidatingDOMParser&nbsp;
+      </FONT></TD>  <TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">org.apache.xerces.parsers.DOMParser&nbsp;
+      </FONT></TD></TR>
+			<TR><TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">com.ibm.xml.parsers.DOMParser&nbsp;
+      </FONT></TD>  <TD align="" bgcolor="#a0ddf0" colspan="1" rowspan="1" valign="top"><FONT color="#000000" face="arial,helvetica,sanserif" size="-1">org.apache.xerces.parsers.DOMParser + switch&nbsp;
+      </FONT></TD></TR>
+		</TABLE>
+		<P>Table entries that say &quot; + switch&quot; mean that you should use the
+		Configurable API to turn validation on.  See the answer in <A href="faq-general.html#valid">Validation</A>.</P>
+		</FONT></TD></TR></TABLE><BR></FONT></TD></TR></TABLE><BR></TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1"></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 1999, 2000 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

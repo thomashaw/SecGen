@@ -1,0 +1,88 @@
+/*
+ * This file is part of "SnipSnap Wiki/Weblog".
+ *
+ * Copyright (c) 2002 Stephan J. Schmidt, Matthias L. Jugel
+ * All Rights Reserved.
+ *
+ * Please visit http://snipsnap.org/ for updates and contact.
+ *
+ * --LICENSE NOTICE--
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * --LICENSE NOTICE--
+ */
+package org.snipsnap.config;
+
+import java.util.Locale;
+import java.util.Properties;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.io.File;
+
+/**
+ * Interface template for easy usage of the configuration.
+ * @author Matthias L. Jugel
+ * @version $Id: Configuration.java.tmpl,v 1.10 2004/05/17 10:56:17 leo Exp $
+ */
+public interface Configuration extends Globals {
+  public final static String SNIPSNAP_CONFIG = "SnipSnap/config";
+  public final static String SNIPSNAP_CONFIG_API = "SnipSnap/config/apidocs";
+  public final static String SNIPSNAP_CONFIG_WIKI = "SnipSnap/config/interwiki";
+  public final static String SNIPSNAP_CONFIG_PING = "SnipSnap/config/weblogsping";
+  public final static String SNIPSNAP_CONFIG_ASIN = "SnipSnap/config/asinservices";
+  public final static String SNIPSNAP_CONFIG_BOOK = "SnipSnap/config/bookservices";
+  public final static String SNIPSNAP_CONFIG_ROBOTS = "SnipSnap/config/robots";
+  public final static String SNIPSNAP_CONFIG_ROBOTS_TXT = "SnipSnap/config/robots.txt";
+  public final static String SNIPSNAP_THEMES = "SnipSnap/themes";
+
+  public String get(String name);
+  public String get(String name, String defaultValue);
+  public void set(String name, String value);
+
+  public void load(InputStream stream) throws IOException;
+  public void store(OutputStream stream) throws IOException;
+
+  // get all properties
+  public Properties getProperties();
+  public String getDefault(String name);
+  public File getFileStore(String applicationOid);
+
+  public File getFilePath(String applicationOid);
+  public File getUserPath(String applicationOid);
+
+  public File getFilePath();
+  public File getIndexPath();
+
+  // LOCALE
+  Locale getLocale();
+
+  // URL HANDLING
+  String getUrl();
+  String getUrl(String target);
+  String getSnipUrl(String snipName);
+
+  // PERMISSIONS
+  boolean allow(String action);
+  boolean deny(String action);
+
+  // TODO remove/replace
+  boolean getAllowRegister();
+
+  // GENERICS
+  boolean isConfigured();
+
+  // EASY ACCESS
+  @DEFAULTS@
+}

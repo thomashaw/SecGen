@@ -1,0 +1,37 @@
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<struts-config>
+    
+    <!-- ========== Data Source Configuration =============================== -->
+    <data-sources />
+    
+    <!-- ========== Form Bean Definitions ================================== -->
+    <form-beans><form-bean name="statsForm" type="org.apache.struts.validator.DynaValidatorActionForm" /></form-beans>
+    
+    <!-- ========== Global Exception Definitions ============================== -->
+    <global-exceptions />
+    
+    <!-- ========== Global Forward Definitions =============================== -->
+    
+     <global-forwards type="org.apache.struts.action.ActionForward">
+    
+     <forward name="logon" path="/SwitchToModule.do?prefix=/reg&amp;page=/Logon.do" redirect="false" contextRelative="true" /><forward name="register" path="/SwitchToModule.do?prefix=/reg&amp;page=/Register.do" redirect="false" contextRelative="true" /><forward name="logoff" path="/SwitchToModule.do?prefix=/reg&amp;page=/Logoff.do" redirect="false" /></global-forwards>
+    
+    <!-- ========== Action Mapping Definitions =============================== -->
+    <action-mappings type="org.apache.struts.action.ActionMapping">
+     <action path="/Logon" parameter="/WEB-INF/pages/reg/Logon.jsp" type="org.apache.struts.actions.ForwardAction" />
+    </action-mappings>
+    <!-- ========== Controller Configuration ================================ -->
+   <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" pagePattern="/WEB-INF/modules$M$P" contentType="application/xhtml+xml;charset=UTF-8" locale="false" inputForward="true" />
+    <!-- ========== Message Resources Definitions ============================ -->
+     <message-resources parameter="resources.application" />
+    
+    <!-- ========== Plug Ins Configuration ================================= -->
+    <plug-in className="org.apache.struts.tiles.TilesPlugin">
+        <set-property property="definitions-config" value="/WEB-INF/conf/struts/tiles-defs-stats.xml,/WEB-INF/conf/struts/tiles-defs-common.xml" />
+        <set-property property="moduleAware" value="true" />
+        <set-property property="definitions-parser-validate" value="true" />
+    </plug-in>
+    <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+        <set-property property="pathnames" value="/WEB-INF/conf/struts/validator-rules.xml,/WEB-INF/conf/struts/validation.xml" />
+    </plug-in>
+</struts-config>

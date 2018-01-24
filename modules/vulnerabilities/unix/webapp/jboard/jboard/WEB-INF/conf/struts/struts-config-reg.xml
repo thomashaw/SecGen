@@ -1,0 +1,37 @@
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+<struts-config>
+    
+    <!-- ========== Data Source Configuration =============================== -->
+    <data-sources />
+    
+    <!-- ========== Form Bean Definitions ================================== -->
+    <form-beans><form-bean name="regForm" type="org.apache.struts.validator.DynaValidatorActionForm"><form-property name="userName" type="java.lang.String" /><form-property name="password" type="java.lang.String" /><form-property name="confirmPassword" type="java.lang.String" /><form-property name="firstName" type="java.lang.String" /><form-property name="lastName" type="java.lang.String" /><form-property name="icq" type="java.lang.String" /><form-property name="aim" type="java.lang.String" /><form-property name="msn" type="java.lang.String" /><form-property name="yahoo" type="java.lang.String" /><form-property name="webSite" type="java.lang.String" /><form-property name="localisation" type="java.lang.String" /><form-property name="job" type="java.lang.String" /><form-property name="hobbies" type="java.lang.String" /><form-property name="signature" type="java.lang.String" /></form-bean></form-beans>
+    
+    <!-- ========== Global Exception Definitions ============================== -->
+    <global-exceptions />
+    
+    <!-- ========== Global Forward Definitions =============================== -->
+    
+     <global-forwards type="org.apache.struts.action.ActionForward">
+    
+     <forward name="logon" path="/Logon.do" redirect="false" /><forward name="register" path="/Register.do" redirect="false" /><forward name="logoff" path="/Logoff.do" redirect="false" /><forward name="welcome" path="/" redirect="false" contextRelative="true" /></global-forwards>
+    
+    <!-- ========== Action Mapping Definitions =============================== -->
+    <action-mappings type="org.apache.struts.action.ActionMapping">
+     <action path="/Logon" type="org.apache.struts.actions.ForwardAction" unknown="true" parameter=".reg.logon" />
+    <action path="/LogonProcess" name="regForm" validate="false" parameter=".reg.generalModule" forward="welcome" /><action path="/Register" forward=".reg.register" name="regForm" validate="false" scope="request" /><action path="/RegisterProcess" type="net.sf.jboard.struts.reg.actions.RegisterAction" name="regForm" validate="false" scope="request"><forward name="registerOK" redirect="false" contextRelative="true" path="/" /><forward name="registerKO" redirect="false" path=".reg.register" /></action><action path="/Logoff" type="net.sf.jboard.struts.reg.actions.LogoffAction"><forward name="logoffOK" redirect="false" contextRelative="true" path="/" /></action></action-mappings>
+    <!-- ========== Controller Configuration ================================ -->
+   <controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" pagePattern="/WEB-INF/modules$M$P" contentType="application/xhtml+xml;charset=UTF-8" locale="false" inputForward="true" />
+    <!-- ========== Message Resources Definitions ============================ -->
+     <message-resources parameter="resources.application" />
+    
+    <!-- ========== Plug Ins Configuration ================================= -->
+    <plug-in className="org.apache.struts.tiles.TilesPlugin">
+        <set-property property="definitions-config" value="/WEB-INF/conf/struts/tiles-defs-common.xml,/WEB-INF/conf/struts/tiles-defs-reg.xml" />
+        <set-property property="moduleAware" value="true" />
+        <set-property property="definitions-parser-validate" value="true" />
+    </plug-in>
+    <plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+        <set-property property="pathnames" value="/WEB-INF/conf/struts/validator-rules.xml,/WEB-INF/conf/struts/validation.xml" />
+    </plug-in>
+</struts-config>

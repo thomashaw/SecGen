@@ -1,0 +1,612 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE struts-config PUBLIC "-//Apache Software Foundation//DTD Struts Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/struts-config_1_1.dtd">
+
+<struts-config>
+
+  <!-- ========== Data Sources Definitions =================================== -->
+  <!--
+    Define your Struts data sources in a file called struts-data-sources.xml and place
+    it in your merge directory.
+  -->
+
+  <!-- ========== Form Bean Definitions =================================== -->
+  <form-beans>
+    <form-bean
+      name="categoriesForm"
+      type="org.roller.presentation.weblog.formbeans.CategoriesForm"
+    />
+    <form-bean
+      name="rollerConfigFormEx"
+      type="org.roller.presentation.website.formbeans.RollerConfigFormEx"
+    />
+    <form-bean
+      name="categoryDeleteForm"
+      type="org.roller.presentation.weblog.formbeans.CategoryDeleteForm"
+    />
+    <form-bean
+      name="folderFormEx"
+      type="org.roller.presentation.bookmarks.formbeans.FolderFormEx"
+    />
+    <form-bean
+      name="commentFormEx"
+      type="org.roller.presentation.weblog.formbeans.CommentFormEx"
+    />
+    <form-bean
+      name="roleForm"
+      type="org.roller.presentation.forms.RoleForm"
+    />
+    <form-bean
+      name="bakeWeblogForm"
+      type="org.roller.presentation.weblog.formbeans.BakeWeblogForm"
+    />
+    <form-bean
+      name="pageForm"
+      type="org.roller.presentation.forms.PageForm"
+    />
+    <form-bean
+      name="importEntries"
+      type="org.roller.presentation.weblog.formbeans.ImportEntriesForm"
+    />
+    <form-bean
+      name="weblogEntryForm"
+      type="org.roller.presentation.forms.WeblogEntryForm"
+    />
+    <form-bean
+      name="bookmarkForm"
+      type="org.roller.presentation.forms.BookmarkForm"
+    />
+    <form-bean
+      name="bookmarkFormEx"
+      type="org.roller.presentation.bookmarks.formbeans.BookmarkFormEx"
+    />
+    <form-bean
+      name="userFormEx"
+      type="org.roller.presentation.website.formbeans.UserFormEx"
+    />
+    <form-bean
+      name="commentForm"
+      type="org.roller.presentation.forms.CommentForm"
+    />
+    <form-bean
+      name="websiteDisplayForm"
+      type="org.roller.presentation.forms.WebsiteDisplayForm"
+    />
+    <form-bean
+      name="folderForm"
+      type="org.roller.presentation.forms.FolderForm"
+    />
+    <form-bean
+      name="websiteForm"
+      type="org.roller.presentation.forms.WebsiteForm"
+    />
+    <form-bean
+      name="weblogEntryFormEx"
+      type="org.roller.presentation.weblog.formbeans.WeblogEntryFormEx"
+    />
+    <form-bean
+      name="uploadFiles"
+      type="org.roller.presentation.website.formbeans.UploadFileForm"
+    />
+    <form-bean
+      name="trackbackForm"
+      type="org.roller.presentation.weblog.formbeans.TrackbackForm"
+    />
+    <form-bean
+      name="userForm"
+      type="org.roller.presentation.forms.UserForm"
+    />
+    <form-bean
+      name="maintenanceForm"
+      type="org.roller.presentation.website.formbeans.MaintenanceForm"
+    />
+    <form-bean
+      name="rollerConfigForm"
+      type="org.roller.presentation.forms.RollerConfigForm"
+    />
+    <form-bean
+      name="weblogCategoryFormEx"
+      type="org.roller.presentation.weblog.formbeans.WeblogCategoryFormEx"
+    />
+    <form-bean
+      name="themeEditorForm"
+      type="org.roller.presentation.website.formbeans.ThemeEditorForm"
+    />
+    <form-bean
+      name="bookmarksForm"
+      type="org.roller.presentation.bookmarks.formbeans.BookmarksForm"
+    />
+    <form-bean
+      name="weblogQueryForm"
+      type="org.roller.presentation.weblog.formbeans.WeblogQueryForm"
+    />
+    <form-bean
+      name="websiteFormEx"
+      type="org.roller.presentation.website.formbeans.WebsiteFormEx"
+    />
+    <form-bean
+      name="userAdminForm"
+      type="org.roller.presentation.website.formbeans.UserAdminForm"
+    />
+    <form-bean
+      name="refererForm"
+      type="org.roller.presentation.forms.RefererForm"
+    />
+    <form-bean
+      name="weblogCategoryForm"
+      type="org.roller.presentation.forms.WeblogCategoryForm"
+    />
+
+    <!--
+         If you have non XDoclet forms, define them in a file called struts-forms.xml and
+         place it in your merge directory.
+    -->
+  </form-beans>
+
+  <!-- ========== Global Exceptions Definitions =================================== -->
+  <!--
+    Define your exceptions in a file called global-exceptions.xml and place
+    it in your merge directory.
+  -->
+
+  <!-- ========== Global Forward Definitions =================================== -->
+<global-forwards>
+
+<!-- TODO: be consistent with naming of forwards, perhaps by adopting Husted's conventions -->
+
+<forward name="main"                   path="/main.do"/>
+<forward name="main.page"              path="/main.jsp"/>
+
+<forward name="home.page"              path="/main.do"/>
+<forward name="welcome.page"           path="/welcome.jsp"/>
+<forward name="error.page"             path="/error.jsp"/>
+<forward name="page"                   path="/page"/>
+
+<forward name="newUser"                path="/user.do?method=newUser"/>
+<forward name="addUser"                path="/user.do?method=add"/>
+<forward name="addUser.page"           path="/newuser.jsp"/>
+
+<forward name="login-redirect"         path="/login-redirect.jsp"/>
+<forward name="logout-redirect"        path="/logout-redirect.jsp"/>
+<forward name="access-denied"          path="/denied.jsp"/>
+<forward name="error"                  path="/error.jsp"/>
+
+<!-- ============================================================== -->
+<!-- Weblog actions -->
+
+<forward name="weblogEdit"             path="/weblog.do?method=edit"/>
+<forward name="weblogCreate"           path="/weblog.do?method=create"/>
+<forward name="weblogQuery"            path="/weblogQuery.do?method=query"/>
+<forward name="categories"             path="/categories.do?method=selectCategory"/>
+
+<!-- reader comment forwards -->
+<forward name="comment"                path="/comment.do?method=edit" />
+<forward name="comment.page"           path="/weblog/comments.jsp" />
+<forward name="comment.preview"        path="/weblog/comment-preview.jsp" />
+
+<!-- blog editor comment forwards -->
+<forward name="comments.page"          path="/weblog/comments-delete.jsp" />
+<forward name="comments.delete"        path="/comment.do?method=delete"/>
+
+<forward name="referers"               path="/referers.do"/>
+<forward name="referers.page"          path="/weblog/referers.jsp"/>
+
+<forward name="baking.done"            path="/weblog/bakeWeblog.jsp"/>
+
+<forward name="flushCache"             path="/weblog.do?method=flushCache"/>
+
+<forward name="spellCheckWeblog"       path="/weblog/spellcheck-entry.jsp"/>
+
+<forward name="toggleLinkback"         path="/toggleLinkback.do"/>
+
+<forward name="trackback"              path="/trackback.do?method=send"/>
+<forward name="trackback.page"         path="/weblog/trackback.jsp"/>
+<forward name="trackbackDone.page"     path="/weblog/trackback-done.jsp"/>
+
+<!-- ============================================================== -->
+<!-- Bookmark actions -->
+
+<forward name="bookmarks"              path="/bookmarks.do?method=selectFolder"/>
+
+<forward name="importBookmarks"        path="/importBookmarks.do"/>
+<forward name="importBookmarks.page"   path="/bookmarks/import.jsp"/>
+
+<!-- ============================================================== -->
+<!-- Website actions -->
+
+<forward name="editTheme"              path="/themeEditor.do?method=edit"/>
+
+<forward name="editWebsite"            path="/website.do?method=edit"/>
+<forward name="editWebsite.page"       path="/website/edit-website.jsp"/>
+
+<forward name="editPages"              path="/page.do?method=editPages"/>
+<forward name="editPages.page"         path="/website/edit-pages.jsp"/>
+
+<forward name="editPage"               path="/page.do?method=edit"/>
+<forward name="editPage.page"          path="/website/edit-page.jsp"/>
+
+<forward name="export"                 path="/website/export.jsp"/>
+
+<forward name="removePage"             path="/page.do?method=remove"/>
+<forward name="removePage.ok"          path="/page.do?method=removeOk"/>
+<forward name="removePage.page"        path="/website/remove-page.jsp"/>
+
+<forward name="uploadFiles"            path="/uploadFiles.do"/>
+<forward name="uploadFiles.page"       path="/website/upload-file.jsp"/>
+
+<forward name="admin"                  path="/adminUser.do?method=edit"/>
+<forward name="adminUser"              path="/adminUser.do?method=edit"/>
+<forward name="adminUser.page"         path="/website/adminUser.jsp"/>
+
+<forward name="editUser"               path="/user.do?method=edit"/>
+<forward name="editUser.page"          path="/edit-user.jsp"/>
+
+<forward name="maintenance"            path="/maintenance.do" />
+
+<forward name="rollerConfig"           path="/rollerConfig.do?method=edit"/>
+<forward name="rollerConfig.page"      path="/website/rollerConfig.jsp"/>
+
+<forward name="importEntries"          path="/importEntries.do?method=edit"/>
+<forward name="importEntries.page"     path="/weblog/import-entries.jsp"/>
+<forward name="exportEntries"          path="/exportEntries.do?method=edit"/>
+<forward name="exportEntries.page"     path="/weblog/export-entries.jsp"/>
+<forward name="exportEntries.done"     path="/uploadFiles.do?method=unspecified"/>
+
+</global-forwards>
+
+  <!-- ========== Action Mapping Definitions =================================== -->
+   <action-mappings>
+    <action
+      path="/bookmarkSave"
+      type="org.roller.presentation.bookmarks.actions.BookmarkSave"
+      name="bookmarkFormEx"
+      scope="request"
+      input="/bookmarkEdit.do"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="Bookmarks"
+        path="/bookmarks.do?method=selectFolder"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/referers"
+      type="org.roller.presentation.weblog.actions.ReferersAction"
+      name="refererForm"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/importBookmarks"
+      type="org.roller.presentation.bookmarks.actions.ImportBookmarksFormAction"
+      name="folderFormEx"
+      scope="request"
+      input="/bookmarks/import.jsp"
+      unknown="false"
+      validate="false"
+    >
+    </action>
+    <action
+      path="/website"
+      type="org.roller.presentation.website.actions.WebsiteFormAction"
+      name="websiteFormEx"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/exportEntries"
+      type="org.roller.presentation.weblog.actions.ExportEntriesAction"
+      name="weblogQueryForm"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/weblog"
+      type="org.roller.presentation.weblog.actions.WeblogEntryFormAction"
+      name="weblogEntryFormEx"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="weblogEdit.page"
+        path="/weblog/WeblogEdit.jsp"
+        redirect="false"
+      />
+      <forward
+        name="weblogEntryRemove.page"
+        path="/weblog/WeblogEntryRemove.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/weblogQuery"
+      type="org.roller.presentation.weblog.actions.WeblogQueryAction"
+      name="weblogQueryForm"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="weblogQuery.page"
+        path="/weblog/WeblogQuery.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/bookmarks"
+      type="org.roller.presentation.bookmarks.actions.BookmarksAction"
+      name="bookmarksForm"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="BookmarksForm"
+        path="/bookmarks/BookmarksForm.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/folderEdit"
+      type="org.roller.presentation.bookmarks.actions.FolderEdit"
+      name="folderFormEx"
+      scope="request"
+      unknown="false"
+      validate="false"
+    >
+      <forward
+        name="FolderForm"
+        path="/bookmarks/FolderForm.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/main"
+      type="org.roller.presentation.MainPageAction"
+      name="main"
+      scope="request"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/importEntries"
+      type="org.roller.presentation.weblog.actions.ImportEntriesAction"
+      name="importEntries"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/categoryEdit"
+      type="org.roller.presentation.weblog.actions.CategoryEditAction"
+      name="weblogCategoryFormEx"
+      scope="request"
+      unknown="false"
+      validate="false"
+    >
+      <forward
+        name="CategoryForm"
+        path="/weblog/CategoryForm.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/bookmarkEdit"
+      type="org.roller.presentation.bookmarks.actions.BookmarkEdit"
+      name="bookmarkFormEx"
+      scope="request"
+      unknown="false"
+      validate="false"
+    >
+      <forward
+        name="BookmarkForm"
+        path="/bookmarks/BookmarkForm.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/folderSave"
+      type="org.roller.presentation.bookmarks.actions.FolderSave"
+      name="folderFormEx"
+      scope="request"
+      input="/folderEdit.do"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="Bookmarks"
+        path="/bookmarks.do?method=selectFolder"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/page"
+      type="org.roller.presentation.website.actions.PageFormAction"
+      name="pageForm"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/categories"
+      type="org.roller.presentation.weblog.actions.CategoriesAction"
+      name="categoriesForm"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="CategoriesForm"
+        path="/weblog/CategoriesForm.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/bake"
+      type="org.roller.presentation.weblog.actions.BakeWeblogAction"
+      name="bakeWeblogForm"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/adminUser"
+      type="org.roller.presentation.website.actions.UserAdminAction"
+      name="userAdminForm"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/user"
+      type="org.roller.presentation.website.actions.UserFormAction"
+      name="userFormEx"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/comment"
+      type="org.roller.presentation.weblog.actions.CommentFormAction"
+      name="commentFormEx"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/toggleLinkback"
+      type="org.roller.presentation.weblog.actions.ToggleLinkbackDisplayAction"
+      name="toggleLinkback"
+      scope="session"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/maintenance"
+      type="org.roller.presentation.website.actions.MaintenanceAction"
+      name="maintenanceForm"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="maintenance.page"
+        path="/website/Maintenance.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/categoryDelete"
+      type="org.roller.presentation.weblog.actions.CategoryDeleteAction"
+      name="categoryDeleteForm"
+      scope="request"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="Categories"
+        path="/categories.do?method=selectCategory"
+        redirect="false"
+      />
+      <forward
+        name="CategoryDeleteOK"
+        path="/weblog/CategoryDeleteOK.jsp"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/categorySave"
+      type="org.roller.presentation.weblog.actions.CategorySaveAction"
+      name="weblogCategoryFormEx"
+      scope="request"
+      input="/categoryEdit.do"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="Categories"
+        path="/categories.do?method=selectCategory"
+        redirect="false"
+      />
+    </action>
+    <action
+      path="/rollerConfig"
+      type="org.roller.presentation.website.actions.RollerConfigAction"
+      name="rollerConfigFormEx"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+    </action>
+    <action
+      path="/uploadFiles"
+      type="org.roller.presentation.website.actions.UploadFileFormAction"
+      name="uploadFiles"
+      scope="request"
+      parameter="method"
+      unknown="false"
+      validate="false"
+    >
+    </action>
+    <action
+      path="/themeEditor"
+      type="org.roller.presentation.website.actions.ThemeEditorAction"
+      name="themeEditorForm"
+      scope="session"
+      parameter="method"
+      unknown="false"
+      validate="true"
+    >
+      <forward
+        name="editTheme.page"
+        path="/website/theme-editor.jsp"
+        redirect="false"
+      />
+    </action>
+
+    <!-- If you have non XDoclet actions, define them in a file called struts-actions.xml and place it in your merge directory. -->
+  </action-mappings>
+
+   <!-- Define your Struts controller in a file called struts-controller.xml and place it in your merge directory. -->
+
+   <!-- Define your Struts message-resources in a file called struts-message-resources.xml and place it in your merge directory. -->
+
+<plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+    <set-property 
+        property="pathnames" 
+        value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+</plug-in>
+
+</struts-config>

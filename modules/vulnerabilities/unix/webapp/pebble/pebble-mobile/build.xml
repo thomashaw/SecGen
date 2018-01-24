@@ -1,0 +1,69 @@
+<project name="pebble-mobile" default="build" basedir=".">
+
+  <property name="etc.dir" value="${basedir}/etc"/>
+  <property name="src.dir" value="${basedir}/src"/>
+  <property name="build.dir" value="${basedir}/build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="preverified.dir" value="${build.dir}/preverified"/>
+  <property name="lib.dir" value="${basedir}/lib"/>
+
+  <property environment="env"/>
+
+  <path id="project.classpath">
+    <fileset dir="./lib">
+      <include name="kxmlrpc.jar"/>
+    </fileset>
+  </path>
+
+  <target name="init">
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${preverified.dir}"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <property name="project.classpath" refid="project.classpath"/>
+    <echo message="Using CLASSPATH of ${project.classpath}"/>
+
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="yes" target="1.1" bootclasspath="/Users/simon/midp-1.0/classes">
+      <classpath refid="project.classpath"/>
+    </javac>
+  </target>
+
+  <target name="build" depends="compile">
+    <unjar src="${lib.dir}/kxmlrpc.jar" dest="${classes.dir}"/>
+
+    <exec executable="${env.MIDP_HOME}/bin/preverify">
+      <arg line="-classpath ${env.MIDP_HOME}/classes:${lib.dir}/kxmlrpc.jar"/>
+      <arg line="-d ${preverified.dir}"/>
+      <arg line="${classes.dir}"/>
+    </exec>
+
+    <jar jarfile="${build.dir}/pebble-moblog.jar" manifest="${etc.dir}/MANIFEST.MF">
+      <fileset dir="${preverified.dir}"/>
+      <fileset dir="${etc.dir}">
+        <include name="*.png"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <target name="midp" depends="build">
+    <exec executable="${env.MIDP_HOME}/bin/midp">
+      <arg line="-classpath ${build.dir}/pebble-moblog.jar"/>
+      <arg line="-Xdescriptor ${etc.dir}/pebble-moblog.jad"/>
+      <arg line="pebble.mobile.PebbleMoblogMIDlet"/>
+    </exec>
+
+    <jar jarfile="${build.dir}/pebble-moblog.jar" manifest="${etc.dir}/MANIFEST.MF">
+      <fileset dir="${preverified.dir}"/>
+      <fileset dir="${etc.dir}">
+        <include name="*.png"/>
+      </fileset>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete dir="${preverified.dir}"/>
+  </target>
+
+</project>

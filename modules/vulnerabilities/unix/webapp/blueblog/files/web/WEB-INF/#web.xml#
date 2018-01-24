@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	<display-name>BlueBlog</display-name>
+	<description>BlueBlog</description>
+	
+	<filter>
+		<filter-name>compress</filter-name>
+		<filter-class>compressionFilters.CompressionFilter</filter-class>
+		<init-param>
+			<param-name>compressionThreshold</param-name>
+			<param-value>128</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>compress</filter-name>
+		<servlet-name>blueblog</servlet-name>
+	</filter-mapping>
+bbq	
+	<servlet>
+		<servlet-name>blueblog</servlet-name>
+		<servlet-class>se.bluefish.blueblog.servlet.BBServlet</servlet-class>
+		<init-param>
+			<param-name>properties</param-name>
+			<param-value>/WEB-INF/classes/velocity.properties</param-value>
+		</init-param>
+		<init-param>
+			<param-name>repositories</param-name>
+			<param-value>repositories.xml</param-value>
+		</init-param>
+	</servlet>
+	<servlet>
+		<servlet-name>forward</servlet-name>
+		<servlet-class>se.bluefish.blueblog.servlet.ForwardingServlet</servlet-class>
+		<init-param>
+			<param-name>to</param-name>
+			<param-value>bb</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forward</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>blueblog</servlet-name>
+		<url-pattern>/bb/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>forward</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+</web-app>

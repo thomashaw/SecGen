@@ -1,0 +1,648 @@
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServlet;
+
+import javax.servlet.jsp.JspException;
+
+import MyMockLib.MyHttpServletRequest;
+import MyMockLib.MyHttpServletResponse;
+
+import java.io.IOException;
+// Imports for servlets
+
+
+class InvokeServlets {
+    public static void main(String[] args) throws IOException {
+	processServlets();
+	processTags();
+    }
+    public static void processServlets() { 
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.AddLabelServlet servlet = new org.snipsnap.net.AddLabelServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.ChangePasswordServlet servlet = new org.snipsnap.net.ChangePasswordServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.CommentStoreServlet servlet = new org.snipsnap.net.CommentStoreServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.CommentViewServlet servlet = new org.snipsnap.net.CommentViewServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.CssHandlerServlet servlet = new org.snipsnap.net.CssHandlerServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.DiffServlet servlet = new org.snipsnap.net.DiffServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.FileDownloadServlet servlet = new org.snipsnap.net.FileDownloadServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.FileUploadServlet servlet = new org.snipsnap.net.FileUploadServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.GroovyTemplateServlet servlet = new org.snipsnap.net.GroovyTemplateServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.HistoryServlet servlet = new org.snipsnap.net.HistoryServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.LabelsServlet servlet = new org.snipsnap.net.LabelsServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.Layouter servlet = new org.snipsnap.net.Layouter();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.LoginServlet servlet = new org.snipsnap.net.LoginServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.MailPasswordKeyServlet servlet = new org.snipsnap.net.MailPasswordKeyServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.NameSpaceServlet servlet = new org.snipsnap.net.NameSpaceServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.NewUserServlet servlet = new org.snipsnap.net.NewUserServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.PluginServlet servlet = new org.snipsnap.net.PluginServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.PostStoreServlet servlet = new org.snipsnap.net.PostStoreServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.RdfServlet servlet = new org.snipsnap.net.RdfServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.RemoveLabelServlet servlet = new org.snipsnap.net.RemoveLabelServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.RenderServlet servlet = new org.snipsnap.net.RenderServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.RobotServlet servlet = new org.snipsnap.net.RobotServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.RsdServlet servlet = new org.snipsnap.net.RsdServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.RssServlet servlet = new org.snipsnap.net.RssServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipCopyServlet servlet = new org.snipsnap.net.SnipCopyServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipEditServlet servlet = new org.snipsnap.net.SnipEditServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipLockServlet servlet = new org.snipsnap.net.SnipLockServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipRawServlet servlet = new org.snipsnap.net.SnipRawServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipRemoveServlet servlet = new org.snipsnap.net.SnipRemoveServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipSearchServlet servlet = new org.snipsnap.net.SnipSearchServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipStoreServlet servlet = new org.snipsnap.net.SnipStoreServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipVersionServlet servlet = new org.snipsnap.net.SnipVersionServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.SnipViewServlet servlet = new org.snipsnap.net.SnipViewServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.StoreLabelServlet servlet = new org.snipsnap.net.StoreLabelServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.ThemeImageServlet servlet = new org.snipsnap.net.ThemeImageServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.VersionServlet servlet = new org.snipsnap.net.VersionServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.XmlRpcServlet servlet = new org.snipsnap.net.XmlRpcServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.iCalServlet servlet = new org.snipsnap.net.iCalServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.admin.ConfigureServlet servlet = new org.snipsnap.net.admin.ConfigureServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            HttpServletRequest request   = new MyHttpServletRequest();
+            HttpServletResponse response = new MyHttpServletResponse();
+
+	    org.snipsnap.net.admin.ThemeImageServlet servlet = new org.snipsnap.net.admin.ThemeImageServlet();
+
+            servlet.service(request, response);
+	    
+	} catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    } 
+
+    public static void processTags() {
+        try {
+            org.snipsnap.jsp.BackLinkTag tag = new org.snipsnap.jsp.BackLinkTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.ContentTag tag = new org.snipsnap.jsp.ContentTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.CoordinatesTag tag = new org.snipsnap.jsp.CoordinatesTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.DebugTag tag = new org.snipsnap.jsp.DebugTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.DublinCoreTag tag = new org.snipsnap.jsp.DublinCoreTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.ImageTag tag = new org.snipsnap.jsp.ImageTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.ObjectAuth tag = new org.snipsnap.jsp.ObjectAuth();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.PathSelectorTag tag = new org.snipsnap.jsp.PathSelectorTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.PathTag tag = new org.snipsnap.jsp.PathTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.SnipLinkTag tag = new org.snipsnap.jsp.SnipLinkTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.SnipTag tag = new org.snipsnap.jsp.SnipTag();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            org.snipsnap.jsp.UserAuth tag = new org.snipsnap.jsp.UserAuth();
+
+            try {
+                tag.doStartTag ();
+                tag.doEndTag ();
+            } catch (JspException e){}
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+} 

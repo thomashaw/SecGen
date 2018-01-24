@@ -1,0 +1,172 @@
+body {
+  font-family: Lucida Grande, Tahoma, Verdana, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  background : silver;
+  color : black;
+  text-align: left;
+  border-top: solid gray 1px;
+  border-right: solid gray 1px;
+  border-bottom: solid gray 1px;
+  border-left: solid gray 1px;
+  margin: 16px 16px 16px 16px;
+}
+blockquote {
+  font-style: italic;
+}
+.small {
+  font-size: 11px;
+}
+.photo {
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  border-top: solid black 1px;
+  border-right: solid black 1px;
+  border-bottom: solid black 1px;
+  border-left: solid black 1px;
+  text-align: center;
+}
+a:link, a:visited, a:active {
+  color: #4169AA;
+  text-decoration: none;
+  font-weight: bold;
+}
+a:hover {
+  text-decoration: underline;
+}
+.header {
+  background : #4169AA;
+  color: white;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-weight: bold;
+}
+.header a:link, .header a:visited, .header a:active {
+  color : white;
+}
+.bodyContent {
+  background : white;
+}
+.bodyContentEven {
+  background: lightgrey;
+}
+.bodyContentOdd {
+  background: white;
+}
+.sidebar {
+  padding-top: 4px;
+  padding-right: 4px;
+  padding-bottom: 4px;
+  padding-left: 4px;
+  border-left: dotted gray 1px;
+  text-align: center;
+}
+.footer {
+  background: #4169AA;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+}
+.footer a:link, .footer a:visited, .footer a:active {
+  color : white;
+}
+.blogName, .blogName a:link, .blogName a:visited, .blogName a:active {
+  font-size: 24px;
+  font-weight: bold;
+}
+.blogDescription {
+  font-weight: none;
+}
+.calendar {
+  font-size: 11px;
+  text-align: center;
+}
+.calendarDayHeader {
+}
+.calendarDay {
+  text-align: right;
+}
+.calendarDayWithEntries, .calendarDayWithEntries a:link, .calendarDayWithEntries a:visited, .calendarDayWithEntries a:active {
+  font-weight: bold;
+  text-align: right;
+}
+.calendarToday, .calendarToday a:link, .calendarToday a:visited, .calendarToday a:active {
+  background : #4169AA;
+  color: white;
+  font-weight: bold;
+  text-align: right;
+}
+
+.blogEntry {
+  text-align: left;
+  background: white;
+  border-top: dotted silver 1px;
+}
+.blogEntryHeader, .blogEntryHeader a:link, .blogEntryHeader a:visited, .blogEntryHeader a:active {
+  background: white;
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+}
+.blogEntryBody {
+  background: white;
+}
+.blogEntryMetadata, .blogEntryMetadata a:link, .blogEntryMetadata a:visited, .blogEntryMetadata a:active {
+  color: gray;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.comment {
+}
+.commentHeader, .commentHeader a:link, .commentHeader a:visited, .commentHeader a:active {
+  font-weight: bold;
+}
+.commentBody {
+}
+.commentMetadata, .commentMetadata a:link, .commentMetadata a:visited, .commentMetadata a:active {
+  color: gray;
+  font-size: 11px;
+}
+.trackback {
+}
+.trackbackHeader, .trackbackHeader a:link, .trackbackHeader a:visited, .trackbackHeader a:active {
+  font-weight: bold;
+}
+.trackbackBody {
+}
+.trackbackMetadata, .trackbackMetadata a:link, .trackbackMetadata a:visited, .trackbackMetadata a:active {
+  color: gray;
+  font-size: 11px;
+}
+
+.item {
+  text-align: left;
+  background: white;
+  border-top: dotted silver 1px;
+}
+.itemHeader, .itemHeader a:link, .itemHeader a:visited, .itemHeader a:active {
+  background: white;
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+}
+.itemBody {
+  background: white;
+}
+.itemBodyEven {
+  background: lightgrey;
+}
+.itemBodyOdd {
+  background: white;
+}
+.itemMetadata, .itemMetadata a:link, .itemMetadata a:visited, .itemMetadata a:active {
+  color: gray;
+  font-weight: bold;
+  font-size: 11px;
+}
+.validationError {
+  color: white;
+  background-color: #B20D1C;
+}

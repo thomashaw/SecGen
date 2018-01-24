@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<repositories-configuration>
+	<repository-manager>
+		<name>filesystem</name>
+		<class>se.bluefish.blueblog.filesystemrepository.FSRepositoryManager</class>
+		<description>
+			Stores all info as files (Blogs) and directories (Categories).
+		</description>
+		<parameter-definition>
+			<name>rootpattern</name>
+			<description>File path pattern, containing the ${user} pattern.</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>blogtype1</name>
+			<default-value>text/plain:simpletext</default-value>
+			<description>
+				Value is a colon-separated pair: first part is the mime type of the
+				file that contains a Blog, and the second part is the name of a formatter
+				to be used formatting the blog later.
+			</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>blogtype2</name>
+			<default-value>text/plain:simpletext</default-value>
+			<description>
+				Value is a colon-separated pair: first part is the mime type of the
+				file that contains a Blog, and the second part is the name of a formatter
+				to be used formatting the blog later.
+			</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>blogtype3</name>
+			<default-value>text/plain:simpletext</default-value>
+			<description>
+				Value is a colon-separated pair: first part is the mime type of the
+				file that contains a Blog, and the second part is the name of a formatter
+				to be used formatting the blog later.
+			</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>blogtype4</name>
+			<default-value>text/plain:simpletext</default-value>
+			<description>
+				Value is a colon-separated pair: first part is the mime type of the
+				file that contains a Blog, and the second part is the name of a formatter
+				to be used formatting the blog later.
+			</description>
+		</parameter-definition>
+	</repository-manager>
+
+	<repository-manager>
+		<name>metarepository</name>
+		<class>se.bluefish.blueblog.metarepository.MetaRepositoryManager</class>
+		<description>Collects blogs from categories in other repositories</description>
+		<parameter-definition>
+			<name>username</name>
+			<description>Virtual username</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>name</name>
+			<description>Name of repository (also used as name of root category)</description>
+		</parameter-definition>
+		<parameter-definiation>
+			<name>templateProfile</name>
+			<description>Name of the template profile to be used</description>
+		</parameter-definiation>
+		<parameter-definition>
+			<name>rootcategory1-path</name>
+			<description>URL path to the first meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory1-name</name>
+			<description>Name of the first meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory2-path</name>
+			<description>URL path to the second meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory2-name</name>
+			<description>Name of the second meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory3-path</name>
+			<description>URL path to the third meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory3-name</name>
+			<description>Name of the third meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory4-path</name>
+			<description>URL path to the fourth meta-category</description>
+		</parameter-definition>
+		<parameter-definition>
+			<name>rootcategory4-name</name>
+			<description>Name of the fourth meta-category</description>
+		</parameter-definition>
+	</repository-manager>
+
+	<blog-formatter>
+		<name>simpletext</name>
+		<class>se.bluefish.blueblog.formatters.SimpleText</class>
+		<description>
+			First line is the title. For the rest, newlines are 
+			represented by html linebreaks (the "br" tag).
+		</description>
+	</blog-formatter>
+
+	<blog-formatter>
+		<name>bluefish-linker</name>
+		<class>se.bluefish.blueblog.formatters.BluefishLinker</class>
+		<description>
+			Sample formatter: exchanges the word "Bluefish" with
+			the text <a href="http://bluefish.se">Bluefish</a>
+		</description>
+	</blog-formatter>
+
+	<blog-formatter>
+		<name>bluefish-text</name>
+		<chain>simpletext,bluefish-linker</chain>
+		<description>
+			Sample formatter: combines (chains) the two formatters "simpletext"
+			and "bluefish-linker"
+		</description>
+	</blog-formatter>
+
+	
+
+	<repository>
+		<!-- manager corresponds to the name element in the repository-manager -->
+		<manager>filesystem</manager>
+		<parameter>
+			<name>rootpattern</name>
+			<value>c:\blueblog\blog\${user}</value>
+		</parameter>
+		<parameter>
+			<name>blogtype1</name>
+			<value>text/plain:bluefish-text</value>
+		</parameter>
+		<parameter>
+			<name>blogtype2</name>
+			<value>text/html:bluefish-linker</value>
+		</parameter>
+	</repository>
+	
+	<repository>
+		<manager>metarepository</manager>
+		<parameter>
+			<name>username</name>
+			<value>bluefish</value>
+		</parameter>
+		<parameter>
+			<name>name</name>
+			<value>Bluefish-bloggar</value>
+		</parameter>
+		<parameter>
+			<name>rootcategory1-path</name>
+			<value>/movies</value>
+		</parameter>
+		<parameter>
+			<name>rootcategory1-name</name>
+			<value>Filmer</value>
+		</parameter>
+		<parameter>
+			<name>rootcategory2-path</name>
+			<value>/bluefish/java</value>
+		</parameter>
+		<parameter>
+			<name>rootcategory2-name</name>
+			<value>Java på Bluefish</value>
+		</parameter>
+		<parameter>
+			<name>templateProfile</name>
+			<value>metabluefish</value>
+		</parameter>
+	</repository>
+</repositories-configuration>

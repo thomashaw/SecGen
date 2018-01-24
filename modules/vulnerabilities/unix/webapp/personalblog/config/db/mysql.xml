@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<personalblog>
+  <commentsDDL>CREATE TABLE t_comments (comment_id varchar(32) NOT NULL, name varchar(50), email varchar(50), url varchar(50), content longtext, emoticon varchar(10), created datetime, post_id varchar(32), version int(11) DEFAULT '0' NOT NULL, PRIMARY KEY (comment_id) );</commentsDDL>
+  <postsDDL>CREATE TABLE t_posts (post_id varchar(32) NOT NULL, reference varchar(30), title varchar(90), emailComments int(11) DEFAULT '0', category varchar(10), content longtext, created datetime, modified datetime, version int(11) DEFAULT '0' NOT NULL, PRIMARY KEY (post_id));</postsDDL>
+  <referrersDDL>CREATE TABLE t_referrers (referrer_id varchar(32) NOT NULL, date datetime, referrer varchar(100) NOT NULL, counter int(11), created datetime, version int(11) DEFAULT '0' NOT NULL, PRIMARY KEY (referrer_id) );</referrersDDL>
+  <propertiesDDL>CREATE TABLE t_properties (name varchar(100) NOT NULL, version int(11) DEFAULT '0' NOT NULL, value varchar(200), description varchar(200), PRIMARY KEY (name));</propertiesDDL>
+</personalblog>

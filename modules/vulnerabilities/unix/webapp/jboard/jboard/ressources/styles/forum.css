@@ -1,0 +1,60 @@
+
+.first{
+
+  padding:0.1em;
+  background-color:#C3E1FF;
+  color:#002D5A;
+}
+
+.first>span:first-child{
+  font-size:1.8em;
+  font-family:arial;
+  margin-left:0.5em;
+}
+
+.second {
+  margin:0.5em;
+  padding:0.3em;
+  border: solid #FFFFFF 0.1em;
+
+
+}
+
+.third{
+
+  margin:0.2em;
+  background-color:#69B4FF;
+}
+
+a:link,hover,active,focus{
+  color:#002D5A;
+}
+
+a:hover {
+  background-color:#2D96FF;
+  color:#002D5A;
+}
+
+a:visited{
+  color:#002D5A;
+}
+
+
+
+.title{
+  font-family: arial;
+}
+
+.empty{
+
+  background-color: #2080e0;
+  margin:0.2em;
+  height:3em;
+}
+
+fieldset{
+
+margin:2em;
+border-color:#69B4FF;
+
+}

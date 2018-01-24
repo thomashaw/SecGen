@@ -1,0 +1,45 @@
+<project name="pebble-desktop" default="build" basedir=".">
+
+  <property name="etc.dir" value="${basedir}/etc"/>
+  <property name="src.dir" value="${basedir}/src"/>
+  <property name="build.dir" value="${basedir}/build"/>
+  <property name="classes.dir" value="${build.dir}/classes"/>
+
+  <property environment="env"/>
+
+  <path id="project.classpath">
+    <fileset dir="../pebble-core/build">
+      <include name="pebble.jar"/>
+    </fileset>
+  </path>
+
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${classes.dir}"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <property name="project.classpath" refid="project.classpath"/>
+    <echo message="Using CLASSPATH of ${project.classpath}"/>
+
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" debug="yes">
+      <classpath refid="project.classpath"/>
+    </javac>
+  </target>
+
+  <target name="build" depends="compile">
+    <jar jarfile="${build.dir}/pebble-deskblog.jar" manifest="${etc.dir}/MANIFEST.MF" >
+      <fileset dir="${classes.dir}">
+      </fileset>
+      <fileset dir="${etc.dir}">
+        <include name="pebble.jpg" />
+        <include name="log4j.properties" /> 
+      </fileset>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+  </target>
+
+</project>

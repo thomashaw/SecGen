@@ -1,0 +1,13 @@
+<project name="pebble-test" default="build" basedir=".">
+
+  <property name="project.name" value="pebble"/>
+
+  <target name="build">
+    <copy todir="web/WEB-INF/lib">
+      <fileset dir="../pebble-core/lib">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+  </target>
+
+</project>

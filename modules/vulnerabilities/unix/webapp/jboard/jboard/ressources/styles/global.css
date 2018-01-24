@@ -1,0 +1,95 @@
+/* id selector which applies to the UNIQUE element content 
+   this element content display the principal informations       */
+#header {
+  margin:1em;
+  height:3em;
+  border: 1px solid #2080e0;
+  text-align:center;
+}
+
+#header div{
+
+margin-top:0.7em;
+}
+
+/* id selector which applies to the UNIQUE element content 
+   this element content display the principal informations       */
+#content {
+  margin:1em;
+  border: 1px dashed ;
+  border-color:#0069D2;
+}
+
+
+
+/* id selector which applies to the UNIQUE element footer 
+   this element display the informations at the
+    end of the generated page                                    */
+#footer {
+  margin:1em;
+  border: 1px solid #2080e0;
+  text-align:center;
+  height:3em;
+}
+
+#footer div {
+
+margin-top:0.7em;
+
+}
+
+
+abbr, acronym, .help {
+ border-bottom: 1px dotted #333;
+ cursor: help;
+ }
+ 
+ /*  class selector for the form input fields label */
+.leftFormField {
+  float:left;  
+  width: 6em;
+  text-align: right;
+  
+}
+/*  class selector for the form input fields */
+.rightFormField {
+  float:right;
+  width: 14em;
+  text-align: left;
+  
+
+}
+.formBlock{
+ clear:both;
+ height:3em;
+ width:22em;
+ margin-left: auto;
+margin-right: auto;
+}
+
+
+legend{
+ font-size: 2em;
+
+}
+
+.error{
+text-align:center;
+}
+
+.error h1{
+background-color:#69B4FF;
+margin-top:8em;
+margin-right:4em;
+margin-left:4em;
+height:1.5em;
+}
+
+
+.error h2{
+background-color:red;
+margin-top:2em;
+margin-right:5em;
+margin-left:5em;
+height:1.5em;
+}

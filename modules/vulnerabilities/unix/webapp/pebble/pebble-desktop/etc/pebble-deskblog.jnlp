@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<jnlp
+  spec="1.0+" 
+  codebase="http://pebble.sourceforge.net/deskblog/" 
+  href="pebble-deskblog.jnlp"> 
+  <information> 
+    <title>Pebble deskblog</title> 
+    <vendor>Simon Brown</vendor> 
+    <homepage href="index.html"/> 
+    <description>Desktop blogging tool</description> 
+    <description kind="short">A desktop blogging tool written in Java.</description> 
+    <icon href="../images/pebble.jpg"/> 
+    <icon kind="splash" href="../images/pebble.jpg"/> 
+    <offline-allowed/> 
+  </information> 
+  <security> 
+      <all-permissions/> 
+  </security> 
+  <resources> 
+    <j2se version="1.4+"/> 
+    <jar href="lib/pebble-deskblog.jar"/> 
+    <jar href="lib/pebble.jar"/> 
+    <jar href="lib/commons-logging-api.jar"/> 
+    <jar href="lib/log4j.jar"/> 
+    <jar href="lib/lucene-1.4.1.jar"/> 
+  </resources> 
+  <application-desc main-class="pebble.desktop.Deskblog"/> 
+</jnlp>

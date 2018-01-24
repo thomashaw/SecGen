@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+<tiles-definitions>
+<!-- definitions pour le module statistiques (stats) -->
+   <!-- definition par défaut du module stats -->
+<definition name=".root.common.reg.basic" extends=".root.common" page="/WEB-INF/modules/stats/tiles/layouts/regLayout.jsp">
+        <put name="title"  value="jboard stats module" />
+        <put name="header" value="WEB-INF/modules/stats/tiles/header.jsp" />
+        <put name="body"   value="WEB-INF/modules/stats/tiles/body.jsp" />
+</definition>
+</tiles-definitions>

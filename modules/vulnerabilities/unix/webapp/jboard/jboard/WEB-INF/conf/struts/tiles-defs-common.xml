@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+ <!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+       "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+
+
+
+<tiles-definitions>
+
+    <!-- the root definition 
+         for all modules  -->
+
+    <definition name=".root.common"  page="/WEB-INF/modules/common/tiles/layouts/basicLayout.jsp" >
+        <put name="title"  value="jboard common" />
+        <put name="header" value="/WEB-INF/modules/common/tiles/header.jsp" />
+        <put name="body"   value="/WEB-INF/modules/common/tiles/body.jsp" />
+        <put name="footer" value="/WEB-INF/modules/common/tiles/footer.jsp" />
+    </definition>
+ 
+</tiles-definitions>
