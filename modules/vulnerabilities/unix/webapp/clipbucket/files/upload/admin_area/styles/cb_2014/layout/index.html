@@ -1,0 +1,693 @@
+<div class="heading">
+    <h2>ClipBucket V{$VERSION} {$STATE} Dashboard</h2>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="tabbable">
+                <div class="row">
+                <div id="roundchart">
+                <div class="col-md-6">
+                    <div id="piechart" style="width: 90%; height: 430px; background-color: #FFFFFF;" ></div>
+                </div>
+
+                <div class="col-md-6">
+                    <div id="donutchart" style="width: 80%; height: 430px; background-color: #FFFFFF;" ></div>
+                </div>
+                </div>
+                <hr>
+                <div>
+                <div class="col-md-6">
+                <hr>
+                     <div id="ubarchart" style="width: 90%; height: 400px; background-color: #FFFFFF;" ></div>
+                </div>
+
+                <div class="col-md-6">
+                <hr>
+                    <div id="vbarchart" style="width: 90%; height: 400px; padding: left; background-color: #FFFFFF;" ></div>
+                </div>
+                </div>
+                <hr>
+              </div>
+             <hr>
+        </div>
+    </div>
+<hr>
+<div class="row">
+   <div class="col-md-6">
+     <div class="tabbable tabs-left" >
+         <div class=" col-md-6 todotab" >
+          <ul class="nav nav-tabs" id="myTab" > 
+            <li class="active">
+                <a data-toggle="tab" href="#todolist">
+                    <h5><i class="glyphicon glyphicon-list-alt"></i> ToDo List</h5>
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#pnotes">
+                    <h5><i class="glyphicon glyphicon-pencil"></i> Personal Notes</h5>
+                </a>
+            </li>
+            <li class="">
+                <a data-toggle="tab" href="#rcomments">
+                    <h5><i class="glyphicon glyphicon-comment"></i> Recent Comments</h5>
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div id="todolist" class="tab-pane active">
+                <div class="widgetBox">
+                    <div class="addTodo paddingRightSmall paddingLeftLarge marginBottomLarge">
+                        <div class="row">
+                            <div class="from-group relative">
+                                <div class="from-group">
+                                    <input type="text" name="addTodo" class="form-control addTodoText">
+                                    <button id="addTodo" class="btn btn-primary btn-sm">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {assign var=todos value=$myquery->get_todos()}
+                    <ul class="row todosList" id="note-{$the_note.note_id}" >
+                        {foreach from=$todos item=note}
+                            <li class="col-md-12">
+                                <div class="col-md-12">
+                                    <p class="oneTodo paddingLeftSmall col-md-10" id="{$note.todo_id}">
+                                        {$note.todo}
+                                    </p>
+                                    <a href="#" class="btn btn-danger btn-xs delete">Delete</a>
+                                </div>
+                            </li>
+                        {/foreach}
+                    </ul>
+               </div>
+            </div>
+            <div id="pnotes" class="tab-pane">
+                    <div class="widgetBox">
+                        <div class="addNote form-group paddingRightSmall">
+                            <textarea class="form-control" name="ntoe" id="note"></textarea>
+                            <div class="alignRight marginTopSmall">
+                                <a href="#" id="add_new_note" class="btn btn-primary btn-xs">Add a note</a>
+                            </div>
+                        </div>
+                        {assign var=notes value=$myquery->get_notes()}
+                        <ul class="notesList row paddingRightSmall" id="note-{$the_note.note_id}" >
+                            {foreach from=$notes item=note}
+                                <li class="col-md-4">
+                                    <div class="">
+                                        <p class="oneNote" id="{$note.note_id}">
+                                        {$note.note}
+                                        <a href="#" class="delete">×</a>
+                                    </p>
+                                    </div>
+                                </li>
+                            {/foreach}
+                        </ul>
+                    </div>
+            </div>
+            <div id="rcomments" class="tab-pane">
+                <div class="widget-box">
+                    <div class="widget-header header-color-blue">
+                        <h5>Recent Comments</h5>
+                        <div class="widget-toolbar">
+                            <a href="#" data-action="collapse">
+                                <i class="icon-chevron-down"></i>
+                            </a>
+                            <a href="#" data-action="close">
+                                <i class="icon-remove"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div class="widget-box transparent">
+                                <div class="widget-header widget-header-small">
+                                </div>
+                                <div class="widget-body">
+                                    <div class="widget-body">
+                                        <div class="widget-main no-padding">
+                                            <div class="slimScrollDiv">
+                                                {if $comments}
+                                                {foreach from=$comments item=comment}
+                                                <div class="itemdiv dialogdiv">
+                                                    {foreach from=$users item=u}
+                                                    <div class="user">
+                                                        <img alt="Alexa's Avatar" src="{$userquery->getUserThumb($u,'small')}">
+                                                    </div>
+                                                    {/foreach}
+                                                    <div class="body">
+                                                        <div class="time">
+                                                            <i class="icon-time"></i>
+                                                            <span class="green">{$comment.date_added|date_format}</span>
+                                                        </div>
+                                                        <div class="name">
+                                                            <a href="#">{$comment.anonym_name}</a>
+                                                        </div>
+                                                        <div class="text">{$comment.comment}</div>
+                                                        <div class="tools">
+                                                            <a href="#" class="btn btn-minier btn-info">
+                                                                <i class="icon-only icon-share-alt"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {/foreach}
+                                                {/if}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+    <div class="col-md-6">
+        <div class="panel panel-danger">
+                    <div class="panel-heading "> <span class="glyphicon glyphicon-list-alt"></span><b>&nbsp CLIPBUCKET NEWS</b>
+                    </div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <ul class="newsbox">
+                                       <li class="news-item">
+                                        <table cellpadding="8">
+                                            <tr>
+                                                <td>
+                                                <div id="clipbucket_news" class="widget-main" style="height:130px">
+                                                </div>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<div class="well" style="margin-top: 14px;background:;border:1px solid rgba(128, 213, 255, 1);" >
+    <h3>WHO WE ARE</h3>
+    <p style="text-align:left;"><strong><a href="http://clip-bucket.com/" target="self">ClipBucket</a></strong> would not been possible without its team hardwork and determination for the betterment of the products quality and its services. We are proud that over _____ users are using worlds most popular open source video,audio and photo sharing script named
+    <strong>ClipBucket</strong>. We are team who is  determined to deliver the best  features to the open source community.
+    </p>
+
+
+    <p style="text-align:left;margin-top:20px; "><strong>Clipbucket</strong> was made in the year 2006 with the idea to bring a better platform for organizations and companies interested in launching their own video,audio or photo sharing website. In every version our mission and goal is to simplify the technology by adopting new technological methods and techniques to cut down several frontend and backend issues faced. The idea is to give the user a chance to explore more with the flexibility of our product.
+
+
+
+     We never compromise on our product interactivity. We always try to create a simple yet interactive and elegant design so that the user can have the best experience of the functions. With the improved social networking options like channels and groups. With ClipBucket’s unmatched quantifiability, users will stretch their applications from family videos to photo-albums. We started off as a paid product and later realized there is more power in going open-source and here we stand today <strong>#1</strong> video sharing and media management script in the industry.</p>
+
+    <h3>OUR TEAM</h3>
+
+    <p style="text-align:left;padding-bottom:20px;">However the team behind ClipBucket always kept their heads and nerves, though they faced many difficulties and problems in meeting the requirements. But team’s coordination and their creative techniques of solving issues and overcoming them with the best possible solution helped us in presenting  Pakistan on international platform in the field of technology by bringing “Clip Bucket” A complete open source multimedia management script.
+    </p>
+
+    <div class="to_display">
+        <p>Founders <strong><a href="http://www.linkedin.com/profile/view?id=273050157" target="blank">Jahanzeb Hassan</a></strong> and <strong><a href="http://www.linkedin.com/profile/view?id=37419812" target="blank">Arslan Hassan</a></strong></p>
+
+         <strong><a href="http://www.linkedin.com/profile/view?id=324544384" target="self">Fawaz Tahir</a></strong> - Web Application Team Lead<br>
+         <strong><a href="http://www.linkedin.com/profile/view?id=78646794" target="self">Ruman Malik</a></strong> - Project Manager<br>
+         <strong><a href="http://www.linkedin.com/profile/view?id=325944697" target="self">Muneeb</a></strong> - Mobile Application Team Lead<br>
+         <strong><a href="http://www.linkedin.com/profile/view?id=324542682" target="self">Zomail</a></strong> - Sales and Support<br>
+         <strong><a href="http://www.linkedin.com/profile/view?id=324542554" target="self">Shahzaib</a></strong> - Network Engineer<br>
+         <strong><a href="http://www.linkedin.com/profile/view?id=324542025" target="self">Zunair</a></strong> - SEO and Publishing Manager<br>
+        <br>
+
+        <h5><strong>Kick-ass development team of <strong>ClipBucket</strong></strong></h5>
+        <strong><a href="https://github.com/fahad-cb" target="self">Fahad Abbas</a></strong> - Project Head (Developer)<br>
+         <strong><a href="https://github.com/imranhassan009" target="self">Imran Hassan</a></strong> - Web Developer<br>
+         <strong><a href="https://github.com/shoaib-dev" target="self">Muhammad Shoaib</a></strong> - Web Services provider (Developer)<br>
+         <strong><a href="https://github.com/awaistariq123" target="self">Awais Tariq</a></strong> - Video Converison Handler<br>
+         <strong><a href="https://pk.linkedin.com/in/saqirzzq" target="self">Saaqib Razzaq</a></strong> - Web Developer<br>
+         <strong><a href="https://github.com/jamilrehman" target="self">Jamil Rehman</a></strong> - Front end  Developer (Head)<br>
+         <strong><a href="https://github.com/rameez-anees" target="self">Rameez Anees</a></strong> - Front end  Developer<br>
+         <strong><a href="https://github.com/usman-des" target="self">Usman Afzal</a></strong> - Front end  Developer<br>
+         <strong><a href="https://github.com/epicPenguin" target="self">Muhammad Rizwan</a></strong> - Quality Assurance department<br><br><br>
+
+
+         <h5><strong>We are from Pakistan with high heads and soft hearts</strong></h5>
+
+        <p style="padding-bottom:20px;">Pakistan is always been in the news for the bad reasons and has been criticized by the rest of the world,even then the people of Pakistan are patriotic and stand united for the goodwill of their country.no matter how worst the situation gets the youth is eager enough to bring out the best in all the fields like media,communication, IT and science. IT industry is fast growing with a large potential and is regarded as a successful sector even in country’s worst financial crisis. as the IT industry in Pakistan is growing like wise the demand for the softwares and programmes has taken up a rapid growth. ClipBucket is one of the fastest and the most used media sharing script with all the latest features and enhancements in the social media. We as Pakistani feel proud on creating this product which will lead our country to the highest levels in the international market.</p>
+    </div>
+
+    <p><button id="addTodo" class="btn btn-primary btn-sm clip_read clip_hide" style="float:right;margin-right:10px;margin-top:-30px;">Read More</button></p>
+</div>
+
+<style type="text/css">
+
+.to_display{
+
+   display: none;
+}
+    .flot_chart1{
+        height: 200px;
+        width: 400px;
+    }
+    .vids{
+        height: 250px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding: 5px;
+    }
+</style>
+
+<script type="text/javascript">
+            AmCharts.makeChart("piechart",
+                {
+                    "type": "pie",
+                    "adjustPrecision": true,
+                    "angle": 12,
+                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                    "depth3D": 15,
+                    "maxLabelWidth": 150,
+                    "titleField": "category",
+                    "valueField": "column-1",
+                    "processTimeout": 5,
+                    "theme": "light",
+                    "allLabels": [],
+                    "balloon": {},
+                    "legend": {
+                        "enabled": true,
+                        "align": "left",
+                        "markerType": "circle"
+                    },
+                    "titles": [
+                        {
+                            "bold": false,
+                            "id": "Title-1",
+                            "size": 15,
+                            "text": "Overall Statistics"
+                        }
+                    ],
+                    "dataProvider": [
+                        {
+                            "category": "Users",
+                            "column-1": '{get_users count_only=yes}'
+                        },
+                        {
+                            "category": "Photos",
+                            "column-1": '{get_photos count_only=yes}'
+                        },
+                        {
+                            "category": "Videos",
+                            "column-1": '{get_videos|number_format count_only=yes}'
+                        },
+                        {
+                            "category": "Collections",
+                            "column-1": '{get_collections count_only=yes}'
+                        },
+
+                    ]
+                }
+            );
+</script>
+
+<script type="text/javascript">
+            // var test =  '{$flaggedPhotos.0.total_flags}';
+            AmCharts.makeChart("donutchart",
+                {
+                    "type": "pie",
+                    "angle": 12,
+                    "balloonText": "[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</span>",
+                    "depth3D": 15,
+                    "innerRadius": "30%",
+                    "titleField": "category",
+                    "valueField": "column-1",
+                    "processTimeout": 5,
+                    "theme": "light",
+                    "allLabels": [],
+                    "balloon": {},
+                    "legend": {
+                        "enabled": true,
+                        "align": "center",
+                        "markerType": "circle"
+                    },
+                    "titles": [
+                        {
+                            "bold": false,
+                            "id": "Title-1",
+                            "size": 15,
+                            "text": "Flagged Objects"
+                        }
+                    ],
+                    "dataProvider": [
+
+                        {
+                            "category": "Photos",
+                            "column-1": '{$cbphoto->action->count_flagged_objects()}'
+                        },
+                        {
+                            "category": "Videos",
+                            "column-1": '{$cbvid->action->count_flagged_objects()}'
+                        }
+                    ]
+                }
+            );
+</script>
+
+<script type="text/javascript">
+            AmCharts.makeChart("ubarchart",
+                {
+                    "type": "serial",
+                    "pathToImages": "https://www.amcharts.com/lib/3/images/",
+                    "categoryField": "category",
+                    "startDuration": 1,
+                    "mouseWheelZoomEnabled": true,
+                    "startEffect": "easeOutSine",
+                    "autoDisplay": true,
+                    "theme": "light",
+                    "categoryAxis": {
+                        "gridPosition": "start"
+                    },
+                    "trendLines": [],
+                    "graphs": [
+                        {
+                            "colorField": "color",
+                            "fillAlphas": 1,
+                            "id": "AmGraph-1",
+                            "lineColorField": "color",
+                            "title": "graph 1",
+                            "type": "column",
+                            "valueField": "column-1"
+                        }
+                    ],
+                    "guides": [],
+                    "valueAxes": [
+                        {
+                            "id": "ValueAxis-1",
+                            "title": "Users"
+                        }
+                    ],
+                    "allLabels": [],
+                    "balloon": {},
+                    "titles": [
+                        {
+                            "bold": false,
+                            "id": "Title-1",
+                            "size": 15,
+                            "text": "Users Statistics"
+                        }
+                    ],
+                    "dataProvider": [
+                        {
+                            "category": "Total",
+                            "column-1": '{get_users count_only=yes}'
+                        },
+                        {
+                            "category": "Active",
+                            "column-1": '{get_users count_only=yes status='Ok'}'
+                        },
+                        {
+                            "category": "Inactive",
+                            "column-1": '{get_users count_only=yes status='ToActivate'}'
+                        }
+                    ]
+                }
+            );
+</script>
+
+<script type="text/javascript">
+            AmCharts.makeChart("vbarchart",
+                {
+                    "type": "serial",
+                    "pathToImages": "https://www.amcharts.com/lib/3/images/",
+                    "categoryField": "category",
+                    "startDuration": 1,
+                    "mouseWheelZoomEnabled": true,
+                    "startEffect": "easeOutSine",
+                    "autoDisplay": true,
+                    "theme": "light",
+                    "categoryAxis": {
+                        "gridPosition": "start"
+                    },
+                    "trendLines": [],
+                    "graphs": [
+                        {
+                            "colorField": "color",
+                            "fillAlphas": 1,
+                            "id": "AmGraph-1",
+                            "lineColorField": "color",
+                            "title": "graph 1",
+                            "type": "column",
+                            "valueField": "column-1"
+                        }
+                    ],
+                    "guides": [],
+                    "valueAxes": [
+                        {
+                            "id": "ValueAxis-1",
+                            "title": "Videos"
+                        }
+                    ],
+                    "allLabels": [],
+                    "balloon": {},
+                    "titles": [
+                        {
+                            "bold": false,
+                            "id": "Title-1",
+                            "size": 15,
+                            "text": "Video Statistics"
+                        }
+                    ],
+                    "dataProvider": [
+                        {
+                            "category": "Total",
+                            "column-1": '{get_videos count_only=yes}'
+                        },
+                        {
+                            "category": "Active",
+                            "column-1": '{get_videos count_only=yes active="yes"}'
+                        },
+                        {
+                            "category": "Deactive",
+                            "column-1": '{get_videos count_only=yes active='no'}'
+                        },
+                        {
+                            "category": "Reported",
+                            "column-1": '{$cbvid->action->count_flagged_objects()}'
+                        }
+                    ]
+                }
+            );
+ </script>
+
+ <script type="text/javascript">
+   $(function () {
+         $(".newsbox").bootstrapNews({
+         newsPerPage: 4,
+         autoplay: true,
+         pauseOnHover:true,
+         direction: 'down',
+         newsTickerInterval: 7000,
+         onToDo: function () {
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+
+    $(".clip_read").click(function() {
+
+        $(this).toggleClass('clip_hide');
+
+
+        if(!$(this).hasClass('clip_hide'))
+
+           {
+            $('.to_display').show();
+            $(".clip_read").text("Hide");
+           }
+
+        else
+           {
+            $('.to_display').hide();
+            $(".clip_read").text("Read More");
+           }
+    });
+
+var baseurl="{$baseurl}";
+
+$.ajax({
+   // url: baseurl+'/ajax.php',
+
+   url:baseurl+'/ajax.php',
+    type: "POST",
+    dataType : 'text',
+    data: { mode: "get_news"},
+    success : function(news){
+        $('#clipbucket_news').html(news);
+    },
+    timeout : 5000,
+    error  :  function(err) { $('#clipbucket_news').html(' <div align="center"><em><strong>Connect with Internet to get News</strong></em></div>')},
+    });
+});
+ $(function() {
+
+        var options = {
+
+            series: {
+                bars: {
+                    show: true,
+                    steps: true,
+                    barWidth: 0.5,
+                    align: "center",
+                },
+                points: { show: true },
+                lines: { show: true }
+            },
+            xaxis: {
+                mode: "categories",
+                tickLength: 0
+            },
+            yaxis: {
+                alignTicksWithAxis: false
+            },
+            grid: {
+                hoverable: true,
+                clickable: true,
+                labelMargin: 30,
+                borderWidth: 0
+            }
+        };
+
+        // $.plot("#placeholder", data, options);
+
+        var page = '{$baseurl}/admin_area/index.php';
+
+        $(".oneNote .delete").on({
+            click: function(e){
+                e.preventDefault();
+                var noteId = $(this).parent().attr("id");
+                delete_note(noteId);
+                $(this).parents("li").remove();
+            }
+        });
+
+        $("#add_new_note").on({
+            click: function(e){
+                e.preventDefault();
+                var self = this;
+                var note = $(this).parents(".widgetBox").find("textarea").val();
+                if(!note){
+                    alert("Please enter something");
+                }
+                else{
+                    $(this).parents(".widgetBox").find("textarea").val("");
+                    $.post(page, {
+                        mode : 'add_note',
+                        note : note,
+                    },function(data) {
+                        console.log(data);
+                        var li = document.createElement("li");
+                        li.className = "col-md-4";
+                        var a = document.createElement("a");
+                        a.className = "delete";
+                        a.href = "#";
+                        a.innerHTML = "x";
+                        var p = document.createElement("p");
+                        p.id = data.id;
+                        p.innerHTML = note;
+                        p.className = "oneNote";
+                        $(p).append(a);
+                        $(li).append(p);
+                        $(a).on({
+                            click: function(e){
+                                e.preventDefault();
+                                var noteId = $(this).parent().attr("id");
+                                delete_note(noteId);
+                                $(this).parents("li").remove();
+                            }
+                        });
+                        $(self).parents(".widgetBox").find("ul").prepend(li);
+                    },'json');
+                }
+            }
+        });
+
+        $("#addTodo").on({
+            click: function(e){
+                e.preventDefault();
+                var self = this;
+                var newVal = $(this).parents(".addTodo").find("input").val();
+                if(newVal.length)
+                {
+                    $(this).parents(".addTodo").find("input").val("");
+                    var ajaxCall = $.ajax({
+                        url: page,
+                        type: "post",
+                        data: {
+                            val: newVal,
+                            mode: "add_todo",
+                        },
+                    });
+                    ajaxCall.success(function(data){
+                        data = $.parseJSON(data);
+                        var li = document.createElement("li");
+                        li.className = "col-md-12";
+                        var p = document.createElement("p");
+                        p.className = "oneTodo paddingLeftSmall col-md-10";
+                        p.id = data.id;
+                        p.innerHTML = data.todo;
+                        var a = document.createElement("a");
+                        a.href = "#";
+                        a.className = "col-md-2 btn btn-danger btn-xs delete";
+                        a.innerHTML = "Delete";
+                        $(a).on("click", function(e){
+                            e.preventDefault();
+                            var self = this;
+                            var id = $(this).prev().attr("id");
+                            var ajaxCall = $.ajax({
+                                url: page,
+                                type: "post",
+                                data: {
+                                    id: id,
+                                    mode: "delete_todo",
+                                },
+                            });
+                            ajaxCall.success(function(data){
+                                $(self).parents("li").remove();
+                            });
+
+                        });
+                        var div = document.createElement("div");
+                        div.className = "col-md-12";
+
+                        $(li).append(div).find("div").append(p).append(a);
+                        $(self).parents(".widgetBox").find("ul").prepend(li);
+                    });
+                }else{
+                    alert("Please enter a valid value");
+                }
+            }
+        });
+
+        $("#todolist .delete").on("click", function(e){
+            e.preventDefault();
+            var self = this;
+            var id = $(this).prev().attr("id");
+            var ajaxCall = $.ajax({
+                url: page,
+                type: "post",
+                data: {
+                    id: id,
+                    mode: "delete_todo",
+                },
+            });
+            ajaxCall.success(function(data){
+                $(self).parents("li").remove();
+            });
+
+        });
+    });
+
+</script>

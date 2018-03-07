@@ -74,6 +74,7 @@ GEM
     wordlist (0.1.1)
       spidr (~> 0.2)
     yard (0.8.7.6)
+    zip (2.0.2)
     zipruby (0.3.6)
 
 PLATFORMS
@@ -102,6 +103,7 @@ DEPENDENCIES
   sshkey
   wordlist
   yard
+  zip
   zipruby
 
 BUNDLED WITH

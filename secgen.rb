@@ -196,8 +196,8 @@ def build_vms(scenario, project_dir, options)
           GemExec.exe('vagrant', project_dir, 'destroy -f')
         end
       else
-        Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
-        GemExec.exe('vagrant', project_dir, 'destroy -f')
+        # Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
+        # GemExec.exe('vagrant', project_dir, 'destroy -f')
         exit 1
       end
     end

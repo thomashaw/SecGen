@@ -1,0 +1,70 @@
+
+
+<footer class="footer clearfix ">
+	<div class="footer_grey_bar col-lg-12 col-md-6 col-sm-12">
+	<div class="col-lg-6 col-md-6 col-sm-12 col">
+		<img src="{$imageurl}/footer-icon.png" class="cbicon" /> Thanks for using ClipBucket | &copy; Copyright 2007 &#8211; {$smarty.now|date_format:"%Y"}
+	</div>
+	<div class="col-lg-6 col-md-6 col-sm-12 col">
+		<div class="col-right" style="float:right; color:#fff;" align="right">
+			<em>{$Cbucket->cbinfo.version}</em>| <a href="http://forums.clip-bucket.com/">Forums</a> | <a href="http://clip-bucket.com/arslan-hassan">Arslan Hassan</a> | <a href="http://docs.clip-bucket.com/">Docs</a> | <a href="http://www.opensource.org/licenses/attribution.php">Attribution Assurance License</a>
+		</div>
+	</div>
+	</div>
+</footer>
+
+<!-- basic scripts -->
+
+<!--[if !IE]> -->
+
+
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<![endif]-->
+
+<!--[if !IE]> -->
+
+<script type="text/javascript">
+	window.jQuery || document.write("<script src='{$theme_url}/assets/js/jquery-2.0.3.min.js'>"+"<"+"/script>");
+</script>
+
+<!-- <![endif]-->
+
+<!--[if IE]>
+<script type="text/javascript">
+window.jQuery || document.write("<script src='{$theme_url}/assets/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
+</script>
+<![endif]-->
+
+<script type="text/javascript">
+	if("ontouchend" in document) document.write("<script src='{$theme_url}/assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="{$theme_url}/assets/js/bootstrap.min.js"></script>
+<script src="{$theme_url}/assets/js/typeahead-bs2.min.js"></script>
+
+<!-- page specific plugin scripts -->
+
+<!--[if lte IE 8]>
+  <script src="assets/js/excanvas.min.js"></script>
+<![endif]-->
+
+<script src="{$theme_url}/assets/js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="{$theme_url}/assets/js/jquery.ui.touch-punch.min.js"></script>
+<script src="{$theme_url}/assets/js/jquery.slimscroll.min.js"></script>
+<script src="{$theme_url}/assets/js/jquery.easy-pie-chart.min.js"></script>
+<script src="{$theme_url}/assets/js/jquery.sparkline.min.js"></script>
+<!-- flot chart added -->
+<script language="javascript" type="text/javascript" src="{$theme_url}/assets/js/flot/jquery.flot.js"></script>
+<script language="javascript" type="text/javascript" src="{$theme_url}/assets/js/flot/jquery.flot.categories.js"></script>
+<!--<script src="{$theme_url}/assets/js/flot/jquery.flot.js"></script>
+<script src="{$theme_url}/assets/js/flot/jquery.flot.min.js"></script>
+<script src="{$theme_url}/assets/js/flot/jquery.flot.pie.min.js"></script>
+<script src="{$theme_url}/assets/js/flot/jquery.flot.resize.min.js"></script>-->
+
+<!-- ace scripts -->
+
+<script src="{$theme_url}/assets/js/ace-elements.min.js"></script>
+<script src="{$theme_url}/assets/js/ace.min.js"></script>
