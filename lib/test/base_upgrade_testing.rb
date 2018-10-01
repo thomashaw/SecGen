@@ -9,12 +9,15 @@
 #
 ################################################################################
 
+require 'fileutils'
+
 require_relative '../helpers/print.rb'
 require_relative '../helpers/constants.rb'
 require_relative '../../lib/readers/module_reader.rb'
 require_relative '../output/xml_scenario_generator.rb'
 require_relative '../objects/system'
 require_relative '../objects/module'
+
 
 def select_base
   bases = ModuleReader.read_bases
@@ -39,7 +42,19 @@ def get_network_module
 end
 
 def generate_scenarios(selected_base)
-  Dir.mkdir 'tmp' unless Dir.exists? 'tmp'
+  tmp_dir = "#{ROOT_DIR}/lib/test/tmp"
+
+  Dir.mkdir tmp_dir unless Dir.exists? tmp_dir
+  unless Dir.entries(tmp_dir).size == 2
+    Print.info 'The temporary scenario directory (lib/test/tmp) contains files. Do you want to remove them? [Y/n]'
+    input = STDIN.gets.chomp
+    unless input == 'N' or input == 'n'
+      Print.info 'Removing lib/test/tmp'
+      FileUtils.rm_r(Dir.glob(tmp_dir))
+      Print.info 'Creating lib/test/tmp'
+      Dir.mkdir tmp_dir
+    end
+  end
 
   # Get installable software modules (vulns, services, utilities)
 
