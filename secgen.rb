@@ -68,42 +68,9 @@ def build_config(scenario, out_dir, options)
   systems = SystemReader.read_scenario(scenario)
   Print.std "#{systems.size} system(s) specified"
 
-  Print.info 'Reading available base modules...'
-  all_available_bases = ModuleReader.read_bases
-  Print.std "#{all_available_bases.size} base modules loaded"
-
-  Print.info 'Reading available build modules...'
-  all_available_builds = ModuleReader.read_builds
-  Print.std "#{all_available_builds.size} build modules loaded"
-
-  Print.info 'Reading available vulnerability modules...'
-  all_available_vulnerabilties = ModuleReader.read_vulnerabilities
-  Print.std "#{all_available_vulnerabilties.size} vulnerability modules loaded"
-
-  Print.info 'Reading available service modules...'
-  all_available_services = ModuleReader.read_services
-  Print.std "#{all_available_services.size} service modules loaded"
-
-  Print.info 'Reading available utility modules...'
-  all_available_utilities = ModuleReader.read_utilities
-  Print.std "#{all_available_utilities.size} utility modules loaded"
-
-  Print.info 'Reading available generator modules...'
-  all_available_generators = ModuleReader.read_generators
-  Print.std "#{all_available_generators.size} generator modules loaded"
-
-  Print.info 'Reading available encoder modules...'
-  all_available_encoders = ModuleReader.read_encoders
-  Print.std "#{all_available_encoders.size} encoder modules loaded"
-
-  Print.info 'Reading available network modules...'
-  all_available_networks = ModuleReader.read_networks
-  Print.std "#{all_available_networks.size} network modules loaded"
+  all_available_modules = ModuleReader.get_all_available_modules
 
   Print.info 'Resolving systems: randomising scenario...'
-  # for each system, select modules
-  all_available_modules = all_available_bases + all_available_builds + all_available_vulnerabilties +
-      all_available_services + all_available_utilities + all_available_generators + all_available_encoders + all_available_networks
   # update systems with module selections
   systems.map! { |system|
     system.module_selections = system.resolve_module_selection(all_available_modules, options)
