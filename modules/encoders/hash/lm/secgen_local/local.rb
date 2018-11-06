@@ -1,15 +1,16 @@
 #!/usr/bin/ruby
 require_relative '../../../../../lib/objects/local_hash_encoder.rb'
 
-class SHA512Encoder < HashEncoder
+class LMEncoder < HashEncoder
   def initialize
     super
-    self.module_name = 'SHA512 Encoder'
+    self.module_name = 'LM Hash Encoder'
   end
 
   def hash_function(string)
-    Digest::SHA512.hexdigest(string)
+    require 'smbhash'
+    Smbhash.lm_hash(string)
   end
 end
 
-SHA512Encoder.new.run
+LMEncoder.new.run
