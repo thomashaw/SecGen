@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Wazuh</name>
+  <author>Thomas Shaw</author>
+  <author>Wazuh</author>
+  <module_license>GPLv2</module_license>
+  <description>TODO</description>
+
+  <type>log_tool</type>
+  <platform>linux</platform>
+
+  <read_fact>component</read_fact>
+
+  <default_input into="component">
+    <value>server</value>
+    <!--<value>agent</value>-->
+  </default_input>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</utility>

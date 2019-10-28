@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+
+<!-- Roadmap:
+      1) Get Wazuh on a single host with agent and management component installed
+      2) Split this out onto separate hosts
+      3) Identify how to configure alerts
+-->
+
+  <system>
+    <system_name>ids_server</system_name>
+    <base distro="Debian 9" type="server"/>
+
+    <utility module_path=".*wazuh.*">
+      <input into="component">
+        <value>server</value>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>192.168.209.166</value>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>client</system_name>
+    <base distro="Debian 9" type="server"/>
+
+    <utility module_path=".*wazuh.*">
+      <input into="component">
+        <value>client</value>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>192.168.209.165</value>
+      </input>
+    </network>
+  </system>
+
+</scenario>
