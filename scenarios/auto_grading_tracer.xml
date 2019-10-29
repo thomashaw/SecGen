@@ -15,17 +15,95 @@
     <system_name>ids_server</system_name>
     <base distro="Debian 9" type="server"/>
 
+    <input into_datastore="IP_address">
+      <value>192.168.209.166</value>
+    </input>
+
+    <input into_datastore="elasticsearch_port">
+      <value>9200</value>
+    </input>
+
+    <input into_datastore="logstash_port">
+      <value>5044</value>
+    </input>
+
+    <input into_datastore="kibana_port">
+      <value>5601</value>
+    </input>
+
+    <utility module_path=".*elasticsearch.*">
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_address</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*logstash.*">
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_address</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*kibana.*">
+      <input into="kibana_ip">
+        <datastore access="0">IP_address</datastore>
+      </input>
+      <input into="kibana_port">
+        <datastore access="0">kibana_port</datastore>
+      </input>
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_address</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*filebeat.*">
+      <input into="logstash_ip">
+        <datastore access="0">IP_address</datastore>
+      </input>
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*auditbeat.*">
+      <input into="logstash_ip">
+        <datastore access="0">IP_address</datastore>
+      </input>
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+    </utility>
+
     <utility module_path=".*wazuh.*">
       <input into="component">
         <value>server</value>
       </input>
     </utility>
 
+    <utility type="update"/>
+
     <network type="private_network">
       <input into="IP_address">
-        <value>192.168.209.166</value>
+        <datastore access="0">IP_address</datastore>
       </input>
     </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -38,11 +116,33 @@
       </input>
     </utility>
 
+    <!-- Create a file to audit reads of... -->
+    <utility module_path=".*leak_to_file">
+      <input into="leaked_filename">
+        <value>test</value>
+      </input>
+      <input into="base64_file">
+        <encoder module_path=".*base64">
+          <input into="strings_to_encode">
+            <value>Read me!</value>
+          </input>
+        </encoder>
+      </input>
+      <input into="storage_directory">
+        <value>/root</value>
+      </input>
+    </utility>
+
     <network type="private_network">
       <input into="IP_address">
         <value>192.168.209.165</value>
       </input>
     </network>
-  </system>
 
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
+  </system>
 </scenario>
