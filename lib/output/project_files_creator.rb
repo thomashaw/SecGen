@@ -253,6 +253,26 @@ class ProjectFilesCreator
     split_name.join('-')
   end
 
+  # Determine how much memory the system requires for Vagrantfile
+  def resolve_memory(system)
+    if @options.has_key? :memory_per_vm
+      memory = @options[:memory_per_vm]
+    elsif @options.has_key? :total_memory
+      memory = @options[:total_memory].to_i / @systems.length.to_i
+    elsif (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass) && (@base_type.include? 'desktop')
+      memory = '1536'
+    else
+      memory = '512'
+    end
+
+    system.module_selections.each do |mod|
+      if mod.module_path_name.include? "elasticsearch"
+        memory = '4096'
+      end
+    end
+    memory
+  end
+
 # Returns binding for erb files (access to variables in this classes scope)
 # @return binding
   def get_binding
