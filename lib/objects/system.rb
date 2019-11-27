@@ -9,6 +9,7 @@ class System
   attr_accessor :module_selectors # (filters)
   attr_accessor :module_selections # (after resolution)
   attr_accessor :num_actioned_module_conflicts
+  attr_accessor :memory
 
   # Attributes for resetting retry loop
   attr_accessor :available_mods #(command line options hash)
@@ -26,6 +27,7 @@ class System
     self.module_selectors = module_selectors
     self.module_selections = []
     self.num_actioned_module_conflicts = 0
+    self.memory = "512"
   end
 
   # selects from the available modules, based on the selection filters that have been specified
