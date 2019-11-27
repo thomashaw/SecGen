@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<build xmlns="http://www.github/cliffe/SecGen/build"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/build">
+  <name>Swap File Module</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>TODO: </description>
+
+  <type>swap</type>
+  <platform>linux</platform>
+
+  <read_fact>size</read_fact>
+
+  <default_input into="size">
+    <value>2 GB</value>
+  </default_input>
+
+</build>
