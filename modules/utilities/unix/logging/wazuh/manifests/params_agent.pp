@@ -6,7 +6,7 @@ class wazuh::params_agent {
 
 # Versions  
 
-      $agent_package_version             = '3.10.2-1'
+      $agent_package_version             = '3.3.1-1'
       $agent_package_name                = 'wazuh-agent'
       $agent_service_name                = 'wazuh-agent'
 
@@ -57,7 +57,7 @@ class wazuh::params_agent {
       $configure_wodle_cis_cat           = false # TODO WAS: true
       $configure_wodle_osquery           = false # TODO WAS: true
       $configure_wodle_syscollector      = false # TODO WAS: true
-      $configure_sca                     = true
+      $configure_sca                     = false # TODO WAS: true
       $configure_syscheck                = true
       $configure_localfile               = true
       $configure_active_response         = true
