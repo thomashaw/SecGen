@@ -5,7 +5,7 @@ class wazuh::params_manager {
     'Linux': {
 
     # Installation
-      $server_package_version                          = '3.10.2-1'
+      $server_package_version                          = '3.3.1-1'
       $manage_repos                                    = true
       $manage_firewall                                 = false
 
@@ -33,8 +33,8 @@ class wazuh::params_manager {
       $configure_wodle_cis_cat                         = false # TODO: WAS true
       $configure_wodle_osquery                         = false # TODO: WAS true
       $configure_wodle_syscollector                    = false # TODO: WAS true
-      $configure_vulnerability_detector                = true
-      $configure_sca                                   = true
+      $configure_vulnerability_detector                = false # TODO: WAS true
+      $configure_sca                                   = false # TODO: WAS true
       $configure_syscheck                              = true
       $configure_command                               = true
       $configure_localfile                             = true
