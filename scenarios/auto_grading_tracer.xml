@@ -32,6 +32,7 @@
     </input>
 
     <build type="swap"/>
+    <utility module_path=".*handy_cli_tools.*"/>
 
     <utility module_path=".*elasticsearch.*">
       <input into="elasticsearch_ip">
@@ -114,6 +115,7 @@
   <system>
     <system_name>client</system_name>
     <base distro="Debian 9" type="server"/>
+    <utility module_path=".*handy_cli_tools.*"/>
 
     <utility module_path=".*wazuh.*">
       <input into="component">
