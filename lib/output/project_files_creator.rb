@@ -267,7 +267,7 @@ class ProjectFilesCreator
 
     system.module_selections.each do |mod|
       if mod.module_path_name.include? "elasticsearch"
-        memory = '4096'
+        memory = '8192'
       end
     end
     memory
