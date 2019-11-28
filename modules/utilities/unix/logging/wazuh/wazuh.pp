@@ -15,5 +15,6 @@ if ($component == 'server') {
     wazuh_register_endpoint => $kibana_elasticsearch_ip,
     wazuh_reporting_endpoint => $kibana_elasticsearch_ip,
     agent_name => 'test_name',
+    agent_auth_password => '6663484170b2c69451e01ba11f319533', #todo: obviously fix this - must be 32char
   }
 }
