@@ -15,7 +15,8 @@
     <system_name>ids_server</system_name>
     <base distro="Debian 9" type="server"/>
 
-    <input into_datastore="IP_address">
+    <input into_datastore="IP_addresses">
+      <value>192.168.209.165</value>
       <value>192.168.209.166</value>
     </input>
 
@@ -36,7 +37,7 @@
 
     <utility module_path=".*elasticsearch.*">
       <input into="elasticsearch_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="elasticsearch_port">
         <datastore access="0">elasticsearch_port</datastore>
@@ -48,7 +49,7 @@
         <datastore access="0">logstash_port</datastore>
       </input>
       <input into="elasticsearch_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="elasticsearch_port">
         <datastore access="0">elasticsearch_port</datastore>
@@ -57,13 +58,13 @@
 
     <utility module_path=".*kibana.*">
       <input into="kibana_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="kibana_port">
         <datastore access="0">kibana_port</datastore>
       </input>
       <input into="elasticsearch_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="elasticsearch_port">
         <datastore access="0">elasticsearch_port</datastore>
@@ -72,7 +73,7 @@
 
     <utility module_path=".*filebeat.*">
       <input into="logstash_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="logstash_port">
         <datastore access="0">logstash_port</datastore>
@@ -81,7 +82,7 @@
 
     <utility module_path=".*auditbeat.*">
       <input into="logstash_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="logstash_port">
         <datastore access="0">logstash_port</datastore>
@@ -93,15 +94,15 @@
         <value>server</value>
       </input>
       <input into="kibana_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
     </utility>
 
     <utility type="update"/>
 
     <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_address</datastore>
+      <input into="IP_addresses">
+        <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
 
@@ -122,7 +123,7 @@
         <value>client</value>
       </input>
       <input into="kibana_ip">
-        <datastore access="0">IP_address</datastore>
+        <datastore access="0">IP_addresses</datastore>
       </input>
     </utility>
 
@@ -144,8 +145,8 @@
     </utility>
 
     <network type="private_network">
-      <input into="IP_address">
-        <value>192.168.209.165</value>
+      <input into="IP_addresses">
+        <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
 
