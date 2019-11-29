@@ -13,7 +13,6 @@ if ($component == 'server') {
 
   exec{ 'enable ossec auth':
     command => '/var/ossec/bin/ossec-control enable auth',
-    notify => Service[$wazuh::params_manager::server_service],
     require => Class['::wazuh::manager'],
   }
 
