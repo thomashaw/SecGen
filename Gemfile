@@ -37,6 +37,7 @@ gem 'packetfu'
 gem 'net-ntp'
 gem 'CFPropertyList'
 gem 'artii'
+gem 'sinatra'
 
 #development only gems go here
 group :test, :development do
