@@ -1,0 +1,25 @@
+<% @system_name = 'Test' # TODO: Update me -%>
+require 'fileutils'
+require 'open3'
+
+@registered_file = '/wr'
+
+until already_registered?
+  if already_registered?
+    # disable service
+    sleep(100)
+  else
+    stdout, _, _= Open3.capture3("/var/ossec/bin/agent-auth -m <%= @server_ip_address -%> -A <% @system_name %>")
+
+    if stdout.include? 'Valid key created. Finished'
+      FileUtils.touch @registered_file
+    end
+  end
+  sleep(30)
+end
+
+exit(0)
+
+def already_registered?
+  File.file? @registered_file
+end
