@@ -1,0 +1,15 @@
+[Unit]
+Description=Wazuh Registration Service
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/usr/bin/ruby /var/ossec/bin/wazuh-register.rb
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+WorkingDirectory=/root
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

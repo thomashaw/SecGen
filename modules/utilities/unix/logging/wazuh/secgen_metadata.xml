@@ -13,14 +13,19 @@
   <platform>linux</platform>
 
   <read_fact>component</read_fact>
+  <read_fact>server_address</read_fact>
 
   <default_input into="component">
-    <value>server</value>
-    <!--<value>agent</value>-->
+    <!--<value>server</value>-->
+    <value>agent</value>
   </default_input>
 
   <requires>
     <type>update</type>
+  </requires>
+
+  <requires>
+    <module_path>.*handy_cli_tools</module_path>
   </requires>
 
 </utility>

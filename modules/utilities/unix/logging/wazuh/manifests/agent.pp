@@ -142,6 +142,11 @@ class wazuh::agent(
 
 
 ) inherits wazuh::params_agent {
+
+  ## SecGen
+  $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
+  $server_ip_address                        = $secgen_params['server_address'][0]
+
   # validate_bool(
   #   $ossec_active_response, $ossec_rootcheck,
   #   $selinux, $manage_repo, 
@@ -417,21 +422,39 @@ class wazuh::agent(
     $agent_auth_command = "${agent_auth_base_command} ${agent_auth_option_manager} ${agent_auth_option_name}\
      ${agent_auth_option_group} ${agent_auth_option_agent}"
 
-      if $agent_auth_password {
-        exec { 'agent-auth-with-pwd':
-          command => "${agent_auth_command} -P '${agent_auth_password}'",
-          unless  => "/bin/egrep -q '.' ${::wazuh::params_agent::keys_file}",
-          require => Concat['ossec.conf'],
-          before  => Service[$agent_service_name],
-          }
-      } else {
-        exec { 'agent-auth-without-pwd':
-          command => $agent_auth_command,
-          unless  => "/bin/egrep -q '.' ${::wazuh::params_agent::keys_file}",
-          require => Concat['ossec.conf'],
-          before  => Service[$agent_service_name],
-        }
+      # if $agent_auth_password {
+      #   exec { 'agent-auth-with-pwd':
+      #     command => "${agent_auth_command} -P '${agent_auth_password}'",
+      #     unless  => "/bin/egrep -q '.' ${::wazuh::params_agent::keys_file}",
+      #     require => Concat['ossec.conf'],
+      #     before  => Service[$agent_service_name],
+      #     }
+      # } else {
+      #   exec { 'agent-auth-without-pwd':
+      #     command => $agent_auth_command,
+      #     unless  => "/bin/egrep -q '.' ${::wazuh::params_agent::keys_file}",
+      #     require => Concat['ossec.conf'],
+      #     before  => Service[$agent_service_name],
+      #   }
+      # }
+      #
+      # Create service file in /etc/systemd/system/wazuh-register.service
+      # Create script file in /var/ossec/bin/wazuh-register.rb
+
+      # SecGen needs to register systems after a restart to respect static IPs, so don't register in the traditional way
+      file { '/etc/systemd/system/wazuh-register.service':
+        ensure => present,
+        source => 'puppet:///modules/wazuh/wazuh-register.service'
+      }->
+      file { '/var/ossec/bin/wazuh-register.rb':
+        ensure => present,
+        content => template('puppet:///modules/wazuh/wazuh-register.rb.erb')
+      }->
+      service { 'wazuh-register.service':
+        ensure => 'running',
+        enable => true,
       }
+
       if $wazuh_reporting_endpoint != undef {
         service { $agent_service_name:
           ensure    => running,
