@@ -54,6 +54,7 @@ class wazuh::kibana (
     creates => '/usr/share/kibana/plugins/wazuh/package.json',
     notify  => Service[$kibana_service],
     require => File['Moving zip file...'],
+    timeout => 1200,
   }
     exec {'Enabling and restarting kibana...':
       path    => '/usr/bin:/bin',
