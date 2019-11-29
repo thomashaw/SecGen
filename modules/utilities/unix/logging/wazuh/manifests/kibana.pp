@@ -36,14 +36,14 @@ class wazuh::kibana (
   }
 
   file {'Waiting for elasticsearch...':
-    path => '/usr/bin',
+    path => '/tmp/wazuhapp-3.3.1_6.3.1.zip',
     ensure => present,
     source => 'puppet:///modules/wazuh/wazuhapp-3.3.1_6.3.1.zip'
   }
 
   exec {'Installing Wazuh App...':
     path    => '/usr/bin',
-    command => "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install wazuhapp-${kibana_app_version}.zip",
+    command => "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install /tmp/wazuhapp-${kibana_app_version}.zip",
     creates => '/usr/share/kibana/plugins/wazuh/package.json',
     notify  => Service[$kibana_service],
 
