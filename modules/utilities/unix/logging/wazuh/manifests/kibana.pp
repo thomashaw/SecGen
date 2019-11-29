@@ -35,10 +35,17 @@ class wazuh::kibana (
     enable => true,
   }
 
-  file {'Waiting for elasticsearch...':
+  file {'Moving zip file...':
     path => '/tmp/wazuhapp-3.3.1_6.3.1.zip',
     ensure => present,
     source => 'puppet:///modules/wazuh/wazuhapp-3.3.1_6.3.1.zip'
+  }
+
+  exec {'Waiting for elasticsearch...':
+    path      => '/usr/bin',
+    command   => "curl -s -XGET http://${kibana_elasticsearch_ip}:${kibana_elasticsearch_port}",
+    tries     => 100,
+    try_sleep => 3,
   }
 
   exec {'Installing Wazuh App...':
@@ -46,7 +53,7 @@ class wazuh::kibana (
     command => "sudo -u kibana /usr/share/kibana/bin/kibana-plugin install file:///tmp/wazuhapp-${kibana_app_version}.zip",
     creates => '/usr/share/kibana/plugins/wazuh/package.json',
     notify  => Service[$kibana_service],
-
+    require => File['Moving zip file...'],
   }
     exec {'Enabling and restarting kibana...':
       path    => '/usr/bin:/bin',
