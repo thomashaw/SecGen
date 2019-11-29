@@ -10,6 +10,13 @@ if ($component == 'server') {
   class { '::wazuh::kibana':
     kibana_elasticsearch_ip => $kibana_elasticsearch_ip,
   }
+
+  exec{ 'enable ossec auth':
+    command => '/var/ossec/bin/ossec-control enable auth',
+    notify => Service[$wazuh::params_manager::server_service],
+    require => Class['::wazuh::manager'],
+  }
+
 } elsif ($component == 'client') {
   class { "::wazuh::agent":
     wazuh_register_endpoint => $kibana_elasticsearch_ip,
