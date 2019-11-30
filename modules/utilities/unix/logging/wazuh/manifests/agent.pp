@@ -144,7 +144,7 @@ class wazuh::agent(
 ) inherits wazuh::params_agent {
 
   ## SecGen
-  $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
+  $secgen_params = ::secgen_functions::get_parameters($::base64_inputs_file)
   $server_ip_address                        = $secgen_params['server_address'][0]
 
   # validate_bool(
