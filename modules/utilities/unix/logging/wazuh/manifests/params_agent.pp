@@ -89,7 +89,7 @@ class wazuh::params_agent {
       $ossec_notify_time                 = 10
       $ossec_time_reconnect              = 60
       $ossec_auto_restart                = 'yes'
-      $ossec_crypto_method               = 'aes'
+      $ossec_crypto_method               = undef
 
       $client_buffer_queue_size          = 5000
       $client_buffer_events_per_second   = 500
