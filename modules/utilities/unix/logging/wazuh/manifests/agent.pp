@@ -142,11 +142,6 @@ class wazuh::agent(
 
 
 ) inherits wazuh::params_agent {
-
-  ## SecGen
-  $secgen_params = ::secgen_functions::get_parameters($::base64_inputs_file)
-  $server_ip_address                        = $secgen_params['server_address'][0]
-
   # validate_bool(
   #   $ossec_active_response, $ossec_rootcheck,
   #   $selinux, $manage_repo, 
@@ -447,8 +442,8 @@ class wazuh::agent(
         source => 'puppet:///modules/wazuh/wazuh-register.service'
       }->
       file { '/var/ossec/bin/wazuh-register.rb':
-        ensure => present,
-        content => template('puppet:///modules/wazuh/wazuh-register.rb.erb')
+        ensure => file,
+        content => template('wazuh/wazuh-register.rb.erb')
       }->
       service { 'wazuh-register.service':
         ensure => 'running',
@@ -457,7 +452,7 @@ class wazuh::agent(
 
       if $wazuh_reporting_endpoint != undef {
         service { $agent_service_name:
-          ensure    => running,
+          ensure    => undef,
           enable    => true,
           hasstatus => $wazuh::params_agent::service_has_status,
           pattern   => $wazuh::params_agent::agent_service_name,
