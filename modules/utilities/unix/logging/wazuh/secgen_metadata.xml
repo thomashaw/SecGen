@@ -14,9 +14,14 @@
 
   <read_fact>component</read_fact>
   <read_fact>server_address</read_fact>
+  <read_fact>agent_name</read_fact>
 
   <default_input into="component">
     <!--<value>server</value>-->
+    <value>agent</value>
+  </default_input>
+
+  <default_input into="agent_name">
     <value>agent</value>
   </default_input>
 

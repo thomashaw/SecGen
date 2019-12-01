@@ -1,4 +1,3 @@
-<% @system_name = 'Test' # TODO: Update me -%>
 require 'fileutils'
 require 'open3'
 
@@ -13,13 +12,13 @@ until already_registered?
     # disable service
     # sleep(100)
   else
-    stdout, _, _= Open3.capture3("/var/ossec/bin/agent-auth -m <%= @kibana_elasticsearch_ip -%> -A '<%= @system_name -%>'")
+    stdout, _, _= Open3.capture3("/var/ossec/bin/agent-auth -m <%= @kibana_elasticsearch_ip -%> -A '<%= @agent_name -%>'")
 
     if stdout.include? 'Valid key created. Finished'
       FileUtils.touch @registered_file
     end
   end
-  # sleep(30)
+  sleep(15)
 end
 
 exit(0)
