@@ -4,22 +4,22 @@ require 'open3'
 
 @registered_file = '/wr'
 
+def already_registered?
+  File.file? @registered_file
+end
+
 until already_registered?
   if already_registered?
     # disable service
-    sleep(100)
+    # sleep(100)
   else
-    stdout, _, _= Open3.capture3("/var/ossec/bin/agent-auth -m <%= @kibana_elasticsearch_ip -%> -A <% @system_name %>")
+    stdout, _, _= Open3.capture3("/var/ossec/bin/agent-auth -m <%= @kibana_elasticsearch_ip -%> -A '<%= @system_name -%>'")
 
     if stdout.include? 'Valid key created. Finished'
       FileUtils.touch @registered_file
     end
   end
-  sleep(30)
+  # sleep(30)
 end
 
 exit(0)
-
-def already_registered?
-  File.file? @registered_file
-end

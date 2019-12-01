@@ -450,10 +450,12 @@ class wazuh::agent(
         content => template('wazuh/wazuh-register.rb.erb'),
         require => Exec['mkdir ossec directories'],
       }
-      service { 'wazuh-register.service':
+      service { 'wazuh-register':
         ensure => undef,
         enable => true,
-        require => File['/var/ossec/bin/wazuh-register.rb']
+        require => File['/var/ossec/bin/wazuh-register.rb'],
+        provider => 'systemd',
+        path => '/etc/systemd/system/'
       }
 
       if $wazuh_reporting_endpoint != undef {
