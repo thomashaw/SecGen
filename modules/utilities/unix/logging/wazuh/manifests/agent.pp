@@ -440,14 +440,20 @@ class wazuh::agent(
       file { '/etc/systemd/system/wazuh-register.service':
         ensure => present,
         source => 'puppet:///modules/wazuh/wazuh-register.service'
-      }->
+      }
+      exec { 'mkdir ossec directories':
+        command => 'mkdir -p /var/ossec/bin/',
+        path => ['/bin','/sbin','/usr/bin', '/usr/sbin'],
+      }
       file { '/var/ossec/bin/wazuh-register.rb':
         ensure => file,
-        content => template('wazuh/wazuh-register.rb.erb')
-      }->
+        content => template('wazuh/wazuh-register.rb.erb'),
+        require => Exec['mkdir ossec directories'],
+      }
       service { 'wazuh-register.service':
-        ensure => 'running',
+        ensure => undef,
         enable => true,
+        require => File['/var/ossec/bin/wazuh-register.rb']
       }
 
       if $wazuh_reporting_endpoint != undef {
