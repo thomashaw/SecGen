@@ -1,6 +1,8 @@
 $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 $component = $secgen_parameters['component'][0]
 $kibana_elasticsearch_ip = $secgen_parameters['kibana_ip'][0]
+$agent_name = $secgen_parameters['agent_name'][0]
+
 if ($component == 'server') {
   class { '::wazuh::manager':
     ossec_smtp_server   => 'localhost',
@@ -20,7 +22,6 @@ if ($component == 'server') {
   class { "::wazuh::agent":
     wazuh_register_endpoint => $kibana_elasticsearch_ip,
     wazuh_reporting_endpoint => $kibana_elasticsearch_ip,
-    agent_name => 'test_name',
-    # agent_auth_password => '6663484170b2c69451e01ba11f319533', #todo: obviously fix this - must be 32char
+    agent_name => $agent_name,
   }
 }
