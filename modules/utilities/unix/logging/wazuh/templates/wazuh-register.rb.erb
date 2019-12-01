@@ -8,15 +8,10 @@ def already_registered?
 end
 
 until already_registered?
-  if already_registered?
-    # disable service
-    # sleep(100)
-  else
-    stdout, _, _= Open3.capture3("/var/ossec/bin/agent-auth -m <%= @kibana_elasticsearch_ip -%> -A '<%= @agent_name -%>'")
-
-    if stdout.include? 'Valid key created. Finished'
-      FileUtils.touch @registered_file
-    end
+  stdout, _, _ = Open3.capture3("/var/ossec/bin/agent-auth -m  <%= @kibana_elasticsearch_ip -%>  -A '<%= @agent_name -%>'")
+  if stdout.include? 'Valid key created. Finished'
+    FileUtils.touch @registered_file
+    `service wazuh-agent start`
   end
   sleep(15)
 end

@@ -114,7 +114,7 @@ def build_vms(scenario, project_dir, options)
 
   Print.info "Building project: #{project_dir}"
   system = ''
-  command = 'up --no-parallel'
+  command = 'up'
   if options.has_key? :system
     system = options[:system]
   end
