@@ -163,7 +163,7 @@
 
   <system>
     <system_name>client_2</system_name>
-    <base distro="Debian 9" type="server"/>
+    <base distro="Debian 9" type="desktop"/>
     <utility module_path=".*handy_cli_tools.*"/>
 
     <utility module_path=".*wazuh.*">
