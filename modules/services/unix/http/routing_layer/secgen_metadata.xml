@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Game Server</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>TODO: The game server / routing layer for automated marking project.</description>
+
+  <type>http</type>
+  <platform>unix</platform>
+
+  <software_license>Apache v2</software_license>
+
+  <conflict>
+    <type>webapp</type>
+  </conflict>
+
+  <requires>
+    <type>ruby</type>
+  </requires>
+
+
+</service>

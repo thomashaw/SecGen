@@ -90,6 +90,8 @@
       </input>
     </utility>
 
+    <service module_path=".*routing_layer.*"/>
+
     <utility module_path=".*wazuh.*">
       <input into="component">
         <value>server</value>
