@@ -7,6 +7,7 @@ include ::java
 class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,
+  version => '6.3.1',
 }
 
 elasticsearch::instance { 'es-01':
