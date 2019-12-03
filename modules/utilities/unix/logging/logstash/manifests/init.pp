@@ -140,7 +140,7 @@ class logstash(
   Boolean $restart_on_change = true,
   Boolean $auto_upgrade       = false,
   $version           = undef,
-  $package_url       = undef,
+  $package_url       = 'https://artifacts.elastic.co/downloads/logstash/logstash-6.3.1.deb',
   $package_name      = 'logstash',
   Integer $download_timeout  = 600,
   $logstash_user     = 'logstash',
