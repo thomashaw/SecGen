@@ -119,6 +119,24 @@
     <base distro="Debian 9" type="server"/>
     <utility module_path=".*handy_cli_tools.*"/>
 
+    <utility module_path=".*filebeat.*">
+      <input into="logstash_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*auditbeat.*">
+      <input into="logstash_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+    </utility>
+
     <utility module_path=".*wazuh.*">
       <input into="component">
         <value>client</value>
@@ -165,6 +183,24 @@
     <system_name>client_2</system_name>
     <base distro="Debian 9" type="desktop"/>
     <utility module_path=".*handy_cli_tools.*"/>
+
+    <utility module_path=".*filebeat.*">
+      <input into="logstash_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*auditbeat.*">
+      <input into="logstash_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+    </utility>
 
     <utility module_path=".*wazuh.*">
       <input into="component">
