@@ -88,6 +88,8 @@ class auditbeat (
   Optional[Array[Hash]] $modules                                                      = undef,
   Optional[Array[Hash]] $processors                                                   = undef,
   Optional[Hash] $xpack                                                               = undef,
+  Optional[String] $custom_rules_file_dest                                            = '/etc/auditbeat/audit.rules.d/custom-rules.conf',
+  Optional[String] $custom_rules_file_src                                             = 'puppet:///modules/auditbeat/custom_rules',
 ) {
 
   contain auditbeat::repo
