@@ -3,9 +3,8 @@
 <utility xmlns="http://www.github/cliffe/SecGen/utility"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
-  <name>Watcher</name>
+  <name>Elastalert</name>
   <author>Thomas Shaw</author>
-  <author>Elastic</author>
   <module_license>Apache v2</module_license>
   <description>TODO</description>
 
@@ -27,8 +26,8 @@
     <type>update</type>
   </requires>
 
-  <requires>
-    <module_path>.*elasticsearch</module_path>
-  </requires>
+  <!--<requires>-->
+    <!--<module_path>.*elasticsearch</module_path>-->
+  <!--</requires>-->
 
 </utility>
