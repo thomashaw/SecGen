@@ -1,0 +1,2 @@
+# TODO: Replace me with dynamically generated rule file for each client system
+-w /root/test -p r -k root_test

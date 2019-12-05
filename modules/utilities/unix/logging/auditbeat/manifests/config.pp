@@ -33,4 +33,12 @@ class auditbeat::config {
     content      => inline_template('<%= @auditbeat_config.to_yaml()  %>'),
     validate_cmd => $validate_cmd,
   }
+
+  file { $custom_rules_file_dest:
+    ensure => file,
+    owner => 'root',
+    group => 'root',
+    mode => $auditbeat::config_file_mode,
+    source => $custom_rules_file_src,
+  }
 }
