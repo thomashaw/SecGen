@@ -60,7 +60,7 @@ class auditbeat (
     'selectors'  => undef,
     'to_syslog' => false,
     'to_eventlog' => false,
-    'json' => false,
+    'json' => true,
     'to_files' => true,
     'files' => {
       'path' => '/var/log/auditbeat',
