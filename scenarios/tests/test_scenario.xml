@@ -5,22 +5,16 @@
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
     <system_name>testing</system_name>
-    <base platform="linux" distro="Debian 7.8" type="server"/>
+    <base platform="linux" distro="Debian 9" type="desktop"/>
 
     <input into_datastore="IP_addresses">
       <value>172.17.0.0</value>
     </input>
 
-    <vulnerability module_path=".*wordpress_3x.*">
-      <input into="https">
-        <value>true</value>
-      </input>
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </vulnerability>
+    <utility module_path=".*elastalert.*"/>
 
-  <network type="private_network">
+
+    <network type="private_network">
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
