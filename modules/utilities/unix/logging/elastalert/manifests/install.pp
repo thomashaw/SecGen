@@ -3,7 +3,7 @@ class elastalert::install {
   $elasticsearch_ip = $secgen_parameters['elasticsearch_ip'][0]
   $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
 
-  ensure_packages('python3-pip3')
-  ensure_packages(['elastalert', 'setuptools>=11.3'], { provider => 'pip3', require => [Package['python3-pip3']] })
+  ensure_packages('python3-pip')
+  ensure_packages(['elastalert', 'setuptools>=11.3'], { provider => 'pip3', require => [Package['python3-pip']] })
 
 }
