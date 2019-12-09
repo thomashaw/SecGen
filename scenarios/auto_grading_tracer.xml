@@ -8,6 +8,7 @@
 <!-- Roadmap:
       1) Get Wazuh on a single host with agent and management component installed
       2) Split this out onto separate hosts
+      >> You are here <<
       3) Identify how to configure alerts
 -->
 
@@ -93,6 +94,15 @@
     </utility>
 
     <service module_path=".*routing_layer.*"/>
+
+    <service module_path=".*elastalert.*">
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </service>
 
     <utility module_path=".*wazuh.*">
       <input into="component">
