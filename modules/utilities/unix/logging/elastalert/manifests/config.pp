@@ -11,7 +11,7 @@ class elastalert::config {
   file { '/opt/elastalert/config.yml':
     ensure => file,
     content => template('elastalert/config.yml.erb'),
-    require => File['/etc/elastalert/'],
+    require => File['/opt/elastalert/'],
   }
 
 }
