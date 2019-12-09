@@ -1,0 +1,11 @@
+[Unit]
+Description=Severe_logalerts
+After=elasticsearch.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/elastalert
+ExecStart=/usr/local/bin/elastalert --verbose --config /opt/elastalert/config.yaml
+
+[Install]
+WantedBy=multi-user.target
