@@ -1,9 +1,9 @@
 name: Rule example for test file
 type: any
+index: auditbeat-*
 filter:
-  -query:
-    query_string:
-      query: "*roottest*"
+  - query_string:
+    query: "*root_test*"
 alert:
-  -command
+  - command
 command: ["/bin/touch /root/alerted"]
