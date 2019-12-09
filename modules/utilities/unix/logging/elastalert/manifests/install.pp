@@ -4,6 +4,6 @@ class elastalert::install {
   $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
 
   ensure_packages('pip3')
-  ensure_packages(['elastalert', 'setuptools>=11.3'], { 'package' => 'pip3', 'require' => 'pip3' })
+  ensure_packages(['elastalert', 'setuptools>=11.3'], { provider => 'pip3', require => [Package['pip3']] })
 
 }
