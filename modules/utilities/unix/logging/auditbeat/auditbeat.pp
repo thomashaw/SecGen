@@ -16,7 +16,7 @@ class { 'auditbeat':
     {
       'module'  => 'auditd',
       'enabled' => true,
-      'audit_rules' => template('auditbeat/audit_rules.erb'),
+      'audit_rule_files' => '${path.config}/audit.rules.d/*.conf',
     },
   ],
   outputs => {

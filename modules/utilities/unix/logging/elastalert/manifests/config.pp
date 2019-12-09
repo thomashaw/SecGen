@@ -15,6 +15,7 @@ class elastalert::config {
     require => File[$elastalert_dir],
   }
 
+  # Load the rules
   file { $rules_dir:
     ensure => directory,
     recurse => true,
