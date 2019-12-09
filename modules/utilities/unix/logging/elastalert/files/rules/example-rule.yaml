@@ -1,1 +1,9 @@
-# TODO: Replace me with a real rule.
+name: Rule example for test file
+type: any
+filter:
+  -query:
+    query_string:
+      query: "*roottest*"
+alert:
+  -command
+command: ["/bin/touch /root/alerted"]
