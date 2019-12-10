@@ -13,7 +13,7 @@ class elastalert::install {
 
   exec { 'clone elastalert repo':
     command => '/usr/bin/git clone https://github.com/Yelp/elastalert',
-    cwd     => $elastalert_dir,
+    cwd     => '/opt/',
     require => [File[$elastalert_dir], Package['python3-pip']],
   }
 
