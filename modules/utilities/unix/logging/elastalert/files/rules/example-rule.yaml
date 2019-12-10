@@ -3,8 +3,8 @@ type: any
 index: auditbeat-*
 filter:
   - query_string:
-    query: "*root_test*"
+      query: "*root_test*"
 alert:
   - command
-pipe_match_json: true
 command: ["/usr/bin/tee", "-a", "/root/alerts"]
+pipe_match_json: true
