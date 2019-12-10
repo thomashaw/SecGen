@@ -6,4 +6,5 @@ filter:
     query: "*root_test*"
 alert:
   - command
-command: ["/bin/touch /root/alerted"]
+pipe_match_json: true
+command: ["/usr/bin/tee", "-a", "/root/alerts"]
