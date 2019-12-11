@@ -13,9 +13,9 @@ class elastalert::install {
     source => 'puppet:///modules/elastalert/elastalert.diff',
   }
 
-  exec { 'apply diff patch':
-    command => "patch -p1 /usr/local/lib/python3.5/dist-packages/elastalert/alerts.py < $diff_path",
-    require => File[$diff_path],
-  }
+  # exec { 'apply diff patch':
+  #   command => "patch -p1 /usr/local/lib/python3.5/dist-packages/elastalert/alerts.py < $diff_path",
+  #   require => File[$diff_path],
+  # }
 
 }
