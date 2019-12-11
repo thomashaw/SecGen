@@ -14,7 +14,7 @@ class elastalert::install {
   }
 
   exec { 'apply diff patch':
-    command => "patch -p1 /usr/local/lib/python3.5/dist-packages/elastalert/alerts.py -n < $diff_path",
+    command => "patch -p1 /usr/local/lib/python3.5/dist-packages/elastalert/alerts.py < $diff_path",
     require => File[$diff_path],
   }
 
