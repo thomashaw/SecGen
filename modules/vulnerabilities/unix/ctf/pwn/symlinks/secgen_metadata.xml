@@ -18,6 +18,12 @@
   <challenge_subtype>others</challenge_subtype>
   <difficulty>medium</difficulty>
 
+  <goals>
+    <read_file>/etc/shadow</read_file>
+    <access_account>carolmiller</access_account>
+    <read_file>/home/carolmiller/flag.txt</read_file>
+  </goals>
+
   <read_fact>accounts</read_fact>
 
   <default_input into="accounts">
@@ -48,8 +54,9 @@
   </requires>
 
   <!-- Need a way on to the box. -->
-  <requires>
-    <privilege>user_rwx</privilege>
-  </requires>
+  <!-- TODO: remove this? -->
+  <!--<requires>-->
+    <!--<privilege>user_rwx</privilege>-->
+  <!--</requires>-->
 
 </vulnerability>

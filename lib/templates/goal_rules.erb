@@ -1,0 +1,3 @@
+<% @currently_processing_system.module_selections.each do |module_selection| -%>
+<%= module_selection.goals.to_s if module_selection.goals != [] -%>
+<% end -%>

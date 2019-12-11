@@ -108,6 +108,13 @@ class ProjectFilesCreator
           end
         end
       end
+
+      # Create auto-grading rules file from goals for each VM
+      rules_file = "#{path}/modules/auditbeat/files/secgen_rules_file.yaml"
+      Print.std "Creating Autograding rules file: #{rules_file}"
+      template_based_file_write(GRADING_RULES_TEMPLATE_FILE , rules_file)
+      # TODO: Need to create elastalert audit rules.yaml also
+
     end
 
     # Create environments/production/environment.conf - Required in Puppet 4+
