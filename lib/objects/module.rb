@@ -6,7 +6,7 @@ class Module
   #Vulnerability attributes hash
   attr_accessor :module_path # vulnerabilities/unix/ftp/vsftp_234_backdoor
   attr_accessor :module_type # vulnerability|service|utility
-  attr_accessor :attributes  # attributes are hashes that contain arrays of values
+  attr_accessor :attributes # attributes are hashes that contain arrays of values
   # Each attribute is stored in a hash containing an array of values (because elements such as author can repeat).
   # Module *selectors*, store filters in the attributes hash.
   # XML validity ensures valid and complete information.
@@ -35,7 +35,7 @@ class Module
     self.module_type = module_type
     self.conflicts = []
     self.requires = []
-    self.goals = []
+    self.goals = {}
     self.attributes = {}
     self.output = []
     self.write_to_module_with_id = write_output_variable = ''
@@ -54,7 +54,7 @@ class Module
   # @return [Object] a string for console output
   def to_s
     (<<-END)
-    #{module_type}: #{module_path}
+#{module_type}: #{module_path}
       attributes: #{attributes.inspect}
       conflicts: #{conflicts.inspect}
       requires: #{requires.inspect}
@@ -93,7 +93,7 @@ class Module
   # @return [Object] the module path with _ rather than / for use as a variable name
   def module_path_name
     module_path_name = module_path.clone
-    module_path_name.gsub!('/','_')
+    module_path_name.gsub!('/', '_')
   end
 
   # @return [Object] a list of attributes that can be used to re-select the same modules
@@ -178,6 +178,13 @@ class Module
     elsif split_string_array[1][0] =~ /[[:digit:]]/
       split_string_array[1][0].to_i # return the system id
     end
+  end
+
+  # Get unique rule id for the module based on a rule key/value pair
+  def get_unique_rule_id(prefix, system_name, rule_key, rule_value)
+    # TODO: This might be too long, see if there is a length limit for rule identities
+    prefix = prefix + "_" if prefix and prefix != ''
+    "#{prefix}#{system_name}_#{module_path_end}_#{rule_key}_#{rule_value.gsub(/[^\w]/, '_')}"
   end
 
   def printable_name
