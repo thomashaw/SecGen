@@ -187,11 +187,11 @@ class ModuleReader
 
       # for each goal in the module
       doc.xpath("/#{module_type}/goals").each do |goals_doc|
-        goal = {}
+        goals = {}
         goals_doc.elements.each {|node|
-          (goal[node.name] ||= []).push(node.content)
+          (goals[node.name] ||= []).push(node.content)
         }
-        new_module.goals.push(goal)
+        new_module.goals = goals
       end
 
       # for each default input
