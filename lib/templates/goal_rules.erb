@@ -1,14 +1,6 @@
+<% require './lib/helpers/rules'-%>
 <% @currently_processing_system.module_selections.each do |module_selection| -%>
-<%   if module_selection.goals != [] -%>
-<%     if module_selection.goals['read_file'] -%>
-<%        module_selection.goals['read_file'].each do |rf_path| -%>
-<%=         "-w #{rf_path} -p -r -k #{module_selection.get_unique_rule_id(@options[:prefix], @currently_processing_system.name, 'rf', rf_path)}" %>
-<%        end -%>
-<%     end -%>
-<%#     if module_selection.goals['access_account'] -%>
-<%#        module_selection.goals['access_account'].each do |aa_value| -%>
-<%#=         ""-%>
-<%#        end -%>
-<%#     end -%>
+<%   if module_selection.goals != {} -%>
+<%=     Rules.generate_rules(@rule_type, module_selection) %>
 <%   end -%>
 <% end -%>
