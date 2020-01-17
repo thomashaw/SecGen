@@ -309,6 +309,15 @@ class System
 
       # pre-calculate any secgen_local/local.rb outputs
       if selected.local_calc_file
+
+
+
+        if selected.local_calc_file == "modules/generators/passwords/custom_list_password/secgen_local/local.rb"
+          puts 'break'
+        end
+
+
+
         Print.verbose 'Module includes local calculation of output. Processing...'
         # build arguments
         args_string = "--b64 " # Sets the flag for decoding base64

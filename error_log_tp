@@ -1,0 +1,711 @@
+Module added: Debian 9 Stretch Server (modules/bases/debian_stretch_server)
+
+<service module_path="services/unix/http/parameterised_website">
+  <input into="organisation" into_datastore="organisation">
+     <encoder type="line_selector">
+
+         Filtered to modules matching: {"type"=>["line_selector"]} ~= (n=1)
+         Selecting module: Random Line Selector (modules/encoders/selector/random_line_selector)
+         Module includes local calculation of output. Processing...
+        ["lib/resources/structured_content/organisations/json_organisations"]
+         Running: ruby modules/encoders/selector/random_line_selector/secgen_local/local.rb --b64 --file_path=bGliL3Jlc291cmNlcy9zdHJ1Y3R1cmVkX2NvbnRlbnQvb3JnYW5pc2F0aW9ucy9qc29uX29yZ2FuaXNhdGlvbnM=  ...
+        Random Line Selector
+        Reading args from STDIN
+         Encoding 'file_path: lib/resources/structured_content/organisations/json_organisations'
+         Encoded: ["{\"business_name\":\"Yorkshire Personal Health\",\"business_motto\":\"We'll have you as good as new in no time.\",\"business_address\":\"159 Longlands St, Bradford BD1 2PX\",\"domain\":\"yorkspersonalhealth.co.uk\",\"office_telephone\":\"01274 200700\",\"office_email\":\"info@yorkspersonalhealth.co.uk\",\"industry\":\"Medical Services\",\"manager\":{\"name\":\"Angela Dickinson\",\"address\":\"76103 Joshuah Path, Port Magali, Cambridgeshire, R1 1TR\",\"phone_number\":\"01274 200700 ext 100\",\"email_address\":\"a.dickinson@yorkspersonalhealth.co.uk\",\"username\":\"dickinson_a\",\"password\":\"\"},\"employees\":[{\"name\":\"Abdullah Carroll\",\"address\":\"Office A, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 101\",\"email_address\":\"a.carroll@yorkspersonalhealth.co.uk\",\"username\":\"carroll_a\",\"password\":\"\"},{\"name\":\"Annie Williamson\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 103\",\"email_...
+         (Displaying 1000/1746 length output)
+         Storing into datastore: organisation = ["{\"business_name\":\"Yorkshire Personal Health\",\"business_motto\":\"We'll have you as good as new in no time.\",\"business_address\":\"159 Longlands St, Bradford BD1 2PX\",\"domain\":\"yorkspersonalhealth.co.uk\",\"office_telephone\":\"01274 200700\",\"office_email\":\"info@yorkspersonalhealth.co.uk\",\"industry\":\"Medical Services\",\"manager\":{\"name\":\"Angela Dickinson\",\"address\":\"76103 Joshuah Path, Port Magali, Cambridgeshire, R1 1TR\",\"phone_number\":\"01274 200700 ext 100\",\"email_address\":\"a.dickinson@yorkspersonalhealth.co.uk\",\"username\":\"dickinson_a\",\"password\":\"\"},\"employees\":[{\"name\":\"Abdullah Carroll\",\"address\":\"Office A, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 101\",\"email_address\":\"a.carroll@yorkspersonalhealth.co.uk\",\"username\":\"carroll_a\",\"password\":\"\"},{\"name\":\"Annie Williamson\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 103\",\"email_address\":\"a.williamson@yorkspersonalhealth.co.uk\",\"username\":\"williamson_a\",\"password\":\"\"},{\"name\":\"Jammie Marks\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 110\",\"email_address\":\"j.marks@yorkspersonalhealth.co.uk\",\"username\":\"marks_j\",\"password\":\"\"}],\"product_name\":\"Check up\",\"intro_paragraph\":[\"A health assessment is more than a check up. It can be the start of a journey towards better health.\",\"We use our health expertise to build a clear picture of where your current health is and identify potential future health risks. After your health assessment, we’ll give you guidance and support to help you become healthier today and in the future.\"]}"]
+        Module added: Random Line Selector (modules/encoders/selector/random_line_selector)
+         Filtered to modules matching: {"type"=>["website_theme"]} ~= (n=1)
+         Selecting module: Website Theme Generator (modules/generators/content/website_theme)
+         Module includes local calculation of output. Processing...
+         Running: ruby modules/generators/content/website_theme/secgen_local/local.rb --b64  ...
+
+  <input into="theme" into_datastore="theme">
+     <generator type="website_theme"/>
+
+        Website Theme Selector
+        Reading args from STDIN
+         Encoding '[]'
+         Encoded: ["sketchy.min.css"]...
+         Storing into datastore: theme = ["sketchy.min.css"]
+        Module added: Website Theme Generator (modules/generators/content/website_theme)
+         Filtered to modules matching: {"module_path"=>["services/unix/http/parameterised_website"]} ~= (n=1)
+         Selecting module: Random Parameterised Website (modules/services/unix/http/parameterised_website)
+         Using defaults for port
+         Using default literal input ["80"]
+         Using defaults for host_acceptable_use_policy
+         Using default literal input ["false"]
+         Using defaults for strings_to_leak
+         Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["message_generator"]} to:vulnerabilitydefaultinput.strings_to_leak id:servicedefaultinput2generator2modulesservicesunixhttpparameterisedwebsite received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {}), SECGEN_MODULE(type:generator path: attr:{"type"=>["message_generator"]} to:vulnerabilitydefaultinput.strings_to_leak id:servicedefaultinput2generator1modulesservicesunixhttpparameterisedwebsite received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+         Filtered to modules matching: {"type"=>["message_generator"]} ~= (n=3)
+         Selecting module: Business Motto Generator (modules/generators/content/business_motto)
+         Module includes local calculation of output. Processing...
+         Running: ruby modules/generators/content/business_motto/secgen_local/local.rb --b64  ...
+
+    ### Default inputs into Parameterised Website:
+
+      <default_input into="strings_to_leak">
+        <generator type="message_generator"/>
+        <generator type="message_generator"/>
+
+            Business Motto Generator
+            Reading args from STDIN
+             Generating...
+             Generated: ["Self-enabling fault-tolerant paradigm"]...
+            Module added: Business Motto Generator (modules/generators/content/business_motto)
+             Filtered to modules matching: {"type"=>["message_generator"]} ~= (n=3)
+             Selecting module: Business Motto Generator (modules/generators/content/business_motto)
+             Module includes local calculation of output. Processing...
+             Running: ruby modules/generators/content/business_motto/secgen_local/local.rb --b64  ...
+            Business Motto Generator
+            Reading args from STDIN
+             Generating...
+             Generated: ["Face to face tangible local area network"]...
+            Module added: Business Motto Generator (modules/generators/content/business_motto)
+             Scenario includes input for organisation (not using default values)
+             Using defaults for main_page_paragraph_content
+             Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["text_paragraph"]} to:vulnerabilitydefaultinput.main_page_paragraph_content id:servicedefaultinput4generatormodulesservicesunixhttpparameterisedwebsite received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+
+      <default_input into="main_page_paragraph_content">
+        <generator type="text_paragraph"/>
+
+             Filtered to modules matching: {"type"=>["text_paragraph"]} ~= (n=2)
+             Selecting module: Lipsum Paragraph Generator (modules/generators/content/lipsum_paragraph)
+             Using defaults for paragraph_count
+             Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["number_range"]} to:vulnerabilitydefaultinput.paragraph_count id:generatordefaultinputgeneratormodulesgeneratorscontentlipsumparagraph received_inputs:{"lower_bound"=>["3"], "upper_bound"=>["5"]} default_inputs_selectors: {} default_inputs_literals: {})]
+             Filtered to modules matching: {"type"=>["number_range"]} ~= (n=1)
+             Selecting module: Random from Range Encoder (modules/generators/random/random_from_range)
+             Scenario includes input for lower_bound (not using default values)
+             Scenario includes input for upper_bound (not using default values)
+             Module includes local calculation of output. Processing...
+            ["3"]
+            ["5"]
+             Running: ruby modules/generators/random/random_from_range/secgen_local/local.rb --b64 --lower_bound=Mw== --upper_bound=NQ==  ...
+            Random Range Selector
+            Reading args from STDIN
+             Encoding 'random number from range(3 .. 5)'
+             Encoded: ["4"]...
+            Module added: Random from Range Encoder (modules/generators/random/random_from_range)
+             Module includes local calculation of output. Processing...
+            ["4"]
+             Running: ruby modules/generators/content/lipsum_paragraph/secgen_local/local.rb --b64 --paragraph_count=NA==  ...
+            Lipsum Paragraph Generator
+            Reading args from STDIN
+             Encoding 'paragraph_count: 4'
+             Encoded: ["Molestiae sunt quis. Aspernatur tempora est. Qui dolor et.Qui molestiae saepe. Inventore voluptatem facere. Quod in perspiciatis.Excepturi consequatur et. Pariatur velit dolores. Tempora quod perferendis.Id quas et. Et aut voluptas. Quam doloribus labore."]...
+            Module added: Lipsum Paragraph Generator (modules/generators/content/lipsum_paragraph)
+
+      <requires>
+        <module_path>.*apache</module_path>
+        <type>httpd</type>
+
+             Resolving dependencies for Random Parameterised Website (modules/services/unix/http/parameterised_website)
+             Resolving dependency: {"module_path"=>[".*apache"], "type"=>["httpd"]}
+             Adding required modules...
+             Filtered to modules matching: {"module_path"=>[".*apache"], "type"=>["httpd"]} ~= (n=2)
+             Excluding incompatible module: modules/services/unix/http/apache_wheezy_compatible/apache (conflicts with modules/bases/debian_stretch_server)
+             Selecting module: Apache HTTP Server - Stretch/Kali Compatible (modules/services/unix/http/apache_stretch_compatible/apache)
+             Resolving dependencies for Apache HTTP Server - Stretch/Kali Compatible (modules/services/unix/http/apache_stretch_compatible/apache)
+             Resolving dependency: {"type"=>["update"]}
+             Adding required modules...
+             Filtered to modules matching: {"type"=>["update"]} ~= (n=3)
+             Excluding incompatible module: modules/utilities/windows/update/windows_update (conflicts with modules/bases/debian_stretch_server)
+             Excluding incompatible module: modules/utilities/windows/win_netcat (conflicts with modules/bases/debian_stretch_server)
+             Selecting module: Unix update repository (modules/utilities/unix/update/unix_update)
+            Module added: Unix update repository (modules/utilities/unix/update/unix_update)
+            Module added: Apache HTTP Server - Stretch/Kali Compatible (modules/services/unix/http/apache_stretch_compatible/apache)
+
+        Module added: Random Parameterised Website (modules/services/unix/http/parameterised_website)
+</service>
+
+<vulnerability privilege="user_rwx" access="remote" type="(?!.*webapp|ctf).*">
+    Filtered to modules matching: {"privilege"=>["user_rwx"], "access"=>["remote"], "type"=>["(?!.*webapp|ctf).*"]} ~= (n=2)
+    Excluding incompatible module: modules/vulnerabilities/unix/irc/unrealirc_3281_backdoor (conflicts with modules/services/unix/http/apache_stretch_compatible/apache)
+    Selecting module: DistCC Daemon Command Execution (modules/vulnerabilities/unix/misc/distcc_exec)
+
+    <input into="organisation">
+      <datastore>organisation</datastore>
+
+         Receiving datastores: {"organisation"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>""}]}
+         Adding (all) organisation to organisation: ["{\"business_name\":\"Yorkshire Personal Health\",\"business_motto\":\"We'll have you as good as new in no time.\",\"business_address\":\"159 Longlands St, Bradford BD1 2PX\",\"domain\":\"yorkspersonalhealth.co.uk\",\"office_telephone\":\"01274 200700\",\"office_email\":\"info@yorkspersonalhealth.co.uk\",\"industry\":\"Medical Services\",\"manager\":{\"name\":\"Angela Dickinson\",\"address\":\"76103 Joshuah Path, Port Magali, Cambridgeshire, R1 1TR\",\"phone_number\":\"01274 200700 ext 100\",\"email_address\":\"a.dickinson@yorkspersonalhealth.co.uk\",\"username\":\"dickinson_a\",\"password\":\"\"},\"employees\":[{\"name\":\"Abdullah Carroll\",\"address\":\"Office A, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 101\",\"email_address\":\"a.carroll@yorkspersonalhealth.co.uk\",\"username\":\"carroll_a\",\"password\":\"\"},{\"name\":\"Annie Williamson\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 103\",\"email_address\":\"a.williamson@yorkspersonalhealth.co.uk\",\"username\":\"williamson_a\",\"password\":\"\"},{\"name\":\"Jammie Marks\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 110\",\"email_address\":\"j.marks@yorkspersonalhealth.co.uk\",\"username\":\"marks_j\",\"password\":\"\"}],\"product_name\":\"Check up\",\"intro_paragraph\":[\"A health assessment is more than a check up. It can be the start of a journey towards better health.\",\"We use our health expertise to build a clear picture of where your current health is and identify potential future health risks. After your health assessment, we’ll give you guidance and support to help you become healthier today and in the future.\"]}"]
+
+    <input into="strings_to_leak">
+      <value/>
+
+        Scenario includes input for strings_to_leak (not using default values)
+
+    </input>
+
+    ### Default inputs into DISTCC:
+
+    <default_input into="strings_to_leak">
+      <generator type="message_generator"/>
+      <generator type="message_generator"/>
+
+         Using defaults for leaked_filenames
+         Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["filename_generator"]} to:vulnerabilitydefaultinput.leaked_filenames id:vulnerabilitydefaultinput2generator2modulesvulnerabilitiesunixmiscdistccexec received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {}), SECGEN_MODULE(type:generator path: attr:{"type"=>["filename_generator"]} to:vulnerabilitydefaultinput.leaked_filenames id:vulnerabilitydefaultinput2generator1modulesvulnerabilitiesunixmiscdistccexec received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+         Filtered to modules matching: {"type"=>["filename_generator"]} ~= (n=1)
+         Selecting module: Random Filename Generator (modules/generators/filenames/random_filename)
+         Module includes local calculation of output. Processing...
+         Running: ruby modules/generators/filenames/random_filename/secgen_local/local.rb --b64  ...
+
+    </default_input>
+
+    <default_input into="leaked_filenames">
+      <generator type="filename_generator"/>
+      <generator type="filename_generator"/>
+
+
+        Random Filename Generator
+        Reading args from STDIN
+         Encoding 'No args'
+         Encoded: ["restricted"]...
+        Module added: Random Filename Generator (modules/generators/filenames/random_filename)
+         Filtered to modules matching: {"type"=>["filename_generator"]} ~= (n=1)
+         Selecting module: Random Filename Generator (modules/generators/filenames/random_filename)
+         Module includes local calculation of output. Processing...
+         Running: ruby modules/generators/filenames/random_filename/secgen_local/local.rb --b64  ...
+        Random Filename Generator
+        Reading args from STDIN
+         Encoding 'No args'
+         Encoded: ["cumque.mp3"]...
+        Module added: Random Filename Generator (modules/generators/filenames/random_filename)
+
+    </default_input>
+
+  <requires>
+    <type>update</type>
+         Resolving dependencies for DistCC Daemon Command Execution (modules/vulnerabilities/unix/misc/distcc_exec)
+         Resolving dependency: {"type"=>["update"]}
+         Dependency satisfied by previously selected module: Unix update repository (modules/utilities/unix/update/unix_update)
+        Module added: DistCC Daemon Command Execution (modules/vulnerabilities/unix/misc/distcc_exec)
+  </requires>
+
+
+<vulnerability privilege="root_rwx" access="local">
+
+     Filtered to modules matching: {"privilege"=>["root_rwx"], "access"=>["local"]} ~= (n=3)
+     Excluding incompatible module: modules/vulnerabilities/unix/local/dirtycow (conflicts with modules/bases/debian_stretch_server)
+     Excluding incompatible module: modules/vulnerabilities/unix/local/dirtycow (conflicts with modules/services/unix/http/apache_stretch_compatible/apache)
+     Selecting module: Nmap Setuid (modules/vulnerabilities/unix/local/setuid_nmap)
+
+
+  <input into="organisation">
+    <datastore >organisation</datastore>
+
+     Receiving datastores: {"organisation"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>""}]}
+     Adding (all) organisation to organisation: ["{\"business_name\":\"Yorkshire Personal Health\",\"business_motto\":\"We'll have you as good as new in no time.\",\"business_address\":\"159 Longlands St, Bradford BD1 2PX\",\"domain\":\"yorkspersonalhealth.co.uk\",\"office_telephone\":\"01274 200700\",\"office_email\":\"info@yorkspersonalhealth.co.uk\",\"industry\":\"Medical Services\",\"manager\":{\"name\":\"Angela Dickinson\",\"address\":\"76103 Joshuah Path, Port Magali, Cambridgeshire, R1 1TR\",\"phone_number\":\"01274 200700 ext 100\",\"email_address\":\"a.dickinson@yorkspersonalhealth.co.uk\",\"username\":\"dickinson_a\",\"password\":\"\"},\"employees\":[{\"name\":\"Abdullah Carroll\",\"address\":\"Office A, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 101\",\"email_address\":\"a.carroll@yorkspersonalhealth.co.uk\",\"username\":\"carroll_a\",\"password\":\"\"},{\"name\":\"Annie Williamson\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 103\",\"email_address\":\"a.williamson@yorkspersonalhealth.co.uk\",\"username\":\"williamson_a\",\"password\":\"\"},{\"name\":\"Jammie Marks\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 110\",\"email_address\":\"j.marks@yorkspersonalhealth.co.uk\",\"username\":\"marks_j\",\"password\":\"\"}],\"product_name\":\"Check up\",\"intro_paragraph\":[\"A health assessment is more than a check up. It can be the start of a journey towards better health.\",\"We use our health expertise to build a clear picture of where your current health is and identify potential future health risks. After your health assessment, we’ll give you guidance and support to help you become healthier today and in the future.\"]}"]
+
+  <input into="strings_to_leak">
+    <value/>
+
+     Scenario includes input for strings_to_leak (not using default values)
+
+
+  ### Default inputs into SETUID NMAP:
+
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+
+         Using defaults for leaked_filenames
+         Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["filename_generator"]} to:vulnerabilitydefaultinput.leaked_filenames id:vulnerabilitydefaultinput2generatormodulesvulnerabilitiesunixlocalsetuidnmap received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+         Filtered to modules matching: {"type"=>["filename_generator"]} ~= (n=1)
+         Selecting module: Random Filename Generator (modules/generators/filenames/random_filename)
+         Module includes local calculation of output. Processing...
+         Running: ruby modules/generators/filenames/random_filename/secgen_local/local.rb --b64  ...
+        Random Filename Generator
+        Reading args from STDIN
+         Encoding 'No args'
+         Encoded: ["repellat.tiff"]...
+        Module added: Random Filename Generator (modules/generators/filenames/random_filename)
+
+
+  <requires>
+    <module_path>modules/utilities/unix/audit_tools/scanners/nmap</module_path>
+
+         Resolving dependencies for Nmap Setuid (modules/vulnerabilities/unix/local/setuid_nmap)
+         Resolving dependency: {"module_path"=>["modules/utilities/unix/audit_tools/scanners/nmap"]}
+         Adding required modules...
+         Filtered to modules matching: {"module_path"=>["modules/utilities/unix/audit_tools/scanners/nmap"]} ~= (n=1)
+         Selecting module: Nmap Security Scanner (modules/utilities/unix/audit_tools/scanners/nmap)
+         Resolving dependencies for Nmap Security Scanner (modules/utilities/unix/audit_tools/scanners/nmap)
+         Resolving dependency: {"type"=>["update"]}
+         Dependency satisfied by previously selected module: Unix update repository (modules/utilities/unix/update/unix_update)
+        Module added: Nmap Security Scanner (modules/utilities/unix/audit_tools/scanners/nmap)
+  </requires>
+
+    Module added: Nmap Setuid (modules/vulnerabilities/unix/local/setuid_nmap)
+</vulnerability>
+
+
+<build type="cleanup">
+  <input into="root_password">
+    <generator type="password_generator"/>
+
+         Filtered to modules matching: {"type"=>["password_generator"]} ~= (n=5)
+         Selecting module: Random Weak Password Generator (modules/generators/passwords/random_weak_password)
+         Module includes local calculation of output. Processing...
+         Running: ruby modules/generators/passwords/random_weak_password/secgen_local/local.rb --b64  ...
+        Random Weak Password Generator
+        Reading args from STDIN
+         Generating...
+         Generated: ["chin"]...
+        Module added: Random Weak Password Generator (modules/generators/passwords/random_weak_password)
+  </input>
+
+  ###  DEFAULT INPUTS TO: CLEANUP
+
+     Filtered to modules matching: {"type"=>["cleanup"]} ~= (n=1)
+     Selecting module: Cleanup Module (modules/build/unix/cleanup)
+     Using defaults for remove_history
+     Using default literal input ["true"]
+     Using defaults for clobber_file_times
+     Using default literal input ["false"]
+     Using defaults for disable_ssh
+     Using default literal input ["false"]
+     Scenario includes input for root_password (not using default values)
+     Resolving dependencies for Cleanup Module (modules/build/unix/cleanup)
+
+ <requires>
+    <module_path>utilities/unix/system/accounts</module_path>
+
+         Resolving dependency: {"module_path"=>["utilities/unix/system/accounts"]}
+         Adding required modules...
+         Filtered to modules matching: {"module_path"=>["utilities/unix/system/accounts"]} ~= (n=1)
+         Selecting module: User account service (modules/utilities/unix/system/accounts)
+        Module added: User account service (modules/utilities/unix/system/accounts)
+
+ </requires>
+    Module added: Cleanup Module (modules/build/unix/cleanup)
+</build>
+
+<network type="private_network">
+  <input into="IP_address">
+    <datastore access="next">IP_addresses</datastore>
+
+         Filtered to modules matching: {"type"=>["private_network"]} ~= (n=3)
+         Selecting module: Private Network #1 (modules/networks/host_only/private_network_1)
+         Receiving datastores: {"IP_address"=>[{"variablename"=>"IP_addresses", "access"=>"next", "access_json"=>""}]}
+         Adding (next) IP_addresses to IP_address: ["172.10.0.2"]
+        Module added: Private Network #1 (modules/networks/host_only/private_network_1)
+
+</network>
+<system>
+  <base platform="linux" type="server"/>
+
+     Filtered to modules matching: {"platform"=>["linux"], "type"=>["server"]} ~= (n=2)
+     Selecting module: Debian 7 Wheezy Server (modules/bases/debian_wheezy_server)
+    Module added: Debian 7 Wheezy Server (modules/bases/debian_wheezy_server)
+
+  </base>
+
+<service module_path="services/unix/http/parameterised_website">
+  <input into="security_audit">
+    <encoder type="markdown_to_html_encoder">
+      <input into="strings_to_encode">
+        <generator module_path=".*security_audit_remit">
+             Filtered to modules matching: {"module_path"=>[".*security_audit_remit"]} ~= (n=1)
+             Selecting module: Security Audit Remit Generator (modules/generators/messages/security_audit_remit)
+
+          <input into="business_name">
+            <datastore access_json="['business_name']">organisation</datastore>
+
+                 Receiving datastores: {"business_name"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>"['business_name']"}]}
+                 No element specified, e.g. access="0", for access_json="['business_name']": using (0)
+                 Adding (0) organisation to business_name: Yorkshire Personal Health
+                 Scenario includes input for business_name (not using default values)
+
+          ### DEFAULT INPUTS TO: generator/security_audit_remit
+
+          <default_input into="business_location">
+            <encoder type="string_selector">
+              <input into="strings_to_encode">
+                 Using defaults for business_location
+                 Using default module input [SECGEN_MODULE(type:encoder path: attr:{"type"=>["string_selector"]} to:vulnerabilitydefaultinput.business_location id:generatordefaultinput2encodermodulesgeneratorsmessagessecurityauditremit received_inputs:{"strings_to_encode"=>["the top level (level 2) of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the level 1 of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the ground level of Priestly Hall at Leeds Beckett University, Headingly Campus"]} default_inputs_selectors: {} default_inputs_literals: {})]
+                 Filtered to modules matching: {"type"=>["string_selector"]} ~= (n=1)
+                 Selecting module: Random String Selector (modules/encoders/selector/random_string_selector)
+                 Module includes local calculation of output. Processing...
+                ["the top level (level 2) of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the level 1 of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the ground level of Priestly Hall at Leeds Beckett University, Headingly Campus"]
+                 Running: ruby modules/encoders/selector/random_string_selector/secgen_local/local.rb --b64 --strings_to_encode=dGhlIHRvcCBsZXZlbCAobGV2ZWwgMikgb2YgQ2FlZG1vbiBIYWxsIGF0IExlZWRzIEJlY2tldHQgVW5pdmVyc2l0eSwgSGVhZGluZ2x5IENhbXB1cw== --strings_to_encode=dGhlIGxldmVsIDEgb2YgQ2FlZG1vbiBIYWxsIG ...
+                Random String Selector
+                Reading args from STDIN
+                 Encoding 'strings_to_encode: ["the top level (level 2) of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the level 1 of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus", "the ground level of Priestly Hall at Leeds Beckett University, Headingly Campus"]'
+                 Encoded: ["the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus"]...
+                Module added: Random String Selector (modules/encoders/selector/random_string_selector)
+           </default_input>
+
+           <default_input into="local_backup">
+             <encoder type="string_selector">
+               <input into="strings_to_encode">
+
+                 Using defaults for local_backup
+                 Using default module input [SECGEN_MODULE(type:encoder path: attr:{"type"=>["string_selector"]} to:vulnerabilitydefaultinput.local_backup id:generatordefaultinput3encodermodulesgeneratorsmessagessecurityauditremit received_inputs:{"strings_to_encode"=>["our own data storage server", "a USB thumb drive", "a permanent spare hard disk", "an employee personal FTP server", "RAID 5"]} default_inputs_selectors: {} default_inputs_literals: {})]
+                 Filtered to modules matching: {"type"=>["string_selector"]} ~= (n=1)
+                 Selecting module: Random String Selector (modules/encoders/selector/random_string_selector)
+                 Module includes local calculation of output. Processing...
+                ["our own data storage server", "a USB thumb drive", "a permanent spare hard disk", "an employee personal FTP server", "RAID 5"]
+                 Running: ruby modules/encoders/selector/random_string_selector/secgen_local/local.rb --b64 --strings_to_encode=b3VyIG93biBkYXRhIHN0b3JhZ2Ugc2VydmVy --strings_to_encode=YSBVU0IgdGh1bWIgZHJpdmU= --strings_to_encode=YSBwZXJtYW5lbnQgc3BhcmUgaGFyZCBkaXNr --strings_to_encode=YW4gZW1wbG95ZWUg ...
+                Random String Selector
+                Reading args from STDIN
+                 Encoding 'strings_to_encode: ["our own data storage server", "a USB thumb drive", "a permanent spare hard disk", "an employee personal FTP server", "RAID 5"]'
+                 Encoded: ["a permanent spare hard disk"]...
+                Module added: Random String Selector (modules/encoders/selector/random_string_selector)
+           </default_input>
+
+          <default_input into="remote_backup">
+            <encoder type="string_selector">
+              <input into="strings_to_encode">
+
+                 Using defaults for remote_backup
+                 Using default module input [SECGEN_MODULE(type:encoder path: attr:{"type"=>["string_selector"]} to:vulnerabilitydefaultinput.remote_backup id:generatordefaultinput4encodermodulesgeneratorsmessagessecurityauditremit received_inputs:{"strings_to_encode"=>["Amazon Glacier, overwriting any previous backups", "Amazon Glacier, with snapshot backups", "Dropbox", "Mega", "CrashPlan", "SpiderOak", "Google Drive", "GitHub private repository", "GitHub public repository"]} default_inputs_selectors: {} default_inputs_literals: {})]
+                 Filtered to modules matching: {"type"=>["string_selector"]} ~= (n=1)
+                 Selecting module: Random String Selector (modules/encoders/selector/random_string_selector)
+                 Module includes local calculation of output. Processing...
+                ["Amazon Glacier, overwriting any previous backups", "Amazon Glacier, with snapshot backups", "Dropbox", "Mega", "CrashPlan", "SpiderOak", "Google Drive", "GitHub private repository", "GitHub public repository"]
+                 Running: ruby modules/encoders/selector/random_string_selector/secgen_local/local.rb --b64 --strings_to_encode=QW1hem9uIEdsYWNpZXIsIG92ZXJ3cml0aW5nIGFueSBwcmV2aW91cyBiYWNrdXBz --strings_to_encode=QW1hem9uIEdsYWNpZXIsIHdpdGggc25hcHNob3QgYmFja3Vwcw== --strings_to_encode=RHJvcGJveA== --st ...
+                Random String Selector
+                Reading args from STDIN
+                 Encoding 'strings_to_encode: ["Amazon Glacier, overwriting any previous backups", "Amazon Glacier, with snapshot backups", "Dropbox", "Mega", "CrashPlan", "SpiderOak", "Google Drive", "GitHub private repository", "GitHub public repository"]'
+                 Encoded: ["Amazon Glacier, overwriting any previous backups"]...
+                Module added: Random String Selector (modules/encoders/selector/random_string_selector)
+
+          <default_input into="physical_security">
+            <encoder type="string_selector">
+              <input into="strings_to_encode">
+
+                 Using defaults for physical_security
+                 Using default module input [SECGEN_MODULE(type:encoder path: attr:{"type"=>["string_selector"]} to:vulnerabilitydefaultinput.physical_security id:generatordefaultinput5encodermodulesgeneratorsmessagessecurityauditremit received_inputs:{"strings_to_encode"=>["RFID access controls", "extra pin tumbler locks", "padlocks", "Onity programmable key card locks", "Quicklock Doorlock", "Quicklock Padlock", "iBluLock Padlock", "Plantraco Phantomlock", "Ceomate Bluetooth Smart Doorlock", "Elecycle EL797", "Elecycle E797G", "Vians Bluetooth Smart Doorlock", "Lagute Sciener Smart Doorlock", "Okidokey Smart Doorlock", "Meshmotion Bitlock Doorlock"]} default_inputs_selectors: {} default_inputs_literals: {})]
+                 Filtered to modules matching: {"type"=>["string_selector"]} ~= (n=1)
+                 Selecting module: Random String Selector (modules/encoders/selector/random_string_selector)
+                 Module includes local calculation of output. Processing...
+                ["RFID access controls", "extra pin tumbler locks", "padlocks", "Onity programmable key card locks", "Quicklock Doorlock", "Quicklock Padlock", "iBluLock Padlock", "Plantraco Phantomlock", "Ceomate Bluetooth Smart Doorlock", "Elecycle EL797", "Elecycle E797G", "Vians Bluetooth Smart Doorlock", "Lagute Sciener Smart Doorlock", "Okidokey Smart Doorlock", "Meshmotion Bitlock Doorlock"]
+                 Running: ruby modules/encoders/selector/random_string_selector/secgen_local/local.rb --b64 --strings_to_encode=UkZJRCBhY2Nlc3MgY29udHJvbHM= --strings_to_encode=ZXh0cmEgcGluIHR1bWJsZXIgbG9ja3M= --strings_to_encode=cGFkbG9ja3M= --strings_to_encode=T25pdHkgcHJvZ3JhbW1hYmxlIGtleSBjYXJkIGxv ...
+                Random String Selector
+                Reading args from STDIN
+                 Encoding 'strings_to_encode: ["RFID access controls", "extra pin tumbler locks", "padlocks", "Onity programmable key card locks", "Quicklock Doorlock", "Quicklock Padlock", "iBluLock Padlock", "Plantraco Phantomlock", "Ceomate Bluetooth Smart Doorlock", "Elecycle EL797", "Elecycle E797G", "Vians Bluetooth Smart Doorlock", "Lagute Sciener Smart Doorlock", "Okidokey Smart Doorlock", "Meshmotion Bitlock Doorlock"]'
+                 Encoded: ["Quicklock Doorlock"]...
+                Module added: Random String Selector (modules/encoders/selector/random_string_selector)
+
+          </default_input>
+
+          <output>
+            Module includes local calculation of output. Processing...
+           ["Yorkshire Personal Health"]
+           ["the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus"]
+           ["a permanent spare hard disk"]
+           ["Amazon Glacier, overwriting any previous backups"]
+           ["Quicklock Doorlock"]
+            Running: ruby modules/generators/messages/security_audit_remit/secgen_local/local.rb --b64 --business_name=WW9ya3NoaXJlIFBlcnNvbmFsIEhlYWx0aA== --business_location=dGhlIGdyb3VuZCBsZXZlbCBvZiBDYWVkbW9uIEhhbGwgYXQgTGVlZHMgQmVja2V0dCBVbml2ZXJzaXR5LCBIZWFkaW5nbHkgQ2FtcHVz --local_backup=YS ...
+           Security Audit Remit Generator
+           Reading args from STDIN
+            Generating...
+            Generated: ["# Security Audit Remit of Yorkshire Personal Health\n\n## Background\nOn 25 May 2018, the General Data Protection Regulations 2016/679 (GDPR) came into force in the UK. The regulations have tightened up the rules on data protection and govern how Companies should handle sensitive personal data on behalf of its clients and employees. This legislation also gives the Information Commissioner's Office (a non-governmental organisation) the power to fine Companies who are in breach of the regulations. Financial penalties can now be enforced up to as much as 20 million Euros (or equivalent in sterling), or 4 percent of the total annual worldwide turnover in the preceding financial year (whichever is higher).\n\n## About us\nWe are Yorkshire Personal Health, an SME business.  We handle sensitive personal information on a daily basis and process this information under the new GDPR. We have a fairly high risk threshold, and a restricted budget.  We are aiming to get a new product to market in t...
+            (Displaying 1000/4088 length output)
+          </output>
+
+        Module added: Security Audit Remit Generator (modules/generators/messages/security_audit_remit)
+      </generator>
+
+
+         Filtered to modules matching: {"type"=>["markdown_to_html_encoder"]} ~= (n=1)
+         Selecting module: Markdown to HTML Encoder (modules/encoders/html/markdown_to_html)
+         Scenario includes input for strings_to_encode (not using default values)
+         Module includes local calculation of output. Processing...
+        ["# Security Audit Remit of Yorkshire Personal Health\n\n## Background\nOn 25 May 2018, the General Data Protection Regulations 2016/679 (GDPR) came into force in the UK. The regulations have tightened up the rules on data protection and govern how Companies should handle sensitive personal data on behalf of its clients and employees. This legislation also gives the Information Commissioner's Office (a non-governmental organisation) the power to fine Companies who are in breach of the regulations. Financial penalties can now be enforced up to as much as 20 million Euros (or equivalent in sterling), or 4 percent of the total annual worldwide turnover in the preceding financial year (whichever is higher).\n\n## About us\nWe are Yorkshire Personal Health, an SME business.  We handle sensitive personal information on a daily basis and process this information under the new GDPR. We have a fairly high risk threshold, and a restricted budget.  We are aiming to get a new product to market in the next 6 months. \n\n## Our security policy\nComplete copies of our security policy documents are available via the Intranet server.  We do not have any other formal security policies.\n\n## Backups\nWe backup all our data (including code and documents) via a permanent spare hard disk.  We also do a weekly backup to Amazon Glacier, overwriting any previous backups.\n\n## Office location\nWe have leased the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus for our operations (including employees and server rooms) for the last 4 years.  The other areas of the building are used by third parties.  We have Quicklock Doorlock to control access to our rooms.\n\n## IT infrastructure\nOur IT team developed the servers that are currently deployed.\n\nOur network design is to have a web server connected to an Internet accessible IP address (DMZ).  All other servers and end user desktops will be connected to an intranet with any connections out to the Internet via NAT.\n\nOur systems include:\n\n* A web server with network services\n\n* An intranet server, hosting our security policy documents for internal access\n\n* Desktop systems\n\nThe Web host will eventually be processing credit card transactions; hopefully thousands of transactions every month.\n\n## Your remit\nOur organisation has recently come under scrutiny from the ICO for failing to comply with GDPR. They are threatening to fine us. If we are fined, the Company is likely to be unable to launch our new product, which could delay payments to creditors and potentially cause us to go into liquidation! The ICO has asked us to carry out an internal investigation into the potential breach. Due to the serious effect upon our reputation, the IT Manager has now been suspended for 2 weeks and will remain on suspension whilst we carry out an internal audit.\n\nWe would like your team to provide a grey-box security audit of our business to inform those investigations. It is your remit to produce a Security Assessment Report which will in turn be shared with the ICO. This security assessment must take into account any relevant security issues, including management and policy, physical and (of particular importance) digital security. The report should also include the results of a detailed security audit, highlighting priority issues and security vulnerabilities and risks, with recommended mitigations. The outcome of the investigation will also determine whether or not we should take disciplinary action against our IT Manager, who is now threatening legal action if we don't reinstate him immediately. Please therefore consider our organisation profile when making your recommendations.\n\n## Initial Steps \n\nPlease undertake the following steps in preparation for your report:\n\n* Decide on a security testing methodology and report structure that meets our security needs  \n\n* Make use of any software tools of your choosing to carry out the technical analysis\n\n* Copy your report into an expert report template suitable for court (in case of any pending litigation)\n"]
+         Running: ruby modules/encoders/html/markdown_to_html/secgen_local/local.rb --b64 --strings_to_encode=IyBTZWN1cml0eSBBdWRpdCBSZW1pdCBvZiBZb3Jrc2hpcmUgUGVyc29uYWwgSGVhbHRoCgojIyBCYWNrZ3JvdW5kCk9uIDI1IE1heSAyMDE4LCB0aGUgR2VuZXJhbCBEYXRhIFByb3RlY3Rpb24gUmVndWxhdGlvbnMgMjAxNi82Nzk ...
+        Markdown to HTML Encoder
+        Reading args from STDIN
+         Encoding '["# Security Audit Remit of Yorkshire Personal Health\n\n## Background\nOn 25 May 2018, the General Data Protection Regulations 2016/679 (GDPR) came into force in the UK. The regulations have tightened up the rules on data protection and govern how Companies should handle sensitive personal data on behalf of its clients and employees. This legislation also gives the Information Commissioner's Office (a non-governmental organisation) the power to fine Companies who are in breach of the regulations. Financial penalties can now be enforced up to as much as 20 million Euros (or equivalent in sterling), or 4 percent of the total annual worldwide turnover in the preceding financial year (whichever is higher).\n\n## About us\nWe are Yorkshire Personal Health, an SME business.  We handle sensitive personal information on a daily basis and process this information under the new GDPR. We have a fairly high risk threshold, and a restricted budget.  We are aiming to get a new product to market in the next 6 months. \n\n## Our security policy\nComplete copies of our security policy documents are available via the Intranet server.  We do not have any other formal security policies.\n\n## Backups\nWe backup all our data (including code and documents) via a permanent spare hard disk.  We also do a weekly backup to Amazon Glacier, overwriting any previous backups.\n\n## Office location\nWe have leased the ground level of Caedmon Hall at Leeds Beckett University, Headingly Campus for our operations (including employees and server rooms) for the last 4 years.  The other areas of the building are used by third parties.  We have Quicklock Doorlock to control access to our rooms.\n\n## IT infrastructure\nOur IT team developed the servers that are currently deployed.\n\nOur network design is to have a web server connected to an Internet accessible IP address (DMZ).  All other servers and end user desktops will be connected to an intranet with any connections out to the Internet via NAT.\n\nOur systems include:\n\n* A web server with network services\n\n* An intranet server, hosting our security policy documents for internal access\n\n* Desktop systems\n\nThe Web host will eventually be processing credit card transactions; hopefully thousands of transactions every month.\n\n## Your remit\nOur organisation has recently come under scrutiny from the ICO for failing to comply with GDPR. They are threatening to fine us. If we are fined, the Company is likely to be unable to launch our new product, which could delay payments to creditors and potentially cause us to go into liquidation! The ICO has asked us to carry out an internal investigation into the potential breach. Due to the serious effect upon our reputation, the IT Manager has now been suspended for 2 weeks and will remain on suspension whilst we carry out an internal audit.\n\nWe would like your team to provide a grey-box security audit of our business to inform those investigations. It is your remit to produce a Security Assessment Report which will in turn be shared with the ICO. This security assessment must take into account any relevant security issues, including management and policy, physical and (of particular importance) digital security. The report should also include the results of a detailed security audit, highlighting priority issues and security vulnerabilities and risks, with recommended mitigations. The outcome of the investigation will also determine whether or not we should take disciplinary action against our IT Manager, who is now threatening legal action if we don't reinstate him immediately. Please therefore consider our organisation profile when making your recommendations.\n\n## Initial Steps \n\nPlease undertake the following steps in preparation for your report:\n\n* Decide on a security testing methodology and report structure that meets our security needs  \n\n* Make use of any software tools of your choosing to carry out the technical analysis\n\n* Copy your report into an expert report template suitable for court (in case of any pending litigation)\n"]'
+         Encoded: ["<h1>Security Audit Remit of Yorkshire Personal Health</h1>\n\n<h2>Background</h2>\n\n<p>On 25 May 2018, the General Data Protection Regulations 2016/679 (GDPR) came into force in the UK. The regulations have tightened up the rules on data protection and govern how Companies should handle sensitive personal data on behalf of its clients and employees. This legislation also gives the Information Commissioner&#39;s Office (a non-governmental organisation) the power to fine Companies who are in breach of the regulations. Financial penalties can now be enforced up to as much as 20 million Euros (or equivalent in sterling), or 4 percent of the total annual worldwide turnover in the preceding financial year (whichever is higher).</p>\n\n<h2>About us</h2>\n\n<p>We are Yorkshire Personal Health, an SME business.  We handle sensitive personal information on a daily basis and process this information under the new GDPR. We have a fairly high risk threshold, and a restricted budget.  We are aimin...
+         (Displaying 1000/4350 length output)
+        Module added: Markdown to HTML Encoder (modules/encoders/html/markdown_to_html)
+
+    </encoder>
+
+     Filtered to modules matching: {"module_path"=>["services/unix/http/parameterised_website"]} ~= (n=1)
+     Selecting module: Random Parameterised Website (modules/services/unix/http/parameterised_website)
+     Receiving datastores: {"organisation"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>""}], "theme"=>[{"variablename"=>"theme", "access"=>"all", "access_json"=>""}]}
+
+      <input into="organisation">
+        <datastore>organisation</datastore>
+
+             Adding (all) organisation to organisation: ["{\"business_name\":\"Yorkshire Personal Health\",\"business_motto\":\"We'll have you as good as new in no time.\",\"business_address\":\"159 Longlands St, Bradford BD1 2PX\",\"domain\":\"yorkspersonalhealth.co.uk\",\"office_telephone\":\"01274 200700\",\"office_email\":\"info@yorkspersonalhealth.co.uk\",\"industry\":\"Medical Services\",\"manager\":{\"name\":\"Angela Dickinson\",\"address\":\"76103 Joshuah Path, Port Magali, Cambridgeshire, R1 1TR\",\"phone_number\":\"01274 200700 ext 100\",\"email_address\":\"a.dickinson@yorkspersonalhealth.co.uk\",\"username\":\"dickinson_a\",\"password\":\"\"},\"employees\":[{\"name\":\"Abdullah Carroll\",\"address\":\"Office A, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 101\",\"email_address\":\"a.carroll@yorkspersonalhealth.co.uk\",\"username\":\"carroll_a\",\"password\":\"\"},{\"name\":\"Annie Williamson\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 103\",\"email_address\":\"a.williamson@yorkspersonalhealth.co.uk\",\"username\":\"williamson_a\",\"password\":\"\"},{\"name\":\"Jammie Marks\",\"address\":\"Office B, 160 Longlands St, Bradford BD1 2PX\",\"phone_number\":\"01274 200700 ext 110\",\"email_address\":\"j.marks@yorkspersonalhealth.co.uk\",\"username\":\"marks_j\",\"password\":\"\"}],\"product_name\":\"Check up\",\"intro_paragraph\":[\"A health assessment is more than a check up. It can be the start of a journey towards better health.\",\"We use our health expertise to build a clear picture of where your current health is and identify potential future health risks. After your health assessment, we’ll give you guidance and support to help you become healthier today and in the future.\"]}"]
+
+
+      <input into="theme">
+        <datastore>theme</datastore>
+
+            Adding (all) theme to theme: ["sketchy.min.css"]
+
+      </input>
+
+      <input into="host_acceptable_use_policy">
+        <value>true</value>
+           Scenario includes input for host_acceptable_use_policy (not using default values)
+
+
+      <input into="organisation">
+        <datastore>organisation</datastore>
+
+            Scenario includes input for organisation (not using default values)
+
+     <input into="theme">
+       <datastore>theme</datastore>
+
+            Scenario includes input for theme (not using default values)
+
+     <input into="security_audit"> [... defined above ...]
+
+            Scenario includes input for security_audit (not using default values)
+
+
+    ### DEFAULT INPUTS FOR: vulnerability/parameterised_website
+
+      <default_input into="port">
+        <value>80</value>
+             Using defaults for port
+             Using default literal input ["80"]
+
+      <default_input into="strings_to_leak">
+        <generator type="message_generator"/>
+        <generator type="message_generator"/>
+
+             Using defaults for strings_to_leak
+             Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["message_generator"]} to:vulnerabilitydefaultinput.strings_to_leak id:servicedefaultinput2generator2modulesservicesunixhttpparameterisedwebsite received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {}), SECGEN_MODULE(type:generator path: attr:{"type"=>["message_generator"]} to:vulnerabilitydefaultinput.strings_to_leak id:servicedefaultinput2generator1modulesservicesunixhttpparameterisedwebsite received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+             Filtered to modules matching: {"type"=>["message_generator"]} ~= (n=3)
+             Selecting module: Business Motto Generator (modules/generators/content/business_motto)
+             Module includes local calculation of output. Processing...
+             Running: ruby modules/generators/content/business_motto/secgen_local/local.rb --b64  ...
+            Business Motto Generator
+            Reading args from STDIN
+             Generating...
+             Generated: ["Public-key stable parallelism"]...
+            Module added: Business Motto Generator (modules/generators/content/business_motto)
+             Filtered to modules matching: {"type"=>["message_generator"]} ~= (n=3)
+             Selecting module: Business Motto Generator (modules/generators/content/business_motto)
+             Module includes local calculation of output. Processing...
+             Running: ruby modules/generators/content/business_motto/secgen_local/local.rb --b64  ...
+            Business Motto Generator
+            Reading args from STDIN
+             Generating...
+             Generated: ["Synergized multimedia archive"]...
+            Module added: Business Motto Generator (modules/generators/content/business_motto)
+
+      <default_input into="main_page_paragraph_content">
+        <generator type="text_paragraph"/>
+
+             Using defaults for main_page_paragraph_content
+             Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["text_paragraph"]} to:vulnerabilitydefaultinput.main_page_paragraph_content id:servicedefaultinput4generatormodulesservicesunixhttpparameterisedwebsite received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+             Filtered to modules matching: {"type"=>["text_paragraph"]} ~= (n=2)
+             Selecting module: Lipsum Paragraph Generator (modules/generators/content/lipsum_paragraph)
+             Using defaults for paragraph_count
+             Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["number_range"]} to:vulnerabilitydefaultinput.paragraph_count id:generatordefaultinputgeneratormodulesgeneratorscontentlipsumparagraph received_inputs:{"lower_bound"=>["3"], "upper_bound"=>["5"]} default_inputs_selectors: {} default_inputs_literals: {})]
+             Filtered to modules matching: {"type"=>["number_range"]} ~= (n=1)
+             Selecting module: Random from Range Encoder (modules/generators/random/random_from_range)
+             Scenario includes input for lower_bound (not using default values)
+             Scenario includes input for upper_bound (not using default values)
+             Module includes local calculation of output. Processing...
+            ["3"]
+            ["5"]
+             Running: ruby modules/generators/random/random_from_range/secgen_local/local.rb --b64 --lower_bound=Mw== --upper_bound=NQ==  ...
+            Random Range Selector
+            Reading args from STDIN
+             Encoding 'random number from range(3 .. 5)'
+             Encoded: ["3"]...
+            Module added: Random from Range Encoder (modules/generators/random/random_from_range)
+             Module includes local calculation of output. Processing...
+            ["3"]
+             Running: ruby modules/generators/content/lipsum_paragraph/secgen_local/local.rb --b64 --paragraph_count=Mw==  ...
+            Lipsum Paragraph Generator
+            Reading args from STDIN
+             Encoding 'paragraph_count: 3'
+             Encoded: ["Odit ab tenetur. Repellat eum labore. Qui consectetur architecto.Temporibus minus et. Et maxime inventore. Maxime qui doloribus.Qui nobis rerum. Qui dolor sed. Dolorum vel id."]...
+            Module added: Lipsum Paragraph Generator (modules/generators/content/lipsum_paragraph)
+
+      </default_input>
+
+      <requires>
+        <module_path>.*apache</module_path>
+        <type>httpd</type>
+
+             Resolving dependencies for Random Parameterised Website (modules/services/unix/http/parameterised_website)
+             Resolving dependency: {"module_path"=>[".*apache"], "type"=>["httpd"]}
+             Adding required modules...
+             Filtered to modules matching: {"module_path"=>[".*apache"], "type"=>["httpd"]} ~= (n=2)
+             Excluding incompatible module: modules/services/unix/http/apache_stretch_compatible/apache (conflicts with modules/bases/debian_wheezy_server)
+             Selecting module: Apache HTTP Server - Wheezy Compatible (modules/services/unix/http/apache_wheezy_compatible/apache)
+             Resolving dependencies for Apache HTTP Server - Wheezy Compatible (modules/services/unix/http/apache_wheezy_compatible/apache)
+             Resolving dependency: {"type"=>["update"]}
+             Adding required modules...
+             Filtered to modules matching: {"type"=>["update"]} ~= (n=3)
+             Excluding incompatible module: modules/utilities/windows/update/windows_update (conflicts with modules/bases/debian_wheezy_server)
+             Excluding incompatible module: modules/utilities/windows/win_netcat (conflicts with modules/bases/debian_wheezy_server)
+             Selecting module: Unix update repository (modules/utilities/unix/update/unix_update)
+            Module added: Unix update repository (modules/utilities/unix/update/unix_update)
+            Module added: Apache HTTP Server - Wheezy Compatible (modules/services/unix/http/apache_wheezy_compatible/apache)
+
+      </requires>
+
+  Module added: Random Parameterised Website (modules/services/unix/http/parameterised_website)
+
+</service>
+
+
+### Insert 3 accounts into parameterised_accounts, with usernames provided through datastores
+<utility module_path=".*parameterised_accounts">
+    <input into="accounts">
+
+
+ Filtered to modules matching: {"type"=>["account"]} ~= (n=1)
+ Selecting module: Account Generator (modules/generators/structured_content/account)
+ Receiving datastores: {"username"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>"['manager']['username']"}]}
+ No element specified, e.g. access="0", for access_json="['manager']['username']": using (0)
+ Adding (0) organisation to username: dickinson_a
+ Using defaults for super_user
+ Using default literal input ["false"]
+ Scenario includes input for username (not using default values)
+ Using defaults for password
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["password_generator"]} to:vulnerabilitydefaultinput.password id:generatordefaultinput2generatormodulesgeneratorsstructuredcontentaccount received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["password_generator"]} ~= (n=5)
+ Selecting module: Random Medium Password Generator (modules/generators/passwords/random_medium_password)
+ Module includes local calculation of output. Processing...
+ Running: ruby modules/generators/passwords/random_medium_password/secgen_local/local.rb --b64  ...
+Random Medium Password Generator
+Reading args from STDIN
+ Generating...
+ Generated: ["super12"]...
+Module added: Random Medium Password Generator (modules/generators/passwords/random_medium_password)
+ Using defaults for strings_to_leak
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["message_generator"]} to:vulnerabilitydefaultinput.strings_to_leak id:generatordefaultinput5generatormodulesgeneratorsstructuredcontentaccount received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["message_generator"]} ~= (n=3)
+ Selecting module: Random ASCII Art Generator (modules/generators/messages/random_ascii_art)
+ Module includes local calculation of output. Processing...
+ Running: ruby modules/generators/messages/random_ascii_art/secgen_local/local.rb --b64  ...
+Random Ascii Art Image Generator
+Reading args from STDIN
+ Encoding 'Random ascii image generator: /home/thomashaw/git/SecGen/lib/resources/ascii_art/computers/server'
+ Encoded: ["  ,=====================.\n  |                     |\n  |.-------------------.|\n  ||[ _ o     . .  _ ]_||\n  |`-------------------'|\n  ||                   ||\n  |`-------------------'|\n  ||                   ||\n  |`-------------------'|\n  ||                   ||\n  |`-----------------_-'|\n  ||[=========]| o  (@) |\n  |`---------=='/u\\ --- |\n  |------_--------------|\n  | (/) (_)           []|\n  |---==--==----------==|\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||dxm|||\n  |||||||||||||||||||||||\n  |=====================|\n .'                     `.\n\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\n"]...
+Module added: Random ASCII Art Generator (modules/generators/messages/random_ascii_art)
+ Using defaults for leaked_filenames
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["filename_generator"]} to:vulnerabilitydefaultinput.leaked_filenames id:generatordefaultinput6generatormodulesgeneratorsstructuredcontentaccount received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["filename_generator"]} ~= (n=1)
+ Selecting module: Random Filename Generator (modules/generators/filenames/random_filename)
+ Module includes local calculation of output. Processing...
+ Running: ruby modules/generators/filenames/random_filename/secgen_local/local.rb --b64  ...
+Random Filename Generator
+Reading args from STDIN
+ Encoding 'No args'
+ Encoded: ["saepe.numbers"]...
+Module added: Random Filename Generator (modules/generators/filenames/random_filename)
+ Module includes local calculation of output. Processing...
+["dickinson_a"]
+["false"]
+["super12"]
+["  ,=====================.\n  |                     |\n  |.-------------------.|\n  ||[ _ o     . .  _ ]_||\n  |`-------------------'|\n  ||                   ||\n  |`-------------------'|\n  ||                   ||\n  |`-------------------'|\n  ||                   ||\n  |`-----------------_-'|\n  ||[=========]| o  (@) |\n  |`---------=='/u\\ --- |\n  |------_--------------|\n  | (/) (_)           []|\n  |---==--==----------==|\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||dxm|||\n  |||||||||||||||||||||||\n  |=====================|\n .'                     `.\n\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\n"]
+["saepe.numbers"]
+ Running: ruby modules/generators/structured_content/account/secgen_local/local.rb --b64 --username=ZGlja2luc29uX2E= --super_user=ZmFsc2U= --password=c3VwZXIxMg== --strings_to_leak=ICAsPT09PT09PT09PT09PT09PT09PT09LgogIHwgICAgICAgICAgICAgICAgICAgICB8CiAgfC4tLS0tLS0tLS0tLS0tLS0tLS0tLnw ...
+Account Generator / Builder
+Reading args from STDIN
+ Encoding 'username: dickinson_a
+           password: super12
+           groups: []
+           super_user: false
+           strings_to_leak: ["  ,=====================.\n  |                     |\n  |.-------------------.|\n  ||[ _ o     . .  _ ]_||\n  |`-------------------'|\n  ||                   ||\n  |`-------------------'|\n  ||                   ||\n  |`-------------------'|\n  ||                   ||\n  |`-----------------_-'|\n  ||[=========]| o  (@) |\n  |`---------=='/u\\ --- |\n  |------_--------------|\n  | (/) (_)           []|\n  |---==--==----------==|\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||||||||\n  |||||||||||||||||dxm|||\n  |||||||||||||||||||||||\n  |=====================|\n .'                     `.\n\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\n"]
+           leaked_filenames: ["saepe.numbers"]
+           data_to_leak: []'
+ Encoded: ["{\"username\":\"dickinson_a\",\"password\":\"super12\",\"groups\":[],\"super_user\":\"false\",\"strings_to_leak\":[\"  ,=====================.\\n  |                     |\\n  |.-------------------.|\\n  ||[ _ o     . .  _ ]_||\\n  |`-------------------'|\\n  ||                   ||\\n  |`-------------------'|\\n  ||                   ||\\n  |`-------------------'|\\n  ||                   ||\\n  |`-----------------_-'|\\n  ||[=========]| o  (@) |\\n  |`---------=='/u\\\\ --- |\\n  |------_--------------|\\n  | (/) (_)           []|\\n  |---==--==----------==|\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||||||||\\n  |||||||||||||||||dxm|||\\n  |||||||||||||||||||||||\\n  |=====================|\\n .'                     `.\\n\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\...
+ (Displaying 1000/1113 length output)
+Module added: Account Generator (modules/generators/structured_content/account)
+ Filtered to modules matching: {"type"=>["account"]} ~= (n=1)
+ Selecting module: Account Generator (modules/generators/structured_content/account)
+ Receiving datastores: {"username"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>"['employees'][0]['username']"}]}
+ No element specified, e.g. access="0", for access_json="['employees'][0]['username']": using (0)
+ Adding (0) organisation to username: carroll_a
+ Using defaults for super_user
+ Using default literal input ["false"]
+ Scenario includes input for username (not using default values)
+ Using defaults for password
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["password_generator"]} to:vulnerabilitydefaultinput.password id:generatordefaultinput2generatormodulesgeneratorsstructuredcontentaccount received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["password_generator"]} ~= (n=5)
+ Selecting module: Custom List Generator (modules/generators/passwords/custom_list_password)
+ Using defaults for list_name
+ Using default literal input ["jtrpassword.lst"]
+ Module includes local calculation of output. Processing...
+["jtrpassword.lst"]
+ Running: ruby modules/generators/passwords/custom_list_password/secgen_local/local.rb --b64 --list_name=anRycGFzc3dvcmQubHN0  ...
+Custom List Password Generator
+Reading args from STDIN
+ Generating...
+ Generated: ["bradley"]...
+Module added: Custom List Generator (modules/generators/passwords/custom_list_password)
+ Using defaults for strings_to_leak
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["message_generator"]} to:vulnerabilitydefaultinput.strings_to_leak id:generatordefaultinput5generatormodulesgeneratorsstructuredcontentaccount received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["message_generator"]} ~= (n=3)
+ Selecting module: Business Motto Generator (modules/generators/content/business_motto)
+ Module includes local calculation of output. Processing...
+ Running: ruby modules/generators/content/business_motto/secgen_local/local.rb --b64  ...
+Business Motto Generator
+Reading args from STDIN
+ Generating...
+ Generated: ["Organic attitude-oriented infrastructure"]...
+Module added: Business Motto Generator (modules/generators/content/business_motto)
+ Using defaults for leaked_filenames
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["filename_generator"]} to:vulnerabilitydefaultinput.leaked_filenames id:generatordefaultinput6generatormodulesgeneratorsstructuredcontentaccount received_inputs:{} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["filename_generator"]} ~= (n=1)
+ Selecting module: Random Filename Generator (modules/generators/filenames/random_filename)
+ Module includes local calculation of output. Processing...
+ Running: ruby modules/generators/filenames/random_filename/secgen_local/local.rb --b64  ...
+Random Filename Generator
+Reading args from STDIN
+ Encoding 'No args'
+ Encoded: ["id.png"]...
+Module added: Random Filename Generator (modules/generators/filenames/random_filename)
+ Module includes local calculation of output. Processing...
+["carroll_a"]
+["false"]
+["bradley"]
+["Organic attitude-oriented infrastructure"]
+["id.png"]
+ Running: ruby modules/generators/structured_content/account/secgen_local/local.rb --b64 --username=Y2Fycm9sbF9h --super_user=ZmFsc2U= --password=YnJhZGxleQ== --strings_to_leak=T3JnYW5pYyBhdHRpdHVkZS1vcmllbnRlZCBpbmZyYXN0cnVjdHVyZQ== --leaked_filenames=aWQucG5n  ...
+Account Generator / Builder
+Reading args from STDIN
+ Encoding 'username: carroll_a
+           password: bradley
+           groups: []
+           super_user: false
+           strings_to_leak: ["Organic attitude-oriented infrastructure"]
+           leaked_filenames: ["id.png"]
+           data_to_leak: []'
+ Encoded: ["{\"username\":\"carroll_a\",\"password\":\"bradley\",\"groups\":[],\"super_user\":\"false\",\"strings_to_leak\":[\"Organic attitude-oriented infrastructure\"],\"leaked_filenames\":[\"id.png\"],\"data_to_leak\":[]}"]...
+Module added: Account Generator (modules/generators/structured_content/account)
+ Filtered to modules matching: {"type"=>["account"]} ~= (n=1)
+ Selecting module: Account Generator (modules/generators/structured_content/account)
+ Receiving datastores: {"username"=>[{"variablename"=>"organisation", "access"=>"all", "access_json"=>"['employees'][1]['username']"}]}
+ No element specified, e.g. access="0", for access_json="['employees'][1]['username']": using (0)
+ Adding (0) organisation to username: williamson_a
+ Using defaults for super_user
+ Using default literal input ["false"]
+ Scenario includes input for username (not using default values)
+ Using defaults for password
+ Using default module input [SECGEN_MODULE(type:generator path: attr:{"type"=>["password_generator"]} to:vulnerabilitydefaultinput.password id:generatordefaultinput2generatormodulesgeneratorsstructuredcontentaccount received_inputs:{"list_name"=>["jtrpassword.lst"]} default_inputs_selectors: {} default_inputs_literals: {})]
+ Filtered to modules matching: {"type"=>["password_generator"]} ~= (n=5)
+ Selecting module: Random Weak Password Generator (modules/generators/passwords/random_weak_password)
+ Module includes local calculation of output. Processing...
+["jtrpassword.lst"]
+ Running: ruby modules/generators/passwords/random_weak_password/secgen_local/local.rb --b64 --list_name=anRycGFzc3dvcmQubHN0  ...
+Random Weak Password Generator
+Reading args from STDIN
+modules/generators/passwords/random_weak_password/secgen_local/local.rb: unrecognized option `--list_name=anRycGFzc3dvcmQubHN0'
+/home/thomashaw/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/getoptlong.rb:395:in `set_error': unrecognized option `--list_name=anRycGFzc3dvcmQubHN0' (GetoptLong::InvalidOption)
+	from /home/thomashaw/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/getoptlong.rb:502:in `get'
+	from /home/thomashaw/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/getoptlong.rb:603:in `block in each'
+	from /home/thomashaw/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/getoptlong.rb:602:in `loop'
+	from /home/thomashaw/.rvm/rubies/ruby-2.3.3/lib/ruby/2.3.0/getoptlong.rb:602:in `each'
+	from /home/thomashaw/git/SecGen/lib/objects/local_string_generator.rb:51:in `read_arguments'
+	from /home/thomashaw/git/SecGen/lib/objects/local_string_generator.rb:101:in `run'
+	from modules/generators/passwords/random_weak_password/secgen_local/local.rb:25:in `<main>'
+Module failed to run (bundle exec ruby modules/generators/passwords/random_weak_password/secgen_local/local.rb)
+Failed to resolve scenario.
+During scenario generation 3 module conflict(s) occured...
+Re-attempting to resolve scenario (#1)...

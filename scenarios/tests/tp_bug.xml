@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+  <system>
+    <system_name>testing</system_name>
+    <base platform="linux" distro="Debian 7.8" type="server"/>
+
+    <input into_datastore="IP_addresses">
+      <value>172.17.0.0</value>
+    </input>
+
+    <!--
+
+      NOTES:
+
+      * Only seems to happen when the custom_list_password is included before another random password generator that _doesnt_ have the 'list_name' parameter.
+      * Doesn't happen when the custom_list_password generator is defined as a scenario <input>, only when it's pulled in via the <default_inputs>
+      * Doesn't happen if you define it explicitly in the default inputs with a default_input of a random password following it, i.e:
+          <default_input into="password">
+            <generator module_path=".*custom_list_password"/>
+            <generator type="password_generator"/>
+          </default_input>
+        In this above example, it will not fail on the second password generator of the first account generator's default inputeven if it's not a list password generator.
+        It does fail for the second account generator though. This feels like some data is being left populated on subsequent account generators
+      * It still happens if we split the account generators out into separate modules (i.e. 1 parameterised_account with 1 account generator, then a second parameterised_account with a second account generator)
+
+      TODO:
+
+      * Try include it explicitly as a default input, then with another password generator as a default input too straight afterwards
+
+
+      -->
+
+
+    <utility module_path=".*parameterised_accounts">
+      <input into="accounts" >
+        <generator type="account">
+          <input into="username">
+            <value>user1</value>
+          </input>
+        </generator>
+        <generator type="account">
+          <input into="username">
+            <value>user2</value>
+          </input>
+        </generator>
+        <generator type="account">
+          <input into="username">
+            <value>user3</value>
+          </input>
+        </generator>
+        <generator type="account">
+          <input into="username">
+            <value>user3</value>
+          </input>
+        </generator>
+        <generator type="account">
+          <input into="username">
+            <value>user3</value>
+          </input>
+        </generator>
+        <generator type="account">
+          <input into="username">
+            <value>user3</value>
+          </input>
+        </generator>
+        <generator type="account">
+          <input into="username">
+            <value>user3</value>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+
+    <utility module_path=".*parameterised_accounts">
+      <input into="accounts" >
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>

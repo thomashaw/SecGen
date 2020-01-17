@@ -22,22 +22,10 @@
   <read_fact>leaked_filenames</read_fact>
   <read_fact>data_to_leak</read_fact>
 
-  <default_input into="username">
-    <generator type="username_generator"/>
-  </default_input>
+  <!--TODO: Revert the deletion of the default inputs before pushing the fix-->
+
   <default_input into="password">
     <generator type="password_generator"/>
-  </default_input>
-  <default_input into="groups">
-  </default_input>
-  <default_input into="super_user">
-    <value>false</value>
-  </default_input>
-  <default_input into="strings_to_leak">
-    <generator type="message_generator"/>
-  </default_input>
-  <default_input into="leaked_filenames">
-    <generator type="filename_generator"/>
   </default_input>
 
   <output_type>account</output_type>
