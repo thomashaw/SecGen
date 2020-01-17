@@ -99,7 +99,7 @@ class System
   def replace_datastore_ips(options)
     begin
       if options[:ip_ranges] and $datastore['IP_addresses'] and !$datastore['replaced_ranges']
-        unused_opts_ranges = options[:ip_ranges].clone
+        unused_opts_ranges = duplicate(options[:ip_ranges])
         option_range_map = {} # k = ds_range, v = opts_range
         new_ip_addresses = []
 
@@ -154,7 +154,7 @@ class System
   def select_modules(module_type, required_attributes, available_modules, previously_selected_modules, unique_id, write_outputs_to, write_to_module_with_id, received_inputs, default_inputs_literals, write_to_datastore, received_datastores, write_module_path_to_datastore)
     default_modules_to_add = []
 
-    search_list = available_modules.clone
+    search_list = duplicate(available_modules)
     # shuffle order of available vulnerabilities
     search_list.shuffle!
 
@@ -192,7 +192,7 @@ class System
       Print.err 'Could not find a matching module. Please check the scenario specification'
     else
       # use from the top of the randomised list
-      selected = search_list[0].clone
+      selected = duplicate(search_list[0])
       Print.verbose "Selecting module: #{selected.printable_name}"
 
       # propagate module relationships established when the filter was created
