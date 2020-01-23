@@ -465,4 +465,14 @@ class System
     modules_to_add
   end
 
+  def has_module(module_name)
+    has_module = false
+    module_selections.each do |mod|
+      if mod.module_path_end == module_name
+        has_module = true
+      end
+    end
+    has_module
+  end
+
 end
