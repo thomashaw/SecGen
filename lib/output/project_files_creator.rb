@@ -112,9 +112,9 @@ class ProjectFilesCreator
 
       # Create auto-grading config files
 
-      # auditbeat_rules_file = "#{path}/modules/auditbeat/files/secgen_rules_file.yaml"   -- TODO: Add me back in once the rules look correct
+      auditbeat_rules_file = "#{path}/modules/auditbeat/files/secgen_rules_file.yaml"   # TODO: Add me back in once the rules look correct
       @rule_type = 'auditbeat'
-      auditbeat_rules_file = "#{path}/auditbeat_rules_file.yaml"
+      # auditbeat_rules_file = "#{path}/auditbeat_rules_file.yaml"
       Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
       template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
 
