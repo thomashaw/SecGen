@@ -91,7 +91,7 @@
       </input>
     </utility>
 
-    <service module_path=".*routing_layer.*"/>
+    <!--<service module_path=".*routing_layer.*"/>-->
 
     <utility module_path=".*elastalert.*">
       <input into="elasticsearch_ip">
@@ -161,22 +161,7 @@
       </input>
     </utility>
 
-    <!-- Create a file to audit reads of... -->
-    <utility module_path=".*leak_to_file">
-      <input into="leaked_filename">
-        <value>test</value>
-      </input>
-      <input into="base64_file">
-        <encoder module_path=".*base64">
-          <input into="strings_to_encode">
-            <value>Read me!</value>
-          </input>
-        </encoder>
-      </input>
-      <input into="storage_directory">
-        <value>/root</value>
-      </input>
-    </utility>
+    <vulnerability module_path=".*symlinks"/>
 
     <network type="private_network">
       <input into="IP_address">
@@ -191,68 +176,68 @@
     </build>
   </system>
 
-  <system>
-    <system_name>client_2</system_name>
-    <base distro="Debian 9" type="desktop"/>
-    <utility module_path=".*handy_cli_tools.*"/>
+  <!--<system>-->
+    <!--<system_name>client_2</system_name>-->
+    <!--<base distro="Debian 9" type="desktop"/>-->
+    <!--<utility module_path=".*handy_cli_tools.*"/>-->
 
-    <utility module_path=".*filebeat.*">
-      <input into="logstash_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="logstash_port">
-        <datastore access="0">logstash_port</datastore>
-      </input>
-    </utility>
+    <!--<utility module_path=".*filebeat.*">-->
+      <!--<input into="logstash_ip">-->
+        <!--<datastore access="0">IP_addresses</datastore>-->
+      <!--</input>-->
+      <!--<input into="logstash_port">-->
+        <!--<datastore access="0">logstash_port</datastore>-->
+      <!--</input>-->
+    <!--</utility>-->
 
-    <utility module_path=".*auditbeat.*">
-      <input into="logstash_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="logstash_port">
-        <datastore access="0">logstash_port</datastore>
-      </input>
-    </utility>
+    <!--<utility module_path=".*auditbeat.*">-->
+      <!--<input into="logstash_ip">-->
+        <!--<datastore access="0">IP_addresses</datastore>-->
+      <!--</input>-->
+      <!--<input into="logstash_port">-->
+        <!--<datastore access="0">logstash_port</datastore>-->
+      <!--</input>-->
+    <!--</utility>-->
 
-    <utility module_path=".*wazuh.*">
-      <input into="component">
-        <value>client</value>
-      </input>
-      <input into="kibana_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="agent_name">
-        <value>client_2</value>
-      </input>
-    </utility>
+    <!--<utility module_path=".*wazuh.*">-->
+      <!--<input into="component">-->
+        <!--<value>client</value>-->
+      <!--</input>-->
+      <!--<input into="kibana_ip">-->
+        <!--<datastore access="0">IP_addresses</datastore>-->
+      <!--</input>-->
+      <!--<input into="agent_name">-->
+        <!--<value>client_2</value>-->
+      <!--</input>-->
+    <!--</utility>-->
 
-    <!-- Create a file to audit reads of... -->
-    <utility module_path=".*leak_to_file">
-      <input into="leaked_filename">
-        <value>test</value>
-      </input>
-      <input into="base64_file">
-        <encoder module_path=".*base64">
-          <input into="strings_to_encode">
-            <value>Read me!</value>
-          </input>
-        </encoder>
-      </input>
-      <input into="storage_directory">
-        <value>/root</value>
-      </input>
-    </utility>
+    <!--&lt;!&ndash; Create a file to audit reads of... &ndash;&gt;-->
+    <!--<utility module_path=".*leak_to_file">-->
+      <!--<input into="leaked_filename">-->
+        <!--<value>test</value>-->
+      <!--</input>-->
+      <!--<input into="base64_file">-->
+        <!--<encoder module_path=".*base64">-->
+          <!--<input into="strings_to_encode">-->
+            <!--<value>Read me!</value>-->
+          <!--</input>-->
+        <!--</encoder>-->
+      <!--</input>-->
+      <!--<input into="storage_directory">-->
+        <!--<value>/root</value>-->
+      <!--</input>-->
+    <!--</utility>-->
 
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-    </network>
+    <!--<network type="private_network">-->
+      <!--<input into="IP_address">-->
+        <!--<datastore access="2">IP_addresses</datastore>-->
+      <!--</input>-->
+    <!--</network>-->
 
-    <build type="cleanup">
-      <input into="root_password">
-        <value>test</value>
-      </input>
-    </build>
-  </system>
+    <!--<build type="cleanup">-->
+      <!--<input into="root_password">-->
+        <!--<value>test</value>-->
+      <!--</input>-->
+    <!--</build>-->
+  <!--</system>-->
 </scenario>
