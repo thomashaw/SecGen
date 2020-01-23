@@ -10,6 +10,10 @@ class Rules
       mod.goals.keys.each do |key|
         case key
         when 'read_file'
+          # read_files = mod.goals[key]
+          # read_files.each do |path|
+          #   rules << specific_elastalert_rule(path, 'r')
+          # end
         when 'write_file'
         when 'access_account'
         else
@@ -49,4 +53,9 @@ class Rules
     key = base_path.gsub(/[^A-Za-z0-9\-\_]/, '')
     "-w #{base_path} -p -#{r_w} -k #{key}"
   end
+
+  def self.specific_elastalert_rule(path, r_w)
+
+  end
+
 end
