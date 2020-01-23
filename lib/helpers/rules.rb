@@ -10,12 +10,14 @@ class Rules
       mod.goals.keys.each do |key|
         case key
         when 'read_file'
-          # read_files = mod.goals[key]
-          # read_files.each do |path|
-          #   rules << specific_elastalert_rule(path, 'r')
-          # end
-        when 'write_file'
+          read_files = mod.goals[key]
+          read_files.each do |path|
+            rules << specific_elastalert_rule(path, 'r')
+          end
+        when 'modify_file'
         when 'access_account'
+        when 'service_down'
+        when 'system_down'
         else
         end
       end
@@ -28,13 +30,15 @@ class Rules
           read_files.each do |path|
             rules << greedy_auditbeat_rule(path, 'r')
           end
-        when 'write_file'
+        when 'modify_file'
           # TODO: do something
           read_files = mod.goals[key]
           read_files.each do |path|
             rules << greedy_auditbeat_rule(path, 'w')
           end
         when 'access_account'
+        when 'service_down'
+        when 'system_down'
         else
           Print.err('Unknown goal type')
           raise
