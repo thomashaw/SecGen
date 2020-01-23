@@ -111,18 +111,19 @@ class ProjectFilesCreator
       end
 
       # Create auto-grading config files
+      if system.has_module('auditbeat')
+        auditbeat_rules_file = "#{path}/modules/auditbeat/files/secgen_rules_file.yaml"
+        @rule_type = 'auditbeat'
+        Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
+        template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
+      end
 
-      auditbeat_rules_file = "#{path}/modules/auditbeat/files/secgen_rules_file.yaml"   # TODO: Add me back in once the rules look correct
-      @rule_type = 'auditbeat'
-      # auditbeat_rules_file = "#{path}/auditbeat_rules_file.yaml"
-      Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
-      template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
-
-      @rule_type = 'elastalert'
-      elastalert_rules_file = "#{path}/elastalert_rules_file.yaml"
-      Print.std "Creating server side alerting rules: #{auditbeat_rules_file}"
-      template_based_file_write(GRADING_RULES_TEMPLATE_FILE, elastalert_rules_file)
-
+      if system.has_module('elastalert')
+        @rule_type = 'elastalert'
+        elastalert_rules_file = "#{path}/modules/elastalert/files/rules/elastalert_rules_file.yaml"
+        Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
+        template_based_file_write(GRADING_RULES_TEMPLATE_FILE, elastalert_rules_file)
+      end
     end
 
     # Create environments/production/environment.conf - Required in Puppet 4+
