@@ -50,7 +50,7 @@
 class filebeat (
   String  $package_ensure                                             = $filebeat::params::package_ensure,
   Boolean $manage_repo                                                = $filebeat::params::manage_repo,
-  Enum['5','6','7'] $major_version                                        = $filebeat::params::major_version,
+  Enum['5','6'] $major_version                                        = $filebeat::params::major_version,
   Variant[Boolean, Enum['stopped', 'running']] $service_ensure        = $filebeat::params::service_ensure,
   Boolean $service_enable                                             = $filebeat::params::service_enable,
   Optional[String]  $service_provider                                 = $filebeat::params::service_provider,
