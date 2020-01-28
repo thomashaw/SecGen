@@ -3,6 +3,13 @@ input {
     port => <%= @logstash_port-%>
   }
 }
+
+filter {
+  mutate {
+    add_field => { "combined_path" => "%{[process][cwd]}/%{[file][path]}" }
+  }
+}
+
 output {
   elasticsearch {
     hosts => "<%= @elasticsearch_ip-%>:<%= @elasticsearch_port-%>"

@@ -18,6 +18,7 @@ class Rules
         when 'access_account'
         when 'service_down'
         when 'system_down'
+        # TODO: Add exfiltration rule
         else
         end
       end
@@ -55,7 +56,7 @@ class Rules
   def self.greedy_auditbeat_rule(path, r_w)
     base_path = path.split('/')[0..1].join('/') + '/'
     key = base_path.gsub(/[^A-Za-z0-9\-\_]/, '')
-    "-w #{base_path} -p -#{r_w} -k #{key}"
+    "-w #{base_path} -p #{r_w} -k #{key}"
   end
 
   def self.specific_elastalert_rule(path, r_w)
