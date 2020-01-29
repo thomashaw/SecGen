@@ -39,6 +39,6 @@ class auditbeat::config {
     owner => 'root',
     group => 'root',
     mode => $auditbeat::config_file_mode,
-    source => 'puppet:///modules/auditbeat/custom_rules',
+    source => 'puppet:///modules/auditbeat/rules/custom_rules',
   }
 }
