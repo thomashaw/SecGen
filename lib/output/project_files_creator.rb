@@ -112,7 +112,7 @@ class ProjectFilesCreator
 
       # Create auto-grading config files
       if system.has_module('auditbeat')
-        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yaml"
+        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
         @rule_type = 'auditbeat'
         Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
         template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
@@ -120,7 +120,7 @@ class ProjectFilesCreator
 
       if system.has_module('elastalert')
         @rule_type = 'elastalert'
-        elastalert_rules_file = "#{path}/modules/elastalert/files/rules/elastalert_rules_file.yaml"
+        elastalert_rules_file = "#{path}/modules/elastalert/files/rules/elastalert_rules_file.yml"
         Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
         template_based_file_write(GRADING_RULES_TEMPLATE_FILE, elastalert_rules_file)
       end
