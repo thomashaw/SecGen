@@ -3,7 +3,7 @@ type: any
 index: auditbeat-*
 filter:
   - query_string:
-      query: "*root_test*"
+      query: "combined_path: \"*\\/home\\/vagrant\\/*testfile\""
 alert:
   - command
 command: ["/usr/bin/tee", "-a", "/root/alerts"]
