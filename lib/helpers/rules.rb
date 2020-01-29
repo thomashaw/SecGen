@@ -60,7 +60,25 @@ class Rules
   end
 
   def self.specific_elastalert_rule(path, r_w)
+    # TODO:  convert path into escaped path
+    # TODO: add AND read/write events into rule
+    # TODO: add AND some unique idenitifier for a user/vm (ip address or hostname are probably best)
+    "name: #{get_ea_rulename(path)}\n" +
+    "type: any\n" +
+    "index: auditbeat-*\n" +
+    "filter:\n" +
+    "  - query:\n" +
+    "    query_string:\n" +
+    '      query: "combined_path: \\"*\\\/home\\\/vagrant\\\/*testfile\\"\""' + "\n" +
+    "alert:\n" +
+    "  - command\n" +
+    "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
+    "pipe_match_json: true\n"
+  end
 
+  def self.get_ea_rulename(path)
+    # TODO: Make this unique by combining the path with unique identifier for the scenario (e.g. IP address or hostname)
+    return "example-rulename-#{rand(0..99999)}"
   end
 
 end
