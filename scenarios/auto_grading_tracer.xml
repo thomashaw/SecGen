@@ -145,7 +145,14 @@
 
     <vulnerability module_path=".*symlinks"/>
 
-    <utility module_path=".*iceweasel"/>
+    <utility module_path=".*iceweasel">
+      <input into="accounts">
+        <value>{"username":"vagrant","password":"asdf","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>true</value>
+      </input>
+    </utility>
 
     <network type="private_network">
       <input into="IP_address">
