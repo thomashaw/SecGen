@@ -145,6 +145,8 @@
 
     <vulnerability module_path=".*symlinks"/>
 
+    <utility module_path=".*iceweasel"/>
+
     <network type="private_network">
       <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
