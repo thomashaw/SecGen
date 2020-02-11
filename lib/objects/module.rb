@@ -1,6 +1,9 @@
 require_relative '../helpers/constants.rb'
+require_relative '../helpers/json_functions.rb'
+
 require 'digest/md5'
 require 'securerandom'
+require 'duplicate'
 
 class Module
   #Vulnerability attributes hash
@@ -191,4 +194,83 @@ class Module
     "#{self.attributes['name'].first} (#{self.module_path})"
   end
 
+  # Resolve the string interpolation for received inputs
+  # e.g. convert "/home#{accounts[0].username}/#{leaked_files}" into the correct string.
+  def resolve_received_inputs
+    received_inputs_to_hash
+    self.received_inputs.each do |input|
+
+      # Resolve the received inputs which contain #{}
+      input[1].each_with_index do |string, c|
+        if string.include?('#{') and string.include?('}')
+
+          # identify the indices of the #{ characters within the string
+          start_indices = string.enum_for(:scan,/#\{/).map { Regexp.last_match.begin(0) }
+
+          reference_string = "self.received_inputs"
+          start_indices.each_with_index do |index, counter|
+            rolling_index = index + 2  # we add 2 for the #{ characters
+            if counter > 0
+              rolling_index = reference_string.length + index + 2
+            end
+            string.insert(rolling_index, reference_string)
+          end
+
+          # TODO: Run through a regex whitelist just-in-case
+
+          # Then we interp
+          input[1][c] = eval("\"" + string + "\"")
+        end
+      end
+    end
+    received_inputs_to_json_str
+  end
+
+  def received_inputs_to_hash
+    self.received_inputs.each do |_, array|
+      array.each_with_index do |value, i|
+        if JSONFunctions.is_json?(value)
+          array[i] = JSON.parse(value)
+        end
+        # if value.is_a? Array
+        #   array[i] = nested_array_to_hash(value)
+        # end
+      end
+    end
+  end
+
+  # Recursively convert all array values to UTF-8 encoding
+  def nested_array_to_hash(value)
+    hash = []
+    value.map {|element|
+      if element.is_a? String
+        hash << JSON.parse(value)
+      elsif element.is_a? Array
+        nested_array_to_hash(element)
+      end
+    }
+    hash
+  end
+
+
+  def received_inputs_to_json_str
+    self.received_inputs.each do |_, array|
+      array.each_with_index do |value, i|
+        if value.is_a? Hash
+          array[i] = value.to_json
+        end
+      end
+    end
+  end
+
+  # Resolve the string interpolation for goals
+  # e.g. convert ["#{flag_path}"] into ["/etc/shadow", "/home/username/flag"]
+  def resolve_goals
+    puts 'break'
+    # this.goals.each do |_, vals|
+    #   vals.each do |val|
+    #
+    #   end
+    # end
+  end
 end

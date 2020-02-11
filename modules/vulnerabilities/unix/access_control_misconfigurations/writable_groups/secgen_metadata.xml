@@ -16,6 +16,11 @@
 
   <!--optional vulnerability details-->
   <difficulty>medium</difficulty>
+
+  <goals>
+    <modify_file>/etc/group</modify_file>
+  </goals>
+
   <cvss_base_score>6.6</cvss_base_score>
   <cvss_vector>AV:L/AC:M/Au:S/C:C/I:C/A:C</cvss_vector>
 

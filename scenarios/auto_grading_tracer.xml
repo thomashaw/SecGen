@@ -8,8 +8,17 @@
 <!-- Roadmap:
       1) Get Wazuh on a single host with agent and management component installed
       2) Split this out onto separate hosts
-      >> You are here <<
       3) Identify how to configure alerts
+      >> You are here <<
+      4) Automatically generate audit rules
+      5) Automatically generate alerting rules for:
+      5.1) Reading a file
+      5.2) Writing to a file
+      5.3) Is a system up?
+      5.4) Is a system down?
+      6) Add Datastores within modules (with default_input into_datastore="")
+      7) Apply goals within the Scenario
+
 -->
 
   <system>

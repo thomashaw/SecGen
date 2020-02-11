@@ -11,7 +11,14 @@
       <value>172.17.0.0</value>
     </input>
 
-    <utility module_path=".*git.*"/>
+    <vulnerability module_path=".*symlinks">
+      <input into="username">
+        <value>tom</value>
+      </input>
+    </vulnerability>
+
+
+    <utility module_path=".*elastalert"/>
 
     <network type="private_network">
       <input into="IP_address">
