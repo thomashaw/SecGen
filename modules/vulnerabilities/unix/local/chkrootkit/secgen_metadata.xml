@@ -17,6 +17,10 @@
   <platform>linux</platform>
   <difficulty>high</difficulty>
 
+  <goals>
+    <access_account>root</access_account>
+  </goals>
+
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
   <read_fact>cron_frequency</read_fact>

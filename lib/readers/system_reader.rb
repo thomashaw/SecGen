@@ -3,8 +3,9 @@ require 'digest'
 
 require_relative '../objects/system'
 require_relative '../objects/module'
+require_relative 'xml_reader.rb'
 
-class SystemReader
+class SystemReader < XMLReader
 
   # uses nokogiri to extract all system information from scenario.xml
   # This includes module filters, which are module objects that contain filters for selecting
@@ -12,15 +13,9 @@ class SystemReader
   # @return [Array] Array containing Systems objects
   def self.read_scenario(scenario_file)
     systems = []
-    Print.verbose "Reading scenario file: #{scenario_file}"
-    doc, xsd = nil
-    begin
-      doc = Nokogiri::XML(File.read(scenario_file))
-    rescue
-      Print.err "Failed to read scenario configuration file (#{scenario_file})"
-      exit
-    end
 
+    # Parse and validate the schema
+    doc = parse_doc(scenario_file, SCENARIO_SCHEMA_FILE, 'scenario')
     # validate scenario XML against schema
     begin
       xsd = Nokogiri::XML::Schema(File.open(SCENARIO_SCHEMA_FILE))
@@ -40,15 +35,12 @@ class SystemReader
 
     doc.xpath('/scenario/system').each_with_index do |system_node, system_index|
       module_selectors = []
-      system_attributes = {}
 
       system_name = system_node.at_xpath('system_name').text
       Print.verbose "system: #{system_name}"
 
       # system attributes, such as basebox selection
-      system_node.xpath('@*').each do |attr|
-        system_attributes["#{attr.name}"] = attr.text unless attr.text.nil? || attr.text == ''
-      end
+      system_attributes = read_attributes(system_node)
 
       # literal values to store directly in a datastore
       system_node.xpath('*[@into_datastore]/value').each do |value|

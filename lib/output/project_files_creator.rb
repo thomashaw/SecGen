@@ -31,7 +31,7 @@ class ProjectFilesCreator
     @scenario = scenario
     @time = Time.new.to_s
     @options = options
-    @scenario_networks = Hash.new { |h, k| h[k] = 1 }
+    @scenario_networks = Hash.new {|h, k| h[k] = 1}
     @option_range_map = {}
 
     # Packer builder type
@@ -45,13 +45,13 @@ class ProjectFilesCreator
     if File.exists? "#{@out_dir}/Vagrantfile" or File.exists? "#{@out_dir}/puppet"
       dest_dir = "#{@out_dir}/MOVED_#{Time.new.strftime("%Y%m%d_%H%M%S")}"
       Print.warn "Project already built to this directory -- moving last build to: #{dest_dir}"
-      Dir.glob( "#{@out_dir}/**/*" ).select { |f| File.file?( f ) }.each do |f|
+      Dir.glob("#{@out_dir}/**/*").select {|f| File.file?(f)}.each do |f|
         dest = "#{dest_dir}/#{f}"
-        FileUtils.mkdir_p( File.dirname( dest ) )
+        FileUtils.mkdir_p(File.dirname(dest))
         if f =~ /\.vagrant/
-          FileUtils.cp( f, dest )
+          FileUtils.cp(f, dest)
         else
-          FileUtils.mv( f, dest )
+          FileUtils.mv(f, dest)
         end
       end
     end
@@ -90,7 +90,7 @@ class ProjectFilesCreator
               if File.file? packerfile_path
                 Print.info "Would you like to use the packerfile to create the packerfile from the given url (y/n)"
                 # TODO: remove user interaction, this should be set via a config option
-                (Print.info "Exiting as vagrant needs the basebox to continue"; abort) unless ['y','yes'].include?(STDIN.gets.chomp.downcase)
+                (Print.info "Exiting as vagrant needs the basebox to continue"; abort) unless ['y', 'yes'].include?(STDIN.gets.chomp.downcase)
 
                 Print.std "Packerfile #{packerfile_path.split('/').last} found, building basebox #{url.split('/').last} via packer"
                 template_based_file_write(packerfile_path, packerfile_path.split(/.erb$/).first)
@@ -110,6 +110,7 @@ class ProjectFilesCreator
         end
       end
 
+      resolve_goal_strings(system)
       # Create auto-grading config files
       if system.has_module('auditbeat')
         auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
@@ -174,10 +175,10 @@ class ProjectFilesCreator
 
     # zip up the CTFd export
     begin
-      Zip::ZipFile.open(ctfdfile, Zip::ZipFile::CREATE) { |zipfile|
+      Zip::ZipFile.open(ctfdfile, Zip::ZipFile::CREATE) {|zipfile|
         zipfile.mkdir("db")
         ctfd_files.each do |ctfd_file_name, ctfd_file_content|
-          zipfile.get_output_stream("db/#{ctfd_file_name}") { |f|
+          zipfile.get_output_stream("db/#{ctfd_file_name}") {|f|
             f.print ctfd_file_content
           }
         end
@@ -201,6 +202,15 @@ class ProjectFilesCreator
 
     Print.std "VM(s) can be built using 'vagrant up' in #{@out_dir}"
 
+  end
+
+  # Goal string interpolation for the whole system
+  # prior to calling the rule generator multiple times
+  def resolve_goal_strings(system)
+    system.module_selections.each do |module_selection|
+      module_selection.resolve_received_inputs
+      module_selection.resolve_goals if (system.has_module('auditbeat') or system.has_module('elastalert'))
+    end
   end
 
 # @param [Object] template erb path
@@ -229,15 +239,15 @@ class ProjectFilesCreator
     if current_network.received_inputs.include? 'IP_address'
       ip_address = current_network.received_inputs['IP_address'].first
     elsif @options.has_key? :ip_ranges
-    # if we have options[:ip_ranges] we want to use those instead of the ip_range argument.
-    # Store the mappings of scenario_ip_ranges => @options[:ip_range]  in @option_range_map
+      # if we have options[:ip_ranges] we want to use those instead of the ip_range argument.
+      # Store the mappings of scenario_ip_ranges => @options[:ip_range]  in @option_range_map
       # Have we seen this scenario_ip_range before? If so, use the value we've assigned
       if @option_range_map.has_key? scenario_ip_range
         ip_range = @option_range_map[scenario_ip_range]
       else
         # Remove options_ips that have already been used
         options_ips = @options[:ip_ranges]
-        options_ips.delete_if { |ip| @option_range_map.has_value? ip }
+        options_ips.delete_if {|ip| @option_range_map.has_value? ip}
         @option_range_map[scenario_ip_range] = options_ips.first
         ip_range = options_ips.first
       end
@@ -262,14 +272,14 @@ class ProjectFilesCreator
     split_ip.join('.')
   end
 
-  # Replace 'network' with 'snoop' where the system name contains snoop
+# Replace 'network' with 'snoop' where the system name contains snoop
   def get_ovirt_network_name(system_name, network_name)
     split_name = network_name.split('-')
     split_name[1] = 'snoop' if system_name.include? 'snoop'
     split_name.join('-')
   end
 
-  # Determine how much memory the system requires for Vagrantfile
+# Determine how much memory the system requires for Vagrantfile
   def resolve_memory(system)
     if @options.has_key? :memory_per_vm
       memory = @options[:memory_per_vm]
