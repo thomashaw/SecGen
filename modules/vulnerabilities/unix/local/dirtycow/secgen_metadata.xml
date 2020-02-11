@@ -17,6 +17,10 @@
   <platform>linux</platform>
   <difficulty>medium</difficulty>
 
+  <goals>
+    <access_account>root</access_account>
+  </goals>
+
   <conflict>
     <name>.*Stretch.*</name>
   </conflict>

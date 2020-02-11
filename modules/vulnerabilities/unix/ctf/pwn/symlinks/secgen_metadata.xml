@@ -42,6 +42,9 @@
         <generator type="flag_generator"/>  <!-- [0]: flag in shadow file -->
         <generator type="flag_generator"/>  <!-- [1]: flag in /home/<username>/flag.txt -->
       </input>
+      <input into="password">
+        <generator module_path=".*random_weak_password"/>
+      </input>
     </generator>
   </default_input>
 
