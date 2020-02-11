@@ -16,6 +16,11 @@
   <challenge_type>pwn</challenge_type>
   <challenge_subtype>others</challenge_subtype>
 
+  <!--<goals>-->
+    <!--TODO: fix me when string interpolation is implemented
+    <access_account>#{accounts.each.username}</access_account>-->
+  <!--</goals>-->
+
   <read_fact>strings_to_leak</read_fact>
   <read_fact>accounts</read_fact>
 
