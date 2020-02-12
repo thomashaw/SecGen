@@ -110,20 +110,21 @@ class ProjectFilesCreator
         end
       end
 
-      resolve_goal_strings(system)
-      # Create auto-grading config files
-      if system.has_module('auditbeat')
-        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
-        @rule_type = 'auditbeat'
-        Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
-        template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
-      end
-
-      if system.has_module('elastalert')
-        @rule_type = 'elastalert'
-        elastalert_rules_file = "#{path}/modules/elastalert/files/rules/elastalert_rules_file.yml"
-        Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
-        template_based_file_write(GRADING_RULES_TEMPLATE_FILE, elastalert_rules_file)
+      if system.has_module('auditbeat') or system.has_module('elastalert')
+        resolve_interp_strings(system)
+        # Create auto-grading config files
+        if system.has_module('auditbeat')
+          auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
+          @rule_type = 'auditbeat'
+          Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
+          template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
+        end
+        if system.has_module('elastalert')
+          @rule_type = 'elastalert'
+          elastalert_rules_file = "#{path}/modules/elastalert/files/rules/elastalert_rules_file.yml"
+          Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
+          template_based_file_write(GRADING_RULES_TEMPLATE_FILE, elastalert_rules_file)
+        end
       end
     end
 
@@ -204,12 +205,14 @@ class ProjectFilesCreator
 
   end
 
-  # Goal string interpolation for the whole system
-  # prior to calling the rule generator multiple times
-  def resolve_goal_strings(system)
+# Goal string interpolation for the whole system
+# prior to calling the rule generator multiple times
+  def resolve_interp_strings(system)
     system.module_selections.each do |module_selection|
       module_selection.resolve_received_inputs
-      module_selection.resolve_goals if (system.has_module('auditbeat') or system.has_module('elastalert'))
+    end
+    system.module_selections.each do |module_selection|
+      module_selection.resolve_goals
     end
   end
 
