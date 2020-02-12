@@ -19,7 +19,7 @@
   <difficulty>medium</difficulty>
 
   <goals>
-    <read_file>#{flag_path}</read_file>
+    <read_file>#{['flag_path']}</read_file>
   </goals>
 
   <read_fact>username</read_fact>
