@@ -262,8 +262,8 @@ class System
                 # parse the datastore
                 parsed_datastore_element = JSON.parse(datastore_retrieved.first)
 
-                # Sanitise with whitelist of used characters: ' [ ]
-                access_json = datastore_access_json.gsub(/[^A-Za-z0-9\[\]'_]/, '')
+                # Sanitise with whitelist
+                access_json = JSONFunctions.sanitise_eval_string(datastore_access_json)
 
                 # get data from access_json string
                 begin

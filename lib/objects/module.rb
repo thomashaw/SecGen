@@ -4,6 +4,7 @@ require_relative '../helpers/json_functions.rb'
 require 'digest/md5'
 require 'securerandom'
 require 'duplicate'
+require 'yaml'
 
 class Module
   #Vulnerability attributes hash
@@ -241,21 +242,25 @@ class Module
     end
   end
 
-  private
   def interp_string(string)
-    # identify the indices of the #{ characters within the string
-    start_indices = string.enum_for(:scan, /#\{/).map {Regexp.last_match.begin(0)}
-    reference_string = "self.received_inputs"
-    start_indices.each_with_index do |index, counter|
-      rolling_index = index + 2 # we add 2 for the #{ characters
-      if counter > 0
-        rolling_index = reference_string.length + index + 2
+    begin
+      # identify the indices of the #{ characters within the string
+      start_indices = string.enum_for(:scan, /#\{/).map {Regexp.last_match.begin(0)}
+      reference_string = "self.received_inputs"
+      start_indices.each_with_index do |index, counter|
+        rolling_index = index + 2 # we add 2 for the #{ characters
+        if counter > 0
+          rolling_index = reference_string.length + index + 2
+        end
+        string.insert(rolling_index, reference_string)
       end
-      string.insert(rolling_index, reference_string)
+
+      string = JSONFunctions.sanitise_eval_string(string)
+      # evaluate and parse evaluated string into required data types(e.g. "['a',['b','c']]" into ['a',['b','c']])
+      YAML.load(instance_eval("\"#{string}\""))
+    rescue NoMethodError, SyntaxError, Psych::Exception => err
+      Print.err "#{err}"
+      raise 'failed'
     end
-
-    # TODO: Run through a regex whitelist just-in-case
-
-    eval("\"" + string + "\"")
   end
 end
