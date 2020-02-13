@@ -67,7 +67,6 @@ class Rules
   # TODO: fix the eval problem + read arrays out into array format
   def self.specific_elastalert_rule(path, r_w)
 
-    # TODO: convert path into escaped path
     # TODO: add AND read/write events into rule
     # TODO: add AND some unique idenitifier for a user/vm (ip address or hostname are probably best)
     "name: #{get_ea_rulename(path)}\n" +
