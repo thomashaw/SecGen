@@ -67,7 +67,7 @@ class Rules
   # TODO: fix the eval problem + read arrays out into array format
   def self.specific_elastalert_rule(path, r_w)
 
-    # TODO:  convert path into escaped path
+    # TODO: convert path into escaped path
     # TODO: add AND read/write events into rule
     # TODO: add AND some unique idenitifier for a user/vm (ip address or hostname are probably best)
     "name: #{get_ea_rulename(path)}\n" +
@@ -89,14 +89,10 @@ class Rules
   end
 
   def self.get_escaped_path(path)
-    # TODO: implement
-    #'\\"*\\\/home\\\/vagrant\\\/*testfile\\"\""'
-    #'*/home/vagrant/*testfile'
-    #
-    # WIP:
-    # '*/home/vagrant/*testfile'.gsub('/','\\\\\/').gsub('/','\\\\/')    => "*\\\/home\\\/vagrant\\\/*testfile"
-
-    path
+    # Working, but doesn't include the asterisks. Check if this is necessary later.
+    # e.g. "/home/vagrant/testfile" =>  \"\\/home\\/vagrant\\/testfile\""
+    #                               not \"*\\/home\\/vagrant\\/*testfile\""
+    '\\"' + "#{path.gsub('/','\\\/').gsub('/','\\\\/')}" + '\\""'
   end
 
 end
