@@ -17,6 +17,7 @@
       </input>
     </vulnerability>
 
+    <vulnerability module_path=".*readable_shadow"/>
 
     <utility module_path=".*elastalert"/>
 
