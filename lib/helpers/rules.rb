@@ -8,7 +8,7 @@ class Rules
   # @type current valid values are ['elastalert', 'auditbeat']
   def self.generate_rules(system, type, mod)
     rules = []
-    hostname = system.hostname
+    hostname = system.get_hostname
     if type == 'elastalert'
       mod.goals.keys.each do |key|
         case key
