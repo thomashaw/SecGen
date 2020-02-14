@@ -138,7 +138,7 @@ class SystemReader < XMLReader
         end
 
       end
-      systems << System.new(system_name, system_attributes, module_selectors)
+      systems << System.new(system_name, system_attributes, module_selectors, scenario_file)
     end
 
     return systems
