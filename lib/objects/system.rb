@@ -5,6 +5,7 @@ require 'duplicate'
 class System
 
   attr_accessor :name
+  attr_accessor :hostname
   attr_accessor :attributes # (basebox selection)
   attr_accessor :module_selectors # (filters)
   attr_accessor :module_selections # (after resolution)
@@ -25,6 +26,7 @@ class System
   # @param [Object] module_selectors these are modules that define filters for selecting the actual modules to use
   def initialize(name, attributes, module_selectors, scenario_file)
     self.name = name
+    self.hostname = ''
     self.attributes = attributes
     self.module_selectors = module_selectors
     self.module_selections = []
@@ -483,7 +485,8 @@ class System
     self.options = opts if self.options == {}
   end
 
-  def hostname
-    ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name)
+  def get_hostname
+    self.hostname = ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name) if self.hostname == ''
+    self.hostname
   end
 end
