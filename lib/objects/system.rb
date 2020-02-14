@@ -482,7 +482,7 @@ class System
   end
 
   def set_options(opts)
-    self.options = opts if self.options == {}
+    self.options = opts if opts != nil and self.options == {}
   end
 
   def get_hostname
