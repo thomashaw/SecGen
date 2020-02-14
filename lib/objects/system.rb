@@ -483,7 +483,7 @@ class System
     self.options = opts if self.options == {}
   end
 
-  def get_hostname
+  def hostname
     ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name)
   end
 end
