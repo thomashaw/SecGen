@@ -89,6 +89,7 @@ def build_config(scenario, out_dir, options)
   Print.info 'Resolving systems: randomising scenario...'
   # update systems with module selections
   systems.map! {|system|
+    system.set_options(options)
     system.module_selections = system.resolve_module_selection(all_available_modules, options)
     system
   }
