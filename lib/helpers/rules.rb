@@ -34,15 +34,14 @@ class Rules
         when 'read_file'
           # Generate auditbeat read_file rules based on paths
           read_files = mod.goals[key]
-          read_files.each do |path|
-            rules << greedy_auditbeat_rule(path, 'r')
+          read_files.each do |entry|
+            paths = (entry.is_a? String) ? [entry] : entry
+            paths.each do |path|
+              rules << greedy_auditbeat_rule(path, 'r')
+            end
           end
         when 'modify_file'
           # TODO: do something
-          read_files = mod.goals[key]
-          read_files.each do |path|
-            rules << greedy_auditbeat_rule(path, 'w')
-          end
         when 'access_account'
         when 'service_down'
         when 'system_down'
