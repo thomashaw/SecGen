@@ -153,6 +153,7 @@
     </utility>
 
     <vulnerability module_path=".*symlinks"/>
+    <vulnerability module_path=".*readable_shadow"/>
 
     <utility module_path=".*iceweasel">
       <input into="accounts">
