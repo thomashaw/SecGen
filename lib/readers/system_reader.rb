@@ -11,7 +11,7 @@ class SystemReader < XMLReader
   # This includes module filters, which are module objects that contain filters for selecting
   # from the actual modules that are available
   # @return [Array] Array containing Systems objects
-  def self.read_scenario(scenario_file)
+  def self.read_scenario(scenario_file, options)
     systems = []
 
     # Parse and validate the schema
@@ -122,7 +122,7 @@ class SystemReader < XMLReader
         end
 
       end
-      systems << System.new(system_name, system_attributes, module_selectors, scenario_file)
+      systems << System.new(system_name, system_attributes, module_selectors, scenario_file, options)
     end
 
     return systems
