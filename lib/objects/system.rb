@@ -9,25 +9,29 @@ class System
   attr_accessor :module_selectors # (filters)
   attr_accessor :module_selections # (after resolution)
   attr_accessor :num_actioned_module_conflicts
-  attr_accessor :memory
+  attr_accessor :memory  # (RAM allocation for the system)
+  attr_accessor :options  # (command line options hash)
+  attr_accessor :scenario_path  # (path to scenario file associated with this system)
 
   # Attributes for resetting retry loop
-  attr_accessor :available_mods #(command line options hash)
-  attr_accessor :original_datastores #(command line options hash)
-  attr_accessor :original_module_selectors #(command line options hash)
-  attr_accessor :original_available_modules #(command line options hash)
+  attr_accessor :available_mods
+  attr_accessor :original_datastores
+  attr_accessor :original_module_selectors
+  attr_accessor :original_available_modules
 
   # Initalizes System object
   # @param [Object] name of the system
   # @param [Object] attributes such as base box selection
   # @param [Object] module_selectors these are modules that define filters for selecting the actual modules to use
-  def initialize(name, attributes, module_selectors)
+  def initialize(name, attributes, module_selectors, scenario_file)
     self.name = name
     self.attributes = attributes
     self.module_selectors = module_selectors
     self.module_selections = []
     self.num_actioned_module_conflicts = 0
     self.memory = "512"
+    self.options = {}
+    self.scenario_path = scenario_file
   end
 
   # selects from the available modules, based on the selection filters that have been specified
@@ -475,4 +479,11 @@ class System
     has_module
   end
 
+  def set_options(opts)
+    self.options = opts if self.options == {}
+  end
+
+  def get_hostname
+    ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name)
+  end
 end
