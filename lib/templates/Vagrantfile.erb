@@ -136,12 +136,12 @@ end
     <% if (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass) %>   # TODO
       <%# if selected_module.attributes['platform'].first.downcase != 'windows' %>
       <%# gets stuck setting host name on Windows XP %>
-        <%= system.name %>.vm.hostname = '<%= system.hostname %>'
+        <%= system.name %>.vm.hostname = '<%= system.get_hostname %>'
       <%# end %>
       <%= system.name %>.vm.box = 'ovirt4'
       <%= system.name %>.vm.box_url = 'https://github.com/myoung34/vagrant-ovirt4/blob/master/example_box/dummy.box?raw=true'
     <% elsif (@options.has_key? :esxiuser) && (@options.has_key? :esxipass) %>
-    <%= system.name %>.vm.hostname = '<%= system.hostname %>'
+    <%= system.name %>.vm.hostname = '<%= system.get_hostname %>'
     <%= system.name %>.vm.box = "<%= selected_module.module_path_name %>"
     <%= system.name %>.vm.box_url = "<%= selected_module.attributes['esxi_url'].first %>"
     <% else %>
