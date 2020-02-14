@@ -5,7 +5,7 @@ class ScenarioHelper
   end
 
   def self.get_prefix(options, scenario_name)
-    options[:prefix] ? (@options[:prefix] + '-' + scenario_name) : ('SecGen-' + scenario_name)
+    options[:prefix] ? (options[:prefix] + '-' + scenario_name) : ('SecGen-' + scenario_name)
   end
 
   def self.get_hostname(options, scenario_path, system_name)

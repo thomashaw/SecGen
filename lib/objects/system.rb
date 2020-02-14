@@ -24,16 +24,16 @@ class System
   # @param [Object] name of the system
   # @param [Object] attributes such as base box selection
   # @param [Object] module_selectors these are modules that define filters for selecting the actual modules to use
-  def initialize(name, attributes, module_selectors, scenario_file)
+  def initialize(name, attributes, module_selectors, scenario_file, options)
     self.name = name
-    self.hostname = ''
     self.attributes = attributes
     self.module_selectors = module_selectors
     self.module_selections = []
     self.num_actioned_module_conflicts = 0
     self.memory = "512"
-    self.options = {}
+    self.options = options
     self.scenario_path = scenario_file
+    set_hostname
   end
 
   # selects from the available modules, based on the selection filters that have been specified
@@ -485,8 +485,12 @@ class System
     self.options = opts if opts != nil and self.options == {}
   end
 
+  def set_hostname
+    self.hostname = ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name)
+  end
+
   def get_hostname
-    self.hostname = ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name) if self.hostname == ''
+    set_hostname
     self.hostname
   end
 end

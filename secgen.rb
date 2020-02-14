@@ -81,7 +81,7 @@ def build_config(scenario, out_dir, options)
   Print.info 'Reading configuration file for virtual machines you want to create...'
   # read the scenario file describing the systems, which contain vulnerabilities, services, etc
   # this returns an array/hashes structure
-  systems = SystemReader.read_scenario(scenario)
+  systems = SystemReader.read_scenario(scenario, options)
   Print.std "#{systems.size} system(s) specified"
 
   all_available_modules = ModuleReader.get_all_available_modules
@@ -89,7 +89,6 @@ def build_config(scenario, out_dir, options)
   Print.info 'Resolving systems: randomising scenario...'
   # update systems with module selections
   systems.map! {|system|
-    system.set_options(options)
     system.module_selections = system.resolve_module_selection(all_available_modules, options)
     system
   }
