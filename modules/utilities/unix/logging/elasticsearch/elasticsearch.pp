@@ -4,12 +4,13 @@ $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
 
 include ::java
 
-elasticsearch::update_apt
+include elasticsearch::update_apt
 
 class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,
   version => '7.6.0',
+  require => Class['elasticsearch::update_apt']
 }
 
 elasticsearch::instance { 'es-01':
