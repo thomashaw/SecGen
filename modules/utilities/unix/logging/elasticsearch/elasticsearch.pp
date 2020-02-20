@@ -4,6 +4,8 @@ $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
 
 include ::java
 
+elasticsearch::update_apt
+
 class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,

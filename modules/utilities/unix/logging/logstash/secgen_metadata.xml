@@ -32,4 +32,8 @@
     <type>update</type>
   </requires>
 
+  <requires>
+    <module_path>.*elasticsearch</module_path>
+  </requires>
+
 </utility>

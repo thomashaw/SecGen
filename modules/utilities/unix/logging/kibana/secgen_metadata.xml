@@ -37,4 +37,12 @@
     <type>update</type>
   </requires>
 
+  <requires>
+    <module_path>.*elasticsearch</module_path>
+  </requires>
+
+  <requires>
+    <module_path>.*kibana</module_path>
+  </requires>
+
 </utility>
