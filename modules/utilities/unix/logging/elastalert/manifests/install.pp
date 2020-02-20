@@ -6,16 +6,6 @@ class elastalert::install {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   ensure_packages('python3-pip')
-  ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==7.6.0'], { provider => 'pip3', require => [Package['python3-pip']] })
-
-  file { $diff_path:
-    ensure => file,
-    source => 'puppet:///modules/elastalert/elastalert.diff',
-  }
-
-  exec { 'apply diff patch':
-    command => "patch -p1 /usr/local/lib/python3.5/dist-packages/elastalert/alerts.py < $diff_path",
-    require => File[$diff_path],
-  }
+  ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==7.5.1'], { provider => 'pip3', require => [Package['python3-pip']] })
 
 }
