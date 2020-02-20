@@ -6,7 +6,7 @@ class elastalert::install {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   ensure_packages('python3-pip')
-  ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==6.3.1'], { provider => 'pip3', require => [Package['python3-pip']] })
+  ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==7.6.0'], { provider => 'pip3', require => [Package['python3-pip']] })
 
   file { $diff_path:
     ensure => file,

@@ -93,14 +93,14 @@
       </input>
     </utility>
 
-    <utility module_path=".*wazuh.*">
-      <input into="component">
-        <value>server</value>
-      </input>
-      <input into="kibana_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </utility>
+    <!--<utility module_path=".*wazuh.*">-->
+      <!--<input into="component">-->
+        <!--<value>server</value>-->
+      <!--</input>-->
+      <!--<input into="kibana_ip">-->
+        <!--<datastore access="0">IP_addresses</datastore>-->
+      <!--</input>-->
+    <!--</utility>-->
 
     <utility type="update"/>
 
@@ -140,17 +140,17 @@
       </input>
     </utility>
 
-    <utility module_path=".*wazuh.*">
-      <input into="component">
-        <value>client</value>
-      </input>
-      <input into="kibana_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="agent_name">
-        <value>client_1</value>
-      </input>
-    </utility>
+    <!--<utility module_path=".*wazuh.*">-->
+      <!--<input into="component">-->
+        <!--<value>client</value>-->
+      <!--</input>-->
+      <!--<input into="kibana_ip">-->
+        <!--<datastore access="0">IP_addresses</datastore>-->
+      <!--</input>-->
+      <!--<input into="agent_name">-->
+        <!--<value>client_1</value>-->
+      <!--</input>-->
+    <!--</utility>-->
 
     <vulnerability module_path=".*symlinks"/>
     <vulnerability module_path=".*readable_shadow"/>
