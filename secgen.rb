@@ -171,7 +171,7 @@ def build_vms(scenario, project_dir, options)
               if !destroy_output[:output].include? 'VM is not created. Please run `vagrant up` first.'
                 Print.info "vagrant #{destroy} completed successfully."
               else
-                OVirtFunctions::remove_uncreatqed_vms(destroy_output[:output], options, scenario)
+                OVirtFunctions::remove_uncreated_vms(destroy_output[:output], options, scenario)
                 # Add ESXI destroy uncreated VMs
               end
             else
