@@ -26,7 +26,7 @@ class Module
 
   attr_accessor :conflicts
   attr_accessor :requires
-  attr_accessor :goals
+  attr_accessor :goals # {'rule_type' => ['/etc/rules','/etc/shadow',...]}
   attr_accessor :puppet_file
   attr_accessor :puppet_other_path
   attr_accessor :local_calc_file
@@ -209,13 +209,20 @@ class Module
   end
 
   # Resolve the string interpolation for goals
-  # e.g. convert ["#{flag_path}"] into ["/etc/shadow", "/home/username/flag"]
+  # e.g. convert self.goals['read_file'] (e.g. ["#{flag_path}"]) into ["/etc/shadow", "/home/username/flag"]
+  #      flattens the goals into an array based on the goal type, e.g. goals['read_file'][0..n] where each element is a string, rather than nested arrays
   def resolve_goals
-    self.goals.each do |_, vals|
-      vals.each_with_index do |val, i|
-        vals[i] = interp_string(val) if contains_interp(val)
+    new_goals = {}
+    self.goals.each do |goal_type, goals|
+      goals.each do |goal|
+        new_goals[goal_type] = [] if new_goals[goal_type] == nil
+        tmp_goal = contains_interp(goal) ? interp_string(goal) : goal
+        tmp_goal = [tmp_goal] if tmp_goal.is_a? String
+        new_goals[goal_type] = new_goals[goal_type] + tmp_goal
       end
+
     end
+    self.goals = new_goals
   end
 
   def contains_interp(string)

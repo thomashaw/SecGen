@@ -78,7 +78,8 @@ VAGRANT_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/Vagrantfile.erb"
 
 PUPPET_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/Puppetfile.erb"
 
-GRADING_RULES_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/goal_rules.erb"
+AUDITBEAT_RULES_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/auditbeat_goal_rules.erb"
+ELASTALERT_RULES_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/elastalert_goal_rules.erb"
 
 ## INTEGER CONSTANTS ##
 RETRIES_LIMIT = 10

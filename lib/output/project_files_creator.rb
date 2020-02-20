@@ -36,6 +36,7 @@ class ProjectFilesCreator
 
     # Packer builder type
     @builder_type = @options.has_key?(:esxi_url) ? :vmware_iso : :virtualbox_iso
+    resolve_interp_strings
   end
 
 # Generate all relevant files for the project
@@ -109,21 +110,33 @@ class ProjectFilesCreator
           end
         end
       end
+      # Create client side auto-grading config files (auditbeat)
+      if system.has_module('auditbeat')
+        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
+        Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
+        template_based_file_write(AUDITBEAT_RULES_TEMPLATE_FILE, auditbeat_rules_file)
+      end
 
-      if system.has_module('auditbeat') or system.has_module('elastalert')
-        resolve_interp_strings(system)
-        # Create auto-grading config files
-        if system.has_module('auditbeat')
-          auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
-          @rule_type = 'auditbeat'
-          Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
-          template_based_file_write(GRADING_RULES_TEMPLATE_FILE, auditbeat_rules_file)
-        end
-        if system.has_module('elastalert')
-          @rule_type = 'elastalert'
-          elastalert_rules_file = "#{path}/modules/elastalert/files/rules/elastalert_rules_file.yml"
-          Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
-          template_based_file_write(GRADING_RULES_TEMPLATE_FILE, elastalert_rules_file)
+      # Create server-side auto-grading config files (elastalert)
+      if system.has_module('elastalert')
+        @systems.each do |sys|
+          @hostname = sys.get_hostname
+          sys.module_selections.each do |module_selection|
+            if module_selection.goals != {}
+              module_selection.goals.each do |goal|
+                @module_name = module_selection.module_path_end
+                @goal = goal
+                goal[1].each_with_index do |sub_goal, i|
+                  @sub_goal = sub_goal   # TODO: Identify sub_goal type, it should be a string but we're getting errors from get_escaped_path(sub_goal) @ rules.rb:87
+                  @counter = i
+                  rule_name = Rules.get_ea_rulename(@hostname, @module_name, @goal, @counter)
+                  elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
+                  Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
+                  template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
+                end
+              end
+            end
+          end
         end
       end
     end
@@ -207,12 +220,14 @@ class ProjectFilesCreator
 
 # Goal string interpolation for the whole system
 # prior to calling the rule generator multiple times
-  def resolve_interp_strings(system)
-    system.module_selections.each do |module_selection|
-      module_selection.resolve_received_inputs
-    end
-    system.module_selections.each do |module_selection|
-      module_selection.resolve_goals
+  def resolve_interp_strings
+    @systems.each do |system|
+      system.module_selections.each do |module_selection|
+        module_selection.resolve_received_inputs
+      end
+      system.module_selections.each do |module_selection|
+        module_selection.resolve_goals
+      end
     end
   end
 
