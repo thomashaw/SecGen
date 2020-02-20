@@ -26,7 +26,6 @@ class elastalert::service {
   file { '/usr/local/bin/elastalert-index.rb':
     ensure => file,
     source => 'puppet:///modules/elastalert/elastalert-index.rb',
-    require => File[]
   }
 
   service { 'elastalert-index':
