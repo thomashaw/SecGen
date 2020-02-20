@@ -20,10 +20,13 @@
 
   <goals>
     <read_file>#{['flag_path']}</read_file>
+    <read_file>#{['test_path']}</read_file>
+    <read_file>/goal/test</read_file>
   </goals>
 
   <read_fact>username</read_fact>
   <read_fact>flag_path</read_fact>
+  <read_fact>test_path</read_fact>
 
   <default_input into="accounts">
     <generator type="account">
@@ -51,6 +54,11 @@
   <default_input into="flag_path">
     <value>/etc/shadow</value>
     <value>/home/#{['accounts'][0]['username']}/#{['accounts'][0]['leaked_filenames'][0]}</value>
+  </default_input>
+
+  <!--TODO: Delete me-->
+  <default_input into="test_path">
+    <value>/test/path</value>
   </default_input>
 
   <!-- TODO: WIP -->
