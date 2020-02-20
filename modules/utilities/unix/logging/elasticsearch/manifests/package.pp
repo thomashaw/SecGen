@@ -154,7 +154,7 @@ class elasticsearch::package {
       }
 
     } else {
-      if ($facts['os']['family'] == 'Debian') {
+      if ($elasticsearch::manage_repo and $facts['os']['family'] == 'Debian') {
         Class['apt::update'] -> Package['elasticsearch']
       }
     }
@@ -182,7 +182,7 @@ class elasticsearch::package {
 
     exec { 'remove_plugin_dir':
       refreshonly => true,
-      command     => "rm -rf ${elasticsearch::plugindir}",
+      command     => "rm -rf ${::elasticsearch::_plugindir}",
     }
 
 

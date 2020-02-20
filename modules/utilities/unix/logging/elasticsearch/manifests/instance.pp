@@ -23,6 +23,10 @@
 #   Path to directory containing the elasticsearch configuration.
 #   Use this setting if your packages deviate from the norm (/etc/elasticsearch).
 #
+# @param configdir_recurselimit
+#   Dictates how deeply the file copy recursion logic should descend when
+#   copying files from the `elasticsearch::configdir` to instance `configdir`s.
+#
 # @param daily_rolling_date_pattern
 #   File pattern for the file appender log when file_rolling_type is `dailyRollingFile`
 #
@@ -121,6 +125,9 @@
 #   Source for the Shield system key. Valid values are any that are
 #   supported for the file resource `source` parameter.
 #
+# @param xpack
+#   Enable xpack security features. Requires ca_certificate, certificate and private_key.
+#
 # @author Richard Pijnenburg <richard.pijnenburg@elasticsearch.com>
 # @author Tyler Langlois <tyler.langlois@elastic.co>
 #
@@ -130,6 +137,7 @@ define elasticsearch::instance (
   Optional[Stdlib::Absolutepath]     $certificate                   = undef,
   Optional[Hash]                     $config                        = undef,
   Stdlib::Absolutepath               $configdir                     = "${elasticsearch::configdir}/${name}",
+  Integer                            $configdir_recurselimit        = $elasticsearch::configdir_recurselimit,
   String                             $daily_rolling_date_pattern    = $elasticsearch::daily_rolling_date_pattern,
   Optional[Elasticsearch::Multipath] $datadir                       = undef,
   Boolean                            $datadir_instance_directories  = $elasticsearch::datadir_instance_directories,
@@ -157,6 +165,7 @@ define elasticsearch::instance (
   Boolean                            $ssl                           = false,
   Elasticsearch::Status              $status                        = $elasticsearch::status,
   Optional[String]                   $system_key                    = $elasticsearch::system_key,
+  Boolean                            $xpack                         = $elasticsearch::xpack,
 ) {
 
   File {
@@ -268,10 +277,13 @@ define elasticsearch::instance (
         fail('keystore_password required')
       }
 
+      if (($ca_certificate == undef) or ($certificate == undef) or ($private_key == undef)) {
+        fail('ca_certificate, certificate and private_key required')
+      }
+
       if ($keystore_path == undef) {
         $_keystore_path = "${configdir}/${security_plugin}/${name}.ks"
       } else {
-        validate_absolute_path($keystore_path)
         $_keystore_path = $keystore_path
       }
 
@@ -283,11 +295,23 @@ define elasticsearch::instance (
           'shield.ssl.keystore.password' => $keystore_password,
         }
       } elsif $security_plugin == 'x-pack' {
-        $tls_config = {
-          'xpack.security.transport.ssl.enabled' => true,
-          'xpack.security.http.ssl.enabled'      => true,
-          'xpack.ssl.keystore.path'              => $_keystore_path,
-          'xpack.ssl.keystore.password'          => $keystore_password,
+        if $elasticsearch::version.split(/\./)[0] == '7' {
+          $tls_config = {
+            'xpack.security.transport.ssl.enabled'           => true,
+            'xpack.security.transport.ssl.keystore.path'     => $_keystore_path,
+            'xpack.security.transport.ssl.keystore.password' => $keystore_password,
+            'xpack.security.http.ssl.enabled'                => true,
+            'xpack.security.http.ssl.keystore.path'          => $_keystore_path,
+            'xpack.security.http.ssl.keystore.password'      => $keystore_password,
+          }
+        }
+        else {
+          $tls_config = {
+            'xpack.security.transport.ssl.enabled' => true,
+            'xpack.security.http.ssl.enabled'      => true,
+            'xpack.ssl.keystore.path'              => $_keystore_path,
+            'xpack.ssl.keystore.password'          => $keystore_password,
+          }
         }
       }
 
@@ -367,7 +391,7 @@ define elasticsearch::instance (
         "${elasticsearch::configdir}/log4j2.properties",
       ],
       recurse      => 'remote',
-      recurselimit => 1,
+      recurselimit => $configdir_recurselimit,
       source       => $elasticsearch::configdir,
       purge        => $elasticsearch::purge_configdir,
       force        => $elasticsearch::purge_configdir,
@@ -436,6 +460,43 @@ define elasticsearch::instance (
       }
     }
 
+    if $xpack {
+      if (($ca_certificate == undef) or ($certificate == undef) or ($private_key == undef)) {
+        fail('ca_certificate, certificate and private_key required')
+      }
+
+      file { "${configdir}/ca_certificate.pem":
+        ensure => 'file',
+        source => "file://${ca_certificate}",
+        owner  => $elasticsearch::elasticsearch_user,
+        group  => undef,
+        mode   => '0640',
+      }
+      file { "${configdir}/certificate.pem":
+        ensure => 'file',
+        source => "file://${certificate}",
+        owner  => $elasticsearch::elasticsearch_user,
+        group  => undef,
+        mode   => '0640',
+      }
+      file { "${configdir}/private_key.key":
+        ensure => 'file',
+        source => "file://${private_key}",
+        owner  => $elasticsearch::elasticsearch_user,
+        group  => undef,
+        mode   => '0600',
+      }
+
+      $xpack_config = {
+        'xpack.security.enabled'                               => true,
+        'xpack.security.transport.ssl.enabled'                 => true,
+        'xpack.security.transport.ssl.verification_mode'       => 'certificate',
+        'xpack.security.transport.ssl.key'                     => "${configdir}/private_key.key",
+        'xpack.security.transport.ssl.certificate'             => "${configdir}/certificate.pem",
+        'xpack.security.transport.ssl.certificate_authorities' => "${configdir}/ca_certificate.pem",
+      }
+    } else { $xpack_config = {} }
+
     # build up new config
     $instance_conf = merge(
       $main_config,
@@ -443,6 +504,7 @@ define elasticsearch::instance (
       $instance_datadir_config,
       { 'path.logs' => $logdir },
       $tls_config,
+      $xpack_config,
       $instance_config
     )
 

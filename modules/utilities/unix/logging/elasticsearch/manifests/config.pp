@@ -32,12 +32,11 @@ class elasticsearch::config {
         group  => $elasticsearch::elasticsearch_group,
         owner  => $elasticsearch::elasticsearch_user;
       $elasticsearch::logdir:
-        ensure  => 'directory',
-        group   => $elasticsearch::elasticsearch_group,
-        owner   => $elasticsearch::elasticsearch_user,
-        mode    => '0750',
-        recurse => true;
-      $elasticsearch::plugindir:
+        ensure => 'directory',
+        group  => $elasticsearch::elasticsearch_group,
+        owner  => $elasticsearch::elasticsearch_user,
+        mode   => '0750';
+      $elasticsearch::_plugindir:
         ensure => 'directory',
         group  => $elasticsearch::elasticsearch_group,
         owner  => $elasticsearch::elasticsearch_user,
@@ -103,8 +102,9 @@ class elasticsearch::config {
     if ($elasticsearch::service_provider == 'systemd') {
       # Mask default unit (from package)
       service { 'elasticsearch' :
-        ensure => false,
-        enable => 'mask',
+        ensure   => false,
+        enable   => 'mask',
+        provider => $elasticsearch::service_provider,
       }
     } else {
       service { 'elasticsearch':
@@ -160,7 +160,7 @@ class elasticsearch::config {
 
   } elsif ( $elasticsearch::ensure == 'absent' ) {
 
-    file { $elasticsearch::plugindir:
+    file { $elasticsearch::_plugindir:
       ensure => 'absent',
       force  => true,
       backup => false,

@@ -1,19 +1,27 @@
 {
   "name": "elastic-elasticsearch",
-  "version": "6.3.3",
-  "author": "elastic",
-  "summary": "Module for managing and configuring Elasticsearch nodes",
-  "license": "Apache-2.0",
+  "version": "6.4.0",
   "source": "https://github.com/elastic/puppet-elasticsearch",
+  "author": "elastic",
+  "license": "Apache-2.0",
+  "summary": "Module for managing and configuring Elasticsearch nodes",
+  "description": "Module for managing and configuring Elasticsearch nodes",
   "project_page": "https://github.com/elastic/puppet-elasticsearch",
   "issues_url": "https://github.com/elastic/puppet-elasticsearch/issues",
   "dependencies": [
-    {"name":"elastic/elastic_stack","version_requirement":">= 6.1.0 < 7.0.0"},
-    {"name":"richardc/datacat","version_requirement":">= 0.6.2 < 1.0.0"},
-    {"name":"puppetlabs/stdlib","version_requirement":">= 4.13.0 < 6.0.0"}
+    {
+      "name": "elastic/elastic_stack",
+      "version_requirement": ">= 6.1.0 < 7.0.0"
+    },
+    {
+      "name": "richardc/datacat",
+      "version_requirement": ">= 0.6.2 < 1.0.0"
+    },
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 4.13.0 < 7.0.0"
+    }
   ],
-  "data_provider": "hiera",
-  "description": "Module for managing and configuring Elasticsearch nodes",
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
@@ -62,12 +70,6 @@
       ]
     },
     {
-      "operatingsystem": "OpenSuSE",
-      "operatingsystemrelease": [
-        "42.2"
-      ]
-    },
-    {
       "operatingsystem": "SLES",
       "operatingsystemrelease": [
         "12.1",
@@ -78,7 +80,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.5.0 < 6.0.0"
+      "version_requirement": ">= 4.10.0 < 7.0.0"
     }
   ]
 }

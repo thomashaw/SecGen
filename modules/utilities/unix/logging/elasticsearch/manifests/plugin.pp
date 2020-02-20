@@ -85,15 +85,9 @@ define elasticsearch::plugin (
     }
     'absent': {
       $_file_ensure = $ensure
-      $_file_before = File[$elasticsearch::plugindir]
+      $_file_before = File[$elasticsearch::_plugindir]
     }
     default: { }
-  }
-
-  if ! empty($instances) and $elasticsearch::restart_plugin_change {
-    Elasticsearch_plugin[$name] {
-      notify +> Elasticsearch::Instance[$instances],
-    }
   }
 
   # set proxy by override or parse and use proxy_url from
@@ -140,13 +134,19 @@ define elasticsearch::plugin (
     source                     => $file_source,
     url                        => $url,
     proxy                      => $_proxy,
-    plugin_dir                 => $::elasticsearch::plugindir,
+    plugin_dir                 => $::elasticsearch::_plugindir,
     plugin_path                => $module_dir,
   }
-  -> file { "${elasticsearch::plugindir}/${_module_dir}":
+  -> file { "${::elasticsearch::_plugindir}/${_module_dir}":
     ensure  => $_file_ensure,
     mode    => 'o+Xr',
     recurse => true,
     before  => $_file_before,
+  }
+
+  if ! empty($instances) and $elasticsearch::restart_plugin_change {
+    Elasticsearch_plugin[$name] {
+      notify +> Elasticsearch::Instance[$instances],
+    }
   }
 }

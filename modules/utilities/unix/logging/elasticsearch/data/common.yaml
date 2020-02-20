@@ -1,4 +1,4 @@
----
+---Thank you for your patience on this issue. I just wanted to post a quick update to say that support for 7.x IS coming.
 elasticsearch::ensure: present
 elasticsearch::api_basic_auth_password: ~
 elasticsearch::api_basic_auth_username: ~
@@ -11,6 +11,7 @@ elasticsearch::api_timeout: 10
 elasticsearch::autoupgrade: false
 elasticsearch::config: {}
 elasticsearch::configdir: /etc/elasticsearch
+elasticsearch::configdir_recurselimit: 2
 elasticsearch::daily_rolling_date_pattern: |
   "'.'yyyy-MM-dd"
 elasticsearch::datadir_instance_directories: true
@@ -39,7 +40,7 @@ elasticsearch::package_provider: package
 elasticsearch::package_url: ~
 elasticsearch::pid_dir: /var/run/elasticsearch
 elasticsearch::pipelines: {}
-elasticsearch::plugindir: "%{hiera('elasticsearch::homedir')}/plugins"
+elasticsearch::plugindir: ~
 elasticsearch::plugins: {}
 elasticsearch::proxy_url: ~
 elasticsearch::purge_configdir: false
@@ -64,3 +65,4 @@ elasticsearch::templates: {}
 elasticsearch::users: {}
 elasticsearch::validate_tls: true
 elasticsearch::version: false
+elasticsearch::xpack: false
