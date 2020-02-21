@@ -7,6 +7,9 @@ class elastalert::install {
   # $diff_path = '/opt/elastalert/elastalert.diff'
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
+  ensure_packages(['python-pip','build-essential','libssl-dev','libffi-dev','python-dev'])
+  ensure_packages(['thehive4py','configparser>=3.5.0','setuptools>=11.3'], { provider => 'pip', require => [Package['python-pip']] })
+  # ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==6.3.1'], { provider => 'pip3', require => [Package['python3-pip']] })
 
   # Create directory to install into
   file { $installdir:
@@ -22,11 +25,6 @@ class elastalert::install {
     require  => File[$installdir],
     revision => '98c7867',   # reset to 0.1.39
   }
-
-  ensure_packages(['python-pip','build-essential','libssl-dev','libffi-dev','python-dev'])
-  ensure_packages(['thehive4py','configparser>=3.5.0','setuptools>=11.3'], { provider => 'pip', require => [Package['python-pip']] })
-
-  # ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==6.3.1'], { provider => 'pip3', require => [Package['python3-pip']] })
 
   # file { $diff_path:
   #   ensure => file,
