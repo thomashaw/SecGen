@@ -8,18 +8,71 @@
     <base platform="linux" distro="Debian 9" type="server"/>
 
     <input into_datastore="IP_addresses">
-      <value>172.17.0.0</value>
+      <value>192.168.209.165</value>
+      <value>192.168.209.166</value>
+      <value>192.168.209.167</value>
     </input>
 
-    <vulnerability module_path=".*symlinks">
-      <input into="username">
-        <value>tom</value>
+    <input into_datastore="elasticsearch_port">
+      <value>9200</value>
+    </input>
+
+    <input into_datastore="logstash_port">
+      <value>5044</value>
+    </input>
+
+    <input into_datastore="kibana_port">
+      <value>5601</value>
+    </input>
+
+    <utility module_path=".*handy_cli_tools.*"/>
+
+    <utility module_path=".*elasticsearch.*">
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_addresses</datastore>
       </input>
-    </vulnerability>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
 
-    <vulnerability module_path=".*readable_shadow"/>
+    <utility module_path=".*logstash.*">
+      <input into="logstash_port">
+        <datastore access="0">logstash_port</datastore>
+      </input>
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
 
-    <utility module_path=".*elastalert"/>
+    <utility module_path=".*kibana.*">
+      <input into="kibana_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="kibana_port">
+        <datastore access="0">kibana_port</datastore>
+      </input>
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
+
+    <!--<service module_path=".*routing_layer.*"/>-->
+
+    <utility module_path=".*elastalert.*">
+      <input into="elasticsearch_ip">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="elasticsearch_port">
+        <datastore access="0">elasticsearch_port</datastore>
+      </input>
+    </utility>
 
     <network type="private_network">
       <input into="IP_address">
