@@ -5,10 +5,6 @@ class elastalert::config {
   $elastalert_dir = '/opt/elastalert/'
   $rules_dir = '/opt/elastalert/rules/'
 
-  file { $elastalert_dir:
-    ensure => directory,
-  }
-
   file { '/opt/elastalert/config.yaml':
     ensure => file,
     content => template('elastalert/config.yaml.erb'),
