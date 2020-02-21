@@ -10,7 +10,9 @@ class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,
   version => '7.6.0',
-  require => Class['elasticsearch::update_apt']
+  require => Class['elasticsearch::update_apt'],
+  restart_on_change => false,
+  xpack => false,
 }
 
 elasticsearch::instance { 'es-01':
