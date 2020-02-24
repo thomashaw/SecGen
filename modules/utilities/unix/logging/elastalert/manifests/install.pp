@@ -11,6 +11,14 @@ class elastalert::install {
   ensure_packages(['thehive4py','configparser>=3.5.0','setuptools>=11.3'], { provider => 'pip', require => [Package['python-pip']] })
   # ensure_packages(['elastalert', 'setuptools>=11.3', 'PyYAML>=5.1', 'elasticsearch==6.3.1'], { provider => 'pip3', require => [Package['python3-pip']] })
 
+  # apt upgrade cryptography
+  exec { 'apt remove cryptography':
+    command => '/usr/bin/apt-get remove cryptography',
+  }
+
+  ensure_packages(['cryptography>=2.8','mock>=2.0.0,<4.0.0', 'elasticsearch==6.3.1'], {provider => 'pip', require => Exec['apt remove cryptography']})
+
+
   # Create directory to install into
   file { $installdir:
     ensure => directory,
