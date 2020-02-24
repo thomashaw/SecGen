@@ -6,6 +6,7 @@ After=elasticsearch.service
 Type=simple
 WorkingDirectory=/opt/elastalert
 ExecStart=/usr/local/bin/elastalert --verbose --config /opt/elastalert/config.yaml
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
