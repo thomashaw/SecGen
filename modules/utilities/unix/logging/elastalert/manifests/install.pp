@@ -7,7 +7,7 @@ class elastalert::install {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   ensure_packages(['python-pip','build-essential','libssl-dev','libffi-dev','python-dev'])
-  ensure_packages(['thehive4py','configparser>=3.5.0','setuptools>=11.3', 'cryptography>=2.8','mock>=2.0.0,<4.0.0', 'elasticsearch==6.3.1'], { provider => 'pip', require => [Package['python-pip']] })
+  ensure_packages(['thehive4py','configparser>=3.5.0','setuptools>=11.3', 'stomp.py<=4.1.22','cryptography>=2.8','mock>=2.0.0,<4.0.0', 'elasticsearch==6.3.1'], { provider => 'pip', require => [Package['python-pip']] })
 
   # Create directory to install into
   file { $installdir:
