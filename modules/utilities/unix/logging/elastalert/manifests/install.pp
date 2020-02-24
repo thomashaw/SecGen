@@ -27,7 +27,7 @@ class elastalert::install {
   exec { 'setup.py install':
     command => '/usr/bin/python2.7 setup.py install',
     cwd => '/opt/elastalert',
-    require => Vcsrepo['Elastalert'],
+    require => Vcsrepo['elastalert'],
   }
 
 }
