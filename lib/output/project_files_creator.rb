@@ -112,7 +112,7 @@ class ProjectFilesCreator
       end
       # Create client side auto-grading config files (auditbeat)
       if system.has_module('auditbeat')
-        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.yml"
+        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.conf"
         Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
         template_based_file_write(AUDITBEAT_RULES_TEMPLATE_FILE, auditbeat_rules_file)
       end
