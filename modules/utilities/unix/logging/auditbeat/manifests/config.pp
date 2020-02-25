@@ -34,11 +34,11 @@ class auditbeat::config {
     validate_cmd => $validate_cmd,
   }
 
-  file { '/etc/auditbeat/audit.rules.d/custom-rules.yml':
+  file { '/etc/auditbeat/audit.rules.d/custom-rules.conf':  # rules must have .conf extension
     ensure => file,
     owner => 'root',
     group => 'root',
     mode => $auditbeat::config_file_mode,
-    source => 'puppet:///modules/auditbeat/rules/auditbeat_rules_file.yml',
+    source => 'puppet:///modules/auditbeat/rules/auditbeat_rules_file.conf',
   }
 }
