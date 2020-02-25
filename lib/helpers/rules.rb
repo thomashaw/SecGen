@@ -59,21 +59,9 @@ class Rules
   end
 
   def self.generate_elastalert_rule_rf(hostname, module_name, goal, sub_goal, counter)
-
-
-    # read_files = mod.goals[key]
-    # read_files.each do |entry|
-    #   paths = (entry.is_a? String) ? [entry] : entry
-    #   paths.each do |path|
-    #     rules <<
-    #   end
-    # end
-    #
-    #
     puts 'break'
 
     # TODO: add AND read/write events into rule
-    # TODO: add AND some unique idenitifier for a user/vm (ip address or hostname are probably best)
     "name: #{get_ea_rulename(hostname, module_name, goal, counter)}\n" +
         "type: any\n" +
         "index: auditbeat-*\n" +
@@ -93,10 +81,15 @@ class Rules
   end
 
   def self.get_escaped_path(path)
+    # TODO: get rid of this as a function altogether if it is unnecessary (confirm that first)
     # Working, but doesn't include the asterisks. Check if this is necessary later.
     # e.g. "/home/vagrant/testfile" =>  \"\\/home\\/vagrant\\/testfile\""
     #                               not \"*\\/home\\/vagrant\\/*testfile\""
-    '\\"' + "#{path.gsub('/', '\\\/').gsub('/', '\\\\/')}" + '\\""'
+    #
+    # TODO: The above doesn't actually work. New queries:
+    #     */home/vagrant/*testfile
+    #
+    '\\"' + path + '\\""'
   end
 
   class RuleTypes
