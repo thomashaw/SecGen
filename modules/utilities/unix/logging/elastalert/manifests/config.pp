@@ -18,4 +18,17 @@ class elastalert::config {
     source => 'puppet:///modules/elastalert/rules/',
     require => File[$elastalert_dir],
   }
+
+  # Move the custom alerter (outputs rulename:alert)
+
+  file { '/opt/elastalert/elastalert_modules':
+    ensure => directory,
+  }
+
+  file { '/opt/elastalert/elastalert_modules/exec_alerter.py':
+    ensure => file,
+    source => 'puppet://modules/elastalert/exec_alerter.py',
+    require => File['/opt/elastalert/elastalert_modules'],
+  }
+
 }
