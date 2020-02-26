@@ -68,7 +68,7 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: ' + get_ea_wildcard_path(sub_goal) + ' and result: \"success\"' + "\n" +
+        '        query: "combined_path: ' + get_ea_wildcard_path(sub_goal) + ' AND auditd.result: success AND event.action: opened-file' + "\n" +
         "alert:\n" +
         "  - command\n" +
         "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
