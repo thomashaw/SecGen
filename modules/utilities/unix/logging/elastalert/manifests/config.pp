@@ -27,7 +27,7 @@ class elastalert::config {
 
   file { '/opt/elastalert/elastalert_modules/exec_alerter.py':
     ensure => file,
-    source => 'puppet://modules/elastalert/exec_alerter.py',
+    source => 'puppet:///modules/elastalert/exec_alerter.py',
     require => File['/opt/elastalert/elastalert_modules'],
   }
 
