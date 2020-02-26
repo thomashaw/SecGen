@@ -9,3 +9,5 @@ alert:
   - command
 command: ["/usr/bin/tee", "-a", "/root/alerts"]
 pipe_match_json: true
+realert:
+  minutes: 0

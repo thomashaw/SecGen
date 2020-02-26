@@ -67,12 +67,14 @@ class Rules
         "index: auditbeat-*\n" +
         "filter:\n" +
         "  - query:\n" +
-        "    query_string:\n" +
-        '      query: "combined_path: ' + get_escaped_path(sub_goal) + "\n" +
+        "      query_string:\n" +
+        '        query: "combined_path: ' + get_ea_wildcard_path(sub_goal) + ' and result: \"success\"' + "\n" +
         "alert:\n" +
         "  - command\n" +
         "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
-        "pipe_match_json: true\n"
+        "pipe_match_json: true\n" +
+        "realert:\n" +
+        "  minutes: 0\n"
   end
 
   def self.get_ea_rulename(hostname, module_name, goal, counter)
@@ -80,16 +82,11 @@ class Rules
     return "#{hostname}-#{module_name}-#{rule_type}-#{counter}"
   end
 
-  def self.get_escaped_path(path)
-    # TODO: get rid of this as a function altogether if it is unnecessary (confirm that first)
-    # Working, but doesn't include the asterisks. Check if this is necessary later.
-    # e.g. "/home/vagrant/testfile" =>  \"\\/home\\/vagrant\\/testfile\""
-    #                               not \"*\\/home\\/vagrant\\/*testfile\""
-    #
-    # TODO: The above doesn't actually work. New queries:
-    #     */home/vagrant/*testfile
-    #
-    '\\"' + path + '\\""'
+  def self.get_ea_wildcard_path(path)
+    split_path = path.split('/')
+    split_path[-1] = "*#{split_path[-1]}"
+    split_path[0] = '*'
+    '\\"' + split_path.join('/') + '\\""'
   end
 
   class RuleTypes
