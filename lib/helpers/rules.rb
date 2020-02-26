@@ -15,7 +15,7 @@ class Rules
           paths = (entry.is_a? String) ? [entry] : entry
           paths.each do |path|
             generated_rule = greedy_auditbeat_rule(path, 'r')
-            rules << generated_rule unless rules.include? generated_rule
+            rules << generated_rule
           end
         end
       when 'modify_file'
@@ -27,7 +27,7 @@ class Rules
         raise
       end
     end
-    rules.join("\n")
+    rules
   end
 
   # Generates a greedy read or write rule for auditbeat (e.g. /home/user/file_name resolves to /home)

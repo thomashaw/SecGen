@@ -1,6 +1,1 @@
-<% require './lib/helpers/rules'-%>
-<% @currently_processing_system.module_selections.each do |module_selection| -%>
-<%   if module_selection.goals != {} -%>
-<%=     Rules.generate_auditbeat_rules(module_selection) %>
-<%   end -%>
-<% end -%>
+<%= @rules.join('\n')%>
