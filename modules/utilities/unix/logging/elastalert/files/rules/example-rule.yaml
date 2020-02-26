@@ -4,7 +4,7 @@ index: auditbeat-*
 filter:
   - query:
       query_string:
-        query: "combined_path: \"*\\/home\\/vagrant\\/*testfile\""
+        query: "combined_path: \"*/home/vagrant/*testfile\""
 alert:
   - command
 command: ["/usr/bin/tee", "-a", "/root/alerts"]
