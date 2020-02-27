@@ -8,6 +8,9 @@ filter {
   mutate {
     add_field => { "combined_path" => "%{[process][cwd]}/%{[file][path]}" }
   }
+  ruby {
+    path => "/etc/logstash/combined_path.rb"
+  }
 }
 
 output {

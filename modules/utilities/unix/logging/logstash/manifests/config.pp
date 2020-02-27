@@ -47,4 +47,10 @@ class logstash::config {
       force   => true,
     }
   }
+
+  file { '/etc/logstash/combined_path.rb':
+    ensure => file,
+    source => 'puppet:///modules/logstash/combined_path.rb',
+    require => File[$logstash::config_dir],
+  }
 }
