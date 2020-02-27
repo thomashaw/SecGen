@@ -8,16 +8,6 @@ class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,
   version => '6.3.1',
-  templates => {
-    'auditbeat' => {
-      'content' => {
-        'template' => 'auditbeat-*',
-        'mappings' => {
-          'combined_path' => 'keyword'
-        }
-      }
-    }
-  }
 }
 
 elasticsearch::instance { 'es-01':
