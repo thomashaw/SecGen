@@ -59,16 +59,13 @@ class Rules
   end
 
   def self.generate_elastalert_rule_rf(hostname, module_name, goal, sub_goal, counter)
-    puts 'break'
-
-    # TODO: add AND read/write events into rule
     "name: #{get_ea_rulename(hostname, module_name, goal, counter)}\n" +
         "type: any\n" +
         "index: auditbeat-*\n" +
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: ' + get_ea_wildcard_path(sub_goal) + ' AND auditd.result: success AND event.action: opened-file' + "\n" +
+        '        query: "combined_path: ' + sub_goal + ' AND auditd.result: success AND event.action: opened-file' + "\n" +
         "alert:\n" +
         "  - command\n" +
         "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
@@ -80,13 +77,6 @@ class Rules
   def self.get_ea_rulename(hostname, module_name, goal, counter)
     rule_type = RuleTypes.get_rule_type(goal)
     return "#{hostname}-#{module_name}-#{rule_type}-#{counter}"
-  end
-
-  def self.get_ea_wildcard_path(path)
-    split_path = path.split('/')
-    split_path[-1] = "*#{split_path[-1]}"
-    split_path[0] = '*'
-    '\\"' + split_path.join('/') + '\\""'
   end
 
   class RuleTypes
