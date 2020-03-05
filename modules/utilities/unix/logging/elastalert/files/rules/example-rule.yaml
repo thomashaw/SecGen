@@ -4,9 +4,9 @@ index: auditbeat-*
 filter:
   - query:
       query_string:
-        query: "combined_path: \"*/home/vagrant/*testfile\""
+        query: "combined_path: \"/home/vagrant/testfile\""
 alert:
-  - command
+  - "modules.alerter.exec.ExecAlerter"
 command: ["/usr/bin/tee", "-a", "/root/alerts"]
 pipe_match_json: true
 realert:
