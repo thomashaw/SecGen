@@ -21,14 +21,19 @@ class elastalert::config {
 
   # Move the custom alerter (outputs rulename:alert)
 
-  file { '/opt/elastalert/elastalert_modules':
+  file { ['/opt/elastalert/elastalert/', '/opt/elastalert/elastalert/modules/', '/opt/elastalert/elastalert/modules/alerter/']:
     ensure => directory,
   }
 
-  file { '/opt/elastalert/elastalert_modules/exec_alerter.py':
+  file { ['/opt/elastalert/elastalert/modules/__init__.py','/opt/elastalert/elastalert/modules/alerter/__init__.py']:
+    ensure => file,
+    require => File['/opt/elastalert/elastalert/modules/alerter/'],
+  }
+
+  file { '/opt/elastalert/elastalert/modules/alerter/exec.py':
     ensure => file,
     source => 'puppet:///modules/elastalert/exec_alerter.py',
-    require => File['/opt/elastalert/elastalert_modules'],
+    require => File['/opt/elastalert/elastalert/modules/alerter/'],
   }
 
 }
