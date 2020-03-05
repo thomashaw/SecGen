@@ -67,7 +67,7 @@ class Rules
     "      query_string:\n" +
     '        query: "combined_path: \"' + sub_goal + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
     "alert:\n" +
-    "  - command\n" +
+    "  - \"modules.alerter.exec.ExecAlerter\"\n" +
     "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
     "pipe_match_json: true\n" +
     "realert:\n" +
