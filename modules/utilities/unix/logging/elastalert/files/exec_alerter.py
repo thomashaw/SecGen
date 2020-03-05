@@ -1,10 +1,30 @@
-from elastalert.alerts import Alerter, BasicMatchString
+import copy
+import datetime
+import json
+import logging
+import os
+import re
+import subprocess
+import sys
+import time
+import uuid
+import warnings
+
+from elastalert.alerts import Alerter, BasicMatchString, DateTimeEncoder
+
+from .util import EAException
+from .util import elastalert_logger
+from .util import lookup_es_key
+from .util import pretty_ts
+from .util import resolve_string
+from .util import ts_now
+from .util import ts_to_dt
 
 class ExecAlerter(Alerter):
     required_options = set(['command'])
 
-    def __init__(self, *args):
-        super(ExecAlerter, self).__init__(*args)
+    def __init__(self, rule):
+        super(ExecAlerter, self).__init__(rule)
 
         self.last_command = []
 
@@ -30,12 +50,12 @@ class ExecAlerter(Alerter):
         # Run command and pipe data
         try:
             subp = subprocess.Popen(command, stdin=subprocess.PIPE, shell=self.shell)
-                  match_json = json.dumps(matches, cls=DateTimeEncoder) + '\n'
-                  json = match_json.encode()
-                  input_string = self.rule['name'] + ":" + json
-                  stdout, stderr = subp.communicate(input=input_string)
-              if self.rule.get("fail_on_non_zero_exit", False) and subp.wait():
-                 raise EAException("Non-zero exit code while running command %s" % (' '.join(command)))
+            match_json = json.dumps(matches, cls=DateTimeEncoder) + '\n'
+            match_json = match_json.encode()
+            input_string = self.rule['name'] + ":::" + match_json
+            stdout, stderr = subp.communicate(input=input_string)
+            if self.rule.get("fail_on_non_zero_exit", False) and subp.wait():
+               raise EAException("Non-zero exit code while running command %s" % (' '.join(command)))
         except OSError as e:
           raise EAException("Error while running command %s: %s" % (' '.join(command), e))
 
