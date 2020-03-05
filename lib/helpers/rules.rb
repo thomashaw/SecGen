@@ -60,18 +60,18 @@ class Rules
 
   def self.generate_elastalert_rule_rf(hostname, module_name, goal, sub_goal, counter)
     "name: #{get_ea_rulename(hostname, module_name, goal, counter)}\n" +
-        "type: any\n" +
-        "index: auditbeat-*\n" +
-        "filter:\n" +
-        "  - query:\n" +
-        "      query_string:\n" +
-        '        query: "combined_path: ' + sub_goal + ' AND auditd.result: success AND event.action: opened-file' + "\n" +
-        "alert:\n" +
-        "  - command\n" +
-        "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
-        "pipe_match_json: true\n" +
-        "realert:\n" +
-        "  minutes: 0\n"
+    "type: any\n" +
+    "index: auditbeat-*\n" +
+    "filter:\n" +
+    "  - query:\n" +
+    "      query_string:\n" +
+    '        query: "combined_path: \"' + sub_goal + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
+    "alert:\n" +
+    "  - command\n" +
+    "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
+    "pipe_match_json: true\n" +
+    "realert:\n" +
+    "  minutes: 0\n"
   end
 
   def self.get_ea_rulename(hostname, module_name, goal, counter)
