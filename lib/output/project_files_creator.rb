@@ -150,12 +150,13 @@ class ProjectFilesCreator
       if system.has_module('alert_actioner')
         # copy shared libs
         aa_lib_dir = "#{path}/modules/alert_actioner/files/lib"
+        FileUtils.mkdir_p(aa_lib_dir)
         FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
 
         # generate config rules
         aa_conf_dir = "#{path}/modules/alert_actioner/files/config/"
-
+        FileUtils.mkdir_p(aa_conf_dir)
 
 
       end
