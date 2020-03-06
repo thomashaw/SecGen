@@ -82,7 +82,7 @@
       </input>
     </utility>
 
-    <service module_path=".*routing_layer.*">
+    <service module_path=".*alert_actioner.*">
       <!--<input into="config">-->
         <!--<generator type="alert_action_rules">-->
           <!--<input into="alert_mappings">-->

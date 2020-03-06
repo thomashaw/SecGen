@@ -1,6 +1,6 @@
 
 --    Logical steps
---    auditd logs event, pushes to ELK, elastalert raises an alert, routing_layer determines what to do about the alert
+--    auditd logs event, pushes to ELK, elastalert raises an alert, alert_actioner determines what to do about the alert
 
 --    routing layer receives the alert (elastalert runs a command using the alert as a parameter).
 --    routing layer command: parses the alert's JSON
