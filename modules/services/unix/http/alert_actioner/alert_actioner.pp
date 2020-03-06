@@ -1,0 +1,1 @@
+require alert_actioner::init
