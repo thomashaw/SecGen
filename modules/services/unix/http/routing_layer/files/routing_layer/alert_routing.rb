@@ -1,40 +1,73 @@
-require_relative 'alerts/alert_factory'
+require 'json'
 
-def usage
-  Print.std "Usage:
-   #{$0} <command> <args>
+require_relative 'alerts/alert'
+require_relative 'lib/print'
 
-   COMMANDS:
-   alert, a: Read and action an alert  [JSON string]
-   load_config, l: Loads the configuration xml file [config.xml]
-"
-  exit
+class AlertRouter
+
+  attr_accessor :alerts
+
+  def initialize
+    self.alerts = []
+  end
+
+  def parameter_check
+    if ARGV.length != 1
+      Print.err 'ERROR: Incorrect number of parameters'
+      usage
+      exit(1)
+    end
+  end
+
+  def read_alert
+    begin
+      parameter = ARGV[1]
+      split_param = parameter.split(':||:')
+      raise StandardError if split_param.length != 2
+      rule_name = split_param[0]
+      alert_body = JSON.parse(split_param[1])
+      self.alerts << Alert.new(rule_name, alert_body)
+    rescue JSON::ParserError, StandardError => e
+      Print.err e.to_s
+      # log error to file
+      exit(1)
+    end
+  end
+
+  def load_config
+    # Open files in /config/
+    # Validate against schema
+  end
+
+  def rule_comparison
+    # code here
+  end
+
+  def action_alert
+    # code here
+  end
+
+  def usage
+    Print.std "Usage:
+   #{$0} <alert>"
+    exit
+  end
+
+  def run
+    # move to initialize
+    parameter_check   #[done]
+    read_alert
+    load_config
+    # /move to initialize
+    rule_comparison
+    action_alert
+
+    # alert = AlertFactory.get_alert(ARGV[1])
+    # actioner = AlertActioner.get_actioner(alert.type)
+    # AlertActioner.action(alert)
+  end
 end
 
 
-# at least one command
-if ARGV.length < 1
-  Print.err 'Missing command'
-  usage
-  exit 1
-end
-
-case ARGV[0]
-when 'alert', 'a'
-  config_loaded_check
-  alert = AlertFactory.get_alert(ARGV[1])
-  actioner = AlertActioner.get_actioner(alert.type)
-  AlertActioner.action(alert)
-when 'load_config', 'load', 'l'
-  # validate_config(config_string)
-  # load_config(config)
-else
-  Print.err "Command not valid: #{ARGV[0]}"
-  usage
-  exit 1
-end
 
 
-def config_loaded_check
-  # Check if the database has values in, if not error out.
-end
