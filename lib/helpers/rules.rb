@@ -68,7 +68,7 @@ class Rules
     '        query: "combined_path: \"' + sub_goal + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
     "alert:\n" +
     "  - \"modules.alerter.exec.ExecAlerter\"\n" +
-    "command: [\"/usr/bin/tee\", \"-a\", \"/root/alerts\"]\n" +
+    "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_actioner.rb\"]\n" +
     "pipe_match_json: true\n" +
     "realert:\n" +
     "  minutes: 0\n"
