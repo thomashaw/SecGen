@@ -1,4 +1,5 @@
 require 'json'
+require 'logger'
 
 require_relative 'alerts/alert'
 require_relative 'lib/print'
@@ -9,9 +10,13 @@ class AlertRouter
   ALERTER_DIRECTORY = '/opt/alert_actioner/'
 
   attr_accessor :alerts
+  attr_accessor :logs
 
   def initialize
     self.alerts = []
+    self.logs = []
+    self.logs << Logger.new('full-log.txt')
+    self.logs[0].debug "Log file created"
   end
 
   def parameter_check

@@ -1,3 +1,6 @@
+require 'logger'
+require_relative '../lib/print'
+
 class AlertActioner
 
   attr_accessor :action_type
