@@ -82,7 +82,15 @@
       </input>
     </utility>
 
-    <!--<service module_path=".*routing_layer.*"/>-->
+    <service module_path=".*routing_layer.*">
+      <!--<input into="config">-->
+        <!--<generator type="alert_action_rules">-->
+          <!--<input into="alert_mappings">-->
+            <!--<value></value>-->
+          <!--</input>-->
+        <!--</generator>-->
+      <!--</input>-->
+    </service>
 
     <utility module_path=".*elastalert.*">
       <input into="elasticsearch_ip">
