@@ -146,6 +146,20 @@ class ProjectFilesCreator
           end
         end
       end
+
+      if system.has_module('alert_actioner')
+        # copy shared libs
+        aa_lib_dir = "#{path}/modules/elastalert/files/lib"
+        FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
+        FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
+
+        # generate config rules
+        aa_conf_dir = "#{path}/modules/elastalert/files/config/"
+
+
+
+      end
+
     end
 
     # Create environments/production/environment.conf - Required in Puppet 4+

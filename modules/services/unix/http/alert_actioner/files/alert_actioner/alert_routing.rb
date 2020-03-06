@@ -2,8 +2,11 @@ require 'json'
 
 require_relative 'alerts/alert'
 require_relative 'lib/print'
+require_relative 'lib/xml_reader'
 
 class AlertRouter
+
+  ALERTER_DIRECTORY = '/opt/alert_actioner/'
 
   attr_accessor :alerts
 
@@ -35,6 +38,9 @@ class AlertRouter
   end
 
   def load_config
+
+    conf_filenames = Dir["#{ALERTER_DIRECTORY}*.xml"]
+
     # Open files in /config/
     # Validate against schema
   end
@@ -44,7 +50,7 @@ class AlertRouter
   end
 
   def action_alert
-    # code here
+
   end
 
   def usage
