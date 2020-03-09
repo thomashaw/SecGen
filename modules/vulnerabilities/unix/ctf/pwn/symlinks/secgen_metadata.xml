@@ -20,13 +20,11 @@
 
   <goals>
     <read_file>#{['flag_path']}</read_file>
-    <read_file>#{['test_path']}</read_file>
-    <read_file>/goal/test</read_file>
   </goals>
 
   <read_fact>username</read_fact>
   <read_fact>flag_path</read_fact>
-  <read_fact>test_path</read_fact>
+  <read_fact>goal_flags</read_fact>
 
   <default_input into="accounts">
     <generator type="account">
@@ -44,11 +42,6 @@
         <generator module_path=".*random_weak_password"/>
       </input>
     </generator>
-    <!--<generator type="account">-->
-      <!--<input into="username">-->
-        <!--<value>test_2</value>-->
-      <!--</input>-->
-    <!--</generator>-->
   </default_input>
 
   <default_input into="flag_path">
@@ -56,43 +49,9 @@
     <value>/home/#{['accounts'][0]['username']}/#{['accounts'][0]['leaked_filenames'][0]}</value>
   </default_input>
 
-  <!--TODO: Delete me-->
-  <default_input into="test_path">
-    <value>/test/path</value>
+  <default_input into="goal_flags">
+    <value>#{['accounts'][0]['strings_to_leak'][0]}</value>
+    <value>#{['accounts'][0]['strings_to_leak'][1]}</value>
   </default_input>
-
-  <!-- TODO: WIP -->
-  <!--<default_input into="accounts" into_datastore="test">-->
-    <!--<generator type="account">-->
-      <!--<input into="username">-->
-        <!--<value>carolmiller</value>-->
-      <!--</input>-->
-      <!--<input into="password">-->
-         <!--Use random_weak_password (5 chars long) as it's brute force-able-->
-        <!--<generator module_path=".*random_weak_password"/>-->
-      <!--</input>-->
-      <!--<input into="leaked_filenames">-->
-        <!--<value>flag.txt</value>-->
-      <!--</input>-->
-      <!--<input into="strings_to_leak">-->
-        <!--<generator type="flag_generator"/>  &lt;!&ndash; [0]: flag in shadow file &ndash;&gt;-->
-        <!--<generator type="flag_generator"/>  &lt;!&ndash; [1]: flag in /home/<username>/flag.txt &ndash;&gt;-->
-      <!--</input>-->
-    <!--</generator>-->
-  <!--</default_input>-->
-
-  <!--<requires>-->
-    <!--<type>update</type>-->
-  <!--</requires>-->
-
-  <!--<requires>-->
-    <!--<module_path>utilities/unix/system/accounts</module_path>-->
-  <!--</requires>-->
-
-  <!-- Need a way on to the box. -->
-  <!-- TODO: remove this? -->
-  <!--<requires>-->
-  <!--<privilege>user_rwx</privilege>-->
-  <!--</requires>-->
 
 </vulnerability>

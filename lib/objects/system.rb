@@ -481,6 +481,16 @@ class System
     has_module
   end
 
+  def get_module(module_name)
+    selected_module = nil
+    module_selections.each do |mod|
+      if mod.module_path_end == module_name
+        selected_module = mod
+      end
+    end
+    selected_module
+  end
+
   def set_options(opts)
     self.options = opts if opts != nil and self.options == {}
   end

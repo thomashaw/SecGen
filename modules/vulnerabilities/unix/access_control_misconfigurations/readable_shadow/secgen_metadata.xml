@@ -19,6 +19,11 @@
     <read_file>/etc/shadow</read_file>
   </goals>
 
+  <read_fact>goal_flags</read_fact>
+  <default_input into="goal_flags">
+    <generator type="flag_generator"/>
+  </default_input>
+
   <hint>View the /etc/shadow file and try to crack an account hash.</hint>
 
   <conflict>
