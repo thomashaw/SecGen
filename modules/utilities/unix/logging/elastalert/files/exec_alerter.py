@@ -12,13 +12,13 @@ import warnings
 
 from elastalert.alerts import Alerter, BasicMatchString, DateTimeEncoder
 
-from .util import EAException
-from .util import elastalert_logger
-from .util import lookup_es_key
-from .util import pretty_ts
-from .util import resolve_string
-from .util import ts_now
-from .util import ts_to_dt
+from elastalert.util import EAException
+from elastalert.util import elastalert_logger
+from elastalert.util import lookup_es_key
+from elastalert.util import pretty_ts
+from elastalert.util import resolve_string
+from elastalert.util import ts_now
+from elastalert.util import ts_to_dt
 
 class ExecAlerter(Alerter):
     required_options = set(['command'])
