@@ -1,9 +1,6 @@
 require 'nokogiri'
 require 'digest'
 
-require_relative '../objects/system'
-require_relative '../objects/module'
-
 class XMLReader
 
   # uses nokogiri to extract all system information from scenario.xml
