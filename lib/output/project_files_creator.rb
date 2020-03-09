@@ -134,7 +134,7 @@ class ProjectFilesCreator
                 @module_name = module_selection.module_path_end
                 @goal = goal
                 goal[1].each_with_index do |sub_goal, i|
-                  @sub_goal = sub_goal   # TODO: Identify sub_goal type, it should be a string but we're getting errors from get_escaped_path(sub_goal) @ rules.rb:87
+                  @sub_goal = sub_goal # TODO: Identify sub_goal type, it should be a string but we're getting errors from get_escaped_path(sub_goal) @ rules.rb:87
                   @counter = i
                   rule_name = Rules.get_ea_rulename(@hostname, @module_name, @goal, @counter)
                   elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
@@ -147,17 +147,19 @@ class ProjectFilesCreator
         end
       end
 
+      # TODO: Refactor to include in the loop above if possible
       if system.has_module('alert_actioner')
         # copy shared libs
         aa_lib_dir = "#{path}/modules/alert_actioner/files/alert_actioner/lib"
         FileUtils.mkdir_p(aa_lib_dir)
         FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
+        FileUtils.cp_r("#{ROOT_DIR}/lib/schemas/alertactioner_config_schema.xsd", "#{aa_lib_dir}/alertactioner_config_schema.xsd")
 
         # generate config rules
         aa_conf_dir = "#{path}/modules/alert_actioner/files/alert_actioner/config/"
         FileUtils.mkdir_p(aa_conf_dir)
-
+        alert_actioner = system.get_module('alert_actioner')
 
       end
 
