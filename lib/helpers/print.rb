@@ -14,27 +14,33 @@ class Print
   def self.bright_yellow(text); colorize(text, "\e[93m"); end
   def self.bold(text); colorize(text, "\e[2m"); end
 
-  def self.debug(msg)
+  def self.debug(msg, logger=nil)
+    logger.debug(msg) if logger
     puts purple(' ' + msg)
   end
 
-  def self.verbose(msg)
+  def self.verbose(msg, logger=nil)
+    logger.info(msg) if logger
     puts grey(' ' + msg)
   end
 
-  def self.err(msg)
+  def self.err(msg, logger=nil)
+    logger.error(msg) if logger
     $stderr.puts red(msg)
   end
 
-  def self.info(msg)
+  def self.info(msg, logger=nil)
+    logger.info(msg) if logger
     puts green(msg)
   end
 
-  def self.std(msg)
+  def self.std(msg, logger=nil)
+    logger.info(msg) if logger
     puts yellow(msg)
   end
 
-  def self.warn(msg)
+  def self.warn(msg, logger=nil)
+    logger.warn(msg) if logger
     puts bright_yellow(msg)
   end
 
