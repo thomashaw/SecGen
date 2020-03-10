@@ -10,26 +10,27 @@ class AlertRouter
   ALERTER_DIRECTORY = '/opt/alert_actioner/'
   AA_CONFIG_SCHEMA = ALERTER_DIRECTORY + 'lib/alertactioner_config_schema.xsd'
 
-  attr_accessor :alerts
+  attr_accessor :alert
   attr_accessor :config_docs
   attr_accessor :configs
   attr_accessor :logs
+  attr_accessor :input
 
   def initialize
-    self.alerts = []
     self.config_docs = []
     self.configs = []
     self.logs = Logger.new('alert-router.log')
-    self.logs.debug "Elastalert log file created"
+    self.logs.debug "AlertRouter started..."
+    self.input = ARGF.read
   end
 
   def parameter_check
-    unless ARGV.length == 1
-      Print.err 'ERROR: Incorrect number of parameters', self.logs
+    unless self.input.length == 1
+      Print.err 'ERROR: Incorrect number of input parameters', self.logs
       usage
       exit(1)
     end
-    unless ARGV[1].include? ':||:'
+    unless self.input.include? ':||:'
       Print.err 'ERROR: Does not include delimiter, :||:, between alert-name and JSON. Was this run via Elastalert?', self.logs
       usage
       exit(1)
@@ -38,13 +39,12 @@ class AlertRouter
 
   def read_alert
     begin
-      parameter = ARGV[1]
-      split_param = parameter.split(':||:')
-      raise StandardError if split_param.length != 2
-      rule_name = split_param[0]
-      alert_body = JSON.parse(split_param[1])
+      split_input= self.input.split(':||:')
+      raise StandardError if split_input.length != 2
+      rule_name = split_input[0]
+      alert_body = JSON.parse(split_input[1])
       Print.info("Reading alert for rule: #{rule_name}", self.logs)
-      self.alerts << Alert.new(rule_name, alert_body)
+      self.alert = Alert.new(rule_name, alert_body)
     rescue JSON::ParserError, StandardError => e
       Print.info(e.to_s, self.logs)
       exit(1)
