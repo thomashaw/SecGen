@@ -45,10 +45,12 @@ class Print
   end
 
   # local encoders/generators write messages to stderr (stdout used to return values)
-  def self.local(msg)
+  def self.local(msg, logger=nil)
+    logger.info(msg) if logger
     $stderr.puts cyan(msg)
   end
-  def self.local_verbose(msg)
+  def self.local_verbose(msg, logger=nil)
+    logger.info(msg) if logger
     $stderr.puts cyan(' ' + msg)
   end
 
