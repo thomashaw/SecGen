@@ -1,11 +1,17 @@
+# TODO: remove after testing
+#require_relative '../lib/print'
+require_relative '../test/print'
+
 class Alert
-
   attr_accessor :rule_name
-  attr_accessor :alert_body
+  attr_accessor :alert_json
 
-  def initialize(rule_name, alert_body)
+  def initialize(rule_name, alert_json)
     self.rule_name = rule_name
-    self.alert_body = alert_body
+    self.alert_json = alert_json
+    # self.alert_type =
+    # self.alert_actions = [{action_type => 'msg', }]
+    Print.info("Alert created.")
   end
 
 end
