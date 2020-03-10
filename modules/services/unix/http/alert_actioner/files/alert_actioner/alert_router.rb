@@ -19,19 +19,18 @@ class AlertRouter
     self.alerts = []
     self.config_docs = []
     self.configs = []
-    self.logs = []
-    self.logs << Logger.new('full-log.txt')
-    self.logs[0].debug "Log file created"
+    self.logs = Logger.new('alert-router.log')
+    self.logs.debug "Elastalert log file created"
   end
 
   def parameter_check
     unless ARGV.length == 1
-      Print.err 'ERROR: Incorrect number of parameters'
+      Print.err 'ERROR: Incorrect number of parameters', self.logs
       usage
       exit(1)
     end
     unless ARGV[1].include? ':||:'
-      Print.err 'ERROR: Does not include delimiter, :||:, between alert-name and JSON. Was this run via Elastalert?'
+      Print.err 'ERROR: Does not include delimiter, :||:, between alert-name and JSON. Was this run via Elastalert?', self.logs
       usage
       exit(1)
     end
@@ -44,20 +43,19 @@ class AlertRouter
       raise StandardError if split_param.length != 2
       rule_name = split_param[0]
       alert_body = JSON.parse(split_param[1])
-      Print.info("Reading alert for rule: #{rule_name}")
+      Print.info("Reading alert for rule: #{rule_name}", self.logs)
       self.alerts << Alert.new(rule_name, alert_body)
     rescue JSON::ParserError, StandardError => e
-      Print.err e.to_s
-      # log error to file
+      Print.info(e.to_s, self.logs)
       exit(1)
     end
   end
 
   def load_config
-    Print.info("Reading config from: #{ALERTER_DIRECTORY}")
+    Print.info("Reading config from: #{ALERTER_DIRECTORY}", self.logs)
     conf_filenames = Dir["#{ALERTER_DIRECTORY}*.xml"]
     conf_filenames.each do |conf_filename|
-      Print.info("Loading config: #{conf_filename}")
+      Print.info("Loading config: #{conf_filename}", self.logs)
       doc = XMLReader.parse_doc(conf_filename, AA_CONFIG_SCHEMA, 'alert_action')
       # TODO: Convert doc to config object
       self.config_docs << doc
