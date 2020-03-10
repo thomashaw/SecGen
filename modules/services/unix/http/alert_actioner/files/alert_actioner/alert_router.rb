@@ -8,7 +8,7 @@ require_relative 'lib/xml_reader'
 class AlertRouter
 
   ALERTER_DIRECTORY = '/opt/alert_actioner/'
-  AA_CONFIG_SCHEMA = ALERTER_DIRECTORY + 'lib/schemas/alertactioner_config_schema.xsd'
+  AA_CONFIG_SCHEMA = ALERTER_DIRECTORY + 'lib/alertactioner_config_schema.xsd'
 
   attr_accessor :alerts
   attr_accessor :config_docs
@@ -25,8 +25,13 @@ class AlertRouter
   end
 
   def parameter_check
-    if ARGV.length != 1
+    unless ARGV.length == 1
       Print.err 'ERROR: Incorrect number of parameters'
+      usage
+      exit(1)
+    end
+    unless ARGV[1].include? ':||:'
+      Print.err 'ERROR: Does not include delimiter, :||:, between alert-name and JSON. Was this run via Elastalert?'
       usage
       exit(1)
     end
@@ -70,7 +75,6 @@ class AlertRouter
   def usage
     Print.std "Usage:
    #{$0} <alert>"
-    exit
   end
 
   def run
@@ -88,6 +92,4 @@ class AlertRouter
   end
 end
 
-
-
-
+AlertRouter.new.run
