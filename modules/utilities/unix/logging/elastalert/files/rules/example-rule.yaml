@@ -1,4 +1,4 @@
-name: Rule example for test file
+name: example-rule
 type: any
 index: auditbeat-*
 filter:
@@ -7,7 +7,7 @@ filter:
         query: "combined_path: \"/home/vagrant/testfile\""
 alert:
   - "modules.alerter.exec.ExecAlerter"
-command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_actioner.rb"]
+command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_router.rb"]
 pipe_match_json: true
 realert:
   minutes: 0
