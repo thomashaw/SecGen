@@ -5,22 +5,18 @@
           xsi:schemaLocation="http://www.github/cliffe/SecGen/alertactioner_config">
   <alertaction>
     <alert_name>example-rule</alert_name>
-    <action>
-      <WebAction>
-        <target>http://127.0.0.1:8080</target>
-        <request_type>POST</request_type>
-        <data>flag{asdf}</data>
-      </WebAction>
-    </action>
+    <WebAction>
+      <target>http://127.0.0.1:8080</target>
+      <request_type>POST</request_type>
+      <data>flag{asdf}</data>
+    </WebAction>
   </alertaction>
   <alertaction>
     <alert_name>example-rule</alert_name>
-    <action>
-      <WebAction>
-        <target>http://127.0.0.1:8080</target>
-        <request_type>POST</request_type>
-        <data>flag{falg20000s.daldla}</data>
-      </WebAction>
-    </action>
+    <WebAction>
+      <target>http://127.0.0.1:8080</target>
+      <request_type>POST</request_type>
+      <data>flag{falg20000s.daldla}</data>
+    </WebAction>
   </alertaction>
 </alertactioner>
