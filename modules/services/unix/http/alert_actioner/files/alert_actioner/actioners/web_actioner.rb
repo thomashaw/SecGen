@@ -1,6 +1,6 @@
 require 'net/http'
 require 'uri'
-require_relative 'actioner'
+require_relative 'alert_actioner'
 
 class WebActioner < AlertActioner
 
@@ -9,15 +9,14 @@ class WebActioner < AlertActioner
   attr_accessor :data
 
 
-  def initialize(target, request_type, data)
+  def initialize(config_filename, alertaction_index, alert_name, target, request_type, data)
+    super(config_filename, alertaction_index, alert_name)
     self.target = target
     self.request_type = request_type
     self.data = data
   end
 
   def perform_action
-    Print.info self.to_s
-
     uri = URI.parse(self.target)
 
     case self.request_type
@@ -27,7 +26,6 @@ class WebActioner < AlertActioner
     when 'POST'
       request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
       request.body = self.data.to_json
-
       response = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(request)
       end
@@ -38,11 +36,9 @@ class WebActioner < AlertActioner
       # TODO: later
       response = ''
     else
-       response = Net::HTTP.get_response(uri)
+      response = Net::HTTP.get_response(uri)
     end
-
     Print.info response.to_s
-
   end
 
   # TODO: Override me in superclass to print actioner type + all parameters??
