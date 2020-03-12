@@ -50,7 +50,6 @@ class XmlAlertActionConfigGenerator
             if module_goals != {} or module_goal_flags != nil
               goals_qty = module_goals.values[0].size
               flags_qty = module_goal_flags.size
-              puts 'break'
               unless goals_qty == flags_qty
                 Print.err "AlertActioner: ERROR for mapping_type: #{@aa_conf['mapping_type']}"
                 Print.err "Unequal number of goals and goal_flags for module: #{module_name}"
@@ -119,52 +118,5 @@ class XmlAlertActionConfigGenerator
     end
     builder.to_xml
 
-  end
-
-  def module_element(selected_module, xml)
-    # don't include modules that write to others
-    # (we just output the end result in terms of literal values)
-    if selected_module.write_to_module_with_id != ''
-      xml.comment "Used to calculate values: #{selected_module.module_path}"
-      xml.comment "  (inputs: #{selected_module.received_inputs.inspect.encode(:xml => :text).gsub('--', '-')}, outputs: #{selected_module.output.inspect.encode(:xml => :text).gsub('--', '-')})"
-      return
-    end
-    case selected_module.module_type
-    when 'vulnerability'
-      xml.vulnerability(selected_module.attributes_for_scenario_output) {
-        insert_inputs_and_values(selected_module, xml)
-      }
-    when 'base'
-      xml.base(selected_module.attributes_for_scenario_output) {
-        insert_inputs_and_values(selected_module, xml)
-      }
-    when 'build'
-      xml.build(selected_module.attributes_for_scenario_output) {
-        insert_inputs_and_values(selected_module, xml)
-      }
-    when 'service'
-      xml.service(selected_module.attributes_for_scenario_output) {
-        insert_inputs_and_values(selected_module, xml)
-      }
-    when 'utility'
-      xml.utility(selected_module.attributes_for_scenario_output) {
-        insert_inputs_and_values(selected_module, xml)
-      }
-    when 'network'
-      xml.network(selected_module.attributes_for_scenario_output)
-    else
-      puts "Unexpected module type: #{selected_module.attributes_for_scenario_output}"
-      # exit
-    end
-  end
-
-  def insert_inputs_and_values(selected_module, xml)
-    selected_module.received_inputs.each do |key, value|
-      xml.input({"into" => key}) {
-        value.each {|val|
-          xml.value val
-        }
-      }
-    end
   end
 end
