@@ -104,9 +104,9 @@ class XmlAlertActionConfigGenerator
             case alert_action['action_type']
             when 'WebAction'
               xml.WebAction {
-                xml.target = alert_action['target']
-                xml.request_type = alert_action['request_type']
-                xml.data = alert_action['data']
+                xml.target alert_action['target']
+                xml.request_type alert_action['request_type']
+                xml.data alert_action['data']
               }
             else
               # TODO: Add more actions
