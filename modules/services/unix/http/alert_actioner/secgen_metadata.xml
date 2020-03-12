@@ -11,6 +11,10 @@
   <type>http</type>
   <platform>unix</platform>
 
+  <read_fact>config</read_fact>
+  <default_input into="config">
+    <generator module_path=".*goal_flag_hacktivity.*"/>
+  </default_input>
   <software_license>Apache v2</software_license>
 
   <requires>

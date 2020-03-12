@@ -3,6 +3,7 @@ require_relative '../helpers/constants.rb'
 require_relative '../helpers/rules.rb'
 require_relative 'xml_scenario_generator.rb'
 require_relative 'xml_marker_generator.rb'
+require_relative 'xml_alertaction_config_generator.rb'
 require_relative 'ctfd_generator.rb'
 require 'fileutils'
 require 'librarian'
@@ -159,8 +160,13 @@ class ProjectFilesCreator
         # generate config rules
         aa_conf_dir = "#{path}/modules/alert_actioner/files/alert_actioner/config/"
         FileUtils.mkdir_p(aa_conf_dir)
-        alert_actioner = system.get_module('alert_actioner')
-
+        # Get the config json object from the alert_actioner
+        aa_conf = JSON.parse(system.get_module('alert_actioner').received_inputs['config'].first)
+        xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
+        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_conf)
+        xml = xml_aa_conf_generator.output
+        Print.std "Creating alert_actioner configuration file: #{xml_aa_conf_file}"
+        write_data_to_file(xml, xml_aa_conf_file )
       end
 
     end
@@ -180,14 +186,7 @@ class ProjectFilesCreator
     xml_report_generator = XmlScenarioGenerator.new(@systems, @scenario, @time)
     xml = xml_report_generator.output
     Print.std "Creating scenario definition file: #{xfile}"
-    begin
-      File.open(xfile, 'w+') do |file|
-        file.write(xml)
-      end
-    rescue StandardError => e
-      Print.err "Error writing file: #{e.message}"
-      abort
-    end
+    write_data_to_file(xml, xfile)
 
     # Create the marker xml file
     x2file = "#{@out_dir}/flag_hints.xml"
@@ -195,14 +194,7 @@ class ProjectFilesCreator
     xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time)
     xml = xml_marker_generator.output
     Print.std "Creating flags and hints file: #{x2file}"
-    begin
-      File.open(x2file, 'w+') do |file|
-        file.write(xml)
-      end
-    rescue StandardError => e
-      Print.err "Error writing file: #{e.message}"
-      abort
-    end
+    write_data_to_file(xml, x2file)
 
     # Create the CTFd zip file for import
     ctfdfile = "#{@out_dir}/CTFd_importable.zip"
@@ -241,6 +233,18 @@ class ProjectFilesCreator
     Print.std "VM(s) can be built using 'vagrant up' in #{@out_dir}"
 
   end
+
+  def write_data_to_file(data, path)
+    begin
+      File.open(path, 'w+') do |file|
+        file.write(data)
+      end
+    rescue StandardError => e
+      Print.err "Error writing file: #{e.message}"
+      abort
+    end
+  end
+
 
 # Goal string interpolation for the whole system
 # prior to calling the rule generator multiple times
