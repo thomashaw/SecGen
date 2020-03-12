@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>AlertActioner config for flags to Hacktivity</name>
+  <author>Thomas Shaw</author>
+  <module_license>GPLv3</module_license>
+  <description>
+    Generates an xml config file for an auto grading scenario.
+    Maps a scenario goal to its flag.
+    Automatically sends flag to Hacktivity once the goals' elastalert rule is triggered.
+    Describes how the the project_file_creator's alertactioner config generator should behave.
+  </description>
+
+  <type>alert_actioner_config</type>
+  <platform>linux</platform>
+
+  <read_fact>target</read_fact>
+
+  <!-- Either provide a mapping (i.e. [system1vuln1goal1 to system1vuln1goal_flag1, ... ] OR a broader mapping_type -->
+  <read_fact>mapping</read_fact>
+  <read_fact>mapping_type</read_fact>
+
+  <default_input into="target">
+    <value>https://hacktivity.aet.leedsbeckett.ac.uk/submit_flag</value>
+  </default_input>
+
+  <!-- Mapping types tell the project_file_creator what to do.-->
+  <default_input into="mapping_type">
+    <value>all_goal_flags_to_hacktivity</value>
+  </default_input>
+
+  <output_type>xml</output_type>
+
+</generator>
