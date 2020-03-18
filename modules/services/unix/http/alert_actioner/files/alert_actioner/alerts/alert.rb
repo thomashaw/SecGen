@@ -1,6 +1,5 @@
 # TODO: remove after testing
-#require_relative '../lib/print'
-require_relative '../test/print'
+require_relative '../lib/print'
 
 class Alert
   attr_accessor :rule_name

@@ -1,5 +1,5 @@
 require_relative '../lib/logging'
-require_relative '../test/print'
+require_relative '../lib/print'
 require_relative '../lib/aa_constants'
 
 class AlertActioner
