@@ -1,6 +1,3 @@
-require 'net/http'
-require 'uri'
-require_relative 'alert_actioner'
 require_relative 'command_actioner'
 
 class MessageActioner < CommandActioner

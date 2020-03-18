@@ -1,24 +1,13 @@
 require 'nokogiri'
 require 'digest'
 
-# TODO: Fix the pathing etc after we're done.
-require_relative '../lib/aa_constants'
-require_relative '../actioners/alert_actioner'
+require_relative 'aa_constants'
+require_relative 'xml_reader'
 require_relative '../actioners/web_actioner'
 require_relative '../actioners/message_actioner'
-require_relative 'xml_reader.rb'
-require_relative '../../../../../../../../lib/helpers/constants.rb'
 
-
-# TODO: Might want to keep this reader in the module rather than in the 'lib/readers' folder, but we'll see.
 class AlertActionReader < XMLReader
   include Logging
-
-  # TODO: Fix the pathing + remove this after we're done.
-  ALERTER_DIRECTORY = SERVICES_DIR + 'unix/http/alert_actioner/files/alert_actioner/'
-  CONFIG_DIRECTORY = ALERTER_DIRECTORY + 'config/'
-  # AA_CONFIG_SCHEMA = ALERTER_DIRECTORY + 'lib/alertactioner_config_schema.xsd'
-  AA_CONFIG_SCHEMA = ALERTER_DIRECTORY + 'test/alertactioner_config_schema.xsd'
 
   # uses nokogiri to extract all system information from alertaction config.xml files
   # @return [Array] Array containing AlertActioner objects
