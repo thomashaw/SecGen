@@ -3,27 +3,33 @@
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-  <name>AlertActioner goal-flag-hacktivity config generator</name>
+  <name>AlertActioner goal-message-host config generator</name>
   <author>Thomas Shaw</author>
   <module_license>GPLv3</module_license>
-  <description>TODO</description>
+  <description>Generates a json config string for use by the XmlAlertActionConfigGenerator.</description>
 
   <type>alert_actioner_config</type>
   <platform>linux</platform>
 
-  <read_fact>target</read_fact>
+  <read_fact>message</read_fact>
+  <read_fact>host</read_fact>
+  <read_fact>root_password</read_fact>
 
   <!-- Either provide a mapping (i.e. [system1vuln1goal1 to system1vuln1goal_flag1, ... ] OR a broader mapping_type -->
   <read_fact>mapping</read_fact>
   <read_fact>mapping_type</read_fact>
 
-  <default_input into="target">
-    <value>https://hacktivity.aet.leedsbeckett.ac.uk/submit_flag</value>
+  <default_input into="message">
+    <generator type="message_generator"/>
+  </default_input>
+
+  <default_input into="host">
+    <value>127.0.0.1</value>
   </default_input>
 
   <!-- Mapping types tell the project_file_creator what to do.-->
   <default_input into="mapping_type">
-    <value>all_goal_flags_to_hacktivity</value>
+    <value>all_goal_messages_to_host</value>
   </default_input>
 
   <output_type>json</output_type>
