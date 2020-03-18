@@ -10,12 +10,13 @@ class GoalFlagHacktivity < StringGenerator
   def initialize
     super
     self.module_name = 'Goal-Flag to Hacktivity AlertActioner Config Generator'
-    self.target = ''
+    self.target = ''    # Address for Hacktivity / external web application
     self.mapping = []   # TODO: Implement granular mappings
     self.mapping_type = ''
   end
 
   def generate
+    # TODO: Create an enum-like hash/class to validate the mapping_types
     self.outputs << {:target => self.target, :mapping => self.mapping, :mapping_type => self.mapping_type}.to_json
   end
 
@@ -29,7 +30,7 @@ class GoalFlagHacktivity < StringGenerator
     super
     case opt
     when '--target'
-      self.target << arg
+      self.target = arg
     when '--mapping'
       self.mapping << arg
     when '--mapping_type'

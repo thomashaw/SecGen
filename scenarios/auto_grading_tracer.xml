@@ -31,6 +31,11 @@
       <value>192.168.209.167</value>
     </input>
 
+    <input into_datastore="client_root_password">
+      <value>test</value>
+      <!--<generator type="strong_password_generator"/>-->
+    </input>
+
     <input into_datastore="elasticsearch_port">
       <value>9200</value>
     </input>
@@ -85,6 +90,17 @@
     <service module_path=".*alert_actioner.*">
       <input into="config">
         <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
+        <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
+          <input into="host">
+            <datastore access="1">IP_addresses</datastore>
+          </input>
+          <input into="message">
+            <value>Well done!</value>
+          </input>
+          <input into="root_password">
+            <datastore access="0">client_root_password</datastore>
+          </input>
+        </generator>
       </input>
       <!--<input into="mapping">-->
         <!-- TODO: Implement me-->
@@ -179,7 +195,7 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <value>test</value>
+        <datastore access="0">client_root_password</datastore>
       </input>
     </build>
   </system>

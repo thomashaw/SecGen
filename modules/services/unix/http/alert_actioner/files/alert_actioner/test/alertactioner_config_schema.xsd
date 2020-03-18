@@ -22,6 +22,7 @@
 
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element name="WebAction" type="WebActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="MessageAction" type="MessageActionType" minOccurs="1" maxOccurs="unbounded" />
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -51,6 +52,13 @@
         </xs:simpleType>
       </xs:element>
       <xs:element name="data" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="MessageActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="message" type="xs:string" minOccurs="0" maxOccurs="1"/>
     </xs:choice>
   </xs:complexType>
 
