@@ -161,9 +161,13 @@ class ProjectFilesCreator
         aa_conf_dir = "#{path}/modules/alert_actioner/files/alert_actioner/config/"
         FileUtils.mkdir_p(aa_conf_dir)
         # Get the config json object from the alert_actioner
-        aa_conf = JSON.parse(system.get_module('alert_actioner').received_inputs['config'].first)
+        aa_confs = []
+        aa_conf_strs = system.get_module('alert_actioner').received_inputs['config']
+        aa_conf_strs.each do |aa_conf_str|
+          aa_confs << JSON.parse(aa_conf_str)
+        end
         xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
-        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_conf)
+        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs)
         xml = xml_aa_conf_generator.output
         Print.std "Creating alert_actioner configuration file: #{xml_aa_conf_file}"
         write_data_to_file(xml, xml_aa_conf_file )

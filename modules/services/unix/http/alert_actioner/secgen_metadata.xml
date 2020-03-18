@@ -14,6 +14,14 @@
   <read_fact>config</read_fact>
   <default_input into="config">
     <generator module_path=".*goal_flag_hacktivity.*"/>
+    <generator module_path=".*goal_flag_message.*">
+      <input into="mapping_type">
+        <value>message_to_host</value>
+      </input>
+      <input into="message">
+        <value>Well done!</value>
+      </input>
+    </generator>
   </default_input>
   <software_license>Apache v2</software_license>
 

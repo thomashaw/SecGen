@@ -33,7 +33,7 @@ class AlertActionReader < XMLReader
       alert_name = alertaction_node.at_xpath('alert_name').text
 
       # for each action type:
-      alertaction_node.xpath('WebAction | HostAction | MessageAction | VDIAction | IRCAction').each do |action_node|
+      alertaction_node.xpath('WebAction | CommandAction | MessageAction | VDIAction | IRCAction').each do |action_node|
         type = action_node.name
 
         case type
@@ -45,7 +45,7 @@ class AlertActionReader < XMLReader
           web_actioner = WebActioner.new(config_filename, alertaction_index, alert_name, target, request_type, data)
           Print.info "Created #{web_actioner.to_s}"
           alert_actioners << web_actioner
-        when 'HostAction'
+        when 'CommandAction'
           # todo
         when 'MessageAction'
           # todo

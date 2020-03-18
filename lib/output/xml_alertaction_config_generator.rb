@@ -8,83 +8,106 @@ class XmlAlertActionConfigGenerator
   # @param [Object] systems the list of systems
   # @param [Object] scenario the scenario file used to generate
   # @param [Object] time the current time as a string
-  # @param [Hash] aa_conf the alert_actioner configuration settings
-  def initialize(systems, scenario, time, aa_conf)
+  # @param [Array[Hash]] the alert_actioner configuration settings (list of aa_conf JSON hashes)
+  def initialize(systems, scenario, time, aa_confs)
     @systems = systems
     @scenario = scenario
     @time = time
-    @aa_conf = aa_conf
+    @aa_confs = aa_confs
+    @alert_actions = []
   end
 
   # outputs a XML AlertActioner configuration file
   # @return [Object] xml string
   def output
+    create_alert_actions
+    generate_xml_config
+  end
 
-    alert_actions = []
-    ###### TODO: Sort me out
-    if @aa_conf['mapping_type']
-      # Determine what to do based on the rules there (for now just implement all goals -> goal_flags
-      case @aa_conf['mapping_type']
-      when 'all_goal_flags_to_hacktivity'
+  def create_alert_actions
+    @aa_confs.each do |aa_conf|
+      if aa_conf['mapping_type']
+        case aa_conf['mapping_type']
+        when 'all_goal_flags_to_hacktivity'
+          all_goal_flags_to_hacktivity(aa_conf)
+        when 'all_goal_messages_to_host'
+          all_goal_message_host(aa_conf)
+        else
+          Print.err("AlertActioner Config: Invalid mapping type #{aa_conf['mapping_type']}")
+          exit(1)
+        end
+      elsif aa_conf['mapping']
+        # TODO: Implement me later
+      else
+        Print.err "AlertActioner Config: Either mapping_type or mapping required."
+        exit(1)
+      end
+    end
+  end
 
-        hacktivity_target = @aa_conf['target']
-        goal_flags = {} # goal_flags = {'goal_id' => 'flag{asdf}'} where goal_id is system1vuln1goal1 etc.
-        # Generate the structure
-        # Create a new config file in the puppet alert_actioner module directory for this project
+  # TODO: Refactor the common code from the below functions
 
-        # We need a unique_goal_id based on the module unique_id, goal_type, and position in that module's goal array
-        # e.g. scenariosystem2vulnerability2goalrf1  for the first read-file goal in the second vulnerability module on the second system in a scenario
+  def all_goal_message_host(aa_conf)
+    @systems.each do |system|
+      system.module_selections.each do |module_selection|
+        module_name = module_selection.module_path_end
+        module_goals = module_selection.goals
+        if module_goals != {}
+          # Iterate over the goals
+          module_selection.goals.each do |goal|
+            @module_name = module_selection.module_path_end
+            goal[1].each_with_index do |_, i|
+              @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
+                                 'root_password' => aa_conf['root_password'],
+                                 'action_type' => 'MessageAction',
+                                 'host' => aa_conf['host'],
+                                 'message' => aa_conf['message']
+              }
+            end
+          end
+        end
+      end
+    end
+  end
 
+  def all_goal_flags_to_hacktivity(aa_conf)
+    @systems.each do |system|
+      system.module_selections.each do |module_selection|
+        module_name = module_selection.module_path_end
+        module_goals = module_selection.goals
+        module_goal_flags = module_selection.received_inputs['goal_flags']
 
-        # TODO: Refactor this code into a function, there are 2 more instances of it below
+        # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
+        if module_goals != {} or module_goal_flags != nil
+          goals_qty = module_goals.values[0].size
+          flags_qty = module_goal_flags.size
+          unless goals_qty == flags_qty
+            Print.err "AlertActioner: ERROR for mapping_type: #{aa_conf['mapping_type']}"
+            Print.err "Unequal number of goals and goal_flags for module: #{module_name}"
+            Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
+            exit(1) # Do we exit or just retry loop it? We probably want to notice this rather than just building anyway with a warning, so exit
+          end
 
-
-        @systems.each do |system|
-          system.module_selections.each do |module_selection|
-            module_name = module_selection.attributes['name'].first
-            module_goals = module_selection.goals
-            module_goal_flags = module_selection.received_inputs['goal_flags']
-
-            # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
-
-            if module_goals != {} or module_goal_flags != nil
-              goals_qty = module_goals.values[0].size
-              flags_qty = module_goal_flags.size
-              unless goals_qty == flags_qty
-                Print.err "AlertActioner: ERROR for mapping_type: #{@aa_conf['mapping_type']}"
-                Print.err "Unequal number of goals and goal_flags for module: #{module_name}"
-                Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
-                exit(1) # Do we exit or just retry loop it? We probably want to notice this rather than just building anyway with a warning, so exit
-              end
-
-              if module_goals != {} and module_goal_flags != nil
-                # Iterate over the goals
-                module_selection.goals.each do |goal|
-                  @module_name = module_selection.module_path_end
-                  goal[1].each_with_index do |_, i|
-                    alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
-                                      'action_type' => 'WebAction',
-                                      'target' => hacktivity_target,
-                                      'request_type' => 'POST',
-                                      'data' => module_goal_flags[i]
-                    }
-                  end
-                end
+          if module_goals != {} and module_goal_flags != nil
+            # Iterate over the goals
+            module_selection.goals.each do |goal|
+              @module_name = module_selection.module_path_end
+              goal[1].each_with_index do |_, i|
+                @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
+                                   'action_type' => 'WebAction',
+                                   'target' => aa_conf['target'],
+                                   'request_type' => 'POST',
+                                   'data' => module_goal_flags[i]
+                }
               end
             end
           end
         end
-      else
-        Print.err("AlertActioner Config: Invalid mapping type #{@aa_conf['mapping_type']}")
       end
-    elsif @aa_conf['mapping']
-      # TODO: Implement me later
-    else
-      Print.err "AlertActioner Config: Either mapping_type or mapping required."
-      exit(1)
     end
-    ###### TODO: Sort me out
+  end
 
+  def generate_xml_config
     ns = {
         'xmlns' => "http://www.github/cliffe/SecGen/alertactioner_config",
         'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
@@ -95,10 +118,8 @@ class XmlAlertActionConfigGenerator
         xml.comment 'This AlertActioner configuration file was generated by SecGen'
         xml.comment "#{@time}"
         xml.comment "Based on a fulfilment of scenario: #{@scenario}"
-        xml.comment "Mapping type: #{@aa_conf['mapping_type']}" if @aa_conf['mapping_type'] != ''
-        xml.comment "Mapping: #{@aa_conf['mapping']}" if @aa_conf['mapping'] != []
 
-        alert_actions.each {|alert_action|
+        @alert_actions.each {|alert_action|
           xml.alertaction {
             xml.alert_name alert_action['alert_name']
             case alert_action['action_type']
@@ -107,6 +128,11 @@ class XmlAlertActionConfigGenerator
                 xml.target alert_action['target']
                 xml.request_type alert_action['request_type']
                 xml.data alert_action['data']
+              }
+            when 'MessageAction'
+              xml.MessageAction {
+                xml.host alert_action['host']
+                xml.message alert_action['message']
               }
             else
               # TODO: Add more actions
@@ -117,6 +143,5 @@ class XmlAlertActionConfigGenerator
       }
     end
     builder.to_xml
-
   end
 end
