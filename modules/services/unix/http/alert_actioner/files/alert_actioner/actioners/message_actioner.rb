@@ -1,6 +1,7 @@
 require 'net/http'
 require 'uri'
 require_relative 'alert_actioner'
+require_relative 'command_actioner'
 
 class MessageActioner < CommandActioner
 
@@ -10,7 +11,7 @@ class MessageActioner < CommandActioner
 
   # TODO: Override me in superclass to print actioner type + all parameters??
   def to_s
-    "MessageActioner:\n  Host: #{self.host}\n  Request Type: #{self.request_type}\n  Data: #{self.data.to_s}"
+    "MessageActioner:\n TODO: to_s parameters"
   end
 
 end

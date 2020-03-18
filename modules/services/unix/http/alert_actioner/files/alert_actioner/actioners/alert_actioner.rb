@@ -1,4 +1,4 @@
-require 'logger'
+require_relative '../lib/logging'
 require_relative '../test/print'
 require_relative '../lib/aa_constants'
 
