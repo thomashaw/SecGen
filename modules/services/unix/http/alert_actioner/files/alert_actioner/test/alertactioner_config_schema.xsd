@@ -57,6 +57,7 @@
 
   <xs:complexType name="MessageActionType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="root_password" type="xs:string" minOccurs="1" maxOccurs="1" />
       <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
       <xs:element name="message" type="xs:string" minOccurs="0" maxOccurs="1"/>
     </xs:choice>

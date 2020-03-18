@@ -20,6 +20,8 @@ class CommandActioner < AlertActioner
 
   def perform_action
 
+    Print.blue 'Running CommandActioner'
+    Print.blue to_s
 
 
     # To test this, we can run the script locally and ssh into a user that i create on my own machine.

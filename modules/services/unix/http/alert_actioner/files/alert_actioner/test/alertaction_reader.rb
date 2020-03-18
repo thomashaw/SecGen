@@ -5,6 +5,7 @@ require 'digest'
 require_relative '../lib/aa_constants'
 require_relative '../actioners/alert_actioner'
 require_relative '../actioners/web_actioner'
+require_relative '../actioners/message_actioner'
 require_relative 'xml_reader.rb'
 require_relative '../../../../../../../../lib/helpers/constants.rb'
 
@@ -29,7 +30,6 @@ class AlertActionReader < XMLReader
 
     doc.xpath('//alertaction').each_with_index do |alertaction_node, alertaction_index|
 
-      Print.verbose "alertaction: #{alertaction_node}"
       alert_name = alertaction_node.at_xpath('alert_name').text
 
       # for each action type:
@@ -48,7 +48,12 @@ class AlertActionReader < XMLReader
         when 'CommandAction'
           # todo
         when 'MessageAction'
-          # todo
+          host = action_node.xpath('host').text
+          root_password = action_node.xpath('root_password').text
+          message = action_node.xpath('message').text
+          message_actioner = MessageActioner.new(config_filename, alertaction_index, alert_name, host, root_password, message)
+          Print.info  "Created #{message_actioner.to_s}"
+          alert_actioners << message_actioner
         when 'VDIAction'
           # todo
         when 'IRCAction'
