@@ -59,9 +59,11 @@ class XmlAlertActionConfigGenerator
             goal[1].each_with_index do |_, i|
               @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
                                  'action_type' => 'MessageAction',
-                                 'root_password' => aa_conf['root_password'],
                                  'host' => aa_conf['host'],
-                                 'message' => aa_conf['message']
+                                 'username' => aa_conf['username'],
+                                 'password' => aa_conf['password'],
+                                 'message_header' => aa_conf['message_header'],
+                                 'message_subtext' => aa_conf['message_subtext']
               }
             end
           end
@@ -131,9 +133,11 @@ class XmlAlertActionConfigGenerator
               }
             when 'MessageAction'
               xml.MessageAction {
-                xml.root_password alert_action['root_password']
                 xml.host alert_action['host']
-                xml.message alert_action['message']
+                xml.username alert_action['username']
+                xml.password alert_action['password']
+                xml.message_header alert_action['message_header']
+                xml.message_subtext alert_action['message_subtext']
               }
             else
               # TODO: Add more actions

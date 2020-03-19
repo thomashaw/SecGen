@@ -31,6 +31,17 @@
       <value>192.168.209.167</value>
     </input>
 
+    <input into_datastore="desktop_account">
+      <generator type="account">
+        <input into="username">
+          <value>test</value>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+      </generator>
+    </input>
+
     <input into_datastore="client_root_password">
       <value>test</value>
       <!--<generator type="strong_password_generator"/>-->
@@ -94,11 +105,17 @@
           <input into="host">
             <datastore access="1">IP_addresses</datastore>
           </input>
-          <input into="message">
+          <input into="message_header">
             <value>Well done!</value>
           </input>
-          <input into="root_password">
-            <datastore access="0">client_root_password</datastore>
+          <input into="message_subtext">
+            <value>Here is some subtext from the scenario</value>
+          </input>
+          <input into="username">
+            <datastore access="0" access_json="['username']">desktop_account</datastore>
+          </input>
+          <input into="password">
+            <datastore access="0" access_json="['password']">desktop_account</datastore>
           </input>
         </generator>
       </input>
@@ -144,6 +161,12 @@
     <system_name>client_1</system_name>
     <base distro="Debian 9" type="desktop"/>
     <utility module_path=".*handy_cli_tools.*"/>
+
+    <utility module_path=".*parameterised_accounts">
+      <input into="accounts">
+        <datastore access="0">desktop_account</datastore>
+      </input>
+    </utility>
 
     <utility module_path=".*filebeat.*">
       <input into="logstash_ip">
