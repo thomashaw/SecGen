@@ -11,16 +11,24 @@
   <type>alert_actioner_config</type>
   <platform>linux</platform>
 
-  <read_fact>message</read_fact>
   <read_fact>host</read_fact>
-  <read_fact>root_password</read_fact>
+  <read_fact>username</read_fact>
+  <read_fact>password</read_fact>
+  <read_fact>message_header</read_fact>
+  <read_fact>message_subtext</read_fact>
 
   <!-- Either provide a mapping (i.e. [system1vuln1goal1 to system1vuln1goal_flag1, ... ] OR a broader mapping_type -->
   <read_fact>mapping</read_fact>
   <read_fact>mapping_type</read_fact>
 
-  <default_input into="message">
+  <default_input into="message_header">
     <generator type="message_generator"/>
+    <value>Message header from the module</value>
+  </default_input>
+
+  <default_input into="message_subtext">
+    <!--<generator type="message_generator"/>-->
+    <value>Subtext from the module</value>
   </default_input>
 
   <default_input into="host">

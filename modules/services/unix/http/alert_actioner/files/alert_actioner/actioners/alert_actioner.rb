@@ -1,3 +1,5 @@
+require 'fileutils'
+require 'erb'
 require_relative '../lib/logging'
 require_relative '../lib/print'
 require_relative '../lib/aa_constants'
@@ -22,6 +24,23 @@ class AlertActioner
     Print.info("Actioning alert: #{self.alert_name}", logger)
     perform_action
 
+  end
+
+  def template_based_file_write(template, filename)
+    template_out = ERB.new(File.read(template), 0, '<>-')
+
+    begin
+      File.open(filename, 'wb+') do |file|
+        file.write(template_out.result(self.get_binding))
+      end
+    rescue StandardError => e
+      Print.err "Error writing file: #{e.message}"
+      Print.err e.backtrace.inspect
+    end
+  end
+
+  def get_binding
+    binding
   end
 
 end
