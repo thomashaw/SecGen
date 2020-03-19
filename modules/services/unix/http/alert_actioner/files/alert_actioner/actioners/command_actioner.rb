@@ -1,5 +1,6 @@
 require 'net/http'
 require 'uri'
+require 'open3'
 require_relative 'alert_actioner'
 
 class CommandActioner < AlertActioner
@@ -10,26 +11,36 @@ class CommandActioner < AlertActioner
   attr_accessor :parameters
 
 
-  def initialize(config_filename, alertaction_index, alert_name, host, root_password, command, parameters)
+  def initialize(config_filename, alertaction_index, alert_name, host, username, password, command, parameters)
     super(config_filename, alertaction_index, alert_name)
     self.host = host
-    self.root_password = root_password
+    self.username = username
+    self.password = password
     self.command = command
     self.parameters = parameters
   end
 
   def perform_action
 
-    Print.info 'Running CommandActioner', logger
+    ssh_command = "sshpass -p #{self.password} ssh -oStrictHostKeyChecking=no #{self.username}@#{self.host} "
+    shell_command = self.command.strip + ' ' + self.parameters.join(' ')
 
+    Print.info "  Command string: #{shell_command}"
 
-    # To test this, we can run the script locally and ssh into a user that i create on my own machine.
+    stdout, stderr, status = Open3.capture3(ssh_command + shell_command)
+    Print.info "  stdout: #{stdout}", logger
+    Print.info "  stderr: #{stderr}", logger if stderr != ''
+    Print.info "  STATUS: #{status}", logger
 
+    unless status.exitstatus == 0
+      Print.info "  ERROR: non-zero exit code.", logger
+      exit(1)
+    end
   end
 
   # TODO: Override me in superclass to print actioner type + all parameters??
   def to_s
-    "CommandActioner:\n  Target: #{self.target}\n  Request Type: #{self.request_type}\n  Data: #{self.data.to_s}"
+    "CommandActioner:\n  Host: #{self.host}\n  Command: #{self.command}\n  Parameters: #{self.parameters.join(',')}"
   end
 
 end
