@@ -29,10 +29,10 @@
   <xs:complexType name="ActionType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="WebAction" type="WebActionType" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="IRCAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="VMMessageAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="VMCommandAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
       <xs:element name="VDICommandAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="VMCommandAction" type="CommandActionType" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="VMMessageAction" type="MessageActionType" minOccurs="1" maxOccurs="unbounded" />
+      <xs:element name="IRCAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
     </xs:choice>
   </xs:complexType>
 
@@ -50,6 +50,25 @@
         </xs:simpleType>
       </xs:element>
       <xs:element name="data" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="CommandActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="command_string" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="MessageActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="message_header" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="message_subtext" type="xs:string" minOccurs="1" maxOccurs="1"/>
     </xs:choice>
   </xs:complexType>
 
