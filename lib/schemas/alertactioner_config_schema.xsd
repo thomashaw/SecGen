@@ -21,19 +21,13 @@
       </xs:element>
 
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="action" type="ActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="WebAction" type="WebActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="MessageAction" type="MessageActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VDICommandAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VMCommandAction" type="CommandActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="IRCAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
       </xs:choice>
     </xs:sequence>
-  </xs:complexType>
-
-  <xs:complexType name="ActionType">
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="WebAction" type="WebActionType" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="VDICommandAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="VMCommandAction" type="CommandActionType" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="VMMessageAction" type="MessageActionType" minOccurs="1" maxOccurs="unbounded" />
-      <xs:element name="IRCAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
-    </xs:choice>
   </xs:complexType>
 
   <xs:complexType name="WebActionType">
