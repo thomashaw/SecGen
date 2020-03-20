@@ -32,7 +32,7 @@ class AlertActionReader < XMLReader
           data = action_node.xpath('data').text
 
           web_actioner = WebActioner.new(config_filename, alertaction_index, alert_name, target, request_type, data)
-          Print.info "Created #{web_actioner.to_s}"
+          Print.info "Created #{web_actioner.to_s}", logger
           alert_actioners << web_actioner
         when 'CommandAction'
           # todo
@@ -43,14 +43,14 @@ class AlertActionReader < XMLReader
           message_header = action_node.xpath('message_header').text
           message_subtext = action_node.xpath('message_subtext').text
           message_actioner = MessageActioner.new(config_filename, alertaction_index, alert_name, host, username, password, message_header, message_subtext)
-          Print.info  "Created #{message_actioner.to_s}"
+          Print.info  "Created #{message_actioner.to_s}", logger
           alert_actioners << message_actioner
         when 'VDIAction'
           # todo
         when 'IRCAction'
           # todo
         else
-          Print.err("Invalid actioner type.", AlertRouter.logs)
+          Print.err("Invalid actioner type.", logger)
           exit(1)
         end
       end

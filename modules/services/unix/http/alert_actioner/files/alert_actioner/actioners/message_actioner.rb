@@ -23,5 +23,3 @@ class MessageActioner < CommandActioner
   end
 
 end
-
-MessageActioner.new('config_filename', 1, 'example-alert', '127.0.0.1', 'thomashaw', 'tg5196571lap',  'Well done', 'here is some subtext').action_alert
