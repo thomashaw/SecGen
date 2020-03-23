@@ -14,6 +14,8 @@ class MessageActioner < CommandActioner
   # Return [Array] of command strings
   def command_strings
     ["DISPLAY=:0 /usr/bin/notify-send -u critical '#{self.message_header}' '#{self.message_subtext}'"]
+    # TODO: Add a command that sends a message to open terminals so the module is usable in both ways.
+    # TODO: Test on headless too just in case the notify-send causes issue w/o a gui.
   end
 
 

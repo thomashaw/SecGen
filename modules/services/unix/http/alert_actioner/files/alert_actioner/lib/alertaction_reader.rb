@@ -1,6 +1,7 @@
 require 'nokogiri'
 require 'digest'
 
+require_relative 'logging'
 require_relative 'aa_constants'
 require_relative 'xml_reader'
 require_relative '../actioners/web_actioner'
@@ -32,7 +33,7 @@ class AlertActionReader < XMLReader
           data = action_node.xpath('data').text
 
           web_actioner = WebActioner.new(config_filename, alertaction_index, alert_name, target, request_type, data)
-          Print.info "Created #{web_actioner.to_s}", logger
+          Print.info("Created #{web_actioner.to_s}", logger)
           alert_actioners << web_actioner
         when 'CommandAction'
           # todo
