@@ -5,21 +5,6 @@
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
 
-<!-- Roadmap:
-      1) Get Wazuh on a single host with agent and management component installed
-      2) Split this out onto separate hosts
-      3) Identify how to configure alerts
-      4) Automatically generate audit rules
-      5) Automatically generate alerting rules for:
-      5.1) Reading a file
-      5.2) Writing to a file
-      5.3) Is a system up?
-      5.4) Is a system down?
-      6) Add Datastores within modules (with default_input into_datastore="")
-      >> You are here <<
-      7) Apply goals within the Scenario
-
--->
 
   <system>
     <system_name>ids_server</system_name>
@@ -47,59 +32,24 @@
       <!--<generator type="strong_password_generator"/>-->
     </input>
 
-    <input into_datastore="elasticsearch_port">
-      <value>9200</value>
-    </input>
-
-    <input into_datastore="logstash_port">
-      <value>5044</value>
-    </input>
-
-    <input into_datastore="kibana_port">
-      <value>5601</value>
-    </input>
-
-    <build type="swap"/>
     <utility module_path=".*handy_cli_tools.*"/>
 
-    <utility module_path=".*elasticsearch.*">
-      <input into="elasticsearch_ip">
+    <service module_path=".*auto_grading_server">
+
+      <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="elasticsearch_port">
-        <datastore access="0">elasticsearch_port</datastore>
+        <value>9200</value>
       </input>
-    </utility>
-
-    <utility module_path=".*logstash.*">
       <input into="logstash_port">
-        <datastore access="0">logstash_port</datastore>
-      </input>
-      <input into="elasticsearch_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="elasticsearch_port">
-        <datastore access="0">elasticsearch_port</datastore>
-      </input>
-    </utility>
-
-    <utility module_path=".*kibana.*">
-      <input into="kibana_ip">
-        <datastore access="0">IP_addresses</datastore>
+        <value>5044</value>
       </input>
       <input into="kibana_port">
-        <datastore access="0">kibana_port</datastore>
+        <value>5601</value>
       </input>
-      <input into="elasticsearch_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="elasticsearch_port">
-        <datastore access="0">elasticsearch_port</datastore>
-      </input>
-    </utility>
 
-    <service module_path=".*alert_actioner.*">
-      <input into="config">
+      <input into="aa_config">
         <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
         <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
           <input into="host">
@@ -119,30 +69,7 @@
           </input>
         </generator>
       </input>
-      <!--<input into="mapping">-->
-        <!-- TODO: Implement me-->
-      <!--</input>-->
     </service>
-
-    <utility module_path=".*elastalert.*">
-      <input into="elasticsearch_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="elasticsearch_port">
-        <datastore access="0">elasticsearch_port</datastore>
-      </input>
-    </utility>
-
-    <utility module_path=".*wazuh.*">
-      <input into="wazuh_component">
-        <value>server</value>
-      </input>
-      <input into="kibana_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </utility>
-
-    <utility type="update"/>
 
     <network type="private_network">
       <input into="IP_address">
