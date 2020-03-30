@@ -13,9 +13,9 @@ $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 $aaa_config = $secgen_parameters['aaa_config'][0]
 $elasticsearch_ip = $aaa_config['server_ip'][0]
 $elasticsearch_port = 0 + $aaa_config['elasticsearch_port'][0]
-$logstash_port = 0 + $secgen_parameters['logstash_port'][0]
+$logstash_port = 0 + $aaa_config['logstash_port'][0]
 $kibana_ip = $aaa_config['server_ip'][0]
-$kibana_port = 0 + $secgen_parameters['kibana_port'][0]
+$kibana_port = 0 + $aaa_config['kibana_port'][0]
 # $agent_name = $secgen_parameters['wazuh_agent_name'][0]
 
 
