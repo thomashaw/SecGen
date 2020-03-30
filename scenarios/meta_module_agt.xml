@@ -41,42 +41,54 @@
       <!--<generator type="strong_password_generator"/>-->
     </input>
 
+    <input into_datastore="aaa_config">
+      <generator type="aaa_config">
+        <input into="server_ip">
+          <datastore access="0">IP_addresses</datastore>
+        </input>
+        <input into="client_ips">
+          <datastore access="1">IP_addresses</datastore>
+          <datastore access="2">IP_addresses</datastore>
+        </input>
+        <input into="elasticsearch_port">
+          <datastore access="0">elasticsearch_port</datastore>
+        </input>
+        <input into="logstash_port">
+          <datastore access="0">logstash_port</datastore>
+        </input>
+        <input into="kibana_port">
+          <datastore access="0">kibana_port</datastore>
+        </input>
+        <input into="aa_configs">
+          <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
+          <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
+            <input into="host">
+              <datastore access="1">IP_addresses</datastore>
+            </input>
+            <input into="message_header">
+              <value>Well done!</value>
+            </input>
+            <input into="message_subtext">
+              <value>Here is some subtext from the scenario</value>
+            </input>
+            <input into="username">
+              <datastore access="0" access_json="['username']">desktop_account</datastore>
+            </input>
+            <input into="password">
+              <datastore access="0" access_json="['password']">desktop_account</datastore>
+            </input>
+          </generator>
+        </input>
+      </generator>
+    </input>
+
+
     <utility module_path=".*handy_cli_tools.*"/>
 
     <service module_path=".*analysis_alert_action_server">
 
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="elasticsearch_port">
-        <datastore access="0">elasticsearch_port</datastore>
-      </input>
-      <input into="logstash_port">
-        <datastore access="0">logstash_port</datastore>
-      </input>
-      <input into="kibana_port">
-        <datastore access="0">kibana_port</datastore>
-      </input>
-
-      <input into="aa_config">
-        <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
-        <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
-          <input into="host">
-            <datastore access="1">IP_addresses</datastore>
-          </input>
-          <input into="message_header">
-            <value>Well done!</value>
-          </input>
-          <input into="message_subtext">
-            <value>Here is some subtext from the scenario</value>
-          </input>
-          <input into="username">
-            <datastore access="0" access_json="['username']">desktop_account</datastore>
-          </input>
-          <input into="password">
-            <datastore access="0" access_json="['password']">desktop_account</datastore>
-          </input>
-        </generator>
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
       </input>
     </service>
 
@@ -103,6 +115,12 @@
         <datastore access="0">desktop_account</datastore>
       </input>
     </utility>
+
+    <service module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </service>
 
     <utility module_path=".*filebeat.*">
       <input into="logstash_ip">

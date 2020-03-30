@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>AAA config generator</name>
+  <author>Thomas Shaw</author>
+  <module_license>GPLv3</module_license>
+  <description>TODO</description>
+
+  <type>aaa_config</type>
+  <platform>linux</platform>
+
+  <read_fact>server_ip</read_fact>
+  <read_fact>client_ips</read_fact>
+  <read_fact>elasticsearch_port</read_fact>
+  <read_fact>logstash_port</read_fact>
+  <read_fact>kibana_port</read_fact>
+  <read_fact>aa_configs</read_fact>
+
+  <output_type>json</output_type>
+
+</generator>
