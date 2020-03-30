@@ -86,7 +86,6 @@
     <utility module_path=".*handy_cli_tools.*"/>
 
     <service module_path=".*analysis_alert_action_server">
-
       <input into="aaa_config">
         <datastore access="0">aaa_config</datastore>
       </input>

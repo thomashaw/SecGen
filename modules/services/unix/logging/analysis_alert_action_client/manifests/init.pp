@@ -10,7 +10,7 @@ $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
 $logstash_port = 0 + $secgen_parameters['logstash_port'][0]
 $kibana_ip = $secgen_parameters['kibana_ip'][0]
 $kibana_port = 0 + $secgen_parameters['kibana_port'][0]
-$agent_name = $secgen_parameters['wazuh_agent_name'][0]
+# $agent_name = $secgen_parameters['wazuh_agent_name'][0]
 
 
 # Call puppet classes etc in order.
