@@ -162,7 +162,7 @@ class ProjectFilesCreator
         FileUtils.mkdir_p(aa_conf_dir)
         # Get the config json object from the alert_actioner
         aa_confs = []
-        aa_conf_strs = system.get_module('alert_actioner').received_inputs['config']
+        aa_conf_strs = system.get_module('alert_actioner').received_inputs['aa_config']
         aa_conf_strs.each do |aa_conf_str|
           aa_confs << JSON.parse(aa_conf_str)
         end
