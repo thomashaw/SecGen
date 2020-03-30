@@ -53,12 +53,15 @@
 
   <default_input into="aa_config">
     <generator module_path=".*goal_flag_hacktivity.*"/>
-    <generator module_path=".*goal_flag_message.*">
+    <generator module_path=".*goal_message_host.*">
       <input into="mapping_type">
-        <value>message_to_host</value>
+        <value>all_goal_messages_to_host</value>
       </input>
-      <input into="message">
+      <input into="message_header">
         <value>Well done!</value>
+      </input>
+      <input into="message_subtext">
+        <value>Challenge complete - check Hacktivity for your updated score.</value>
       </input>
     </generator>
   </default_input>
