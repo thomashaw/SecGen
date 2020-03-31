@@ -1,16 +1,16 @@
 # Includes
-include ::java
-include elasticsearch
-include logstash
-include kibana
-# include wazuh          # TODO: Might just leave this out for now.
-include elastalert
-include alert_actioner
+# include ::java
+# include elasticsearch
+# include logstash
+# include kibana
+# # include wazuh          # TODO: Might just leave this out for now.
+# include elastalert
+# include alert_actioner
 
 
 # Pull out parameters from module
 $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-$aaa_config = $secgen_parameters['aaa_config'][0]
+$aaa_config = parsejson($secgen_parameters['aaa_config'][0])
 $elasticsearch_ip = $aaa_config['server_ip']
 $elasticsearch_port = 0 + $aaa_config['elasticsearch_port']
 $logstash_port = 0 + $aaa_config['logstash_port']
