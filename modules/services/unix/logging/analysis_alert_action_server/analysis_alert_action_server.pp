@@ -74,6 +74,5 @@ class { 'elastalert':
   elasticsearch_port => $elasticsearch_port,
 }
 
-require alert_actioner::init
-
+class { 'alert_actioner': }
 # TODO: Test on remote.
