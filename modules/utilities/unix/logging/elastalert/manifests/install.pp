@@ -1,9 +1,4 @@
-class elastalert::install {
-  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $elasticsearch_ip = $secgen_parameters['elasticsearch_ip'][0]
-  $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
-  $installdir = '/opt/elastalert/'
-  $source = 'http://github.com/Yelp/elastalert'
+class elastalert::install ($elasticsearch_ip, $elasticsearch_port,$installdir = '/opt/elastalert/', $source='http://github.com/Yelp/elastalert') {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   ensure_packages(['python-pip','build-essential','libssl-dev','libffi-dev','python-dev'])

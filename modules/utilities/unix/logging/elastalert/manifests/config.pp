@@ -1,14 +1,12 @@
-class elastalert::config {
-  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $elasticsearch_ip = $secgen_parameters['elasticsearch_ip'][0]
-  $elasticsearch_port = 0 + $secgen_parameters['elasticsearch_port'][0]
-  $elastalert_dir = '/opt/elastalert/'
-  $rules_dir = '/opt/elastalert/rules/'
-
+class elastalert::config ($elasticsearch_ip,
+                          $elasticsearch_port,
+                          $installdir = '/opt/elastalert/',
+                          $source='http://github.com/Yelp/elastalert',
+                          $rules_dir = '/opt/elastalert/rules/') {
   file { '/opt/elastalert/config.yaml':
     ensure => file,
     content => template('elastalert/config.yaml.erb'),
-    require => File[$elastalert_dir],
+    require => File[$installdir],
   }
 
   # Load the rules
@@ -16,7 +14,7 @@ class elastalert::config {
     ensure => directory,
     recurse => true,
     source => 'puppet:///modules/elastalert/rules/',
-    require => File[$elastalert_dir],
+    require => File[$installdir],
   }
 
   # Move the custom alerter (outputs rulename:alert)
