@@ -1,1 +1,1 @@
-require alert_actioner::init
+class { 'alert_actioner': }
