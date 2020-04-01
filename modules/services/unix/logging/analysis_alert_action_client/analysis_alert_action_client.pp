@@ -1,6 +1,6 @@
 # Includes
-include filebeat
-include auditbeat
+# include filebeat
+# include auditbeat
 # include wazuh          # TODO: Might just leave this out for now.
 
 # Pull out parameters from module
