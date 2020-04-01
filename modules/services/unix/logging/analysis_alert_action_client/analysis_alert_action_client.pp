@@ -14,6 +14,7 @@ $kibana_ip = $aaa_config['server_ip']
 $kibana_port = 0 + $aaa_config['kibana_port']
 # $agent_name = $secgen_parameters['wazuh_agent_name'][0]
 
+ensure_package('libnotify-bin')
 
 # Call puppet classes etc in order.
 
@@ -53,6 +54,5 @@ class { 'auditbeat':
   },
 }
 
-ensure_package('libnotify-bin')
 
 # TODO: Test on remote.
