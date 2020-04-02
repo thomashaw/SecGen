@@ -1,7 +1,7 @@
 unless defined('analysis_alert_action_server') or defined('analysis_alert_action_client') {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $component = $secgen_parameters['component'][0]
-  $kibana_elasticsearch_ip = $secgen_parameters['kibana_ip'][0]
+  $component = $secgen_parameters['wazuh_component'][0]
+  $kibana_elasticsearch_ip = $secgen_parameters['server_address'][0]
   $agent_name = $secgen_parameters['wazuh_agent_name'][0]
 
   if ($component == 'server') {

@@ -137,7 +137,7 @@
       <input into="wazuh_component">
         <value>server</value>
       </input>
-      <input into="kibana_ip">
+      <input into="server_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
     </utility>
