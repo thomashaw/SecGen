@@ -14,6 +14,7 @@
 
   <read_fact>wazuh_component</read_fact>
   <read_fact>wazuh_agent_name</read_fact>
+  <read_fact>server_address</read_fact>
 
   <default_input into="wazuh_component">
     <!--<value>server</value>-->
