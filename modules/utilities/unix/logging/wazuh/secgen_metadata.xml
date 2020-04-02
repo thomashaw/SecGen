@@ -21,6 +21,10 @@
     <value>agent</value>
   </default_input>
 
+  <default_input into="wazuh_agent_name">
+    <value>agent</value>
+  </default_input>
+
   <requires>
     <type>update</type>
   </requires>
