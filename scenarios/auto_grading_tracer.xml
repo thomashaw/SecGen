@@ -190,7 +190,7 @@
       <input into="component">
         <value>client</value>
       </input>
-      <input into="kibana_ip">
+      <input into="server_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="agent_name">
