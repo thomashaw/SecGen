@@ -58,7 +58,7 @@ class CommandActioner < AlertActioner
 
   # TODO: Override me in superclass to print actioner type + all parameters??
   def to_s
-    "CommandActioner:\n  Host: #{self.host}\n  Command: #{self.command}\n  Parameters: #{self.parameters.join(',')}"
+    "#{self.class}:\n  Host: #{self.host}\n  Command: #{self.command}\n  Parameters: #{self.parameters.join(',')}"
   end
 
 end
