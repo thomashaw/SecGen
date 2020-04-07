@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<alertactioner xmlns="http://www.github/cliffe/SecGen/alertactioner_config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/alertactioner_config">
+  <alertaction>
+    <alert_name>example-rule</alert_name>
+    <WebAction>
+      <target>http://127.0.0.1:8080</target>
+      <request_type>POST</request_type>
+      <data>flag{asdf}</data>
+    </WebAction>
+  </alertaction>
+  <alertaction>
+    <alert_name>example-rule</alert_name>
+    <MessageAction>
+      <host>x.x.x.166</host>
+      <username>test</username>
+      <password>test</password>
+      <message_header>Well done!</message_header>
+      <message_subtext>Here is some subtext from the scenario</message_subtext>
+    </MessageAction>
+  </alertaction>
+</alertactioner>
