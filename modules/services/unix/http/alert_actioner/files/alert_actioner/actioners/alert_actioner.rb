@@ -20,7 +20,7 @@ class AlertActioner
   end
 
   def action_alert
-    Print.info("Running alertactioner: #{self.alertactioner_name}", logger)
+    Print.info("Running #{self.class}: #{self.alertactioner_name}", logger)
     Print.info("Actioning alert: #{self.alert_name}", logger)
     perform_action
 
