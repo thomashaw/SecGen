@@ -21,7 +21,7 @@ class MessageActioner < CommandActioner
 
   # TODO: Override me in superclass to print actioner type + all parameters??
   def to_s
-    "MessageActioner:\n  Message Header: #{self.message_header}\n  Message Subtext: #{self.message_subtext}"
+    "#{self.class}:\n  Message Header: #{self.message_header}\n  Message Subtext: #{self.message_subtext}"
   end
 
 end
