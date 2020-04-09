@@ -16,6 +16,7 @@
         <xs:element name="video" type="VideoType" minOccurs="0" maxOccurs="unbounded" />
         <xs:element name="reading" type="ReadingType" minOccurs="0" maxOccurs="unbounded" />
 
+        <xs:element name="goals" type="GoalsType" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name='system' type='SystemType' minOccurs='0' maxOccurs='unbounded' />
       </xs:sequence>
     </xs:complexType>
@@ -39,6 +40,46 @@
     <xs:attribute name='into_datastore' type='xs:string'/>
     <xs:attribute name='unique_module_list' type='xs:string'/>
 
+  </xs:complexType>
+
+  <xs:complexType name="GoalsType">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name='read_file' minOccurs='0' maxOccurs='unbounded' >
+          <xs:complexType>
+            <xs:sequence>
+              <!-- Hostname automatically interpreted from the system_name from scenario goals -->
+              <xs:element name='system_name' type='xs:string' minOccurs="1" maxOccurs="1"/>
+              <xs:element name='file_path' type='xs:string' minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name='modify_file' minOccurs='0' maxOccurs='unbounded' >
+          <xs:complexType>
+            <xs:sequence>
+              <!-- Hostname automatically interpreted from the system_name from scenario goals -->
+              <xs:element name='system_name' type='xs:string' minOccurs="1" maxOccurs="1"/>
+              <xs:element name='file_path' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
+              <!-- file_contents: either a hash or regexp to match -->
+              <xs:element name='file_contents' type='xs:string' minOccurs="0" maxOccurs="unbounded"/>
+              <!-- written_by: include username or uid range (e.g. uid>=1000) -->
+              <xs:element name='written_by' type='xs:string' minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name='access_account' minOccurs='0' maxOccurs='unbounded' >
+          <xs:complexType>
+            <xs:sequence>
+              <!-- Hostname automatically interpreted from the system_name from scenario goals -->
+              <xs:element name='system_name' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
+              <xs:element name='account_name' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name='service_down' type='xs:string' minOccurs='0' maxOccurs='unbounded' />
+        <xs:element name='system_down' type='xs:string' minOccurs='0' maxOccurs='unbounded' />
+      </xs:choice>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="CyBOKType">
