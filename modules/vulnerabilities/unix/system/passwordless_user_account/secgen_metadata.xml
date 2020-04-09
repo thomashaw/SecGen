@@ -18,7 +18,9 @@
 
   <goals>
     <!--TODO: fix me when string interpolation is implemented -->
-    <access_account>#{accounts.each.username}</access_account>
+    <access_account>
+      <account_name>#{accounts[0]['username']}</account_name>
+    </access_account>
   </goals>
 
   <read_fact>strings_to_leak</read_fact>

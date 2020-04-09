@@ -16,7 +16,7 @@
 
   <goals>
     <access_account>
-      <!--<value>root</value>-->
+      <account_name>root</account_name>
     </access_account>
   </goals>
 

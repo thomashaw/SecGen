@@ -18,7 +18,9 @@
   <difficulty>medium</difficulty>
 
   <goals>
-    <access_account>root</access_account>
+    <access_account>
+      <account_name>root</account_name>
+    </access_account>
   </goals>
 
 

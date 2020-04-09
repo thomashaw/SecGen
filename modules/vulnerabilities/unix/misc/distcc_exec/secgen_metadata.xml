@@ -16,7 +16,9 @@
 
   <goals>
     <!--TODO: Test me, is this the correct username? -->
-    <access_account>distcc</access_account>
+    <access_account>
+      <account_name>distcc</account_name>
+    </access_account>
   </goals>
 
 
