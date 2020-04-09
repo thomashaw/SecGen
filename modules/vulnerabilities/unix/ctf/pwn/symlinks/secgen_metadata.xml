@@ -19,7 +19,12 @@
   <difficulty>medium</difficulty>
 
   <goals>
-    <read_file>#{['flag_path']}</read_file>
+    <read_file>
+      <file_path>#{['flag_path'][0]}</file_path>
+    </read_file>
+    <read_file>
+      <file_path>#{['flag_path'][1]}</file_path>
+    </read_file>
   </goals>
 
   <read_fact>username</read_fact>

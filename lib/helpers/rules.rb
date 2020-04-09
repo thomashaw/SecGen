@@ -6,22 +6,16 @@ class Rules
 
   def self.generate_auditbeat_rules(mod)
     rules = []
-    mod.goals.keys.each do |key|
-    # Generate auditbeat rules based on rule type
-    case key
-      when 'read_file'
-        read_files = mod.goals[key]
-        read_files.each do |entry|
-          paths = (entry.is_a? String) ? [entry] : entry
-          paths.each do |path|
-            generated_rule = greedy_auditbeat_rule(path, 'r')
-            rules << generated_rule
-          end
-        end
-      when 'modify_file'
-      when 'access_account'
-      when 'service_down'
-      when 'system_down'
+    mod.goals.each do |goal|
+      # Generate auditbeat rules based on rule type
+      rule_type = RuleTypes.get_rule_type(goal['goal_type'])
+      case rule_type
+      when RuleTypes::READ_FILE
+        rules << greedy_auditbeat_rule(goal['file_path'], 'r')
+      when RuleTypes::MODIFY_FILE
+      when RuleTypes::ACCESS_ACCOUNT
+      when RuleTypes::SERVICE_DOWN
+      when RuleTypes::SYSTEM_DOWN
       else
         Print.err('Unknown goal type')
         raise
@@ -38,19 +32,20 @@ class Rules
   end
 
 
-  def self.generate_elastalert_rule(hostname, module_name, goal, sub_goal, counter)
+  def self.generate_elastalert_rule(hostname, module_name, goal, counter)
     rule = ''
     # switch case to determine which type of rule we're returning (read file, etc.)
-    case goal[0]
-    when 'read_file'
-      rule = generate_elastalert_rule_rf(hostname, module_name, goal, sub_goal, counter)
-    when 'modify_file'
+    rule_type = RuleTypes.get_rule_type(goal['goal_type'])
+    case rule_type
+    when RuleTypes::READ_FILE
+      rule = generate_elastalert_rule_rf(hostname, module_name, goal, counter)
+    when RuleTypes::MODIFY_FILE
       # rule = generate_elastalert_rule_mf(hostname, module_name, goal, sub_goal)
-    when 'access_account'
+    when RuleTypes::ACCESS_ACCOUNT
       # rule = generate_elastalert_rule_aa(hostname, module_name, goal, sub_goal)
-    when 'service_down'
+    when RuleTypes::SERVICE_DOWN
       # rule = generate_elastalert_rule_svcd(hostname, module_name, goal, sub_goal)
-    when 'system_down'
+    when RuleTypes::SYSTEM_DOWN
       # rule = generate_elastalert_rule_sysd(hostname, module_name, goal, sub_goal)
     else
       raise 'unknown_goal_type'
@@ -58,24 +53,24 @@ class Rules
     rule
   end
 
-  def self.generate_elastalert_rule_rf(hostname, module_name, goal, sub_goal, counter)
+  def self.generate_elastalert_rule_rf(hostname, module_name, goal, counter)
     "name: #{get_ea_rulename(hostname, module_name, goal, counter)}\n" +
-    "type: any\n" +
-    "index: auditbeat-*\n" +
-    "filter:\n" +
-    "  - query:\n" +
-    "      query_string:\n" +
-    '        query: "combined_path: \"' + sub_goal + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
-    "alert:\n" +
-    "  - \"modules.alerter.exec.ExecAlerter\"\n" +
-    "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
-    "pipe_match_json: true\n" +
-    "realert:\n" +
-    "  minutes: 0\n"
+        "type: any\n" +
+        "index: auditbeat-*\n" +
+        "filter:\n" +
+        "  - query:\n" +
+        "      query_string:\n" +
+        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
+        "alert:\n" +
+        "  - \"modules.alerter.exec.ExecAlerter\"\n" +
+        "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
+        "pipe_match_json: true\n" +
+        "realert:\n" +
+        "  minutes: 0\n"
   end
 
   def self.get_ea_rulename(hostname, module_name, goal, counter)
-    rule_type = RuleTypes.get_rule_type(goal)
+    rule_type = RuleTypes.get_rule_type(goal['goal_type'])
     return "#{hostname}-#{module_name}-#{rule_type}-#{counter}"
   end
 
@@ -86,8 +81,8 @@ class Rules
     SERVICE_DOWN = 'svcd'
     SYSTEM_DOWN = 'sysd'
 
-    def self.get_rule_type(goal)
-      case goal[0]
+    def self.get_rule_type(rule_type)
+      case rule_type
       when 'read_file'
         READ_FILE
       when 'modify_file'

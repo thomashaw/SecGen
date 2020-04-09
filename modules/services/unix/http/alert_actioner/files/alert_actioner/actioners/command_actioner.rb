@@ -25,8 +25,6 @@ class CommandActioner < AlertActioner
     # TODO: Update the parameters to include the username of the account we want to inform, and their password
     # TODO: Play around with this stuff on the VMs. There could be an easier way to graphically alert all users on KDE/XFCE and we can forget about gnome.
 
-    # [root@localhost thomashaw]# sshpass -p tg5196571lap ssh -T -oStrictHostKeyChecking=no thomashaw@127.0.0.1 bash -s < ./a_script.sh
-
     # Create config/commands directory
     FileUtils.mkdir_p COMMANDS_DIRECTORY
     commands_sh_path = COMMANDS_DIRECTORY + "#{self.alertactioner_name}.sh"

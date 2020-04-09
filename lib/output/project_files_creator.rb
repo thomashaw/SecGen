@@ -131,17 +131,14 @@ class ProjectFilesCreator
           @hostname = sys.get_hostname
           sys.module_selections.each do |module_selection|
             if module_selection.goals != {}
-              module_selection.goals.each do |goal|
+              module_selection.goals.each_with_index do |goal, i|
                 @module_name = module_selection.module_path_end
                 @goal = goal
-                goal[1].each_with_index do |sub_goal, i|
-                  @sub_goal = sub_goal # TODO: Identify sub_goal type, it should be a string but we're getting errors from get_escaped_path(sub_goal) @ rules.rb:87
-                  @counter = i
-                  rule_name = Rules.get_ea_rulename(@hostname, @module_name, @goal, @counter)
-                  elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
-                  Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
-                  template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
-                end
+                @counter = i
+                rule_name = Rules.get_ea_rulename(@hostname, @module_name, @goal, @counter)
+                elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
+                Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
+                template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
               end
             end
           end
@@ -258,7 +255,7 @@ class ProjectFilesCreator
         module_selection.resolve_received_inputs
       end
       system.module_selections.each do |module_selection|
-        module_selection.resolve_goals
+        module_selection.resolve_goals(system.get_hostname)
       end
     end
   end

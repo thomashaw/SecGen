@@ -162,9 +162,16 @@ class ModuleReader < XMLReader
 
       # for each goal in the module
       doc.xpath("/#{module_type}/goals").each do |goals_doc|
-        goals = {}
+        goals = []
         goals_doc.elements.each {|node|
-          (goals[node.name] ||= []).push(node.content)
+          goal_type = node.name
+          goal_hash = {'goal_type' => goal_type,}
+          node.children.each {|subnode|
+            unless subnode.text?
+              goal_hash.merge!({subnode.name => subnode.content.strip})
+            end
+          }
+          goals << goal_hash
         }
         new_module.goals = goals
       end
