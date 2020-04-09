@@ -147,14 +147,14 @@ class ProjectFilesCreator
 
       # TODO: Refactor to include in the loop above if possible
       if system.has_module('alert_actioner')
-        # copy shared libs
+        Print.info 'AlertActioner: Copying shared libs...'
         aa_lib_dir = "#{path}/modules/alert_actioner/files/alert_actioner/lib"
         FileUtils.mkdir_p(aa_lib_dir)
         FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/schemas/alertactioner_config_schema.xsd", "#{aa_lib_dir}/alertactioner_config_schema.xsd")
 
-        # generate config rules
+        Print.info 'AlertActioner: Generating AA configs...'
         aa_conf_dir = "#{path}/modules/alert_actioner/files/alert_actioner/config/"
         FileUtils.mkdir_p(aa_conf_dir)
         # Get the config json object from the alert_actioner
@@ -166,8 +166,8 @@ class ProjectFilesCreator
         xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
         xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs)
         xml = xml_aa_conf_generator.output
-        Print.std "Creating alert_actioner configuration file: #{xml_aa_conf_file}"
-        write_data_to_file(xml, xml_aa_conf_file )
+        Print.std "AlertActioner: Creating alert_actioner configuration file: #{xml_aa_conf_file}"
+        write_data_to_file(xml, xml_aa_conf_file)
       end
 
     end
