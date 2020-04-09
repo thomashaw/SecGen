@@ -16,7 +16,9 @@
   <platform>linux</platform>
 
   <goals>
-    <read_file>/etc/shadow</read_file>
+    <read_file>
+      <file_path>/etc/shadow</file_path>
+    </read_file>
   </goals>
 
   <read_fact>goal_flags</read_fact>

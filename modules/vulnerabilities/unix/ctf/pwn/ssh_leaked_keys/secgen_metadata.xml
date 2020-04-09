@@ -20,7 +20,9 @@
 
   <goals>
     <!-- TODO: fix me when string interpolation exists-->
-    <read_file>#{path_to_leak}</read_file>
+    <read_file>
+      <file_path>#{path_to_leak}</file_path>
+    </read_file>
   </goals>
 
   <read_fact>strings_to_leak</read_fact>

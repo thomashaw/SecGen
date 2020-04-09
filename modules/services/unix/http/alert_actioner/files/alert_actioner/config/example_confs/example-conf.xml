@@ -15,7 +15,7 @@
     <alert_name>example-rule</alert_name>
     <MessageAction>
       <host>x.x.x.166</host>
-      <username>test</username>
+      <username>root</username>
       <password>test</password>
       <message_header>Well done!</message_header>
       <message_subtext>Here is some subtext from the scenario</message_subtext>

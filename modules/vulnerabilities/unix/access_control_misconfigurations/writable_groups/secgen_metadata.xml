@@ -18,7 +18,9 @@
   <difficulty>medium</difficulty>
 
   <goals>
-    <modify_file>/etc/group</modify_file>
+    <modify_file>
+      <file_path>/etc/group</file_path>
+    </modify_file>
   </goals>
 
   <cvss_base_score>6.6</cvss_base_score>

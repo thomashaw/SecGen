@@ -209,18 +209,21 @@ class Module
   end
 
   # Resolve the string interpolation for goals
-  # e.g. convert self.goals['read_file'] (e.g. ["#{flag_path}"]) into ["/etc/shadow", "/home/username/flag"]
-  #      flattens the goals into an array based on the goal type, e.g. goals['read_file'][0..n] where each element is a string, rather than nested arrays
-  def resolve_goals
-    new_goals = {}
-    self.goals.each do |goal_type, goals|
-      goals.each do |goal|
-        new_goals[goal_type] = [] if new_goals[goal_type] == nil
-        tmp_goal = contains_interp(goal) ? interp_string(goal) : goal
-        tmp_goal = [tmp_goal] if tmp_goal.is_a? String
-        new_goals[goal_type] = new_goals[goal_type] + tmp_goal
-      end
 
+  def resolve_goals(hostname)
+    new_goals = []
+    self.goals.each do |goal|
+      new_goal = {}
+
+      # Add hostname to module goals
+      new_goal.merge!({'hostname' => hostname}) unless goal.has_key? 'hostname'
+
+      # Interpolate values that require it
+      goal.each_key do |key|
+        value = goal[key]
+        new_goal.merge!(key => (contains_interp(value) ? interp_string(value) : value))
+      end
+      new_goals << new_goal
     end
     self.goals = new_goals
   end

@@ -17,7 +17,9 @@
   <difficulty>low</difficulty>
 
   <goals>
-    <access_account>irc</access_account>
+    <access_account>
+      <account_name>irc</account_name>
+    </access_account>
     <!--TODO: replace me when read-fact interpolation is implemented
     <access_account>#{user}</access_account>-->
   </goals>

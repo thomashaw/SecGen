@@ -15,7 +15,9 @@
   <difficulty>low</difficulty>
 
   <goals>
-    <read_file>#{['flag_path']}</read_file>
+    <read_file>
+      <file_path>#{['flag_path']}</file_path>
+    </read_file>
   </goals>
 
   <read_fact>strings_to_leak</read_fact>
