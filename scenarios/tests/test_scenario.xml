@@ -3,6 +3,20 @@
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Thomas Shaw</name>
+  <author>Thomas Shaw</author>
+  <description>Test Scenario - Scenario level goals</description>
+  <type>AGT / AAA scenario</type>
+  <difficulty>easy</difficulty>
+
+  <goals>
+    <access_account>
+      <system_name>testing</system_name>
+      <account_name>vagrant</account_name>
+    </access_account>
+  </goals>
+
   <system>
     <system_name>testing</system_name>
     <base platform="linux" distro="Debian 9" type="server"/>

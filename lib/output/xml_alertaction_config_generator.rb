@@ -25,6 +25,7 @@ class XmlAlertActionConfigGenerator
   end
 
   def create_alert_actions
+    Print.info 'AlertActioner: Creating alert actions from aa_conf.'
     @aa_confs.each do |aa_conf|
       if aa_conf['mapping_type']
         case aa_conf['mapping_type']
@@ -106,6 +107,7 @@ class XmlAlertActionConfigGenerator
   end
 
   def generate_xml_config
+    Print.info 'Creating AlertActioner xml config...'
     ns = {
         'xmlns' => "http://www.github/cliffe/SecGen/alertactioner_config",
         'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance",
