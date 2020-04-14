@@ -4,9 +4,9 @@ require_relative './scenario.rb'
 class Rules
   # Generate audit and alerting rules
 
-  def self.generate_auditbeat_rules(mod)
+  def self.generate_auditbeat_rules(goals)
     rules = []
-    mod.goals.each do |goal|
+    goals.each do |goal|
       # Generate auditbeat rules based on rule type
       rule_type = RuleTypes.get_rule_type(goal['goal_type'])
       case rule_type
