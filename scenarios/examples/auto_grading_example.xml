@@ -17,16 +17,7 @@
     <input into_datastore="IP_addresses">
       <value>192.168.209.165</value>
       <value>192.168.209.166</value>
-    </input>
-
-    <input into_datastore="elasticsearch_port">
-      <value>9200</value>
-    </input>
-    <input into_datastore="logstash_port">
-      <value>5044</value>
-    </input>
-    <input into_datastore="kibana_port">
-      <value>5601</value>
+      <value>192.168.209.167</value>
     </input>
 
     <input into_datastore="desktop_account">
@@ -54,13 +45,13 @@
           <datastore access="1">IP_addresses</datastore>
         </input>
         <input into="elasticsearch_port">
-          <datastore access="0">elasticsearch_port</datastore>
+          <value>9200</value>
         </input>
         <input into="logstash_port">
-          <datastore access="0">logstash_port</datastore>
+          <value>5044</value>
         </input>
         <input into="kibana_port">
-          <datastore access="0">kibana_port</datastore>
+          <value>5601</value>
         </input>
         <input into="aa_configs">
           <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
@@ -72,19 +63,18 @@
               <value>Well done!</value>
             </input>
             <input into="message_subtext">
-              <value>Here is some subtext from the scenario</value>
+              <value>Here is some subtext from the scenario.</value>
             </input>
             <input into="username">
-              <datastore access="0" access_json="['username']">desktop_account</datastore>
+              <value>root</value>
             </input>
             <input into="password">
-              <datastore access="0" access_json="['password']">desktop_account</datastore>
+              <datastore access="0">client_root_password</datastore>
             </input>
           </generator>
         </input>
       </generator>
     </input>
-
 
     <utility module_path=".*handy_cli_tools.*"/>
 
@@ -164,4 +154,28 @@
       </input>
     </build>
   </system>
+
+  <system>
+    <system_name>client_2</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
 </scenario>

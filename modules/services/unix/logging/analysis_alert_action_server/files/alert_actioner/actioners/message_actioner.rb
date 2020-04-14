@@ -14,10 +14,9 @@ class MessageActioner < CommandActioner
   # Return [Array] of command strings
   def command_strings
     ["DISPLAY=:0 /usr/bin/notify-send -u critical '#{self.message_header}' '#{self.message_subtext}'",
-     "/usr/bin/wall #{username == 'root' ? '-n ' : ''}'#{self.message_header}' '#{self.message_subtext}'",
-     "/bin/echo '#{self.message_subtext}' | /usr/bin/mail -s '#{self.message.header}' #{self.username}"]  # wall -n requires root
-    # TODO: Add a mail command so there is some persistence with the message in case a student misses it.
-    # TODO: Test both on Kali
+     "/usr/bin/wall #{username == 'root' ? '-n ' : ''}'#{self.message_header}' '#{self.message_subtext}'",  # wall -n requires root
+     "/bin/echo '#{self.message_subtext}' | /usr/bin/mail -s '#{self.message.header}' #{self.username}"]
+    # TODO: Test mail command
   end
 
 
