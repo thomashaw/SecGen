@@ -17,7 +17,6 @@
     <input into_datastore="IP_addresses">
       <value>192.168.209.165</value>
       <value>192.168.209.166</value>
-      <value>192.168.209.167</value>
     </input>
 
     <input into_datastore="elasticsearch_port">
@@ -53,7 +52,6 @@
         </input>
         <input into="client_ips">
           <datastore access="1">IP_addresses</datastore>
-          <datastore access="2">IP_addresses</datastore>
         </input>
         <input into="elasticsearch_port">
           <datastore access="0">elasticsearch_port</datastore>
