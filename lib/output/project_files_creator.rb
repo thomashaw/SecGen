@@ -116,10 +116,15 @@ class ProjectFilesCreator
         auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.conf"
         @rules = []
         system.module_selections.each do |module_selection|
-          if module_selection.goals != {}
-            @rules << Rules.generate_auditbeat_rules(module_selection)
+          if module_selection.goals != []
+            @rules << Rules.generate_auditbeat_rules(module_selection.goals)
           end
         end
+
+        if system.goals != []
+          @rules << Rules.generate_auditbeat_rules(system.goals)
+        end
+
         @rules = @rules.flatten.uniq
         Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
         template_based_file_write(AUDITBEAT_RULES_TEMPLATE_FILE, auditbeat_rules_file)
@@ -129,6 +134,19 @@ class ProjectFilesCreator
       if system.has_module('elastalert')
         @systems.each do |sys|
           @hostname = sys.get_hostname
+
+          if sys.goals != []
+            sys.goals.each_with_index do |goal, i|
+              @system_name = sys.name
+              @goal = goal
+              @counter = i
+              rule_name = Rules.get_ea_rulename(@hostname, @system_name, @goal, @counter)
+              elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
+              Print.std "Creating server side alerting rules (system): #{elastalert_rules_file}"
+              template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
+            end
+          end
+
           sys.module_selections.each do |module_selection|
             if module_selection.goals != {}
               module_selection.goals.each_with_index do |goal, i|

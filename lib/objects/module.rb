@@ -26,7 +26,7 @@ class Module
 
   attr_accessor :conflicts
   attr_accessor :requires
-  attr_accessor :goals # {'rule_type' => ['/etc/rules','/etc/shadow',...]}
+  attr_accessor :goals
   attr_accessor :puppet_file
   attr_accessor :puppet_other_path
   attr_accessor :local_calc_file
@@ -39,7 +39,7 @@ class Module
     self.module_type = module_type
     self.conflicts = []
     self.requires = []
-    self.goals = {}
+    self.goals = []
     self.attributes = {}
     self.output = []
     self.write_to_module_with_id = write_output_variable = ''

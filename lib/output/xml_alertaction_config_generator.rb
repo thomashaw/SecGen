@@ -46,8 +46,6 @@ class XmlAlertActionConfigGenerator
     end
   end
 
-  # TODO: Refactor the common code from the below functions
-
   def all_goal_message_host(aa_conf)
     @systems.each do |system|
       system.module_selections.each do |module_selection|
@@ -56,7 +54,6 @@ class XmlAlertActionConfigGenerator
         if module_goals != []
           # Iterate over the goals
           module_selection.goals.each_with_index do |goal, i|
-            @module_name = module_selection.module_path_end
             @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
                                'action_type' => 'MessageAction',
                                'host' => aa_conf['host'],
@@ -73,37 +70,42 @@ class XmlAlertActionConfigGenerator
 
   def all_goal_flags_to_hacktivity(aa_conf)
     @systems.each do |system|
+      if system.goals != []
+        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname)
+      end
       system.module_selections.each do |module_selection|
-        module_name = module_selection.module_path_end
-        module_goals = module_selection.goals
-        module_goal_flags = module_selection.received_inputs['goal_flags']
+        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, module_selection.received_inputs['goal_flags'], system.hostname)
+      end
+    end
+  end
 
-        # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
-        if module_goals != [] or module_goal_flags != nil
-          goals_qty = module_goals.size
-          flags_qty = module_goal_flags.size
-          unless goals_qty == flags_qty
-            Print.err "AlertActioner: ERROR for mapping_type: #{aa_conf['mapping_type']}"
-            Print.err "Unequal number of goals and goal_flags for module: #{module_name}"
-            Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
-            exit(1) # Do we exit or just retry loop it? We probably want to notice this rather than just building anyway with a warning, so exit
-          end
+  def get_web_alertactions(aa_conf, name, goals, goal_flags, hostname)
+    alert_actions = []
 
-          if module_goals != [] and module_goal_flags != nil
-            # Iterate over the goals
-            module_selection.goals.each_with_index do |goal, i|
-              @module_name = module_selection.module_path_end
-              @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
-                                 'action_type' => 'WebAction',
-                                 'target' => aa_conf['target'],
-                                 'request_type' => 'POST',
-                                 'data' => module_goal_flags[i]
-              }
-            end
-          end
+    # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
+    if goals != [] or goal_flags != nil
+      goals_qty = goals.size
+      flags_qty = goal_flags.size
+      unless goals_qty == flags_qty
+        Print.err "AlertActioner: ERROR for mapping_type: #{aa_conf['mapping_type']}"
+        Print.err "Unequal number of goals and goal_flags for: #{name}"
+        Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
+        exit(1)
+      end
+
+      if goals != [] and goal_flags != nil
+        # Iterate over the goals
+        goals.each_with_index do |goal, i|
+          alert_actions << {'alert_name' => Rules.get_ea_rulename(hostname, name, goal, i),
+                             'action_type' => 'WebAction',
+                             'target' => aa_conf['target'],
+                             'request_type' => 'POST',
+                             'data' => goal_flags[i]
+          }
         end
       end
     end
+    alert_actions
   end
 
   def generate_xml_config

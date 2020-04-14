@@ -4,6 +4,11 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
+  <name>Thomas Shaw</name>
+  <author>Thomas Shaw</author>
+  <description>Auto Grading w/ scenario level goals</description>
+  <type>AGT</type>
+  <difficulty>medium</difficulty>
 
   <system>
     <system_name>ids_server</system_name>
@@ -107,6 +112,21 @@
   <system>
     <system_name>client_1</system_name>
     <base distro="Debian 9" type="desktop"/>
+
+    <goals>
+      <access_account>
+        <account_name>vagrant</account_name>
+      </access_account>
+      <read_file>
+        <file_path>/etc/shadow</file_path>
+      </read_file>
+    </goals>
+
+    <input into_datastore="goal_flags">
+      <generator type="flag_generator"/>
+      <generator type="flag_generator"/>
+    </input>
+
     <utility module_path=".*handy_cli_tools.*"/>
 
     <utility module_path=".*parameterised_accounts">
