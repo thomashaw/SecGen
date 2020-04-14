@@ -15,57 +15,7 @@
   <type>multi</type>
   <platform>linux</platform>
 
-  <!-- TODO: Read Facts -->
-
-  <!--<read_fact>IP_address</read_fact>-->
-  <!--<read_fact>elasticsearch_ip</read_fact>-->
-  <!--<read_fact>elasticsearch_port</read_fact>-->
-  <!--<read_fact>logstash_port</read_fact>-->
-  <!--<read_fact>kibana_port</read_fact>-->
-  <!--<read_fact>wazuh_component</read_fact>-->
-  <!--<read_fact>wazuh_agent_name</read_fact>-->
-
   <read_fact>aaa_config</read_fact>
-
-
-  <!-- TODO: Default inputs -->
-  <!--<default_input into="IP_address">-->
-    <!--<value>localhost</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="elasticsearch_ip">-->
-    <!--<value>localhost</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="elasticsearch_port">-->
-    <!--<value>9200</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="logstash_port">-->
-    <!--<value>5044</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="kibana_port">-->
-    <!--<value>5601</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="wazuh_component">-->
-    <!--<value>server</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="wazuh_agent_name">-->
-    <!--<value>agent</value>-->
-  <!--</default_input>-->
-<!---->
-  <!--<default_input into="aa_config">-->
-    <!--<generator module_path=".*goal_flag_hacktivity.*"/>-->
-    <!--<generator module_path=".*goal_message_host.*">-->
-      <!--<input into="mapping_type">-->
-        <!--<value>all_goal_messages_to_host</value>-->
-      <!--</input>-->
-      <!--<input into="message_header">-->
-        <!--<value>Well done!</value>-->
-      <!--</input>-->
-      <!--<input into="message_subtext">-->
-        <!--<value>Challenge complete - check Hacktivity for your updated score.</value>-->
-      <!--</input>-->
-    <!--</generator>-->
-  <!--</default_input>-->
-
   <default_input into="aaa_config">
     <generator type="aaa_config"/>
   </default_input>
@@ -79,9 +29,6 @@
   <requires>
     <name>Kibana</name>
   </requires>
-  <!--<requires>-->
-    <!--<name>Wazuh</name>-->
-  <!--</requires>-->
   <requires>
     <name>Elastalert</name>
   </requires>

@@ -133,11 +133,11 @@
       </input>
     </utility>
 
-    <service module_path=".*analysis_alert_action_client">
+    <utility module_path=".*analysis_alert_action_client">
       <input into="aaa_config">
         <datastore access="0">aaa_config</datastore>
       </input>
-    </service>
+    </utility>
 
     <vulnerability module_path=".*symlinks"/>
     <vulnerability module_path=".*readable_shadow"/>
