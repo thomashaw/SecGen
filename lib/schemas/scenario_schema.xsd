@@ -48,8 +48,6 @@
         <xs:element name='read_file' minOccurs='0' maxOccurs='unbounded' >
           <xs:complexType>
             <xs:sequence>
-              <!-- Hostname automatically interpreted from the system_name from scenario goals -->
-              <xs:element name='system_name' type='xs:string' minOccurs="1" maxOccurs="1"/>
               <xs:element name='file_path' type='xs:string' minOccurs="1" maxOccurs="1"/>
             </xs:sequence>
           </xs:complexType>
@@ -57,8 +55,6 @@
         <xs:element name='modify_file' minOccurs='0' maxOccurs='unbounded' >
           <xs:complexType>
             <xs:sequence>
-              <!-- Hostname automatically interpreted from the system_name from scenario goals -->
-              <xs:element name='system_name' type='xs:string' minOccurs="1" maxOccurs="1"/>
               <xs:element name='file_path' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
               <!-- file_contents: either a hash or regexp to match -->
               <xs:element name='file_contents' type='xs:string' minOccurs="0" maxOccurs="unbounded"/>
@@ -70,8 +66,6 @@
         <xs:element name='access_account' minOccurs='0' maxOccurs='unbounded' >
           <xs:complexType>
             <xs:sequence>
-              <!-- Hostname automatically interpreted from the system_name from scenario goals -->
-              <xs:element name='system_name' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
               <xs:element name='account_name' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
           </xs:complexType>
@@ -122,6 +116,7 @@
       </xs:element>
       <xs:element name='base' type='BaseType' minOccurs='1' maxOccurs='1' />
       <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="goals" type="GoalsType" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="input" type="InputElements" minOccurs="0" maxOccurs="unbounded" />
         <xs:element name='vulnerability' type='VulnerabilityType' minOccurs='0' maxOccurs='unbounded' />
         <xs:element name='service' type='ServiceUtilityBuildEncoderGeneratorType' minOccurs='0' maxOccurs='unbounded' />

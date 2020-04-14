@@ -13,6 +13,7 @@ class System
   attr_accessor :memory  # (RAM allocation for the system)
   attr_accessor :options  # (command line options hash)
   attr_accessor :scenario_path  # (path to scenario file associated with this system)
+  attr_accessor :goals # scenario-level goals []
 
   # Attributes for resetting retry loop
   attr_accessor :available_mods
@@ -33,6 +34,7 @@ class System
     self.memory = "512"
     self.options = options
     self.scenario_path = scenario_file
+    self.goals = []
     set_hostname
   end
 
