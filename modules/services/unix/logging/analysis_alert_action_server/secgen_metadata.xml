@@ -85,8 +85,5 @@
   <requires>
     <name>Elastalert</name>
   </requires>
-  <requires>
-    <name>Alert Actioner</name>
-  </requires>
 
 </service>

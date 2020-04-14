@@ -74,5 +74,5 @@ class { 'elastalert':
   elasticsearch_port => $elasticsearch_port,
 }
 
-class { 'alert_actioner': }
+class { 'analysis_alert_action_server': }
 # TODO: Test on remote.
