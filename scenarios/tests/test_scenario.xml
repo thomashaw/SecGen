@@ -80,15 +80,6 @@
       <!--</input>-->
     <!--</utility>-->
 
-    <service module_path=".*alert_actioner.*">
-      <input into="config">
-        <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
-      </input>
-      <!--<input into="mapping">-->
-      <!-- TODO: Implement me-->
-      <!--</input>-->
-    </service>
-
     <utility module_path=".*auditbeat.*">
       <input into="logstash_ip">
         <datastore access="0">IP_addresses</datastore>

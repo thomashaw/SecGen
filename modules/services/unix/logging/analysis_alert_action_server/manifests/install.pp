@@ -1,4 +1,4 @@
-class alert_actioner::install (
+class analysis_alert_action_server::install (
   $install_path = '/opt/alert_actioner/'
 ) {
 
@@ -9,7 +9,7 @@ class alert_actioner::install (
   file { $install_path:
     ensure  => directory,
     recurse => true,
-    source  => 'puppet:///modules/alert_actioner/alert_actioner',
+    source  => 'puppet:///modules/analysis_alert_action_server/alert_actioner',
   }
 
 }
