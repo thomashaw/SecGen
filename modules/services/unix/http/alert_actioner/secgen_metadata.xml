@@ -11,8 +11,8 @@
   <type>http</type>
   <platform>unix</platform>
 
-  <read_fact>aa_config</read_fact>
-  <default_input into="aa_config">
+  <read_fact>aa_configs</read_fact>
+  <default_input into="aa_configs">
     <generator module_path=".*goal_flag_hacktivity.*"/>
     <generator module_path=".*goal_message_host.*">
       <input into="mapping_type">

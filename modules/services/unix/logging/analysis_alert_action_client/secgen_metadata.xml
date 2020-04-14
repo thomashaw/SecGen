@@ -12,31 +12,10 @@
   <type>multi</type>
   <platform>linux</platform>
 
-  <read_fact>elasticsearch_ip</read_fact>
-  <read_fact>elasticsearch_port</read_fact>
-  <read_fact>logstash_port</read_fact>
-  <read_fact>kibana_port</read_fact>
-  <!--<read_fact>wazuh_component</read_fact>-->
-  <!--<read_fact>wazuh_agent_name</read_fact>-->
-
-  <default_input into="elasticsearch_ip">
-    <value>localhost</value>
+  <read_fact>aaa_config</read_fact>
+  <default_input into="aaa_config">
+    <generator type="aaa_config"/>
   </default_input>
-  <default_input into="elasticsearch_port">
-    <value>9200</value>
-  </default_input>
-  <default_input into="logstash_port">
-    <value>5044</value>
-  </default_input>
-  <default_input into="kibana_port">
-    <value>5601</value>
-  </default_input>
-  <!--<default_input into="wazuh_component">-->
-    <!--<value>server</value>-->
-  <!--</default_input>-->
-  <!--<default_input into="wazuh_agent_name">-->
-    <!--<value>agent</value>-->
-  <!--</default_input>-->
 
   <requires>
     <name>Filebeat</name>
@@ -44,8 +23,5 @@
   <requires>
     <name>Auditbeat</name>
   </requires>
-  <!--<requires>-->
-    <!--<name>Wazuh</name>-->
-  <!--</requires>-->
 
 </service>
