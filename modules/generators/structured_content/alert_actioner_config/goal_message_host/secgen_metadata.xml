@@ -12,8 +12,9 @@
   <platform>linux</platform>
 
   <read_fact>host</read_fact>
-  <read_fact>username</read_fact>
+  <read_fact>sender</read_fact>
   <read_fact>password</read_fact>
+  <read_fact>recipient</read_fact>
   <read_fact>message_header</read_fact>
   <read_fact>message_subtext</read_fact>
 
