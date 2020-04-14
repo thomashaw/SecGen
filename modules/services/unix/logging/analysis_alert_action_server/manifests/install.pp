@@ -2,7 +2,7 @@ class analysis_alert_action_server::install (
   $install_path = '/opt/alert_actioner/'
 ) {
 
-  package{ 'sshpass':
+  package{ ['sshpass', 'mailutils']:
     ensure => installed,
   }
 

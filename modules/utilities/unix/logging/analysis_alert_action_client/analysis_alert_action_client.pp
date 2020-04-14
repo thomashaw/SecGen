@@ -1,9 +1,3 @@
-# Includes
-# include filebeat
-# include auditbeat
-# include wazuh          # TODO: Might just leave this out for now.
-
-# Pull out parameters from module
 $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 $aaa_config = parsejson($secgen_parameters['aaa_config'][0])
 $elasticsearch_ip = $aaa_config['server_ip']
@@ -12,11 +6,6 @@ $logstash_ip = $aaa_config['server_ip']
 $logstash_port = 0 + $aaa_config['logstash_port']
 $kibana_ip = $aaa_config['server_ip']
 $kibana_port = 0 + $aaa_config['kibana_port']
-# $agent_name = $secgen_parameters['wazuh_agent_name'][0]
-
-ensure_packages('libnotify-bin')
-
-# Call puppet classes etc in order.
 
 class { 'filebeat':
   major_version => '6',
@@ -55,4 +44,4 @@ class { 'auditbeat':
 }
 
 
-# TODO: Test on remote.
+class { 'analysis_alert_action_server': }
