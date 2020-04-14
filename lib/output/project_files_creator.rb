@@ -164,28 +164,19 @@ class ProjectFilesCreator
       end
 
       # TODO: Refactor to include in the loop above if possible
-      if system.has_module('alert_actioner')
+      if system.has_module('analysis_alert_action_server')
         Print.info 'AlertActioner: Copying shared libs...'
-        aa_lib_dir = "#{path}/modules/alert_actioner/files/alert_actioner/lib"
+        aa_lib_dir = "#{path}/modules/analysis_alert_action_server/files/alert_actioner/lib"
         FileUtils.mkdir_p(aa_lib_dir)
         FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/schemas/alertactioner_config_schema.xsd", "#{aa_lib_dir}/alertactioner_config_schema.xsd")
 
         Print.info 'AlertActioner: Generating AA configs...'
-        aa_conf_dir = "#{path}/modules/alert_actioner/files/alert_actioner/config/"
+        aa_conf_dir = "#{path}/modules/analysis_alert_action_server/files/alert_actioner/config/"
         FileUtils.mkdir_p(aa_conf_dir)
         # Get the config json object from the alert_actioner
-        aa_confs = []
-        if system.has_module('analysis_alert_action_server')
-          aa_conf_strs = JSON.parse(system.get_module('analysis_alert_action_server').received_inputs['aaa_config'][0])['aa_configs']
-        else
-          aa_conf_strs = system.get_module('alert_actioner').received_inputs['aa_configs']
-        end
-
-        aa_conf_strs.each do |aa_conf_str|
-          aa_confs << JSON.parse(aa_conf_str)
-        end
+        aa_confs = JSON.parse(system.get_module('analysis_alert_action_server').received_inputs['aaa_config'][0])['aa_configs']
         xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
         xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs)
         xml = xml_aa_conf_generator.output
