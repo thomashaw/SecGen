@@ -57,8 +57,9 @@ class XmlAlertActionConfigGenerator
             @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
                                'action_type' => 'MessageAction',
                                'host' => aa_conf['host'],
-                               'username' => aa_conf['username'],
+                               'sender' => aa_conf['sender'],
                                'password' => aa_conf['password'],
+                               'recipient' => aa_conf['recipient'],
                                'message_header' => aa_conf['message_header'],
                                'message_subtext' => aa_conf['message_subtext']
             }
@@ -134,8 +135,9 @@ class XmlAlertActionConfigGenerator
             when 'MessageAction'
               xml.MessageAction {
                 xml.host alert_action['host']
-                xml.username alert_action['username']
+                xml.sender alert_action['sender']
                 xml.password alert_action['password']
+                xml.recipient alert_action['recipient']
                 xml.message_header alert_action['message_header']
                 xml.message_subtext alert_action['message_subtext']
               }

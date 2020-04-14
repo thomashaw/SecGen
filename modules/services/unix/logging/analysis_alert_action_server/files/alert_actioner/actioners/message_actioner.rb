@@ -4,18 +4,20 @@ class MessageActioner < CommandActioner
 
   attr_accessor :message_header
   attr_accessor :message_subtext
+  attr_accessor :recipient
 
-  def initialize(config_filename, alertaction_index, alert_name, host, username, password, message_header, message_subtext)
-    super(config_filename, alertaction_index, alert_name, host, username, password)
+  def initialize(config_filename, alertaction_index, alert_name, host, sender, password, recipient, message_header, message_subtext)
+    super(config_filename, alertaction_index, alert_name, host, sender, password)
     self.message_header = message_header
     self.message_subtext = message_subtext
+    self.recipient = recipient
   end
 
   # Return [Array] of command strings
   def command_strings
     ["DISPLAY=:0 /usr/bin/notify-send -u critical '#{self.message_header}' '#{self.message_subtext}'",
-     "/usr/bin/wall #{username == 'root' ? '-n ' : ''}'#{self.message_header}' '#{self.message_subtext}'",  # wall -n requires root
-     "/bin/echo '#{self.message_subtext}' | /usr/bin/mail -s '#{self.message.header}' #{self.username}"]
+     "/usr/bin/wall #{self.username == 'root' ? '-n ' : ''}'#{self.message_header}' '#{self.message_subtext}'",  # wall -n requires root
+     "/bin/echo '#{self.message_subtext}' | /usr/bin/mail -s '#{self.message.header}' #{self.recipient}"]
     # TODO: Test mail command
   end
 

@@ -65,11 +65,14 @@
             <input into="message_subtext">
               <value>Here is some subtext from the scenario.</value>
             </input>
-            <input into="username">
+            <input into="sender">
               <value>root</value>
             </input>
             <input into="password">
               <datastore access="0">client_root_password</datastore>
+            </input>
+            <input into="recipient">
+              <value>test</value>
             </input>
           </generator>
         </input>

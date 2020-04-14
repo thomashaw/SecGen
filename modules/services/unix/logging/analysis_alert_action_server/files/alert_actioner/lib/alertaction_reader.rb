@@ -38,11 +38,12 @@ class AlertActionReader < XMLReader
           # todo
         when 'MessageAction'
           host = action_node.xpath('host').text
-          username = action_node.xpath('username').text
+          sender = action_node.xpath('sender').text
           password = action_node.xpath('password').text
+          recipient = action_node.xpath('recipient').text
           message_header = action_node.xpath('message_header').text
           message_subtext = action_node.xpath('message_subtext').text
-          message_actioner = MessageActioner.new(config_filename, alertaction_index, alert_name, host, username, password, message_header, message_subtext)
+          message_actioner = MessageActioner.new(config_filename, alertaction_index, alert_name, host, sender, password, recipient, message_header, message_subtext)
           Print.info  "Created #{message_actioner.to_s}", Logging.logger
           alert_actioners << message_actioner
         when 'VDIAction'
