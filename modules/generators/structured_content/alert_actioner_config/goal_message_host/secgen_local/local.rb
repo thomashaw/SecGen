@@ -15,7 +15,7 @@ class GoalMessageHost < StringGenerator
   def initialize
     super
     self.module_name = 'Goal-Message-Host AlertActioner Config Generator'
-    self.host = ''          # Host IP (TODO: Consider expanding this to an array of multiple targets)
+    self.host = ''          # Host IP
     self.username = ''      # Host username
     self.password = ''      # Host password
     self.message_header = ''       # Message to send to host
@@ -25,7 +25,6 @@ class GoalMessageHost < StringGenerator
   end
 
   def generate
-    # TODO: Create an enum-like hash/class to validate the mapping_types
     self.outputs << {:host => self.host, :username => self.username, :password => self.password, :message_header => self.message_header, :message_subtext => self.message_subtext, :mapping => self.mapping, :mapping_type => self.mapping_type}.to_json
   end
 
@@ -43,19 +42,19 @@ class GoalMessageHost < StringGenerator
     super
     case opt
     when '--host'
-      self.host << arg
+      self.host = arg
     when '--username'
-      self.username << arg
+      self.username = arg
     when '--password'
-      self.password << arg
+      self.password = arg
     when '--message_header'
-      self.message_header << arg
+      self.message_header = arg
     when '--message_subtext'
-      self.message_subtext << arg
+      self.message_subtext = arg
     when '--mapping'
       self.mapping << arg
     when '--mapping_type'
-      self.mapping_type << arg
+      self.mapping_type = arg
     end
   end
 end
