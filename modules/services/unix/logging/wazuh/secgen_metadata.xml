@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 
-<utility xmlns="http://www.github/cliffe/SecGen/utility"
+<service xmlns="http://www.github/cliffe/SecGen/service"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
   <name>Wazuh</name>
   <author>Thomas Shaw</author>
   <author>Wazuh</author>
-  <module_license>GPLv2</module_license>
+  <module_license>Apache v2</module_license>
   <description>TODO</description>
 
   <type>log_tool</type>
@@ -33,4 +33,4 @@
     <module_path>.*handy_cli_tools</module_path>
   </requires>
 
-</utility>
+</service>
