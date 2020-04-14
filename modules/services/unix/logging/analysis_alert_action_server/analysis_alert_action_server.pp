@@ -1,14 +1,3 @@
-# Includes
-# include ::java
-# include elasticsearch
-# include logstash
-# include kibana
-# # include wazuh          # TODO: Might just leave this out for now.
-# include elastalert
-# include alert_actioner
-
-
-# Pull out parameters from module
 $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 $aaa_config = parsejson($secgen_parameters['aaa_config'][0])
 $elasticsearch_ip = $aaa_config['server_ip']
@@ -16,10 +5,6 @@ $elasticsearch_port = 0 + $aaa_config['elasticsearch_port']
 $logstash_port = 0 + $aaa_config['logstash_port']
 $kibana_ip = $aaa_config['server_ip']
 $kibana_port = 0 + $aaa_config['kibana_port']
-# $agent_name = $secgen_parameters['wazuh_agent_name'][0]
-
-
-# Call puppet classes etc in order.
 
 class { 'elasticsearch':
   api_host => $elasticsearch_ip,
@@ -53,26 +38,10 @@ class { 'kibana':
   }
 }
 
-#  TODO: Just leave wazuh out for now - not needed yet.
-# class { '::wazuh::manager':
-#   ossec_smtp_server   => 'localhost',
-#   ossec_emailto => ['user@mycompany.com'],
-#   agent_auth_password => '6663484170b2c69451e01ba11f319533', #todo: obviously fix this - must be 32char
-# }
-# class { '::wazuh::kibana':
-#   kibana_elasticsearch_ip => $kibana_elasticsearch_ip,
-# }
-#
-# exec{ 'enable ossec auth':
-#   command => '/var/ossec/bin/ossec-control enable auth',
-#   require => Class['::wazuh::manager'],
-# }
-#
-
 class { 'elastalert':
   elasticsearch_ip => $elasticsearch_ip,
   elasticsearch_port => $elasticsearch_port,
 }
 
+
 class { 'analysis_alert_action_server': }
-# TODO: Test on remote.
