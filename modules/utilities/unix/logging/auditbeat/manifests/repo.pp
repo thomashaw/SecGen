@@ -4,6 +4,8 @@
 # @summary It manages the package repositories to isntall auditbeat
 class auditbeat::repo {
   if ($auditbeat::manage_repo == true) and ($auditbeat::ensure == 'present') {
+    notice('auditbeat::repo - Managing and present')
+    notice('auditbeat::repo - $facts[\'osfamily\']:::' + $facts['osfamily'])
     case $facts['osfamily'] {
       'Debian': {
         include ::apt
