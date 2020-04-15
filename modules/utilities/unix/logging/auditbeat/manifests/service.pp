@@ -33,5 +33,6 @@ class auditbeat::service {
     ensure   => $service_status,
     enable   => $service_enabled,
     provider => $auditbeat::service_provider,
+    require => Package['auditbeat'],
   }
 }
