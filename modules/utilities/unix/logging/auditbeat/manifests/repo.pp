@@ -9,6 +9,7 @@ class auditbeat::repo {
     notice("auditbeat::repo - facts[\'osfamily\']::: $family")
     case $facts['osfamily'] {
       'Debian': {
+        notice("auditbeat::repo - facts[\'osfamily\']::: $family")
         include ::apt
 
         $download_url = 'https://artifacts.elastic.co/packages/6.x/apt'
@@ -23,6 +24,11 @@ class auditbeat::repo {
               id     => '46095ACC8548582C1A2699A9D27D666CD88E42B4',
               source => 'https://artifacts.elastic.co/GPG-KEY-elasticsearch',
             },
+          }->
+          exec { 'post-source-apt-update':
+            command => "/usr/bin/apt-get update --fix-missing",
+            tries => 5,
+            try_sleep => 30,
           }
         }
       }
