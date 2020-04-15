@@ -15,6 +15,7 @@ class auditbeat::repo {
         $download_url = 'https://artifacts.elastic.co/packages/6.x/apt'
 
         if !defined(Apt::Source['beats']) {
+          notice('auditbeat::repo - installing beats...')
           apt::source{'beats':
             ensure   => $auditbeat::ensure,
             location => $download_url,
@@ -30,6 +31,7 @@ class auditbeat::repo {
             tries => 5,
             try_sleep => 30,
           }
+
         }
       }
       'RedHat': {
