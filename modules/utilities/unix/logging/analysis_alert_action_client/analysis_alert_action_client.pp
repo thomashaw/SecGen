@@ -7,6 +7,23 @@ $logstash_port = 0 + $aaa_config['logstash_port']
 $kibana_ip = $aaa_config['server_ip']
 $kibana_port = 0 + $aaa_config['kibana_port']
 
+class { 'auditbeat':
+  ensure => 'present',
+  manage_repo => true,
+  modules => [
+    {
+      'module'  => 'auditd',
+      'enabled' => true,
+      'audit_rule_files' => '${path.config}/audit.rules.d/*.conf',
+    },
+  ],
+  outputs => {
+    'logstash' => {
+      'hosts' => ["$logstash_ip:$logstash_port"],
+    },
+  },
+}
+
 class { 'filebeat':
   major_version => '6',
   outputs => {
@@ -26,24 +43,5 @@ filebeat::prospector { 'syslogs':
   ],
   doc_type => 'syslog-beat',
 }
-
-
-class { 'auditbeat':
-  ensure => 'present',
-  manage_repo => true,
-  modules => [
-    {
-      'module'  => 'auditd',
-      'enabled' => true,
-      'audit_rule_files' => '${path.config}/audit.rules.d/*.conf',
-    },
-  ],
-  outputs => {
-    'logstash' => {
-      'hosts' => ["$logstash_ip:$logstash_port"],
-    },
-  },
-}
-
 
 class { 'analysis_alert_action_client': }
