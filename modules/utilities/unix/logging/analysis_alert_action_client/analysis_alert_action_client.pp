@@ -29,6 +29,8 @@ filebeat::prospector { 'syslogs':
 
 
 class { 'auditbeat':
+  ensure => 'present',
+  manage_repo => true,
   modules => [
     {
       'module'  => 'auditd',
