@@ -5,7 +5,8 @@
 class auditbeat::repo {
   if ($auditbeat::manage_repo == true) and ($auditbeat::ensure == 'present') {
     notice('auditbeat::repo - Managing and present')
-    notice('auditbeat::repo - $facts[\'osfamily\']:::' + $facts['osfamily'])
+    $family = $facts['osfamily']
+    notice("auditbeat::repo - facts[\'osfamily\']::: $family")
     case $facts['osfamily'] {
       'Debian': {
         include ::apt
