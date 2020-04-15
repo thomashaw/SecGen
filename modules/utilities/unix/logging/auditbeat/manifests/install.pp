@@ -13,5 +13,6 @@ class auditbeat::install {
   }
   package{'auditbeat':
     ensure => $package_ensure,
+    require => Class['auditbeat::repo']
   }
 }
