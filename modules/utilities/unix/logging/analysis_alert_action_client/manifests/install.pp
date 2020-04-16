@@ -9,7 +9,7 @@ class analysis_alert_action_client::install {
       # TODO: Add config stuff for mail-notification on debian desktop
     }
     'kali-rolling': {
-      package { 'xfce-mailwatch-plugin': ensure => installed }
+      package { 'xfce4-mailwatch-plugin': ensure => installed }
       # TODO: Add config stuff for mailwatch on kali desktop
     }
   }
