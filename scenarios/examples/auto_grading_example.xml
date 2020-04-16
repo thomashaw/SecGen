@@ -145,12 +145,6 @@
       </input>
     </utility>
 
-    <vulnerability module_path=".*ssh_root_login">
-      <input into="root_password">
-        <datastore access="0">client_root_password</datastore>
-      </input>
-    </vulnerability>
-
     <network type="private_network">
       <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
@@ -167,18 +161,12 @@
   <system>
     <system_name>client_2</system_name>
     <base distro="Kali" name="MSF"/>
-<!---->
+
     <utility module_path=".*analysis_alert_action_client">
       <input into="aaa_config">
         <datastore access="0">aaa_config</datastore>
       </input>
     </utility>
-
-    <vulnerability module_path=".*ssh_root_login">
-      <input into="root_password">
-        <value>toor</value>
-      </input>
-    </vulnerability>
 
     <network type="private_network">
       <input into="IP_address">
