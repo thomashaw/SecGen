@@ -18,7 +18,7 @@
   </default_input>
 
   <requires>
-    <module_path>kali_light.*</module_path>
+    <module_path>.*bases/kali_light.*</module_path>
   </requires>
 
 </utility>
