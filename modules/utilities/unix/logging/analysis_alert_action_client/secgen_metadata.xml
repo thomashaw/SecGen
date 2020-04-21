@@ -7,7 +7,7 @@
   <author>Thomas Shaw</author>
   <module_license>Apache v2</module_license>
   <description>Client component to the Auto Grading System
-    Includes: Filebeat, Auditbeat, (TODO) Wazuh client
+    Includes: Filebeat, Auditbeat, (TODO) Wazuh client, modification to XFCE4 terminal records
   </description>
   <type>multi</type>
   <platform>linux</platform>
@@ -22,6 +22,9 @@
   </requires>
   <requires>
     <name>Auditbeat</name>
+  </requires>
+  <requires>
+    <name>Xfce4 Terminal W Records</name>
   </requires>
 
 </utility>
