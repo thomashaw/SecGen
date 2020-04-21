@@ -4,6 +4,10 @@ class xfce4_term_w_records::init {
     $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
     $accounts = $secgen_parameters['accounts']
 
+    # TODO: refactor this module into something like 'system mail utils'
+    # TODO: move me somewhere else into another class (xfce4_term_w_records::install)
+    ensure_packages(['mutt', 'procmail'])
+
     # If xfce is defined, we need to run AFTER the xfce4 and lightdm installation
     if defined('xfce') {
       augeas { "xfce4_term_w_records-root":
