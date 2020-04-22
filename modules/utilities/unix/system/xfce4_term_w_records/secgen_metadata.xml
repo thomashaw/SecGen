@@ -13,10 +13,6 @@
 
   <read_fact>accounts</read_fact>
 
-  <default_input into="accounts">
-    <generator type="account"/>
-  </default_input>
-
   <requires>
     <module_path>.*bases/kali_light.*</module_path>
   </requires>
