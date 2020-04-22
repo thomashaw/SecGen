@@ -11,8 +11,8 @@ class xfce4_term_w_records::init {
     # If xfce is defined, we need to run AFTER the xfce4 and lightdm installation
     if defined('xfce') {
       augeas { "xfce4_term_w_records-root":
-        path    => '/root/.config/xfce4/terminal/terminalrc',
-        line    => "CommandUpdateRecords=TRUE",
+        context    => '/root/.config/xfce4/terminal/terminalrc',
+        changes => ["CommandUpdateRecords=TRUE",],
         require => [Package['xfce4'], Package['lightdm']]
       }
 
@@ -22,8 +22,8 @@ class xfce4_term_w_records::init {
           $username = $account['username']
           unless $username == 'root' {
             augeas { "xfce4_term_w_records-$username":
-              path    => "/home/$username/.config/xfce4/terminal/terminalrc",
-              line    => "CommandUpdateRecords=TRUE",
+              context    => "/home/$username/.config/xfce4/terminal/terminalrc",
+              changes => ["CommandUpdateRecords=TRUE",],
               require => [Package['xfce4'], Package['lightdm'], Resource['parameterised_accounts::account']]
             }
           }
@@ -31,8 +31,8 @@ class xfce4_term_w_records::init {
       }
     } else {
       augeas { "xfce4_term_w_records-root":
-        path => '/root/.config/xfce4/terminal/terminalrc',
-        line => "CommandUpdateRecords=TRUE",
+        context => '/root/.config/xfce4/terminal/terminalrc',
+        changes => ["CommandUpdateRecords=TRUE",],
       }
 
       if $accounts {
@@ -41,8 +41,8 @@ class xfce4_term_w_records::init {
           $username = $account['username']
           unless $username == 'root' {
             augeas { "xfce4_term_w_records-$username":
-              path => "/home/$username/.config/xfce4/terminal/terminalrc",
-              line => "CommandUpdateRecords=TRUE",
+              context => "/home/$username/.config/xfce4/terminal/terminalrc",
+              changes => ["CommandUpdateRecords=TRUE",],
               require => Resource['parameterised_accounts::account'],
             }
           }
