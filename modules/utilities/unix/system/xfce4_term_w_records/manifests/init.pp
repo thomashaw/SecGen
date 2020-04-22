@@ -16,7 +16,7 @@ class xfce4_term_w_records::init {
         require => [Package['xfce4'], Package['lightdm']]
       }
 
-      if $accounts {
+      if $accounts and defined('parameterised_accounts') {
         $accounts.each |$raw_account| {
           $account = parsejson($raw_account)
           $username = $account['username']
@@ -29,13 +29,13 @@ class xfce4_term_w_records::init {
           }
         }
       }
-    } else {
+    } elsif $::osfamily == 'Debian' and $::lsbdistcodename == 'kali-rolling' {
       augeas { "xfce4_term_w_records-root":
         context => '/root/.config/xfce4/terminal/terminalrc',
         changes => ["CommandUpdateRecords=TRUE",],
       }
 
-      if $accounts {
+      if $accounts and defined('parameterised_accounts'){
         $accounts.each |$raw_account| {
           $account = parsejson($raw_account)
           $username = $account['username']
