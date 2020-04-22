@@ -2,6 +2,12 @@ class analysis_alert_action_server::install (
   $install_path = '/opt/alert_actioner/'
 ) {
 
+  package {  'ovirt-engine-sdk':
+    version => '4.3.0',
+    ensure   => 'installed',
+    provider => 'gem',
+  }
+
   package{ ['sshpass', 'mailutils']:
     ensure => installed,
   }
