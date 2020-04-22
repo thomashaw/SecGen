@@ -21,7 +21,7 @@ class xfce4_term_w_records::init {
           $account = parsejson($raw_account)
           $username = $account['username']
           unless $username == 'root' {
-            auegas { "xfce4_term_w_records-$username":
+            augeas { "xfce4_term_w_records-$username":
               path    => "/home/$username/.config/xfce4/terminal/terminalrc",
               line    => "CommandUpdateRecords=TRUE",
               require => [Package['xfce4'], Package['lightdm'], Resource['parameterised_accounts::account']]
@@ -40,7 +40,7 @@ class xfce4_term_w_records::init {
           $account = parsejson($raw_account)
           $username = $account['username']
           unless $username == 'root' {
-            auegas { "xfce4_term_w_records-$username":
+            augeas { "xfce4_term_w_records-$username":
               path => "/home/$username/.config/xfce4/terminal/terminalrc",
               line => "CommandUpdateRecords=TRUE",
               require => Resource['parameterised_accounts::account'],
