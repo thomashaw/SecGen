@@ -9,11 +9,12 @@ class XmlAlertActionConfigGenerator
   # @param [Object] scenario the scenario file used to generate
   # @param [Object] time the current time as a string
   # @param [Array[Hash]] the alert_actioner configuration settings (list of aa_conf JSON hashes)
-  def initialize(systems, scenario, time, aa_confs)
+  def initialize(systems, scenario, time, aa_confs, options)
     @systems = systems
     @scenario = scenario
     @time = time
     @aa_confs = aa_confs
+    @options = options
     @alert_actions = []
   end
 

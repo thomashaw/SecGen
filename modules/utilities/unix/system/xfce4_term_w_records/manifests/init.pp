@@ -12,7 +12,7 @@ class xfce4_term_w_records::init {
     if defined('xfce') {
       augeas { "xfce4_term_w_records-root":
         context    => '/root/.config/xfce4/terminal/terminalrc',
-        changes => ["CommandUpdateRecords=TRUE",],
+        changes => ["set CommandUpdateRecords TRUE",],
         require => [Package['xfce4'], Package['lightdm']]
       }
 
@@ -23,7 +23,7 @@ class xfce4_term_w_records::init {
           unless $username == 'root' {
             augeas { "xfce4_term_w_records-$username":
               context    => "/home/$username/.config/xfce4/terminal/terminalrc",
-              changes => ["CommandUpdateRecords=TRUE",],
+              changes => ["set CommandUpdateRecords TRUE",],
               require => [Package['xfce4'], Package['lightdm'], Resource['parameterised_accounts::account']]
             }
           }
@@ -32,7 +32,7 @@ class xfce4_term_w_records::init {
     } elsif $::osfamily == 'Debian' and $::lsbdistcodename == 'kali-rolling' {
       augeas { "xfce4_term_w_records-root":
         context => '/root/.config/xfce4/terminal/terminalrc',
-        changes => ["CommandUpdateRecords=TRUE",],
+        changes => ["set CommandUpdateRecords TRUE",],
       }
 
       if $accounts and defined('parameterised_accounts'){
@@ -42,7 +42,7 @@ class xfce4_term_w_records::init {
           unless $username == 'root' {
             augeas { "xfce4_term_w_records-$username":
               context => "/home/$username/.config/xfce4/terminal/terminalrc",
-              changes => ["CommandUpdateRecords=TRUE",],
+              changes => ["set CommandUpdateRecords TRUE",],
               require => Resource['parameterised_accounts::account'],
             }
           }

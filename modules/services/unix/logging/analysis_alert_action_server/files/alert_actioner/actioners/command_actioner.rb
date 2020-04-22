@@ -20,11 +20,6 @@ class CommandActioner < AlertActioner
   end
 
   def perform_action
-
-    # TODO: Convert the below into the automatic creation of a_script.sh (based on the message etc) and then the running of it via sshpass/ssh
-    # TODO: Update the parameters to include the username of the account we want to inform, and their password
-    # TODO: Play around with this stuff on the VMs. There could be an easier way to graphically alert all users on KDE/XFCE and we can forget about gnome.
-
     # Create config/commands directory
     FileUtils.mkdir_p COMMANDS_DIRECTORY
     commands_sh_path = COMMANDS_DIRECTORY + "#{self.alertactioner_name}.sh"

@@ -171,6 +171,7 @@ class ProjectFilesCreator
         FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
         FileUtils.cp_r("#{ROOT_DIR}/lib/schemas/alertactioner_config_schema.xsd", "#{aa_lib_dir}/alertactioner_config_schema.xsd")
+        FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/ovirt.rb", "#{aa_lib_dir}/ovirt.rb")
 
         Print.info 'AlertActioner: Generating AA configs...'
         aa_conf_dir = "#{path}/modules/analysis_alert_action_server/files/alert_actioner/config/"
@@ -178,7 +179,7 @@ class ProjectFilesCreator
         # Get the config json object from the alert_actioner
         aa_confs = JSON.parse(system.get_module('analysis_alert_action_server').received_inputs['aaa_config'][0])['aa_configs']
         xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
-        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs)
+        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs, @options)
         xml = xml_aa_conf_generator.output
         Print.std "AlertActioner: Creating alert_actioner configuration file: #{xml_aa_conf_file}"
         write_data_to_file(xml, xml_aa_conf_file)
