@@ -161,17 +161,17 @@ def add(options)
   instances = options[:instances]
   if (instances.to_i.to_s == instances) and instances.to_i >= 1
     instances.to_i.times do |count|
-      instance_args = "--prefix batch_job_#{(count+1).to_s} " + @secgen_args
+      instance_args = "--prefix batch_job_#{(count+1).to_s} "
       instance_args = instance_args + generate_range_arg(db_conn, options)
-      instance_args = instance_args + generate_affinity_arg(options)
+      instance_args = instance_args + generate_affinity_arg(options) + @secgen_args
       insert_row(db_conn, @prepared_statements, count.to_s, instance_args)
     end
   elsif instances.size > 0
     named_prefixes = instances.split(',')
     named_prefixes.each_with_index do |named_prefix, count|
-      instance_secgen_args = "--prefix #{named_prefix} " + @secgen_args
+      instance_secgen_args = "--prefix #{named_prefix} "
       instance_secgen_args = instance_secgen_args + generate_range_arg(db_conn, options)
-      instance_secgen_args = instance_secgen_args + generate_affinity_arg(options)
+      instance_secgen_args = instance_secgen_args + generate_affinity_arg(options) + @secgen_args
       insert_row(db_conn, @prepared_statements, count.to_s, instance_secgen_args)
     end
   end
