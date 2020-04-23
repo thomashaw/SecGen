@@ -68,7 +68,7 @@ end
 def get_add_opts
   add_options = misc_opts + [['--instances', '-i', GetoptLong::REQUIRED_ARGUMENT],
                              ['--randomise-ips', GetoptLong::REQUIRED_ARGUMENT],
-                             ['--affinity-group', GetoptLong::REQUIRED_ARGUMENT]]
+                             ['--affinity-group', GetoptLong::NO_ARGUMENT]]
   options = parse_opts(GetoptLong.new(*add_options))
   if options.has_key? :instances
     options
