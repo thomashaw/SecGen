@@ -456,7 +456,7 @@ end
 def generate_affinity_arg(options)
   arg = ''
   if options.has_key? :affinity_group
-    arg = "--ovirt-affinity-group secgen_affinity_group_#{rand(10)} "
+    arg = "--ovirt-affinity-group secgen_affinity_group_#{rand(9) + 1} "
   end
   arg
 end
