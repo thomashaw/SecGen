@@ -31,7 +31,7 @@ def usage
    --instances [prefix,prefix, ...]: Alternatively supply a comma separated list of strings to prefix to project output
    --randomise-ips [integer n ](optional): Randomises the IP range 10.X.X.0, unique for all instances,
                                            requires the number of unique static network tags in the scenario.xml
-   --affinity-groups: Assigns the set a random oVirt affinity group (named secgen_affinity_group_1 to secgen_affinity_group_10)
+   --affinity-group: Assigns the set a random oVirt affinity group (named secgen_affinity_group_1 to secgen_affinity_group_10)
    ---: Delimiter, anything after this will be passed to secgen.rb as an argument.
    Example: `ruby batch_secgen.rb add --instances here,are,some,prefixes --- -s scenarios/default_scenario.xml run`
 
@@ -142,8 +142,8 @@ def parse_opts(opts)
         options[:success] = true
       when '--failed'
         options[:failed] = true
-      when '--affinity-groups'
-        options[:affinity_groups] = true
+      when '--affinity-group'
+        options[:affinity_group] = true
       else
         Print.err 'Invalid argument'
         exit(false)
@@ -454,7 +454,7 @@ def generate_range_arg(db_conn, options)
 end
 
 def generate_affinity_arg(options)
-  options.has_key? :random_ips ? "--ovirt-affinity-group secgen_affinity_group_#{rand(10)} " : ''
+  options.has_key? :affinity_group ? "--ovirt-affinity-group secgen_affinity_group_#{rand(10)} " : ''
 end
 
 def generate_range
