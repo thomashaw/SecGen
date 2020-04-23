@@ -454,7 +454,11 @@ def generate_range_arg(db_conn, options)
 end
 
 def generate_affinity_arg(options)
-  options.has_key? :affinity_group ? "--ovirt-affinity-group secgen_affinity_group_#{rand(10)} " : ''
+  arg = ''
+  if options.has_key? :affinity_group
+    arg = "--ovirt-affinity-group secgen_affinity_group_#{rand(10)} "
+  end
+  arg
 end
 
 def generate_range
