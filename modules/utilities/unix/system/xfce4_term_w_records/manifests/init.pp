@@ -9,7 +9,7 @@ class xfce4_term_w_records::init {
       file { '/root/.config/xfce4/terminal/terminalrc':
         ensure => present,
         source => 'puppet:///modules/xfce4_term_w_records/terminalrc',
-        user   => 'root',
+        owner   => 'root',
         group  => 'root',
       }
 
@@ -21,8 +21,8 @@ class xfce4_term_w_records::init {
             file { "/home/$username/.config/xfce4/terminal/terminalrc":
               ensure  => present,
               source  => 'puppet:///modules/xfce4_term_w_records/terminalrc',
-              user    => 'root',
-              group   => 'root',
+              owner    => $username,
+              group   => $username,
               require => Resource['parameterised_accounts::account'],
             }
           }
