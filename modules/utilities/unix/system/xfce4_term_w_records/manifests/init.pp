@@ -4,13 +4,18 @@ class xfce4_term_w_records::init {
     $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
     $accounts = $secgen_parameters['accounts']
 
-    # If xfce is defined, we need to run AFTER the xfce4 and lightdm installation
     if defined('xfce') or ($::osfamily == 'Debian' and $::lsbdistcodename == 'kali-rolling') {
+
+      file { ['/root/.config/xfce4/', '/root/.config/xfce4/terminal/']:
+        ensure => directory,
+      }
+
       file { '/root/.config/xfce4/terminal/terminalrc':
-        ensure => present,
-        source => 'puppet:///modules/xfce4_term_w_records/terminalrc',
+        ensure  => present,
+        source  => 'puppet:///modules/xfce4_term_w_records/terminalrc',
         owner   => 'root',
-        group  => 'root',
+        group   => 'root',
+        require => [File['/root/.config/xfce4/'], File['/root/.config/xfce4/terminal/'],],
       }
 
       if $accounts and defined('parameterised_accounts') {
@@ -21,9 +26,13 @@ class xfce4_term_w_records::init {
             file { "/home/$username/.config/xfce4/terminal/terminalrc":
               ensure  => present,
               source  => 'puppet:///modules/xfce4_term_w_records/terminalrc',
-              owner    => $username,
+              owner   => $username,
               group   => $username,
-              require => Resource['parameterised_accounts::account'],
+              require => [
+                File['/root/.config/xfce4/'],
+                File['/root/.config/xfce4/terminal/'],
+                Resource['parameterised_accounts::account']
+              ],
             }
           }
         }
