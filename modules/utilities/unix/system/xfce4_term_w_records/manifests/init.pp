@@ -4,16 +4,13 @@ class xfce4_term_w_records::init {
     $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
     $accounts = $secgen_parameters['accounts']
 
-    # TODO: refactor this module into something like 'system mail utils'
-    # TODO: move me somewhere else into another class (xfce4_term_w_records::install)
-    ensure_packages(['mutt', 'procmail'])
-
     # If xfce is defined, we need to run AFTER the xfce4 and lightdm installation
-    if defined('xfce') {
-      augeas { "xfce4_term_w_records-root":
-        context    => '/root/.config/xfce4/terminal/terminalrc',
-        changes => ["set CommandUpdateRecords TRUE",],
-        require => [Package['xfce4'], Package['lightdm']]
+    if defined('xfce') or ($::osfamily == 'Debian' and $::lsbdistcodename == 'kali-rolling') {
+      file { '/root/.config/xfce4/terminal/terminalrc':
+        ensure => present,
+        source => 'puppet:///modules/xfce4_term_w_records/terminalrc',
+        user   => 'root',
+        group  => 'root',
       }
 
       if $accounts and defined('parameterised_accounts') {
@@ -21,28 +18,11 @@ class xfce4_term_w_records::init {
           $account = parsejson($raw_account)
           $username = $account['username']
           unless $username == 'root' {
-            augeas { "xfce4_term_w_records-$username":
-              context    => "/home/$username/.config/xfce4/terminal/terminalrc",
-              changes => ["set CommandUpdateRecords TRUE",],
-              require => [Package['xfce4'], Package['lightdm'], Resource['parameterised_accounts::account']]
-            }
-          }
-        }
-      }
-    } elsif $::osfamily == 'Debian' and $::lsbdistcodename == 'kali-rolling' {
-      augeas { "xfce4_term_w_records-root":
-        context => '/root/.config/xfce4/terminal/terminalrc',
-        changes => ["set CommandUpdateRecords TRUE",],
-      }
-
-      if $accounts and defined('parameterised_accounts'){
-        $accounts.each |$raw_account| {
-          $account = parsejson($raw_account)
-          $username = $account['username']
-          unless $username == 'root' {
-            augeas { "xfce4_term_w_records-$username":
-              context => "/home/$username/.config/xfce4/terminal/terminalrc",
-              changes => ["set CommandUpdateRecords TRUE",],
+            file { "/home/$username/.config/xfce4/terminal/terminalrc":
+              ensure  => present,
+              source  => 'puppet:///modules/xfce4_term_w_records/terminalrc',
+              user    => 'root',
+              group   => 'root',
               require => Resource['parameterised_accounts::account'],
             }
           }
