@@ -13,8 +13,5 @@
 
   <read_fact>accounts</read_fact>
 
-  <requires>
-    <module_path>.*bases/kali_light.*</module_path>
-  </requires>
 
 </utility>
