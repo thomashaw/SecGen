@@ -15,7 +15,7 @@ class MessageActioner < CommandActioner
 
   # Return [Array] of command strings
   def command_strings
-    ["DISPLAY=:0 /usr/bin/notify-send -u critical '#{self.message_header}' '#{self.message_subtext}'",
+    ["DISPLAY=:0 /usr/bin/notify-send '#{self.message_header}' '#{self.message_subtext}' --icon=dialog-information",
      "/usr/bin/wall #{self.username == 'root' ? '-n ' : ''}'#{self.message_header}' '#{self.message_subtext}'",  # wall -n requires root
      "/bin/echo '#{self.message_subtext}' | /usr/bin/mail -s '#{self.message_header}' #{self.recipient}"]
     # TODO: Test mail command
