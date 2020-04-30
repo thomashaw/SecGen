@@ -13,7 +13,7 @@ define secgen_functions::install_setgid_binary (
   $strings_to_leak = [''], # Optional: strings to leak (could contain instructions or a message)
 ) {
 
-  ensure_packages(['build-essential','gcc-multilib'])
+  ensure_packages(['build-essential', 'gcc-multilib'])
 
   if !$account {
     err('install: account is required for setgid challenges')
@@ -23,61 +23,62 @@ define secgen_functions::install_setgid_binary (
   if $account {
     $username = $account['username']
 
-  ensure_resource('parameterised_accounts::account', "parameterised_$username",
-    { "username"         => $account['username'],
-      "password"         => $account['password'],
-      "super_user"       => str2bool($account['super_user']),
-      "strings_to_leak"  => $account['strings_to_leak'],
-      "leaked_filenames" => $account['leaked_filenames'], })
+    ensure_resource('parameterised_accounts::account', "parameterised_$username",
+      { "username"         => $account['username'],
+        "password"         => $account['password'],
+        "super_user"       => str2bool($account['super_user']),
+        "strings_to_leak"  => $account['strings_to_leak'],
+        "leaked_filenames" => $account['leaked_filenames'], })
 
-  if $storage_dir {
-    $storage_directory = $storage_dir
-  } else {
-    $storage_directory = "/home/$username"
-  }
-
-  $challenge_directory = "$storage_directory/$challenge_name"
-  $modules_source = "puppet:///modules/$source_module_name"
-
-  if $binary_path == '' {
-    $outer_bin_path = "/tmp/$challenge_name"
-    $bin_path = "$outer_bin_path/$challenge_name"
-    ::secgen_functions::compile_binary_module { "compile-$source_module_name-$challenge_name":
-      source_module_name => $source_module_name,
-      binary_directory   => $outer_bin_path,
-      challenge_name     => $challenge_name,
-      notify             => Secgen_functions::Create_directory["create_$challenge_directory"]
+    if $storage_dir {
+      $storage_directory = $storage_dir
+    } else {
+      $storage_directory = "/home/$username"
     }
-  } else {
-    $bin_path = $binary_path
+
+    $challenge_directory = "$storage_directory/$challenge_name"
+    $modules_source = "puppet:///modules/$source_module_name"
+
+    if $binary_path == '' {
+      $outer_bin_path = "/tmp/$challenge_name"
+      $bin_path = "$outer_bin_path/$challenge_name"
+      ::secgen_functions::compile_binary_module { "compile-$source_module_name-$challenge_name":
+        source_module_name => $source_module_name,
+        binary_directory   => $outer_bin_path,
+        challenge_name     => $challenge_name,
+        notify             => Secgen_functions::Create_directory["create_$challenge_directory"]
+      }
+    } else {
+      $bin_path = $binary_path
+    }
+
+    ensure_resource('group', $group, { ensure => present })
+
+    # Create challenge directory
+    ensure_resource('file', $storage_directory, { 'ensure' => 'directory' })
+    ensure_resource('file', $challenge_directory, { 'ensure' => 'directory' })
+
+    # Move the compiled binary into the challenge directory
+    file { "$challenge_directory/$challenge_name":
+      ensure  => present,
+      owner   => 'root',
+      group   => $group,
+      mode    => '2771',
+      source  => $bin_path,
+      require => File[$challenge_directory]
+    }
+
+    # Drop the flag file on the box and set permissions
+    ::secgen_functions::leak_files { "$challenge_directory/$challenge_name-flag-leak":
+      storage_directory => "$challenge_directory",
+      leaked_filenames  => [$flag_name],
+      strings_to_leak   => [$flag],
+      owner             => 'root',
+      group             => $group,
+      mode              => '0440',
+      leaked_from       => "$source_module_name/$challenge_name",
+      require           => [Group[$group], File["$challenge_directory/$challenge_name"]],
+    }
+
   }
-
-  ensure_resource('group', $group, { 'ensure' => 'present' })
-
-  # Create challenge directory
-  ensure_resource('file', $storage_directory, { 'ensure' => 'directory'})
-  ensure_resource('file', $challenge_directory, { 'ensure' => 'directory'})
-
-  # Move the compiled binary into the challenge directory
-  file { "$challenge_directory/$challenge_name":
-    ensure => present,
-    owner  => 'root',
-    group  => $group,
-    mode   => '2771',
-    source => $bin_path,
-    require => File[$challenge_directory]
-  }
-
-  # Drop the flag file on the box and set permissions
-  ::secgen_functions::leak_files { "$challenge_directory/$challenge_name-flag-leak":
-    storage_directory => "$challenge_directory",
-    leaked_filenames  => [$flag_name],
-    strings_to_leak   => [$flag],
-    owner             => 'root',
-    group             => $group,
-    mode              => '0440',
-    leaked_from       => "$source_module_name/$challenge_name",
-    require           => [Group[$group], File["$challenge_directory/$challenge_name"]],
-  }
-
 }
