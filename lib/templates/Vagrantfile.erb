@@ -205,6 +205,7 @@ end
       <% if selected_module.attributes['platform'].first.downcase != 'windows' %>
         <%=module_name%>.options = "--disable_warnings=deprecations"
         <%=module_name%>.environment_path = "environments/"
+        <%=module_name%>.environment_variables = {'RUBYOPT' => '-W0'}
         <%=module_name%>.environment = "production"
         <%=module_name%>.synced_folder_type = "rsync"
       <% end %>
