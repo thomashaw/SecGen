@@ -162,6 +162,8 @@
     <system_name>client_2</system_name>
     <base distro="Kali" name="MSF"/>
 
+    <utility module_path=".*/thunderbird"/>
+
     <utility module_path=".*analysis_alert_action_client">
       <input into="aaa_config">
         <datastore access="0">aaa_config</datastore>
