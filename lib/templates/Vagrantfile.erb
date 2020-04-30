@@ -218,6 +218,7 @@ end
         <%=module_name%>.temp_dir = "/cygdrive/c/vagrant/"
       <% else %>
         <%=module_name%>.environment_path = "environments/"
+        <%=module_name%>.environment_variables = {'RUBYOPT' => '-W0'}
         <%=module_name%>.environment = "production"
       <% end %>
       <%=module_name%>.synced_folder_type = "rsync"
