@@ -2,6 +2,8 @@ require 'json'
 require 'base64'
 require 'duplicate'
 
+require_relative '../helpers/scenario'
+
 class System
 
   attr_accessor :name
