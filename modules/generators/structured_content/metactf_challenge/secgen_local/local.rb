@@ -1,32 +1,49 @@
 #!/usr/bin/ruby
 require_relative '../../../../../lib/objects/local_string_generator.rb'
 
-class RandomMetaCTFChallenge < StringGenerator
+require 'json'
+require 'securerandom'
+
+class MetaCTFChallengeGenerator < StringGenerator
+  attr_accessor :challenge_name
   attr_accessor :difficulty
+  attr_accessor :flag
+  attr_accessor :group
 
   def initialize
     super
-    self.module_name = 'Random Wordpress Version Generator'
+    self.module_name = 'MetaCTF Challenge Generator'
+    self.challenge_name = ''
     self.difficulty = ''
+    self.flag = ''
+    self.group = ''
   end
 
 
   def get_options_array
-    super + [['--difficulty', GetoptLong::REQUIRED_ARGUMENT]]
+    super + [['--challenge_name', GetoptLong::OPTIONAL_ARGUMENT],
+             ['--difficulty', GetoptLong::REQUIRED_ARGUMENT],
+             ['--flag', GetoptLong::REQUIRED_ARGUMENT],
+             ['--group', GetoptLong::OPTIONAL_ARGUMENT]]
   end
 
   def process_options(opt, arg)
     super
     case opt
+    when '--challenge_name'
+      self.challenge_name << arg;
     when '--difficulty'
       self.difficulty << arg;
+    when '--flag'
+      self.flag << arg;
+    when '--group'
+      self.group << arg;
     end
   end
 
   def generate
 
     # TODO : run through the challenges and adjust difficulty to something more appropriate
-
     src_angr = [
         {:difficulty => 'medium', :name => 'src_angr/00_angr_find'},
         {:difficulty => 'medium', :name => 'src_angr/01_angr_avoid'},
@@ -144,17 +161,31 @@ class RandomMetaCTFChallenge < StringGenerator
 
     challenges = src_angr + src_csp + src_malware
 
-    # Select based on difficulty
-
-    challenges.delete_if do |challenge|
+    if self.challenge_name != ''
+      challenges.delete_if do |challenge|
+        challenge[:name] != self.challenge_name
+      end
+      challenge = challenges.first
+    elsif self.challenge_name == '' and self.difficulty != ''
+      challenges.delete_if do |challenge|
         challenge[:difficulty] != self.difficulty
+      end
+
+      challenge = challenges.sample
+    else
+      # throw an errorr
+      Print.err('Error! ') # TODO: more meaningful error messages here
+      exit(1)
     end
 
-    challenge = challenges.sample
-    outputs << challenge[:name]
+    if self.group == ''
+      self.group = SecureRandom.hex.slice(1..8)
+    end
+
+    outputs << {'challenge_name' => challenge[:name], 'flag' => self.flag, 'group' => self.group }.to_json
 
   end
 
 end
 
-RandomMetaCTFChallenge.new.run
+MetaCTFChallengeGenerator.new.run

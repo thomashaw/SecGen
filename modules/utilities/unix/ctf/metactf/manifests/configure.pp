@@ -2,7 +2,6 @@ class metactf::configure {
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
   $install_dir = '/tmp/metactf'
   $challenge_list = $secgen_params['challenge_list']
-  $flags = $secgen_params['flags']
   $groups = $secgen_params['groups']
   $include_chapters = str2bool($secgen_params['include_chapters'][0])
   $include_scaffolding = str2bool($secgen_params['include_scaffolding'][0])
@@ -22,13 +21,14 @@ class metactf::configure {
 
   # Move the challenges based on account name and challenge name.
 
-  $challenge_pairs = zip($challenge_list, $flags)
+  $challenge_list.each |$counter, $raw_challenge| {
+    $challenge = parsejson($raw_challenge)
 
-  $challenge_pairs.each |$counter, $challenge_pair| {
-    $flag = $challenge_pair[1]
-    $challenge_path = $challenge_pair[0]
+    $challenge_name = $challenge['challenge_name']
+    $group = $challenge['group']
+    $flag = $challenge['flag']
 
-    $split_challenge = split($challenge_path, '/')
+    $split_challenge = split($challenge_name, '/')
     $metactf_challenge_category = $split_challenge[0]
 
     if $metactf_challenge_category == 'src_angr'{
@@ -73,8 +73,6 @@ class metactf::configure {
         $target_challenge_name = $challenge_name
       }
     }
-
-    $group = $groups[$counter]
 
     ::secgen_functions::install_setgid_binary { "metactf_$challenge_name":
       source_module_name => $module_name,

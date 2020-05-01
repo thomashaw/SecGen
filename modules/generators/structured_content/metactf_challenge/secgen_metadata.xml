@@ -3,7 +3,7 @@
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-  <name>Random MetaCTF Challenge Generator</name>
+  <name>MetaCTF Challenge Generator</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
   <description>Selects the name of a random MetaCTF challenge.</description>
@@ -15,10 +15,18 @@
 
   <reference>https://bitbucket.org/wuchangfeng/metactf</reference>
 
+  <!-- If challenge name is not provided, randomise based on difficulty.
+       If group is not provided, generate random hex. -->
+  <read_fact>challenge_name</read_fact>
   <read_fact>difficulty</read_fact>
+  <read_fact>flag</read_fact>
+  <read_fact>group</read_fact>
 
   <default_input into="difficulty">
     <generator type="random_difficulty"/>
+  </default_input>
+  <default_input into="flag">
+    <generator type="flag_generator"/>
   </default_input>
 
   <output_type>generated_strings</output_type>

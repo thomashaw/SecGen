@@ -79,15 +79,6 @@
       <input into="include_chapters">
         <value>false</value>
       </input>
-      <input into="groups">
-        <value>challenge01</value>
-        <value>challenge02</value>
-        <value>challenge03</value>
-        <value>challenge04</value>
-        <value>challenge05</value>
-        <value>challenge06</value>
-        <value>challenge07</value>
-      </input>
     </utility>
 
     <network type="private_network" range="dhcp"/>

@@ -28,7 +28,9 @@ define secgen_functions::install_setgid_binary (
         "password"         => $account['password'],
         "super_user"       => str2bool($account['super_user']),
         "strings_to_leak"  => $account['strings_to_leak'],
-        "leaked_filenames" => $account['leaked_filenames'], })
+        "leaked_filenames" => $account['leaked_filenames'],
+        "groups"           => [$account['username']],
+      })
 
     if $storage_dir {
       $storage_directory = $storage_dir
