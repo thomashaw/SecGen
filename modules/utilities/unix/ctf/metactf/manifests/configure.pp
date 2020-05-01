@@ -27,29 +27,27 @@ class metactf::configure {
     $metactf_challenge_category = $split_challenge[0]
     $metactf_challenge_type = split($metactf_challenge_category, '_')[1]
 
-    "/tmp/metactf/src_angr/obj/secgen/src_angr"
-    "/tmp/metactf/src_malware/Ch15-16/Ch15AntiDis_FakeCond/obj/secgen/$challenge_name"
-
+    # "/tmp/metactf/src_angr/obj/secgen/src_angr"
+    # "/tmp/metactf/src_malware/Ch15-16/Ch15AntiDis_FakeCond/obj/secgen/$challenge_name"
 
     $binary_path = "$install_dir/$metactf_challenge_category/obj/secgen/$metactf_challenge_type/$challenge_name"
-    $binary_path = "$install_dir/$metactf_challenge_category/$challenge_outer_dir/$challenge_name/obj/secgen/$challenge_name"
+    # $binary_path = "$install_dir/$metactf_challenge_category/$challenge_outer_dir/$challenge_name/obj/secgen/$challenge_name"
 
-    if $metactf_challenge_category == 'src_angr' and $include_scaffolding {
-
-      $challenge_number = split($challenge_name, '_')[0]
-      $scaffold_filename = "scaffold$challenge_number.py"
-
-      $scaffold_path = "$install_dir/$metactf_challenge_category/$challenge_name/$scaffold_filename"
-
-      file { "create-$challenge_name-$scaffold_filename":
-          path => "$storage_dir/$challenge_name/$scaffold_filename",
-          ensure => file,
-          source => $scaffold_path,
-        }
-
-    } else {
-      $challenge_outer_dir = $split_challenge[1]
-
+    # if $metactf_challenge_category == 'src_angr' and $include_scaffolding {
+    #
+    #   $challenge_number = split($challenge_name, '_')[0]
+    #   $scaffold_filename = "scaffold$challenge_number.py"
+    #
+    #   $scaffold_path = "$install_dir/$metactf_challenge_category/$challenge_name/$scaffold_filename"
+    #
+    #   file { "create-$challenge_name-$scaffold_filename":
+    #       path => "$storage_dir/$challenge_name/$scaffold_filename",
+    #       ensure => file,
+    #       source => $scaffold_path,
+    #     }
+    #
+    # } else {
+    #   $challenge_outer_dir = $split_challenge[1]
       if !$include_chapters {
         $split_challenge_name = split($challenge_name,'_')
         $target_challenge_name = $split_challenge_name[-1]
