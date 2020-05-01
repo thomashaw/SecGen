@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Wazuh</name>
+  <author>Thomas Shaw</author>
+  <author>Wazuh</author>
+  <module_license>Apache v2</module_license>
+  <description>TODO</description>
+
+  <type>log_tool</type>
+  <platform>linux</platform>
+
+  <read_fact>wazuh_component</read_fact>
+  <read_fact>wazuh_agent_name</read_fact>
+  <read_fact>server_address</read_fact>
+
+  <default_input into="wazuh_component">
+    <!--<value>server</value>-->
+    <value>agent</value>
+  </default_input>
+
+  <default_input into="wazuh_agent_name">
+    <value>agent</value>
+  </default_input>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <requires>
+    <module_path>.*handy_cli_tools</module_path>
+  </requires>
+
+</service>

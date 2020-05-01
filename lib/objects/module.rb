@@ -1,12 +1,16 @@
 require_relative '../helpers/constants.rb'
+require_relative '../helpers/json_functions.rb'
+
 require 'digest/md5'
 require 'securerandom'
+require 'duplicate'
+require 'yaml'
 
 class Module
   #Vulnerability attributes hash
   attr_accessor :module_path # vulnerabilities/unix/ftp/vsftp_234_backdoor
   attr_accessor :module_type # vulnerability|service|utility
-  attr_accessor :attributes  # attributes are hashes that contain arrays of values
+  attr_accessor :attributes # attributes are hashes that contain arrays of values
   # Each attribute is stored in a hash containing an array of values (because elements such as author can repeat).
   # Module *selectors*, store filters in the attributes hash.
   # XML validity ensures valid and complete information.
@@ -22,6 +26,7 @@ class Module
 
   attr_accessor :conflicts
   attr_accessor :requires
+  attr_accessor :goals
   attr_accessor :puppet_file
   attr_accessor :puppet_other_path
   attr_accessor :local_calc_file
@@ -34,6 +39,7 @@ class Module
     self.module_type = module_type
     self.conflicts = []
     self.requires = []
+    self.goals = []
     self.attributes = {}
     self.output = []
     self.write_to_module_with_id = write_output_variable = ''
@@ -52,10 +58,11 @@ class Module
   # @return [Object] a string for console output
   def to_s
     (<<-END)
-    #{module_type}: #{module_path}
+#{module_type}: #{module_path}
       attributes: #{attributes.inspect}
       conflicts: #{conflicts.inspect}
       requires: #{requires.inspect}
+      goals: #{goals.inspect}
       puppet file: #{puppet_file}
       puppet path: #{puppet_other_path}
     END
@@ -76,6 +83,7 @@ class Module
     #   id: #{unique_id}
     #   attributes: #{attributes.inspect}
     #   conflicts: #{conflicts.inspect}
+    #   goals: #{goals.inspect}
     #   requires: #{requires.inspect}#{input}#{out}
     END
   end
@@ -89,7 +97,7 @@ class Module
   # @return [Object] the module path with _ rather than / for use as a variable name
   def module_path_name
     module_path_name = module_path.clone
-    module_path_name.gsub!('/','_')
+    module_path_name.gsub!('/', '_')
   end
 
   # @return [Object] a list of attributes that can be used to re-select the same modules
@@ -97,7 +105,7 @@ class Module
     attr_flattened = {}
 
     attributes.each do |key, array|
-      unless "#{key}" == 'module_type' || "#{key}" == 'conflict' || "#{key}" == 'default_input' || "#{key}" == 'requires'
+      unless "#{key}" == 'module_type' || "#{key}" == 'conflict' || "#{key}" == 'default_input' || "#{key}" == 'requires' || "#{key}" == 'goals'
         # creates a valid regexp that can match the original module
         attr_flattened["#{key}"] = Regexp.escape(array.join('~~~')).gsub(/\n\w*/, '.*').gsub(/\\ /, ' ').gsub(/~~~/, '|')
       end
@@ -176,8 +184,93 @@ class Module
     end
   end
 
+  # Get unique rule id for the module based on a rule key/value pair
+  def get_unique_rule_id(prefix, system_name, rule_key, rule_value)
+    # TODO: This might be too long, see if there is a length limit for rule identities
+    prefix = prefix + "_" if prefix and prefix != ''
+    "#{prefix}#{system_name}_#{module_path_end}_#{rule_key}_#{rule_value.gsub(/[^\w]/, '_')}"
+  end
+
   def printable_name
     "#{self.attributes['name'].first} (#{self.module_path})"
   end
 
+  # Resolve the string interpolation for received inputs
+  # e.g. convert "/home#{accounts[0].username}/#{leaked_files}" into the correct string.
+  def resolve_received_inputs
+    received_inputs_to_hash
+    self.received_inputs.each do |input|
+      # Resolve the received inputs which contain #{}
+      input[1].each_with_index do |string, c|
+        input[1][c] = interp_string(string) if contains_interp(string)
+      end
+    end
+    received_inputs_to_json_str
+  end
+
+  # Resolve the string interpolation for goals
+
+  def resolve_goals(hostname)
+    new_goals = []
+    self.goals.each do |goal|
+      new_goal = {}
+
+      # Add hostname to module goals
+      new_goal.merge!({'hostname' => hostname}) unless goal.has_key? 'hostname'
+
+      # Interpolate values that require it
+      goal.each_key do |key|
+        value = goal[key]
+        new_goal.merge!(key => (contains_interp(value) ? interp_string(value) : value))
+      end
+      new_goals << new_goal
+    end
+    self.goals = new_goals
+  end
+
+  def contains_interp(string)
+    string.include?('#{') and string.include?('}')
+  end
+
+  def received_inputs_to_hash
+    self.received_inputs.each do |_, array|
+      array.each_with_index do |value, i|
+        if JSONFunctions.is_json?(value)
+          array[i] = JSON.parse(value)
+        end
+      end
+    end
+  end
+
+  def received_inputs_to_json_str
+    self.received_inputs.each do |_, array|
+      array.each_with_index do |value, i|
+        if value.is_a? Hash
+          array[i] = value.to_json
+        end
+      end
+    end
+  end
+
+  def interp_string(string)
+    begin
+      # identify the indices of the #{ characters within the string
+      start_indices = string.enum_for(:scan, /#\{/).map {Regexp.last_match.begin(0)}
+      reference_string = "self.received_inputs"
+      start_indices.each_with_index do |index, counter|
+        rolling_index = index + 2 # we add 2 for the #{ characters
+        if counter > 0
+          rolling_index = reference_string.length + index + 2
+        end
+        string.insert(rolling_index, reference_string)
+      end
+
+      string = JSONFunctions.sanitise_eval_string(string)
+      # evaluate and parse evaluated string into required data types(e.g. "['a',['b','c']]" into ['a',['b','c']])
+      YAML.load(instance_eval("\"#{string}\""))
+    rescue NoMethodError, SyntaxError, Psych::Exception => err
+      Print.err "#{err}"
+      raise 'failed'
+    end
+  end
 end

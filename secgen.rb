@@ -32,6 +32,7 @@ def usage
    --system, -y [system_name]: Only build this system_name from the scenario
    --snapshot: Creates a snapshot of VMs once built
    --no-tests: Prevent post-provisioning tests from running.
+   --dev: Prevents retry loops and doesn't automatically destroy failed VMs
 
    VIRTUALBOX OPTIONS:
    --gui-output, -g: Show the running VM (not headless)
@@ -80,7 +81,7 @@ def build_config(scenario, out_dir, options)
   Print.info 'Reading configuration file for virtual machines you want to create...'
   # read the scenario file describing the systems, which contain vulnerabilities, services, etc
   # this returns an array/hashes structure
-  systems = SystemReader.read_scenario(scenario)
+  systems = SystemReader.read_scenario(scenario, options)
   Print.std "#{systems.size} system(s) specified"
 
   all_available_modules = ModuleReader.get_all_available_modules
@@ -122,7 +123,7 @@ def build_vms(scenario, project_dir, options)
   end
 
   # if deploying to ovirt, when things fail to build, set the retry_count
-  retry_count = OVirtFunctions::provider_ovirt?(options) ? 1 : 0
+  retry_count = (OVirtFunctions::provider_ovirt?(options) && !options[:dev]) ? 1 : 0
   successful_creation = false
 
   while retry_count >= 0 and !successful_creation
@@ -136,7 +137,7 @@ def build_vms(scenario, project_dir, options)
         GemExec.exe('vagrant', project_dir, 'halt')
       end
     else
-      if retry_count > 0
+      if retry_count > 0 and !options[:dev]
         # Identify which VMs failed
         if vagrant_output[:exception].class == ProcessHelper::UnexpectedExitStatusError
           split = vagrant_output[:output].split('==> ')
@@ -179,11 +180,11 @@ def build_vms(scenario, project_dir, options)
             end
             sleep(10)
           end
-        else # TODO:  elsif vagrant_output[:exception].type == ProcessHelper::TimeoutError   >destroy individually broken vms as above?
+        elsif !options[:dev] # TODO:  elsif vagrant_output[:exception].type == ProcessHelper::TimeoutError   >destroy individually broken vms as above?
           Print.err 'Vagrant up timeout, destroying VMs and retrying...'
           GemExec.exe('vagrant', project_dir, 'destroy -f')
         end
-      else
+      elsif !options[:dev]
         Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
         GemExec.exe('vagrant', project_dir, 'destroy -f')
         exit 1
@@ -435,6 +436,7 @@ opts = GetoptLong.new(
     ['--shutdown', GetoptLong::NO_ARGUMENT],
     ['--network-ranges', GetoptLong::REQUIRED_ARGUMENT],
     ['--forensic-image-type', GetoptLong::REQUIRED_ARGUMENT],
+    ['--dev', GetoptLong::NO_ARGUMENT],
     ['--ovirtuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtpass', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirt-url', GetoptLong::REQUIRED_ARGUMENT],
@@ -520,6 +522,9 @@ opts.each do |opt, arg|
   when '--snapshot'
     Print.info "Taking snapshots when VMs are created"
     options[:snapshot] = true
+  when '--dev'
+    Print.info "Developer mode: not removing failed VMs or auto retrying failed builds"
+    options[:dev] = true
   # oVirt options
   when '--ovirtuser'
     Print.info "Ovirt Username : #{arg}"

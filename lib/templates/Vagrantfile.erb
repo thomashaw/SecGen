@@ -6,9 +6,8 @@
 # Based on <%= @scenario %>
 <% require 'json'
    require 'base64'
-   require 'securerandom' -%>
-<% scenario_name = @scenario.split('/').last.split('.').first + '-'
-   prefix = @options[:prefix] ? (@options[:prefix] + '-' + scenario_name) : ('SecGen-' + scenario_name) -%>
+   require 'securerandom'
+   require_relative './lib/helpers/scenario.rb' -%>
 
 VAGRANTFILE_API_VERSION = "2"
 
@@ -28,7 +27,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           end
         end
       end
-    end -%>
+    end
+    system.memory = resolve_memory(system) -%>
   config.vm.define "<%= system.name %>" do |<%= system.name %>|
 <% if (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass) %>
     #oVirt provider begin
@@ -44,13 +44,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end %>
 <%=
 "        ovirt.template = '#{@ovirt_base_template}'" %>
-<%=     if @options.has_key? :memory_per_vm
-"        ovirt.memory_size = '#{@options[:memory_per_vm]} MB'\n"
-        elsif @options.has_key? :total_memory
-"        ovirt.memory_size = '#{(@options[:total_memory].to_i / @systems.length.to_i)} MB'\n"
-        else
-"        ovirt.memory_size = '3000 MB'
-        ovirt.memory_guaranteed = '512 MB'\n"
+<%=
+"        ovirt.memory_size = '#{system.memory} MB'\n" -%>
+<%=     if @base_type.include? 'desktop'
+"        ovirt.memory_guaranteed = '512 MB'\n"
+        elsif system.memory.to_i >= 4096
+"        ovirt.memory_guaranteed = '4096 MB'\n"
         end -%>
 <%=     if @options.has_key? :cpu_cores
 "        ovirt.cpu_cores = #{@options[:cpu_cores]}\n"
@@ -77,9 +76,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 <%= if @options.has_key? :esxi_disktype
 "       esxi.guest_disk_type = '#{@options[:esxi_disktype]}'"
 		end -%>
-<%=     if @options.has_key? :memory_per_vm
-"       esxi.guest_memsize = '#{@options[:memory_per_vm]}'"
-        end -%>
+<%= "       esxi.guest_memsize = '#{system.memory} MB'\n"
+        -%>
 <%=     if @options.has_key? :cpu_cores
 "       esxi.guest_numvcpus = #{@options[:cpu_cores]}\n"
         end -%>
@@ -87,7 +85,7 @@ end
 	# End ESXi provider
 <%
   else %>
-    config.vm.provider :virtualbox do |vb|
+    <%= system.name %>.vm.provider :virtualbox do |vb|
 <%  system.module_selections.each do |selected_module|
       if selected_module.module_type == 'base'
         @cpu_word_size = selected_module.attributes['cpu_word_size'].first.downcase
@@ -108,11 +106,7 @@ end
     end -%>
 <%= vtxpid = (@options.has_key? :vtxvpid) ? 'on' : 'off'
       "      vb.customize ['modifyvm', :id, '--vtxvpid', '#{vtxpid}']\n"  -%>
-<%= if @options.has_key? :memory_per_vm
-      "      vb.memory = #{@options[:memory_per_vm]}\n"
-    elsif @options.has_key? :total_memory
-      "      vb.memory = #{@options[:total_memory]}/#{@systems.length}\n"
-    end -%>
+<%=   "      vb.memory = '#{system.memory}'\n"-%>
 <%= if @options.has_key? :cpu_cores
       "      vb.cpus = #{@options[:cpu_cores]}\n"
     end -%>
@@ -144,12 +138,12 @@ end
     <% if (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass) %>   # TODO
       <%# if selected_module.attributes['platform'].first.downcase != 'windows' %>
       <%# gets stuck setting host name on Windows XP %>
-        <%= system.name %>.vm.hostname = '<%= "#{prefix}#{system.name}".tr('_', '-') %>'
+        <%= system.name %>.vm.hostname = '<%= system.get_hostname %>'
       <%# end %>
       <%= system.name %>.vm.box = 'ovirt4'
       <%= system.name %>.vm.box_url = 'https://github.com/myoung34/vagrant-ovirt4/blob/master/example_box/dummy.box?raw=true'
     <% elsif (@options.has_key? :esxiuser) && (@options.has_key? :esxipass) %>
-    <%= system.name %>.vm.hostname = '<%= "#{prefix}#{system.name}".tr('_', '-') %>'
+    <%= system.name %>.vm.hostname = '<%= system.get_hostname %>'
     <%= system.name %>.vm.box = "<%= selected_module.module_path_name %>"
     <%= system.name %>.vm.box_url = "<%= selected_module.attributes['esxi_url'].first %>"
     <% else %>
@@ -219,7 +213,9 @@ end
 <%    end -%>
       <%=module_name%>.module_path = "<%="puppet/#{system.name}/modules"%>"
       <% if selected_module.attributes['platform'].first.downcase != 'windows' %>
+        <%=module_name%>.options = "--disable_warnings=deprecations"
         <%=module_name%>.environment_path = "environments/"
+        <%=module_name%>.environment_variables = {'RUBYOPT' => '-W0'}
         <%=module_name%>.environment = "production"
         <%=module_name%>.synced_folder_type = "rsync"
       <% end %>

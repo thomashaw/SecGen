@@ -16,6 +16,14 @@
   <platform>linux</platform>
   <difficulty>low</difficulty>
 
+  <goals>
+    <access_account>
+      <account_name>irc</account_name>
+    </access_account>
+    <!--TODO: replace me when read-fact interpolation is implemented
+    <access_account>#{user}</access_account>-->
+  </goals>
+
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
   <read_fact>port</read_fact>
@@ -85,7 +93,7 @@
   <software_license>MIT</software_license>
 
   <!--<conflict>-->
-    <!--<name>.*Stretch.*</name>-->
+  <!--<name>.*Stretch.*</name>-->
   <!--</conflict>-->
   <conflict>
     <name>.*Kali.*</name>

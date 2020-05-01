@@ -3,52 +3,27 @@ require 'digest'
 
 require_relative '../objects/system'
 require_relative '../objects/module'
+require_relative 'xml_reader.rb'
 
-class SystemReader
+class SystemReader < XMLReader
 
   # uses nokogiri to extract all system information from scenario.xml
   # This includes module filters, which are module objects that contain filters for selecting
   # from the actual modules that are available
   # @return [Array] Array containing Systems objects
-  def self.read_scenario(scenario_file)
+  def self.read_scenario(scenario_file, options)
     systems = []
-    Print.verbose "Reading scenario file: #{scenario_file}"
-    doc, xsd = nil
-    begin
-      doc = Nokogiri::XML(File.read(scenario_file))
-    rescue
-      Print.err "Failed to read scenario configuration file (#{scenario_file})"
-      exit
-    end
-
-    # validate scenario XML against schema
-    begin
-      xsd = Nokogiri::XML::Schema(File.open(SCENARIO_SCHEMA_FILE))
-      xsd.validate(doc).each do |error|
-        Print.err "Error in scenario configuration file (#{scenario_file}):"
-        Print.err '    ' + error.message
-        exit
-      end
-    rescue Exception => e
-      Print.err "Failed to validate scenario configuration file (#{scenario_file}): against schema (#{SCENARIO_SCHEMA_FILE})"
-      Print.err e.message
-      exit
-    end
-
-    # remove xml namespaces for ease of processing
-    doc.remove_namespaces!
+    # Parse and validate the schema
+    doc = parse_doc(scenario_file, SCENARIO_SCHEMA_FILE, 'scenario')
 
     doc.xpath('/scenario/system').each_with_index do |system_node, system_index|
       module_selectors = []
-      system_attributes = {}
 
       system_name = system_node.at_xpath('system_name').text
       Print.verbose "system: #{system_name}"
 
       # system attributes, such as basebox selection
-      system_node.xpath('@*').each do |attr|
-        system_attributes["#{attr.name}"] = attr.text unless attr.text.nil? || attr.text == ''
-      end
+      system_attributes = read_attributes(system_node)
 
       # literal values to store directly in a datastore
       system_node.xpath('*[@into_datastore]/value').each do |value|
@@ -146,7 +121,26 @@ class SystemReader
         end
 
       end
-      systems << System.new(system_name, system_attributes, module_selectors)
+
+      # Create new system object before reading goals as we need the hostname
+      system = System.new(system_name, system_attributes, module_selectors, scenario_file, options)
+
+      # Parse goals
+      system_node.xpath("goals").each do |goals_doc|
+        goals_doc.elements.each {|node|
+          goal_type = node.name
+          goal_hash = {'goal_type' => goal_type, }
+          node.children.each {|subnode|
+            unless subnode.text?
+              goal_hash.merge!({subnode.name => subnode.content.strip})
+            end
+          }
+          goal_hash.merge!({'hostname' => system.get_hostname}) unless goal_hash.has_key? 'hostname'
+          system.goals << goal_hash
+        }
+      end
+
+      systems << system
     end
 
     return systems

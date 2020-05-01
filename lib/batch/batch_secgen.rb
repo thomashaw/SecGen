@@ -31,6 +31,7 @@ def usage
    --instances [prefix,prefix, ...]: Alternatively supply a comma separated list of strings to prefix to project output
    --randomise-ips [integer n ](optional): Randomises the IP range 10.X.X.0, unique for all instances,
                                            requires the number of unique static network tags in the scenario.xml
+   --affinity-group: Assigns the set a random oVirt affinity group (named secgen_affinity_group_1 to secgen_affinity_group_10)
    ---: Delimiter, anything after this will be passed to secgen.rb as an argument.
    Example: `ruby batch_secgen.rb add --instances here,are,some,prefixes --- -s scenarios/default_scenario.xml run`
 
@@ -66,7 +67,8 @@ end
 
 def get_add_opts
   add_options = misc_opts + [['--instances', '-i', GetoptLong::REQUIRED_ARGUMENT],
-                             ['--randomise-ips', GetoptLong::REQUIRED_ARGUMENT]]
+                             ['--randomise-ips', GetoptLong::REQUIRED_ARGUMENT],
+                             ['--affinity-group', GetoptLong::NO_ARGUMENT]]
   options = parse_opts(GetoptLong.new(*add_options))
   if options.has_key? :instances
     options
@@ -140,6 +142,8 @@ def parse_opts(opts)
         options[:success] = true
       when '--failed'
         options[:failed] = true
+      when '--affinity-group'
+        options[:affinity_group] = true
       else
         Print.err 'Invalid argument'
         exit(false)
@@ -157,15 +161,17 @@ def add(options)
   instances = options[:instances]
   if (instances.to_i.to_s == instances) and instances.to_i >= 1
     instances.to_i.times do |count|
-      instance_args = "--prefix batch_job_#{(count+1).to_s} " + @secgen_args
-      instance_args = generate_range_arg(db_conn, options) + instance_args
+      instance_args = "--prefix batch_job_#{(count+1).to_s} "
+      instance_args = instance_args + generate_range_arg(db_conn, options)
+      instance_args = instance_args + generate_affinity_arg(options) + @secgen_args
       insert_row(db_conn, @prepared_statements, count.to_s, instance_args)
     end
   elsif instances.size > 0
     named_prefixes = instances.split(',')
     named_prefixes.each_with_index do |named_prefix, count|
-      instance_secgen_args = "--prefix #{named_prefix} " + @secgen_args
-      instance_secgen_args = generate_range_arg(db_conn, options) + instance_secgen_args
+      instance_secgen_args = "--prefix #{named_prefix} "
+      instance_secgen_args = instance_secgen_args + generate_range_arg(db_conn, options)
+      instance_secgen_args = instance_secgen_args + generate_affinity_arg(options) + @secgen_args
       insert_row(db_conn, @prepared_statements, count.to_s, instance_secgen_args)
     end
   end
@@ -447,6 +453,14 @@ def generate_range_arg(db_conn, options)
     range_arg = "--network-ranges #{random_ip_string} "
   end
   range_arg
+end
+
+def generate_affinity_arg(options)
+  arg = ''
+  if options.has_key? :affinity_group
+    arg = "--ovirt-affinity-group secgen_affinity_group_#{rand(9) + 1} "
+  end
+  arg
 end
 
 def generate_range

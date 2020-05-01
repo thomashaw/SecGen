@@ -1,5 +1,6 @@
 #!/usr/bin/ruby
 require_relative '../../../../../lib/objects/local_string_encoder.rb'
+
 class AccountGenerator < StringEncoder
   attr_accessor :username
   attr_accessor :password

@@ -44,50 +44,50 @@
 # @param processors the optional processors for events enhancement.
 #
 class auditbeat (
-  String $beat_name                                                   = $::hostname,
-  Boolean $fields_under_root                                          = false,
-  Hash $queue                                                         = {
+  String $beat_name                                                                  = $::hostname,
+  Boolean $fields_under_root                                                         = false,
+  Hash $queue                                                                        = {
     'mem' => {
       'events' => 4096,
-      'flush' => {
+      'flush'  => {
         'min_events' => 0,
-        'timeout' => '0s',
+        'timeout'    => '0s',
       },
     },
   },
-  Hash $logging                                                       = {
-    'level' => 'info',
-    'selectors'  => undef,
-    'to_syslog' => false,
+  Hash $logging                                                                      = {
+    'level'       => 'info',
+    'selectors'   => undef,
+    'to_syslog'   => false,
     'to_eventlog' => false,
-    'json' => false,
-    'to_files' => true,
-    'files' => {
-      'path' => '/var/log/auditbeat',
-      'name' => 'auditbeat',
-      'keepfiles' => 7,
+    'json'        => true,
+    'to_files'    => true,
+    'files'       => {
+      'path'             => '/var/log/auditbeat',
+      'name'             => 'auditbeat',
+      'keepfiles'        => 7,
       'rotateeverybytes' => 10485760,
-      'permissions' => '0600',
+      'permissions'      => '0600',
     },
-    'metrics' => {
+    'metrics'     => {
       'enabled' => true,
-      'period' => '30s',
+      'period'  => '30s',
     },
   },
-  Hash $outputs                                                                       = {},
-  Enum['6'] $major_version                                                            = '6',
-  Enum['present', 'absent'] $ensure                                                   = 'present',
-  Optional[Enum['systemd', 'init', 'debian', 'redhat', 'upstart']] $service_provider  = undef,
-  Boolean $manage_repo                                                                = true,
-  Enum['enabled', 'running', 'disabled', 'unmanaged'] $service_ensure                 = 'enabled',
-  String $package_ensure                                                              = 'latest',
-  String $config_file_mode                                                            = '0644',
-  Boolean $disable_configtest                                                         = false,
-  Optional[Array[String]] $tags                                                       = undef,
-  Optional[Hash] $fields                                                              = undef,
-  Optional[Array[Hash]] $modules                                                      = undef,
-  Optional[Array[Hash]] $processors                                                   = undef,
-  Optional[Hash] $xpack                                                               = undef,
+  Hash $outputs                                                                      = {},
+  Enum['6'] $major_version                                                           = '6',
+  Enum['present', 'absent'] $ensure                                                  = 'present',
+  Optional[Enum['systemd', 'init', 'debian', 'redhat', 'upstart']] $service_provider = undef,
+  Boolean $manage_repo                                                               = true,
+  Enum['enabled', 'running', 'disabled', 'unmanaged'] $service_ensure                = 'enabled',
+  String $package_ensure                                                             = 'latest',
+  String $config_file_mode                                                           = '0644',
+  Boolean $disable_configtest                                                        = false,
+  Optional[Array[String]] $tags                                                      = undef,
+  Optional[Hash] $fields                                                             = undef,
+  Optional[Array[Hash]] $modules                                                     = undef,
+  Optional[Array[Hash]] $processors                                                  = undef,
+  Optional[Hash] $xpack                                                              = undef,
 ) {
 
   contain auditbeat::repo
@@ -96,20 +96,21 @@ class auditbeat (
   contain auditbeat::service
 
   if $manage_repo {
+    notice('Managing repo...')
     Class['auditbeat::repo']
-    ->Class['auditbeat::install']
-  }
-
-  case $ensure {
-    'present': {
-      Class['auditbeat::install']
-      ->Class['auditbeat::config']
-      ~>Class['auditbeat::service']
-    }
-    default: {
-      Class['auditbeat::service']
-      ->Class['auditbeat::config']
-      ->Class['auditbeat::install']
+    -> Class['auditbeat::install']
+  } else {
+    case $ensure {
+      'present': {
+        Class['auditbeat::install']
+        -> Class['auditbeat::config']
+        ~> Class['auditbeat::service']
+      }
+      default: {
+        Class['auditbeat::service']
+        -> Class['auditbeat::config']
+        -> Class['auditbeat::install']
+      }
     }
   }
 }

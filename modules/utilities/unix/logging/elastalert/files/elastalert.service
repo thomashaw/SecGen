@@ -1,0 +1,12 @@
+[Unit]
+Description=Elastalert
+After=elasticsearch.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/elastalert
+ExecStart=/usr/bin/python -m elastalert.elastalert --verbose --config /opt/elastalert/config.yaml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

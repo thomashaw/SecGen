@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Xfce4 Terminal W Records</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Register the xfce4 terminal with w. Enables messages via /usr/bin/wall etc.</description>
+
+  <type>system</type>
+  <platform>linux</platform>
+
+  <read_fact>accounts</read_fact>
+
+
+</utility>

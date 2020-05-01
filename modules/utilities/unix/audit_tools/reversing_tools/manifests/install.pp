@@ -58,19 +58,19 @@ class reversing_tools::install {
   # }
 
   # Install angr
-  exec { 'clone angr-dev repo':
-    command => 'git clone https://github.com/angr/angr-dev',
-    cwd     => '/usr/share/'
-  }
-
-  exec { 'run angr-dev setup.sh':
-    command   => '/bin/bash /usr/share/angr-dev/setup.sh -i -e angr-dev',
-    cwd       => '/usr/share/angr-dev',
-    logoutput => true,
-    loglevel => info,
-    timeout   => 0,
-    require => Exec['clone angr-dev repo'],
-  }
+  # exec { 'clone angr-dev repo':
+  #   command => 'git clone https://github.com/angr/angr-dev',
+  #   cwd     => '/usr/share/'
+  # }
+  #
+  # exec { 'run angr-dev setup.sh':
+  #   command   => '/bin/bash /usr/share/angr-dev/setup.sh -i -e angr-dev',
+  #   cwd       => '/usr/share/angr-dev',
+  #   logoutput => true,
+  #   loglevel => info,
+  #   timeout   => 0,
+  #   require => Exec['clone angr-dev repo'],
+  # }
 
 
   # TODO: Test all this!

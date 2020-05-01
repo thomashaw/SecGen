@@ -31,7 +31,7 @@ class FilenameGenerator < StringEncoder
       extension = ''
     end
 
-    15.times { leaked_filenames << Faker::File.file_name('', file_name, extension, '').chomp('.') }
+    15.times { leaked_filenames << Faker::File.file_name(dir:'', name:file_name, ext:extension, directory_separator: '').chomp('.') }
 
     output = leaked_filenames.sample
 

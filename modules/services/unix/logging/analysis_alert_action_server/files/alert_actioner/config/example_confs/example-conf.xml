@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<alertactioner xmlns="http://www.github/cliffe/SecGen/alertactioner_config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/alertactioner_config">
+  <alertaction>
+    <alert_name>example-rule</alert_name>
+    <MessageAction>
+      <host>x.x.x.166</host>
+      <sender>root</sender>
+      <password>test</password>
+      <recipient>test</recipient>
+      <message_header>Well done!</message_header>
+      <message_subtext>Here is some subtext from the example config.</message_subtext>
+    </MessageAction>
+  </alertaction>
+  <alertaction>
+    <alert_name>example-rule</alert_name>
+    <WebAction>
+      <target>http://127.0.0.1:8080</target>
+      <request_type>POST</request_type>
+      <data>flag{asdf}</data>
+    </WebAction>
+  </alertaction>
+  <alertaction>
+    <alert_name>example-rule</alert_name>
+    <VirtAddNICAction>
+      <virt_config>{"virt_type":"ovirt","ovirtpass":"toor","ovirturl":"","ovirtauthz":"","ovirtcluster":"", "ovirtnetwork":""}</virt_config>
+      <vm_name>shaw54-AAA-32-TODO</vm_name>
+      <network_name>user-network-01</network_name>
+    </VirtAddNICAction>
+    <VirtAddDiskAction>
+      <virt_config>{"virt_type":"ovirt","ovirtpass":"toor","ovirturl":"","ovirtauthz":"","ovirtcluster":"", "ovirtnetwork":""}</virt_config>
+      <vm_name>shaw54-AAA-32-TODO</vm_name>
+      <disk_alias>user-network-01</disk_alias>
+    </VirtAddDiskAction>
+  </alertaction>
+</alertactioner>

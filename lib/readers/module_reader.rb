@@ -2,9 +2,9 @@ require 'nokogiri'
 
 require_relative '../helpers/constants.rb'
 require_relative '../objects/module'
-require_relative 'system_reader.rb'
+require_relative 'xml_reader.rb'
 
-class ModuleReader
+class ModuleReader < XMLReader
 
   def self.get_all_available_modules
     Print.info 'Reading available base modules...'
@@ -105,30 +105,9 @@ class ModuleReader
       end
 
       Print.verbose "Reading #{module_type}: #{module_path}"
-      doc, xsd = nil
-      begin
-        doc = Nokogiri::XML(File.read(file))
-      rescue
-        Print.err "Failed to read #{module_type} metadata file (#{file})"
-        exit
-      end
 
-      # validate scenario XML against schema
-      begin
-        xsd = Nokogiri::XML::Schema(File.read(schema_file))
-        xsd.validate(doc).each do |error|
-          Print.err "Error in #{module_type} metadata file (#{file}):"
-          Print.err '    ' + error.message
-          exit
-        end
-      rescue Exception => e
-        Print.err "Failed to validate #{module_type} metadata file (#{file}): against schema (#{schema_file})"
-        Print.err e.message
-        exit
-      end
-
-      # remove xml namespaces for ease of processing
-      doc.remove_namespaces!
+      # Parse and validate the schema
+      doc = parse_doc(file, schema_file, module_type)
 
       new_module = Module.new(module_type)
       # save module path (and as an attribute for filtering)
@@ -159,12 +138,8 @@ class ModuleReader
 
       # for each element in the vulnerability
       doc.xpath("/#{module_type}/*").each do |module_doc|
-
-        # new_module.attributes[module_doc.name] = module_doc.content
-
         # creates the array if null
         (new_module.attributes[module_doc.name] ||= []).push(module_doc.content)
-
       end
 
       # for each conflict in the module
@@ -183,6 +158,22 @@ class ModuleReader
           (require[node.name] ||= []).push(node.content)
         }
         new_module.requires.push(require)
+      end
+
+      # for each goal in the module
+      doc.xpath("/#{module_type}/goals").each do |goals_doc|
+        goals = []
+        goals_doc.elements.each {|node|
+          goal_type = node.name
+          goal_hash = {'goal_type' => goal_type,}
+          node.children.each {|subnode|
+            unless subnode.text?
+              goal_hash.merge!({subnode.name => subnode.content.strip})
+            end
+          }
+          goals << goal_hash
+        }
+        new_module.goals = goals
       end
 
       # for each default input
@@ -220,9 +211,7 @@ class ModuleReader
 
           (new_module.default_inputs_selectors["#{into}"] ||= []).unshift(module_selector)
 
-          module_node.xpath('@*').each do |attr|
-            module_selector.attributes["#{attr.name}"] = [attr.text] unless attr.text.nil? || attr.text == ''
-          end
+          module_selector.attributes = read_attributes(module_node)
           Print.verbose " #{module_node.name} (#{module_selector.unique_id}), selecting based on:"
           module_selector.attributes.each do |attr|
             if attr[0] && attr[1] && attr[0].to_s != "module_type"

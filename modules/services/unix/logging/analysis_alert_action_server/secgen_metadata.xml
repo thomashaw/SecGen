@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Analysis, Alerting and Actioning Server</name>
+  <author>Thomas Shaw</author>
+  <module_license>Apache v2</module_license>
+  <description>Server component to the Auto Grading Server.
+    Includes: Elasticsearch, Logstash, Kibana, Wazuh (ELK + OSSEC fork),
+              Elastalert (with custom rules),
+              ExecAlerter (Custom EA CommandAlerter which includes rule name that was triggered),
+              Alert Actioner (Automatic responses to alerts, such as sending messages, running commands on VMs, or sending web requests)
+  </description>
+  <type>multi</type>
+  <platform>linux</platform>
+
+  <read_fact>aaa_config</read_fact>
+  <default_input into="aaa_config">
+    <generator type="aaa_config"/>
+  </default_input>
+
+  <requires>
+    <name>Elasticsearch</name>
+  </requires>
+  <requires>
+    <name>Logstash</name>
+  </requires>
+  <requires>
+    <name>Kibana</name>
+  </requires>
+  <requires>
+    <name>Elastalert</name>
+  </requires>
+
+</service>

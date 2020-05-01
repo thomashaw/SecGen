@@ -91,7 +91,7 @@ def generate_scenarios(selected_base)
     module_selections << mod
     module_selections << get_network_module
 
-    system = System.new(system_name, {}, [])
+    system = System.new(system_name, {}, [], 'testing.xml', {} )
     system.module_selections = module_selections
 
     xml_generator = XmlScenarioGenerator.new([system], system_name, Time.new.to_s)

@@ -2,30 +2,42 @@ require 'json'
 require 'base64'
 require 'duplicate'
 
+require_relative '../helpers/scenario'
+
 class System
 
   attr_accessor :name
+  attr_accessor :hostname
   attr_accessor :attributes # (basebox selection)
   attr_accessor :module_selectors # (filters)
   attr_accessor :module_selections # (after resolution)
   attr_accessor :num_actioned_module_conflicts
+  attr_accessor :memory  # (RAM allocation for the system)
+  attr_accessor :options  # (command line options hash)
+  attr_accessor :scenario_path  # (path to scenario file associated with this system)
+  attr_accessor :goals # scenario-level goals []
 
   # Attributes for resetting retry loop
-  attr_accessor :available_mods #(command line options hash)
-  attr_accessor :original_datastores #(command line options hash)
-  attr_accessor :original_module_selectors #(command line options hash)
-  attr_accessor :original_available_modules #(command line options hash)
+  attr_accessor :available_mods
+  attr_accessor :original_datastores
+  attr_accessor :original_module_selectors
+  attr_accessor :original_available_modules
 
   # Initalizes System object
   # @param [Object] name of the system
   # @param [Object] attributes such as base box selection
   # @param [Object] module_selectors these are modules that define filters for selecting the actual modules to use
-  def initialize(name, attributes, module_selectors)
+  def initialize(name, attributes, module_selectors, scenario_file, options)
     self.name = name
     self.attributes = attributes
     self.module_selectors = module_selectors
     self.module_selections = []
     self.num_actioned_module_conflicts = 0
+    self.memory = "512"
+    self.options = options
+    self.scenario_path = scenario_file
+    self.goals = []
+    set_hostname
   end
 
   # selects from the available modules, based on the selection filters that have been specified
@@ -260,8 +272,8 @@ class System
                 # parse the datastore
                 parsed_datastore_element = JSON.parse(datastore_retrieved.first)
 
-                # Sanitise with whitelist of used characters: ' [ ]
-                access_json = datastore_access_json.gsub(/[^A-Za-z0-9\[\]'_]/, '')
+                # Sanitise with whitelist
+                access_json = JSONFunctions.sanitise_eval_string(datastore_access_json)
 
                 # get data from access_json string
                 begin
@@ -463,4 +475,36 @@ class System
     modules_to_add
   end
 
+  def has_module(module_name)
+    has_module = false
+    module_selections.each do |mod|
+      if mod.module_path_end == module_name
+        has_module = true
+      end
+    end
+    has_module
+  end
+
+  def get_module(module_name)
+    selected_module = nil
+    module_selections.each do |mod|
+      if mod.module_path_end == module_name
+        selected_module = mod
+      end
+    end
+    selected_module
+  end
+
+  def set_options(opts)
+    self.options = opts if opts != nil and self.options == {}
+  end
+
+  def set_hostname
+    self.hostname = ScenarioHelper.get_hostname(self.options, self.scenario_path, self.name)
+  end
+
+  def get_hostname
+    set_hostname
+    self.hostname
+  end
 end

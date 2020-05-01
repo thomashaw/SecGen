@@ -14,7 +14,6 @@
 
   <read_fact>logstash_ip</read_fact>
   <read_fact>logstash_port</read_fact>
-  <read_fact>files_to_audit</read_fact>
 
   <default_input into="logstash_ip">
     <value>localhost</value>
@@ -24,13 +23,13 @@
     <value>5044</value>
   </default_input>
 
-  <default_input into="files_to_audit">
-    <value>/etc/shadow</value>
-    <value>/etc/passwd</value>
-  </default_input>
-
   <requires>
     <type>update</type>
+  </requires>
+
+  <!-- Note: unless explicitly included in the scenario this won't populate the elasticsearch + logstash IP/port correctly.-->
+  <requires>
+    <name>Filebeat</name>
   </requires>
 
 </utility>

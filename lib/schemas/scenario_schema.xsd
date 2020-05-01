@@ -37,6 +37,41 @@
     <xs:attribute name='unique_module_list' type='xs:string'/>
 
   </xs:complexType>
+
+  <xs:complexType name="GoalsType">
+    <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name='read_file' minOccurs='0' maxOccurs='unbounded' >
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name='file_path' type='xs:string' minOccurs="1" maxOccurs="1"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name='modify_file' minOccurs='0' maxOccurs='unbounded' >
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name='file_path' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
+              <!-- file_contents: either a hash or regexp to match -->
+              <xs:element name='file_contents' type='xs:string' minOccurs="0" maxOccurs="unbounded"/>
+              <!-- written_by: include username or uid range (e.g. uid>=1000) -->
+              <xs:element name='written_by' type='xs:string' minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name='access_account' minOccurs='0' maxOccurs='unbounded' >
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name='account_name' type='xs:string' minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name='service_down' type='xs:string' minOccurs='0' maxOccurs='unbounded' />
+        <xs:element name='system_down' type='xs:string' minOccurs='0' maxOccurs='unbounded' />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
   <xs:complexType name="SystemType">
     <xs:sequence>
       <xs:element name="system_name" minOccurs="1" maxOccurs="1">
@@ -48,6 +83,7 @@
       </xs:element>
       <xs:element name='base' type='BaseType' minOccurs='1' maxOccurs='1' />
       <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="goals" type="GoalsType" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="input" type="InputElements" minOccurs="0" maxOccurs="unbounded" />
         <xs:element name='vulnerability' type='VulnerabilityType' minOccurs='0' maxOccurs='unbounded' />
         <xs:element name='service' type='ServiceUtilityBuildEncoderGeneratorType' minOccurs='0' maxOccurs='unbounded' />
@@ -70,6 +106,7 @@
     <xs:attribute name='distro' type='xs:string'/>
     <xs:attribute name='url' type='xs:string'/>
     <xs:attribute name='vagrantbase' type='xs:string'/>
+    <xs:attribute name='esxi_url' type='xs:string'/>
     <xs:attribute name='ovirt_template' type='xs:string'/>
     <xs:attribute name='reference' type='xs:string'/>
     <xs:attribute name='software_license' type='xs:string'/>

@@ -32,5 +32,15 @@ class auditbeat::config {
     mode         => $auditbeat::config_file_mode,
     content      => inline_template('<%= @auditbeat_config.to_yaml()  %>'),
     validate_cmd => $validate_cmd,
+    require => Package['auditbeat'],
+  }
+
+  file { '/etc/auditbeat/audit.rules.d/custom-rules.conf':  # rules must have .conf extension
+    ensure => file,
+    owner => 'root',
+    group => 'root',
+    mode => $auditbeat::config_file_mode,
+    source => 'puppet:///modules/auditbeat/rules/auditbeat_rules_file.conf',
+    require => Package['auditbeat'],
   }
 }
