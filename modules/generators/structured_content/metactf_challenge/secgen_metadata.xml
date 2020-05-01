@@ -15,9 +15,9 @@
 
   <reference>https://bitbucket.org/wuchangfeng/metactf</reference>
 
-  <!-- If challenge name is not provided, randomise based on difficulty.
+  <!-- If challenge path is not provided, randomise based on difficulty.
        If group is not provided, generate random hex. -->
-  <read_fact>challenge_name</read_fact>
+  <read_fact>challenge_path</read_fact>
   <read_fact>difficulty</read_fact>
   <read_fact>flag</read_fact>
   <read_fact>group</read_fact>

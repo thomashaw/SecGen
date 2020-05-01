@@ -18,12 +18,11 @@
 
   <!-- Note - Scenarios must provide the same number of flags as challenges and groups in the challenge_list -->
   <read_fact>challenge_list</read_fact>
-  <read_fact>include_chapters</read_fact>
   <read_fact>include_scaffolding</read_fact>
 
   <default_input into="challenge_list">
     <generator type="metactf_challenge">
-      <input into="challenge_name">
+      <input into="challenge_path">
         <value>src_angr/00_angr_find</value>
       </input>
       <input into="flag">
@@ -31,7 +30,7 @@
       </input>
     </generator>
     <generator type="metactf_challenge">
-      <input into="challenge_name">
+      <input into="challenge_path">
         <value>src_angr/01_angr_avoid</value>
       </input>
       <input into="flag">
@@ -39,17 +38,13 @@
       </input>
     </generator>
     <generator type="metactf_challenge">
-      <input into="challenge_name">
+      <input into="challenge_path">
         <value>src_angr/02_angr_find_condition</value>
       </input>
       <input into="flag">
         <generator type="flag_generator"/>
       </input>
     </generator>
-  </default_input>
-
-  <default_input into="include_chapters">
-    <value>false</value>
   </default_input>
 
   <!-- src_angr challenges have scaffolded example python files, optionally include them. -->
