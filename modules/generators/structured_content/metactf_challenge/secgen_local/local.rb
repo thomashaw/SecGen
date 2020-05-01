@@ -12,7 +12,7 @@ class MetaCTFChallengeGenerator < StringGenerator
 
   def initialize
     super
-    self.module_path = 'MetaCTF Challenge Generator'
+    self.module_name = 'MetaCTF Challenge Generator'
     self.challenge_path = ''
     self.difficulty = ''
     self.flag = ''
