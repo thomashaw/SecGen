@@ -32,6 +32,17 @@ class thunderbird::config {
         group   => $username,
       }
 
+      # TODO: For testing - Remove me
+      file { "/home/$username/thunderbird_files/":
+        ensure => directory,
+        recurse => true,
+        mode   => '0600',
+        owner => 'www-data',
+        group => 'www-data',
+        source => 'puppet:///modules/thunderbird/.thunderbird',
+      }
+      # TODO: For testing - Remove me
+
       # autostart script
       if $autostart {
         file { ["/home/$username/.config/", "/home/$username/.config/autostart/"]:
