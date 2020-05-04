@@ -10,92 +10,17 @@
   <type>AGT / AAA scenario</type>
   <difficulty>easy</difficulty>
 
-  <goals>
-    <access_account>
-      <system_name>testing</system_name>
-      <account_name>vagrant</account_name>
-    </access_account>
-  </goals>
-
   <system>
     <system_name>testing</system_name>
-    <base platform="linux" distro="Debian 9" type="server"/>
+    <base platform="linux" distro="Kali" name="MSF"/>
 
     <input into_datastore="IP_addresses">
       <value>192.168.209.165</value>
-      <value>192.168.209.166</value>
-      <value>192.168.209.167</value>
     </input>
 
-    <input into_datastore="elasticsearch_port">
-      <value>9200</value>
-    </input>
-
-    <input into_datastore="logstash_port">
-      <value>5044</value>
-    </input>
-
-    <input into_datastore="kibana_port">
-      <value>5601</value>
-    </input>
-
-    <vulnerability module_path=".*symlinks"/>
-    <vulnerability module_path=".*readable_shadow"/>
-
-    <utility module_path=".*handy_cli_tools.*"/>
-
-    <!--<utility module_path=".*elasticsearch.*">-->
-      <!--<input into="elasticsearch_ip">-->
-        <!--<datastore access="0">IP_addresses</datastore>-->
-      <!--</input>-->
-      <!--<input into="elasticsearch_port">-->
-        <!--<datastore access="0">elasticsearch_port</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <!--<utility module_path=".*logstash.*">-->
-      <!--<input into="logstash_port">-->
-        <!--<datastore access="0">logstash_port</datastore>-->
-      <!--</input>-->
-      <!--<input into="elasticsearch_ip">-->
-        <!--<datastore access="0">IP_addresses</datastore>-->
-      <!--</input>-->
-      <!--<input into="elasticsearch_port">-->
-        <!--<datastore access="0">elasticsearch_port</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <!--<utility module_path=".*kibana.*">-->
-      <!--<input into="kibana_ip">-->
-        <!--<datastore access="0">IP_addresses</datastore>-->
-      <!--</input>-->
-      <!--<input into="kibana_port">-->
-        <!--<datastore access="0">kibana_port</datastore>-->
-      <!--</input>-->
-      <!--<input into="elasticsearch_ip">-->
-        <!--<datastore access="0">IP_addresses</datastore>-->
-      <!--</input>-->
-      <!--<input into="elasticsearch_port">-->
-        <!--<datastore access="0">elasticsearch_port</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <utility module_path=".*auditbeat.*">
-      <input into="logstash_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="logstash_port">
-        <datastore access="0">logstash_port</datastore>
-      </input>
-    </utility>
-
-
-    <utility module_path=".*elastalert.*">
-      <input into="elasticsearch_ip">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-      <input into="elasticsearch_port">
-        <datastore access="0">elasticsearch_port</datastore>
+    <utility module_path=".*/thunderbird">
+      <input into="account">
+        <value>{"username":"kali","password":"kali","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
     </utility>
 
