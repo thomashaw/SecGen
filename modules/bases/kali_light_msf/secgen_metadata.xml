@@ -16,7 +16,7 @@
   <distro>Kali Linux 2020.1</distro>
   <url>https://app.vagrantup.com/secgen/boxes/kali_light_msf/versions/1.0/providers/virtualbox.box</url>
   <esxi_url></esxi_url>
-  <ovirt_template>kali_linux_msf_20200429</ovirt_template>
+  <ovirt_template>kali_linux_msf_20200227</ovirt_template>
 
 
   <reference>https://app.vagrantup.com/secgen</reference>
