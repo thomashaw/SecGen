@@ -48,25 +48,23 @@ class metactf::configure {
     #
     # } else {
     #   $challenge_outer_dir = $split_challenge[1]
-      if !$include_chapters {
-        $split_challenge_name = split($challenge_name,'_')
-        $target_challenge_name = $split_challenge_name[-1]
-      } else {
-        $target_challenge_name = $challenge_name
-      }
+    if !$include_chapters {
+      $split_challenge_name = split($challenge_name, '_')
+      $target_challenge_name = $split_challenge_name[-1]
+    } else {
+      $target_challenge_name = $challenge_name
     }
+  }
 
-    ::secgen_functions::install_setgid_binary { "metactf_$challenge_name":
-      source_module_name => $module_name,
-      challenge_name     => $target_challenge_name,
-      group              => $group,
-      account            => $account,
-      flag               => $flag,
-      flag_name          => 'flag',
-      binary_path        => $binary_path,
-      storage_dir        => $storage_dir,
-    }
-
+  ::secgen_functions::install_setgid_binary { "metactf_$challenge_name":
+    source_module_name => $module_name,
+    challenge_name     => $target_challenge_name,
+    group              => $group,
+    account            => $account,
+    flag               => $flag,
+    flag_name          => 'flag',
+    binary_path        => $binary_path,
+    storage_dir        => $storage_dir,
   }
 
 }
