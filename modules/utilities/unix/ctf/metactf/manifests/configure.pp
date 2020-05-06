@@ -16,6 +16,8 @@ class metactf::configure {
   # Move the challenges based on account name and challenge name.
 
   $challenge_list.each |$counter, $raw_challenge| {
+
+    notice("raw_challenge: $raw_challenge")
     $challenge = parsejson($raw_challenge)
 
     $challenge_name = $challenge['challenge_name']
