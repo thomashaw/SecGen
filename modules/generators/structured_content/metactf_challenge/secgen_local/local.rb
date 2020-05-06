@@ -184,7 +184,7 @@ class MetaCTFChallengeGenerator < StringGenerator
     end
 
 
-    outputs << {'challenge_name' => challenge_path.split('/')[-1], challenge_path => challenge[:path], 'flag' => self.flag, 'group' => self.group }.to_json
+    outputs << {'challenge_name' => challenge[:path].split('/')[-1], 'challenge_path' => challenge[:path], 'flag' => self.flag, 'group' => self.group }.to_json
 
   end
 
