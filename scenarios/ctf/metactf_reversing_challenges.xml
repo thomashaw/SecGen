@@ -33,30 +33,45 @@
     </utility>
 
     <utility module_path=".*/metactf">
-      <input into="challenge_list">
+      <input into="challenge_list" into_datastore="existing_challenges">
         <generator type="metactf_challenge">
           <input into="difficulty">
             <value>easy</value>
+          </input>
+          <input into="existing_challenges">
+            <datastore>existing_challenges</datastore>
           </input>
         </generator>
         <generator type="metactf_challenge">
           <input into="difficulty">
             <value>easy</value>
           </input>
+          <input into="existing_challenges">
+            <datastore>existing_challenges</datastore>
+          </input>
         </generator>
         <generator type="metactf_challenge">
           <input into="difficulty">
             <value>easy</value>
+          </input>
+          <input into="existing_challenges">
+            <datastore>existing_challenges</datastore>
           </input>
         </generator>
         <generator type="metactf_challenge">
           <input into="difficulty">
             <value>medium</value>
           </input>
+          <input into="existing_challenges">
+            <datastore>existing_challenges</datastore>
+          </input>
         </generator>
         <generator type="metactf_challenge">
           <input into="difficulty">
             <value>medium</value>
+          </input>
+          <input into="existing_challenges">
+            <datastore>existing_challenges</datastore>
           </input>
         </generator>
         <generator type="metactf_challenge">
@@ -67,6 +82,9 @@
         <generator type="metactf_challenge">
           <input into="difficulty">
             <value>hard</value>
+          </input>
+          <input into="existing_challenges">
+            <datastore>existing_challenges</datastore>
           </input>
         </generator>
       </input>

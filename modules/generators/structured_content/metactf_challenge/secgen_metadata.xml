@@ -22,6 +22,9 @@
   <read_fact>flag</read_fact>
   <read_fact>group</read_fact>
 
+  <!-- Array of challenge hashes. If provided by the scenario, the generator will not provide a duplicate challenge. -->
+  <read_fact>existing_challenges</read_fact>
+
   <default_input into="difficulty">
     <generator type="random_difficulty"/>
   </default_input>

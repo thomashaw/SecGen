@@ -9,6 +9,7 @@ class MetaCTFChallengeGenerator < StringGenerator
   attr_accessor :difficulty
   attr_accessor :flag
   attr_accessor :group
+  attr_accessor :existing_challenges
 
   def initialize
     super
@@ -17,6 +18,7 @@ class MetaCTFChallengeGenerator < StringGenerator
     self.difficulty = ''
     self.flag = ''
     self.group = ''
+    self.existing_challenges = []
   end
 
 
@@ -24,7 +26,8 @@ class MetaCTFChallengeGenerator < StringGenerator
     super + [['--challenge_path', GetoptLong::OPTIONAL_ARGUMENT],
              ['--difficulty', GetoptLong::REQUIRED_ARGUMENT],
              ['--flag', GetoptLong::REQUIRED_ARGUMENT],
-             ['--group', GetoptLong::OPTIONAL_ARGUMENT]]
+             ['--group', GetoptLong::OPTIONAL_ARGUMENT],
+             ['--existing_challenges', GetoptLong::OPTIONAL_ARGUMENT]]
   end
 
   def process_options(opt, arg)
@@ -38,6 +41,8 @@ class MetaCTFChallengeGenerator < StringGenerator
       self.flag << arg;
     when '--group'
       self.group << arg;
+    when '--existing_challenges'
+      self.existing_challenges << arg;
     end
   end
 
@@ -160,6 +165,15 @@ class MetaCTFChallengeGenerator < StringGenerator
     ]
 
     challenges = src_angr + src_csp + src_malware
+
+    if self.existing_challenges != []
+      self.existing_challenges.each do |json_challenge|
+        challenge = JSON.parse(json_challenge)
+        challenges.delete_if do |cha|
+          cha[:path] == challenge['challenge_path']
+        end
+      end
+    end
 
     if self.challenge_path != ''
       challenges.delete_if do |challenge|
