@@ -26,8 +26,6 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <!-- Test with Kali MSF: in progress-->
-        <!-- Test with Kali light: todo -->
         <value>test</value>
       </input>
     </build>
@@ -38,23 +36,4 @@
       </input>
     </network>
   </system>
-  <system>
-    <system_name>testing_2</system_name>
-    <base platform="linux" distro="Kali Linux 2018.3" />
-
-    <build type="cleanup">
-      <input into="root_password">
-        <value>test</value>
-      </input>
-    </build>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
-  </system>
-
-
-
 </scenario>
