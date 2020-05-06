@@ -11,18 +11,41 @@
   <difficulty>easy</difficulty>
 
   <system>
-    <system_name>testing</system_name>
+    <system_name>testing_1</system_name>
     <base platform="linux" distro="Kali" name="MSF"/>
 
     <input into_datastore="IP_addresses">
-      <value>192.168.209.165</value>
+      <value>192.168.209.166</value>
     </input>
 
     <utility module_path=".*/thunderbird">
       <input into="account">
-        <value>{"username":"kali","password":"kali","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+        <value>{"username":"kali","password":"test","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
     </utility>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <!-- Test with Kali MSF: in progress-->
+        <!-- Test with Kali light: todo -->
+        <value>test</value>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system> <system>
+    <system_name>testing_2</system_name>
+    <base platform="linux" distro="Kali" name="MSF"/>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
 
     <network type="private_network">
       <input into="IP_address">
@@ -30,5 +53,7 @@
       </input>
     </network>
   </system>
+
+
 
 </scenario>
