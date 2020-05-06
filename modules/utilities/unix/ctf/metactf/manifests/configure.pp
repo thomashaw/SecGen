@@ -23,7 +23,7 @@ class metactf::configure {
     $group = $challenge['group']
     $flag = $challenge['flag']
 
-    $split_challenge = split($challenge_name, '/')
+    $split_challenge = split($challenge_path, '/')
     $metactf_challenge_category = $split_challenge[0]
     $metactf_challenge_type = split($metactf_challenge_category, '_')[1]
 

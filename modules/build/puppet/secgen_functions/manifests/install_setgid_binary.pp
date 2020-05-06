@@ -41,7 +41,7 @@ define secgen_functions::install_setgid_binary (
     $challenge_directory = "$storage_directory/$challenge_name"
     $modules_source = "puppet:///modules/$source_module_name"
 
-    if $binary_path == '' {
+    if $binary_path == '' {  # compile the code and point to the compiled binary
       $outer_bin_path = "/tmp/$challenge_name"
       $bin_path = "$outer_bin_path/$challenge_name"
       ::secgen_functions::compile_binary_module { "compile-$source_module_name-$challenge_name":
@@ -50,17 +50,20 @@ define secgen_functions::install_setgid_binary (
         challenge_name     => $challenge_name,
         notify             => Secgen_functions::Create_directory["create_$challenge_directory"]
       }
-    } else {
+    } else { # point to an existing binary to move
       $bin_path = $binary_path
     }
 
     ensure_resource('group', $group, { ensure => present })
 
     # Create challenge directory
+    notice("Creating directory: $storage_directory")
+    notice("Creating directory: $challenge_directory")
     ensure_resource('file', $storage_directory, { 'ensure' => 'directory' })
     ensure_resource('file', $challenge_directory, { 'ensure' => 'directory' })
 
     # Move the compiled binary into the challenge directory
+
     file { "$challenge_directory/$challenge_name":
       ensure  => present,
       owner   => 'root',
