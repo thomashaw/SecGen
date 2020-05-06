@@ -37,9 +37,10 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
-  </system> <system>
+  </system>
+  <system>
     <system_name>testing_2</system_name>
-    <base platform="linux" distro="Kali" name="MSF"/>
+    <base platform="linux" distro="Kali Linux 2018.3" />
 
     <build type="cleanup">
       <input into="root_password">
