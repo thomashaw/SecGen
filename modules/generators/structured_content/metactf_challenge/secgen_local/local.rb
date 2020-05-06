@@ -174,7 +174,8 @@ class MetaCTFChallengeGenerator < StringGenerator
       challenge = challenges.sample
     else
       # throw an errorr
-      Print.err('Error! ') # TODO: more meaningful error messages here
+      Print.err('Error: MetaCTF Challenge Generator. ')
+      Print.err('Either provide a challenge path or a difficulty.') # TODO: more meaningful error messages here
       exit(1)
     end
 
