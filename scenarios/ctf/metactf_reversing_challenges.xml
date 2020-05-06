@@ -76,9 +76,6 @@
       <input into="include_scaffolding">
         <value>true</value>
       </input>
-      <input into="include_chapters">
-        <value>false</value>
-      </input>
     </utility>
 
     <network type="private_network" range="dhcp"/>
