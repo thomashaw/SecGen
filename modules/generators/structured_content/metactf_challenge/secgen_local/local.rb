@@ -167,6 +167,7 @@ class MetaCTFChallengeGenerator < StringGenerator
     challenges = src_angr + src_csp + src_malware
 
     if self.existing_challenges != []
+      Print.local("Removing #{self.existing_challenges.size.to_s} existing challenge(s)")
       self.existing_challenges.each do |json_challenge|
         challenge = JSON.parse(json_challenge)
         challenges.delete_if do |cha|

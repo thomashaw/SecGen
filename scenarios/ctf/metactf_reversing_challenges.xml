@@ -38,9 +38,9 @@
           <input into="difficulty">
             <value>easy</value>
           </input>
-          <input into="existing_challenges">
-            <datastore>existing_challenges</datastore>
-          </input>
+          <!--<input>-->
+            <!--<datastore>existing_challenges</datastore>-->
+          <!--</input>-->
         </generator>
         <generator type="metactf_challenge">
           <input into="difficulty">
