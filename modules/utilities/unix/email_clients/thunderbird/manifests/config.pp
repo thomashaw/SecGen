@@ -18,7 +18,7 @@ class thunderbird::config {
         owner  => $username,
         group  => $username,
       } ->
-      file { "/home/$username/thunderbird/profiles.ini":
+      file { "/home/$username/.thunderbird/profiles.ini":
         ensure => file,
         source => 'puppet:///modules/thunderbird/profiles.ini',
         owner  => $username,
