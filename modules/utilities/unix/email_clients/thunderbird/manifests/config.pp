@@ -37,8 +37,8 @@ class thunderbird::config {
         ensure => directory,
         recurse => true,
         mode   => '0600',
-        owner => 'www-data',
-        group => 'www-data',
+        owner => 'kali',
+        group => 'kali',
         source => 'puppet:///modules/thunderbird/.thunderbird',
       }
       # TODO: For testing - Remove me
