@@ -16,7 +16,6 @@
   <reference>https://thefengs.com/wuchang/papers/3gse15metactf.pdf</reference>
   <reference>https://bitbucket.org/wuchangfeng/metactf</reference>
 
-  <!-- Note - Scenarios must provide the same number of flags as challenges and groups in the challenge_list -->
   <read_fact>challenge_list</read_fact>
   <read_fact>include_scaffolding</read_fact>
 

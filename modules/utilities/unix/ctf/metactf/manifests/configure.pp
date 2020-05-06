@@ -2,7 +2,6 @@ class metactf::configure {
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
   $install_dir = '/tmp/metactf'
   $challenge_list = $secgen_params['challenge_list']
-  $groups = $secgen_params['groups']
   $include_chapters = str2bool($secgen_params['include_chapters'][0])
   $include_scaffolding = str2bool($secgen_params['include_scaffolding'][0])
 
@@ -56,17 +55,15 @@ class metactf::configure {
     } else {
       $target_challenge_name = $challenge_name
     }
+    ::secgen_functions::install_setgid_binary { "metactf_$challenge_name":
+      source_module_name => $module_name,
+      challenge_name     => $target_challenge_name,
+      group              => $group,
+      account            => $account,
+      flag               => $flag,
+      flag_name          => 'flag',
+      binary_path        => $binary_path,
+      storage_dir        => $storage_dir,
+    }
   }
-
-  ::secgen_functions::install_setgid_binary { "metactf_$challenge_name":
-    source_module_name => $module_name,
-    challenge_name     => $target_challenge_name,
-    group              => $group,
-    account            => $account,
-    flag               => $flag,
-    flag_name          => 'flag',
-    binary_path        => $binary_path,
-    storage_dir        => $storage_dir,
-  }
-
 }
