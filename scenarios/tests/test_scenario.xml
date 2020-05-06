@@ -19,7 +19,7 @@
     </input>
 
     <utility module_path=".*/thunderbird">
-      <input into="account">
+      <input into="accounts">
         <value>{"username":"kali","password":"test","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
     </utility>

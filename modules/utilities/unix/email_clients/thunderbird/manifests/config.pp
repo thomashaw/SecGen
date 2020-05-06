@@ -9,6 +9,7 @@ class thunderbird::config {
     $accounts.each |$raw_account| {
       $account = parsejson($raw_account)
       $username = $account['username']
+      notice("configuring thunderbird for username: $username")
 
       # add user profile
       file { ["/home/$username/", "/home/$username/.thunderbird/",
