@@ -9,7 +9,7 @@ class RandomDifficulty < StringGenerator
   end
 
   def generate
-    outputs << %w(easy medium high).sample.chomp
+    outputs << %w(easy medium hard).sample.chomp
   end
 
 end
