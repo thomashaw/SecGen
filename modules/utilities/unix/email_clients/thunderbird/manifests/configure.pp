@@ -35,7 +35,7 @@ class thunderbird::configure {
           mode    => '0600',
           owner   => $username,
           group   => $username,
-          content  => template('thunderbird/user.default-default/Mail/localhost/Inbox.msf'),
+          content  => template('thunderbird/user.default-default/Mail/localhost/Inbox.msf.erb'),
           requires => Exec['set directory userid']
         }
 
