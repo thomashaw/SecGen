@@ -15,22 +15,26 @@ class metactf::install {
 
   exec { 'set install.sh mode':
     command => "chmod +x $install_dir/install.sh",
+    logoutput => on_failure,
   }
 
   exec { 'install metactf dependencies':
-    command => "/bin/bash $install_dir/install.sh"
+    command => "/bin/bash $install_dir/install.sh",
+    logoutput => on_failure,
   }
 
   # For now just build all of the binaries.
   exec { 'build src_angr binaries':
     cwd     => "$install_dir/src_angr/",
+    logoutput => on_failure,
     command => "/usr/bin/make",
   }
 
   # Build src_csp
   exec { 'src_csp chmod executable':
     command => 'chmod -R +x */*/*.zsh',
-    cwd     => "$install_dir/src_csp/"
+    cwd     => "$install_dir/src_csp/",
+    logoutput => on_failure,
   }
 
   exec { 'build src_csp binaries':
@@ -42,13 +46,15 @@ class metactf::install {
   # Build src_malware
   exec { 'src_malware chmod executable':
     command => 'chmod -R +x */*/*.zsh',
-    cwd     => "$install_dir/src_malware/"
+    cwd     => "$install_dir/src_malware/",
+    logoutput => on_failure,
   }
 
   # Build src_malware
   exec { 'build src_malware binaries':
     cwd     => "$install_dir/src_malware/",
     command => "/usr/bin/make",
+    logoutput => on_failure,
     require => Exec['src_malware chmod executable'],
   }
 }
