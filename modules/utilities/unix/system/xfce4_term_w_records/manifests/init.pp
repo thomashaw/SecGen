@@ -4,7 +4,7 @@ class xfce4_term_w_records::init {
     $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
     $accounts = $secgen_parameters['accounts']
 
-    ensure_packages('notify-osd')
+    ensure_packages(['mailutils', 'libnotify-bin', 'notify-osd'])
 
     file { ['/root/.config/xfce4/', '/root/.config/xfce4/terminal/']:
       ensure => directory,
