@@ -27,12 +27,22 @@ class metactf::configure {
     $metactf_challenge_category = $split_challenge[0]
     $metactf_challenge_type = split($metactf_challenge_category, '_')[1]
 
-    $binary_path = "$install_dir/$metactf_challenge_category/obj/secgen/$metactf_challenge_type/$challenge_name"
+    # Challenge paths:
+    # src_angr: /tmp/metactf/src_angr/obj/secgen/angr/00_angr_find
+    # src_csp: /tmp/metactf/src_csp/Ch1-2/Ch1_Ltrace/obj/secgen/Ch1_Ltrace
+    # src_malware: /tmp/metactf/src_malware/Ch01-08/Ch01StatA_Readelf/obj/secgen/Ch01StatA_Readelf
+
+    if $metactf_challenge_type == 'angr'{
+      $binary_path = "$install_dir/$metactf_challenge_category/obj/secgen/angr/$challenge_name"
+    } else {
+      $binary_path = "$install_dir/$challenge_path/obj/secgen/$challenge_name"
+    }
+
     if $metactf_challenge_category == 'src_angr' and $include_scaffolding {
       $challenge_number = split($challenge_name, '_')[0]
       $scaffold_filename = "scaffold$challenge_number.py"
       $scaffold_path = "$install_dir/$metactf_challenge_category/$challenge_name/$scaffold_filename"
-      #
+
       file { "create-$challenge_name-$scaffold_filename":
         path   => "$storage_dir/$challenge_name/$scaffold_filename",
         ensure => file,
