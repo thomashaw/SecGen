@@ -5,6 +5,8 @@
 #include <signal.h>
 #include <unistd.h>
 
+void printflag();
+
 char msg[] =
  "One way attackers used to leverage buffer overflow bugs to gain control of\n"
  "a running program is to overwrite the return address of the function being\n"

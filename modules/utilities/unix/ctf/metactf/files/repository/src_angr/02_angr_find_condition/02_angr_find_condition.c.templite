@@ -38,6 +38,8 @@ def recursive_if_else(variable, value, depth):
 #define USERDEF "${ userdef }$"
 #define LEN_USERDEF ${ write(len(userdef)) }$
 
+void printflag();
+
 char msg[] = "${ description }$";
 
 void print_msg() {

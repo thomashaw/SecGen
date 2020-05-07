@@ -7,6 +7,8 @@
 #define USERDEF0 AAAAAA
 #define USERDEF1 BBBBBB
 
+void printflag();
+
 char msg[] =
  "In this level, you will use your knowledge of the stack and dynamic analysis\n"
  "via a debugger to find the passcode. The program has a function that is used\n"

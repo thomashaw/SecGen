@@ -4,6 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 
+void printflag();
+
 // Introduction message
 char msg[] =
 "If we're trying to use %n to output an address, it might require an\n"

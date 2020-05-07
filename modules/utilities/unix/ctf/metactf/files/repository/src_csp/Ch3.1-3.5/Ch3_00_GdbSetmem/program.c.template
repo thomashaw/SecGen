@@ -8,6 +8,8 @@
 #define USERDEF0 AAAAAA
 #define USERDEF1 BBBBBB
 
+void printflag();
+
 //Hash function created by Thomas Wang and taken from https://naml.us/post/inverse-of-a-hash-function/
 
 unsigned long long int hash(unsigned long long int key) {

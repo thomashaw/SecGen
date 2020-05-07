@@ -6,6 +6,8 @@
 #include <sys/ptrace.h>
 #define USERDEF AAAAAA
 
+void printflag();
+
 char msg[] =
  "In this level, you will enter a passcode as an integer.  The passcode is\n"
  "then sent to the check_code function which passes the integer through a\n"

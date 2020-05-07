@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+void printflag();
+
 char msg[] =
  "(From overthewire.org) When pointers are corrupted from format string\n"
  "vulnerabilities and heap overflows, an adversary can inject arbitrary\n"

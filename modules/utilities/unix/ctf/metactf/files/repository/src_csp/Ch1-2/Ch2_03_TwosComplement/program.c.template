@@ -8,6 +8,8 @@
 #define USERDEF AAAAAA
 #define BIN_NUM 12
 
+void printflag();
+
 typedef void (*funcp)();
 
 char msg[] =

@@ -7,6 +7,8 @@
 #define USERDEF "AAAAAA"
 #define DEFAULT "REPLACE"
 
+void printflag();
+
 char msg[] = \
 "When receiving input from a user, it is important to limit the number\n"
 "of characters accepted so that the input buffer does not overflow.\n"

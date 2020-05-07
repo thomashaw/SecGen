@@ -7,6 +7,8 @@
 
 #define USERDEF AAAAAA
 
+void printflag();
+
 char msg[] =
  "When a function returns an integer value of any size (char, short, int,\n"
  "or long), it places the value into register a (%al, %ax, %eax, or %rax).\n"

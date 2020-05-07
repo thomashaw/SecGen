@@ -6,6 +6,8 @@
 #include <unistd.h>
 #define USERDEF AAAAAA
 
+void printflag();
+
 typedef void (*funcp)();
 
 typedef struct f {

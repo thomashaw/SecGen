@@ -4,6 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 
+void printflag();
+
 // Introduction message
 char msg[] =
 "The format string vulnerability is particularly deadly when it is used to\n"

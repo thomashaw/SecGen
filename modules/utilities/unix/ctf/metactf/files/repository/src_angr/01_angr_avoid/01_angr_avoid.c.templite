@@ -36,6 +36,8 @@ def check_string_recursive(array0, array1, random_list, bit):
 // return true if nth bit of array is 1
 #define CHECK_BIT(array, bit_index) (!!(((uint8_t*) array)[bit_index / 8] & (((uint8_t) 0x1) << (bit_index % 8))))
 
+void printflag();
+
 char msg[] =
   "${ description }$";
 
