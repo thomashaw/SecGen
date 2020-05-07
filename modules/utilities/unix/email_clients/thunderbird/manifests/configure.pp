@@ -26,7 +26,7 @@ class thunderbird::configure {
         } ->
 
         exec { 'set directory userid':
-          command => "/usr/bin/mv /home/$username/.thunderbird/sbge8oh9.default-default /home/$username/.thunderbird/$user_id.default-default"
+          command => "/bin/mv /home/$username/.thunderbird/sbge8oh9.default-default /home/$username/.thunderbird/$user_id.default-default"
         }
 
         file { "/home/$username/.thunderbird/$user_id.default-default/Mail/localhost/Inbox.msf":
@@ -36,7 +36,7 @@ class thunderbird::configure {
           owner   => $username,
           group   => $username,
           content  => template('thunderbird/user.default-default/Mail/localhost/Inbox.msf.erb'),
-          requires => Exec['set directory userid']
+          require => Exec['set directory userid']
         }
 
         file { "/home/$username/.thunderbird/$user_id.default-default/folderTree.json":
@@ -46,7 +46,7 @@ class thunderbird::configure {
           owner   => $username,
           group   => $username,
           content  => template('thunderbird/user.default-default/folderTree.json.erb'),
-          requires => Exec['set directory userid']
+          require => Exec['set directory userid']
         }
 
         file { "/home/$username/.thunderbird/$user_id.default-default/panacea.dat":
@@ -56,7 +56,7 @@ class thunderbird::configure {
           owner   => $username,
           group   => $username,
           content  => template('thunderbird/user.default-default/panacea.dat.erb'),
-          requires => Exec['set directory userid']
+          require => Exec['set directory userid']
         }
 
         file { "/home/$username/.thunderbird/$user_id.default-default/pkcs11.txt":
@@ -66,7 +66,7 @@ class thunderbird::configure {
           owner   => $username,
           group   => $username,
           content  => template('thunderbird/user.default-default/pkcs11.txt.erb'),
-          requires => Exec['set directory userid']
+          require => Exec['set directory userid']
         }
 
         file { "/home/$username/.thunderbird/$user_id.default-default/prefs.js":
@@ -76,7 +76,7 @@ class thunderbird::configure {
           owner   => $username,
           group   => $username,
           content  => template('thunderbird/user.default-default/prefs.js.erb'),
-          requires => Exec['set directory userid']
+          require => Exec['set directory userid']
         }
 
         file { "/home/$username/.thunderbird/$user_id.default-default/session.json":
@@ -86,7 +86,7 @@ class thunderbird::configure {
           owner   => $username,
           group   => $username,
           content  => template('thunderbird/user.default-default/session.json.erb'),
-          requires => Exec['set directory userid']
+          require => Exec['set directory userid']
         }
 
         # autostart script
