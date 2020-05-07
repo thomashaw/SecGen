@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 #define USERDEF AAAAAABBBBBBCCCCCC
 
 unsigned long fakeArray1[31][31];

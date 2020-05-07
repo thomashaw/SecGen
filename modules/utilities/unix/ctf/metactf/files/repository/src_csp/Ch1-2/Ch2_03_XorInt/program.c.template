@@ -4,6 +4,7 @@
 #include <sys/ptrace.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <unistd.h>
 #define USERDEF 0xAAAAAA
 
 char msg[] =

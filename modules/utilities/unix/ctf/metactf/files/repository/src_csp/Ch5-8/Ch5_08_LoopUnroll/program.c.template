@@ -4,6 +4,7 @@
 #include <string.h>
 #include <sys/ptrace.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 char msg[] =
  "In this level, an array of integers is being passed to three functions.\n"

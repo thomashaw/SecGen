@@ -10,6 +10,7 @@ userdef = repr(''.join(random.choice(userdef_charset) for _ in range(32)))[1:-1]
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #define USERDEF "${ userdef }$"
 
 char padding0[ ${ padding0 }$ ];

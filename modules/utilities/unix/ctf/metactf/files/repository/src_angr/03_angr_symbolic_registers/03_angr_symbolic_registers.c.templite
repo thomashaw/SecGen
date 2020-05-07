@@ -11,6 +11,7 @@ def randomly_modify(var):
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 register int eax asm("eax");
 register int ebx asm("ebx");

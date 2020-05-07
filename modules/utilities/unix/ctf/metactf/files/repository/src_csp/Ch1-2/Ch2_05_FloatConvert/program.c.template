@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/ptrace.h>
+#include <unistd.h>
 #define USERDEF0 AAAAAA
 #define USERDEF1 BBBBBB
 

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 #define USERDEF "AAAAAA"
 #define N (sizeof(bogus)/sizeof(const char *))
 char msg[] =

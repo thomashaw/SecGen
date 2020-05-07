@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
+
 #define CH00 "ZjMzOWVj"
 #define CH01 "NjYxOWM3"
 #define CH02 "OTJjMzJk"

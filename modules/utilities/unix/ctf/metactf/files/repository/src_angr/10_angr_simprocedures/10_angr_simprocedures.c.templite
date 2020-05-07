@@ -31,6 +31,7 @@ def recursive_if_else(variable, value, end_statement, depth):
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #define USERDEF "${ userdef }$"
 

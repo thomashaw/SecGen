@@ -17,6 +17,7 @@ def expanded_switch_statement(variable, miss_statement, hit_statement, samples):
 #include <string.h>
 #include <stdint.h>
 #include <signal.h>
+#include <unistd.h>
 
 #define USERDEF "${ userdef }$"
 

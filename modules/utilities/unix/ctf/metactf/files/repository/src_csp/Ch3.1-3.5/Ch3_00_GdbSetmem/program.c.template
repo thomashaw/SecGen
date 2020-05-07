@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #define USERDEF0 AAAAAA
 #define USERDEF1 BBBBBB
 
