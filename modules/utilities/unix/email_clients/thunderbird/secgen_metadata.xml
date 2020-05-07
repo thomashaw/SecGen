@@ -19,7 +19,7 @@
   <read_fact>start_page</read_fact>
 
   <default_input into="autostart">
-    <value>true</value>
+    <value>false</value>
   </default_input>
 
   <default_input into="start_page">
