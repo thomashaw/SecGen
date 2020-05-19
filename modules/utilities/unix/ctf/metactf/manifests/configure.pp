@@ -1,6 +1,6 @@
 class metactf::configure {
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
-  $install_dir = '/tmp/metactf'
+  $install_dir = '/metactf'   #todo: change back to /tmp/metactf
   $challenge_list = $secgen_params['challenge_list']
   $include_scaffolding = str2bool($secgen_params['include_scaffolding'][0])
 
