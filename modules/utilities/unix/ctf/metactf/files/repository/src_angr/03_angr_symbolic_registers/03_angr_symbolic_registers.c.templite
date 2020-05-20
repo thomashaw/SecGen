@@ -61,7 +61,7 @@ void printflag()
 	int len;
 	unsigned char data[128];
 
-	fd = open("flag", O_RDONLY,2775);
+	fd = open("flag", O_RDONLY);
 
 	if ( fd <= 0 ) {
 		printf("Failed to open flag.\n");
