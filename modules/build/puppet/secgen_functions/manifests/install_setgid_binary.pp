@@ -68,7 +68,7 @@ define secgen_functions::install_setgid_binary (
       ensure  => present,
       owner   => 'root',
       group   => $group,
-      mode    => '2775',
+      mode    => '2755',
       source  => $bin_path,
       require => File[$challenge_directory]
     }
@@ -80,7 +80,7 @@ define secgen_functions::install_setgid_binary (
       strings_to_leak   => [$flag],
       owner             => 'root',
       group             => $group,
-      mode              => '0440',
+      mode              => '0660',
       leaked_from       => "$source_module_name/$challenge_name",
       require           => [Group[$group], File["$challenge_directory/$challenge_name"]],
     }
