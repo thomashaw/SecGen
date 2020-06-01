@@ -59,15 +59,15 @@ define secgen_functions::install_setgid_binary (
     # Create challenge directory
     notice("Creating directory: $storage_directory")
     notice("Creating directory: $challenge_directory")
-    ensure_resource('file', $storage_directory, { 'ensure' => 'directory' })
-    ensure_resource('file', $challenge_directory, { 'ensure' => 'directory' })
+    ensure_resource('file', $storage_directory, { 'ensure' => 'directory', 'owner' => $username, 'group' => $username })
+    ensure_resource('file', $challenge_directory, { 'ensure' => 'directory', 'owner' => $username, 'group' => $username })
 
     # Move the compiled binary into the challenge directory
 
     file { "$challenge_directory/$challenge_name":
       ensure  => present,
-      owner   => 'root',
-      group   => $group,
+      owner   => $username,
+      group   => $username,
       mode    => '2755',
       source  => $bin_path,
       require => File[$challenge_directory]
@@ -80,7 +80,7 @@ define secgen_functions::install_setgid_binary (
       strings_to_leak   => [$flag],
       owner             => 'root',
       group             => $group,
-      mode              => '0660',
+      mode              => '0760',
       leaked_from       => "$source_module_name/$challenge_name",
       require           => [Group[$group], File["$challenge_directory/$challenge_name"]],
     }
