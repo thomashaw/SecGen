@@ -72,8 +72,6 @@
       </input>
     </utility>
 
-    <vulnerability module_path=".*/two_shell_calls"/>
-
     <network type="private_network" range="dhcp"/>
   </system>
 
