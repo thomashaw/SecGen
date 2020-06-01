@@ -67,8 +67,8 @@ define secgen_functions::install_setgid_binary (
     file { "$challenge_directory/$challenge_name":
       ensure  => present,
       owner   => $username,
-      group   => $username,
-      mode    => '2755',
+      group   => $group,
+      mode    => '2775',
       source  => $bin_path,
       require => File[$challenge_directory]
     }
