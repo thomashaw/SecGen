@@ -24,12 +24,14 @@
         <xs:element name="WebAction" type="WebActionType" minOccurs="1" maxOccurs="unbounded" />
         <xs:element name="MessageAction" type="MessageActionType" minOccurs="1" maxOccurs="unbounded" />
         <xs:element name="VirtAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
-        <xs:element name="VirtAddNICAction" type="VirtAddNICActionType" minOccurs="1" maxOccurs="unbounded" />
-        <xs:element name="VirtRemoveNICAction" type="VirtRemoveNICActionType" minOccurs="1" maxOccurs="unbounded" />
-        <xs:element name="VirtAddDiskAction" type="VirtAddDiskActionType" minOccurs="1" maxOccurs="unbounded" />
-        <xs:element name="VirtRemoveDiskAction" type="VirtRemoveDiskActionType" minOccurs="1" maxOccurs="unbounded" />
-        <xs:element name="VMCommandAction" type="CommandActionType" minOccurs="1" maxOccurs="unbounded" />
-        <xs:element name="IRCAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtAddNICAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtRemoveNICAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtAddDiskAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtRemoveDiskAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtPowerOnAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtPowerOnAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VMCommandAction" type="VMCommandActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="IRCAction" type="VMCommandActionType" minOccurs="1" maxOccurs="unbounded" />
       </xs:choice>
     </xs:sequence>
   </xs:complexType>
@@ -51,7 +53,7 @@
     </xs:choice>
   </xs:complexType>
 
-  <xs:complexType name="CommandActionType">
+  <xs:complexType name="VMCommandActionType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
       <xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>

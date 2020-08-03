@@ -162,6 +162,10 @@
     <system_name>client_2</system_name>
     <base distro="Kali" name="MSF"/>
 
+    <goals>
+      <system_down/>
+    </goals>
+
     <utility module_path=".*/thunderbird"/>
 
     <utility module_path=".*analysis_alert_action_client">
