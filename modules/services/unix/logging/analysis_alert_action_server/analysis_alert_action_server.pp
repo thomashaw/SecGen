@@ -10,15 +10,13 @@ class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,
   version => '6.3.1',
-}
+}~>
 elasticsearch::instance { 'es-01':
   config => {
     'network.host' => $elasticsearch_ip,
     'http.port' => $elasticsearch_port,
   },
-}
-
-
+}~>
 class { 'logstash':
   settings => {
     'http.host' => $elasticsearch_ip,
@@ -26,9 +24,7 @@ class { 'logstash':
 }
 logstash::configfile { 'my_ls_config':
   content => template('logstash/configfile-template.erb'),
-}
-
-
+}~>
 class { 'kibana':
   ensure => '6.3.1',
   config => {
@@ -36,12 +32,9 @@ class { 'kibana':
     'elasticsearch.url' => "http://$elasticsearch_ip:$elasticsearch_port",
     'server.port'       => $kibana_port,
   }
-}
-
+}~>
 class { 'elastalert':
   elasticsearch_ip => $elasticsearch_ip,
   elasticsearch_port => $elasticsearch_port,
-}
-
-
+}~>
 class { 'analysis_alert_action_server': }
