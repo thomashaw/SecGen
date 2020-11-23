@@ -15,7 +15,7 @@
 
 	<system>
 		<system_name>elk_7</system_name>
-		<base platform="linux" type="server" distro="Buster"/>
+		<base platform="linux" type="server" distro="Stretch"/>
 
 		<input into_datastore="IP_address">
 			<value>172.16.0.2</value>
