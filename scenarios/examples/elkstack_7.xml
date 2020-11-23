@@ -69,23 +69,23 @@
 			</input>
 		</utility>
 
-		<utility module_path=".*/filebeat.*">
-			<input into="logstash_ip">
-				<datastore access="0">IP_address</datastore>
-			</input>
-			<input into="logstash_port">
-				<datastore access="0">logstash_port</datastore>
-			</input>
-		</utility>
+<!--		<utility module_path=".*/filebeat.*">-->
+<!--			<input into="logstash_ip">-->
+<!--				<datastore access="0">IP_address</datastore>-->
+<!--			</input>-->
+<!--			<input into="logstash_port">-->
+<!--				<datastore access="0">logstash_port</datastore>-->
+<!--			</input>-->
+<!--		</utility>-->
 
-		<utility module_path=".*/auditbeat.*">
-			<input into="logstash_ip">
-				<datastore access="0">IP_address</datastore>
-			</input>
-			<input into="logstash_port">
-				<datastore access="0">logstash_port</datastore>
-			</input>
-		</utility>
+<!--		<utility module_path=".*/auditbeat.*">-->
+<!--			<input into="logstash_ip">-->
+<!--				<datastore access="0">IP_address</datastore>-->
+<!--			</input>-->
+<!--			<input into="logstash_port">-->
+<!--				<datastore access="0">logstash_port</datastore>-->
+<!--			</input>-->
+<!--		</utility>-->
 
 <!--		<utility module_path=".*/elastalert.*">-->
 
