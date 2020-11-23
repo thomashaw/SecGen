@@ -1,0 +1,1 @@
+class { 'kibana_7':}
