@@ -33,16 +33,16 @@
 			<value>5601</value>
 		</input>
 
-		<utility module_path=".*/elasticsearch_7">
+		<service module_path=".*/elasticsearch_7">
 			<input into="elasticsearch_ip">
 				<datastore access="0">IP_address</datastore>
 			</input>
 			<input into="elasticsearch_port">
 				<datastore access="0">elasticsearch_port</datastore>
 			</input>
-		</utility>
+		</service>
 
-		<utility module_path=".*/logstash_7">
+		<service module_path=".*/logstash_7">
 			<input into="logstash_port">
 				<datastore access="0">logstash_port</datastore>
 			</input>
@@ -52,9 +52,9 @@
 			<input into="elasticsearch_port">
 				<datastore access="0">elasticsearch_port</datastore>
 			</input>
-		</utility>
+		</service>
 
-		<utility module_path=".*/kibana_7">
+		<service module_path=".*/kibana_7">
 			<input into="kibana_ip">
 				<datastore access="0">IP_address</datastore>
 			</input>
@@ -67,7 +67,7 @@
 			<input into="elasticsearch_port">
 				<datastore access="0">elasticsearch_port</datastore>
 			</input>
-		</utility>
+		</service>
 
 <!--		<utility module_path=".*/filebeat.*">-->
 <!--			<input into="logstash_ip">-->
