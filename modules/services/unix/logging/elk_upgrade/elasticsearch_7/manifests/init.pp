@@ -302,6 +302,24 @@ class elasticsearch (
   Integer[0, 65535]                               $api_port,
 ) {
 
+  Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
 
+  ## Add repository
+
+  exec { 'add apt repository':
+   command => 'wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -'
+  }
+
+  # exec { 'logstash update apt':
+  #
+  # }
+  # package { '':
+  #
+  # }
+  #
+
+  ## Install Elasticsearch
+
+  ## Configure Elasticsearch
 
 }
