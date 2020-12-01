@@ -304,6 +304,12 @@ class elasticsearch (
 
   Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
 
+  #####################
+  #   Repo Install    #
+  #####################
+
+
+
   ## Add repository
 
   exec { 'add apt repository':
@@ -321,5 +327,13 @@ class elasticsearch (
   ## Install Elasticsearch
 
   ## Configure Elasticsearch
+
+  #####################
+  #   Docker Install  #
+  #####################
+
+
+  docker::image { "docker.elastic.co/elasticsearch/elasticsearch:7.10.0": }
+
 
 }
