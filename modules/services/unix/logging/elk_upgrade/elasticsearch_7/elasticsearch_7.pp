@@ -5,7 +5,7 @@ unless defined('analysis_alert_action_server') {
 
   include ::java
 
-  class { 'elasticsearch_7':
+  class { 'elasticsearch':
     api_host => $elasticsearch_ip,
     api_port => $elasticsearch_port,
   }
