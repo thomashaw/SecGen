@@ -35,4 +35,8 @@
     <software_name>java</software_name>
   </requires>
 
+  <requires>
+    <module_path>.*docker</module_path>
+  </requires>
+
 </service>
