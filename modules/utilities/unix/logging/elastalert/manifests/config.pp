@@ -25,10 +25,10 @@ class elastalert::config ($elasticsearch_ip,
   }
 
   # TODO: (Remove me after dev) Currently manually copies complete rules into the correct rules directory
-  exec { 'tmp copy working ea rules':
-    command => "/bin/cp $tmp_rules_dir/*rf* $rules_dir/.",
-    require => [File[$tmp_rules_dir], File[$rules_dir]]
-  }
+  # exec { 'tmp copy working ea rules':
+  #   command => "/bin/cp $tmp_rules_dir/*rf* $rules_dir/.",
+  #   require => [File[$tmp_rules_dir], File[$rules_dir]]
+  # }
 
   # Move the custom alerter (outputs rulename:alert)
   file { ['/opt/elastalert/elastalert/', '/opt/elastalert/elastalert/modules/', '/opt/elastalert/elastalert/modules/alerter/']:

@@ -12,6 +12,7 @@
 
 		<input into_datastore="IP_addresses">
 			<value>172.16.0.2</value>
+			<value>172.16.0.3</value>
 		</input>
 
 		<input into_datastore="elasticsearch_port">
@@ -92,6 +93,48 @@
 				<value>dev</value>
 			</input>
 		</build>
+	</system>
+
+	<system>
+		<system_name>auditpusher</system_name>
+		<base platform="linux" type="desktop" distro="Debian 10"/>
+
+		<utility module_path=".*/auditbeat.*">
+			<input into="logstash_ip">
+				<datastore access="0">IP_address</datastore>
+			</input>
+			<input into="logstash_port">
+				<datastore access="0">logstash_port</datastore>
+			</input>
+		</utility>
+
+		<utility module_path=".*/parameterised_accounts">
+			<input into="accounts" into_datastore="account">
+				<generator type="account">
+					<input into="username">
+						<value>test</value>
+					</input>
+					<input into="password">
+						<value>test</value>
+					</input>
+					<input into="strings_to_leak">
+						<value/>
+					</input>
+					<input into="leaked_filenames">
+						<value/>
+					</input>
+					<input into="super_user">
+						<value>true</value>
+					</input>
+				</generator>
+			</input>
+		</utility>
+
+		<network type="private_network" >
+			<input into="IP_address">
+				<datastore access="1">IP_addresses</datastore>
+			</input>
+		</network>
 	</system>
 
 </scenario>
