@@ -15,22 +15,6 @@ class SystemReader < XMLReader
     systems = []
     # Parse and validate the schema
     doc = parse_doc(scenario_file, SCENARIO_SCHEMA_FILE, 'scenario')
-    # validate scenario XML against schema
-    begin
-      xsd = Nokogiri::XML::Schema(File.open(SCENARIO_SCHEMA_FILE))
-      xsd.validate(scenario_file).each do |error|
-        Print.err "Error in scenario configuration file (#{scenario_file}):"
-        Print.err "    #{error.line}: #{error.message}"
-        exit
-      end
-    rescue Exception => e
-      Print.err "Failed to validate scenario configuration file (#{scenario_file}): against schema (#{SCENARIO_SCHEMA_FILE})"
-      Print.err e.message
-      exit
-    end
-
-    # remove xml namespaces for ease of processing
-    doc.remove_namespaces!
 
     doc.xpath('/scenario/system').each_with_index do |system_node, system_index|
       module_selectors = []
