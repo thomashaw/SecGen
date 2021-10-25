@@ -6,6 +6,17 @@
 class filebeat::config {
   $major_version = $filebeat::major_version
 
+  if has_key($filebeat::setup, 'ilm.policy') {
+    file {"${filebeat::config_dir}/ilm_policy.json":
+      content => to_json({'policy' => $filebeat::setup['ilm.policy']}),
+      notify  => Service['filebeat'],
+      require => File['filebeat-config-dir'],
+    }
+    $setup = $filebeat::setup - 'ilm.policy' + {'ilm.policy_file' => "${filebeat::config_dir}/ilm_policy.json"}
+  } else {
+    $setup = $filebeat::setup
+  }
+
   if versioncmp($major_version, '6') >= 0 {
     $filebeat_config_temp = delete_undef_values({
       'shutdown_timeout'  => $filebeat::shutdown_timeout,
@@ -15,20 +26,26 @@ class filebeat::config {
       'fields'            => $filebeat::fields,
       'fields_under_root' => $filebeat::fields_under_root,
       'filebeat'          => {
-        'registry_file'      => $filebeat::registry_file,
-        'config.prospectors' => {
+        'config.inputs' => {
           'enabled' => true,
           'path'    => "${filebeat::config_dir}/*.yml",
+        },
+        'config.modules' => {
+          'enabled' => $filebeat::enable_conf_modules,
+          'path'    => "${filebeat::modules_dir}/*.yml",
         },
         'shutdown_timeout'   => $filebeat::shutdown_timeout,
         'modules'           => $filebeat::modules,
       },
+      'http'              => $filebeat::http,
+      'cloud'             => $filebeat::cloud,
       'output'            => $filebeat::outputs,
       'shipper'           => $filebeat::shipper,
       'logging'           => $filebeat::logging,
       'runoptions'        => $filebeat::run_options,
       'processors'        => $filebeat::processors,
-      'setup'             => $filebeat::setup,
+      'monitoring'        => $filebeat::monitoring,
+      'setup'             => $setup,
     })
     # Add the 'xpack' section if supported (version >= 6.1.0) and not undef
     if $filebeat::xpack and versioncmp($filebeat::package_ensure, '6.1.0') >= 0 {
@@ -69,8 +86,8 @@ class filebeat::config {
     }
   }
 
-  if $::filebeat_version {
-    $skip_validation = versioncmp($::filebeat_version, $filebeat::major_version) ? {
+  if 'filebeat_version' in $facts and $facts['filebeat_version'] != false {
+    $skip_validation = versioncmp($facts['filebeat_version'], $filebeat::major_version) ? {
       -1      => true,
       default => false,
     }
@@ -78,15 +95,13 @@ class filebeat::config {
     $skip_validation = false
   }
 
-  Filebeat::Prospector <| |> -> File['filebeat.yml']
-
   case $::kernel {
     'Linux'   : {
       $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
         true    => undef,
         default => $major_version ? {
-          '5'     => "${filebeat::filebeat_path} -N -configtest -c %",
-          default => "${filebeat::filebeat_path} -c % test config",
+          '5'     => "${filebeat::filebeat_path} ${filebeat::extra_validate_options} -N -configtest -c %",
+          default => "${filebeat::filebeat_path} ${filebeat::extra_validate_options} -c % test config",
         },
       }
 
@@ -111,13 +126,14 @@ class filebeat::config {
         recurse => $filebeat::purge_conf_dir,
         purge   => $filebeat::purge_conf_dir,
         force   => true,
+        notify  => Service['filebeat'],
       }
     } # end Linux
 
     'FreeBSD'   : {
       $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
         true    => undef,
-        default => '/usr/local/sbin/filebeat -N -configtest -c %',
+        default => '/usr/local/sbin/filebeat ${filebeat::extra_validate_options} -N -configtest -c %',
       }
 
       file {'filebeat.yml':
@@ -141,6 +157,7 @@ class filebeat::config {
         recurse => $filebeat::purge_conf_dir,
         purge   => $filebeat::purge_conf_dir,
         force   => true,
+        notify  => Service['filebeat'],
       }
     } # end FreeBSD
 
@@ -148,8 +165,8 @@ class filebeat::config {
       $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
         true    => undef,
         default => $major_version ? {
-          '5'     => "${filebeat::filebeat_path} -N -configtest -c %",
-          default => "${filebeat::filebeat_path} -c % test config",
+          '5'     => "${filebeat::filebeat_path} ${filebeat::extra_validate_options} -N -configtest -c %",
+          default => "${filebeat::filebeat_path} ${filebeat::extra_validate_options} -c % test config",
         },
       }
 
@@ -174,6 +191,7 @@ class filebeat::config {
         recurse => $filebeat::purge_conf_dir,
         purge   => $filebeat::purge_conf_dir,
         force   => true,
+        notify  => Service['filebeat'],
       }
     } # end OpenBSD
 
@@ -183,7 +201,10 @@ class filebeat::config {
 
       $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
         true    => undef,
-        default => "\"${filebeat_path}\" -N -configtest -c \"%\"",
+        default => $major_version ? {
+          '7'     => "\"${filebeat_path}\" ${filebeat::extra_validate_options} test config -c \"%\"",
+          default => "\"${filebeat_path}\" ${filebeat::extra_validate_options} -N -configtest -c \"%\"",
+        }
       }
 
       file {'filebeat.yml':

@@ -9,7 +9,9 @@ class filebeat::repo {
 
   case $::osfamily {
     'Debian': {
-      include ::apt
+      if $::filebeat::manage_apt == true {
+        include ::apt
+      }
 
       Class['apt::update'] -> Package['filebeat']
 
@@ -37,7 +39,14 @@ class filebeat::repo {
           gpgkey   => 'https://artifacts.elastic.co/GPG-KEY-elasticsearch',
           priority => $::filebeat::repo_priority,
           enabled  => 1,
+          notify   => Exec['flush-yum-cache'],
         }
+      }
+
+      exec { 'flush-yum-cache':
+        command     => 'yum clean all',
+        refreshonly => true,
+        path        => ['/bin', '/usr/bin', '/sbin', '/usr/sbin'],
       }
     }
     'Suse': {

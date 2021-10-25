@@ -8,8 +8,6 @@ $kibana_ip = $aaa_config['server_ip']
 $kibana_port = 0 + $aaa_config['kibana_port']
 
 class { 'auditbeat':
-  ensure => 'present',
-  manage_repo => true,
   modules => [
     {
       'module'  => 'auditd',
@@ -25,7 +23,7 @@ class { 'auditbeat':
 }
 
 class { 'filebeat':
-  major_version => '6',
+  major_version => '7',
   outputs => {
     'logstash' => {
       'hosts' => [

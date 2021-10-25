@@ -1,27 +1,30 @@
 {
   "name": "norisnetwork-auditbeat",
-  "version": "0.1.2",
+  "version": "0.2.5",
   "author": "norisnetwork",
-  "summary": "This module installs and configures the Auditbeat shipper by Elastic.",
+  "summary": "Module for installing, managing and configuring the Auditbeat lightweight shipper for audit data by elastic.",
   "license": "Apache-2.0",
-  "source": "https://github.com/noris-network/puppet-auditbeat",
+  "source": "https://github.com/noris-network/norisnetwork-auditbeat",
   "project_page": "https://github.com/noris-network/norisnetwork-auditbeat",
   "issues_url": "https://github.com/noris-network/norisnetwork-auditbeat/issues",
   "dependencies": [
     {
       "name": "puppetlabs-stdlib",
-      "version_requirement": ">= 4.13.0 < 5.0.0"
+      "version_requirement": ">= 4.13.0 < 7.0.0"
     },
     {
       "name": "puppetlabs-apt",
-      "version_requirement": ">= 4.0.0 < 5.0.0"
+      "version_requirement": ">= 2.0.0 < 8.0.0"
     },
     {
-      "name": "darin-zypprepo",
+      "name": "puppet-zypprepo",
+      "version_requirement": ">= 2.0.0 < 3.0.0"
+    },
+    {
+      "name": "puppetlabs-yumrepo_core",
       "version_requirement": ">= 1.0.0 < 2.0.0"
     }
   ],
-  "data_provider": null,
   "operatingsystem_support": [
     {
       "operatingsystem": "CentOS",
@@ -44,23 +47,32 @@
     {
       "operatingsystem": "Ubuntu",
       "operatingsystemrelease": [
-        "16.04"
+        "18.04"
       ]
     },
     {
       "operatingsystem": "SLES",
       "operatingsystemrelease": [
-        "12"
+        "15"
       ]
     }
   ],
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.0 < 6.0.0"
+      "version_requirement": ">= 5.0.0 < 7.0.0"
     }
   ],
-  "pdk-version": "1.5.0",
-  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
-  "template-ref": "1.5.0-0-gd1b3eca"
+  "tags": [
+    "auditbeat",
+    "elasticsearch",
+    "elastic_stack",
+    "elastic",
+    "norisnetwork",
+    "logstash",
+    "kibana"
+  ],
+  "pdk-version": "1.18.0",
+  "template-url": "pdk-default#1.18.0",
+  "template-ref": "tags/1.18.0-0-g095317c"
 }

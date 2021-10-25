@@ -21,16 +21,16 @@
   </default_input>
 
   <requires>
-    <name>Elasticsearch</name>
+    <module_path>.*elasticsearch_7</module_path>
   </requires>
   <requires>
-    <name>Logstash</name>
+    <module_path>.*logstash_7</module_path>
   </requires>
   <requires>
-    <name>Kibana</name>
+    <module_path>.*kibana_7</module_path>
   </requires>
   <requires>
-    <name>Elastalert</name>
+    <module_path>.*elastalert</module_path>
   </requires>
 
 </service>

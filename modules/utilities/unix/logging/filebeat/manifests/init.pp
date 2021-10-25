@@ -14,6 +14,7 @@
 #
 # @param package_ensure [String] The ensure parameter for the filebeat package (default: present)
 # @param manage_repo [Boolean] Whether or not the upstream (elastic) repo should be configured or not (default: true)
+# @param manage_apt [Boolean] Whether or not the apt class should be explicitly called or not (default: true)
 # @param major_version [Enum] The major version of Filebeat to be installed.
 # @param service_ensure [String] The ensure parameter on the filebeat service (default: running)
 # @param service_enable [String] The enable parameter on the filebeat service (default: true)
@@ -21,11 +22,12 @@
 # @param spool_size [Integer] How large the spool should grow before being flushed to the network (default: 2048)
 # @param idle_timeout [String] How often the spooler should be flushed even if spool size isn't reached (default: 5s)
 # @param publish_async [Boolean] If set to true filebeat will publish while preparing the next batch of lines to send (defualt: false)
-# @param registry_file [String] The registry file used to store positions, absolute or relative to working directory (default .filebeat)
-# @param config_dir [String] The directory where prospectors should be defined (default: /etc/filebeat/conf.d)
+# @param config_dir [String] The directory where inputs should be defined (default: /etc/filebeat/conf.d)
 # @param config_dir_mode [String] The unix permissions mode set on the configuration directory (default: 0755)
 # @param config_file_mode [String] The unix permissions mode set on configuration files (default: 0644)
-# @param purge_conf_dir [Boolean] Should files in the prospector configuration directory not managed by puppet be automatically purged
+# @param purge_conf_dir [Boolean] Should files in the input configuration directory not managed by puppet be automatically purged
+# @param http [Hash] A hash of the http section of configuration
+# @param cloud [Hash] Will be converted to YAML for the optional cloud of the configuration (see documentation, and above)
 # @param outputs [Hash] Will be converted to YAML for the required outputs section of the configuration (see documentation, and above)
 # @param shipper [Hash] Will be converted to YAML to create the optional shipper section of the filebeat config (see documentation)
 # @param logging [Hash] Will be converted to YAML to create the optional logging section of the filebeat config (see documentation)
@@ -37,20 +39,22 @@
 # @param shutdown_timeout [String] How long filebeat waits on shutdown for the publisher to finish sending events
 # @param beat_name [String] The name of the beat shipper (default: hostname)
 # @param tags [Array] A list of tags that will be included with each published transaction
-# @param queue_size [String] The internal queue size for events in the pipeline
 # @param max_procs [Integer] The maximum number of CPUs that can be simultaneously used
 # @param fields [Hash] Optional fields that should be added to each event output
 # @param fields_under_root [Boolean] If set to true, custom fields are stored in the top level instead of under fields
 # @param processors [Array] Processors that will be added. Commonly used to create processors using hiera.
-# @param prospectors [Hash] Prospectors that will be created. Commonly used to create prospectors using hiera
+# @param monitoring [Hash] The monitoring section of the configuration file.
+# @param inputs [Hash] or [Array] Inputs that will be created. Commonly used to create inputs using hiera
 # @param setup [Hash] setup that will be created. Commonly used to create setup using hiera
-# @param prospectors_merge [Boolean] Whether $prospectors should merge all hiera sources, or use simple automatic parameter lookup
+# @param inputs_merge [Boolean] Whether $inputs should merge all hiera sources, or use simple automatic parameter lookup
 # proxy_address [String] Proxy server to use for downloading files
 # @param xpack [Hash] Configuration items to export internal stats to a monitoring Elasticsearch cluster
+# @param extra_validate_options [String] Extra command line options to pass to the configuration validation command
 class filebeat (
   String  $package_ensure                                             = $filebeat::params::package_ensure,
   Boolean $manage_repo                                                = $filebeat::params::manage_repo,
-  Enum['5','6'] $major_version                                        = $filebeat::params::major_version,
+  Boolean $manage_apt                                                 = $filebeat::params::manage_apt,
+  Enum['5','6', '7'] $major_version                                   = $filebeat::params::major_version,
   Variant[Boolean, Enum['stopped', 'running']] $service_ensure        = $filebeat::params::service_ensure,
   Boolean $service_enable                                             = $filebeat::params::service_enable,
   Optional[String]  $service_provider                                 = $filebeat::params::service_provider,
@@ -58,7 +62,6 @@ class filebeat (
   Integer $spool_size                                                 = $filebeat::params::spool_size,
   String  $idle_timeout                                               = $filebeat::params::idle_timeout,
   Boolean $publish_async                                              = $filebeat::params::publish_async,
-  String  $registry_file                                              = $filebeat::params::registry_file,
   String  $config_file                                                = $filebeat::params::config_file,
   Optional[String] $config_file_owner                                 = $filebeat::params::config_file_owner,
   Optional[String] $config_file_group                                 = $filebeat::params::config_file_group,
@@ -68,6 +71,10 @@ class filebeat (
   Optional[String] $config_dir_owner                                  = $filebeat::params::config_dir_owner,
   Optional[String] $config_dir_group                                  = $filebeat::params::config_dir_group,
   Boolean $purge_conf_dir                                             = $filebeat::params::purge_conf_dir,
+  String  $modules_dir                                                = $filebeat::params::modules_dir,
+  Boolean $enable_conf_modules                                        = $filebeat::params::enable_conf_modules,
+  Hash    $http                                                       = $filebeat::params::http,
+  Hash    $cloud                                                      = $filebeat::params::cloud,
   Hash    $outputs                                                    = $filebeat::params::outputs,
   Hash    $shipper                                                    = $filebeat::params::shipper,
   Hash    $logging                                                    = $filebeat::params::logging,
@@ -79,18 +86,27 @@ class filebeat (
   String  $shutdown_timeout                                           = $filebeat::params::shutdown_timeout,
   String  $beat_name                                                  = $filebeat::params::beat_name,
   Array   $tags                                                       = $filebeat::params::tags,
-  Integer $queue_size                                                 = $filebeat::params::queue_size,
   Optional[Integer] $max_procs                                        = $filebeat::params::max_procs,
   Hash $fields                                                        = $filebeat::params::fields,
   Boolean $fields_under_root                                          = $filebeat::params::fields_under_root,
   Boolean $disable_config_test                                        = $filebeat::params::disable_config_test,
   Array   $processors                                                 = [],
-  Hash    $prospectors                                                = {},
+  Optional[Hash]  $monitoring                                         = undef,
+  Variant[Hash, Array] $inputs                                        = {},
   Hash    $setup                                                      = {},
   Array   $modules                                                    = [],
   Optional[Variant[Stdlib::HTTPUrl, Stdlib::HTTPSUrl]] $proxy_address = undef, # lint:ignore:140chars
   Stdlib::Absolutepath $filebeat_path                                 = $filebeat::params::filebeat_path,
   Optional[Hash] $xpack                                               = $filebeat::params::xpack,
+
+  Integer $queue_size                                                 = 4096,
+  String $registry_file                                               = 'filebeat.yml',
+
+  Optional[String] $systemd_beat_log_opts_override                    = undef,
+  String $systemd_beat_log_opts_template                              = $filebeat::params::systemd_beat_log_opts_template,
+  String $systemd_override_dir                                        = $filebeat::params::systemd_override_dir,
+  Optional[String] $extra_validate_options                            = undef,
+
 ) inherits filebeat::params {
 
   include ::stdlib
@@ -109,11 +125,13 @@ class filebeat (
     $real_service_ensure = 'stopped'
     $file_ensure = 'absent'
     $directory_ensure = 'absent'
+    $real_service_enable = false
   } else {
     $alternate_ensure = 'present'
     $file_ensure = 'file'
     $directory_ensure = 'directory'
     $real_service_ensure = $service_ensure
+    $real_service_enable = $service_enable
   }
 
   # If we're removing filebeat, do things in a different order to make sure
@@ -133,8 +151,12 @@ class filebeat (
   }
 
   if $package_ensure != 'absent' {
-    if !empty($prospectors) {
-      create_resources('filebeat::prospector', $prospectors)
+    if !empty($inputs) {
+      if $inputs =~ Array {
+        create_resources('filebeat::input', { 'inputs' => { pure_array => true } })
+      } else {
+        create_resources('filebeat::input', $inputs)
+      }
     }
   }
 }

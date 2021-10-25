@@ -5,7 +5,7 @@ After=elasticsearch.service
 [Service]
 Type=simple
 WorkingDirectory=/opt/elastalert
-ExecStart=/usr/bin/python -m elastalert.elastalert --verbose --config /opt/elastalert/config.yaml
+ExecStart=/usr/bin/python3 -m elastalert.elastalert --verbose --config /opt/elastalert/config.yaml
 Restart=always
 
 [Install]

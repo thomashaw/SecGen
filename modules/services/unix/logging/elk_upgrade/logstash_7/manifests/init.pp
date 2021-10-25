@@ -1,22 +1,11 @@
-class logstash_7() {
+class logstash_7 ($elasticsearch_ip, $elasticsearch_port = '9200', $logstash_port = '5044') {
 
-  Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
-
-  ## Add logstash repository
-
-  # exec { 'add apt repository':
-  #   command => 'wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -'
-  # }
-
-  # exec { 'logstash update apt':
-  #
-  # }
-  # package { '':
-  #
-  # }
-  #
-  ## Install logstash
-
-  ## Configure logstash
+  class { 'logstash_7::install': } ->
+  class { 'logstash_7::config':
+    elasticsearch_ip   => $elasticsearch_ip,
+    elasticsearch_port => $elasticsearch_port,
+    logstash_port      => $logstash_port,
+  } ->
+  class { 'logstash_7::service': }
 
 }

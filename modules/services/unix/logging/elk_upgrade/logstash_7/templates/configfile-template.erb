@@ -1,0 +1,24 @@
+input {
+  beats {
+    port => <%= @logstash_port %>
+  }
+}
+
+filter {
+  ruby {
+    path => "/etc/logstash/combined_path.rb"
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => "<%= @elasticsearch_ip-%>:<%= @elasticsearch_port-%>"
+    manage_template => false
+    index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+  }
+  # Write to file as well as pushing to elasticsearch for testing, can be removed eventually...
+  file {
+    path => "/tmp/logstash.log"
+  }
+  stdout { codec => rubydebug }
+}

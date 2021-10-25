@@ -1,0 +1,8 @@
+network.host: <%= @elasticsearch_ip %>
+http.port: <%= @elasticsearch_port %>
+node.name: <%= @node_name %>
+node.master: true
+path.data: "<%= @data_path%>"
+path.logs: "<%= @log_path %>"
+discovery.seed_hosts: ["<%= @elasticsearch_ip %>"]
+cluster.initial_master_nodes: ["<%= @node_name %>"]

@@ -142,7 +142,7 @@ def parse_opts(opts)
         options[:success] = true
       when '--failed'
         options[:failed] = true
-    when '--affinity-group'
+      when '--affinity-group'
         options[:affinity_group] = true
       else
         Print.err 'Invalid argument'

@@ -62,7 +62,7 @@ class Rules
         "      query_string:\n" +
         '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
         "alert:\n" +
-        "  - \"modules.alerter.exec.ExecAlerter\"\n" +
+        "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
         "pipe_match_json: true\n" +
         "realert:\n" +

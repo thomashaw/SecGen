@@ -127,7 +127,9 @@ class ProjectFilesCreator
 
         @rules = @rules.flatten.uniq
         Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
-        template_based_file_write(AUDITBEAT_RULES_TEMPLATE_FILE, auditbeat_rules_file)
+        if @rules.size > 0
+          template_based_file_write(AUDITBEAT_RULES_TEMPLATE_FILE, auditbeat_rules_file)
+        end
       end
 
       # Create server-side auto-grading config files (elastalert)

@@ -9,7 +9,7 @@ unless defined('analysis_alert_action_server') {
       'http.host' => $elasticsearch_ip,
     }
   }
-  logstash::configfile { 'my_ls_config':
+  logstash::configfile { 'my_ls_config.conf':
     content => template('logstash/configfile-template.erb'),
   }
 }

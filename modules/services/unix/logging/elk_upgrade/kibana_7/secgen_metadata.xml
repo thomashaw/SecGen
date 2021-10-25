@@ -3,7 +3,7 @@
 <service xmlns="http://www.github/cliffe/SecGen/service"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
-  <name>Kibana 7</name>
+  <name>Kibana</name>
   <author>Thomas Shaw</author>
   <author>Elastic</author>
   <module_license>Apache v2</module_license>

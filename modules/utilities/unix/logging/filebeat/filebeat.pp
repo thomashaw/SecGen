@@ -4,7 +4,7 @@ unless defined('analysis_alert_action_client') {
   $logstash_port = 0 + $secgen_parameters['logstash_port'][0]
 
   class { 'filebeat':
-    major_version => '6',
+    major_version => '7',
     outputs       => {
       'logstash' => {
         'hosts' => [

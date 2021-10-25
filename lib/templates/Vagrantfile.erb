@@ -8,6 +8,8 @@
    require 'base64'
    require 'securerandom'
    require_relative './lib/helpers/scenario.rb' -%>
+<% scenario_name = @scenario.split('/').last.split('.').first + '-'
+   prefix = @options[:prefix] ? (@options[:prefix] + '-' + scenario_name) : ('SecGen-' + scenario_name) -%>
 
 VAGRANTFILE_API_VERSION = "2"
 
@@ -86,6 +88,11 @@ end
 <%
   else %>
     <%= system.name %>.vm.provider :virtualbox do |vb|
+<%  system.module_selections.each do |selected_module|
+      if selected_module.module_type == 'base'
+        @cpu_word_size = selected_module.attributes['cpu_word_size'].first.downcase
+      end
+    end -%>
 <%= gui = (@options.has_key? :gui_output) ? 'true' : 'false'
       "      vb.gui = #{gui}\n" -%>
 <%= no_pae = (@options.has_key? :nopae) ? 'off' : 'on'

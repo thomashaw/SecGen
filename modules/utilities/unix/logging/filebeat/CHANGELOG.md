@@ -2,7 +2,152 @@ Changelog
 =========
 
 ## Unreleased
-[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.2.2...HEAD)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.7.1...HEAD)
+
+## [v4.8.0](https://github.com/pcfens/puppet-filebeat/tree/v4.8.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.7.0...v4.8.0)
+
+- Update powershell dependency constraints [\#268](https://github.com/pcfens/puppet-filebeat/pull/268)
+- Support ES cloud credentials [\267](https://github.com/pcfens/puppet-filebeat/pull/267)
+
+## [v4.7.0](https://github.com/pcfens/puppet-filebeat/tree/v4.7.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.6.0...v4.7.0)
+
+- Add `extra_validation_options` when validating the config [\#265](https://github.com/pcfens/puppet-filebeat/pull/265)
+
+## [v4.6.0](https://github.com/pcfens/puppet-filebeat/tree/v4.6.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.5.0...v4.6.0)
+
+- Allow processors to be applied to all inputs, and consolidated common configuration [\#260](https://github.com/pcfens/puppet-filebeat/pull/260)
+
+## [v4.5.0](https://github.com/pcfens/puppet-filebeat/tree/v4.5.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.4.2...v4.5.0)
+
+- Restart filebeat when config files are removed [\#258](https://github.com/pcfens/puppet-filebeat/pull/258)
+- Support TCP and UDP input plugins [\#259](https://github.com/pcfens/puppet-filebeat/pull/259)
+
+## [v4.4.2](https://github.com/pcfens/puppet-filebeat/tree/v4.4.2)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.4.1...v4.4.2)
+
+- Fix empty monitoring parameter [\#257](https://github.com/pcfens/puppet-filebeat/issues/257)
+
+## [v4.4.1](https://github.com/pcfens/puppet-filebeat/tree/v4.4.1)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.4.0...v4.4.1)
+
+- Fix powershell module version dependency [\#256](https://github.com/pcfens/puppet-filebeat/pull/256
+
+## [v4.4.0](https://github.com/pcfens/puppet-filebeat/tree/v4.4.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.3.1...v4.4.0)
+
+- Add the ability to supply the monitoring.* of the config file [\#252](https://github.com/pcfens/puppet-filebeat/issues/252)
+- Add support for Windows Server 2016 and 2019 Core editions [\#255](https://github.com/pcfens/puppet-filebeat/pull/255)
+
+## [v4.3.1](https://github.com/pcfens/puppet-filebeat/tree/v4.3.1)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.3.0...v4.3.1)
+
+- Allow fields and tags to be defined for any input type [\#249](https://github.com/pcfens/puppet-filebeat/pull/249)
+
+## [v4.3.0](https://github.com/pcfens/puppet-filebeat/tree/v4.3.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.2.0...v4.3.0)
+
+- Support setting index index lifecycle policy [\#238](https://github.com/pcfens/puppet-filebeat/pull/238)
+- Support logging overrides with Puppet older than 6.1 [\#241](https://github.com/pcfens/puppet-filebeat/pull/241)
+- Allow inputs to be defined using just a hash (supports open ended inputs) [\#236](https://github.com/pcfens/puppet-filebeat/pull/236)
+
+
+## [v4.2.0](https://github.com/pcfens/puppet-filebeat/tree/v4.2.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.1.2...v4.2.0)
+
+- Fix regression of processors type
+- Add support for syslog inputs [\#232](https://github.com/pcfens/puppet-filebeat/pull/233)
+- Upgrade PDK to 1.15.0
+
+## [v4.1.2](https://github.com/pcfens/puppet-filebeat/tree/v4.1.2)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.1.1...v4.1.2)
+
+- Fix hardocded path to yum [\#229](https://github.com/pcfens/puppet-filebeat/pull/229)
+
+## [v4.1.1](https://github.com/pcfens/puppet-filebeat/tree/v4.1.1)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.1.0...v4.1.1)
+
+- Support old versions of filebeat for a version fact only [\#227](https://github.com/pcfens/puppet-filebeat/pull/227)
+- Fix the processor input data type [\#228](https://github.com/pcfens/puppet-filebeat/issues/228)
+
+## [v4.1.0](https://github.com/pcfens/puppet-filebeat/tree/v4.1.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.0.5...v4.1.0)
+
+- Allow for override of the default systemd logging options [\#223](https://github.com/pcfens/puppet-filebeat/pull/223)
+
+## [v4.0.5](https://github.com/pcfens/puppet-filebeat/tree/v4.0.5)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.0.4...v4.0.5)
+
+- Update metadata for apt and stdlib modules [\#220](https://github.com/pcfens/puppet-filebeat/pull/220)
+- Fix README typo [\#221](https://github.com/pcfens/puppet-filebeat/pull/221)
+
+
+## [v4.0.4](https://github.com/pcfens/puppet-filebeat/tree/v4.0.4)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.0.3...v4.0.4)
+
+- Validate configuration in Windows [\#219](https://github.com/pcfens/puppet-filebeat/pull/219)
+
+## [v4.0.3](https://github.com/pcfens/puppet-filebeat/tree/v4.0.3)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.0.2...v4.0.3)
+
+- Fix `filebeat_version` fact on Windows [\#218](https://github.com/pcfens/puppet-filebeat/pull/218)
+
+## [v4.0.2](https://github.com/pcfens/puppet-filebeat/tree/v4.0.2)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.0.1...v4.0.2)
+
+- Clear the yum cache whenever we modify the yum repo config [\#217](https://github.com/pcfens/puppet-filebeat/issues/217)
+
+## [v4.0.1](https://github.com/pcfens/puppet-filebeat/tree/v4.0.1)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v4.0.0...v4.0.1)
+
+- Fix unit tests [\#216](https://github.com/pcfens/puppet-filebeat/pull/213)
+- Fix fresh install regression [\#217](https://github.com/pcfens/puppet-filebeat/pull/216)
+
+
+## [v4.0.0](https://github.com/pcfens/puppet-filebeat/tree/v4.0.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.4.0...v4.0.0)
+
+- Switch from `filebeat::prospector` to `filebeat::input` to reflect the changes
+  in the upstream filebeat configuration.
+- Add support for Filebeat 7
+- Remove support for `registry_file` and `registry_flush` settings (removed in 7.x)
+- Remove `queue_size` parameter
+
+## [v3.4.0](https://github.com/pcfens/puppet-filebeat/tree/v3.4.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.3.3...v3.4.0)
+
+- Add filebeat.config.modules section [\#204](https://github.com/pcfens/puppet-filebeat/pull/204)
+- Fix filebeat::prospector::fields_under_root [\#205](https://github.com/pcfens/puppet-filebeat/pull/205)
+
+## [v3.3.3](https://github.com/pcfens/puppet-filebeat/tree/v3.3.3)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.3.2...v3.3.3)
+
+- Add a harvester limit [\#196](https://github.com/pcfens/puppet-filebeat/pull/196)
+- Fix documentaion error [\#198](https://github.com/pcfens/puppet-filebeat/issues/198)
+- Fix Puppet 4.10 undefined method error [\#199](https://github.com/pcfens/puppet-filebeat/pull/199)
+
+## [v3.3.2](https://github.com/pcfens/puppet-filebeat/tree/v3.3.2)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.3.1...v3.3.2)
+
+- Produce valid YAML for prospectors [\#193](https://github.com/pcfens/puppet-filebeat/pull/193)
+- Upgrade to PDK 1.7.1
+- Add tests for Puppet 6
+- Add Puppet 6 support to metadata
+
+## [v3.3.1](https://github.com/pcfens/puppet-filebeat/tree/v3.3.1)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.3.0...v3.3.1)
+
+- Add a new `manage_apt` flag for disabling the inclusion of puppetlabs/apt [\#185](https://github.com/pcfens/puppet-filebeat/pull/185)
+
+## [v3.3.0](https://github.com/pcfens/puppet-filebeat/tree/v3.3.0)
+[Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.2.2...v3.3.0)
+
+- Allow use of puppet/archive 3.x [\#190](https://github.com/pcfens/puppet-filebeat/pull/190)
+- Add support for Docker inputs [\#191](https://github.com/pcfens/puppet-filebeat/pull/191)
+- Support puppetlabs/stdlib 5.x
 
 ## [v3.2.2](https://github.com/pcfens/puppet-filebeat/tree/v3.2.2)
 [Full Changelog](https://github.com/pcfens/puppet-filebeat/compare/v3.2.1...v3.2.2)
