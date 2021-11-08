@@ -26,6 +26,9 @@
   <conflict>
     <name>.*Wheezy.*</name>
   </conflict>
+  <conflict>
+    <name>.*Buster.*</name>
+  </conflict>
   <requires>
     <type>update</type>
   </requires>
