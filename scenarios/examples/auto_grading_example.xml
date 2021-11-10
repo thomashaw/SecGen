@@ -12,7 +12,7 @@
 
   <system>
     <system_name>ids_server</system_name>
-    <base distro="Debian 10" type="server"/>
+    <base distro="Debian 10" />
 
     <input into_datastore="IP_addresses">
       <value>192.168.209.165</value>
