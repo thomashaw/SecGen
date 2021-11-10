@@ -1,6 +1,6 @@
-# On Debian systems, if alternatives are set, manually assign them.
+# @api private
 class java::config ( ) {
-  case $::osfamily {
+  case $facts['os']['family'] {
     'Debian': {
       if $java::use_java_alternative != undef and $java::use_java_alternative_path != undef {
         exec { 'update-java-alternatives':
@@ -26,7 +26,7 @@ class java::config ( ) {
             path    => '/usr/bin:/usr/sbin:/bin:/sbin',
             command => "alternatives --install /usr/bin/java java ${$java::use_java_alternative_path} 20000" ,
             unless  => "alternatives --display java | grep -q ${$java::use_java_alternative_path}",
-            before  => Exec['update-java-alternatives']
+            before  => Exec['update-java-alternatives'],
           }
         }
 
@@ -44,12 +44,26 @@ class java::config ( ) {
         }
       }
     }
-    'FreeBSD', 'Suse': {
+    'Suse': {
       if $java::use_java_home != undef {
         file_line { 'java-home-environment':
           path  => '/etc/environment',
           line  => "JAVA_HOME=${$java::use_java_home}",
           match => 'JAVA_HOME=',
+        }
+      }
+    }
+    'FreeBSD': {
+      if $java::use_java_home != undef {
+        file_line { 'java-home-environment-profile':
+          path  => '/etc/profile',
+          line  => "JAVA_HOME=${$java::use_java_home}; export JAVA_HOME",
+          match => 'JAVA_HOME=',
+        }
+        file_line { 'java-home-environment-cshrc':
+          path  => '/etc/csh.login',
+          line  => "setenv JAVA_HOME ${$java::use_java_home}",
+          match => 'setenv JAVA_HOME',
         }
       }
     }
