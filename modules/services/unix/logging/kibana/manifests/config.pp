@@ -1,22 +1,18 @@
-# This class is called from kibana to configure the daemon's configuration
-# file.
-# It is not meant to be called directly.
-#
-# @author Tyler Langlois <tyler.langlois@elastic.co>
-#
-class kibana::config {
+class kibana::config (
+  $elasticsearch_ip,
+  $elasticsearch_port = '9200',
+  $kibana_port = '5601',
+) {
 
-  $_ensure = $::kibana::ensure ? {
-    'absent' => $::kibana::ensure,
-    default  => 'file',
-  }
-  $config = $::kibana::config
+  Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
 
+  # Configure Kibana
   file { '/etc/kibana/kibana.yml':
-    ensure  => $_ensure,
-    content => template("${module_name}/etc/kibana/kibana.yml.erb"),
-    owner   => 'kibana',
-    group   => 'kibana',
-    mode    => '0660',
+    ensure => file,
+    mode => '0660',
+    owner => 'kibana',
+    group => 'kibana',
+    content => template('kibana_7/kibana.yml.erb')
   }
+
 }

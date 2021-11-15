@@ -1,56 +1,34 @@
-# This class manages configuration directories for Logstash.
-#
-# @example Include this class to ensure its resources are available.
-#   include logstash::config
-#
-# @author https://github.com/elastic/puppet-logstash/graphs/contributors
-#
-class logstash::config {
-  require logstash::package
+class logstash::config (
+  $elasticsearch_ip,
+  $elasticsearch_port = '9200',
+  $logstash_port = '5044',
+  $log_path = '/var/log/logstash',
+  $data_path = '/var/lib/logstash',
+  $config_path = '/etc/logstash/conf.d',
+) {
 
-  File {
-    owner => 'root',
-    group => 'root',
-  }
-
-  # Configuration "fragment" directories for pipeline config and pattern files.
-  # We'll keep these seperate since we may want to "purge" them. It's easy to
-  # end up with orphan files when managing config fragments with Puppet.
-  # Purging the directories resolves the problem.
-
-  if($logstash::ensure == 'present') {
-    file { $logstash::config_dir:
-      ensure => directory,
-      mode   => '0755',
-    }
-
-    file { "${logstash::config_dir}/conf.d":
-      ensure  => directory,
-      purge   => $logstash::purge_config,
-      recurse => $logstash::purge_config,
-      mode    => '0775',
-      notify  => Service['logstash'],
-    }
-
-    file {     "${logstash::config_dir}/patterns":
-      ensure  => directory,
-      purge   => $logstash::purge_config,
-      recurse => $logstash::purge_config,
-      mode    => '0755',
-    }
-  }
-  elsif($logstash::ensure == 'absent') {
-    # Completely remove the config directory. ie. 'rm -rf /etc/logstash'
-    file { $logstash::config_dir:
-      ensure  => 'absent',
-      recurse => true,
-      force   => true,
-    }
-  }
-
-  file { '/etc/logstash/combined_path.rb':
+  file { '/etc/logstash/logstash.yml':
     ensure => file,
-    source => 'puppet:///modules/logstash/combined_path.rb',
-    require => File[$logstash::config_dir],
+    mode => '0644',
+    owner => 'logstash',
+    group => 'logstash',
+    content => template('logstash_7/logstash.yml.erb')
   }
+
+  file { '/etc/logstash/conf.d/':
+    ensure => directory,
+    mode   => '0775',
+    owner  => 'logstash',
+    group  => 'logstash',
+  }
+
+  file { '/etc/logstash/conf.d/my_ls_config.conf':
+    ensure => file,
+    mode => '0644',
+    owner => 'logstash',
+    group => 'logstash',
+    content => template('logstash_7/configfile-template.erb'),
+    require => File['/etc/logstash/conf.d/']
+  }
+
 }

@@ -28,10 +28,6 @@
   </requires>
 
   <requires>
-    <software_name>augeas</software_name>
-  </requires>
-
-  <requires>
     <software_name>java</software_name>
   </requires>
 

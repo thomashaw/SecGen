@@ -23,7 +23,7 @@ end
 
 # the filter method receives an event and must return a list of events.
 def filter(event)
-  proc_cwd = event.get("[process][cwd]")
+  proc_cwd = event.get("[process][working_directory]")
   file_path = event.get("[file][path]")
   if proc_cwd != nil and file_path != nil and proc_cwd != '' and file_path != ''
     combined_path = proc_cwd + "/" + file_path

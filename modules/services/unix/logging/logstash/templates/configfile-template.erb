@@ -1,6 +1,6 @@
 input {
   beats {
-    port => <%= @logstash_port-%>
+    port => <%= @logstash_port %>
   }
 }
 
@@ -19,10 +19,6 @@ output {
   # Write to file as well as pushing to elasticsearch for testing, can be removed eventually...
   file {
     path => "/tmp/logstash.log"
-  }
-  # Write to file as well as pushing to elasticsearch for testing, can be removed eventually...
-  file {
-    path => "/usr/share/logstash/logstash.log"
   }
   stdout { codec => rubydebug }
 }

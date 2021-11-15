@@ -32,7 +32,7 @@
 
   <requires>
 <!--    <module_path>.*elasticsearch</module_path>-->
-    <module_path>.*elasticsearch_7</module_path>
+    <module_path>.*elasticsearch</module_path>
   </requires>
 
 </utility>
