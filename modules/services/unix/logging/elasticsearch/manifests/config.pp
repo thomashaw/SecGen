@@ -14,7 +14,7 @@ class elasticsearch::config (
     mode => '0644',
     owner => 'root',
     group => 'elasticsearch',
-    content => template('elasticsearch_7/elasticsearch.yml.erb')
+    content => template('elasticsearch/elasticsearch.yml.erb')
   }
 
 }

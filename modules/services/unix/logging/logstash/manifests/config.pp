@@ -12,7 +12,7 @@ class logstash::config (
     mode => '0644',
     owner => 'logstash',
     group => 'logstash',
-    content => template('logstash_7/logstash.yml.erb')
+    content => template('logstash/logstash.yml.erb')
   }
 
   file { '/etc/logstash/conf.d/':
@@ -27,7 +27,7 @@ class logstash::config (
     mode => '0644',
     owner => 'logstash',
     group => 'logstash',
-    content => template('logstash_7/configfile-template.erb'),
+    content => template('logstash/configfile-template.erb'),
     require => File['/etc/logstash/conf.d/']
   }
 
