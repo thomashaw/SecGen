@@ -9,11 +9,11 @@
 forge "https://forgeapi.puppetlabs.com"
 
 # specific versions of modules
-mod 'puppetlabs-stdlib', :path => '<%= STDLIB_PUPPET_DIR %>'  # '4.25.1', stdlib enables parsejson() in manifests and other useful functions
+mod 'puppetlabs-stdlib', :path => '<%= LOCAL_PUPPET_DIR %>/stdlib'  # '4.25.1', stdlib enables parsejson() in manifests and other useful functions
 mod 'puppetlabs-apt', '7.4.0'  # pin apt to 7.4.0 as current version is incompatible with our base boxes
 # from local copy, for faster build times
-### mod 'translate', :path => '<%= STDLIB_PUPPET_DIR %>'
-mod 'puppetlabs-vcsrepo', :path => '<%= STDLIB_PUPPET_DIR %>'
+### mod 'translate', :path => '<%= LOCAL_PUPPET_DIR %>/translate'
+mod 'puppetlabs-vcsrepo', :path => '<%= LOCAL_PUPPET_DIR %>/vcsrepo'
 
 # secgen helpers
 mod 'SecGen-secgen_functions', :path => '<%= SECGEN_FUNCTIONS_PUPPET_DIR %>'
