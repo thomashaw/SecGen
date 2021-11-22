@@ -6,16 +6,16 @@ $logstash_port = 0 + $aaa_config['logstash_port']
 $kibana_ip = $aaa_config['server_ip']
 $kibana_port = 0 + $aaa_config['kibana_port']
 
-class { 'elasticsearch_7':
+class { 'elasticsearch':
   api_host => $elasticsearch_ip,
   api_port => $elasticsearch_port,
 }~>
-class { 'logstash_7':
+class { 'logstash':
   elasticsearch_ip => $elasticsearch_ip,
   elasticsearch_port => $elasticsearch_port,
   logstash_port => $logstash_port
 }
-class { 'kibana_7':
+class { 'kibana':
   elasticsearch_ip => $elasticsearch_ip,
   elasticsearch_port => $elasticsearch_port,
   kibana_port => $kibana_port
