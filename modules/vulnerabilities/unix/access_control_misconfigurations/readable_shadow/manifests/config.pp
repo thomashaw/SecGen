@@ -1,5 +1,6 @@
 class readable_shadow::config {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
   $shadow_flag = $strings_to_leak[0]
 
   file { '/etc/shadow':
