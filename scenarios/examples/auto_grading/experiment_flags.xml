@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Experiment: Flags</name>
+  <author>Thomas Shaw</author>
+  <description>
+  </description>
+
+  <type>ctf</type>
+  <difficulty>easy</difficulty>
+
+  <!-- 4 user account level flags: -->
+  <!-- Distcc                    [x] -->
+  <!-- Readable shadow file      [x] -->
+  <!-- Hidden file               [x] -->
+  <!-- Password Cracking         [x]
+       (user account, via readable shadow) -->
+
+  <!-- 2 systems: -->
+  <!-- Kali -->
+  <!-- Debian victim -->
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <value>172.16.0.2</value>
+      <!-- 1 hackme_server -->
+      <value>172.16.0.3</value>
+    </input>
+
+    <utility module_path=".*/kali_top10"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>hackme_server</system_name>
+    <base distro="Debian" type="server"/>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts" into_datastore="account">
+        <!-- Default account -->
+        <generator type="account">
+          <input into="username">
+            <value>challenger</value>
+          </input>
+          <input into="password">
+            <value>tiaspbiqe2r</value>
+          </input>
+          <input into="strings_to_leak">
+            <value/>
+          </input>
+          <input into="leaked_filenames">
+            <value/>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+        </generator>
+        <!-- Crackable account -->
+        <generator type="account">
+          <input into="username">
+            <value>crackme</value>
+          </input>
+          <input into="password" into_datastore="server_crackme_password">
+            <generator type="weak_password_generator"/>
+          </input>
+          <!-- this flag is available to root -->
+          <input into="leaked_filenames">
+            <value>flag</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator" />
+          </input>
+        </generator>
+
+      </input>
+    </utility>
+
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec" />
+    <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
+    <vulnerability module_path=".*/hidden_file">
+      <input into="account">
+        <datastore access="0">account</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_addresses">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>
