@@ -69,7 +69,7 @@
               <value>root</value>
             </input>
             <input into="password">
-              <datastore access="0">client_root_password</datastore>
+              <value>test</value>
             </input>
             <input into="recipient">
               <value>challenger</value>
