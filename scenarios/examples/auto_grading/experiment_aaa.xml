@@ -150,7 +150,7 @@
     </vulnerability>
 
     <network type="private_network">
-      <input into="IP_addresses">
+      <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
@@ -169,7 +169,7 @@
     </service>
 
     <network type="private_network">
-      <input into="IP_addresses">
+      <input into="IP_address">
         <datastore access="2">IP_addresses</datastore>
       </input>
     </network>
