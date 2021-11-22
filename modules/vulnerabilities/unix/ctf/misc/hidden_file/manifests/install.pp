@@ -8,20 +8,19 @@ class hidden_file::install {
   # Determine if storage_dir is used, if not use the account information
   if $secgen_params['storage_directory'] {
     $storage_directory = $secgen_params['storage_directory'][0]
-  } else {
+  } elsif $account {
     $username = $account['username']
     $storage_directory = "/home/$username"
-
-    # Create user account
-    ::accounts::user { $username:
-      shell      => '/bin/bash',
-      password   => pw_hash($account['password'], 'SHA-512', 'mysalt'),
-      managehome => true,
-      home_mode  => '0755',
-    }
+  } else {
+    fail('either a storage_directory or account is required')
   }
 
-  $challenge_directory = "$storage_directory/$challenge_name"
+  if $challenge_name {
+    $challenge_directory = "$storage_directory/$challenge_name"
+  } else {
+    $challenge_directory =  $storage_directory
+  }
+
   file { $challenge_directory: ensure => directory }
 
   # Drop the hidden file in the challenge directory
