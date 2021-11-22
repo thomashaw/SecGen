@@ -21,6 +21,11 @@
   <challenge_subtype>access_controls</challenge_subtype>
   <difficulty>medium</difficulty>
 
+  <!--<goals>-->
+    <!--TODO: update me when string interpolation exists-->
+    <!--<read_file>#{accounts.each.leaked_file_path}</read_file>-->
+  <!--</goals>-->
+
   <read_fact>accounts</read_fact>
 
   <default_input into="accounts">

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>AlertActioner goal-message-host config generator</name>
+  <author>Thomas Shaw</author>
+  <module_license>GPLv3</module_license>
+  <description>Generates a json config string for use by the XmlAlertActionConfigGenerator.</description>
+
+  <type>alert_actioner_config</type>
+  <platform>linux</platform>
+
+  <read_fact>host</read_fact>
+  <read_fact>sender</read_fact>
+  <read_fact>password</read_fact>
+  <read_fact>recipient</read_fact>
+  <read_fact>message_header</read_fact>
+  <read_fact>message_subtext</read_fact>
+
+  <!-- Either provide a mapping (i.e. [system1vuln1goal1 to system1vuln1goal_flag1, ... ] OR a broader mapping_type -->
+  <read_fact>mapping</read_fact>
+  <read_fact>mapping_type</read_fact>
+
+  <default_input into="message_header">
+    <generator type="message_generator"/>
+    <value>Message header from the module</value>
+  </default_input>
+
+  <default_input into="message_subtext">
+    <!--<generator type="message_generator"/>-->
+    <value>Subtext from the module</value>
+  </default_input>
+
+  <default_input into="host">
+    <value>127.0.0.1</value>
+  </default_input>
+
+  <!-- Mapping types tell the project_file_creator what to do.-->
+  <default_input into="mapping_type">
+    <value>all_goal_messages_to_host</value>
+  </default_input>
+
+  <output_type>json</output_type>
+
+</generator>

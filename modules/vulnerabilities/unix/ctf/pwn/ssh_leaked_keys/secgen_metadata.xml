@@ -18,6 +18,13 @@
   <challenge_subtype>others</challenge_subtype>
   <difficulty>medium</difficulty>
 
+  <goals>
+    <!-- TODO: fix me when string interpolation exists-->
+    <read_file>
+      <file_path>#{path_to_leak}</file_path>
+    </read_file>
+  </goals>
+
   <read_fact>strings_to_leak</read_fact>
   <read_fact>accounts</read_fact>
   <read_fact>ssh_key_pair</read_fact>

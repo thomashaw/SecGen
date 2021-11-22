@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Analysis, Alerting and Actioning Client</name>
+  <author>Thomas Shaw</author>
+  <module_license>Apache v2</module_license>
+  <description>Client component to the Auto Grading System
+    Includes: Filebeat, Auditbeat, (TODO) Wazuh client, modification to XFCE4 terminal records
+  </description>
+  <type>multi</type>
+  <platform>linux</platform>
+
+  <read_fact>aaa_config</read_fact>
+  <default_input into="aaa_config">
+    <generator type="aaa_config"/>
+  </default_input>
+
+  <requires>
+    <name>Filebeat</name>
+  </requires>
+  <requires>
+    <name>Auditbeat</name>
+  </requires>
+  <requires>
+    <name>Xfce4 Terminal W Records</name>
+  </requires>
+
+</utility>

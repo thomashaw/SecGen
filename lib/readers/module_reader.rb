@@ -160,6 +160,22 @@ class ModuleReader < XMLReader
         new_module.requires.push(require)
       end
 
+      # for each goal in the module
+      doc.xpath("/#{module_type}/goals").each do |goals_doc|
+        goals = []
+        goals_doc.elements.each {|node|
+          goal_type = node.name
+          goal_hash = {'goal_type' => goal_type,}
+          node.children.each {|subnode|
+            unless subnode.text?
+              goal_hash.merge!({subnode.name => subnode.content.strip})
+            end
+          }
+          goals << goal_hash
+        }
+        new_module.goals = goals
+      end
+
       # for each default input
       doc.xpath("/#{module_type}/default_input").each do |inputs_doc|
         inputs_doc.xpath('descendant::vulnerability | descendant::service | descendant::utility | descendant::network | descendant::base | descendant::encoder | descendant::generator').each do |module_node|
