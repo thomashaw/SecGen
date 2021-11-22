@@ -80,22 +80,26 @@
             <value>flag</value>
           </input>
           <input into="strings_to_leak">
-            <generator type="flag_generator" />
+            <generator type="flag_generator"/>
           </input>
         </generator>
-
       </input>
     </utility>
 
-    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec" >
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec">
       <input into="strings_to_leak">
-        <generator type="flag_generator" />
+        <generator type="flag_generator"/>
       </input>
       <input into="leaked_filenames">
         <value>flag</value>
       </input>
     </vulnerability>
-    <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
+
+    <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
     <vulnerability module_path=".*/hidden_file">
       <input into="account">
         <datastore access="0">account</datastore>
