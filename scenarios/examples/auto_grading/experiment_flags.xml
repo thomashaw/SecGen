@@ -13,10 +13,10 @@
   <difficulty>easy</difficulty>
 
   <!-- 4 user account level flags: -->
-  <!-- Distcc                    [x] -->
-  <!-- Readable shadow file      [x] -->
-  <!-- Hidden file               [x] -->
-  <!-- Password Cracking         [x]
+  <!-- Distcc                    [x,x] -->
+  <!-- Readable shadow file      [x,] -->
+  <!-- Hidden file               [x,] -->
+  <!-- Password Cracking         [x,]
        (user account, via readable shadow) -->
 
   <!-- 2 systems: -->
@@ -87,7 +87,14 @@
       </input>
     </utility>
 
-    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec" />
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec" >
+      <input into="strings_to_leak">
+        <generator type="flag_generator" />
+      </input>
+      <input into="leaked_filenames">
+        <value>flag</value>
+      </input>
+    </vulnerability>
     <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
     <vulnerability module_path=".*/hidden_file">
       <input into="account">
@@ -96,10 +103,13 @@
       <input into="strings_to_leak">
         <generator type="flag_generator"/>
       </input>
+      <input into="leaked_filenames">
+        <value>flag</value>
+      </input>
     </vulnerability>
 
     <network type="private_network">
-      <input into="IP_addresses">
+      <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
