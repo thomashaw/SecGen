@@ -1,0 +1,2 @@
+<% require './lib/helpers/rules' -%>
+<%= Rules.generate_elastalert_rule(@hostname, @module_name, @goal, @counter) %>

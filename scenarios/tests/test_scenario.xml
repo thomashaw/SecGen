@@ -3,28 +3,37 @@
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Thomas Shaw</name>
+  <author>Thomas Shaw</author>
+  <description>Test Scenario - Scenario level goals</description>
+  <type>AGT / AAA scenario</type>
+  <difficulty>easy</difficulty>
+
   <system>
-    <system_name>testing</system_name>
-    <base platform="linux" distro="Debian 7.8" type="server"/>
+    <system_name>testing_1</system_name>
+    <base platform="linux" distro="Kali" name="MSF"/>
 
     <input into_datastore="IP_addresses">
-      <value>172.17.0.0</value>
+      <value>192.168.209.166</value>
     </input>
 
-    <vulnerability module_path=".*wordpress_3x.*">
-      <input into="https">
-        <value>true</value>
+    <utility module_path=".*/thunderbird">
+      <input into="accounts">
+        <value>{"username":"kali","password":"test","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </vulnerability>
+    </utility>
 
-  <network type="private_network">
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
+
+    <network type="private_network">
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
   </system>
-
 </scenario>

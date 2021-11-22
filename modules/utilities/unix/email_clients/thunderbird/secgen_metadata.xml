@@ -29,4 +29,7 @@
   <requires>
     <type>update</type>
   </requires>
+  <requires>
+    <type>desktop_environment</type>
+  </requires>
 </utility>

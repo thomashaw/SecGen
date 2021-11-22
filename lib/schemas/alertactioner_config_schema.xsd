@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.github/cliffe/SecGen/alertactioner_config"
+           xmlns="http://www.github/cliffe/SecGen/alertactioner_config"
+           elementFormDefault="qualified">
+  <xs:element name="alertactioner">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name='alertaction' type='AlertActionType' minOccurs='1' maxOccurs='unbounded' />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="AlertActionType">
+    <xs:sequence>
+      <xs:element name="alert_name" minOccurs="1" maxOccurs="1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-Z0-9_\-]+"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="WebAction" type="WebActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="MessageAction" type="MessageActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtAction" type="VirtActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtAddNICAction" type="VirtAddNICActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtRemoveNICAction" type="VirtRemoveNICActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtAddDiskAction" type="VirtAddDiskActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VirtRemoveDiskAction" type="VirtRemoveDiskActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="VMCommandAction" type="CommandActionType" minOccurs="1" maxOccurs="unbounded" />
+        <xs:element name="IRCAction" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WebActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="target" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="request_type" minOccurs="1" maxOccurs="1" >
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="POST"/>
+            <xs:enumeration value="PUT"/>
+            <xs:enumeration value="DELETE"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="data" type="xs:string" minOccurs="0" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="CommandActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="command_string" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="MessageActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="sender" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="recipient" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="message_header" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="message_subtext" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="VirtActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="virt_config" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="vm_name" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="command_string" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="VirtAddNICActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="virt_config" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="vm_name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="network_name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="VirtRemoveNICActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="virt_config" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="vm_name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="network_name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="VirtAddDiskActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="virt_config" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="vm_name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="disk_alias" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="VirtRemoveDiskActionType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="virt_config" type="xs:string" minOccurs="1" maxOccurs="1" />
+      <xs:element name="vm_name" type="xs:string" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="disk_alias" type="xs:string" minOccurs="1" maxOccurs="1"/>
+    </xs:choice>
+  </xs:complexType>
+
+</xs:schema>

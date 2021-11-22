@@ -9,13 +9,20 @@
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
   <description>A backdoor was introduced into the vsftpd-2.3.4.tar.gz archive between
-    June 30th 2011 and July 1st 2011. AKA the smiley face backdoor.</description>
+    June 30th 2011 and July 1st 2011. AKA the smiley face backdoor.
+  </description>
 
   <type>ftp</type>
   <privilege>root_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
   <difficulty>low</difficulty>
+
+  <goals>
+    <access_account>
+      <account_name>root</account_name>
+    </access_account>
+  </goals>
 
   <read_fact>anonymous_ftp</read_fact>
   <read_fact>ftpd_banner</read_fact>
