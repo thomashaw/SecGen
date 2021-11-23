@@ -44,8 +44,8 @@
   </system>
 
   <system>
-    <system_name>hackme_server</system_name>
-    <base distro="Debian" type="server"/>
+    <system_name>hackme_desktop</system_name>
+    <base distro="Debian 10" type="desktop"/>
 
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts" into_datastore="account">
