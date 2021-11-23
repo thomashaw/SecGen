@@ -1,34 +1,42 @@
-class hidden_file::install {
+class hidden_file::install{
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
-  $challenge_name = $secgen_params['challenge_name'][0]
-  $account = parsejson($secgen_params['account'][0])
   $leaked_filename = $secgen_params['leaked_filenames'][0]
   $strings_to_leak = $secgen_params['strings_to_leak']
+  $default_path = '/'
+
+  # Populate account and storage_directory
+  if $secgen_params['account'] and $secgen_params['account'][0]{
+    $account = parsejson($secgen_params['account'][0])
+  } else{
+    $account = undef
+  }
+
+  if $secgen_params['storage_directory'] and $secgen_params['storage_directory'][0] {
+    $storage_directory = $secgen_params['storage_directory'][0]
+  } else {
+    $storage_directory = undef
+  }
 
   # Determine if storage_dir is used, if not use the account information
-  if $secgen_params['storage_directory'] {
-    $storage_directory = $secgen_params['storage_directory'][0]
+  if $storage_directory and $account {
+    fail('ERROR: provide either a storage_directory or account, but not both.')
+  }
+
+  if $storage_directory {
+    $directory = $storage_directory
   } elsif $account {
     $username = $account['username']
-    $storage_directory = "/home/$username"
+    $directory = "/home/$username"
   } else {
-    fail('either a storage_directory or account is required')
+    $directory = '/'
   }
-
-  if $challenge_name {
-    $challenge_directory = "$storage_directory/$challenge_name"
-  } else {
-    $challenge_directory =  $storage_directory
-  }
-
-  file { $challenge_directory: ensure => directory }
 
   # Drop the hidden file in the challenge directory
-  ::secgen_functions::leak_files { "$challenge_name-hidden_file":
+  ::secgen_functions::leak_files { "hidden_file-$directory.$leaked_filename":
     leaked_filenames  => [".$leaked_filename"],
-    storage_directory => $challenge_directory,
+    storage_directory => $directory,
     strings_to_leak   => $strings_to_leak,
-    leaked_from       => "$challenge_directory-hidden_file",
+    leaked_from       => "hidden_file-$directory.$leaked_filename",
     mode              => '0644'
   }
 

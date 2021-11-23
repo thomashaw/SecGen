@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Testing Hidden File</name>
+  <author>Thomas Shaw</author>
+  <description>Test Scenario - Hidden File Module Updates</description>
+  <type>AGT / AAA scenario</type>
+  <difficulty>easy</difficulty>
+
+  <system>
+    <system_name>test_account</system_name>
+    <base distro="Debian 10"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- Testing Account -->
+      <value>192.168.209.2</value>
+      <!-- Testing Storage Directory-->
+      <value>192.168.209.3</value>
+      <!-- Testing Default -->
+      <value>192.168.209.4</value>
+    </input>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts" into_datastore="account">
+        <!-- Default account -->
+        <generator type="account">
+          <input into="username">
+            <value>challenger</value>
+          </input>
+          <input into="password">
+            <value>tiaspbiqe2r</value>
+          </input>
+          <input into="strings_to_leak">
+            <value/>
+          </input>
+          <input into="leaked_filenames">
+            <value/>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/hidden_file">
+      <input into="account">
+        <datastore access="0">account</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="message_generator"/>
+      </input>
+    </vulnerability>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>test_storage</system_name>
+    <base distro="Debian 10"/>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore access="0">account</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/hidden_file">
+      <input into="storage_directory">
+        <datastore access="0">account</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="message_generator"/>
+      </input>
+    </vulnerability>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+  <system>
+    <system_name>test_default</system_name>
+    <base distro="Debian 10"/>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore access="0">account</datastore>
+      </input>
+    </utility>
+
+   <vulnerability module_path=".*/hidden_file"/>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test</value>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>
