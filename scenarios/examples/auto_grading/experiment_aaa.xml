@@ -89,8 +89,8 @@
   </system>
 
   <system>
-    <system_name>hackme_server</system_name>
-    <base distro="Debian" type="server"/>
+    <system_name>hackme_desktop</system_name>
+    <base distro="Debian 10" type="desktop"/>
 
     <utility module_path=".*analysis_alert_action_client">
       <input into="aaa_config">
