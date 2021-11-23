@@ -80,7 +80,7 @@
 
     <vulnerability module_path=".*/hidden_file">
       <input into="storage_directory">
-        <datastore access="0">account</datastore>
+        <value>/home/challenger/</value>
       </input>
       <input into="strings_to_leak">
         <generator type="message_generator"/>
