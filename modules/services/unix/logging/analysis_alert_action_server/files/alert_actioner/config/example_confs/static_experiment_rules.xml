@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<alertactioner xmlns="http://www.github/cliffe/SecGen/alertactioner_config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/alertactioner_config">
+  <alertaction>
+    <alert_name>example-rule</alert_name>
+    <WebAction>
+      <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
+      <request_type>POST</request_type>
+      <data>flag{static_flag_1}</data>
+    </WebAction>
+  </alertaction>
+  <alertaction>
+    <alert_name>replace-me</alert_name>
+    <WebAction>
+      <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
+      <request_type>POST</request_type>
+      <data>flag{static_flag_2}</data>
+    </WebAction>
+  </alertaction>
+<alertaction>
+    <alert_name>replace-me</alert_name>
+    <WebAction>
+      <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
+      <request_type>POST</request_type>
+      <data>flag{static_flag_3}</data>
+    </WebAction>
+  </alertaction>
+<alertaction>
+    <alert_name>replace-me</alert_name>
+    <WebAction>
+      <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
+      <request_type>POST</request_type>
+      <data>flag{static_flag_4}</data>
+    </WebAction>
+  </alertaction>
+<alertaction>
+    <alert_name>replace-me</alert_name>
+    <WebAction>
+      <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
+      <request_type>POST</request_type>
+      <data>flag{static_flag_5}</data>
+    </WebAction>
+  </alertaction>
+</alertactioner>
