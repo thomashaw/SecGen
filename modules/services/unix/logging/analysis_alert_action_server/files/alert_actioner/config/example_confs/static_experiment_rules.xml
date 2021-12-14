@@ -8,7 +8,7 @@
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
       <request_type>POST</request_type>
-      <data>flag{static_flag_1}</data>
+      <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_1}</data>
     </WebAction>
   </alertaction>
   <alertaction>
@@ -16,7 +16,8 @@
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
       <request_type>POST</request_type>
-      <data>flag{static_flag_2}</data>
+      <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_2}</data>
+      <data></data>
     </WebAction>
   </alertaction>
 <alertaction>
@@ -24,7 +25,7 @@
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
       <request_type>POST</request_type>
-      <data>flag{static_flag_3}</data>
+      <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_3}</data>
     </WebAction>
   </alertaction>
 <alertaction>
@@ -32,7 +33,7 @@
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
       <request_type>POST</request_type>
-      <data>flag{static_flag_4}</data>
+      <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_4}</data>
     </WebAction>
   </alertaction>
 <alertaction>
@@ -40,7 +41,7 @@
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
       <request_type>POST</request_type>
-      <data>flag{static_flag_5}</data>
+      <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_5}</data>
     </WebAction>
   </alertaction>
 </alertactioner>
