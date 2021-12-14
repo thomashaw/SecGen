@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Access control mis-configurations setuid more root</name>
+  <author>Z. Cliffe. Schreuders</author>
+  <module_license>Apache v2</module_license>
+  <description>Misconfigure files to enable root privileges</description>
+
+  <type>access_control_misconfiguration</type>
+  <type>suid_root_viewer_shell</type>
+  <privilege>root_rwx</privilege>
+  <access>local</access>
+  <platform>unix</platform>
+
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+  <read_fact>strings_to_pre_leak</read_fact>
+  <read_fact>pre_leak_filename</read_fact>
+
+  <!-- flags or other secrets exposed after exploitation -->
+  <default_input into="strings_to_leak">
+    <generator type="message_generator"/>
+  </default_input>
+
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <!-- pre-leaked, these details are leaked before the main vuln is exploited, for example hidden content or hosted files -->
+  <default_input into="strings_to_pre_leak">
+    <generator type="message_generator"/>
+  </default_input>
+  <default_input into="pre_leak_filename">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <!--optional hints-->
+  <hint>Text viewer permission misconfiguration</hint>
+  <solution>More editor running as user root</solution>
+
+  <requires>
+    <module_path>utilities/unix/puppet_module/sudo</module_path>
+  </requires>
+
+</vulnerability>

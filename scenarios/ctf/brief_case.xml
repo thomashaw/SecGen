@@ -4,15 +4,36 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>Basic Narrative</name>
+  <name>A Brief Case (of murder)</name>
   <author>Thomas Shaw</author>
   <description>Single system CLI narrative-based CTF challenge.
+    The murder was solved quickly. It was a briefcase.
   </description>
 
   <type>ctf</type>
   <type>attack-ctf</type>
   <type>web-hints</type>
   <difficulty>intermediate</difficulty>
+
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+		<keyword>authentication</keyword>
+		<keyword>cookies</keyword>
+		<keyword>passwords and alternatives</keyword>
+		<keyword>JAVASCRIPT / HYPERTEXT MARKUP LANGUAGE (HTML) / CASCADING STYLE SHEETS (CSS) / HYPERTEXT TRANSFER PROTOCOL (HTTP)
+		COOKIES</keyword>
+		<keyword>Broken Access Control / Insecure Direct Object References</keyword>
+	</CyBOK>
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+		<keyword>injection vulnerabilities</keyword>
+		<keyword>server-side misconfiguration and vulnerable components</keyword>
+		<keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+		<keyword>SAME ORIGIN POLICY (SOP)</keyword>
+		<keyword>COMMAND INJECTION</keyword>
+		<keyword>SQL-INJECTION</keyword>
+	</CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+		<keyword>Web vulnerabilities / OWASP Top 10</keyword>
+	</CyBOK>
 
   <system>
     <system_name>target_server</system_name>

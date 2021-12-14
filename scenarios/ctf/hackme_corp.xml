@@ -4,17 +4,18 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>Hackme</name>
+  <name>Hackme Corp</name>
   <author>Z. Cliffe Schreuders</author>
   <description>A bunch of servers for you to hack.
 
-Login to the attack VM with user: root, password: toor. There are three servers for you to attack (same IP address range, ending in .3,.4,.5), and flags are often found in home directories (/home/, /root/). Beware of red herrings.
+Login to the attacker VM with user: root, password: toor. There are three servers for you to attack (same IP address range, ending in .3,.4,.5), and flags are often found in home directories (/home/, /root/). Beware of red herrings.
 
 Happy hacking!
   </description>
 
-  <type>ctf</type>
-  <type>hack-ctf</type>
+	<type>ctf</type>
+	<type>attack-ctf</type>
+	<type>pwn-ctf</type>
   <difficulty>easy</difficulty>
 
   <system>

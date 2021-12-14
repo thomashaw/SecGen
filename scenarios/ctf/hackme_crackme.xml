@@ -6,10 +6,37 @@
 
 	<name>Hackme and Crack Me</name>
   <author>Z. Cliffe Schreuders</author>
+	<description>Hack then crack, then use those creds to ssh to second_server for flags.
+	</description>
 
+	<type>ctf</type>
+	<type>attack-ctf</type>
+	<type>pwn-ctf</type>
+  <difficulty>easy</difficulty>
 
-  <type>ctf-lab</type>
-  <difficulty>intermediate</difficulty>
+	<CyBOK KA="MAT" topic="Attacks and exploitation">
+		<keyword>EXPLOITATION</keyword>
+		<keyword>EXPLOITATION FRAMEWORKS</keyword>
+	</CyBOK>
+	<CyBOK KA="SS" topic="Categories of Vulnerabilities">
+		<keyword>CVEs and CWEs</keyword>
+	</CyBOK>
+	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+		<keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+	</CyBOK>
+	<CyBOK KA="AAA" topic="Authentication">
+		<keyword>BRUTEFORCE</keyword>
+	</CyBOK>
+  <CyBOK KA="AAA" topic="Authorisation">
+		<keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+	</CyBOK>
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
 
 	<system>
 		<system_name>hack_and_crack_me_server</system_name>

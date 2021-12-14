@@ -12,6 +12,18 @@
 	<type>ctf</type>
   <difficulty>easy</difficulty>
 
+	<CyBOK KA="NS" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+	</CyBOK>
+	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+	</CyBOK>
+	  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
 	<system>
 		<system_name>desktop</system_name>
 		<base distro="Debian 9" type="desktop" name="KDE"/>

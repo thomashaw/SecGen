@@ -29,11 +29,6 @@
 		<keyword>CLIENT-SIDE VALIDATION</keyword>
 		<keyword>clickjacking</keyword>
 	</CyBOK>
-	<CyBOK KA="WAM" topic="Client-Side Vulnerabilities and Mitigations">
-		<keyword>client-side storage</keyword>
-		<keyword>CLIENT-SIDE VALIDATION</keyword>
-		<keyword>clickjacking</keyword>
-	</CyBOK>
   <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
 		<keyword>injection vulnerabilities</keyword>
 		<keyword>server-side misconfiguration and vulnerable components</keyword>

@@ -19,7 +19,7 @@ class RandomSelectorEncoder < StringEncoder
     case opt
       # Removes any non-alphabet characters
     when '--delim'
-        self.delim << arg;
+        self.delim = arg;
     end
   end
 

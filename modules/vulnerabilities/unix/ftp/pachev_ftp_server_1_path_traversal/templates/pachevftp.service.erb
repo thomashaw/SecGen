@@ -1,0 +1,15 @@
+[Unit]
+Description=Pachev FTP Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=<%= @user %>
+ExecStart=<%= @release_dir %>/ftp_server -p 2121
+WorkingDirectory=<%= @release_dir %>/
+
+[Install]
+WantedBy=multi-user.target

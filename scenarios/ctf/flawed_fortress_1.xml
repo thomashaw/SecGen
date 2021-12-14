@@ -4,7 +4,7 @@
 		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		  xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>Flawed Fortress 1</name>
+  <name>Flawed Fortress</name>
 	<author>Z. Cliffe Schreuders</author>
 	<author>Thomas Shaw</author>
 	<description>A three VM full day intermediate CTF, with a range of challenges of various difficulty.
@@ -14,7 +14,7 @@
 
 	<type>ctf</type>
 	<type>attack-ctf</type>
-	<type>blind-audit</type>
+	<type>pwn-ctf</type>
 	<difficulty>intermediate</difficulty>
 
 	<!--some basic decoding challenges-->

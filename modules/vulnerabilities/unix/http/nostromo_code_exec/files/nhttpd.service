@@ -1,0 +1,16 @@
+[Unit]
+Description=Nostromo 1.9.6 Web Server
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=forking
+PIDFile=/var/nostromo/logs/nhttpd.pid
+Restart=on-abort
+RestartSec=1
+User=root
+ExecStart=/home/nostromousr/nostromo-1.9.6/src/nhttpd/nhttpd
+WorkingDirectory=/home/nostromousr/nostromo-1.9.6/src/nhttpd
+
+[Install]
+WantedBy=multi-user.target

@@ -32,7 +32,8 @@ def usage
    --system, -y [system_name]: Only build this system_name from the scenario
    --snapshot: Creates a snapshot of VMs once built
    --no-tests: Prevent post-provisioning tests from running.
-   --no-destroy-on-failure: Don't delete VMs that fail to build.
+   --no-destroy-on-failure: Don't delete VMs that fail to build (except when retrying).
+   --retries [number]: Retry building vms that fail to build this many attempts.
 
    VIRTUALBOX OPTIONS:
    --gui-output, -g: Show the running VM (not headless)
@@ -122,8 +123,8 @@ def build_vms(scenario, project_dir, options)
     command = '--provision reload'
   end
 
-  # if deploying to ovirt, when things fail to build, set the retry_count
-  retry_count = (OVirtFunctions::provider_ovirt?(options) && !options[:dev]) ? 0 : 0
+  # retry count, for when things fail to build
+  retry_count = options.has_key?(:retries) ? options[:retries].to_i : 0
   successful_creation = false
 
   while retry_count >= 0 and !successful_creation
@@ -186,7 +187,7 @@ def build_vms(scenario, project_dir, options)
         end
       else
         if options[:nodestroy]
-          Print.err "Not destroying failed VM: #{failed_vm}."
+          Print.err "Not destroying failed VM."
         else
           Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
           GemExec.exe('vagrant', project_dir, 'destroy -f')
@@ -451,6 +452,7 @@ opts = GetoptLong.new(
     ['--snapshot', GetoptLong::NO_ARGUMENT],
     ['--no-tests', GetoptLong::NO_ARGUMENT],
     ['--no-destroy-on-failure', GetoptLong::NO_ARGUMENT],
+    ['--retries', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxi-url', GetoptLong::REQUIRED_ARGUMENT],
@@ -574,6 +576,9 @@ opts.each do |opt, arg|
   when '--no-destroy-on-failure'
     Print.info "Will not destroy VMs when they fail to build"
     options[:nodestroy] = true
+  when '--retries'
+    Print.info "Number of retries to build vms : #{arg}"
+    options[:retries] = arg
   else
     Print.err "Argument not valid: #{arg}"
     usage

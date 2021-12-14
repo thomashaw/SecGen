@@ -108,5 +108,29 @@
     <module_path>.*php.*compatible.*</module_path>
   </requires>
 
+  <!-- CyBOK metadata - related security concepts / knowledge required -->
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+		<keyword>authentication</keyword>
+		<keyword>passwords and alternatives</keyword>
+	</CyBOK>
+  <CyBOK KA="AAA" topic="Authentication">
+		<keyword>user authentication</keyword>
+		<keyword>BRUTEFORCE</keyword>
+	</CyBOK>
 
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>FILE UPLOAD VULNERABILITY</keyword>
+  </CyBOK>
+	<CyBOK KA="MAT" topic="Attacks and exploitation">
+		<keyword>EXPLOITATION</keyword>
+		<keyword>EXPLOITATION FRAMEWORKS</keyword>
+	</CyBOK>
+	<CyBOK KA="SS" topic="Categories of Vulnerabilities">
+		<keyword>CVEs and CWEs</keyword>
+	</CyBOK>
+	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+		<keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+	</CyBOK>
 </vulnerability>

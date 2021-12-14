@@ -15,6 +15,18 @@
   <type>crypto-ctf</type>
   <difficulty>easy</difficulty>
 
+  <CyBOK KA="C" topic="Symmetric Cryptography">
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>Cryptography and authentication (hashes and attacks against authentication schemes / passwords)</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>cryptographic hashing</keyword>
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
+
   <!-- Challenge overview -->
   <!-- 5x encoding challenges per challenger -->
   <!-- 1: ascii|alpha reversible: low -->
