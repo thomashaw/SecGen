@@ -130,7 +130,7 @@
       </input>
     </utility>
 
-    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec" />
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec"/>
     <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
     <vulnerability module_path=".*/hidden_file">
       <input into="account">
@@ -151,6 +151,14 @@
   <system>
     <system_name>auto_grading_server</system_name>
     <base distro="Debian 10" />
+
+    <input into_datastore="goal_flags">
+      <generator type="flag_generator"/>
+      <generator type="flag_generator"/>
+      <generator type="flag_generator"/>
+      <generator type="flag_generator"/>
+      <generator type="flag_generator"/>
+    </input>
 
     <utility module_path=".*handy_cli_tools.*"/>
 
