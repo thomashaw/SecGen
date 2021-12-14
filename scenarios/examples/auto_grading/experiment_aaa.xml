@@ -153,11 +153,11 @@
     <base distro="Debian 10" />
 
     <input into_datastore="goal_flags">
-      <generator type="flag_generator"/>
-      <generator type="flag_generator"/>
-      <generator type="flag_generator"/>
-      <generator type="flag_generator"/>
-      <generator type="flag_generator"/>
+      <value>flag{static_flag_1}</value>
+      <value>flag{static_flag_2}</value>
+      <value>flag{static_flag_3}</value>
+      <value>flag{static_flag_4}</value>
+      <value>flag{static_flag_5}</value>
     </input>
 
     <utility module_path=".*handy_cli_tools.*"/>
