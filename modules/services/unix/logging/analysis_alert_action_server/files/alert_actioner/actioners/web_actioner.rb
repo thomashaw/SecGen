@@ -25,7 +25,7 @@ class WebActioner < AlertActioner
       response = Net::HTTP.get_response(uri)
     when 'POST'
       request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
-      request.body = self.data.to_json
+      request.body = self.data
       response = Net::HTTP.start(uri.hostname, uri.port) do |http|
         http.request(request)
       end
