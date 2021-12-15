@@ -20,7 +20,7 @@
       <data></data>
     </WebAction>
   </alertaction>
-<alertaction>
+  <alertaction>
     <alert_name>replace-me</alert_name>
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
@@ -28,7 +28,7 @@
       <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_3}</data>
     </WebAction>
   </alertaction>
-<alertaction>
+  <alertaction>
     <alert_name>replace-me</alert_name>
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>
@@ -36,7 +36,7 @@
       <data>vm_name=s-1-2-3-4-abc-experiment-aaa-auto-grading-server&amp;flag=flag{static_flag_4}</data>
     </WebAction>
   </alertaction>
-<alertaction>
+  <alertaction>
     <alert_name>replace-me</alert_name>
     <WebAction>
       <target>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</target>

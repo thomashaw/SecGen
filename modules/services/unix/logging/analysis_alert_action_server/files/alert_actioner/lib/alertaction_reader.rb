@@ -2,7 +2,7 @@ require 'nokogiri'
 require 'digest'
 
 require_relative './logging'
-require_relative 'xml_reader'
+require_relative './xml_reader'
 require_relative '../actioners/web_actioner'
 require_relative '../actioners/message_actioner'
 
