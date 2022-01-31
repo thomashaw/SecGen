@@ -1,7 +1,7 @@
 define parameterised_accounts::account (
   $username,
   $password,
-  $groups,
+  $groups=[$username],
   $super_user,
   $strings_to_leak,
   $leaked_filenames,
