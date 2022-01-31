@@ -119,6 +119,7 @@
           </input>
           <input into="super_user">
             <value>false</value>
+            
           </input>
         </generator>
         <!-- Crackable account -->
