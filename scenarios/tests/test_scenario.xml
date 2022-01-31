@@ -6,7 +6,7 @@
 
   <name>Thomas Shaw</name>
   <author>Thomas Shaw</author>
-  <description>Test Scenario - Scenario level goals</description>
+  <description>Test Scenario - param accs: Pass group in vs not</description>
   <type>AGT / AAA scenario</type>
   <difficulty>easy</difficulty>
 
@@ -18,9 +18,47 @@
       <value>192.168.209.166</value>
     </input>
 
-    <utility module_path=".*/thunderbird">
-      <input into="accounts">
-        <value>{"username":"kali","password":"test","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts" into_datastore="account">
+        <!-- Group supplied -->
+        <generator type="account">
+          <input into="username">
+            <value>un_1_groups</value>
+          </input>
+          <input into="groups">
+            <value>un_1_groups</value>
+          </input>
+          <input into="password">
+            <value>test</value>
+          </input>
+          <input into="strings_to_leak">
+            <value/>
+          </input>
+          <input into="leaked_filenames">
+            <value/>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+        </generator>
+        <!-- Group not supplied  -->
+        <generator type="account">
+          <input into="username">
+            <value>un_2_groups</value>
+          </input>
+          <input into="password">
+            <value>test</value>
+          </input>
+          <input into="strings_to_leak">
+            <value/>
+          </input>
+          <input into="leaked_filenames">
+            <value/>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+        </generator>
       </input>
     </utility>
 
