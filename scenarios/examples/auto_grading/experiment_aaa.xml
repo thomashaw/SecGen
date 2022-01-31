@@ -105,6 +105,9 @@
           <input into="username">
             <value>challenger</value>
           </input>
+          <input into="groups">
+            <value>challenger</value>
+          </input>
           <input into="password">
             <value>tiaspbiqe2r</value>
           </input>
