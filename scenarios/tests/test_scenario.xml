@@ -14,12 +14,6 @@
     <system_name>hackme_desktop</system_name>
     <base distro="Debian 10" type="desktop"/>
 
-    <utility module_path=".*analysis_alert_action_client">
-      <input into="aaa_config">
-        <datastore access="0">aaa_config</datastore>
-      </input>
-    </utility>
-
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts" into_datastore="account">
         <!-- Default account -->
