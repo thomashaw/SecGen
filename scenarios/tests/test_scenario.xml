@@ -11,67 +11,37 @@
   <difficulty>easy</difficulty>
 
   <system>
-    <system_name>testing_1</system_name>
-    <base platform="linux" distro="Kali" name="MSF"/>
+    <system_name>hackme_desktop</system_name>
+    <base distro="Debian 10" type="desktop"/>
 
-    <input into_datastore="IP_addresses">
-      <value>192.168.209.166</value>
-    </input>
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
 
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts" into_datastore="account">
-        <!-- Group supplied -->
+        <!-- Default account -->
         <generator type="account">
           <input into="username">
-            <value>un_1_groups</value>
-          </input>
-          <input into="groups">
-            <value>un_1_groups</value>
+            <value>challenger</value>
           </input>
           <input into="password">
             <value>test</value>
-          </input>
-          <input into="strings_to_leak">
-            <value/>
-          </input>
-          <input into="leaked_filenames">
-            <value/>
-          </input>
-          <input into="super_user">
-            <value>false</value>
           </input>
         </generator>
-        <!-- Group not supplied  -->
+        <!-- Crackable account -->
         <generator type="account">
           <input into="username">
-            <value>un_2_groups</value>
+            <value>crackme</value>
           </input>
-          <input into="password">
+          <input into="password" into_datastore="server_crackme_password">
+            <!--            <generator type="weak_password_generator"/>-->
             <value>test</value>
-          </input>
-          <input into="strings_to_leak">
-            <value/>
-          </input>
-          <input into="leaked_filenames">
-            <value/>
-          </input>
-          <input into="super_user">
-            <value>false</value>
           </input>
         </generator>
       </input>
     </utility>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <value>test</value>
-      </input>
-    </build>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
   </system>
 </scenario>
