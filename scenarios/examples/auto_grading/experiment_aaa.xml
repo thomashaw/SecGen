@@ -105,21 +105,8 @@
           <input into="username">
             <value>challenger</value>
           </input>
-          <input into="groups">
-            <value>challenger</value>
-          </input>
           <input into="password">
-            <value>tiaspbiqe2r</value>
-          </input>
-          <input into="strings_to_leak">
-            <value/>
-          </input>
-          <input into="leaked_filenames">
-            <value/>
-          </input>
-          <input into="super_user">
-            <value>false</value>
-            
+            <value>test</value>
           </input>
         </generator>
         <!-- Crackable account -->
@@ -128,7 +115,8 @@
             <value>crackme</value>
           </input>
           <input into="password" into_datastore="server_crackme_password">
-            <generator type="weak_password_generator"/>
+<!--            <generator type="weak_password_generator"/>-->
+            <value>test</value>
           </input>
         </generator>
       </input>
