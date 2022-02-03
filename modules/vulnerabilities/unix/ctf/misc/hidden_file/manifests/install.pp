@@ -7,8 +7,10 @@ class hidden_file::install{
   # Populate account and storage_directory
   if $secgen_params['account'] and $secgen_params['account'][0]{
     $account = parsejson($secgen_params['account'][0])
+    $username = $account['username']
   } else{
     $account = undef
+    $username = undef
   }
 
   if $secgen_params['storage_directory'] and $secgen_params['storage_directory'][0] {
@@ -36,6 +38,8 @@ class hidden_file::install{
     leaked_filenames  => [".$leaked_filename"],
     storage_directory => $directory,
     strings_to_leak   => $strings_to_leak,
+    owner             => $username,
+    group             => $username,
     leaked_from       => "hidden_file-$directory.$leaked_filename",
     mode              => '0644'
   }
