@@ -16,6 +16,7 @@ class XmlAlertActionConfigGenerator
     @aa_confs = aa_confs
     @options = options
     @alert_actions = []
+    @goal_flags = []
   end
 
   # outputs a XML AlertActioner configuration file
@@ -32,6 +33,7 @@ class XmlAlertActionConfigGenerator
         case aa_conf['mapping_type']
         when 'all_goal_flags_to_hacktivity'
           all_goal_flags_to_hacktivity(aa_conf)
+
         when 'all_goal_messages_to_host'
           all_goal_message_host(aa_conf)
         else
@@ -76,40 +78,34 @@ class XmlAlertActionConfigGenerator
     Print.info("auto_grader_hostname: " + auto_grader_hostname)
     Print.info("systems.size: " + @systems.size.to_s)
 
-    flags = [] # replace with goal_flags
+    @goal_flags = @goal_flags + $datastore['goal_flags']
 
     @systems.each do |system|
       Print.info("System goals: " + system.goals.to_s)
       if system.goals != []
         Print.info("System level goals found for system:"+ system.name)
-        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
+        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, system.hostname, auto_grader_hostname)
       end
       system.module_selections.each do |module_selection|
         if module_selection.goals != []
           Print.info("Module goals found for module:" + module_selection.module_path)
           Print.info("Module goals: " + module_selection.goals.to_s)
-          @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
+          @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, system.hostname, auto_grader_hostname)
         end
       end
     end
   end
 
-  def get_web_alertactions(aa_conf, name, goals, goal_flags, hostname, auto_grader_hostname)
+  def get_web_alertactions(aa_conf, name, goals, hostname, auto_grader_hostname)
     Print.info("**** get_web_alertactions() ****")
     alert_actions = []
 
     # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
-    if goals != [] and goal_flags != []
+    if goals != [] and @goal_flags != []
       goals_qty = goals.size
-      flags_qty = goal_flags.size
-      unless goals_qty == flags_qty
-        Print.err "AlertActioner: ERROR for mapping_type: #{aa_conf['mapping_type']}"
-        Print.err "Unequal number of goals and goal_flags for: #{name}"
+      flags_qty = @goal_flags.size
         Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
-        exit(1)
-      end
 
-      if goals != [] and goal_flags != nil
         # Iterate over the goals
         goals.each_with_index do |goal, i|
 
@@ -119,11 +115,13 @@ class XmlAlertActionConfigGenerator
                              'action_type' => 'WebAction',
                              'hacktivity_url' => aa_conf['hacktivity_url'],
                              'request_type' => 'POST',
-                             'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + goal_flags.pop # TODO: test if this works
+                             'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + @goal_flags.pop # TODO: test if this works
                              # 'data' => goal_flags[i] # TODO: Update this to the correct format
           }
         end
-      end
+    else
+      Print.err("goals: " + goals)
+      Print.err("goal_flags: " + @goal_flags)
     end
     alert_actions
   end
