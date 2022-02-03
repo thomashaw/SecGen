@@ -54,7 +54,7 @@
           <value>5601</value>
         </input>
         <input into="aa_configs">
-          <!--          <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>-->
+          <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
           <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
             <input into="host">
               <datastore access="1">IP_addresses</datastore>
@@ -128,7 +128,7 @@
 
   <system>
     <system_name>auto_grading_server</system_name>
-    <base distro="Debian 10" />
+    <base distro="Debian 10"/>
 
     <input into_datastore="goal_flags">
       <value>flag{static_flag_1}</value>
