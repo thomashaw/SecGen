@@ -27,11 +27,11 @@ class AlertActionReader < XMLReader
 
         case type
         when 'WebAction'
-          target = action_node.xpath('target').text
+          hacktivity_url = action_node.xpath('hacktivity_url').text
           request_type = action_node.xpath('request_type').text
           data = action_node.xpath('data').text
 
-          web_actioner = WebActioner.new(config_filename, alertaction_index, alert_name, target, request_type, data)
+          web_actioner = WebActioner.new(config_filename, alertaction_index, alert_name, hacktivity_url, request_type, data)
           Print.info("Created #{web_actioner.to_s}", Logging.logger)
           alert_actioners << web_actioner
         when 'CommandAction'
