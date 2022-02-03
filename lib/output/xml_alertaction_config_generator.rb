@@ -74,7 +74,7 @@ class XmlAlertActionConfigGenerator
     Print.info("**** sending all_goal_flags_to_hacktivity ****")
     auto_grader_hostname = get_auto_grader_hostname
     Print.info("auto_grader_hostname: " + auto_grader_hostname)
-    Print.info("systems.size: " + @systems.size)
+    Print.info("systems.size: " + @systems.size.to_s)
     @systems.each do |system|
       if system.goals != []
         Print.info("System level goals found for system:"+ system.name)
