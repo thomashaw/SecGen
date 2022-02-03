@@ -82,8 +82,9 @@ class XmlAlertActionConfigGenerator
         @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
       end
       system.module_selections.each do |module_selection|
-        if module_selection.goals and module_selection.received_inputs['goal_flags']
+        if module_selection.goals
           Print.info("Module goals found for module:" + module_selection.module_path)
+          Print.info("Module goals: " + module_selection.goals.to_s)
           @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, module_selection.received_inputs['goal_flags'], system.hostname, auto_grader_hostname)
         end
       end
