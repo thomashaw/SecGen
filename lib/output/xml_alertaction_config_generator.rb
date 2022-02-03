@@ -71,7 +71,9 @@ class XmlAlertActionConfigGenerator
   end
 
   def all_goal_flags_to_hacktivity(aa_conf)
-    auto_grader_hostname
+    Print.info("**** sending all_goal_flags_to_hacktivity ****")
+    auto_grader_hostname = get_auto_grader_hostname
+    Print.info("")
 
     @systems.each do |system|
       if system.goals != []
@@ -86,6 +88,7 @@ class XmlAlertActionConfigGenerator
   end
 
   def get_web_alertactions(aa_conf, name, goals, goal_flags, hostname, auto_grader_hostname)
+    Print.info("**** get_web_alertactions() ****")
     alert_actions = []
 
     # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
@@ -102,6 +105,9 @@ class XmlAlertActionConfigGenerator
       if goals != [] and goal_flags != nil
         # Iterate over the goals
         goals.each_with_index do |goal, i|
+
+          Print.info("goal number" + i + " :" + goal)
+
           alert_actions << {'alert_name' => Rules.get_ea_rulename(hostname, name, goal, i),
                              'action_type' => 'WebAction',
                              'hacktivity_url' => aa_conf['hacktivity_url'],
@@ -158,7 +164,7 @@ class XmlAlertActionConfigGenerator
     builder.to_xml
   end
 
-  def auto_grader_hostname
+  def get_auto_grader_hostname
     ag_hostname = ''
     @systems.each do |system|
       if system.hostname.include? 'grading'
