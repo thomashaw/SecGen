@@ -92,12 +92,6 @@
     <system_name>hackme_desktop</system_name>
     <base distro="Debian 10" type="desktop"/>
 
-    <utility module_path=".*analysis_alert_action_client">
-      <input into="aaa_config">
-        <datastore access="0">aaa_config</datastore>
-      </input>
-    </utility>
-
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts" into_datastore="account">
         <!-- Default account -->
@@ -122,16 +116,22 @@
       </input>
     </utility>
 
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
     <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec"/>
     <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
-    <vulnerability module_path=".*/hidden_file">
-      <input into="account">
-        <datastore access="0">account</datastore>
-      </input>
-      <input into="strings_to_leak">
-        <generator type="message_generator"/>
-      </input>
-    </vulnerability>
+<!--    <vulnerability module_path=".*/hidden_file">-->
+<!--      <input into="account">-->
+<!--        <datastore access="0">account</datastore>-->
+<!--      </input>-->
+<!--      <input into="strings_to_leak">-->
+<!--        <generator type="message_generator"/>-->
+<!--      </input>-->
+<!--    </vulnerability>-->
 
     <network type="private_network">
       <input into="IP_address">
