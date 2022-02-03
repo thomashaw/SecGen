@@ -37,5 +37,16 @@
         </generator>
       </input>
     </utility>
+
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec"/>
+    <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
+    <vulnerability module_path=".*/hidden_file">
+      <input into="account">
+        <datastore access="0">account</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="message_generator"/>
+      </input>
+    </vulnerability>
   </system>
 </scenario>
