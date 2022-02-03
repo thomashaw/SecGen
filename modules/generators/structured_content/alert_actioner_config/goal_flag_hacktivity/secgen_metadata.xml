@@ -11,14 +11,14 @@
   <type>alert_actioner_config</type>
   <platform>linux</platform>
 
-  <read_fact>target</read_fact>
+  <read_fact>hacktivity_url</read_fact>
 
   <!-- Either provide a mapping (i.e. [system1vuln1goal1 to system1vuln1goal_flag1, ... ] OR a broader mapping_type -->
   <read_fact>mapping</read_fact>
   <read_fact>mapping_type</read_fact>
 
-  <default_input into="target">
-    <value>https://hacktivity.aet.leedsbeckett.ac.uk/submit_flag</value>
+  <default_input into="hacktivity_url">
+    <value>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</value>
   </default_input>
 
   <!-- Mapping types tell the project_file_creator what to do.-->

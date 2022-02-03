@@ -102,7 +102,7 @@ class XmlAlertActionConfigGenerator
         goals.each_with_index do |goal, i|
           alert_actions << {'alert_name' => Rules.get_ea_rulename(hostname, name, goal, i),
                              'action_type' => 'WebAction',
-                             'target' => aa_conf['target'],
+                             'hacktivity_url' => aa_conf['hacktivity_url'],
                              'request_type' => 'POST',
                              'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + goal_flags[i] # TODO: test if this works
                              # 'data' => goal_flags[i] # TODO: Update this to the correct format
@@ -132,7 +132,7 @@ class XmlAlertActionConfigGenerator
             case alert_action['action_type']
             when 'WebAction'
               xml.WebAction {
-                xml.target alert_action['target']
+                xml.hacktivity_url alert_action['hacktivity_url']
                 xml.request_type alert_action['request_type']
                 xml.data alert_action['data']
               }
