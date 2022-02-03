@@ -71,17 +71,19 @@ class XmlAlertActionConfigGenerator
   end
 
   def all_goal_flags_to_hacktivity(aa_conf)
+    auto_grader_hostname
+
     @systems.each do |system|
       if system.goals != []
-        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname)
+        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
       end
       system.module_selections.each do |module_selection|
-        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, module_selection.received_inputs['goal_flags'], system.hostname)
+        @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, module_selection.received_inputs['goal_flags'], system.hostname, auto_grader_hostname)
       end
     end
   end
 
-  def get_web_alertactions(aa_conf, name, goals, goal_flags, hostname)
+  def get_web_alertactions(aa_conf, name, goals, goal_flags, hostname, auto_grader_hostname)
     alert_actions = []
 
     # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
@@ -102,7 +104,8 @@ class XmlAlertActionConfigGenerator
                              'action_type' => 'WebAction',
                              'target' => aa_conf['target'],
                              'request_type' => 'POST',
-                             'data' => goal_flags[i]
+                             'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + goal_flags[i] # TODO: test if this works
+                             # 'data' => goal_flags[i] # TODO: Update this to the correct format
           }
         end
       end
@@ -151,5 +154,15 @@ class XmlAlertActionConfigGenerator
       }
     end
     builder.to_xml
+  end
+
+  def auto_grader_hostname
+    ag_hostname = ''
+    @systems.each do |system|
+      if system.hostname.include? 'grading'
+        ag_hostname = system.hostname
+      end
+    end
+    ag_hostname
   end
 end
