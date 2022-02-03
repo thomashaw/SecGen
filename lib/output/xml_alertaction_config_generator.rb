@@ -76,6 +76,7 @@ class XmlAlertActionConfigGenerator
     Print.info("auto_grader_hostname: " + auto_grader_hostname)
     Print.info("systems.size: " + @systems.size.to_s)
     @systems.each do |system|
+      Print.info("System goals: " + system.goals.to_s)
       if system.goals != []
         Print.info("System level goals found for system:"+ system.name)
         @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
