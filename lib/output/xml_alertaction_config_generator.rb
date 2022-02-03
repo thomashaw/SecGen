@@ -75,6 +75,9 @@ class XmlAlertActionConfigGenerator
     auto_grader_hostname = get_auto_grader_hostname
     Print.info("auto_grader_hostname: " + auto_grader_hostname)
     Print.info("systems.size: " + @systems.size.to_s)
+
+    flags = [] # replace with goal_flags
+
     @systems.each do |system|
       Print.info("System goals: " + system.goals.to_s)
       if system.goals != []
@@ -82,9 +85,10 @@ class XmlAlertActionConfigGenerator
         @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
       end
       system.module_selections.each do |module_selection|
-        if module_selection.goals
+        if module_selection.goals != []
           Print.info("Module goals found for module:" + module_selection.module_path)
           Print.info("Module goals: " + module_selection.goals.to_s)
+          Print.info("Module goal_flags: " + module_selection.received_inputs['goal_flags'])
           @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, module_selection.received_inputs['goal_flags'], system.hostname, auto_grader_hostname)
         end
       end
@@ -96,7 +100,7 @@ class XmlAlertActionConfigGenerator
     alert_actions = []
 
     # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
-    if goals != [] or goal_flags != nil
+    if goals != [] and goal_flags != []
       goals_qty = goals.size
       flags_qty = goal_flags.size
       unless goals_qty == flags_qty
