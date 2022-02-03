@@ -88,8 +88,7 @@ class XmlAlertActionConfigGenerator
         if module_selection.goals != []
           Print.info("Module goals found for module:" + module_selection.module_path)
           Print.info("Module goals: " + module_selection.goals.to_s)
-          Print.info("Module goal_flags: " + module_selection.received_inputs['goal_flags'])
-          @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, module_selection.received_inputs['goal_flags'], system.hostname, auto_grader_hostname)
+          @alert_actions = @alert_actions + get_web_alertactions(aa_conf, module_selection.module_path_end, module_selection.goals, $datastore['goal_flags'], system.hostname, auto_grader_hostname)
         end
       end
     end
@@ -120,7 +119,7 @@ class XmlAlertActionConfigGenerator
                              'action_type' => 'WebAction',
                              'hacktivity_url' => aa_conf['hacktivity_url'],
                              'request_type' => 'POST',
-                             'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + goal_flags[i] # TODO: test if this works
+                             'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + goal_flags.pop # TODO: test if this works
                              # 'data' => goal_flags[i] # TODO: Update this to the correct format
           }
         end
