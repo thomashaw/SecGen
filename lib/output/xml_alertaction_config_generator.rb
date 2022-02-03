@@ -108,8 +108,7 @@ class XmlAlertActionConfigGenerator
 
         # Iterate over the goals
         goals.each_with_index do |goal, i|
-
-          Print.info("goal number" + i + " :" + goal)
+          Print.info("goal number" + i.to_s )
 
           alert_actions << {'alert_name' => Rules.get_ea_rulename(hostname, name, goal, i),
                              'action_type' => 'WebAction',
