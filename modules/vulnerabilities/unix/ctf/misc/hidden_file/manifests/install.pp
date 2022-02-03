@@ -7,10 +7,8 @@ class hidden_file::install{
   # Populate account and storage_directory
   if $secgen_params['account'] and $secgen_params['account'][0]{
     $account = parsejson($secgen_params['account'][0])
-    $username = $account['username']
   } else{
     $account = undef
-    $username = undef
   }
 
   if $secgen_params['storage_directory'] and $secgen_params['storage_directory'][0] {
@@ -26,11 +24,13 @@ class hidden_file::install{
 
   if $storage_directory {
     $directory = $storage_directory
+    $username = 'root'
   } elsif $account {
     $username = $account['username']
     $directory = "/home/$username"
   } else {
     $directory = '/'
+    $username = undef
   }
 
   # Drop the hidden file in the challenge directory
