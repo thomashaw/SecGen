@@ -22,6 +22,14 @@
   <challenge_subtype>information_gathering</challenge_subtype>
   <difficulty>low</difficulty>
 
+  <goals>
+    <!--TODO: figure logic out, interp string? move the logic to compute the path earlier + pass it into puppet
+        See modules/vulnerabilities/unix/ctf/pwn/symlinks/secgen_metadata.xml for an example -->
+    <read_file>
+      <file_path>/home/challenger/.secret_file</file_path>
+    </read_file>
+  </goals>
+
   <read_fact>leaked_filenames</read_fact>
   <read_fact>strings_to_leak</read_fact>
   <!-- storage_directory: Blank by default. If supplied, store the files here. e.g. /home/username/.hidden_filename -->
