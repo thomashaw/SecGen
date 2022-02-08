@@ -4,7 +4,7 @@ class elastalert::install ($elasticsearch_ip, $elasticsearch_port,$installdir = 
   ensure_packages(['python3-pip','build-essential','libssl-dev','libffi-dev','python-dev', 'supervisor' ])
 
   exec { 'run pip3 update':
-    command => '/usr/bin/python3 -m pip3 install --upgrade pip',
+    command => '/usr/bin/python3 -m pip install --upgrade pip',
     require => Package['python3-pip']
   }
 
