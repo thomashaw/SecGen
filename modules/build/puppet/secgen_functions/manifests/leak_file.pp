@@ -1,16 +1,15 @@
 define secgen_functions::leak_file (
-  $file_path_to_leak,
-  $leaked_filename,
-  $storage_directory,
+  $file_path_to_leak = '',
+  $leaked_filename   = '',
+  $storage_directory = '',
   $strings_to_leak,
-  $owner       = 'root',
-  $group       = 'root',
-  $mode        = '0660',
-  $leaked_from = ''
+  $owner             = 'root',
+  $group             = 'root',
+  $mode              = '0660',
+  $leaked_from       = ''
 ) {
 
-  if (($file_path_to_leak and $file_path_to_leak != '') and
-    (($leaked_filename and $leaked_filename != '') or ($storage_directory and $storage_directory != ''))) {
+  if ($file_path_to_leak != '' and ($leaked_filename != '' or $storage_directory != '')) {
     fail("ERROR: Either a file_path_to_leak OR (a leaked_filename and a storage directory), not both.")
   }
 
