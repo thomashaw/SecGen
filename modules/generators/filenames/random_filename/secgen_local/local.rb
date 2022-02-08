@@ -42,7 +42,7 @@ class FilenameGenerator < StringEncoder
     super
     case opt
       when '--file_name'
-        self.extension << arg;
+        self.file_name << arg;
       when '--extension'
         self.extension << arg;
     end
