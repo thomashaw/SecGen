@@ -111,13 +111,14 @@
 
     <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
     <vulnerability module_path=".*/hidden_file">
-      <input into="account">
-        <datastore access="0">account</datastore>
+      <input into="file_path_to_leak">
+        <value>/.test_file</value>
       </input>
       <input into="strings_to_leak">
         <generator type="message_generator"/>
       </input>
     </vulnerability>
+
 
     <network type="private_network">
       <input into="IP_address">
