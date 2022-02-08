@@ -1,7 +1,14 @@
-define secgen_functions::leak_file($leaked_filename, $storage_directory, $strings_to_leak, $owner = 'root', $group = 'root', $mode = '0660', $leaked_from = '' ) {
-  if ($leaked_filename != ''){
-    $path_to_leak = "$storage_directory/$leaked_filename"
+define secgen_functions::leak_file($file_path_to_leak, $leaked_filename, $storage_directory, $strings_to_leak, $owner = 'root', $group = 'root', $mode = '0660', $leaked_from = '' ) {
 
+  if (($file_path_to_leak and $file_path_to_leak != '') and (($leaked_filename and $leaked_filename != '') or ($storage_directory and $storage_directory != ''))) {
+    fail ("ERROR: Either a file_path_to_leak OR (a leaked_filename and a storage directory), not both.")
+  }
+
+  if ($leaked_filename != '') {
+    $path_to_leak = "$storage_directory/$leaked_filename"
+  } else {
+    $path_to_leak = $file_path_to_leak
+  }
     # create the directory tree, incase the file name has extra layers of directories
     if $::osfamily == 'windows' {
       exec { "win_$leaked_from-$path_to_leak-mkdir":
