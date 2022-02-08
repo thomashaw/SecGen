@@ -59,4 +59,8 @@
     <value>#{['accounts'][0]['strings_to_leak'][1]}</value>
   </default_input>
 
+  <requires>
+    <module_path>utilities/unix/system/accounts</module_path>
+  </requires>
+
 </vulnerability>
