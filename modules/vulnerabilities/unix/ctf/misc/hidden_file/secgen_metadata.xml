@@ -30,18 +30,13 @@
     </read_file>
   </goals>
 
-  <read_fact>leaked_filenames</read_fact>
+  <read_fact>file_path_to_leak</read_fact>
   <read_fact>strings_to_leak</read_fact>
-  <!-- storage_directory: Blank by default. If supplied, store the files here. e.g. /home/username/.hidden_filename -->
-  <read_fact>account</read_fact>
-  <!-- storage_directory: Blank by default. If supplied, store the files here. e.g. NFS or SMB storage location -->
-  <read_fact>storage_directory</read_fact>
-
+  <default_input into="file_path_to_leak">
+    <value>/.secret_file</value>
+  </default_input>
   <default_input into="strings_to_leak">
     <generator type="flag_generator"/>
-  </default_input>
-  <default_input into="leaked_filenames">
-    <value>secret_file</value>
   </default_input>
 
   <hint>Try reading the man page for ls with 'man ls'. Linux hidden files have names which begin with a dot. e.g.
