@@ -26,7 +26,7 @@
     <!--TODO: figure logic out, interp string? move the logic to compute the path earlier + pass it into puppet
         See modules/vulnerabilities/unix/ctf/pwn/symlinks/secgen_metadata.xml for an example -->
     <read_file>
-      <file_path>/home/challenger/.secret_file</file_path>
+      <file_path>/.secret_file</file_path>
     </read_file>
   </goals>
 
