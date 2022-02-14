@@ -1,3 +1,7 @@
 <%= puts("strings to leak is a string?: " + (@strings_to_leak.instance_of? String).to_s) %>
 <%= puts("strings to leak is an Array?: " + (@strings_to_leak.instance_of? Array).to_s) %>
+<% if @strings_to_leak.instance_of?(String)  %>
+<%= @strings_to_leak + "\n" %>
+<% elsif @strings_to_leak.instance_of?(Array) %>
 <%= @strings_to_leak.join("\n") %>
+<% end %>
