@@ -2,7 +2,7 @@ define secgen_functions::leak_file (
   $file_path_to_leak = '',
   $leaked_filename   = '',
   $storage_directory = '',
-  $strings_to_leak,
+  $strings_to_leak   = [],
   $owner             = 'root',
   $group             = 'root',
   $mode              = '0660',
