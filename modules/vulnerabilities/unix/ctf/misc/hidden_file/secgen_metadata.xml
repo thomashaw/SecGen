@@ -23,20 +23,27 @@
   <difficulty>low</difficulty>
 
   <goals>
-    <!--TODO: figure logic out, interp string? move the logic to compute the path earlier + pass it into puppet
-        See modules/vulnerabilities/unix/ctf/pwn/symlinks/secgen_metadata.xml for an example -->
     <read_file>
-      <file_path>/.secret_file</file_path>
+      <file_path>#{['flag_path'][0]}</file_path>
     </read_file>
   </goals>
 
   <read_fact>file_path_to_leak</read_fact>
   <read_fact>strings_to_leak</read_fact>
+  <read_fact>flag_path</read_fact>
+  <read_fact>goal_flags</read_fact>
+
   <default_input into="file_path_to_leak">
     <value>/.secret_file</value>
   </default_input>
   <default_input into="strings_to_leak">
     <generator type="flag_generator"/>
+  </default_input>
+  <default_input into="flag_path">
+    <value>#{['file_path_to_leak'][0]}</value>
+  </default_input>
+  <default_input into="goal_flags">
+    <value>#{['strings_to_leak'][0]}</value>
   </default_input>
 
   <hint>Try reading the man page for ls with 'man ls'. Linux hidden files have names which begin with a dot. e.g.
@@ -45,9 +52,5 @@
   <solution>List all files in a directory including hidden files with 'ls -a [directory]'. Omit the [directory] to list
     those in the current working directory.
   </solution>
-
-  <requires>
-    <module_path>utilities/unix/system/accounts</module_path>
-  </requires>
 
 </vulnerability>
