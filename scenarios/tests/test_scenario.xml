@@ -79,11 +79,6 @@
     <system_name>auto_grading_server</system_name>
     <base distro="Debian 10" />
 
-    <input into_datastore="goal_flags">
-      <value>flag{static_flag_1}</value>
-      <value>flag{static_flag_1}</value>
-    </input>
-
     <utility module_path=".*handy_cli_tools.*"/>
 
     <service module_path=".*analysis_alert_action_server">

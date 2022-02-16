@@ -10,16 +10,16 @@ require 'librarian'
 require 'zip/zip'
 
 class ProjectFilesCreator
-# Creates project directory, uses .erb files to create a report and the vagrant file that will be used
-# to create the virtual machines
+  # Creates project directory, uses .erb files to create a report and the vagrant file that will be used
+  # to create the virtual machines
   @systems
   @currently_processing_system
   @scenario_networks
   @option_range_map
 
-# @param [Object] systems list of systems that have been defined and randomised
-# @param [Object] out_dir the directory that the project output should be stored into
-# @param [Object] scenario the file path used to as a basis
+  # @param [Object] systems list of systems that have been defined and randomised
+  # @param [Object] out_dir the directory that the project output should be stored into
+  # @param [Object] scenario the file path used to as a basis
   def initialize(systems, out_dir, scenario, options)
     @systems = systems
     @out_dir = out_dir
@@ -32,22 +32,23 @@ class ProjectFilesCreator
     @scenario = scenario
     @time = Time.new.to_s
     @options = options
-    @scenario_networks = Hash.new {|h, k| h[k] = 1}
+    @scenario_networks = Hash.new { |h, k| h[k] = 1 }
     @option_range_map = {}
-
+    @number_of_goals = -1
+    @extra_flags = []
     # Packer builder type
     @builder_type = @options.has_key?(:esxi_url) ? :vmware_iso : :virtualbox_iso
     resolve_interp_strings
   end
 
-# Generate all relevant files for the project
+  # Generate all relevant files for the project
   def write_files
     # when writing to a project that already contains a project, move everything out the way,
     # and keep the Vagrant config, so that existing VMs can be re-provisioned/updated
     if File.exists? "#{@out_dir}/Vagrantfile" or File.exists? "#{@out_dir}/puppet"
       dest_dir = "#{@out_dir}/MOVED_#{Time.new.strftime("%Y%m%d_%H%M%S")}"
       Print.warn "Project already built to this directory -- moving last build to: #{dest_dir}"
-      Dir.glob("#{@out_dir}/**/*").select {|f| File.file?(f)}.each do |f|
+      Dir.glob("#{@out_dir}/**/*").select { |f| File.file?(f) }.each do |f|
         dest = "#{dest_dir}/#{f}"
         FileUtils.mkdir_p(File.dirname(dest))
         if f =~ /\.vagrant/
@@ -181,7 +182,16 @@ class ProjectFilesCreator
         # Get the config json object from the alert_actioner
         aa_confs = JSON.parse(system.get_module('analysis_alert_action_server').received_inputs['aaa_config'][0])['aa_configs']
         xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
-        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs, @options)
+
+        # Calculate the number of goals in the scenario and generate flags to insert into the alert action and hints XML generators
+        n_goals = get_total_number_of_goals
+
+        i = 0
+        (1..n_goals).each { |_|
+          @extra_flags << "flag{#{SecureRandom.hex}}"
+        }
+
+        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs, @options, @extra_flags)
         xml = xml_aa_conf_generator.output
         Print.std "AlertActioner: Creating alert_actioner configuration file: #{xml_aa_conf_file}"
         write_data_to_file(xml, xml_aa_conf_file)
@@ -209,7 +219,7 @@ class ProjectFilesCreator
     # Create the marker xml file
     x2file = "#{@out_dir}/#{FLAGS_FILENAME}"
 
-    xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time)
+    xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time, @extra_flags)
     xml = xml_marker_generator.output
     Print.std "Creating flags and hints file: #{x2file}"
     write_data_to_file(xml, x2file)
@@ -223,10 +233,10 @@ class ProjectFilesCreator
 
     # zip up the CTFd export
     begin
-      Zip::ZipFile.open(ctfdfile, Zip::ZipFile::CREATE) {|zipfile|
+      Zip::ZipFile.open(ctfdfile, Zip::ZipFile::CREATE) { |zipfile|
         zipfile.mkdir("db")
         ctfd_files.each do |ctfd_file_name, ctfd_file_content|
-          zipfile.get_output_stream("db/#{ctfd_file_name}") {|f|
+          zipfile.get_output_stream("db/#{ctfd_file_name}") { |f|
             f.print ctfd_file_content
           }
         end
@@ -264,8 +274,8 @@ class ProjectFilesCreator
   end
 
 
-# Goal string interpolation for the whole system
-# prior to calling the rule generator multiple times
+  # Goal string interpolation for the whole system
+  # prior to calling the rule generator multiple times
   def resolve_interp_strings
     @systems.each do |system|
       system.module_selections.each do |module_selection|
@@ -277,8 +287,8 @@ class ProjectFilesCreator
     end
   end
 
-# @param [Object] template erb path
-# @param [Object] filename file to write to
+  # @param [Object] template erb path
+  # @param [Object] filename file to write to
   def template_based_file_write(template, filename)
     template_out = ERB.new(File.read(template), 0, '<>-')
 
@@ -292,9 +302,9 @@ class ProjectFilesCreator
     end
   end
 
-# Resolves the network based on the scenario and ip_range.
-# In the case that both command-line --network-ranges and datastores are provided, we have already handled the replacement of the ranges in the datastore.
-# Because of this we prioritise datastore['IP_address'], then command line options (i.e. when no datastore is used, but the --network-ranges are passed), then the default network module's IP range.
+  # Resolves the network based on the scenario and ip_range.
+  # In the case that both command-line --network-ranges and datastores are provided, we have already handled the replacement of the ranges in the datastore.
+  # Because of this we prioritise datastore['IP_address'], then command line options (i.e. when no datastore is used, but the --network-ranges are passed), then the default network module's IP range.
   def resolve_network(network_module)
     current_network = network_module
     scenario_ip_range = network_module.attributes['range'].first
@@ -311,7 +321,7 @@ class ProjectFilesCreator
       else
         # Remove options_ips that have already been used
         options_ips = @options[:ip_ranges]
-        options_ips.delete_if {|ip| @option_range_map.has_value? ip}
+        options_ips.delete_if { |ip| @option_range_map.has_value? ip }
         @option_range_map[scenario_ip_range] = options_ips.first
         ip_range = options_ips.first
       end
@@ -336,14 +346,14 @@ class ProjectFilesCreator
     split_ip.join('.')
   end
 
-# Replace 'network' with 'snoop' where the system name contains snoop
+  # Replace 'network' with 'snoop' where the system name contains snoop
   def get_ovirt_network_name(system_name, network_name)
     split_name = network_name.split('-')
     split_name[1] = 'snoop' if system_name.include? 'snoop'
     split_name.join('-')
   end
 
-# Determine how much memory the system requires for Vagrantfile
+  # Determine how much memory the system requires for Vagrantfile
   def resolve_memory(system)
     if @options.has_key? :memory_per_vm
       memory = @options[:memory_per_vm]
@@ -363,10 +373,31 @@ class ProjectFilesCreator
     memory
   end
 
-# Returns binding for erb files (access to variables in this classes scope)
-# @return binding
-  def get_binding
-    binding
+  def get_total_number_of_goals
+    if @number_of_goals == -1
+      n = 0
+      @systems.each do |system|
+        # calculate number of system goals
+        if system.goals != []
+          n = n + system.goals.size
+        end
+        # calculate number of module goals on this system
+        system.module_selections.each do |module_selection|
+          if module_selection.goals != []
+            n = n + module_selection.goals.size
+          end
+        end
+      end
+      @number_of_goals = n
+      Print.info("Number of goals " + @number_of_goals.to_s)
+    end
+    @number_of_goals
   end
 
-end
+    # Returns binding for erb files (access to variables in this classes scope)
+    # @return binding
+    def get_binding
+      binding
+    end
+
+  end

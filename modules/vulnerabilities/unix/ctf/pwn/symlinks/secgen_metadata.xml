@@ -20,16 +20,15 @@
 
   <goals>
     <read_file>
-      <file_path>#{['flag_path'][0]}</file_path>
+      <file_path>/home/#{['accounts'][0]['username']}/#{['accounts'][0]['leaked_filenames'][0]}</file_path>
     </read_file>
     <read_file>
-      <file_path>#{['flag_path'][1]}</file_path>
+      <file_path>/etc/shadow</file_path>
     </read_file>
   </goals>
 
   <read_fact>username</read_fact>
   <read_fact>flag_path</read_fact>
-  <read_fact>goal_flags</read_fact>
 
   <default_input into="accounts">
     <generator type="account">
@@ -47,16 +46,6 @@
         <generator module_path=".*random_weak_password"/>
       </input>
     </generator>
-  </default_input>
-
-  <default_input into="flag_path">
-    <value>/etc/shadow</value>
-    <value>/home/#{['accounts'][0]['username']}/#{['accounts'][0]['leaked_filenames'][0]}</value>
-  </default_input>
-
-  <default_input into="goal_flags">
-    <value>#{['accounts'][0]['strings_to_leak'][0]}</value>
-    <value>#{['accounts'][0]['strings_to_leak'][1]}</value>
   </default_input>
 
   <requires>

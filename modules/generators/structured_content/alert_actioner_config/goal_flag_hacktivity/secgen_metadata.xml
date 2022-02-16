@@ -23,7 +23,7 @@
 
   <!-- Mapping types tell the project_file_creator what to do.-->
   <default_input into="mapping_type">
-    <value>all_goal_flags_to_hacktivity</value>
+    <value>hacktivity_flags</value>
   </default_input>
 
   <output_type>json</output_type>

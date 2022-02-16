@@ -9,14 +9,14 @@ class XmlAlertActionConfigGenerator
   # @param [Object] scenario the scenario file used to generate
   # @param [Object] time the current time as a string
   # @param [Array[Hash]] the alert_actioner configuration settings (list of aa_conf JSON hashes)
-  def initialize(systems, scenario, time, aa_confs, options)
+  def initialize(systems, scenario, time, aa_confs, options, goal_flags)
     @systems = systems
     @scenario = scenario
     @time = time
     @aa_confs = aa_confs
     @options = options
     @alert_actions = []
-    @goal_flags = []
+    @goal_flags = goal_flags.clone
   end
 
   # outputs a XML AlertActioner configuration file
@@ -30,12 +30,12 @@ class XmlAlertActionConfigGenerator
     Print.info 'AlertActioner: Creating alert actions from aa_conf.'
     @aa_confs.each do |aa_conf|
       if aa_conf['mapping_type']
+        Print.info("**** Generating AlertActions for #{aa_conf['mapping_type']}")
         case aa_conf['mapping_type']
-        when 'all_goal_flags_to_hacktivity'
-          all_goal_flags_to_hacktivity(aa_conf)
-
-        when 'all_goal_messages_to_host'
-          all_goal_message_host(aa_conf)
+        when 'hacktivity_flags'
+          generate_hacktivity_flags(aa_conf)
+        when 'message_host'
+          generate_message_host(aa_conf)
         else
           Print.err("AlertActioner Config: Invalid mapping type #{aa_conf['mapping_type']}")
           exit(1)
@@ -49,7 +49,7 @@ class XmlAlertActionConfigGenerator
     end
   end
 
-  def all_goal_message_host(aa_conf)
+  def generate_message_host(aa_conf)
     @systems.each do |system|
       system.module_selections.each do |module_selection|
         module_name = module_selection.module_path_end
@@ -72,13 +72,10 @@ class XmlAlertActionConfigGenerator
     end
   end
 
-  def all_goal_flags_to_hacktivity(aa_conf)
-    Print.info("**** sending all_goal_flags_to_hacktivity ****")
+  def generate_hacktivity_flags(aa_conf)
     auto_grader_hostname = get_auto_grader_hostname
     Print.info("auto_grader_hostname: " + auto_grader_hostname)
     Print.info("systems.size: " + @systems.size.to_s)
-
-    @goal_flags = @goal_flags + $datastore['goal_flags']
 
     @systems.each do |system|
       Print.info("System goals: " + system.goals.to_s)
@@ -97,7 +94,6 @@ class XmlAlertActionConfigGenerator
   end
 
   def get_web_alertactions(aa_conf, name, goals, hostname, auto_grader_hostname)
-    Print.info("**** get_web_alertactions() ****")
     alert_actions = []
 
     # Validate whether there are an equal number of goals and goal_flags + warn / error here if not...
@@ -119,8 +115,8 @@ class XmlAlertActionConfigGenerator
           }
         end
     else
-      Print.err("goals: " + goals)
-      Print.err("goal_flags: " + @goal_flags)
+      Print.err("goals: " + goals.to_s)
+      Print.err("goal_flags: " + @goal_flags.to_s)
     end
     alert_actions
   end
@@ -138,7 +134,7 @@ class XmlAlertActionConfigGenerator
         xml.comment "#{@time}"
         xml.comment "Based on a fulfilment of scenario: #{@scenario}"
 
-        @alert_actions.each {|alert_action|
+        @alert_actions.each { |alert_action|
           xml.alertaction {
             xml.alert_name alert_action['alert_name']
             case alert_action['action_type']
