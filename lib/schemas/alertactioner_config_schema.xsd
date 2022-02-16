@@ -36,7 +36,7 @@
 
   <xs:complexType name="WebActionType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="target" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="target_host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
       <xs:element name="request_type" minOccurs="1" maxOccurs="1" >
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -53,7 +53,7 @@
 
   <xs:complexType name="CommandActionType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="target_host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
       <xs:element name="username" type="xs:string" minOccurs="1" maxOccurs="1"/>
       <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
       <xs:element name="command_string" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
@@ -62,7 +62,7 @@
 
   <xs:complexType name="MessageActionType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
+      <xs:element name="target_host" type="xs:anyURI" minOccurs="1" maxOccurs="1" />
       <xs:element name="sender" type="xs:string" minOccurs="1" maxOccurs="1"/>
       <xs:element name="password" type="xs:string" minOccurs="1" maxOccurs="1"/>
       <xs:element name="recipient" type="xs:string" minOccurs="1" maxOccurs="1"/>

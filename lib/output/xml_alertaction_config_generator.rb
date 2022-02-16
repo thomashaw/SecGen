@@ -51,21 +51,19 @@ class XmlAlertActionConfigGenerator
 
   def generate_message_host(aa_conf)
     @systems.each do |system|
+      # System goals
+      if system.goals != []
+        system.goals.each_with_index do |goal, i|
+          @alert_actions << get_message_host_aa(system.hostname, system.name, aa_conf, goal, i)
+        end
+      end
+      # Module goals
       system.module_selections.each do |module_selection|
         module_name = module_selection.module_path_end
         module_goals = module_selection.goals
         if module_goals != []
-          # Iterate over the goals
           module_selection.goals.each_with_index do |goal, i|
-            @alert_actions << {'alert_name' => Rules.get_ea_rulename(system.hostname, module_name, goal, i),
-                               'action_type' => 'MessageAction',
-                               'host' => aa_conf['host'],
-                               'sender' => aa_conf['sender'],
-                               'password' => aa_conf['password'],
-                               'recipient' => aa_conf['recipient'],
-                               'message_header' => aa_conf['message_header'],
-                               'message_subtext' => aa_conf['message_subtext']
-            }
+            @alert_actions << get_message_host_aa(system.hostname, module_name, aa_conf, goal, i)
           end
         end
       end
@@ -80,7 +78,7 @@ class XmlAlertActionConfigGenerator
     @systems.each do |system|
       Print.info("System goals: " + system.goals.to_s)
       if system.goals != []
-        Print.info("System level goals found for system:"+ system.name)
+        Print.info("System level goals found for system:" + system.name)
         @alert_actions = @alert_actions + get_web_alertactions(aa_conf, system.name, system.goals, system.hostname, auto_grader_hostname)
       end
       system.module_selections.each do |module_selection|
@@ -100,20 +98,20 @@ class XmlAlertActionConfigGenerator
     if goals != [] and @goal_flags != []
       goals_qty = goals.size
       flags_qty = @goal_flags.size
-        Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
+      Print.err "Goals qty: #{goals_qty}  vs   Flags qty: #{flags_qty}"
 
-        # Iterate over the goals
-        goals.each_with_index do |goal, i|
-          Print.info("goal number" + i.to_s )
+      # Iterate over the goals
+      goals.each_with_index do |goal, i|
+        Print.info("goal number" + i.to_s)
 
-          alert_actions << {'alert_name' => Rules.get_ea_rulename(hostname, name, goal, i),
-                             'action_type' => 'WebAction',
-                             'hacktivity_url' => aa_conf['hacktivity_url'],
-                             'request_type' => 'POST',
-                             'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + @goal_flags.pop # TODO: test if this works
-                             # 'data' => goal_flags[i] # TODO: Update this to the correct format
-          }
-        end
+        alert_actions << {'alert_name' => Rules.get_ea_rulename(hostname, name, goal, i),
+                          'action_type' => 'WebAction',
+                          'target_host' => aa_conf['hacktivity_url'],
+                          'request_type' => 'POST',
+                          'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + @goal_flags.pop # TODO: test if this works
+                          # 'data' => goal_flags[i] # TODO: Update this to the correct format
+        }
+      end
     else
       Print.err("goals: " + goals.to_s)
       Print.err("goal_flags: " + @goal_flags.to_s)
@@ -140,13 +138,13 @@ class XmlAlertActionConfigGenerator
             case alert_action['action_type']
             when 'WebAction'
               xml.WebAction {
-                xml.hacktivity_url alert_action['hacktivity_url']
+                xml.target_host alert_action['target_host']
                 xml.request_type alert_action['request_type']
                 xml.data alert_action['data']
               }
             when 'MessageAction'
               xml.MessageAction {
-                xml.host alert_action['host']
+                xml.target_host alert_action['host']
                 xml.sender alert_action['sender']
                 xml.password alert_action['password']
                 xml.recipient alert_action['recipient']
@@ -172,5 +170,17 @@ class XmlAlertActionConfigGenerator
       end
     end
     ag_hostname
+  end
+
+  # source_name: either module name or system name
+  def get_message_host_aa(hostname, source_name, aa_conf, goal, i)
+    {'alert_name' => Rules.get_ea_rulename(hostname, source_name, goal, i),
+     'action_type' => 'MessageAction',
+     'host' => aa_conf['host'],
+     'sender' => aa_conf['sender'],
+     'password' => aa_conf['password'],
+     'recipient' => aa_conf['recipient'],
+     'message_header' => aa_conf['message_header'],
+     'message_subtext' => aa_conf['message_subtext']}
   end
 end

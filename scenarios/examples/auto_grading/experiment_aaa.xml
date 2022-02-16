@@ -92,6 +92,12 @@
     <system_name>hackme_desktop</system_name>
     <base distro="Debian 10" type="desktop"/>
 
+    <goals>
+      <access_account>
+        <account_name>crackme</account_name>
+      </access_account>
+    </goals>
+
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts" into_datastore="account">
         <!-- Default account -->
