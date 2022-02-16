@@ -42,7 +42,7 @@ class Rules
     when RuleTypes::MODIFY_FILE
       # rule = generate_elastalert_rule_mf(hostname, module_name, goal, sub_goal)
     when RuleTypes::ACCESS_ACCOUNT
-      # rule = generate_elastalert_rule_aa(hostname, module_name, goal, sub_goal)
+      rule = generate_elastalert_rule_acc(hostname, module_name, goal, counter)
     when RuleTypes::SERVICE_DOWN
       # rule = generate_elastalert_rule_svcd(hostname, module_name, goal, sub_goal)
     when RuleTypes::SYSTEM_DOWN
@@ -53,8 +53,9 @@ class Rules
     rule
   end
 
-  def self.generate_elastalert_rule_rf(hostname, module_name, goal, counter)
-    "name: #{get_ea_rulename(hostname, module_name, goal, counter)}\n" +
+  # source_name: either system name or module name,
+  def self.generate_elastalert_rule_rf(hostname, source_name, goal, counter)
+    "name: #{get_ea_rulename(hostname, source_name, goal, counter)}\n" +
         "type: any\n" +
         "index: auditbeat-*\n" +
         "filter:\n" +
@@ -69,6 +70,23 @@ class Rules
         "  minutes: 0\n"
   end
 
+  def self.generate_elastalert_rule_acc(hostname, source_name, goal, counter)
+    "name: #{get_ea_rulename(hostname, source_name, goal, counter)}\n" +
+        "type: any\n" +
+        "index: auditbeat-*\n" +
+        "filter:\n" +
+        "  - query:\n" +
+        "      query_string:\n" +
+        '        query: !!!!todo!!!! # "combined_path: \"\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
+        "alert:\n" +
+        "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
+        "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
+        "pipe_match_json: true\n" +
+        "realert:\n" +
+        "  minutes: 0\n"
+  end
+
+
   def self.get_ea_rulename(hostname, module_name, goal, counter)
     rule_type = RuleTypes.get_rule_type(goal['goal_type'])
     return "#{hostname}-#{module_name}-#{rule_type}-#{counter}"
@@ -77,7 +95,7 @@ class Rules
   class RuleTypes
     READ_FILE = 'rf'
     MODIFY_FILE = 'mf'
-    ACCESS_ACCOUNT = 'aa'
+    ACCESS_ACCOUNT = 'acc'
     SERVICE_DOWN = 'svcd'
     SYSTEM_DOWN = 'sysd'
 
