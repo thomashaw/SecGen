@@ -6,10 +6,11 @@ class XmlMarkerGenerator
   # @param [Object] systems the list of systems
   # @param [Object] scenario the scenario file used to generate
   # @param [Object] time the current time as a string
-  def initialize(systems, scenario, time)
+  def initialize(systems, scenario, time, extra_flags)
     @systems = systems
     @scenario = scenario
     @time = time
+    @extra_flags = extra_flags.clone
   end
 
   # outputs a XML marker file that can be used to mark flags and provide hints
@@ -29,6 +30,14 @@ class XmlMarkerGenerator
           xml.system {
             xml.system_name system.name
             xml.platform system.module_selections.first.attributes['platform'].first
+
+            # add extra flags to the auto_grading_server
+            if system.name == 'auto_grading_server'
+              extra_flags_n = @extra_flags.size
+              (1..extra_flags_n).each { |_|
+                xml.flag(@extra_flags.pop)
+              }
+            end
 
             system.module_selections.each { |selected_module|
 

@@ -38,7 +38,7 @@
 
   <!-- Mapping types tell the project_file_creator what to do.-->
   <default_input into="mapping_type">
-    <value>all_goal_messages_to_host</value>
+    <value>message_host</value>
   </default_input>
 
   <output_type>json</output_type>

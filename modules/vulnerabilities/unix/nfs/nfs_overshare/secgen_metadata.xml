@@ -16,7 +16,7 @@
 
   <goals>
     <read_file>
-      <file_path>#{['flag_path']}</file_path>
+      <file_path>#{['storage_directory'][0]}/#{['leaked_filenames'][0]}</file_path>
     </read_file>
   </goals>
 
@@ -26,7 +26,6 @@
   <read_fact>storage_directory</read_fact>
   <!-- Auto grading -->
   <read_fact>flag_path</read_fact>
-  <read_fact>goal_flags</read_fact>
 
   <!--if an input is not specified in the scenario-->
   <default_input into="strings_to_leak">
@@ -41,17 +40,6 @@
   <default_input into="storage_directory">
     <generator type="storage_directory_generator"/>
   </default_input>
-
-  <!-- Auto-grading goals -->
-  <default_input into="flag_path">
-    <value>#{['storage_directory'][0]}/#{['leaked_filenames'][0]}</value>
-  </default_input>
-
-  <default_input into="goal_flags">
-    <generator type="flag_generator"/>
-    <generator type="flag_generator"/>
-  </default_input>
-
 
   <!--For testing, you can define default values for whatever values you want through to factor:-->
   <!--<default_input into="harmless_unset_variable">-->

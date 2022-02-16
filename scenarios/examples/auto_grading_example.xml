@@ -113,11 +113,6 @@
       </read_file>
     </goals>
 
-    <input into_datastore="goal_flags">
-      <generator type="flag_generator"/>
-      <generator type="flag_generator"/>
-    </input>
-
     <utility module_path=".*handy_cli_tools.*"/>
 
     <utility module_path=".*parameterised_accounts">
