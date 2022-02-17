@@ -39,7 +39,7 @@
     <input into_datastore="aaa_config">
       <generator type="aaa_config">
         <input into="server_ip">
-          <datastore access="0">IP_addresses</datastore>
+          <datastore access="2">IP_addresses</datastore>
         </input>
         <input into="client_ips">
           <datastore access="1">IP_addresses</datastore>
