@@ -66,38 +66,18 @@
       </generator>
     </input>
 
-    <vulnerability module_path=".*symlinks"/>
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
 
     <network type="private_network">
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
-  </system>
-
-  <system>
-    <system_name>auto_grading_server</system_name>
-    <base distro="Debian 10" />
-
-    <utility module_path=".*handy_cli_tools.*"/>
-
-    <service module_path=".*analysis_alert_action_server">
-      <input into="aaa_config">
-        <datastore access="0">aaa_config</datastore>
-      </input>
-    </service>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
-      </input>
-    </network>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <value>test</value>
-      </input>
-    </build>
   </system>
 
 </scenario>
