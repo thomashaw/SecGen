@@ -77,7 +77,7 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: !!!!todo!!!! # "combined_path: \"\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
+        '        query: user.name' + goal['account_name']+' AND (event.outcome: success AND (event.action: authenticated OR event.action: was-authorized OR event.category authentication)"' + "\n" +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
