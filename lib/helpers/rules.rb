@@ -77,7 +77,9 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: user.name ' + goal['account_name']+' AND (event.outcome: success AND (event.action: authenticated OR event.action: was-authorized OR event.category authentication)"' + "\n" +
+        # on box as:
+                # query: "user.name: 'crackme' AND event.module: 'auditd' AND event.outcome: 'success' AND event.category: 'authentication'"
+        '        query: \"user.name: \"' + goal['account_name'] +'\' AND event.module: auditd AND event.category: authentication AND event.outcome: success\"' + "\n" +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
