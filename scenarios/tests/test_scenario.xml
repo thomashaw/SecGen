@@ -66,11 +66,11 @@
       </generator>
     </input>
 
-    <utility module_path=".*analysis_alert_action_server">
+    <service module_path=".*analysis_alert_action_server">
       <input into="aaa_config">
         <datastore access="0">aaa_config</datastore>
       </input>
-    </utility>
+    </service>
 
 
     <network type="private_network">
