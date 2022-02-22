@@ -11,7 +11,7 @@ class elastalert::install ($elasticsearch_ip, $elasticsearch_port,$installdir = 
   ensure_packages(['urllib3>=1.26.7'], { provider => 'pip3', require=> [Package['python3-pip'], Exec['run pip3 update']] })
  
   exec { 'install PyYAML ignore existing':
-	command => '/usr/bin/python3 -m pip install --ignore-installed PyYAML>=5.1',
+	command => '/usr/bin/python3 -m pip install --ignore-installed PyYAML',
 	require => Package['urllib3>=1.26.7'],
   }
 
