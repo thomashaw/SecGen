@@ -14,6 +14,14 @@ class { 'auditbeat':
       'enabled' => true,
       'audit_rule_files' => '${path.config}/audit.rules.d/*.conf',
     },
+    {
+      'module' => 'system',
+      'datasets' => ['user','login'],
+      'user.detect_password_changes' => true,
+      'period' => '3s',
+      'state.periot' => '12h',
+    }
+
   ],
   outputs => {
     'logstash' => {
