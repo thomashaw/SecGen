@@ -29,7 +29,7 @@
           <datastore access="0">IP_addresses</datastore>
         </input>
         <input into="client_ips">
-          <datastore access="1">IP_addresses</datastore>
+          <datastore access="0">IP_addresses</datastore>
         </input>
         <input into="elasticsearch_port">
           <value>9200</value>
@@ -66,7 +66,7 @@
       </generator>
     </input>
 
-    <service module_path=".*analysis_alert_action_server">
+    <service module_path=".*analysis_alert_action_client">
       <input into="aaa_config">
         <datastore access="0">aaa_config</datastore>
       </input>
