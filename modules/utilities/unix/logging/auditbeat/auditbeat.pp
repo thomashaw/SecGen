@@ -15,7 +15,7 @@ unless defined('analysis_alert_action_client') {
         'datasets' => ['user','login'],
         'user.detect_password_changes' => true,
         'period' => '3s',
-        'state.periot' => '12h',
+        'state.period' => '12h',
       }
     ],
     outputs => {
