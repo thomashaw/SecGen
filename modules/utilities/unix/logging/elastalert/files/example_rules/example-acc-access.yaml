@@ -1,0 +1,13 @@
+name: s-1-9-0-F6qc-experiment-aaa-hackme-desktop--acc-0
+type: any
+index: auditbeat-*
+filter:
+  - query:
+      query_string:
+        query: "related.user: 'crackme' AND (event.category: 'authentication' OR event.category: 'session') AND (event.action: 'user_login' OR event.action: 'started-session' OR event.action: 'acquired-credentials) AND event.outcome: 'success'"
+alert:
+  - "elastalert.modules.alerter.exec.ExecAlerter"
+command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_router.rb"]
+pipe_match_json: true
+realert:
+  minutes: 0
