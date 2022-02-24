@@ -78,8 +78,8 @@ class Rules
         "  - query:\n" +
         "      query_string:\n" +
         # on box as:
-                # query: "user.name: 'crackme' AND event.module: 'auditd' AND event.outcome: 'success' AND event.category: 'authentication'"
-        '        query: "user.name: \'' + goal['account_name'] +'\' AND event.module: \'auditd\' AND event.category: \'authentication\' AND event.outcome: \'success\'"' + "\n" +
+                # query: "related.user: 'crackme' AND (event.category: 'authentication' OR event.category: 'session') AND (event.action: 'user_login' OR event.action: 'started-session' OR event.action: 'acquired-credentials') AND event.outcome: 'success'"
+        '        query: "related.user: \'' + goal['account_name'] +'\' AND (event.action: \'user_login\' OR event.action: \'started-session\' OR event.action: \'acquired-credentials\') AND event.outcome: \'success\'"' + "\n" +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\"]\n" +
