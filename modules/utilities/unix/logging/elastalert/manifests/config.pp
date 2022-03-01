@@ -2,8 +2,8 @@ class elastalert::config ($elasticsearch_ip,
                           $elasticsearch_port,
                           $installdir = '/opt/elastalert/',
                           $source='http://github.com/Yelp/elastalert',
-                          $rules_dir = $installdir + 'rules',
-                          $example_rules_dir = $installdir + 'example_rules') {
+                          $rules_dir = "$installdir/rules",
+                          $example_rules_dir = "$installdir/example_rules") {
   file { '/opt/elastalert/config.yaml':
     ensure => file,
     content => template('elastalert/config.yaml.erb'),
