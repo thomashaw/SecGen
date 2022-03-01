@@ -1,6 +1,6 @@
 class elastalert::config ($elasticsearch_ip,
                           $elasticsearch_port,
-                          $installdir = '/opt/elastalert/',
+                          $installdir = '/opt/elastalert',
                           $source='http://github.com/Yelp/elastalert',
                           $rules_dir = "$installdir/rules",
                           $example_rules_dir = "$installdir/example_rules") {
