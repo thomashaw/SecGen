@@ -38,4 +38,9 @@
   </default_input>
 
   <output_type>encoded_strings_and_keys</output_type>
+
+  <CyBOK KA="C" topic="Symmetric Cryptography">
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
+
 </encoder>

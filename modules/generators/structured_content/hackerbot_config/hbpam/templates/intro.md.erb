@@ -183,6 +183,13 @@ For testing purposes add another rule that allows a user to log in only 10 minut
 ==Log Book Question:==
 Document how you can **lock a user out after 5 failed login attempts.**
 
+==Log Book Question:==
+Briefly describe what each of the following PAM configurations do:
+
+`session optional pam_mkhomedir.so skel=/etc/skel umask=077`
+
+`auth required pam_access.so, /etc/security.access.conf`
+
 
 ## Secure Shell (SSH) Password-less Authentication
 

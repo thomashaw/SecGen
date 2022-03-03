@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Flawed Fortress</name>
+  <author>Z. Cliffe Schreuders</author>
+  <author>Thomas Shaw</author>
+  <description>Hack the server. Aim for root. Find the flags.
+  </description>
+
+  <type>ctf</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
+  <difficulty>intermediate</difficulty>
+
+  <!-- remote vuln -->
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+
+  <!-- escalate to user and to root -->
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>Elevated privileges</keyword>
+  </CyBOK>
+
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+
+    <input into_datastore="IP_addresses">
+      <value>172.16.0.2</value>
+      <value>172.16.0.3</value>
+      <value>172.16.0.4</value>
+      <value>172.16.0.5</value>
+    </input>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kali_top10"/>
+    <utility module_path=".*/kali_web"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <!-- an example remote system, with a remotely exploitable vulnerability that can then be escalated to root -->
+  <system>
+    <system_name>that_escalated_quickly</system_name>
+    <base platform="linux" type="server"/>
+
+    <utility module_path=".*/after_login_message">
+      <input into="strings_to_leak">
+        <encoder type="string_format_encoder">
+          <input into="strings_to_encode">
+            <value>Hackme</value>
+          </input>
+        </encoder>
+        <value>Well done! You hacked this server. It's possible for you to get root from here.</value>
+      </input>
+    </utility>
+
+    <vulnerability read_fact="strings_to_leak" access="remote" privilege="user_rwx">
+      <input into="strings_to_leak">
+        <generator type="flag_generator" />
+        <generator type="ctf_challenge" />
+      </input>
+    </vulnerability>
+
+    <vulnerability read_fact="strings_to_leak" access="local" privilege="root_rwx">
+      <input into="strings_to_leak">
+        <generator type="flag_generator" />
+      </input>
+    </vulnerability>
+
+    <service/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="3">IP_addresses</datastore>
+      </input>
+    </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </build>
+  </system>
+
+</scenario>

@@ -6,6 +6,8 @@ class samba_symlink_traversal::install {
   $leaked_filenames = $secgen_parameters['leaked_filenames']
   $strings_to_leak = $secgen_parameters['strings_to_leak']
   $images_to_leak = $secgen_parameters['images_to_leak']
+  $strings_to_pre_leak = $secgen_parameters['strings_to_pre_leak']
+  $pre_leaked_filenames = $secgen_parameters['pre_leaked_filenames']
   $symlink_traversal = true
 
   # Ensure the storage directory exists
@@ -34,20 +36,18 @@ class samba_symlink_traversal::install {
   # Leak a flag/string to root directory
   ::secgen_functions::leak_files { 'samba_symlink_traversal-file-leak-2':
     storage_directory => '/',
-    leaked_filenames  => [$leaked_filenames[0]],
-    strings_to_leak   => [$strings_to_leak[0]],
+    leaked_filenames  => $pre_leaked_filenames,
+    strings_to_leak   => $strings_to_pre_leak,
     leaked_from       => 'samba_symlink_traversal',
   }
 
-  if ($strings_to_leak.size > 1) {
-    # Leak a flag/string to the samba share directory
-    ::secgen_functions::leak_files { 'samba_symlink_traversal-file-leak-1':
-      storage_directory => $storage_directory,
-      leaked_filenames  => [$leaked_filenames[1]],
-      strings_to_leak   => [$strings_to_leak[1]],
-      images_to_leak    => $images_to_leak,
-      leaked_from       => 'samba_symlink_traversal',
-      mode              => '0664'
-    }
+  # Leak a flag/string to the samba share directory
+  ::secgen_functions::leak_files { 'samba_symlink_traversal-file-leak-1':
+    storage_directory => $storage_directory,
+    leaked_filenames  => $leaked_filenames,
+    strings_to_leak   => $strings_to_leak,
+    images_to_leak    => $images_to_leak,
+    leaked_from       => 'samba_symlink_traversal',
+    mode              => '0664'
   }
 }

@@ -36,4 +36,43 @@ This program is a demonstration of common server-side application flaws. The exe
   <requires>
     <module_path>.*/webwolf</module_path>
   </requires>
+  
+  <!-- comprehensive web training framework -->
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>web PKI and HTTPS</keyword>
+    <keyword>authentication</keyword>
+    <keyword>cookies</keyword>
+    <keyword>passwords and alternatives</keyword>
+    <keyword>JAVASCRIPT / HYPERTEXT MARKUP LANGUAGE (HTML) / CASCADING STYLE SHEETS (CSS) / HYPERTEXT TRANSFER PROTOCOL (HTTP)
+    COOKIES</keyword>
+    <keyword>HYPERTEXT TRANSFER PROTOCOL (HTTP) - PROXYING</keyword>
+    <keyword>Broken Access Control / Insecure Direct Object References</keyword>
+    <keyword>SESSION HIJACKING</keyword>
+    <keyword>REPRESENTATIONAL STATE TRANSFER (REST)</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Client-Side Vulnerabilities and Mitigations">
+    <keyword>client-side storage</keyword>
+    <keyword>CLIENT-SIDE VALIDATION</keyword>
+    <keyword>clickjacking</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>injection vulnerabilities</keyword>
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+    <keyword>SAME ORIGIN POLICY (SOP)</keyword>
+    <keyword>COMMAND INJECTION</keyword>
+    <keyword>SQL-INJECTION</keyword>
+    <keyword>CROSS-SITE REQUEST FORGERY (CSRF)</keyword>
+    <keyword>CONFUSED DEPUTY ATTACKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+    <keyword>API vulnerabilities</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Prevention of Vulnerabilities">
+    <keyword>coding practices</keyword>
+    <keyword>Protecting against session management attacks, XSS, SQLi, CSRF</keyword>
+    <keyword>API design</keyword>
+  </CyBOK>
+
 </vulnerability>

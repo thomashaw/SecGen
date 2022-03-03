@@ -38,8 +38,8 @@
           <value>true</value>
         </input>
         <input into="groups">
-					<value>docker</value>
-				</input>
+          <value>docker</value>
+        </input>
         <input into="leaked_filenames">
           <value></value>
         </input>
@@ -54,11 +54,11 @@
     </input>
 
     <!--Create the groups-->
-		<utility module_path=".*/groups">
-			<input into="groups">
-				<value>docker</value>
-			</input>
-		</utility>    <!--Create the users-->
+    <utility module_path=".*/groups">
+      <input into="groups">
+        <value>docker</value>
+      </input>
+    </utility>    <!--Create the users-->
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts">
         <datastore>accounts</datastore>
@@ -120,14 +120,14 @@
       </input>
     </utility> -->
 
-		<!-- <utility module_path=".*/pidgin">
-			<input into="server_ip">
-				<value>localhost</value>
-			</input>
-			<input into="accounts">
-				<datastore access="0">accounts</datastore>
-			</input>
-		</utility> -->
+    <!-- <utility module_path=".*/pidgin">
+      <input into="server_ip">
+        <value>localhost</value>
+      </input>
+      <input into="accounts">
+        <datastore access="0">accounts</datastore>
+      </input>
+    </utility> -->
 
     <network type="private_network">
       <input into="IP_address">

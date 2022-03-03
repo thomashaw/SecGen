@@ -92,6 +92,8 @@
           </xs:complexType>
         </xs:element>
 
+        <xs:element name="CyBOK" type="CyBOKType" minOccurs="0" maxOccurs="unbounded" />
+
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -177,4 +179,12 @@
     <xs:attribute name='range' type='xs:string'/>
 
   </xs:complexType>
+  <xs:complexType name="CyBOKType">
+    <xs:sequence>
+      <xs:element name="keyword" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="KA" type="xs:string" use="required"/>
+    <xs:attribute name="topic" type="xs:string"/>
+  </xs:complexType>
+
 </xs:schema>

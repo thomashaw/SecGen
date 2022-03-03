@@ -7,7 +7,8 @@
   <author>Jason Keighley</author>
   <author>puppetlabs</author>
   <module_license>Apache v2</module_license>
-  <description>An installation of Java</description>
+  <description>An installation of Java.
+    Note: puppet stdlib version manually edited from puppet module to resolve dependency issues.</description>
 
   <type>language</type>
   <type>java</type>
@@ -22,7 +23,7 @@
   <conflict>
     <software_name>java</software_name>
   </conflict>
-  
+
   <conflict>
     <name>Wheezy</name>
   </conflict>

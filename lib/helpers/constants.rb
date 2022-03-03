@@ -52,7 +52,7 @@ STYLING_DIR = "#{ROOT_DIR}/lib/resources/website_styling"
 SAMP_DBS_DIR = "#{ROOT_DIR}/lib/resources/sample_databases"
 
 # Path to build puppet modules
-STDLIB_PUPPET_DIR = "#{MODULES_DIR}build/puppet/stdlib"
+LOCAL_PUPPET_DIR = "#{MODULES_DIR}build/puppet"
 SECGEN_FUNCTIONS_PUPPET_DIR = "#{MODULES_DIR}build/puppet/secgen_functions"
 
 # Filename for flags

@@ -43,4 +43,9 @@
   </default_input>
 
   <output_type>multiple_strings</output_type>
+
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+  
 </generator>

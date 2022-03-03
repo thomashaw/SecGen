@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Access can roll</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>
+There are two problem solving access control challenges on the server. Look at the home directories and the .c files.
+
+1: Use the access_my_flag program to access the two flags (hint: think about how you can use hardlink trickery to access relative paths).
+
+2: Look at the two shell programs and how you can combine them together to get at a flag.
+
+Your password on both systems is: tiaspbiqe2r
+  </description>
+
+  <type>ctf-lab</type>
+  <type>hackerbot-lab</type>
+  <type>lab-sheet</type>
+  <difficulty>intermediate</difficulty>
+
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Real and effective identity</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+    <keyword>Unix File Permissions</keyword>
+    <keyword>setuid/setgid</keyword>
+    <keyword>Hardlink protections</keyword>
+  </CyBOK>
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key signatures</keyword>
+  </CyBOK>
+
+
+  <system>
+    <system_name>shared_desktop</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 desktop -->
+      <value>172.16.0.2</value>
+      <!-- 1 server -->
+      <value>172.16.0.3</value>
+      <!-- 2 hackerbot_server -->
+      <value>172.16.0.4</value>
+    </input>
+
+    <!-- generate some usernames to use -->
+    <input into_datastore="usernames">
+      <!-- main user -->
+      <generator type="random_sanitised_word">
+        <input into="wordlist">
+          <value>mythical_creatures</value>
+        </input>
+      </generator>
+      <!-- other user -->
+      <generator type="random_sanitised_word">
+        <input into="wordlist">
+          <value>mythical_creatures</value>
+        </input>
+      </generator>
+    </input>
+
+    <!-- generate some passwords to use -->
+    <input into_datastore="passwords">
+      <generator type="medium_password_generator"/>
+    </input>
+
+    <input into_datastore="groups">
+      <value>staff</value>
+      <value>team_one</value>
+      <value>team_two</value>
+    </input>
+
+    <!-- accounts on the desktop, with the main user as a sudoer -->
+    <input into_datastore="user_accounts_desktop">
+      <!-- main user, sudoer -->
+      <generator type="account">
+        <input into="username">
+          <datastore access="0">usernames</datastore>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="leaked_filenames">
+          <value>access_my_secrets.c</value>
+          <value>mysecret</value>
+        </input>
+        <input into="strings_to_leak">
+          <value>
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;errno.h&gt;
+
+int main()
+{
+  printf(&quot;        UID           GID \n&quot;
+       &quot;Real    %d  Real    %d \n&quot;
+       &quot;Effective %d  Effective %d \n&quot;,
+       getuid (),   getgid (),
+       geteuid(),   getegid());
+
+  FILE *fp = fopen(&quot;mysecret&quot;, &quot;r&quot;);
+  if (fp == NULL) {
+    printf(&quot;Error: Could not open file&quot;);
+    exit(EXIT_FAILURE);
+  }
+  char c;
+  while ((c=getc(fp)) != EOF) {
+    putchar(c);
+  }
+  putchar(&apos;\n&apos;);
+  return EXIT_SUCCESS;
+}
+          </value>
+          <generator type="random_line_generator">
+            <input into="linelist">
+              <value>secrets</value>
+            </input>
+          </generator>
+
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+      </generator>
+      <!-- other user, no flags -->
+      <generator type="account">
+        <input into="username">
+          <datastore access="next">usernames</datastore>
+        </input>
+        <input into="password">
+          <datastore access="0">passwords</datastore>
+        </input>
+      </generator>
+
+    </input>
+
+    <input into_datastore="desktop_root_password">
+      <generator type="strong_password_generator"/>
+    </input>
+
+    <!--Create the groups-->
+    <utility module_path=".*/groups">
+      <input into="groups">
+        <datastore>groups</datastore>
+      </input>
+    </utility>
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>user_accounts_desktop</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0">usernames</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>user_accounts_desktop</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/gcc"/>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <datastore>user_accounts_desktop</datastore>
+      </input>
+      <input into="autostart">
+        <value>true</value>
+      </input>
+      <input into="start_page">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/pidgin">
+      <input into="server_ip">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+      <input into="accounts">
+        <datastore access="0">user_accounts_desktop</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>desktop_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>server</system_name>
+    <base distro="Debian 10" type="desktop"/>
+
+    <!-- user accounts on the server, with matching usernames and passwords, but with flags to find -->
+    <input into_datastore="user_accounts_server">
+      <!-- main user, NOT sudoer -->
+      <generator type="account">
+        <input into="username">
+          <datastore access="0">usernames</datastore>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="groups">
+          <value>staff</value>
+          <value>team_one</value>
+        </input>
+      </generator>
+      <!-- other users, with the SAME passwords -->
+      <generator type="account">
+        <input into="username">
+          <datastore access="next">usernames</datastore>
+        </input>
+        <input into="password">
+          <datastore access="0">passwords</datastore>
+        </input>
+        <input into="groups">
+          <value>staff</value>
+          <value>team_one</value>
+          <value>team_two</value>
+        </input>
+      </generator>
+
+    </input>
+
+    <!--Create the groups-->
+    <utility module_path=".*/groups">
+      <input into="groups">
+        <datastore>groups</datastore>
+      </input>
+    </utility>
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>user_accounts_server</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/handy_cli_tools"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>desktop_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <vulnerability module_path=".*/relative_path_suid_hardlinks"/>
+    <vulnerability module_path=".*/two_shell_calls"/>
+    <vulnerability module_path=".*/ssh_leaked_keys"/>
+
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>

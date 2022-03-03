@@ -22,4 +22,9 @@
   <!--</default_input>-->
 
   <output_type>string_challenge</output_type>
+
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+  </CyBOK>
+
 </generator>

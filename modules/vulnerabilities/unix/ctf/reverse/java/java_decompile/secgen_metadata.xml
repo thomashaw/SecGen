@@ -66,4 +66,9 @@
     <type>java</type>
   </requires>
 
+  <CyBOK KA="MAT" topic="Malware Analysis">
+    <keyword>analysis techniques</keyword>
+    <keyword>STATIC ANALYSIS</keyword>
+  </CyBOK>
+
 </vulnerability>

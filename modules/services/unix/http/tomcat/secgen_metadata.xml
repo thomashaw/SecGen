@@ -24,6 +24,7 @@
   <conflict>
     <name>Stretch</name>
   </conflict>
+  <!-- TODO: should this also conflict with buster?-->
 
   <requires>
     <type>update</type>

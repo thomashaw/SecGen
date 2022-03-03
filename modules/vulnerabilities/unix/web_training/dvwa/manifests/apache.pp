@@ -8,20 +8,21 @@ class dvwa::apache {
 
   if ($operatingsystem == 'Debian') {
     case $operatingsystemrelease {
-      /^(9|10).*/: { # do 9.x stretch stuff
+      /^(10).*/: { # do 10.x buster stuff
+        $php_version = "php7.3"
+        ensure_packages(["mysql-server", 'php-mysqli'])
+      }
+      /^(9).*/: { # do 9.x stretch stuff
         $php_version = "php7.0"
-        package { 'mysql-server':
-          ensure => installed,
-        }
+        ensure_packages(["mysql-server", 'php-mysqli'])
       }
       /^7.*/: { # do 7.x wheezy stuff
         $php_version = "php"
-        package { 'mysql-server':
-          ensure => installed,
-        }
+        ensure_packages(["mysql-server", 'php-mysqli'])
       }
       'kali-rolling': { # do kali
         $php_version = "php7.4"
+        ensure_packages(["default-mysql-server", 'php7.4-mysql'])
       }
       default: {
         $php_version = "php"
@@ -30,10 +31,9 @@ class dvwa::apache {
   } else {
     $php_version = "php"
   }
+  ensure_packages(['libapache2-mod-php'])
+  ensure_packages(['php', 'php-gd'])
 
-  package { ['php', 'php-mysqli', 'php-gd', 'libapache2-mod-php']:
-    ensure => installed,
-  }
 
   class { '::apache':
     default_vhost => false,

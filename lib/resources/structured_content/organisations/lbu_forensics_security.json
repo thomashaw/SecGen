@@ -1,5 +1,5 @@
 {
-  "business_name": "Leeds Beckett- Computer Forensics and Security",
+  "business_name": "Leeds Beckett- Cyber Security and Digital Forensics",
   "business_motto": "",
   "business_address": "43 Church Wood Ave, Leeds LS16 5LF",
   "domain": "leedsbeckett.ac.uk",
@@ -24,11 +24,11 @@
       "password": ""
     },
     {
-      "name": "Dr. Maurice Calvert",
+      "name": "Tom Shaw",
       "address": "117, Caedmon, Headingley Campus",
       "phone_number": "0113 81 27429",
-      "email_address": "M.Calvert@leedsbeckett.ac.uk",
-      "username": "mcalvert",
+      "email_address": "T.Shaw@leedsbeckett.ac.uk",
+      "username": "tshaw",
       "password": ""
     },
     {

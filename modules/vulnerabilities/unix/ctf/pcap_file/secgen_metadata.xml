@@ -41,4 +41,14 @@
     <module_path>utilities/unix/system/leak_to_file</module_path>
   </requires>
 
+  <CyBOK KA="NS" topic="OSI (OPEN SYSTEM INTERCONNECT) MODEL">
+    <keyword>APPLICATION LAYER</keyword>
+    <keyword>DATA LINK LAYER</keyword>
+    <keyword>NETWORK LAYER</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="Monitor: Data Sources">
+    <keyword>PCAP</keyword>
+    <keyword>network traffic</keyword>
+  </CyBOK>
+
 </vulnerability>

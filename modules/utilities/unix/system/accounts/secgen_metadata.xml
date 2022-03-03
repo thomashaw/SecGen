@@ -10,6 +10,7 @@
   <description>User account creation and modification</description>
 
   <type>system</type>
+  <type>puppet_import</type>
   <platform>linux</platform>
 
   <!--optional details-->

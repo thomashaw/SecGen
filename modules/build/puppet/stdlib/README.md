@@ -115,19 +115,51 @@ file_line { 'bashrc_proxy':
 
 In the example above, `match` looks for a line beginning with 'export' followed by 'HTTP_PROXY' and replaces it with the value in line.
 
-Match Example with `ensure => absent`:
+Match Example:
+
+```puppet
+file_line { 'bashrc_proxy':
+  ensure             => present,
+  path               => '/etc/bashrc',
+  line               => 'export HTTP_PROXY=http://squid.puppetlabs.vm:3128',
+  match              => '^export\ HTTP_PROXY\=',
+  append_on_no_match => false,
+}
+```
+
+In this code example, `match` looks for a line beginning with export followed by 'HTTP_PROXY' and replaces it with the value in line. If a match is not found, then no changes are made to the file.
+
+Examples of `ensure => absent`:
+
+This type has two behaviors when `ensure => absent` is set.
+
+The first is to set `match => ...` and `match_for_absence => true`. Match looks for a line beginning with 'export', followed by 'HTTP_PROXY', and then deletes it. If multiple lines match, an error is raised unless the `multiple => true` parameter is set.
+
+The `line => ...` parameter in this example would be accepted but ignored.
+
+For example:
 
 ```puppet
 file_line { 'bashrc_proxy':
   ensure            => absent,
   path              => '/etc/bashrc',
-  line              => 'export HTTP_PROXY=http://squid.puppetlabs.vm:3128',
   match             => '^export\ HTTP_PROXY\=',
   match_for_absence => true,
 }
 ```
 
-In the example above, `match` looks for a line beginning with 'export' followed by 'HTTP_PROXY' and deletes it. If multiple lines match, an error is raised, unless the `multiple => true` parameter is set.
+The second way of using `ensure => absent` is to specify a `line => ...` and no match. When ensuring lines are absent, the default behavior is to remove all lines matching. This behavior can't be disabled.
+
+For example:
+
+```puppet
+file_line { 'bashrc_proxy':
+  ensure => absent,
+  path   => '/etc/bashrc',
+  line   => 'export HTTP_PROXY=http://squid.puppetlabs.vm:3128',
+}
+```
+
 
 Encoding example:
 
@@ -178,10 +210,10 @@ Default value: 'present'.
 Sets the line to be added to the file located by the `path` parameter.
 
 Values: String.
-  
+
 ##### `match`
 
-Specifies a regular expression to compare against existing lines in the file; if a match is found, it is replaced rather than adding a new line. A regex comparison is performed against the line value, and if it does not match, an exception is raised.
+Specifies a regular expression to compare against existing lines in the file; if a match is found, it is replaced rather than adding a new line.
 
 Values: String containing a regex.
 
@@ -198,7 +230,7 @@ Default value: `false`.
 
 ##### `multiple`
 
-Specifies whether `match` and `after` can change multiple lines. If set to `false`, an exception is raised if more than one line matches.
+Specifies whether `match` and `after` can change multiple lines. If set to `false`, allows file_line to replace only one line and raises an error if more than one will be replaced. If set to `true`, allows file_line to replace one or more lines.
 
 Values: `true`, `false`.
 
@@ -207,7 +239,7 @@ Default value: `false`.
 
 ##### `name`
 
-Specifies the name to use as the identity of the resource. If you want the resource namevar to differ from the supplied `title` of the resource, specify it with `name`. 
+Specifies the name to use as the identity of the resource. If you want the resource namevar to differ from the supplied `title` of the resource, specify it with `name`.
 
 Values: String.
 
@@ -217,17 +249,25 @@ Default value: The value of the title.
 
 **Required.**
 
-Specifies the file in which Puppet ensures the line specified by `line`. 
+Specifies the file in which Puppet ensures the line specified by `line`.
 
 Value: String specifying an absolute path to the file.
 
 ##### `replace`
 
-Specifies whether the resource overwrites an existing line that matches the `match` parameter. If set to `false` and a line is found matching the `match` parameter, the line is not placed in the file.
+Specifies whether the resource overwrites an existing line that matches the `match` parameter when `line` does not otherwise exist.
+
+If set to `false` and a line is found matching the `match` parameter, the line is not placed in the file.
 
 Boolean.
 
 Default value: `true`.
+
+##### `replace_all_matches_not_matching_line`
+
+Replaces all lines matched by `match` parameter, even if `line` already exists in the file.
+
+Default value: `false`.
 
 ### Data types
 
@@ -253,6 +293,24 @@ Unacceptable input example:
 
 ```shell
 ../relative_path
+```
+
+#### `Stdlib::Ensure::Service`
+
+Matches acceptable ensure values for service resources.
+
+Acceptable input examples:    
+
+```shell
+stopped
+running
+```
+
+Unacceptable input example:   
+
+```shell
+true
+false
 ```
 
 #### `Stdlib::Httpsurl`
@@ -289,6 +347,10 @@ Unacceptable input example:
 httds://notquiteright.org
 ```
 
+#### `Stdlib::MAC`
+
+Matches MAC addresses defined in [RFC5342](https://tools.ietf.org/html/rfc5342).
+
 #### `Stdlib::Unixpath`
 
 Matches paths on Unix operating systems.
@@ -307,11 +369,35 @@ Unacceptable input example:
 C:/whatever
 ```
 
+#### `Stdlib::Filemode`
+
+Matches valid four digit modes in octal format.
+
+Acceptable input examples:
+
+```shell
+0644
+```
+
+```shell
+1777
+```
+
+Unacceptable input examples:
+
+```shell
+644
+```
+
+```shell
+0999
+```
+
 #### `Stdlib::Windowspath`
 
 Matches paths on Windows operating systems.
 
-Acceptable input example: 
+Acceptable input example:
 
 ```shell
 C:\\WINDOWS\\System32
@@ -321,11 +407,277 @@ C:\\
 \\\\host\\windows
 ```
 
-Unacceptable input example:
+Valid values: A windows filepath.
+
+#### `Stdlib::Filesource`
+
+Matches paths valid values for the source parameter of the puppet file type.
+
+Acceptable input example:
 
 ```shell
-/usr2/username/bin:/usr/local/bin:/usr/bin:.
+http://example.com
+
+https://example.com
+
+file:///hello/bla
 ```
+
+Valid values: A filepath.
+
+#### `Stdlib::Fqdn`
+
+Matches paths on fully qualified domain name.
+
+Acceptable input example:
+
+```shell
+localhost
+
+example.com
+
+www.example.com
+```
+Valid values: Domain name of a server.
+
+#### `Stdlib::Host`
+
+Matches a valid host which could be a valid ipv4, ipv6 or fqdn.
+
+Acceptable input example:
+
+```shell
+localhost
+
+www.example.com
+
+192.0.2.1
+```
+
+Valid values: An IP address or domain name.
+
+#### `Stdlib::Port`
+
+Matches a valid TCP/UDP Port number.
+
+Acceptable input examples:
+
+```shell
+80
+
+443
+
+65000
+```
+
+Valid values: An Integer.
+
+#### `Stdlib::Port::Privileged`
+
+Matches a valid TCP/UDP Privileged port i.e. < 1024.
+
+Acceptable input examples:
+
+```shell
+80
+
+443
+
+1023
+```
+
+Valid values: A number less than 1024.
+
+#### `Stdlib::Port::Unprivileged`
+
+Matches a valid TCP/UDP Privileged port i.e. >= 1024.
+
+Acceptable input examples:
+
+```shell
+1024
+
+1337
+
+65000
+
+```
+
+Valid values: A number more than or equal to 1024.
+
+#### `Stdlib::Base32`
+
+Matches paths a valid base32 string.
+
+Acceptable input example:
+
+```shell
+ASDASDDASD3453453
+
+asdasddasd3453453=
+
+ASDASDDASD3453453==
+```
+
+Valid values: A base32 string.
+
+#### `Stdlib::Base64`
+
+Matches paths a valid base64 string.
+
+Acceptable input example:
+
+```shell
+asdasdASDSADA342386832/746+=
+
+asdasdASDSADA34238683274/6+
+
+asdasdASDSADA3423868327/46+==
+```
+
+Valid values: A base64 string.
+
+#### `Stdlib::Ipv4`
+
+Matches on valid IPv4 addresses.
+
+Acceptable input example:
+
+```shell
+0.0.0.0
+
+192.0.2.1
+
+127.0.0.1
+```
+
+Valid values: An IPv4 address.
+
+#### `Stdlib::Ipv6`
+
+Matches on valid IPv6 addresses.
+
+Acceptable input example:
+
+```shell
+2001:0db8:85a3:0000:0000:8a2e:0370:7334
+
+2001:db8::
+
+2001:db8::80
+```
+
+Valid values: An IPv6 address.
+
+#### `Stdlib::Ip_address`
+
+Matches on valid IPv4 or IPv6 addresses.
+
+Acceptable input example:
+
+```shell
+0.0.0.0
+
+127.0.0.1
+
+fe80:0000:0000:0000:0204:61ff:fe9d:f156
+```
+
+Valid values: An IP address.
+
+#### `Stdlib::IP::Address`
+
+Matches any IP address, including both IPv4 and IPv6 addresses. It will match them either with or without an address prefix as used in CIDR format IPv4 addresses.
+
+Examples:
+
+```
+'127.0.0.1' =~ Stdlib::IP::Address                                # true
+'10.1.240.4/24' =~ Stdlib::IP::Address                            # true
+'52.10.10.141' =~ Stdlib::IP::Address                             # true
+'192.168.1' =~ Stdlib::IP::Address                                # false
+'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210' =~ Stdlib::IP::Address  # true
+'FF01:0:0:0:0:0:0:101' =~ Stdlib::IP::Address                     # true
+```
+
+#### `Stdlib::IP::Address::V4`
+
+Match any string consisting of an IPv4 address in the quad-dotted decimal format, with or without a CIDR prefix. It will not match any abbreviated form (for example, 192.168.1) because these are poorly documented and inconsistently supported.
+
+Examples:
+
+```
+'127.0.0.1' =~ Stdlib::IP::Address::V4                                # true
+'10.1.240.4/24' =~ Stdlib::IP::Address::V4                            # true
+'192.168.1' =~ Stdlib::IP::Address::V4                                # false
+'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210' =~ Stdlib::IP::Address::V4  # false
+'12AB::CD30:192.168.0.1' =~ Stdlib::IP::Address::V4                   # false
+```
+
+Valid values: An IPv4 address.
+
+#### `Stdlib::IP::Address::V6`
+
+Match any string consistenting of an IPv6 address in any of the documented formats in RFC 2373, with or without an address prefix.
+
+Examples:
+
+```
+'127.0.0.1' =~ Stdlib::IP::Address::V6                                # false
+'10.1.240.4/24' =~ Stdlib::IP::Address::V6                            # false
+'FEDC:BA98:7654:3210:FEDC:BA98:7654:3210' =~ Stdlib::IP::Address::V6  # true
+'FF01:0:0:0:0:0:0:101' =~ Stdlib::IP::Address::V6                     # true
+'FF01::101' =~ Stdlib::IP::Address::V6                                # true
+```
+
+Valid values: An IPv6 address.
+
+#### `Stdlib::IP::Address::Nosubnet`
+
+Match the same things as the `Stdlib::IP::Address` alias, except it will not match an address that includes an address prefix (for example, it will match '192.168.0.6' but not '192.168.0.6/24').
+
+Valid values: An IP address with no subnet.
+
+#### `Stdlib::IP::Address::V4::CIDR`
+
+Match an IPv4 address in the CIDR format. It will only match if the address contains an address prefix (for example, it will match '192.168.0.6/24'
+but not '192.168.0.6').
+
+Valid values: An IPv4 address with a CIDR provided eg: '192.186.8.101/105'. This will match anything inclusive of '192.186.8.101' to '192.168.8.105'.
+
+#### `Stdlib::IP::Address::V4::Nosubnet`
+
+Match an IPv4 address only if the address does not contain an address prefix (for example, it will match '192.168.0.6' but not '192.168.0.6/24').
+
+Valid values: An IPv4 address with no subnet.
+
+#### `Stdlib::IP::Address::V6::Full`
+
+Match an IPv6 address formatted in the "preferred form" as documented in section 2.2 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt), with or without an address prefix as documented in section 2.3 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt).
+
+#### `Stdlib::IP::Address::V6::Alternate`
+
+Match an IPv6 address formatted in the "alternative form" allowing for representing the last two 16-bit pieces of the address with a quad-dotted decimal, as documented in section 2.2.1 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt). It will match addresses with or without an address prefix as documented in section 2.3 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt).
+
+#### `Stdlib::IP::Address::V6::Compressed`
+
+Match an IPv6 address which may contain `::` used to compress zeros as documented in section 2.2.2 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt). It will match addresses with or without an address prefix as documented in section 2.3 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt).
+
+#### `Stdlib::IP::Address::V6::Nosubnet`
+
+Alias to allow `Stdlib::IP::Address::V6::Nosubnet::Full`, `Stdlib::IP::Address::V6::Nosubnet::Alternate` and `Stdlib::IP::Address::V6::Nosubnet::Compressed`.
+
+#### `Stdlib::IP::Address::V6::Nosubnet::Full`
+
+Match an IPv6 address formatted in the "preferred form" as documented in section 2.2 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt). It will not match addresses with address prefix as documented in section 2.3 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt).
+
+#### `Stdlib::IP::Address::V6::Nosubnet::Alternate`
+
+Match an IPv6 address formatted in the "alternative form" allowing for representing the last two 16-bit pieces of the address with a quad-dotted decimal, as documented in section 2.2.1 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt). It will only match addresses without an address prefix as documented in section 2.3 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt).
+
+#### `Stdlib::IP::Address::V6::Nosubnet::Compressed`
+
+Match an IPv6 address which may contain `::` used to compress zeros as documented in section 2.2.2 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt). It will only match addresses without an address prefix as documented in section 2.3 of [RFC 2373](https://www.ietf.org/rfc/rfc2373.txt).
 
 ### Facts
 
@@ -468,10 +820,10 @@ Converts a Boolean to a number. Converts values:
 
 * `false`, 'f', '0', 'n', and 'no' to 0.
 * `true`, 't', '1', 'y', and 'yes' to 1.
-  
-  Argument: a single Boolean or string as an input.
-  
-  *Type*: rvalue.
+
+Argument: a single Boolean or string as an input.
+
+*Type*: rvalue.
 
 #### `bool2str`
 
@@ -538,8 +890,8 @@ Keeps value within the range [Min, X, Max] by sort based on integer value (param
   * `clamp('24', [575, 187])` returns 187.
   * `clamp(16, 88, 661)` returns 88.
   * `clamp([4, 3, '99'])` returns 4.
-  
-Arguments: strings, arrays, or numerics. 
+
+Arguments: strings, arrays, or numerics.
 
 *Type*: rvalue.
 
@@ -690,7 +1042,7 @@ Other settings in Puppet affect the stdlib `deprecation` function:
   Specifies whether or not to log deprecation warnings. This is especially useful for automated tests to avoid flooding your logs before you are ready to migrate.
 
   This variable is Boolean, with the following effects:
-  
+
   * `true`: Functions log a warning.
   * `false`: No warnings are logged.
   * No value set: Puppet 4 emits warnings, but Puppet 3 does not.
@@ -707,7 +1059,7 @@ For example:
 
 #### `dig`
 
-> DEPRECATED: This function has been replaced with a built-in [`dig`](https://docs.puppet.com/puppet/latest/function.html#dig) function as of Puppet 4.5.0. Use [`dig44()`](#dig44) for backwards compatibility or use the new version.
+**Deprecated:** This function has been replaced with a built-in [`dig`](https://docs.puppet.com/puppet/latest/function.html#dig) function as of Puppet 4.5.0. Use [`dig44()`](#dig44) for backwards compatibility or use the new version.
 
 Retrieves a value within multiple layers of hashes and arrays via an array of keys containing a path. The function goes through the structure by each path component and tries to return the value at the end of the path.
 
@@ -811,6 +1163,8 @@ Converts the case of a string or of all strings in an array to lowercase.
 
 #### `empty`
 
+**Deprecated:** This function has been replaced with a built-in [`empty`](https://docs.puppet.com/puppet/latest/function.html#empty) function as of Puppet 5.5.0.
+
 Returns `true` if the argument is an array or hash that contains no elements, or an empty string. Returns `false` when the argument is a numerical value.
 
 *Type*: rvalue.
@@ -895,7 +1249,34 @@ userlist:
 ensure_resources('user', hiera_hash('userlist'), {'ensure' => 'present'})
 ```
 
+#### `fact`
+
+Return the value of a given fact. Supports the use of dot-notation for referring to structured facts. If a fact requested does not exist, returns Undef.
+
+Example usage:
+
+```puppet
+fact('kernel')
+fact('osfamily')
+fact('os.architecture')
+```
+
+Array indexing:
+
+```puppet
+$first_processor  = fact('processors.models.0')
+$second_processor = fact('processors.models.1')
+```
+
+Fact containing a "." in the fact name:
+
+```puppet
+fact('vmware."VRA.version"')
+```
+
 #### `flatten`
+
+**Deprecated:** This function has been replaced with a built-in [`flatten`](https://docs.puppet.com/puppet/latest/function.html#flatten) function as of Puppet 5.5.0.
 
 Flattens deeply nested arrays and returns a single flat array as a result.
 
@@ -1137,7 +1518,7 @@ if $baz.is_a(String) {
 
 #### `is_absolute_path`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the given path is absolute.
 
@@ -1145,7 +1526,7 @@ Returns `true` if the given path is absolute.
 
 #### `is_array`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable passed to this function is an array.
 
@@ -1153,7 +1534,7 @@ Returns `true` if the variable passed to this function is an array.
 
 #### `is_bool`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable passed to this function is a Boolean.
 
@@ -1161,15 +1542,22 @@ Returns `true` if the variable passed to this function is a Boolean.
 
 #### `is_domain_name`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the string passed to this function is a syntactically correct domain name.
 
 *Type*: rvalue.
 
+#### `is_email_address`
+
+Returns true if the string passed to this function is a valid email address.
+
+*Type*: rvalue.
+
+
 #### `is_float`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable passed to this function is a float.
 
@@ -1177,7 +1565,7 @@ Returns `true` if the variable passed to this function is a float.
 
 #### `is_function_available`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Accepts a string as an argument and determines whether the Puppet runtime has access to a function by that name. It returns `true` if the function exists, `false` if not.
 
@@ -1185,7 +1573,7 @@ Accepts a string as an argument and determines whether the Puppet runtime has ac
 
 #### `is_hash`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable passed to this function is a hash.
 
@@ -1193,7 +1581,7 @@ Returns `true` if the variable passed to this function is a hash.
 
 #### `is_integer`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable returned to this string is an integer.
 
@@ -1201,7 +1589,7 @@ Returns `true` if the variable returned to this string is an integer.
 
 #### `is_ip_address`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the string passed to this function is a valid IP address.
 
@@ -1209,7 +1597,7 @@ Returns `true` if the string passed to this function is a valid IP address.
 
 #### `is_ipv6_address`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the string passed to this function is a valid IPv6 address.
 
@@ -1217,7 +1605,7 @@ Returns `true` if the string passed to this function is a valid IPv6 address.
 
 #### `is_ipv4_address`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the string passed to this function is a valid IPv4 address.
 
@@ -1231,7 +1619,7 @@ Returns `true` if the string passed to this function is a valid MAC address.
 
 #### `is_numeric`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable passed to this function is a number.
 
@@ -1239,7 +1627,7 @@ Returns `true` if the variable passed to this function is a number.
 
 #### `is_string`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Returns `true` if the variable passed to this function is a string.
 
@@ -1247,13 +1635,15 @@ Returns `true` if the variable passed to this function is a string.
 
 #### `join`
 
+**Deprecated:** This function has been replaced with a built-in [`join`](https://docs.puppet.com/puppet/latest/function.html#join) function as of Puppet 5.5.0.
+
 Joins an array into a string using a separator. For example, `join(['a','b','c'], ",")` results in: "a,b,c".
 
 *Type*: rvalue.
 
 #### `join_keys_to_values`
 
-Joins each key of a hash to that key's corresponding value with a separator, returning the result as strings. 
+Joins each key of a hash to that key's corresponding value with a separator, returning the result as strings.
 
 If a value is an array, the key is prefixed to each element. The return value is a flattened array.
 
@@ -1263,11 +1653,15 @@ For example, `join_keys_to_values({'a'=>1,'b'=>[2,3]}, " is ")` results in ["a i
 
 #### `keys`
 
+**Deprecated:** This function has been replaced with a built-in [`keys`](https://docs.puppet.com/puppet/latest/function.html#keys) function as of Puppet 5.5.0.
+
 Returns the keys of a hash as an array.
 
 *Type*: rvalue.
 
 #### `length`
+
+**Deprecated:** This function has been replaced with a built-in [`length`](https://docs.puppet.com/puppet/latest/function.html#length) function as of Puppet 5.5.0.
 
 Returns the length of a given string, array or hash. Replaces the deprecated `size()` function.
 
@@ -1407,7 +1801,7 @@ Arguments:
 * The YAML string to convert, as a first argument.
 * Optionally, the result to return if conversion fails, as a second error.
 
-*Type*: rvalue. 
+*Type*: rvalue.
 
 #### `pick`
 
@@ -1509,6 +1903,10 @@ For example, `reject(['aaa','bbb','ccc','aaaddd'], 'aaa')` returns ['bbb','ccc']
 
 Reverses the order of a string or array.
 
+#### `round`
+
+ Rounds a number to the nearest integer
+
 *Type*: rvalue.
 
 #### `rstrip`
@@ -1570,6 +1968,22 @@ Randomizes the order of a string or array elements.
 Returns the number of elements in a string, an array or a hash. This function will be deprecated in a future release. For Puppet 4, use the `length` function.
 
 *Type*: rvalue.
+
+#### `sprintf_hash`
+
+Performs printf-style formatting with named references of text.
+
+The first parameter is a format string describing how to format the rest of the parameters in the hash. See Ruby documentation for [`Kernel::sprintf`](https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-sprintf) for details about this function.
+
+For example:
+
+```puppet
+$output = sprintf_hash('String: %<foo>s / number converted to binary: %<number>b',
+                       { 'foo' => 'a string', 'number' => 5 })
+# $output = 'String: a string / number converted to binary: 101'
+```
+
+*Type*: rvalue
 
 #### `sort`
 
@@ -1655,7 +2069,7 @@ Arguments: A string specifying the time in `strftime` format. See the Ruby [strf
 * `%X`: Preferred representation for the time alone, no date
 * `%y`: Year without a century (00..99)
 * `%Y`: Year with century
-* `%z`: Time zone as hour offset from UTC (e.g. +0900)
+* `%z`: Time zone as hour offset from UTC (for example +0900)
 * `%Z`: Time zone name
 * `%%`: Literal '%' character
 
@@ -1696,19 +2110,43 @@ For example, `time()` returns something like '1311972653'.
 
 Converts the argument into bytes.
 
-For example, "4 kB" becomes "4096". 
+For example, "4 kB" becomes "4096".
 
 Arguments: A single string.
 
 *Type*: rvalue.
 
+#### `to_json`
+
+Converts input into a JSON String.
+
+For example, `{ "key" => "value" }` becomes `{"key":"value"}`.
+
+*Type*: rvalue.
+
+#### `to_json_pretty`
+
+Converts input into a pretty JSON String.
+
+For example, `{ "key" => "value" }` becomes `{\n  \"key\": \"value\"\n}`.
+
+*Type*: rvalue.
+
+#### `to_yaml`
+
+Converts input into a YAML String.
+
+For example, `{ "key" => "value" }` becomes `"---\nkey: value\n"`.
+
+*Type*: rvalue.
+
 #### `try_get_value`
 
-**DEPRECATED:** replaced by `dig()`.
+**Deprecated:** Replaced by `dig()`.
 
 Retrieves a value within multiple layers of hashes and arrays.
 
-Arguments: 
+Arguments:
 
 * A string containing a path, as the first argument. Provide this argument as a string of hash keys or array indexes starting with zero and separated by the path separator character (default "/"). This function goes through the structure by each path component and tries to return the value at the end of the path.
 
@@ -1753,7 +2191,7 @@ $value = try_get_value($data, 'a|b', [], '|')
 
 #### `type3x`
 
-**Deprecated**. This function will be removed in a future release.
+**Deprecated:** This function will be removed in a future release.
 
 Returns a string description of the type of a given value. The type can be a string, array, hash, float, integer, or Boolean. For Puppet 4, use the new type system instead.
 
@@ -1819,7 +2257,7 @@ For example, `upcase('abcd')` returns 'ABCD'.
 
 #### `uriescape`
 
-URLEncodes a string or array of strings. 
+URLEncodes a string or array of strings.
 
 Arguments: Either a single string or an array of strings.
 
@@ -1860,7 +2298,7 @@ validate_absolute_path($undefined)
 
 #### `validate_array`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Validates that all passed values are array data structures. Terminates catalog compilation if any value fails this check.
 
@@ -1913,9 +2351,9 @@ validate_augeas($sudoerscontent, 'Sudoers.lns', [], 'Failed to validate sudoers 
 
 #### `validate_bool`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
-Validates that all passed values are either `true` or `false`. 
+Validates that all passed values are either `true` or `false`.
 Terminates catalog compilation if any value fails this check.
 
 The following values pass:
@@ -1958,9 +2396,56 @@ validate_cmd($haproxycontent, '/usr/sbin/haproxy -f % -c', 'Haproxy failed to va
 
 *Type*: statement.
 
+#### `validate_domain_name`
+
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
+
+Validate that all values passed are syntactically correct domain names. Aborts catalog compilation if any value fails this check.
+
+The following values pass:
+
+~~~
+$my_domain_name = 'server.domain.tld'
+validate_domain_name($my_domain_name)
+validate_domain_name('domain.tld', 'puppet.com', $my_domain_name)
+~~~
+
+The following values fail, causing compilation to abort:
+
+~~~
+validate_domain_name(1)
+validate_domain_name(true)
+validate_domain_name('invalid domain')
+validate_domain_name('-foo.example.com')
+validate_domain_name('www.example.2com')
+~~~
+
+*Type*: statement.
+
+#### `validate_email_address`
+
+Validate that all values passed are valid email addresses. Fail compilation if any value fails this check.
+
+The following values will pass:
+
+~~~
+$my_email = "waldo@gmail.com"
+validate_email_address($my_email)
+validate_email_address("bob@gmail.com", "alice@gmail.com", $my_email)
+~~~
+
+The following values will fail, causing compilation to abort:
+
+~~~
+$some_array = [ 'bad_email@/d/efdf.com' ]
+validate_email_address($some_array)
+~~~
+
+*Type*: statement.
+
 #### `validate_hash`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Validates that all passed values are hash data structures. Terminates catalog compilation if any value fails this check.
 
@@ -1984,7 +2469,7 @@ validate_hash($undefined)
 
 #### `validate_integer`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Validates an integer or an array of integers. Terminates catalog compilation if any of the checks fail.
 
@@ -1992,7 +2477,7 @@ Arguments:
 
 * An integer or an array of integers, as the first argument.
 * Optionally, a maximum, as the second argument. (All elements of) the first argument must be equal to or less than this maximum.
-* Optionally, a minimum, as the third argument. (All elements of) the first argument must be equal to or greater than than this maximum. 
+* Optionally, a minimum, as the third argument. (All elements of) the first argument must be equal to or greater than than this maximum.
 
 This function fails if the first argument is not an integer or array of integers, or if the second or third arguments are not convertable to an integer. However, if (and only if) a minimum is given, the second argument may be an empty string or `undef`, which serves as a placeholder to ensure the minimum check.
 
@@ -2044,9 +2529,9 @@ validate_integer(1, 3, true)
 
 #### `validate_ip_address`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
-Validates that the argument is an IP address, regardless of whether it is an IPv4 or an IPv6 address. It also validates IP address with netmask. 
+Validates that the argument is an IP address, regardless of whether it is an IPv4 or an IPv6 address. It also validates IP address with netmask.
 
 Arguments: A string specifying an IP address.
 
@@ -2091,7 +2576,7 @@ Arguments:
 Example:
 
 ```puppet
-validate_legacy("Optional[String]", "validate_re", "Value to be validated", ["."])
+validate_legacy('Optional[String]', 'validate_re', 'Value to be validated', ["."])
 ```
 
 This function supports updating modules from Puppet 3-style argument validation (using the stdlib `validate_*` functions) to Puppet 4 data types, without breaking functionality for those depending on Puppet 3-style validation.
@@ -2117,7 +2602,7 @@ The deprecation messages you get can vary, depending on the modules and data tha
 
 The `validate_legacy` function helps you move from Puppet 3 style validation to Puppet 4 validation without breaking functionality your module's users depend on.
 
-Moving to Puppet 4 type validation allows much better defined type checking using [data types](https://docs.puppet.com/puppet/latest/reference/lang_data.html). Many of Puppet 3's `validate_*` functions have surprising holes in their validation. For example, [validate_numeric](#validate_numeric) allows not only numbers, but also arrays of numbers or strings that look like numbers, without giving you any control over the specifics. 
+Moving to Puppet 4 type validation allows much better defined type checking using [data types](https://docs.puppet.com/puppet/latest/reference/lang_data.html). Many of Puppet 3's `validate_*` functions have surprising holes in their validation. For example, [validate_numeric](#validate_numeric) allows not only numbers, but also arrays of numbers or strings that look like numbers, without giving you any control over the specifics.
 
 For each parameter of your classes and defined types, choose a new Puppet 4 data type to use. In most cases, the new data type allows a different set of values than the original `validate_*` function. The situation then looks like this:
 
@@ -2160,7 +2645,7 @@ Always note such changes in your CHANGELOG and README.
 
 #### `validate_numeric`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Validates a numeric value, or an array or string of numeric values. Terminates catalog compilation if any of the checks fail.
 
@@ -2178,7 +2663,7 @@ For passing and failing usage, see [`validate_integer`](#validate-integer). The 
 
 #### `validate_re`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Performs simple validation of a string against one or more regular expressions.
 
@@ -2219,7 +2704,7 @@ To force stringification, use quotes:
 
 #### `validate_slength`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Validates that a string (or an array of strings) is less than or equal to a specified length
 
@@ -2249,7 +2734,7 @@ validate_slength(["discombobulate","moo"],17,10)
 
 #### `validate_string`
 
-**Deprecated. Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).**
+**Deprecated:** Will be removed in a future version of stdlib. See [`validate_legacy`](#validate_legacy).
 
 Validates that all passed values are string data structures. Aborts catalog compilation if any value fails this check.
 
@@ -2298,6 +2783,8 @@ validate_x509_rsa_key_pair($cert, $key)
 *Type*: statement.
 
 #### `values`
+
+**Deprecated:** This function has been replaced with a built-in [`values`](https://docs.puppet.com/puppet/latest/function.html#values) function as of Puppet 5.5.0.
 
 Returns the values of a given hash.
 

@@ -19,5 +19,12 @@
   <read_fact>return_salts</read_fact>
 
   <output_type>string</output_type>
+
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>Cryptography and authentication (hashes and attacks against authentication schemes / passwords)</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>cryptographic hashing</keyword>
+  </CyBOK>
   
 </encoder>

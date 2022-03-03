@@ -364,9 +364,10 @@ class samba (
 
 
   ### Include custom class if $my_class is set
-  if $samba::my_class {
-    include $samba::my_class
-  }
+  # Cliffe: comment out to fix an issue
+  # if $samba::my_class {
+  #   include $samba::my_class
+  # }
 
 
   ### Provide puppi data, if enabled ( puppi => true )

@@ -34,5 +34,5 @@
     <module_path>.*puppet_windows</module_path>
   </requires>
 
-
+  <!-- TODO: strings_to_leak -->
 </vulnerability>

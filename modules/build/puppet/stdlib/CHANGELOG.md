@@ -2,6 +2,132 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org).
+## Supported Release 4.25.1
+### Summary
+
+This is a patch which includes a roll up of small fixes. In Puppet 5.5.0 `flatten()`, `length(),` `empty(),` `join(),` `keys(),` and `values()` are now built into Puppet. Please note that the Puppet implementation of the functions will take precedence over the functions in 'puppetlabs-stdlib'.
+
+#### Fixed
+- Remove unneeded execute permission from test files.
+- Puppet 5.5.0 function deprecation [MODULES-6894](https://tickets.puppetlabs.com/browse/MODULES-6894).
+
+## Supported Release 4.25.0
+### Summary
+
+This is quite a feature heavy release, it makes this module PDK-compliant for easier maintenance and includes a roll up of maintenance changes.
+
+#### Added
+- PDK conversion [MODULES-6332](https://tickets.puppetlabs.com/browse/MODULES-6332).
+- Update `join_keys_to_values` with an undef statement.
+- Type alias `Stdlib::Fqdn` matches paths on a fully qualified domain name.
+- Type alias `Stdlib::Host` matches a valid host, this can be a valid 'ipv4', 'ipv6' or 'fqdn'.
+- Type alias `Stdlib::Port` matches a valid TCP/UDP Port number.
+- Type alias `Stdlib::Filesource` matches paths valid values for the source parameter of the puppet file type.
+- Type alias `Stdlib::IP::Address` matches any IP address, including both IPv4 and IPv6 addresses,
+- Type alias `Stdlib::IP::Address::V4` matches any string consisting of a valid IPv4 address, this is extended by 'CIDR' and 'nosubnet'.
+- Type alias `Stdlib::IP::Address::V6` matches any string consisting of a valid IPv6 address, this is extended by 'Full', 'Alternate' and 'Compressed'.
+- Type alias `Stdlib::IP::Address::V6::Nosubnet`matches any string consisting of a valid IPv6 address with no subnet, this is extended by 'Full', 'Alternate' and 'Compressed'.
+- Type alias `Stdlib::Port` matches a valid TCP/UDP Port number this is then extended to 'Privileged' which are ports less than 1024 and 'Unprivileged' which are ports greater than 1024.
+
+## Supported Release 4.24.0
+### Summary
+
+This release includes a roll up of minor changes and a new feature which provides the ability to skip undef values `to_json_pretty()`.
+We have also reverted a change that was previously made and resulted in breaking compatibility with Ruby 1.8.7.
+
+#### Added
+- Ability to skip undef values in `to_json_pretty()`.
+- Fix type3x function in stdlib ([MODULES-6216](https://tickets.puppet.com/browse/MODULES-6216))
+
+#### Changed
+- Indentation for `sync.yml` was fixed.
+- Updated type alias tests and dropped superfluous wrapper classes
+- Revert to old ruby 1.X style of hash ([MODULES-6139](https://tickets.puppet.com/browse/MODULES-6139))
+- `rubocop.yml` not managed by msync ([MODULES-6201](https://tickets.puppet.com/browse/MODULES-6201))
+
+## Supported Release 4.23.0
+### Summary
+
+This release is in order to implement Rubocop changes throughout the module.
+
+#### Added
+- Standard and translated readme's have been updated.
+- Rubocop has been implemented in the module and a wide variety of changes have been made to the code.
+- Modulesync changes have been merged into the code.
+
+#### Fixed
+- Minor fix to the readme.
+
+## Supported Release 4.22.0
+### Summary
+
+This is a clean release in preparation of putting the module through the rubocop process.
+
+#### Added
+- Support has been added for Debian 9
+- 'Stdlib::Mode type' has been added to the module.
+- A type for 'ensure' has been added to the service resources.
+- A new function 'sprintf_hash' has been added to allow the use of named references.
+
+#### Removed
+- Support has been removed for: RedHat 4, CentOS 4, OracleLinux 4, Scientific 4, SLES 10 SP4, Windows Server 2003, Windows Server 2003 R2 and Windows 8.
+
+#### Fixed
+- The 'ruby_spec.rb' test file has been altered s that it properly checks results.
+- Example syntax in 'file_line.rb' has been fixed.
+
+## Supported Release 4.21.0
+### Summary
+
+This is a small feature release that includes a revamped, albeit backwards-compatible file_line type.
+
+#### Added
+- `replace_all_matches_not_matching_line` parameter in file_line
+- additional tests and documentation for file_line
+
+#### Removed
+- duplicate spec test for absolute_path
+
+#### Fixed
+- Unixpath type to allow "/" as valid path
+- file_line behavior that caused infinite appending of `line` to a file ([MODULES-5651](https://tickets.puppet.com/browse/MODULES-5651))
+
+## Supported Release 4.20.0
+### Summary
+
+This release adds new functions and updated README translations.
+
+#### Added
+- `to_json`, `to_json_pretty`, and `to_yaml` functions
+- new Japanese README translations
+
+#### Fixed
+- compatibility issue with older versions of Puppet and the `pw_hash` function ([MODULES-5546](https://tickets.puppet.com/browse/MODULES-5546))
+
+#### Removed
+- support for EOL platform Debian 6 (Squeeze)
+
+## Supported Release 4.19.0
+### Summary
+
+This release adds new functions and better documentation/fixes for existing functions with a noteworthy fix for file_line.
+
+#### Added
+- Add validate_domain_name function
+- Add the round function
+- Add type for MAC address
+- Add support for sensitive data type to pw_hash ([MODULES-4908](https://tickets.puppet.com/browse/MODULES-4908))
+- Add new function, fact() (FACT-932)
+
+#### Fixed
+- Fixes for the file_line provider ([MODULES-5003](https://tickets.puppet.com/browse/MODULES-5003))
+- Add documentation for email functions ([MODULES-5382](https://tickets.puppet.com/browse/MODULES-5382))
+- unique function is deprecated for puppet version > 5. (FM-6239)
+- Fix headers in CHANGELOG.md so that headers render correctly
+- ensure_packages, converge ensure values 'present' and 'installed'
+
+#### Changed
+- Removes listed support for EOL Ubuntu versions
 
 ## Supported Release 4.18.0
 ### Summary
@@ -70,7 +196,7 @@ This release introduces multiple new functions, a new fact and the addition of U
 - Addition of FQDN UUID generation function.
 - Addition of Ubuntu Xenial to OS Support.
 
-####Bugfixes
+#### Bugfixes
 - Ensure_packages now works with Ruby < 2.0.
 - Updated the documentation of str2bool function.
 
@@ -156,11 +282,11 @@ Special thanks to [Voxpupuli's](https://voxpupuli.org/) Igor Galić for donating
 * Puppet 4.5.0 (PE 2016.2) has a number of improvements around data types - especially error handling - that make working with them much nicer.
 
 ## Supported Release 4.12.0
-###Summary
+### Summary
 
 This release provides several new functions, bugfixes, modulesync changes, and some documentation updates.
 
-####Features
+#### Features
 - Adds `clamp`. This function keeps values within a specified range.
 - Adds `validate_x509_rsa_key_pair`. This function validates an x509 RSA certificate and key pair.
 - Adds `dig`. This function performs a deep lookup in nested hashes or arrays.
@@ -172,7 +298,7 @@ This release provides several new functions, bugfixes, modulesync changes, and s
 - Apply modulesync changes.
 - Add validate_email_address function.
 
-####Bugfixes
+#### Bugfixes
 - Fixes `fqdn_rand_string` tests, since Puppet 4.4.0 and later have a higher `fqdn_rand` ceiling.
 - (MODULES-3152) Adds a check to `package_provider` to prevent failures if Gem is not installed.
 - Fixes to README.md.
@@ -181,39 +307,39 @@ This release provides several new functions, bugfixes, modulesync changes, and s
 - Fixes concat with Hash arguments.
 
 ## Supported Release 4.11.0
-###Summary
+### Summary
 
 Provides a validate_absolute_paths and Debian 8 support. There is a fix to the is_package_provider fact and a test improvement.
 
-####Features
+#### Features
 -  Adds new parser called is_absolute_path
 -  Supports Debian 8
 
-####Bugfixes
+#### Bugfixes
 -  Allow package_provider fact to resolve on PE 3.x
 
-####Improvements
+#### Improvements
 - ensures that the test passes independently of changes to rubygems for ensure_resource
 
-##2015-12-15 - Supported Release 4.10.0
-###Summary
+## 2015-12-15 - Supported Release 4.10.0
+### Summary
 
 Includes the addition of several new functions and considerable improvements to the existing functions, tests and documentation. Includes some bug fixes which includes compatibility, test and fact issues.
 
-####Features
+#### Features
 - Adds service_provider fact
 - Adds is_a() function
 - Adds package_provider fact
 - Adds validate_ip_address function
 - Adds seeded_rand function
 
-####Bugfixes
+#### Bugfixes
 - Fix backwards compatibility from an improvement to the parseyaml function
 - Renaming of load_module_metadata test to include _spec.rb
 - Fix root_home fact on AIX 5.x, now '-c' rather than '-C'
 - Fixed Gemfile to work with ruby 1.8.7
 
-####Improvements
+#### Improvements
 - (MODULES-2462) Improvement of parseyaml function
 - Improvement of str2bool function
 - Improvement to readme
@@ -228,26 +354,26 @@ Includes the addition of several new functions and considerable improvements to 
 - Improvement to naming convention in validate_ipv4_address function
 
 ## Supported Release 4.9.1
-###Summary
+### Summary
 
 Small release for support of newer PE versions. This increments the version of PE in the metadata.json file.
 
-##2015-09-08 - Supported Release 4.9.0
-###Summary
+## 2015-09-08 - Supported Release 4.9.0
+### Summary
 
 This release adds new features including the new functions dos2unix, unix2dos, try_get_value, convert_base as well as other features and improvements.
 
-####Features
+#### Features
 - (MODULES-2370) allow `match` parameter to influence `ensure => absent` behavior
 - (MODULES-2410) Add new functions dos2unix and unix2dos
 - (MODULE-2456) Modify union to accept more than two arrays
 - Adds a convert_base function, which can convert numbers between bases
 - Add a new function "try_get_value"
 
-####Bugfixes
+#### Bugfixes
 - n/a
 
-####Improvements
+#### Improvements
 - (MODULES-2478) Support root_home fact on AIX through "lsuser" command
 - Acceptance test improvements
 - Unit test improvements
@@ -266,15 +392,15 @@ This release adds a function for reading metadata.json from any module, and expa
 - Fix various docs typos
 - Fix `file_line` resource on puppet < 3.3
 
-##2015-06-22 - Supported Release 4.7.0
-###Summary
+## 2015-06-22 - Supported Release 4.7.0
+### Summary
 
 Adds Solaris 12 support along with improved Puppet 4 support. There are significant test improvements, and some minor fixes.
 
-####Features
+#### Features
 - Add support for Solaris 12
 
-####Bugfixes
+#### Bugfixes
 - Fix for AIO Puppet 4
 - Fix time for ruby 1.8.7
 - Specify rspec-puppet version
@@ -284,7 +410,7 @@ Adds Solaris 12 support along with improved Puppet 4 support. There are signific
 - catch and rescue from looking up non-existent facts
 - Use puppet_install_helper, for Puppet 4
 
-####Improvements
+#### Improvements
 - Enforce support for Puppet 4 testing
 - fqdn_rotate/fqdn_rand_string acceptance tests and implementation
 - Simplify mac address regex
@@ -295,12 +421,12 @@ Adds Solaris 12 support along with improved Puppet 4 support. There are signific
 - Add validate_slength optional 3rd arg
 - Move tests directory to examples directory
 
-##2015-04-14 - Supported Release 4.6.0
-###Summary
+## 2015-04-14 - Supported Release 4.6.0
+### Summary
 
 Adds functions and function argument abilities, and improves compatibility with the new puppet parser
 
-####Features
+#### Features
 - MODULES-444: `concat()` can now take more than two arrays
 - `basename()` added to have Ruby File.basename functionality
 - `delete()` can now take an array of items to remove
@@ -317,7 +443,7 @@ Adds functions and function argument abilities, and improves compatibility with 
 - Adds `validate_integer()`
 - Adds `validate_numeric()` (like `validate_integer()` but also accepts floats)
 
-####Bugfixes
+#### Bugfixes
 - Fix seeding of `fqdn_rotate()`
 - `ensure_resource()` is more verbose on debug mode
 - Stricter argument checking for `dirname()`
@@ -325,37 +451,37 @@ Adds functions and function argument abilities, and improves compatibility with 
 - Fix `uriescape()` when called with array
 - Fix `file_line` resource when using the `after` attribute with `match`
 
-##2015-01-14 - Supported Release 4.5.1
-###Summary
+## 2015-01-14 - Supported Release 4.5.1
+### Summary
 
 This release changes the temporary facter_dot_d cache locations outside of the /tmp directory due to a possible security vunerability. CVE-2015-1029
 
-####Bugfixes
+#### Bugfixes
 - Facter_dot_d cache will now be stored in puppet libdir instead of tmp
 
-##2014-12-15 - Supported Release 4.5.0
-###Summary
+## 2014-12-15 - Supported Release 4.5.0
+### Summary
 
 This release improves functionality of the member function and adds improved future parser support.
 
-####Features
+#### Features
 - MODULES-1329: Update member() to allow the variable to be an array.
 - Sync .travis.yml, Gemfile, Rakefile, and CONTRIBUTING.md via modulesync
 
-####Bugfixes
+#### Bugfixes
 - Fix range() to work with numeric ranges with the future parser
 - Accurately express SLES support in metadata.json (was missing 10SP4 and 12)
 - Don't require `line` to match the `match` parameter
 
-##2014-11-10 - Supported Release 4.4.0
-###Summary
+## 2014-11-10 - Supported Release 4.4.0
+### Summary
 This release has an overhauled readme, new private manifest function, and fixes many future parser bugs.
 
-####Features
+#### Features
 - All new shiny README
 - New `private()` function for making private manifests (yay!)
 
-####Bugfixes
+#### Bugfixes
 - Code reuse in `bool2num()` and `zip()`
 - Fix many functions to handle `generate()` no longer returning a string on new puppets
 - `concat()` no longer modifies the first argument (whoops)
@@ -367,20 +493,20 @@ This release has an overhauled readme, new private manifest function, and fixes 
 - Fix `file_line` matching on older rubies
 
 
-##2014-07-15 - Supported Release 4.3.2
-###Summary
+## 2014-07-15 - Supported Release 4.3.2
+### Summary
 
 This release merely updates metadata.json so the module can be uninstalled and
 upgraded via the puppet module command.
 
-##2014-07-14 - Supported Release 4.3.1
+## 2014-07-14 - Supported Release 4.3.1
 ### Summary
 This supported release updates the metadata.json to work around upgrade behavior of the PMT.
 
 #### Bugfixes
 - Synchronize metadata.json with PMT-generated metadata to pass checksums
 
-##2014-06-27 - Supported Release 4.3.0
+## 2014-06-27 - Supported Release 4.3.0
 ### Summary
 This release is the first supported release of the stdlib 4 series. It remains
 backwards-compatible with the stdlib 3 series. It adds two new functions, one bugfix, and many testing updates.
@@ -392,7 +518,7 @@ backwards-compatible with the stdlib 3 series. It adds two new functions, one bu
 #### Bugfixes
 - Fix `has_interface_with()` when interfaces fact is nil
 
-##2014-06-04 - Release 4.2.2
+## 2014-06-04 - Release 4.2.2
 ### Summary
 
 This release adds PE3.3 support in the metadata and fixes a few tests.
@@ -436,14 +562,14 @@ This release adds many new functions and fixes, and continues to be backwards co
 - Add/update unit & acceptance tests.
 
 
-##2014-03-04 - Supported Release - 3.2.1
-###Summary
+## 2014-03-04 - Supported Release - 3.2.1
+### Summary
 This is a supported release
 
-####Bugfixes
+#### Bugfixes
 - Fixed `is_integer`/`is_float`/`is_numeric` for checking the value of arithmatic expressions.
 
-####Known bugs
+#### Known bugs
 * No known bugs
 
 ---

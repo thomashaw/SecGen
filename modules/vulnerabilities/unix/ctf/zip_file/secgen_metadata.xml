@@ -50,4 +50,15 @@
     <module_path>utilities/unix/system/leak_to_file</module_path>
   </requires>
 
+  <!-- depending on how the module is used -->
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Linux security model</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+  <CyBOK KA="C" topic="Symmetric Cryptography">
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
+
 </vulnerability>

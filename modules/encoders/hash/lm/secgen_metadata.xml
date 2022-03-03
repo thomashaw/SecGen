@@ -6,7 +6,7 @@
   <name>LM Encoder</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
-  <description>Generates an MD5 hash for each of the strings.</description>
+  <description>Generates an LM hash for each of the strings.</description>
 
   <type>hash</type>
   <type>lm</type>
@@ -19,5 +19,12 @@
   <read_fact>return_salts</read_fact>
 
   <output_type>string</output_type>
-  
+
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>Cryptography and authentication (hashes and attacks against authentication schemes / passwords)</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>cryptographic hashing</keyword>
+  </CyBOK>
+
 </encoder>

@@ -22,6 +22,9 @@
   <conflict>
     <name>.*Stretch.*</name>
   </conflict>
+  <conflict>
+    <name>.*Buster.*</name>
+  </conflict>
   <requires>
     <type>update</type>
   </requires>

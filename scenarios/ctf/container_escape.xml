@@ -1,188 +1,217 @@
 <?xml version="1.0"?>
 
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-	<name>Containers escape lab</name>
+  <name>Containers Escape</name>
   <author>Z. Cliffe Schreuders</author>
   <description>An "escape room" -- you need to find a way into then escape to root a docker container and a chroot container. Hints: the flags are stored in /root/ on the two VMs but you first need to find your way in, and then escape confinement. Good luck!</description>
 
-  <type>ctf-lab</type>
-  <type>hackerbot-lab</type>
-  <type>lab-sheet</type>
+  <type>ctf</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
   <difficulty>intermediate</difficulty>
 
-	<system>
-		<system_name>desktop</system_name>
-		<base distro="Debian 9" type="desktop" name="KDE"/>
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>SANDBOX</keyword>
+    <keyword>Application-based access controls: user-based access controls insufficiently limit privileges</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Container-based sandboxes: chroot, Docker</keyword>
+    <keyword>Vulnerabilities and attacks on sandboxing misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Role of Operating Systems">
+    <keyword>isolation</keyword>
+    <keyword>CONTAINERS</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>sandboxing</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+  </CyBOK>
 
-		<input into_datastore="IP_addresses">
-			<value>172.16.0.2</value>
-			<value>172.16.0.3</value>
-			<value>172.16.0.4</value>
-			<value>172.16.0.5</value>
-		</input>
+  <system>
+    <system_name>desktop</system_name>
+    <base distro="Debian 9" type="desktop" name="KDE"/>
 
-		<!--generate two accounts, YOU and someone else-->
-		<input into_datastore="accounts">
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>tiaspbiqe2r</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-		</input>
+    <input into_datastore="IP_addresses">
+      <value>172.16.0.2</value>
+      <value>172.16.0.3</value>
+      <value>172.16.0.4</value>
+      <value>172.16.0.5</value>
+    </input>
 
-		<input into_datastore="hackerbot_access_root_password">
-			<generator type="strong_password_generator"/>
-		</input>
+    <!--generate two accounts, YOU and someone else-->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
 
-		<!--Create the users-->
-		<utility module_path=".*/parameterised_accounts">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="strings_to_leak">
-				<value></value>
-			</input>
-		</utility>
+    <input into_datastore="hackerbot_access_root_password">
+      <generator type="strong_password_generator"/>
+    </input>
 
-		<utility module_path=".*/kde_minimal">
-			<input into="autologin_user">
-				<datastore access="0" access_json="['username']">accounts</datastore>
-			</input>
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart_konsole">
-				<value>true</value>
-			</input>
-		</utility>
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <value></value>
+      </input>
+    </utility>
 
-		<utility module_path=".*/docker">
-			<input into="images">
-				<value>ubuntu:xenial</value>
-		    <value>debian:stretch</value>
-		    <value>busybox</value>
-			</input>
-		</utility>
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
-		<vulnerability module_path=".*/nc_backdoor_docker_esc">
-		  <input into="strings_to_leak">
-		    <generator type="flag_generator"/>
-		  </input>
-		  <input into="leaked_filenames">
-		    <value>docker_flag</value>
-		  </input>
-		</vulnerability>
+    <utility module_path=".*/docker">
+      <input into="images">
+        <value>ubuntu:xenial</value>
+        <value>debian:stretch</value>
+        <value>busybox</value>
+      </input>
+    </utility>
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>hackerbot_access_root_password</datastore>
-			</input>
-		</vulnerability>
+    <vulnerability module_path=".*/nc_backdoor_docker_esc">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+      <input into="leaked_filenames">
+        <value>docker_flag</value>
+      </input>
+    </vulnerability>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="0">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
 
-	<system>
-		<system_name>chroot_esc_server</system_name>
-		<base distro="Debian 9" type="desktop" name="KDE"/>
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+  <system>
+    <system_name>chroot_esc_server</system_name>
+    <base distro="Debian 9" type="desktop" name="KDE"/>
 
-		<utility module_path=".*/chroot_debootstrap">
-			<input into="chroot_dir">
-				<value>/opt/chroot</value>
-			</input>
-		</utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
-		<vulnerability module_path=".*/nc_backdoor_chroot_esc">
-		  <input into="strings_to_leak">
-		    <generator type="flag_generator"/>
-		  </input>
+    <utility module_path=".*/chroot_debootstrap">
+      <input into="chroot_dir">
+        <value>/opt/chroot</value>
+      </input>
+    </utility>
 
-		  <input into="leaked_filenames">
-		    <value>chroot_flag</value>
-		  </input>
-		</vulnerability>
+    <vulnerability module_path=".*/nc_backdoor_chroot_esc">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>hackerbot_access_root_password</datastore>
-			</input>
-		</vulnerability>
+      <input into="leaked_filenames">
+        <value>chroot_flag</value>
+      </input>
+    </vulnerability>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
 </scenario>

@@ -36,8 +36,7 @@ You will need to install the following:
 This project has been adapted to work with the Ubuntu (20.04) release due to (16.04) coming to end of life as of April 2021, though it will still work on that version it is not guaranteed to support the security updates needed for your development environment.
 
 
-### Updated Installation Instruction's to support Ubuntu (20.04)
-### These commands will get you up and running
+### On Ubuntu (20.04) these commands will get you up and running
 
 Ensure Ubuntu is updated using the following commands:
 ```bash
@@ -67,7 +66,7 @@ bundle update --bundler
 ```
 Update gems:
 ```bash
-bundle update 
+bundle update
 ```
 
 ### On Ubuntu (16.04) these commands will get you up and running
@@ -167,6 +166,9 @@ SecGen accepts arguments to change the way that it behaves, the currently implem
       delete-all-projects: Deletes all current projects in the projects directory
 
 ```
+
+## Troubleshooting: updating VirtualBox base boxes
+If SecGen experiences errors installing packages, the template VMs (base boxes) we publish on Vagrant cloud may need updating (especially Kali, which is a rolling-release). After you have built some VMs, browse in your home directory `.vagrant.d/boxes/`, from here you can manually launch the VMs that are used as templates, and apply software updates `sudo apt-get update; sudo apt-get upgrade`. Then power down the VM, and try SecGen again.
 
 ## Scenarios
 SecGen generates VMs based on a scenario specification, which describes the constraints and properties of the VMs to be created.
@@ -270,7 +272,7 @@ The Cyber Security Body of Knowledge (CyBOK) is a body of knowledge that aims to
 Scenarios within SecGen now contain XML elements linking them to CyBOK knowledge areas and specific topics within those knowledge areas.
 Additionally, video content for scenarios are tagged with CyBOK associations.
 
-For an index of lab scenarios in SecGen organised by CyBOK Knowledge Areas please see the **[Lab Scenarios and CyBOK](README-CyBOK-Scenarios-Indexed.md)**.
+For an index of lab scenarios in SecGen organised by CyBOK Knowledge Areas please see the **[Lab Scenarios and CyBOK](README-CyBOK-Scenarios-Indexed.md)**. Likewise, for **[CTF scenarios](README-CyBOK-CTF-Scenarios-Indexed.md)**.
 
 For a list of lecture and demo videos with CyBOK metadata please see the **[Lecture Videos and CyBOK](README-CyBOK-Lecture-Videos.md)**.
 
@@ -319,6 +321,7 @@ Many thanks to everyone who has contributed to the project. The above list is no
 This project is supported by a Higher Education Academy (HEA) learning and teaching in cyber security grant (2015-2017).
 This project is supported by a Leeds Beckett University Teaching Excellence Fund grant (2018-2019).
 This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.0 grant (2021).
+This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.1 grant (2021).
 
 ## Contributing
 We encourage contributions to the project.

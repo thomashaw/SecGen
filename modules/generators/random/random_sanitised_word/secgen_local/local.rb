@@ -10,8 +10,8 @@ class SanitisedWordGenerator < StringGenerator
   def initialize
     super
     self.wordlist = []
-    self.min_length = ''
-    self.max_length = ''
+    self.min_length = 0
+    self.max_length = 999
     self.module_name = 'Random Word Generator'
   end
 
@@ -27,15 +27,11 @@ class SanitisedWordGenerator < StringGenerator
       when '--wordlist'
         self.wordlist << arg;
       when '--min_length'
-        if arg == ''
-          self.min_length = 0
-        else
+        if arg != ''
           self.min_length = arg.to_i
         end
       when '--max_length'
-        if arg == ''
-          self.max_length = 999
-        else
+        if arg != ''
           self.max_length = arg.to_i
         end
     end

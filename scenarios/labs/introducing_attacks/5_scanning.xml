@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-	<name>Information Gathering: Scanning</name>
+  <name>Information Gathering: Scanning</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
 # Introduction
@@ -15,101 +15,101 @@ This week we learn how to scan networks to get an understanding of and to map ou
 
 # Lab
 [Lab sheet here](https://docs.google.com/document/d/1KScKw7M4Bt_FE5F_2tI6tnK1NrKNAJkyh5F2TpOh9hA/edit?usp=sharing).
-	</description>
+  </description>
 
-	<type>ctf-lab</type>
+  <type>ctf-lab</type>
   <type>lab-sheet</type>
   <difficulty>easy</difficulty>
 
-	<CyBOK KA="AB" topic="Models">
-		<keyword>kill chains</keyword>
-	</CyBOK>
-	<CyBOK KA="MAT" topic="Malicious Activities by Malware">
-		<keyword>cyber kill chain</keyword>
-	</CyBOK>
-	<CyBOK KA="NS" topic="PENETRATION TESTING">
-		<keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
-		<keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
-		<keyword>PENETRATION TESTING - NETWORK MAPPING - PING</keyword>
-	</CyBOK>
-	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
-		<keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
-		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
-	</CyBOK>
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - PING</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+  </CyBOK>
 
-	<system>
-		<system_name>linux_victim_server</system_name>
-		<base distro="Debian 10" type="desktop"/>
+  <system>
+    <system_name>linux_victim_server</system_name>
+    <base distro="Debian 10" type="desktop"/>
 
 
-		<input into_datastore="IP_addresses">
-			<!-- 0 linux server -->
-			<value>172.16.0.10</value>
-			<!-- 1 kali -->
-			<value>172.16.0.2</value>
-		</input>
+    <input into_datastore="IP_addresses">
+      <!-- 0 linux server -->
+      <value>172.16.0.10</value>
+      <!-- 1 kali -->
+      <value>172.16.0.2</value>
+    </input>
 
-		<!-- vulnerable distcc server -->
-		<vulnerability cve="CVE-2004-2687">
-			<input into="strings_to_leak">
+    <!-- vulnerable distcc server -->
+    <vulnerability cve="CVE-2004-2687">
+      <input into="strings_to_leak">
         <generator type="flag_generator" />
       </input>
-			<input into="leaked_filenames">
-				<value>flag</value>
-			</input>
-		</vulnerability>
+      <input into="leaked_filenames">
+        <value>flag</value>
+      </input>
+    </vulnerability>
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak">
-				<generator type="flag_generator" />
-			</input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <generator type="flag_generator" />
+      </input>
+    </utility>
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak">
-				<generator type="flag_generator" />
-			</input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <generator type="flag_generator" />
+      </input>
+    </utility>
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak">
-				<encoder module_path=".*/base64">
-					<input into="strings_to_encode">
-						<generator type="flag_generator" />
-					</input>
-				</encoder>
-			</input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <encoder module_path=".*/base64">
+          <input into="strings_to_encode">
+            <generator type="flag_generator" />
+          </input>
+        </encoder>
+      </input>
+    </utility>
 
-		<service type="httpd"/>
-		<service type="ftp"/>
+    <service type="httpd"/>
+    <service type="ftp"/>
 
-		<network type="private_network">
-			<input into="IP_address">
-				<datastore access="0">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-	<system>
-		<system_name>kali</system_name>
-		<base distro="Kali" name="MSF"/>
+  <system>
+    <system_name>kali</system_name>
+    <base distro="Kali" name="MSF"/>
 
-		<input into_datastore="kali_root_account">
-			<value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
-		</input>
+    <input into_datastore="kali_root_account">
+      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+    </input>
 
-		<utility module_path=".*/metasploit_framework"/>
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
-		<!-- <utility module_path=".*/zenmap"/> -->
-		<utility module_path=".*/amap"/>
+    <utility module_path=".*/metasploit_framework"/>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+    <!-- <utility module_path=".*/zenmap"/> -->
+    <utility module_path=".*/amap"/>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
 </scenario>

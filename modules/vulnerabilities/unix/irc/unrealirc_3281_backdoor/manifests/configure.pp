@@ -14,7 +14,7 @@ class unrealirc_3281_backdoor::configure {
     $motd = "Welcome to the $business_name irc server!"
   }
   else{
-    $motd = $secgen_parameters['motd'][0]
+    $motd = join($secgen_parameters['strings_to_pre_leak'], "\n")
   }
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'], }

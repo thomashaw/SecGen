@@ -1,6 +1,6 @@
 #!/bin/zsh
 # Take subset of SHA, convert to decimal in bc
-SALT=`date +%g`
+SALT=`date +%N`
 if [[ ARGC -gt 0 ]] then
   BINNAME=`basename $PWD`
   foreach USER ($@)

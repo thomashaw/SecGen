@@ -51,4 +51,11 @@
     <module_path>utilities/unix/system/accounts</module_path>
   </requires>
 
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key signatures</keyword>
+  </CyBOK>
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+  </CyBOK>
+
 </vulnerability>

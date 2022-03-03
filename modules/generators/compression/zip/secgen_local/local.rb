@@ -18,7 +18,7 @@ class ZipGenerator < StringEncoder
   end
 
   def encode_all
-    zip_file_path = GENERATORS_DIR + 'compression/zip/tmp/archive.zip'
+    zip_file_path = GENERATORS_DIR + 'compression/zip/tmp/archive' + Time.new.strftime("%Y%m%d_%H%M%S") + '.zip'
     file_contents = ''
     data = self.strings_to_leak.join("\n")
 

@@ -36,4 +36,12 @@
   </default_input>
 
   <output_type>generated_image</output_type>
+
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>STEGANOGRAPHY</keyword>
+  </CyBOK>
+  <CyBOK KA="POR" topic="Privacy Technologies and Democratic Values">
+    <keyword>STEGANOGRAPHY</keyword>
+  </CyBOK>
+
 </generator>

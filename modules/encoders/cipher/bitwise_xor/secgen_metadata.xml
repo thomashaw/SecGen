@@ -32,10 +32,17 @@
 
   <output_type>generated_strings</output_type>
 
-  <!-- FIXME: Issue #158: Stack level too deep -->
+  <!-- TODO FIXME: Issue #158: Stack level too deep -->
   <!-- In the meantime conflicts with everything to avoid being selected -->
   <conflict>
     <module_path>.*</module_path>
   </conflict>
+
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+  <CyBOK KA="C" topic="Symmetric Cryptography">
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
 
 </encoder>

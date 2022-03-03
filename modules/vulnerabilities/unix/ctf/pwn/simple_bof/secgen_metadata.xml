@@ -47,6 +47,11 @@
     <generator type="flag_generator"/>
   </default_input>
 
+  <!-- TODO: test me: disabled until tested -->
+  <conflict>
+    <name>.*</name>
+  </conflict>
+
   <requires>
     <type>update</type>
   </requires>

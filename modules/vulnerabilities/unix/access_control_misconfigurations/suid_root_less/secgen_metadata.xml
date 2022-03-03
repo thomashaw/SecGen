@@ -9,12 +9,24 @@
   <description>Mis-configure files to enable root privileges</description>
 
   <type>access_control_misconfiguration</type>
-  <privilege>root_r</privilege>
+  <type>suid_root_viewer_shell</type>
+  <privilege>root_rwx</privilege>
   <access>local</access>
   <platform>unix</platform>
 
   <!--optional hints-->
   <hint>Text viewer permission misconfiguration</hint>
   <solution>Less editor running as user root</solution>
+
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+    <keyword>Attacks against SUID</keyword>
+  </CyBOK>
 
 </vulnerability>

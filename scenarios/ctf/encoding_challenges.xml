@@ -15,6 +15,20 @@
   <type>crypto-ctf</type>
   <difficulty>easy</difficulty>
 
+  <CyBOK KA="C" topic="Symmetric Cryptography">
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+  </CyBOK>
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>Cryptography and authentication (hashes and attacks against authentication schemes / passwords)</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>cryptographic hashing</keyword>
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
   <!-- Challenge overview -->
   <!-- 5x encoding challenges per challenger -->
   <!-- 1: ascii|alpha reversible: low -->
@@ -28,10 +42,10 @@
   <!-- 2: Unsalted word / common password (medium) -->
   <!-- 3: Unsalted word / common password (high) -->
   <!-- 4: word/ password with hexadecimal salt provided -->
-  <!-- 	- concat salt on start/end -->
+  <!--   - concat salt on start/end -->
   <!-- 5: word / password without salt provided  -->
-  <!-- 	- concat salt on start/end -->
-  <!-- 	- drop clue to what the salt is in text file (i.e. 3 digit string of numerical digits between 000-999) -->
+  <!--   - concat salt on start/end -->
+  <!--   - drop clue to what the salt is in text file (i.e. 3 digit string of numerical digits between 000-999) -->
 
   <system>
     <system_name>system</system_name>

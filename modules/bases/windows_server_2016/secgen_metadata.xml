@@ -14,7 +14,7 @@
   <distro>server 2016</distro>
   <url>http://TODO</url>
   <esxi_url></esxi_url>
-  <ovirt_template>win2016_20200228_2</ovirt_template>
+  <ovirt_template>win2016_20220207</ovirt_template>
 
   <software_license>various</software_license>
 

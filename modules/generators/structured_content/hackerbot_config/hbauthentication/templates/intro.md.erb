@@ -111,7 +111,7 @@ The "sudo" program can be used to run a program as another user, effectively ena
 sudo -i
 ```
 
-Enter the root password.
+Enter your password.
 
 Use these commands to ==find out about your new identity:==
 
@@ -154,6 +154,8 @@ Run the single command "id" as root:
 ```bash
 sudo id
 ```
+
+==Open a fresh terminal window (so you are running as <%= $main_user %>.)==
 
 ==Log Book Question: What is the difference between sudo and su? Which is most likely protect against accidental damage and also log the commands used? Do they authenticate users (that is, use passwords) differently?==
 
@@ -231,7 +233,7 @@ The format of the shadow file is:
 
 > Exit less ("q").
 
-Use the passwd command to ==change your password:==
+Use the passwd command to ==change your <%= $main_user %>'s password:==
 
 ```bash
 passwd

@@ -148,9 +148,6 @@
       </input>
     </vulnerability>
 
-    <service/>
-    <service/>
-
     <build type="cleanup">
       <input into="root_password">
         <generator type="password_generator"/>

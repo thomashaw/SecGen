@@ -1,0 +1,3 @@
+include proftpd_133c_backdoor_nonroot::install
+include proftpd_133c_backdoor_nonroot::config
+include proftpd_133c_backdoor_nonroot::service

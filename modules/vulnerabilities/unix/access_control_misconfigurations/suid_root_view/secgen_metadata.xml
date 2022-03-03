@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Access control mis-configurations suid vi root</name>
+  <author>Z. Cliffe Schreuders</author>
+  <author>Jason Keighley</author>
+  <module_license>Apache v2</module_license>
+  <description>Mis-configure files to enable root privileges</description>
+
+  <type>access_control_misconfiguration</type>
+  <type>suid_root_viewer_shell</type>
+  <privilege>root_rwx</privilege>
+  <access>local</access>
+  <platform>unix</platform>
+
+  <!--optional hints-->
+  <hint>Text editor permission misconfiguration</hint>
+  <solution>Vi text editor running as user root</solution>
+
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+    <keyword>Attacks against SUID</keyword>
+  </CyBOK>
+
+</vulnerability>

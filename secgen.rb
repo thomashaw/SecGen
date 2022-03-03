@@ -32,6 +32,9 @@ def usage
    --system, -y [system_name]: Only build this system_name from the scenario
    --snapshot: Creates a snapshot of VMs once built
    --no-tests: Prevent post-provisioning tests from running.
+   --no-destroy-on-failure: Don't delete VMs that fail to build (except when retrying).
+   --retries [number]: Retry building vms that fail to build this many attempts.
+   --no-parallel: Build one VM at a time.
 
    VIRTUALBOX OPTIONS:
    --gui-output, -g: Show the running VM (not headless)
@@ -120,9 +123,12 @@ def build_vms(scenario, project_dir, options)
   if options.has_key? :reload
     command = '--provision reload'
   end
+  if options.has_key? :noparallel
+    command = "#{command} --no-parallel"
+  end
 
-  # if deploying to ovirt, when things fail to build, set the retry_count
-  retry_count = OVirtFunctions::provider_ovirt?(options) ? 1 : 0
+  # retry count, for when things fail to build
+  retry_count = options.has_key?(:retries) ? options[:retries].to_i : 0
   successful_creation = false
 
   while retry_count >= 0 and !successful_creation
@@ -184,8 +190,12 @@ def build_vms(scenario, project_dir, options)
           GemExec.exe('vagrant', project_dir, 'destroy -f')
         end
       else
-        Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
-        GemExec.exe('vagrant', project_dir, 'destroy -f')
+        if options[:nodestroy]
+          Print.err "Not destroying failed VM."
+        else
+          Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
+          GemExec.exe('vagrant', project_dir, 'destroy -f')
+        end
         exit 1
       end
     end
@@ -204,6 +214,7 @@ def build_vms(scenario, project_dir, options)
     end
   else
     Print.err "Failed to build VMs"
+    show_running_time(beginning_time)
     exit 1
   end
 end
@@ -396,7 +407,7 @@ end
 
 Print.std '~' * 47
 Print.std 'SecGen - Creates virtualised security scenarios'
-Print.std '            Licensed GPLv3 2014-19'
+Print.std '            Licensed GPLv3 2014-22'
 Print.std '~'*47
 Print.debug "\nPlease take a minute to tell us how you are using SecGen:"
 Print.debug "https://tinyurl.com/SecGenFeedback\n"
@@ -444,6 +455,9 @@ opts = GetoptLong.new(
     ['--ovirt-affinity-group', GetoptLong::REQUIRED_ARGUMENT],
     ['--snapshot', GetoptLong::NO_ARGUMENT],
     ['--no-tests', GetoptLong::NO_ARGUMENT],
+    ['--no-destroy-on-failure', GetoptLong::NO_ARGUMENT],
+    ['--no-parallel', GetoptLong::NO_ARGUMENT],
+    ['--retries', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxi-url', GetoptLong::REQUIRED_ARGUMENT],
@@ -564,6 +578,15 @@ opts.each do |opt, arg|
   when '--no-tests'
     Print.info "Not running post-provision tests"
     options[:notests] = true
+  when '--no-destroy-on-failure'
+    Print.info "Will not destroy VMs when they fail to build"
+    options[:nodestroy] = true
+  when '--no-parallel'
+    Print.info "Will not build VMs in parallel"
+    options[:noparallel] = true
+  when '--retries'
+    Print.info "Number of retries to build vms : #{arg}"
+    options[:retries] = arg
   else
     Print.err "Argument not valid: #{arg}"
     usage

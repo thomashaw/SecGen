@@ -50,4 +50,34 @@
     <type>update</type>
   </requires>
 
+  <CyBOK KA="AAA" topic="Authorisation">
+		<keyword>SANDBOX</keyword>
+		<keyword>Application-based access controls: user-based access controls insufficiently limit privileges</keyword>
+	</CyBOK>
+	<CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+		<keyword>Container-based sandboxes: chroot, Docker</keyword>
+    <keyword>Vulnerabilities and attacks on sandboxing misconfigurations</keyword>
+	</CyBOK>
+  <CyBOK KA="OSV" topic="Role of Operating Systems">
+    <keyword>isolation</keyword>
+    <keyword>CONTAINERS</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>sandboxing</keyword>
+  </CyBOK>
+	<CyBOK KA="MAT" topic="Attacks and exploitation">
+		<keyword>EXPLOITATION</keyword>
+		<keyword>EXPLOITATION FRAMEWORKS</keyword>
+	</CyBOK>
+	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+		<keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+	</CyBOK>
+	<CyBOK KA="NS" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+	</CyBOK>
+
+
 </vulnerability>

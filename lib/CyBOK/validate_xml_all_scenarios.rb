@@ -12,13 +12,12 @@ Dir.chdir(scenarios_dir) do
 end
 
 scenarios.each { |scenario|
-  Print.verbose "Reading #{scenario}"
+  # Print.verbose "Reading #{scenario}"
   doc, xsd = nil
   begin
     doc = Nokogiri::XML(File.read("#{ROOT_DIR}/scenarios/#{scenario}"))
   rescue
     Print.err "Failed to read scenario configuration file (#{scenario})"
-    exit
   end
 
   # validate scenario XML against schema
@@ -27,13 +26,11 @@ scenarios.each { |scenario|
     xsd.validate("#{ROOT_DIR}/scenarios/#{scenario}").each do |error|
       Print.err "Error in scenario configuration file (#{scenario}):"
       Print.err "    #{error.line}: #{error.message}"
-      exit
     end
-    Print.verbose " Valid XML"
+    Print.info " Valid XML - #{scenario}"
   rescue Exception => e
     Print.err "Failed to validate scenario configuration file (#{scenario}): against schema (#{SCENARIO_SCHEMA_FILE})"
     Print.err e.message
-    # exit
   end
 
 

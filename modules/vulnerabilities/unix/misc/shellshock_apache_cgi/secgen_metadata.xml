@@ -29,11 +29,20 @@
   <hint>On remote exploitation of the apache server you will have a user_rwx shell as www-data. It is then possible to
     escalate using a different exploit that targets the same vulnerability locally.</hint>
 
+  <!-- only tested for Wheezy -->
+  <conflict>
+    <name>.*Debian.*Stretch.*</name>
+  </conflict>
+  <conflict>
+    <name>.*Debian.*Buster.*</name>
+  </conflict>
+
   <requires>
     <module_path>vulnerabilities/unix/bash/shellshock</module_path>
   </requires>
   <requires>
     <module_path>services/unix/http/apache_bash_cgi</module_path>
   </requires>
-
+<!-- TODO: strings_to_leak leaked to www-data -->
+<!-- TODO: test on newer versions of Debian (probably would work) -->
 </vulnerability>

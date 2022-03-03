@@ -69,6 +69,10 @@
   <software_name>smbd</software_name>
   <software_license>MIT</software_license>
 
+  <!-- TODO: update module to be compatible with Buster+ -->
+  <conflict>
+    <name>.*Buster.*</name>
+  </conflict>
   <conflict>
     <name>.*Stretch.*</name>
   </conflict>
@@ -83,5 +87,5 @@
   <requires>
     <module_path>modules/services/unix/smb/samba</module_path>
   </requires>
-
+<!-- TODO: CyBOK -->
 </vulnerability>

@@ -23,6 +23,9 @@
     <name>.*Stretch.*</name>
   </conflict>
   <conflict>
+    <name>.*Buster.*</name>
+  </conflict>
+  <conflict>
     <name>.*Kali.*</name>
   </conflict>
   <!--Cannot co-exist with other MySQL installations-->

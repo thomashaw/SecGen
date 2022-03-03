@@ -1,49 +1,49 @@
 <?xml version="1.0"?>
 
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-	<name>Induction</name>
+  <name>Induction</name>
   <author>Z. Cliffe Schreuders</author>
   <description>You will need to find the unlock password somewhere.</description>
 
   <type>ctf</type>
   <difficulty>easy</difficulty>
 
-	<system>
-		<system_name>desktop</system_name>
-		<base distro="Debian 10" type="desktop" name="KDE"/>
+  <system>
+    <system_name>desktop</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
 
-		<input into_datastore="IP_addresses">
-			<value>172.16.0.2</value>
-			<value>172.16.0.3</value>
-		</input>
+    <input into_datastore="IP_addresses">
+      <value>172.16.0.2</value>
+      <value>172.16.0.3</value>
+    </input>
 
-		<!--generate two accounts, YOU and someone else-->
-		<input into_datastore="accounts">
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>tiaspbiqe2r</value>
-				</input>
-				<input into="super_user">
-					<value>true</value>
-				</input>
-				<input into="leaked_filenames">
-					<value>README</value>
-					<value>SECRETS/accounts</value>
-				</input>
-				<input into="strings_to_leak">
-					<encoder module_path=".*/concatenate">
-						<input into="strings_to_encode">
-							<value>
+    <!--generate two accounts, YOU and someone else-->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+        <input into="leaked_filenames">
+          <value>README</value>
+          <value>SECRETS/accounts</value>
+        </input>
+        <input into="strings_to_leak">
+          <encoder module_path=".*/concatenate">
+            <input into="strings_to_encode">
+              <value>
 Dear Lucy,
 
 I have made a mistake and I am pretty sure the Cyber Security people at Leeds Beckett are onto me now.
@@ -53,16 +53,16 @@ The campus is no longer safe, so I have moved all the money to one of my many of
 I've left some critical information in an encrypted zip file for you in /var/log/. The password is a number of mine.
 
 Yours, E.
-							</value>
-							<generator type="flag_generator" />
-						</input>
-					</encoder>
-					<encoder module_path=".*/base64">
-						<input into="strings_to_encode">
-							<encoder module_path=".*/concatenate">
-								<input into="strings_to_encode">
-									<generator type="flag_generator" />
-									<value>
+              </value>
+              <generator type="flag_generator" />
+            </input>
+          </encoder>
+          <encoder module_path=".*/base64">
+            <input into="strings_to_encode">
+              <encoder module_path=".*/concatenate">
+                <input into="strings_to_encode">
+                  <generator type="flag_generator" />
+                  <value>
 You are getting close. The loot must be one of these accounts, but you will never guess which one.
 Name,daisy.smart@death.edu,Account
 Lee Axford,lee.axford@gmail.com,89973596
@@ -165,138 +165,138 @@ Neil White,neil.white@hacktivity.com,55541915
 Stephen Williams,stephen.williams@armouredplate.gr,93572645
 Stephen Wood,stephen.wood@pamplona.es,26355914
 Iain Wright,iain.wright@democrats.com,28013651
-								</value>
-							</input>
-						</encoder>
+                </value>
+              </input>
+            </encoder>
 
-					</input>
-				</encoder>
+          </input>
+        </encoder>
 
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-		</input>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
 
-		<input into_datastore="desktop_root_password">
-			<generator type="strong_password_generator"/>
-		</input>
+    <input into_datastore="desktop_root_password">
+      <generator type="strong_password_generator"/>
+    </input>
 
-		<!--Create the users-->
-		<utility module_path=".*/parameterised_accounts">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-		</utility>
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
 
-		<utility module_path=".*/kde_minimal">
-			<input into="autologin_user">
-				<datastore access="0" access_json="['username']">accounts</datastore>
-			</input>
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart_konsole">
-				<value>true</value>
-			</input>
-		</utility>
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/hash_tools"/>
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/hash_tools"/>
 
-		<!-- hi there, you can solve this with deduction from the clues! -->
-		<vulnerability type="zip_file">
-			<input into="base64_file">
-				<generator type="zip_file_generator">
-					<input into="password">
-						<value>82184092</value>
-					</input>
-					<input into="strings_to_leak">
-						<generator type="flag_generator"/>
-						<value>
+    <!-- hi there, you can solve this with deduction from the clues! -->
+    <vulnerability type="zip_file">
+      <input into="base64_file">
+        <generator type="zip_file_generator">
+          <input into="password">
+            <value>82184092</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator"/>
+            <value>
 Well done, hope you enjoyed the challenge. You are now familiar with some of the tools that we will be using during the course. Now, please go to the Discord channel, introduce yourself and tell us the last thing you ate. E.g. Hi, my name is John, sour-cream and onion Pringles :) See you in the labs!.
-						</value>
-					</input>
-				</generator>
-			</input>
-			<input into="leaked_filename">
-				<value>protected.zip</value>
-			</input>
-			<input into="storage_directory">
-				<value>/var/log</value>
-			</input>
-		</vulnerability>
+            </value>
+          </input>
+        </generator>
+      </input>
+      <input into="leaked_filename">
+        <value>protected.zip</value>
+      </input>
+      <input into="storage_directory">
+        <value>/var/log</value>
+      </input>
+    </vulnerability>
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>desktop_root_password</datastore>
-			</input>
-		</vulnerability>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>desktop_root_password</datastore>
+      </input>
+    </vulnerability>
 
-		<network type="private_network">
-			<input into="IP_address">
-				<datastore access="0">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-	<system>
-		<system_name>kali</system_name>
-		<base distro="Kali" name="MSF"/>
+  <system>
+    <system_name>kali</system_name>
+    <base distro="Kali" name="MSF"/>
 
-		<input into_datastore="kali_root_account">
-			<value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
-		</input>
+    <input into_datastore="kali_root_account">
+      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+    </input>
 
-		<utility module_path=".*/kali_pwtools"/>
-		<utility module_path=".*/metasploit_framework"/>
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+    <utility module_path=".*/kali_pwtools"/>
+    <utility module_path=".*/metasploit_framework"/>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
 </scenario>

@@ -66,4 +66,9 @@
     <module_path>utilities/unix/system/parameterised_accounts</module_path>
   </requires>
 
+  <CyBOK KA="MAT" topic="Malware Analysis">
+    <keyword>analysis techniques</keyword>
+    <keyword>STATIC ANALYSIS</keyword>
+  </CyBOK>
+
 </vulnerability>

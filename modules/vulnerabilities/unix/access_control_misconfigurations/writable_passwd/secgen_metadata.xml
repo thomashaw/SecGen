@@ -18,7 +18,15 @@
   <difficulty>medium</difficulty>
   <cvss_base_score>6.6</cvss_base_score>
   <cvss_vector>AV:L/AC:M/Au:S/C:C/I:C/A:C</cvss_vector>
-
-  <!--<solution>TODO:</solution>-->
+  
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+  </CyBOK>
 
 </vulnerability>

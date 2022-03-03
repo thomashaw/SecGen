@@ -83,5 +83,6 @@
   <requires>
     <module_path>.*php_5.*compatible.*</module_path>
   </requires>
+<!-- TODO: rework wordpress modules to target specific vulns/CVEs -->
 
 </vulnerability>

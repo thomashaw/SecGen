@@ -1,3 +1,6 @@
+# just install puppet module for other modules to use
+
+# example use:
 # accounts::user { 'user':
 #   uid      => '4001',
 #   gid      => '4001',

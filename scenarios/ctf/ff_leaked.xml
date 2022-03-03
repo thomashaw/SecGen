@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Time to Patch</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>Hack the server from kali.
+  </description>
+
+  <type>ctf</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
+  <difficulty>medium</difficulty>
+
+  <!-- remote vuln -->
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+
+  <!-- vuln exposes a username and password that can be used to ssh then unzip-->
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>user authentication</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>SECURE SHELL (SSH)</keyword>
+  </CyBOK>
+
+  <!-- escalate to user and to root via sudo -->
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+    <keyword>Attacks against SUDO</keyword>
+  </CyBOK>
+
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
+
+
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <value>172.16.0.2</value>
+      <!-- 1 hackme_server -->
+      <value>172.16.0.3</value>
+    </input>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kali_top10"/>
+    <utility module_path=".*/kali_web"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>server</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <utility module_path=".*/after_login_message">
+      <input into="strings_to_leak">
+        <encoder type="string_format_encoder">
+          <input into="strings_to_encode">
+            <value>Hackme</value>
+          </input>
+        </encoder>
+        <value>Well done! You hacked this server. There's multiple paths to multiple flags from here.</value>
+      </input>
+    </utility>
+
+    <input into_datastore="organisation">
+      <encoder type="line_selector">
+        <input into="file_path">
+          <value>lib/resources/structured_content/organisations/json_organisations</value>
+        </input>
+      </encoder>
+    </input>
+
+    <!-- strong password -->
+    <input into_datastore="password">
+      <generator type="strong_password_generator"/>
+    </input>
+
+
+    <!--Create the user-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <datastore access_json="['manager']['username']">organisation</datastore>
+          </input>
+          <input into="password">
+            <datastore>password</datastore>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+          <input into="leaked_filenames">
+            <value>flag</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <vulnerability read_fact="strings_to_pre_leak" access="remote" privilege="user_rw.*">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+      <input into="strings_to_pre_leak">
+        <value>Password:</value>
+        <datastore>password</datastore>
+        <generator type="flag_generator"/>
+      </input>
+      <!-- if the module accepts it - we can also assume users can read usernames from the system -->
+      <input into="leaked_username">
+        <datastore access_json="['manager']['username']">organisation</datastore>
+      </input>
+      <!-- if the module accepts it -->
+      <input into="organisation">
+        <datastore>organisation</datastore>
+      </input>
+      <input into="leaked_password">
+        <datastore>password</datastore>
+      </input>
+    </vulnerability>
+
+
+    <vulnerability module_path=".*/sudo_root.*|.*/suid_root.*">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <vulnerability type="zip_file">
+      <input into="base64_file">
+        <generator type="zip_file_generator">
+          <input into="password">
+            <datastore>password</datastore>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator"/>
+            <value>
+              Congratulations you have cracked our protected zip file. Here is a flag for your troubles.
+            </value>
+          </input>
+        </generator>
+      </input>
+      <input into="leaked_filename">
+        <value>reusedpassword.zip</value>
+      </input>
+      <input into="storage_directory">
+        <value>/root</value>
+      </input>
+    </vulnerability>
+
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>

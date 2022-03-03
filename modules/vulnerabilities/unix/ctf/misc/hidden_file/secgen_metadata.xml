@@ -67,4 +67,12 @@
     <module_path>utilities/unix/system/accounts</module_path>
   </requires>
 
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+  </CyBOK>
+
 </vulnerability>

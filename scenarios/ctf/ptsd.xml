@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>PTSD: Shell Shocked</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>Hack the server from kali.
+  </description>
+
+  <type>ctf</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
+  <difficulty>medium</difficulty>
+
+  <!-- shell shock -->
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+
+  <!-- escalate to user and to root via vulnerable service -->
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
+
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <value>172.16.0.2</value>
+      <!-- 1 hackme_server -->
+      <value>172.16.0.3</value>
+    </input>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kali_top10"/>
+    <utility module_path=".*/kali_web"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>server</system_name>
+    <base distro="Debian 7.8" type="desktop"/>
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <value>www-data</value>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+        <input into="leaked_filenames">
+          <value>flag</value>
+        </input>
+        <input into="strings_to_leak">
+          <generator type="flag_generator"/>
+        </input>
+      </generator>
+    </input>
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+
+    <!-- TODO: could be improved by having a local user and root flag, since shellshock also introduces a (tricky) privilege escalation attack -->
+    <vulnerability module_path=".*/shellshock_apache_cgi.*"/>
+
+    <!-- an alternative path to root -->
+    <vulnerability module_path=".*/chkrootkit" />
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+<!-- TODO further testing, including that the /home/www-data is correctly created with www-data ownership  -->
+</scenario>

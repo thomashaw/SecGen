@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Pachev FTP Server 1.0 - Path Traversal</name>
+  <author>Anaas Naveed</author>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>MIT</module_license>
+  <description>Pachev FTP Server version 1.0 suffers from a path traversal vulnerability.
+    In this configuration only active FTP connections work, which may mean published exploit code needs updating.
+  </description>
+
+  <type>ftp</type>
+  <privilege>root_rw</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>medium</difficulty>
+
+  <read_fact>server_name</read_fact>
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+  <read_fact>port</read_fact>
+  <read_fact>leaked_username</read_fact>
+  <read_fact>leaked_password</read_fact>
+  <read_fact>strings_to_pre_leak</read_fact>
+  <read_fact>pre_leaked_filenames</read_fact>
+  <read_fact>leaked_password</read_fact>
+
+
+  <default_input into="port">
+    <value>21</value>
+  </default_input>
+  <default_input into="leaked_username">
+    <value>ftp</value>
+  </default_input>
+  <!-- don't need to know or bruteforce this password in advance -->
+  <default_input into="leaked_password">
+    <generator type="strong_password_generator" />
+  </default_input>
+
+  <default_input into="strings_to_leak">
+    <generator type="message_generator"/>
+  </default_input>
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <!-- pre-leaked, these details are leaked before the main vuln is exploited, for example hidden content or hosted files -->
+  <default_input into="strings_to_pre_leak">
+    <generator type="message_generator"/>
+  </default_input>
+
+  <default_input into="pre_leaked_filenames">
+    <value>note</value>
+  </default_input>
+
+
+  <!--optional vulnerability details-->
+  <!--<cve></cve>-->
+  <cvss_base_score>7.8</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:N/A:N</cvss_vector>
+  <reference>https://www.exploit-db.com/exploits/47956</reference>
+  <software_name>pachev</software_name>
+  <software_license>MIT</software_license>
+
+  <!--Cannot co-exist with other ftp servers (default to same ports)-->
+  <conflict>
+    <type>^ftp$</type>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>FILE - TRANSFER PROTOCOL (FTP)</keyword>
+  </CyBOK>
+
+
+</vulnerability>

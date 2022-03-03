@@ -8,10 +8,13 @@
 
 forge "https://forgeapi.puppetlabs.com"
 
-mod 'puppetlabs-stdlib', '4.25.1'  # stdlib enables parsejson() in manifests and other useful functions
-mod 'puppetlabs-concat', '5.2.0'
-mod 'puppetlabs-vcsrepo', '2.0.0'
-mod 'puppetlabs-apt', '7.4.0'  # pin apt to 7.4.0 as current version is incompatible with our base boxes
+# specific versions of modules
+mod 'puppetlabs-stdlib', :path => '<%= LOCAL_PUPPET_DIR %>/stdlib'  # '4.25.1', stdlib enables parsejson() in manifests and other useful functions
+#mod 'puppetlabs-apt' #, '7.4.0'  # pin apt to 7.4.0 as current version is incompatible with our base boxes
+# from local copy, for faster build times
+### mod 'translate', :path => '<%= LOCAL_PUPPET_DIR %>'
+
+# secgen helpers
 mod 'SecGen-secgen_functions', :path => '<%= SECGEN_FUNCTIONS_PUPPET_DIR %>'
 
 <% @currently_processing_system.module_selections.each do |selected_module| -%>
@@ -20,3 +23,5 @@ mod 'SecGen-secgen_functions', :path => '<%= SECGEN_FUNCTIONS_PUPPET_DIR %>'
 mod 'SecGen-<%= selected_module.module_path_name %>/<%= selected_module.module_path_end %>', :path => '<%="#{ROOT_DIR}/#{selected_module.module_path}"%>'
 <%   end -%>
 <%  end -%>
+
+mod 'puppetlabs-vcsrepo' # , :path => '<%= LOCAL_PUPPET_DIR %>/vcsrepo'

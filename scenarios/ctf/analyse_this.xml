@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Putting it together</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>Analyse the files on the server from kali.
+    Username: analyse
+    Password: this!!!
+  </description>
+
+  <type>ctf</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
+  <difficulty>medium</difficulty>
+
+  <!-- encoding challenges -->
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+  <CyBOK KA="C" topic="Symmetric Cryptography">
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
+  <!-- pcap -->
+  <CyBOK KA="NS" topic="OSI (OPEN SYSTEM INTERCONNECT) MODEL">
+    <keyword>APPLICATION LAYER</keyword>
+    <keyword>DATA LINK LAYER</keyword>
+    <keyword>NETWORK LAYER</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="Monitor: Data Sources">
+    <keyword>PCAP</keyword>
+    <keyword>network traffic</keyword>
+  </CyBOK>
+  <!-- hidden file -->
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>FILES</keyword>
+    <keyword>Hidden files</keyword>
+  </CyBOK>
+
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <value>172.16.0.2</value>
+      <!-- 1 hackme_server -->
+      <value>172.16.0.3</value>
+    </input>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kali_top10"/>
+    <utility module_path=".*/kali_web"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>server</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <!-- strong password -->
+    <input into_datastore="username">
+      <value>analyse</value>
+    </input>
+    <input into_datastore="password">
+      <value>this!!!</value>
+    </input>
+
+    <!--Create the user - can ssh in using the discovered username and password -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <datastore>username</datastore>
+          </input>
+          <input into="password">
+            <datastore>password</datastore>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+          <input into="leaked_filenames">
+            <value>encoded_flags</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator"/>
+            <encoder type="^(ascii|alpha)_reversible$" difficulty="low">
+              <input into="strings_to_encode">
+                <generator type="flag_generator"/>
+              </input>
+            </encoder>
+
+            <encoder type="^(ascii|alpha)_reversible$" difficulty="medium">
+              <input into="strings_to_encode">
+                <generator type="flag_generator"/>
+                <encoder type="^(ascii|alpha)_reversible$" difficulty="low">
+                  <input into="strings_to_encode">
+                    <generator type="flag_generator"/>
+                  </input>
+                </encoder>
+              </input>
+            </encoder>
+          </input>
+
+        </generator>
+      </input>
+    </utility>
+
+
+    <!-- Release pcap file -->
+    <vulnerability type="pcap">
+      <input into="base64_file">
+        <generator type="pcap_generator">
+          <input into="strings_to_leak">
+            <generator type="flag_generator"/>
+            <value>
+              ******SECRET*******From now on, make sure that all network traffic is properly encrypted.******SECRET******
+            </value>
+          </input>
+        </generator>
+      </input>
+      <input into="leaked_filename">
+        <value>capture.pcap</value>
+      </input>
+      <input into="storage_directory">
+        <value>/home/analyse/</value>
+      </input>
+    </vulnerability>
+
+    <vulnerability module_path=".*hidden_file.*">
+      <input into="storage_directory">
+        <value>/home/analyse/</value>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>

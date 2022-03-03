@@ -52,4 +52,9 @@
     <privilege>user_rwx</privilege>
   </requires>
 
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+  </CyBOK>
+  
 </vulnerability>

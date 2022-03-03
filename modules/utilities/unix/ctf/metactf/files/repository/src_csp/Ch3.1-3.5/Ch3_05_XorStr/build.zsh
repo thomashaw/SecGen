@@ -2,7 +2,7 @@
 # Start with a string of ASCII chars from 0x40-0x47, 0x50-0x57, 0x60-0x67, and
 #  0x70-0x77.  XOR with character 0xAB, where A is 1-3, and B is 1-7.  This
 #  keeps from generating confusing characters such as 0x7F
-SALT=`date +%g`
+SALT=`date +%N`
 if [[ ARGC -gt 0 ]] then
   BINNAME=`basename $PWD`
   foreach USER ($@)

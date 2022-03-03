@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Vulnerable webapp</name>
+  <author>Joshua Hickling</author>
+  <description>A web server with a (randomly) vulnerable webapp</description>
+
+  <type>ctf</type>
+  <type>attack-ctf</type>
+  <difficulty>easy</difficulty>
+
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>Broken Access Control / Insecure Direct Object References</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>injection vulnerabilities</keyword>
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+    <keyword>SQL-INJECTION</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+
+  <system>
+    <system_name>web_server</system_name>
+    <base type="server" distro="Debian 9"/>
+
+    <input into_datastore="IP_addresses">
+      <value>172.10.0.2</value>
+      <value>172.10.0.3</value>
+    </input>
+
+    <vulnerability module_path=".*commando">
+
+      <input into_datastore="customer_feedback_table_headings">
+        <generator module_path=".*customer_feedback_table_headings" />
+      </input>
+
+      <input into_datastore="product_table_headings">
+        <generator module_path=".*product_table_headings" />
+      </input>
+
+      <input into_datastore="user_table_name">
+        <generator module_path=".*users_table_name" />
+      </input>
+
+      <input into="database">
+        <generator module_path=".*sql_table_setup">
+          <input into="customer_feedback_table_headings">
+            <datastore>customer_feedback_table_headings</datastore>
+          </input>
+          <input into="product_table_headings">
+            <datastore>product_table_headings</datastore>
+          </input>
+          <input into="field_to_leak">
+            <generator type="flag_generator" />
+          </input>
+        </generator>
+      </input>
+
+      <input into="sqli">
+        <generator module_path=".*sqli_template">
+          <input into="difficulty">
+              <value>hard</value>
+          </input>
+          <input into="table_headings">
+            <datastore>customer_feedback_table_headings</datastore>
+          </input>
+        </generator>
+      </input>
+
+      <input into="search">
+        <generator module_path=".*xss_search_template">
+          <input into="difficulty">
+            <value>hard</value>
+          </input>
+          <input into="blacklist">
+            <generator module_path=".*xss_blacklist" />
+          </input>
+          <input into="table_headings">
+            <datastore>product_table_headings</datastore>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator" />
+          </input>
+        </generator>
+      </input>
+
+      <input into="idor">
+        <generator module_path=".*idor_product_template">
+          <input into="table_headings">
+            <datastore>product_table_headings</datastore>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator" />
+          </input>
+        </generator>
+      </input>
+
+      <input into="insecure_cookie">
+        <generator module_path=".*insecure_cookie_template">
+          <input into="default_superuser_role">
+            <generator module_path=".*default_superuser_role"/>
+          </input>
+          <input into="default_user_role">
+            <generator module_path=".*default_user_role"/>
+          </input>
+          <input into="difficulty">
+            <encoder type="string_selector">
+              <input into="strings_to_encode">
+                <value>easy</value>
+                <value>medium</value>
+                <value>hard</value>
+              </input>
+            </encoder>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator" />
+          </input>
+        </generator>
+      </input>
+
+    </vulnerability>
+
+    <network type="private_network">
+        <input into="IP_address">
+          <datastore access="next">IP_addresses</datastore>
+        </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator" />
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>kali</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <utility module_path=".*/kali_web"/>
+    <utility module_path=".*/metasploit_framework"/>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+
+    <network type="private_network">
+        <input into="IP_address">
+          <datastore access="next">IP_addresses</datastore>
+        </input>
+    </network>
+  </system>
+</scenario>

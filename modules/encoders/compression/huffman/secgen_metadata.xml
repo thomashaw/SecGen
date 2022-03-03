@@ -17,8 +17,6 @@
 
   <reference>https://github.com/nicanor/braille</reference>
 
-  <solution>Braille decoders are available online e.g. https://www.dcode.fr/braille-alphabet</solution>
-
   <read_fact>strings_to_encode</read_fact>
   <read_fact>subdirectory</read_fact>
 
@@ -31,4 +29,9 @@
   </default_input>
 
   <output_type>array</output_type>
+
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
 </encoder>

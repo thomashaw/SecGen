@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Expert Reversing</name>
+  <author>Thomas Shaw</author>
+  <author>Z. Cliffe Schreuders</author>
+  <description>Some advanced reverse engineering challenges.
+  </description>
+
+  <type>ctf</type>
+  <type>reversing-ctf</type>
+  <difficulty>hard</difficulty>
+
+  <CyBOK KA="MAT" topic="Malware Analysis">
+    <keyword>analysis techniques</keyword>
+    <keyword>STATIC ANALYSIS</keyword>
+  </CyBOK>
+
+  <system>
+      <system_name>analysis</system_name>
+      <base platform="linux" type="desktop" distro="Buster"/>
+
+      <utility module_path=".*/reversing_tools"/>
+
+      <utility module_path=".*/parameterised_accounts">
+          <input into="accounts" into_datastore="account">
+              <generator type="account">
+                  <input into="username">
+                      <generator type="random_sanitised_word">
+                          <input into="wordlist">
+                              <value>mythical_creatures</value>
+                          </input>
+                      </generator>
+                  </input>
+                  <input into="password">
+                      <value>tiaspbiqe2r</value>
+                  </input>
+                  <input into="super_user">
+                      <value>false</value>
+                  </input>
+              </generator>
+          </input>
+      </utility>
+
+
+      <utility module_path=".*/kde_minimal">
+          <input into="autologin_user">
+              <datastore access="0" access_json="['username']">account</datastore>
+          </input>
+          <input into="accounts">
+              <datastore>account</datastore>
+          </input>
+          <input into="autostart_konsole">
+              <value>true</value>
+          </input>
+      </utility>
+      <utility module_path=".*/handy_cli_tools"/>
+      <utility module_path=".*/hash_tools"/>
+
+      <utility module_path=".*/dc16_amadhj">
+        <input into="account">
+          <datastore>account</datastore>
+        </input>
+      </utility>
+      <utility module_path=".*/dc16_b3s23">
+        <input into="account">
+          <datastore>account</datastore>
+        </input>
+      </utility>
+      <utility module_path=".*/dc16_feedme">
+        <input into="account">
+          <datastore>account</datastore>
+        </input>
+      </utility>
+      <utility module_path=".*/java_decompile">
+        <input into="account">
+          <datastore>account</datastore>
+        </input>
+      </utility>
+
+      <network type="private_network" range="dhcp"/>
+  </system>
+<!-- TODO: further testing -->
+</scenario>

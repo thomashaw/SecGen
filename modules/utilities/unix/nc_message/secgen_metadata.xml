@@ -37,4 +37,13 @@
     <type>update</type>
   </requires>
 
+	<CyBOK KA="NS" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+	</CyBOK>
+	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
+		<keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+	</CyBOK>
+
 </utility>

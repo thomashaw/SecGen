@@ -23,5 +23,9 @@
   <read_fact>base64_options</read_fact>
 
   <output_type>encoded_strings</output_type>
-  
+
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
 </encoder>

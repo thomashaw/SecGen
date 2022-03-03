@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Mixed open-ended workspace lab environment, with fuzzers installed on Kali</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>A blank slate with Debian Linux, Windows 7, and Kali Linux. Ideal for open-ended activities, such as as an assignment workspace. Desktop usernames are random, with password: tiaspbiqe2r. Kali username: root, password: toor</description>
+
+  <type>lab-environment</type>
+
+  <system>
+    <system_name>debian_10_desktop</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 linux desktop -->
+      <value>172.16.0.2</value>
+      <!-- 1 windows 7 -->
+      <value>172.16.0.3</value>
+      <!-- 2 kali -->
+      <value>172.16.0.4</value>
+    </input>
+
+    <!--generate two accounts, YOU and someone else-->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
+
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <value></value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+      <input into="start_page">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>windows_7_desktop</system_name>
+    <base platform="windows" distro="7"/>
+
+    <utility module_path=".*/parameterised_accounts" platform="windows">
+      <input into="accounts" into_datastore="accounts">
+        <generator type="account">
+          <input into="username">
+            <generator type="random_sanitised_word">
+              <input into="wordlist">
+                <value>mythical_creatures</value>
+              </input>
+            </generator>
+          </input>
+          <input into="password">
+            <value>tiaspbiqe2r</value>
+          </input>
+          <input into="super_user">
+            <value>true</value>
+          </input>
+          <input into="leaked_filenames">
+            <value></value>
+          </input>
+          <input into="strings_to_leak">
+            <value></value>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>kali_linux</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <input into_datastore="kali_root_account">
+      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+    </input>
+
+    <utility module_path=".*/metasploit_framework"/>
+    <utility module_path=".*/armitage"/>
+    <utility module_path=".*/exploitdb"/>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+    <utility module_path=".*/kali_fuzzing"/>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+
+</scenario>

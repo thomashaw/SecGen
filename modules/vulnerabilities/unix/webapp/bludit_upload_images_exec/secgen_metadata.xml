@@ -23,10 +23,14 @@
   <difficulty>low</difficulty>
 
   <read_fact>port</read_fact>
+  <read_fact>organisation</read_fact>
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
+  <read_fact>known_username</read_fact>
+  <read_fact>known_password</read_fact>
+  <read_fact>strings_to_pre_leak</read_fact>
+  <read_fact>web_pre_leak_filename</read_fact>
 
-  <!-- [0] leaks flag to home directory, [1..n] leak messages to gitlist repository (visible through the webapp) -->
   <default_input into="port">
     <value>80</value>
   </default_input>
@@ -45,6 +49,7 @@
   </default_input>
 
   <!-- these details need to be known or bruteforced to successful exploit the service -->
+  <!-- By default the username is admin, but it can be something else, so long as they can easily guess it (for example leak it to them) -->
   <default_input into="known_username">
 		<!-- <generator type="random_sanitised_word">
 			<input into="wordlist">
@@ -53,6 +58,7 @@
 		</generator> -->
     <value>admin</value>
   </default_input>
+
   <default_input into="known_password">
     <generator type="weak_password_generator" />
   </default_input>
@@ -61,6 +67,8 @@
   <default_input into="strings_to_pre_leak">
     <generator type="message_generator"/>
   </default_input>
+
+  <!-- ideally something found by dirbuster -->
   <default_input into="web_pre_leak_filename">
     <generator type="random_sanitised_word">
 			<input into="wordlist">
@@ -100,5 +108,30 @@
     <module_path>.*php.*compatible.*</module_path>
   </requires>
 
+  <!-- CyBOK metadata - related security concepts / knowledge required -->
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>authentication</keyword>
+    <keyword>passwords and alternatives</keyword>
+  </CyBOK>
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>user authentication</keyword>
+    <keyword>BRUTEFORCE</keyword>
+  </CyBOK>
+
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>FILE UPLOAD VULNERABILITY</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
 
 </vulnerability>

@@ -38,4 +38,9 @@
   </default_input>
 
   <output_type>array</output_type>
+
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+  </CyBOK>
+
 </encoder>

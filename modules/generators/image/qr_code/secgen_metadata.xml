@@ -24,7 +24,10 @@
     <generator type="flag_generator"/>
   </default_input>
 
-
   <output_type>base64_encoded_image</output_type>
-  
+
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
 </generator>

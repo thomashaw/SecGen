@@ -160,4 +160,23 @@
     <module_path>.*php_5.*compatible.*</module_path>
   </requires>
 
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+		<keyword>authentication</keyword>
+		<keyword>cookies</keyword>
+		<keyword>passwords and alternatives</keyword>
+		<keyword>JAVASCRIPT / HYPERTEXT MARKUP LANGUAGE (HTML) / CASCADING STYLE SHEETS (CSS) / HYPERTEXT TRANSFER PROTOCOL (HTTP)
+		COOKIES</keyword>
+		<keyword>Broken Access Control / Insecure Direct Object References</keyword>
+	</CyBOK>
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+		<keyword>injection vulnerabilities</keyword>
+		<keyword>server-side misconfiguration and vulnerable components</keyword>
+		<keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+		<keyword>COMMAND INJECTION</keyword>
+		<keyword>SQL-INJECTION</keyword>
+	</CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+		<keyword>Web vulnerabilities / OWASP Top 10</keyword>
+	</CyBOK>
+
 </vulnerability>

@@ -1,264 +1,276 @@
 <?xml version="1.0"?>
 
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-	<name>Banner Grab and Run For Your Life!</name>
+  <name>Banner Grab and Run For Your Life!</name>
   <author>Z. Cliffe Schreuders</author>
   <description>The most merciful thing in the world, I think, is the inability of the human mind to correlate all its contents.
-	</description>
+  </description>
 
-	<type>ctf</type>
+  <type>ctf</type>
   <difficulty>easy</difficulty>
 
-	<system>
-		<system_name>desktop</system_name>
-		<base distro="Debian 9" type="desktop" name="KDE"/>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
 
-		<input into_datastore="IP_addresses">
-			<value>172.16.0.2</value>
-			<value>172.16.0.3</value>
-			<value>172.16.0.4</value>
-			<value>172.16.0.5</value>
-		</input>
+  <system>
+    <system_name>desktop</system_name>
+    <base distro="Debian 9" type="desktop" name="KDE"/>
 
-		<input into_datastore="story">
-			<generator module_path=".*/story_parts">
-				<input into="number_of_elements">
-					<value>5</value>
-				</input>
-			</generator>
-		</input>
+    <input into_datastore="IP_addresses">
+      <value>172.16.0.2</value>
+      <value>172.16.0.3</value>
+      <value>172.16.0.4</value>
+      <value>172.16.0.5</value>
+    </input>
 
-		<!--generate two accounts, YOU and someone else-->
-		<input into_datastore="accounts">
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>tiaspbiqe2r</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-		</input>
+    <input into_datastore="story">
+      <generator module_path=".*/story_parts">
+        <input into="number_of_elements">
+          <value>5</value>
+        </input>
+      </generator>
+    </input>
 
-		<input into_datastore="hackerbot_access_root_password">
-			<generator type="strong_password_generator"/>
-		</input>
+    <!--generate two accounts, YOU and someone else-->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
 
-		<!--Create the users-->
-		<utility module_path=".*/parameterised_accounts">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="strings_to_leak">
-				<value></value>
-			</input>
-		</utility>
+    <input into_datastore="hackerbot_access_root_password">
+      <generator type="strong_password_generator"/>
+    </input>
 
-		<utility module_path=".*/kde_minimal">
-			<input into="autologin_user">
-				<datastore access="0" access_json="['username']">accounts</datastore>
-			</input>
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart_konsole">
-				<value>true</value>
-			</input>
-		</utility>
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <value></value>
+      </input>
+    </utility>
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>hackerbot_access_root_password</datastore>
-			</input>
-		</vulnerability>
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="0">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
 
-	<system>
-		<system_name>secret_journal_server</system_name>
-		<base distro="Debian 9" type="desktop" name="KDE"/>
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+  <system>
+    <system_name>secret_journal_server</system_name>
+    <base distro="Debian 9" type="desktop" name="KDE"/>
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak">
-				<datastore access="next">story</datastore>
-				<generator type="flag_generator" />
-			</input>
-			<input into="port">
-		    <generator module_path=".*/random_number">
-					<input into="minimum">
-						<value>1024</value>
-					</input>
-					<input into="maximum">
-						<value>2024</value>
-					</input>
-				</generator>
-				<!-- <value>1025</value> -->
-		  </input>
-		</utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak">
-				<datastore access="next">story</datastore>
-				<generator type="flag_generator" />
-			</input>
-			<input into="port">
-		    <generator module_path=".*/random_number">
-					<input into="minimum">
-						<value>2025</value>
-					</input>
-					<input into="maximum">
-						<value>3024</value>
-					</input>
-				</generator>
-				<!-- <value>2025</value> -->
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <datastore access="next">story</datastore>
+        <generator type="flag_generator" />
+      </input>
+      <input into="port">
+        <generator module_path=".*/random_number">
+          <input into="minimum">
+            <value>1024</value>
+          </input>
+          <input into="maximum">
+            <value>2024</value>
+          </input>
+        </generator>
+        <!-- <value>1025</value> -->
+      </input>
+    </utility>
 
-		  </input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <datastore access="next">story</datastore>
+        <generator type="flag_generator" />
+      </input>
+      <input into="port">
+        <generator module_path=".*/random_number">
+          <input into="minimum">
+            <value>2025</value>
+          </input>
+          <input into="maximum">
+            <value>3024</value>
+          </input>
+        </generator>
+        <!-- <value>2025</value> -->
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak">
-				<datastore access="next">story</datastore>
-				<generator type="flag_generator" />
-			</input>
-			<input into="port">
-		    <generator module_path=".*/random_number">
-					<input into="minimum">
-						<value>3025</value>
-					</input>
-					<input into="maximum">
-						<value>4024</value>
-					</input>
-				</generator>
-				<!-- <value>3025</value> -->
+      </input>
+    </utility>
 
-		  </input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <datastore access="next">story</datastore>
+        <generator type="flag_generator" />
+      </input>
+      <input into="port">
+        <generator module_path=".*/random_number">
+          <input into="minimum">
+            <value>3025</value>
+          </input>
+          <input into="maximum">
+            <value>4024</value>
+          </input>
+        </generator>
+        <!-- <value>3025</value> -->
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak" unique_module_list="unique_encoders">
-				<encoder type="ascii_reversible">
-					<input into="strings_to_encode">
-						<datastore access="next">story</datastore>
-						<generator type="flag_generator" module_path=".*/flag_hex" />
-					</input>
-				</encoder>
-			</input>
-			<input into="port">
-		    <generator module_path=".*/random_number">
-					<input into="minimum">
-						<value>5025</value>
-					</input>
-					<input into="maximum">
-						<value>6024</value>
-					</input>
-				</generator>
-				<!-- <value>5025</value> -->
+      </input>
+    </utility>
 
-		  </input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak" unique_module_list="unique_encoders">
+        <encoder type="ascii_reversible">
+          <input into="strings_to_encode">
+            <datastore access="next">story</datastore>
+            <generator type="flag_generator" module_path=".*/flag_hex" />
+          </input>
+        </encoder>
+      </input>
+      <input into="port">
+        <generator module_path=".*/random_number">
+          <input into="minimum">
+            <value>5025</value>
+          </input>
+          <input into="maximum">
+            <value>6024</value>
+          </input>
+        </generator>
+        <!-- <value>5025</value> -->
 
-		<utility module_path=".*/nc_message">
-			<input into="strings_to_leak" unique_module_list="unique_encoders">
-				<encoder type="ascii_reversible">
-					<input into="strings_to_encode">
-						<datastore access="next">story</datastore>
-						<generator type="flag_generator" module_path=".*/flag_hex" />
-					</input>
-				</encoder>
-			</input>
-			<input into="port">
-		    <generator module_path=".*/random_number">
-					<input into="minimum">
-						<value>6025</value>
-					</input>
-					<input into="maximum">
-						<value>50000</value>
-					</input>
-				</generator>
-				<!-- <value>6025</value> -->
+      </input>
+    </utility>
 
-		  </input>
-		</utility>
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak" unique_module_list="unique_encoders">
+        <encoder type="ascii_reversible">
+          <input into="strings_to_encode">
+            <datastore access="next">story</datastore>
+            <generator type="flag_generator" module_path=".*/flag_hex" />
+          </input>
+        </encoder>
+      </input>
+      <input into="port">
+        <generator module_path=".*/random_number">
+          <input into="minimum">
+            <value>6025</value>
+          </input>
+          <input into="maximum">
+            <value>50000</value>
+          </input>
+        </generator>
+        <!-- <value>6025</value> -->
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>hackerbot_access_root_password</datastore>
-			</input>
-		</vulnerability>
+      </input>
+    </utility>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
 </scenario>

@@ -3,6 +3,12 @@ class moinmoin_195::config {
   $images_to_leak = $secgen_parameters['images_to_leak']
   $raw_org = $secgen_parameters['organisation']
 
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
+
+  # pre_leaked are displayed on the Wiki
+  $strings_to_pre_leak = $secgen_parameters['strings_to_pre_leak']
+
   if $raw_org and $raw_org[0] and $raw_org[0] != '' {
     $organisation = parsejson($raw_org[0])
     $raw_default_page = regsubst($organisation['business_name'], ',', '', 'G')  # Remove commas from co. names
@@ -22,6 +28,7 @@ class moinmoin_195::config {
     content  => template('moinmoin_195/wikiconfig.py.erb'),
   }
 
+  # TODO: use apache puppet module, as we've done for other webapps
   # Web server config
   file { '/etc/apache2/apache2.conf':
     ensure => file,
@@ -53,6 +60,14 @@ class moinmoin_195::config {
     images_to_leak => $images_to_leak,
     leaked_from => "moinmoin_195",
     owner => "www-data"
+  }
+  ::secgen_functions::leak_files { 'moinmoin_195-flag-leak':
+    storage_directory => '/usr/local/share/moin/',
+    leaked_filenames  => $leaked_filenames,
+    strings_to_leak   => $strings_to_leak,
+    owner             => 'www-data',
+    mode              => '0750',
+    leaked_from       => 'moinmoin_195',
   }
 
 

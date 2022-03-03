@@ -1,215 +1,215 @@
 <?xml version="1.0"?>
 
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-	<name>Network services lab environment</name>
+  <name>Network services lab environment</name>
   <author>Z. Cliffe Schreuders</author>
   <description>A couple of VMs with services running on one.</description>
 
   <type>lab-environment</type>
 
-	<system>
-		<system_name>desktop</system_name>
-		<base distro="Debian 9" type="desktop" name="KDE"/>
+  <system>
+    <system_name>desktop</system_name>
+    <base distro="Debian 9" type="desktop" name="KDE"/>
 
-		<input into_datastore="IP_addresses">
-			<!-- 0 desktop -->
-			<value>172.16.0.2</value>
-			<!-- 1 services -->
-			<value>172.16.0.3</value>
-		</input>
-
-
-		<!--generate two accounts, YOU and someone else-->
-		<input into_datastore="accounts">
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>tiaspbiqe2r</value>
-				</input>
-				<input into="super_user">
-					<value>true</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>test</value>
-				</input>
-				<input into="super_user">
-					<value>false</value>
-				</input>
-				<input into="leaked_filenames">
-					<value></value>
-				</input>
-				<input into="strings_to_leak">
-					<value></value>
-				</input>
-			</generator>
-		</input>
-
-		<input into_datastore="hackerbot_access_root_password">
-			<generator type="strong_password_generator"/>
-		</input>
-
-		<!--Create the users-->
-		<utility module_path=".*/parameterised_accounts">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="strings_to_leak">
-				<value></value>
-			</input>
-		</utility>
-
-		<utility module_path=".*/kde_minimal">
-			<input into="autologin_user">
-				<datastore access="0" access_json="['username']">accounts</datastore>
-			</input>
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart_konsole">
-				<value>true</value>
-			</input>
-		</utility>
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+    <input into_datastore="IP_addresses">
+      <!-- 0 desktop -->
+      <value>172.16.0.2</value>
+      <!-- 1 services -->
+      <value>172.16.0.3</value>
+    </input>
 
 
-		<utility module_path=".*/iceweasel">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart">
-				<value>true</value>
-			</input>
-			<input into="start_page">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</utility>
+    <!--generate two accounts, YOU and someone else-->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
+
+    <input into_datastore="hackerbot_access_root_password">
+      <generator type="strong_password_generator"/>
+    </input>
+
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <value></value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
 
-		<!-- <utility module_path=".*/pidgin">
-			<input into="server_ip">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-			<input into="accounts">
-				<datastore access="0">accounts</datastore>
-			</input>
-		</utility> -->
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart">
+        <value>true</value>
+      </input>
+      <input into="start_page">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
+
+
+    <!-- <utility module_path=".*/pidgin">
+      <input into="server_ip">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="accounts">
+        <datastore access="0">accounts</datastore>
+      </input>
+    </utility> -->
 
 
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>hackerbot_access_root_password</datastore>
-			</input>
-		</vulnerability>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="0">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-	<system>
-		<system_name>services</system_name>
-		<base distro="Debian 9" type="desktop"/>
+  <system>
+    <system_name>services</system_name>
+    <base distro="Debian 9" type="desktop"/>
 
-		<!--Create the users-->
-		<utility module_path=".*/parameterised_accounts">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-		</utility>
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
 
-		<utility module_path=".*/kde_minimal">
-			<input into="autologin_user">
-				<datastore access="0" access_json="['username']">accounts</datastore>
-			</input>
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart_konsole">
-				<value>true</value>
-			</input>
-		</utility>
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
 
-		<utility module_path=".*/iceweasel">
-			<input into="accounts">
-				<datastore>accounts</datastore>
-			</input>
-			<input into="autostart">
-				<value>true</value>
-			</input>
-			<input into="start_page">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</utility>
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart">
+        <value>true</value>
+      </input>
+      <input into="start_page">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
 
-		<utility module_path=".*/handy_cli_tools"/>
-		<utility module_path=".*/nmap"/>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
 
-		<service type="ftp"/>
-		<!-- <service type="ircd"/> -->
-		<service type="httpd"/>
+    <service type="ftp"/>
+    <!-- <service type="ircd"/> -->
+    <service type="httpd"/>
 
-		<vulnerability module_path=".*/ssh_root_login">
-			<input into="root_password">
-				<datastore>hackerbot_access_root_password</datastore>
-			</input>
-		</vulnerability>
-		<vulnerability type="access_control_misconfiguration"/>
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
+    <vulnerability type="access_control_misconfiguration"/>
 
 
-		<network type="private_network">
-			<input into="IP_address">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
 </scenario>

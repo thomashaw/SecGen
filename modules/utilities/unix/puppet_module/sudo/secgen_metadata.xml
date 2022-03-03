@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>SUDO user management</name>
+  <author>Steffen Zieger (saz)</author>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>MIT</module_license>
+  <description>Manage sudo configuration via Puppet</description>
+
+  <type>system</type>
+  <type>puppet_import</type>
+  <platform>linux</platform>
+
+  <!--optional details-->
+  <reference>https://forge.puppet.com/modules/saz/sudo</reference>
+
+</utility>

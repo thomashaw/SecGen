@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-	<name>Vulnerabilities, Exploits, and Remote Access Payloads</name>
+  <name>Vulnerabilities, Exploits, and Remote Access Payloads</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
 # Introduction
@@ -18,117 +18,117 @@ This week we will cover one of the major threats in computer security: software 
 
 # Lab
 [Lab sheet here](https://docs.google.com/document/d/11I8xMUXrT5ArJIsAhwGDtQ4RkH4l9CR4C2wh9_wz8xM/edit?usp=sharing).
-	</description>
+  </description>
 
-	<type>ctf-lab</type>
-	<type>lab-sheet</type>
-	<difficulty>easy</difficulty>
+  <type>ctf-lab</type>
+  <type>lab-sheet</type>
+  <difficulty>easy</difficulty>
 
-	<CyBOK KA="MAT" topic="Attacks and exploitation">
-		<keyword>EXPLOITATION</keyword>
-		<keyword>EXPLOITATION FRAMEWORKS</keyword>
-	</CyBOK>
-	<CyBOK KA="SOIM" topic="PENETRATION TESTING">
-		<keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
-		<keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
-	</CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
 
 
-	<system>
-		<system_name>windows_victim</system_name>
-		<base platform="windows" distro="7"/>
+  <system>
+    <system_name>windows_victim</system_name>
+    <base platform="windows" distro="7"/>
 
-		<input into_datastore="IP_addresses">
-			<!-- 0 windows desktop -->
-			<value>172.16.0.2</value>
-			<!-- 1 linux server -->
-			<value>172.16.0.3</value>
-			<!-- 1 kali -->
-			<value>172.16.0.4</value>
-		</input>
+    <input into_datastore="IP_addresses">
+      <!-- 0 windows desktop -->
+      <value>172.16.0.2</value>
+      <!-- 1 linux server -->
+      <value>172.16.0.3</value>
+      <!-- 1 kali -->
+      <value>172.16.0.4</value>
+    </input>
 
-		<utility module_path=".*/parameterised_accounts" platform="windows">
-			<input into="accounts" into_datastore="accounts">
-				<generator type="account">
-					<input into="username">
-						<generator type="random_sanitised_word">
-							<input into="wordlist">
-								<value>mythical_creatures</value>
-							</input>
-						</generator>
-					</input>
-					<input into="password">
-						<value>tiaspbiqe2r</value>
-					</input>
-					<input into="super_user">
-						<value>true</value>
-					</input>
-					<input into="strings_to_leak">
-						<generator type="random_line_generator">
-							<input into="linelist">
-								<value>secrets</value>
-							</input>
-						</generator>
-					</input>
-					<input into="leaked_filenames">
-						<value>my_secret.txt</value>
-					</input>
-				</generator>
-			</input>
-		</utility>
+    <utility module_path=".*/parameterised_accounts" platform="windows">
+      <input into="accounts" into_datastore="accounts">
+        <generator type="account">
+          <input into="username">
+            <generator type="random_sanitised_word">
+              <input into="wordlist">
+                <value>mythical_creatures</value>
+              </input>
+            </generator>
+          </input>
+          <input into="password">
+            <value>tiaspbiqe2r</value>
+          </input>
+          <input into="super_user">
+            <value>true</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="random_line_generator">
+              <input into="linelist">
+                <value>secrets</value>
+              </input>
+            </generator>
+          </input>
+          <input into="leaked_filenames">
+            <value>my_secret.txt</value>
+          </input>
+        </generator>
+      </input>
+    </utility>
 
-		<!-- vulnerable Adobe Reader -->
-		<vulnerability cve="CVE-2008-2992"/>
+    <!-- vulnerable Adobe Reader -->
+    <vulnerability cve="CVE-2008-2992"/>
 
-		<!-- netcat for testing shell connections -->
-		<utility module_path=".*/win_netcat"/>
+    <!-- netcat for testing shell connections -->
+    <utility module_path=".*/win_netcat"/>
 
-		<network type="private_network">
-			<input into="IP_address">
-				<datastore access="0">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-	<system>
-		<system_name>linux_victim_server</system_name>
-		<base distro="Debian 10" type="desktop"/>
+  <system>
+    <system_name>linux_victim_server</system_name>
+    <base distro="Debian 10" type="desktop"/>
 
-		<!-- vulnerable distcc server -->
-		<vulnerability cve="CVE-2004-2687">
-			<input into="strings_to_leak">
+    <!-- vulnerable distcc server -->
+    <vulnerability cve="CVE-2004-2687">
+      <input into="strings_to_leak">
         <generator type="flag_generator" />
       </input>
-			<input into="leaked_filenames">
-				<value>flag</value>
-			</input>
-		</vulnerability>
+      <input into="leaked_filenames">
+        <value>flag</value>
+      </input>
+    </vulnerability>
 
-		<network type="private_network">
-			<input into="IP_address">
-				<datastore access="1">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
-	<system>
-		<system_name>kali</system_name>
-		<base distro="Kali" name="MSF"/>
+  <system>
+    <system_name>kali</system_name>
+    <base distro="Kali" name="MSF"/>
 
-		<input into_datastore="kali_root_account">
-			<value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
-		</input>
+    <input into_datastore="kali_root_account">
+      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+    </input>
 
-		<utility module_path=".*/metasploit_framework"/>
-		<utility module_path=".*/handy_cli_tools"/>
-		<service module_path=".*/apache"/>
-		<utility module_path=".*/nmap"/>
+    <utility module_path=".*/metasploit_framework"/>
+    <utility module_path=".*/handy_cli_tools"/>
+    <service module_path=".*/apache"/>
+    <utility module_path=".*/nmap"/>
 
-		<network type="private_network" >
-			<input into="IP_address">
-				<datastore access="2">IP_addresses</datastore>
-			</input>
-		</network>
-	</system>
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
 
 </scenario>

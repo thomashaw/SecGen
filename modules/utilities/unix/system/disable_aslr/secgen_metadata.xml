@@ -6,7 +6,7 @@
   <name>Disable ASLR Linux</name>
   <author>Z. Cliffe Schreuders</author>
   <module_license>MIT</module_license>
-  <description>Disable ASLR for windows.</description>
+  <description>Disable ASLR for linux.</description>
 
   <type>mitigations</type>
   <platform>linux</platform>

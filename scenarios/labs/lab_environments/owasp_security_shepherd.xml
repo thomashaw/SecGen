@@ -43,16 +43,16 @@
           <value>true</value>
         </input>
 
-				<input into="leaked_filenames">
-					<value>mysecret</value>
-				</input>
-				<input into="strings_to_leak">
-					<generator type="random_line_generator">
-						<input into="linelist">
-							<value>secrets</value>
-						</input>
-					</generator>
-				</input>
+        <input into="leaked_filenames">
+          <value>mysecret</value>
+        </input>
+        <input into="strings_to_leak">
+          <generator type="random_line_generator">
+            <input into="linelist">
+              <value>secrets</value>
+            </input>
+          </generator>
+        </input>
 
       </generator>
 

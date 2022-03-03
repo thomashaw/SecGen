@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Nostromo Directory Traversal Remote Command Execution</name>
+  <author>Anaas Naveed</author>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>MIT</module_license>
+  <description>There is a remote command execution vulnerability in
+    Nostromo <= 1.9.6. This issue is caused by a directory traversal
+    in the function `http_verify` in nostromo nhttpd allowing an attacker
+    to achieve remote code execution via a crafted HTTP request.
+
+    Note that Nostromo requires LF (not CRLF line endings),
+    so be careful not to edit these files from Windows.
+  </description>
+
+  <type>http</type>
+  <privilege>root_rwx</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>low</difficulty>
+
+  <read_fact>port</read_fact>
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+  <read_fact>strings_to_pre_leak</read_fact>
+
+  <!-- on a random port by default -->
+  <default_input into="port">
+    <generator module_path=".*/random_unregistered_port"/>
+  </default_input>
+  <default_input into="strings_to_leak">
+    <generator type="message_generator"/>
+  </default_input>
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <!-- pre-leaked, these details are leaked before the main vuln is exploited, for example hidden content or hosted files -->
+  <default_input into="strings_to_pre_leak">
+    <generator type="message_generator"/>
+  </default_input>
+
+  <!--optional vulnerability details-->
+  <cve>CVE-2019-16278</cve>
+  <cvss_base_score>10</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+  <reference>https://www.exploit-db.com/exploits/47573</reference>
+  <software_name>nostromo</software_name>
+  <software_license>GPLv2</software_license>
+
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>Directory traversal</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+    <keyword>DIRECTORY TRAVERSAL</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+</vulnerability>

@@ -37,9 +37,10 @@
   </default_input>
 
   <!--optional vulnerability details-->
-  <!--<cve></cve>-->
   <cvss_base_score>10</cvss_base_score>
   <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+  <!-- no cve -->
+  <reference>OSVDB-73573</reference>
   <reference>https://www.rapid7.com/db/modules/exploit/unix/ftp/vsftpd_234_backdoor</reference>
   <reference>http://scarybeastsecurity.blogspot.co.uk/2011/07/alert-vsftpd-download-backdoored.html</reference>
   <software_name>vsftpd</software_name>
@@ -51,7 +52,7 @@
 
   <!--Cannot co-exist with other ftp servers (default to same ports)-->
   <conflict>
-    <type>$ftp^</software_name>
+    <type>^ftp$</type>
   </conflict>
   <!--Cannot co-exist with other installations-->
   <conflict>
@@ -61,4 +62,18 @@
   <requires>
     <type>update</type>
   </requires>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+    <keyword>BACKDOOR TROJANS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>FILE - TRANSFER PROTOCOL (FTP)</keyword>
+  </CyBOK>
+
 </vulnerability>

@@ -1,5 +1,5 @@
 #!/bin/zsh
-SALT=`date +%g`
+SALT=`date +%N`
 if [[ ARGC -gt 0 ]] then
   BINNAME=`basename $PWD`
     foreach USER ($@)

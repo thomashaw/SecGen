@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Start with a decimal string.  XOR with slightly random byte to ensure 
 # 0x7f is never generated
-SALT=`date +%g`
+SALT=`date +%N`
 if [[ ARGC -gt 0 ]] then
   BINNAME=`basename $PWD`
   foreach USER ($@)

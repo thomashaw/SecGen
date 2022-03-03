@@ -21,6 +21,7 @@
     <keyword>NETWORK LAYER</keyword>
   </CyBOK>
   <CyBOK KA="SOIM" topic="Monitor: Data Sources">
+    <keyword>PCAP</keyword>
     <keyword>network traffic</keyword>
   </CyBOK>
 

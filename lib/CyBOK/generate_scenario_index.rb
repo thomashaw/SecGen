@@ -2,6 +2,7 @@ require 'erb'
 require 'nori'
 require 'youtube_images'
 require 'dig-deep'
+require 'getoptlong'
 
 # if you want to regenerate the indexes you need to install these additional gems:
 # gem 'youtube_images'
@@ -10,11 +11,56 @@ require 'dig-deep'
 require_relative '../helpers/print.rb'
 require_relative '../helpers/constants.rb'
 
+scenarios_dir = "scenarios/labs"
+scenario_index_out = "#{ROOT_DIR}/README-CyBOK-Scenarios-Indexed.md"
+output_video_index = true
+scenario_type = "lab"
+
+def usage
+  Print.std "Usage:
+   #{$0} [--options]
+
+   OPTIONS:
+   --lab
+   --ctf
+"
+  exit
+end
+# Get command line arguments
+opts = GetoptLong.new(
+    ['--help', '-h', GetoptLong::NO_ARGUMENT],
+    ['--lab', '-l', GetoptLong::NO_ARGUMENT],
+    ['--ctf', '-c', GetoptLong::NO_ARGUMENT],
+
+)
+# process option arguments
+opts.each do |opt, arg|
+  case opt
+  # Main options
+  when '--help'
+    usage
+  when '--lab'
+    scenarios_dir = "scenarios/labs"
+    scenario_index_out = "#{ROOT_DIR}/README-CyBOK-Scenarios-Indexed.md"
+    output_video_index = true
+    scenario_type = "practical lab"
+  when '--ctf'
+    scenarios_dir = "scenarios/ctf"
+    scenario_index_out = "#{ROOT_DIR}/README-CyBOK-CTF-Scenarios-Indexed.md"
+    output_video_index = false
+    scenario_type = "CTF"
+  else
+    Print.err "Argument not valid: #{arg}"
+    usage
+    exit 1
+  end
+end
+
+
 Print.std "Reading scenarios! ***************************"
 scenarios = []
 # Get a list of all the scenarios
-scenarios_dir = "#{ROOT_DIR}/scenarios"
-Dir.chdir(scenarios_dir) do
+Dir.chdir("#{ROOT_DIR}/#{scenarios_dir}") do
   scenarios = Dir["**/*.xml"].sort
 end
 
@@ -58,7 +104,7 @@ scenarios.each { |scenario|
   next if scenario.start_with?("examples")
   Print.verbose "Reading #{scenario}"
 
-  scenario_hash = parser.parse(File.read("#{scenarios_dir}/#{scenario}"))
+  scenario_hash = parser.parse(File.read("#{ROOT_DIR}/#{scenarios_dir}/#{scenario}"))
   if scenario_hash && scenario_hash['scenario']
     (SCENARIOS_FULL_HASH[scenario] ||= []) << scenario_hash['scenario']
     if (scenario_hash['scenario']['CyBOK'].kind_of?(Array))
@@ -126,7 +172,7 @@ scenarios.each { |scenario|
 
 template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_scenarios.md.erb"), 0, '<>-')
 begin
-  File.open("#{ROOT_DIR}/README-CyBOK-Scenarios-Indexed.md", 'wb+') do |file|
+  File.open(scenario_index_out, 'wb+') do |file|
     file.write(template_out.result())
   end
 rescue StandardError => e
@@ -134,14 +180,16 @@ rescue StandardError => e
   Print.err e.backtrace.inspect
 end
 
-template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_videos.md.erb"), 0, '<>-')
-begin
-  File.open("#{ROOT_DIR}/README-CyBOK-Lecture-Videos.md", 'wb+') do |file|
-    file.write(template_out.result())
+if output_video_index
+  template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_videos.md.erb"), 0, '<>-')
+  begin
+    File.open("#{ROOT_DIR}/README-CyBOK-Lecture-Videos.md", 'wb+') do |file|
+      file.write(template_out.result())
+    end
+  rescue StandardError => e
+    Print.err "Error writing file: #{e.message}"
+    Print.err e.backtrace.inspect
   end
-rescue StandardError => e
-  Print.err "Error writing file: #{e.message}"
-  Print.err e.backtrace.inspect
 end
 
 Print.std "#{SCENARIOS_HASH.length} scenarios with CyBOK metadata"

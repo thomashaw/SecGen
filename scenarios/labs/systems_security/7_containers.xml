@@ -1,0 +1,347 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Containers lab</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>
+# Lecture
+[Slides here](http://z.cliffe.schreuders.org/presentations/slides/slides_out_sandboxing/ADS_PDS_Lectures_8_Sandboxes_and_Virtualisation.html)
+
+# Reading
+[Z. C. Schreuders, T. McGill, and C. Payne, "The State of the Art of Application Restrictions and Sandboxes: A Survey of Application-oriented Access Controls and their Shortfalls," Computers and Security, Volume 32, Elsevier B.V., 2013. DOI: 10.1016/j.cose.2012.09.007](http://z.cliffe.schreuders.org/publications/Computers&amp;Security%20-%20The%20State%20of%20the%20Art%20of%20Application%20Restrictions%20and%20Sandboxes%20-%20Author%20Version.pdf)
+
+# Lab
+A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
+
+  <type>ctf-lab</type>
+  <type>hackerbot-lab</type>
+  <type>lab-sheet</type>
+  <difficulty>intermediate</difficulty>
+
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>SANDBOX</keyword>
+    <keyword>Application-based access controls: user-based access controls insufficiently limit privileges</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>capabilities</keyword>
+    <keyword>Container-based sandboxes: chroot, Docker</keyword>
+    <keyword>Rule-based controls: Course grained: Linux capabilities</keyword>
+    <keyword>Vulnerabilities and attacks on sandboxing misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Role of Operating Systems">
+    <keyword>isolation</keyword>
+    <keyword>CONTAINERS</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>sandboxing</keyword>
+  </CyBOK>
+
+
+  <video>
+    <title>Sandboxing and Virtualisation</title>
+    <by>Z. Cliffe Schreuders</by>
+    <url>https://youtu.be/f4yBcKkb12g</url>
+    <type>lecture-prerecorded</type>
+    <CyBOK KA="AAA" topic="Authorisation">
+      <keyword>SANDBOX</keyword>
+      <keyword>Application-based access controls: user-based access controls insufficiently limit privileges</keyword>
+    </CyBOK>
+    <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+      <keyword>capabilities</keyword>
+      <keyword>Container-based sandboxes: chroot, Docker</keyword>
+      <keyword>Rule-based controls: Course grained: Linux capabilities</keyword>
+      <keyword>System-level sandboxes (complete OS, Qubes), hardware-emulation and paravirtualisation</keyword>
+      <keyword>Copy on write sandboxes</keyword>
+    </CyBOK>
+    <CyBOK KA="OSV" topic="Role of Operating Systems">
+      <keyword>isolation</keyword>
+      <keyword>CONTAINERS</keyword>
+    </CyBOK>
+    <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+      <keyword>sandboxing</keyword>
+      <keyword>permission dialog based access control</keyword>
+    </CyBOK>
+  </video>
+
+  <system>
+    <system_name>desktop</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <value>172.16.0.2</value>
+      <value>172.16.0.3</value>
+      <value>172.16.0.4</value>
+      <value>172.16.0.5</value>
+    </input>
+
+    <!--generate two accounts, YOU and someone else-->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+
+        <input into="leaked_filenames">
+          <value>mysecret</value>
+        </input>
+        <input into="strings_to_leak">
+          <generator type="random_line_generator">
+            <input into="linelist">
+              <value>secrets</value>
+            </input>
+          </generator>
+        </input>
+
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
+
+    <input into_datastore="hackerbot_access_root_password">
+      <generator type="strong_password_generator"/>
+    </input>
+
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="strings_to_leak">
+        <value></value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart">
+        <value>true</value>
+      </input>
+      <input into="start_page">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/pidgin">
+      <input into="server_ip">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="accounts">
+        <datastore access="0">accounts</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/docker">
+      <input into="images">
+        <value>ubuntu:xenial</value>
+        <value>debian:stretch</value>
+        <value>busybox</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/chroot_debootstrap">
+      <input into="chroot_dir">
+        <value>/opt/chroot</value>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+
+  <system>
+    <system_name>hackerbot_server</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <service type="ircd"/>
+
+    <utility module_path=".*/metasploit_framework"/>
+    <utility module_path=".*/nmap"/>
+    <utility module_path=".*/handy_cli_tools"/>
+
+    <service type="httpd"/>
+
+    <utility module_path=".*/hackerbot">
+      <input into="hackerbot_configs">
+        <generator module_path=".*/hb_containers">
+          <input into="accounts">
+            <datastore>accounts</datastore>
+          </input>
+          <input into="root_password">
+            <datastore>hackerbot_access_root_password</datastore>
+          </input>
+          <input into="chroot_esc_server_ip">
+            <datastore access="2">IP_addresses</datastore>
+          </input>
+          <input into="docker_esc_server_ip">
+            <datastore access="3">IP_addresses</datastore>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network" >
+       <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+       </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </build>
+  </system>
+
+
+  <system>
+    <system_name>chroot_esc_server</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+
+    <utility module_path=".*/chroot_debootstrap">
+      <input into="chroot_dir">
+        <value>/opt/chroot</value>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/nc_backdoor_chroot_esc">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+
+      <input into="leaked_filenames">
+        <value>chroot_flag</value>
+      </input>
+    </vulnerability>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>docker_esc_server</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <utility module_path=".*/handy_cli_tools"/>
+
+    <utility module_path=".*/docker">
+      <input into="images">
+        <value>debian:stretch</value>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/nc_backdoor_docker_esc">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+      <input into="leaked_filenames">
+        <value>docker_flag</value>
+      </input>
+    </vulnerability>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>hackerbot_access_root_password</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network" >
+      <input into="IP_address">
+        <datastore access="3">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+
+</scenario>

@@ -12,4 +12,9 @@
   <platform>linux</platform>
 
   <output_type>ssh_key_pair</output_type>
+
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+  </CyBOK>
+
 </generator>
