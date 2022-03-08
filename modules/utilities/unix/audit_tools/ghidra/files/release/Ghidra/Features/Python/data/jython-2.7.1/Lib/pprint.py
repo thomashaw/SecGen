@@ -320,8 +320,7 @@ def _safe_repr(object, context, maxlevels, level):
             if not oreadable:
                 readable = False
             if orecur:
-                recursive = True
-        del context[objid]
+s        del context[objid]
         return format % _commajoin(components), readable, recursive
 
     rep = repr(object)

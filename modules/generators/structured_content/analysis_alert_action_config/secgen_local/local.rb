@@ -8,6 +8,8 @@ class AAAConfigGenerator < StringGenerator
   attr_accessor :elasticsearch_port
   attr_accessor :logstash_port
   attr_accessor :kibana_port
+  attr_accessor :db_username
+  attr_accessor :db_password
   attr_accessor :aa_configs
 
   def initialize
@@ -26,6 +28,8 @@ class AAAConfigGenerator < StringGenerator
         :elasticsearch_port => self.elasticsearch_port,
         :logstash_port => self.logstash_port,
         :kibana_port => self.kibana_port,
+        :db_username => self.db_username,
+        :db_password => self.db_password,
         :aa_configs => self.aa_configs
     }.to_json
   end
@@ -36,6 +40,8 @@ class AAAConfigGenerator < StringGenerator
              ['--elasticsearch_port', GetoptLong::REQUIRED_ARGUMENT],
              ['--logstash_port', GetoptLong::REQUIRED_ARGUMENT],
              ['--kibana_port', GetoptLong::REQUIRED_ARGUMENT],
+             ['--db_username', GetoptLong::REQUIRED_ARGUMENT],
+             ['--db_password', GetoptLong::REQUIRED_ARGUMENT],
              ['--aa_configs', GetoptLong::REQUIRED_ARGUMENT]]
   end
 
@@ -52,7 +58,11 @@ class AAAConfigGenerator < StringGenerator
       self.logstash_port = arg
     when '--kibana_port'
       self.kibana_port = arg
-    when '--aa_configs'
+    when '--kibana_port'
+      self.db_username = arg
+    when '--db_username'
+      self.db_password = arg
+    when '--db_password'
       self.aa_configs << JSON.parse(arg)
     end
   end
