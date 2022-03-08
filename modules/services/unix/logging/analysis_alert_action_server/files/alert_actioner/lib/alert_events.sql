@@ -35,6 +35,7 @@ SET search_path = public, pg_catalog;
 
 CREATE TYPE status AS ENUM (
     'todo',
+    'alert_received',
     'actioned',
     'error'
 );
@@ -51,7 +52,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE alert_events (
-    id integer NOT NULL,
+    id NOT NULl,
     alert_name text NOT NULL,
     status status,
     last_actioned timestamp
@@ -90,14 +91,6 @@ ALTER TABLE ONLY alert_events ALTER COLUMN id SET DEFAULT nextval('alert_events_
 
 --
 -- Data for Name: alert_events; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY alert_events (id, secgen_args, status) FROM stdin;
-\.
-
-
---
--- Name: alert_events_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('alert_events_id_seq', 1, true);

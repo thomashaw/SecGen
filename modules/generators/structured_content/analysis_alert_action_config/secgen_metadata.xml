@@ -16,7 +16,17 @@
   <read_fact>elasticsearch_port</read_fact>
   <read_fact>logstash_port</read_fact>
   <read_fact>kibana_port</read_fact>
+  <read_fact>db_username</read_fact>
+  <read_fact>db_password</read_fact>
+  <read_fact>kibana_port</read_fact>
   <read_fact>aa_configs</read_fact>
+
+  <default_input into="db_username">
+    <value>aaa_admin</value>
+  </default_input>
+  <default_input into="db_password">
+    <generator type="strong_password_generator"/>
+  </default_input>
 
   <output_type>json</output_type>
 

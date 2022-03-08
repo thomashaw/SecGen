@@ -9,10 +9,14 @@ class AlertActioner
 
   attr_accessor :alertactioner_name # AlertActioner name - ID for this particular action
   attr_accessor :alert_name # Alert / Rule name  - ID for elastalert rule that was triggered
+  attr_accessor :status # Alert / Rule name  - ID for elastalert rule that was triggered
+  attr_accessor :last_actioned # Alert / Rule name  - ID for elastalert rule that was triggered
 
   def initialize(config_filename, alertaction_index, alert_name)
     self.alertactioner_name = config_filename[0..-5] + '-' + alertaction_index.to_s + '-' + alertaction_index.to_s # Remove .xml extension
     self.alert_name = alert_name
+    self.status = 'todo'
+    self.last_actioned = nil
   end
 
   def perform_action
@@ -22,8 +26,7 @@ class AlertActioner
   def action_alert
     Print.info("Running #{self.class}: #{self.alertactioner_name}", logger)
     Print.info("Actioning alert: #{self.alert_name}", logger)
-    perform_action
-
+    # perform_action
   end
 
   def template_based_file_write(template, filename)
