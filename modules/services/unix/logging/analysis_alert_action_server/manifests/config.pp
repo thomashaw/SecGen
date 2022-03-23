@@ -40,9 +40,7 @@ class analysis_alert_action_server::config (
   service { 'alert_router':
     enable => true,
     ensure => 'running',
-    require => [File['/etc/systemd/system/alert_router.service'], Exec['setup_postgresql'],
-
+    require => [File['/etc/systemd/system/alert_router.service'], Exec['setup_postgresql']],
   }
-
 
 }
