@@ -11,6 +11,12 @@ class analysis_alert_action_server::config (
     ensure => 'running',
   }
 
+  user{ $db_username:
+    ensure => present,
+    gid    => $_group,
+    password => pw_hash($db_password, 'SHA-512', 'mysalt'),
+  }
+
   ## Moving across the shell script which setups the database
   file { "$install_path/lib/postgresql_setup.sh":
     owner  => root,
@@ -26,6 +32,7 @@ class analysis_alert_action_server::config (
     cwd     => $install_path,
     command => "sudo ./lib/postgresql_setup.sh $db_username $db_password",
     path    => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
+    require => User[$db_username],
   }
 
   # Configure alert_router
