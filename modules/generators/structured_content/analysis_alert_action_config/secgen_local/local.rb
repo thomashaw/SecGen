@@ -58,11 +58,11 @@ class AAAConfigGenerator < StringGenerator
       self.logstash_port = arg
     when '--kibana_port'
       self.kibana_port = arg
-    when '--kibana_port'
-      self.db_username = arg
     when '--db_username'
-      self.db_password = arg
+      self.db_username = arg
     when '--db_password'
+      self.db_password = arg
+    when '--aa_configs'
       self.aa_configs << JSON.parse(arg)
     end
   end
