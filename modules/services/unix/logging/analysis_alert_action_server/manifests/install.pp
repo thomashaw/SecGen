@@ -2,7 +2,7 @@ class analysis_alert_action_server::install (
   $install_path = '/opt/alert_actioner/'
 ) {
 
-  ensure_packages(['libcurl4-openssl-dev', 'libxml2-dev', 'ruby-dev', 'sshpass', 'mailutils', 'postgreqsl', 'postgresql-contrib'])
+  ensure_packages(['libcurl4-openssl-dev', 'libxml2-dev', 'ruby-dev', 'sshpass', 'mailutils', 'postgresql', 'postgresql-contrib'])
 
   # TODO: Needed for VDI actioners (later)
   # package {  'ovirt-engine-sdk':
