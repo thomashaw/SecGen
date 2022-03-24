@@ -12,8 +12,8 @@ ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
 WorkingDirectory=/opt/alert_actioner/
 Restart=always
-User=deploy
-Group=deploy
+User=aaa_admin
+Group=aaa_admin
 
 [Install]
 WantedBy=multi-user.target
