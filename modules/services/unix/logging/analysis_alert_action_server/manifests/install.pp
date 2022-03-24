@@ -4,6 +4,11 @@ class analysis_alert_action_server::install (
 
   ensure_packages(['libcurl4-openssl-dev', 'libxml2-dev', 'ruby-dev', 'sshpass', 'mailutils', 'postgresql', 'postgresql-contrib'])
 
+  package {  'pg':
+    provider => 'gem',
+    require => Package['ruby-dev']
+  }
+
   # TODO: Needed for VDI actioners (later)
   # package {  'ovirt-engine-sdk':
   #   ensure => '4.3.0',
