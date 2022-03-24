@@ -52,7 +52,7 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE alert_events (
-    id NOT NULl,
+    id int NOT NULl,
     alert_name text NOT NULL,
     status status,
     last_actioned timestamp
