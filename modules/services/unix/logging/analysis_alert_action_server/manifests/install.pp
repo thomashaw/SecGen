@@ -2,11 +2,11 @@ class analysis_alert_action_server::install (
   $install_path = '/opt/alert_actioner/'
 ) {
 
-  ensure_packages(['libcurl4-openssl-dev', 'libxml2-dev', 'ruby-dev', 'sshpass', 'mailutils', 'postgresql', 'postgresql-contrib'])
+  ensure_packages(['libcurl4-openssl-dev', 'libxml2-dev', 'ruby-dev', 'sshpass', 'mailutils', 'postgresql', 'postgresql-contrib', 'libpq-dev'])
 
   package {  'pg':
     provider => 'gem',
-    require => Package['ruby-dev']
+    require => [Package['ruby-dev'], Package['postgresql'], Package['postgresql-contrib'], Package['libpq-dev']]
   }
 
   # TODO: Needed for VDI actioners (later)
