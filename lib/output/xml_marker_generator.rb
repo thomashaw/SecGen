@@ -35,7 +35,9 @@ class XmlMarkerGenerator
             if system.name == 'auto_grading_server'
               extra_flags_n = @extra_flags.size
               (1..extra_flags_n).each { |_|
-                xml.flag(@extra_flags.pop)
+                xml.challenge {
+                  xml.flag(@extra_flags.pop)
+                }
               }
             end
 
