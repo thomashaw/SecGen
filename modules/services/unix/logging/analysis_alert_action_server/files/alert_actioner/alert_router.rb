@@ -123,7 +123,7 @@ def start
       results = db_conn.exec_params("SELECT * FROM alert_events WHERE status = 'alert_received' and last_actioned IS NULL;")
     rescue Exception => e
       Print.err "EXCEPTION RAISED!!", logger
-      puts e.to_s
+      Print.err e.to_s, logger
     end
 
     if results.cmd_status != "SELECT 0"
@@ -205,6 +205,7 @@ end
 def parse_opts(opts)
   options = {:instances => '', :max_threads => 3, :id => nil, :all => false}
   opts.each do |opt, arg|
+    Print.info(('Parsing option: ' + opt), logger)
     case opt
     when '--alert_name', '--alert-name'
       options[:raised_alert] = arg
@@ -218,6 +219,8 @@ def parse_opts(opts)
   options
 end
 
+begin
+Print.info("Argument vector: " + ARGV.to_s, logger)
 case ARGV[0]
 when 'start'
   start
@@ -228,5 +231,9 @@ when 'list'
 when 'reset'
   reset(get_reset_opts)
 else
+  Print.err "Unknown command", logger
   usage
+end
+rescue Exception => e
+  Print.err e.to_s, logger
 end
