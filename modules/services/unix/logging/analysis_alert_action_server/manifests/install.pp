@@ -20,6 +20,8 @@ class analysis_alert_action_server::install (
     ensure  => directory,
     recurse => true,
     source  => 'puppet:///modules/analysis_alert_action_server/alert_actioner',
+    user => 'aaa_admin',   # TODO: parameterise me into aaa_config
+    group => 'aaa_admin',  # TODO: parameterise me into aaa_config
   }
 
 }
