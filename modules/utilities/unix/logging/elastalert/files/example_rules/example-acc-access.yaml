@@ -7,7 +7,7 @@ filter:
         query: "related.user: 'crackme' AND (event.category: 'authentication' OR event.category: 'session') AND (event.action: 'user_login' OR event.action: 'started-session' OR event.action: 'acquired-credentials) AND event.outcome: 'success'"
 alert:
   - "elastalert.modules.alerter.exec.ExecAlerter"
-command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_router.rb"]
+command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_router.rb", "raise"]
 pipe_match_json: true
 realert:
   minutes: 0
