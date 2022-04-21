@@ -26,9 +26,17 @@ class Rules
 
   # Generates a greedy read or write rule for auditbeat (e.g. /home/user/file_name resolves to /home)
   def self.greedy_auditbeat_rule(path, r_w)
-    base_path = path.split('/')[0..1].join('/') + '/'
-    key = base_path.gsub(/[^A-Za-z0-9\-\_]/, '')
-    "-w #{base_path} -p #{r_w} -k #{key}"
+
+    if path.count('/') == 1 # is root dir
+      Print.err("ERROR: auditd cannot monitor the root directory - revise your scenario goals!")
+      Print.err(" path: #{path}")
+      Print.err(" r_w: #{r_w}")
+      exit(1)
+    else
+      base_path = path.split('/')[0..1].join('/') + '/'
+      key = base_path.gsub(/[^A-Za-z0-9\-\_]/, '')
+      "-w #{base_path} -p #{r_w} -k #{key}"
+    end
   end
 
 

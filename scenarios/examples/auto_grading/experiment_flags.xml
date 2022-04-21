@@ -104,14 +104,12 @@
       </input>
     </vulnerability>
     <vulnerability module_path=".*/hidden_file">
-      <input into="account">
-        <datastore access="0">account</datastore>
+      <input into="file_path_to_leak">
+        <value>/home/challenger/.flag</value>
       </input>
       <input into="strings_to_leak">
+        <!-- TODO: Add some instructions/narrative content? -->
         <generator type="flag_generator"/>
-      </input>
-      <input into="leaked_filenames">
-        <value>flag</value>
       </input>
     </vulnerability>
 
