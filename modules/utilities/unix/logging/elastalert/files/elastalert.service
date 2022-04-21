@@ -3,6 +3,7 @@ Description=Elastalert
 After=elasticsearch.service
 
 [Service]
+EnvironmentFile=/etc/environment
 Type=simple
 WorkingDirectory=/opt/elastalert
 ExecStart=/usr/bin/python3 -m elastalert.elastalert --verbose --config /opt/elastalert/config.yaml
