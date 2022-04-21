@@ -132,9 +132,10 @@
     <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
     <vulnerability module_path=".*/hidden_file">
       <input into="file_path_to_leak">
-        <value>/.test_file</value>
+        <value>/home/challenger/.top_secret_file</value>
       </input>
       <input into="strings_to_leak">
+        <!-- TODO: Replace me with some instructions/narrative content? -->
         <generator type="message_generator"/>
       </input>
     </vulnerability>
