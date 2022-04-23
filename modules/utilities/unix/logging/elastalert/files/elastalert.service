@@ -8,6 +8,8 @@ Type=simple
 WorkingDirectory=/opt/elastalert
 ExecStart=/usr/bin/python3 -m elastalert.elastalert --verbose --config /opt/elastalert/config.yaml
 Restart=always
+User=aaa_admin
+Group=aaa_admin
 
 [Install]
 WantedBy=multi-user.target
