@@ -9,6 +9,10 @@ class hidden_file::install{
       strings_to_leak   => $strings_to_leak,
       leaked_from       => "hidden_file-$file_path_to_leak",
       mode              => '0644',
+      # TODO: Add account option for this module instead. [DO NOT MERGE]
+      owner => 'challenger',
+      group => 'challenger',
+      # /TODO: Add account option for this module instead. [DO NOT MERGE]
     }
 
 }
