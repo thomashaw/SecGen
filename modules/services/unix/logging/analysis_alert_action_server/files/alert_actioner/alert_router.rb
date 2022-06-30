@@ -96,24 +96,23 @@ def insert_row(prepared_statements, statement_id, secgen_args)
   Print.info "id: #{result.first['id']}"
 end
 
-def update_reset_objects
-  # check if there are any database actions to reset
+
+
+def update_reset_objects(db_conn)
+  # Detect the reset
 
   # grab the resets from the db
-  db_conn = PG::Connection.open(:dbname => 'alert_events')
-  # results = db_conn.exec_params('SELECT * FROM alert_events;') WHERE
+  results = db_conn.exec_params("SELECT * FROM alert_events WHERE status = 'alert_received' and last_actioned IS NULL;")
 
-  # if any of the results are not status == 'tod0' / last actioned == nil, reset all objects in memory
-
-  # iterate over the objects to reset
-  @alert_actioners.each do |alert_actioner|
-    # if it's to be reset
-    Print.info("!!! Resetting alert_actioner: #{alert_actioner.alert_name} !!!", logger)
-
-    # TODO: implement granular resetting later
-    # update the reset in-memory @alert_actioner objects to  status = 'alert_received', last_actioned = nil
-    alert_actioner.status = 'todo'
-    alert_actioner.last_actioned = nil
+  # for each result we want to update the object in memory to reflect the db object, as it is changed by other instances of the script
+  # TODO: refactor me -- this is late night 'just get it working', garbage PoC. Should use ActiveRecord really and update the objects when the db changes... Not sure if AR works for external applications changing the DB changes or not but should investigate
+  results.each do |result|
+    @alert_actioners.each do |actioner|
+      if actioner.alert_name == result['alert_name']
+        actioner.status = result['status']
+        actioner.last_actioned = result['last_actioned']
+      end
+    end
   end
 end
 
@@ -138,7 +137,7 @@ def start
   db_conn.prepare(@update_statement, "UPDATE alert_events SET status = 'actioned', last_actioned = CURRENT_TIMESTAMP WHERE alert_name = $1;")
 
   while true
-    update_reset_objects
+    update_reset_objects(db_conn)
 
     # Check if any alerts need actioning
     begin

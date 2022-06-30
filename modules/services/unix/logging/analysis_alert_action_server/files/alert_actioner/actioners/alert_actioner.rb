@@ -26,7 +26,7 @@ class AlertActioner
   def action_alert
     Print.info("Running #{self.class}: #{self.alertactioner_name}", logger)
     Print.info("Actioning alert: #{self.alert_name}", logger)
-    perform_action
+    # perform_action TODO: uncomment after testing
   end
 
   def template_based_file_write(template, filename)
