@@ -109,6 +109,7 @@ def update_reset_objects(db_conn)
   results.each do |result|
     @alert_actioners.each do |actioner|
       if actioner.alert_name == result['alert_name']
+        Print.info("resetting actioner: #{actioner.alert_name}")
         actioner.status = result['status']
         actioner.last_actioned = result['last_actioned']
       end
