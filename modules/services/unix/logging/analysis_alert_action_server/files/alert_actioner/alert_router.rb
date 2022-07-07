@@ -200,6 +200,21 @@ def reset(reset_opts)
 end
 
 
+def reset_db
+  Print.info("Resetting db", logger)
+  db_conn = PG::Connection.open(:dbname => 'alert_events')
+
+  result = db_conn.exec_params("DELETE * FROM alert_events;")
+  # call the populate db function
+  if result.cmd_status != "UPDATE 0"
+    num_reset = result.cmd_status[-1]
+    Print.info "Succesfully reset #{num_reset} rows."
+  else
+    Print.err "No rows to reset."
+  end
+end
+
+
 ###### Options + Parsing ######
 
 def misc_opts
