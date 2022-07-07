@@ -69,7 +69,34 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
+        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file" AND process.executable: \"/bin/cat\"' + "\n" +
+
+
+        # TODO: WIP
+        #
+        #
+        # '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
+        #
+        # process: {
+        #     "executable": "/bin/su",
+        #     "name": "su",
+        #     "pid": 11853,
+        #     "ppid": 5982,
+        #     "title": "su vagrant",
+        #     "working_directory": "/home/challenger"
+        # }
+        #
+        # process: {
+        #     "executable": "/usr/bin/passwd",
+        #     "name": "passwd",
+        #     "pid": 13027,
+        #     "ppid": 13020,
+        #     "title": "passwd",
+        #     "working_directory": "/home/vagrant"
+        # }
+        #
+        #
+        #
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\", \"raise\", \"--alert-name\", \"" + get_ea_rulename(hostname, source_name, goal, counter) +"\"]\n" +
