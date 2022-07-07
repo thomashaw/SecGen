@@ -69,7 +69,7 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file" AND process.executable: \"/bin/cat\"' + "\n" +
+        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file AND process.executable: \"/bin/cat\""' + "\n" +
 
 
         # TODO: WIP
@@ -83,7 +83,7 @@ class Rules
         #     "pid": 11853,
         #     "ppid": 5982,
         #     "title": "su vagrant",
-        #     "working_directory": "/home/challenger"
+        #     "working_directory": "/home/challenger"/
         # }
         #
         # process: {
