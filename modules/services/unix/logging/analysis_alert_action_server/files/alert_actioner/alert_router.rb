@@ -200,11 +200,11 @@ def reset(reset_opts)
 end
 
 
-def reset_db
+def delete_db
   Print.info("Resetting db", logger)
   db_conn = PG::Connection.open(:dbname => 'alert_events')
 
-  result = db_conn.exec_params("DELETE * FROM alert_events;")
+  result = db_conn.exec_params("DELETE FROM alert_events;")
   # call the populate db function
   if result.cmd_status != "UPDATE 0"
     num_reset = result.cmd_status[-1]
@@ -267,6 +267,8 @@ when 'list'
   list
 when 'reset'
   reset(get_reset_opts)
+when 'delete_db'
+  delete_db
 else
   Print.err "Unknown command", logger
   usage
