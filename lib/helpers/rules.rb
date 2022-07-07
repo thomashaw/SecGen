@@ -69,10 +69,10 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file AND process.executable: \"/bin/cat\""' + "\n" +
+        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file AND (process.executable: \"/bin/cat\" OR process.executable: \"/usr/bin/vim.basic")"' + "\n" +
 
 
-        # TODO: WIP
+        # TODO: WIP - improve this rule!
         #
         #
         # '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
