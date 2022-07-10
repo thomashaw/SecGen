@@ -2,6 +2,8 @@
 Description=Alert Router (SecGen: Auto Grading)
 Requires=postgresql.service
 Requires=elastalert.service
+Requires=dynamic_ip.service
+After=dynamic_ip.service
 After=postgresql.service
 After=elastalert.service
 

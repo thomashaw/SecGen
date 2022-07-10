@@ -1,5 +1,7 @@
 [Unit]
 Description=Elastalert
+Requires=dynamic_ip.service
+After=dynamic_ip.service
 After=elasticsearch.service
 
 [Service]
