@@ -69,11 +69,10 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file AND (process.executable: \"/bin/cat\" OR process.executable: \"/usr/bin/vim.basic\" OR process.executable: \"/bin/less\" OR process.executable: \"/bin/more\" OR process.executable: \"/bin/nano\" OR process.executable: \"/usr/bin/kate\")"' + "\n" +
-        # Different OR clause in EA
-        #
+        # TODO: Test the timing of this simpler rule
+        '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file AND process.executable: \"/bin/cat\")"' + "\n" +
         # TODO: WIP - improve this rule!
-        #
+        # The rule with KATE etc in, takes 30 sec ish to run! '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file AND (process.executable: \"/bin/cat\" OR process.executable: \"/usr/bin/vim.basic\" OR process.executable: \"/bin/less\" OR process.executable: \"/bin/more\" OR process.executable: \"/bin/nano\" OR process.executable: \"/usr/bin/kate\")"' + "\n" +
         #
         # '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
         #
