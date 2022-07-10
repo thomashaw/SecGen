@@ -36,11 +36,26 @@ class analysis_alert_action_server::config (
   }
 
   # Configure alert_router
+  ## Add the dynamic_ip service file
+
+  file { '/etc/systemd/system/dynamic_ip.service':
+    ensure => present,
+    source => 'puppet:///modules/analysis_alert_action_server/alert_actioner/lib/dynamic_ip.service',
+    notify => Service['dynamic_ip']
+  }
+
+  ## Enable it on restarts
+  service { 'dynamic_ip':
+    enable => true,
+    ensure => 'running',
+  }
+
   ## Add the alert_router service file
   file { '/etc/systemd/system/alert_router.service':
     ensure => present,
     source => 'puppet:///modules/analysis_alert_action_server/alert_actioner/lib/alert_router.service',
-    notify => Service['alert_router']
+    notify => Service['alert_router'],
+    require => Service['dynamic_ip']
   }
 
   ## Enable it on restarts

@@ -1,0 +1,12 @@
+[Unit]
+Description=Dynamic IP
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/sbin/dhclient ens3:1
+
+[Install]
+WantedBy=multi-user.target
