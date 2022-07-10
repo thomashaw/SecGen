@@ -17,7 +17,8 @@ class WebActioner < AlertActioner
   end
 
   def perform_action
-    uri = URI.parse(self.hacktivity_url)
+    uri = URI.parse("http://www.google.com")
+    # uri = URI.parse(self.hacktivity_url)
     case self.request_type
     when 'GET'
       ENV['http_proxy'] = "http://172.22.0.51:3128"  # TODO: hard-coded temporary fix. Parameterise me!
@@ -37,7 +38,7 @@ class WebActioner < AlertActioner
     else
       response = Net::HTTP.get_response(uri)
     end
-    Print.info response.to_s
+    Print.info response.body.to_s
     Print.info "Web Action complete #{alertactioner_name}"
   end
 
