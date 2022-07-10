@@ -7,12 +7,14 @@ require_relative '../lib/aa_constants'
 class AlertActioner
   include Logging
 
-  attr_accessor :alertactioner_name # AlertActioner name - ID for this particular action
+  attr_accessor :db_id # AlertActioner db_id - database ID for this actioner
+  attr_accessor :alertactioner_name # AlertActioner name - unique ID for this actioner
   attr_accessor :alert_name # Alert / Rule name  - ID for elastalert rule that was triggered
   attr_accessor :status # Alert / Rule name  - ID for elastalert rule that was triggered
   attr_accessor :last_actioned # Alert / Rule name  - ID for elastalert rule that was triggered
 
   def initialize(config_filename, alertaction_index, alert_name)
+    self.db_id = -1
     self.alertactioner_name = config_filename[0..-5] + '-' + alertaction_index.to_s + '-' + alertaction_index.to_s # Remove .xml extension
     self.alert_name = alert_name
     self.status = 'todo'

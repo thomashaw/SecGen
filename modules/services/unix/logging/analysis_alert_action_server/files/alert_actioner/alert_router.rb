@@ -73,9 +73,10 @@ def populate_db(db_conn)
   else
     @alert_actioners.each_with_index do |actioner, count|
       statement = "insert_row_#{count}"
-      db_conn.prepare(statement, 'insert into alert_events (alert_name, status, last_actioned) values ($1, $2, $3) returning id')
+      id = db_conn.prepare(statement, 'insert into alert_events (alert_name, status, last_actioned) values ($1, $2, $3) returning id')
       result = db_conn.exec_prepared(statement, [actioner.alert_name, actioner.status, actioner.last_actioned])
-      Print.info("Successfully added AlertAction to DB. \n\tID: " + result.first['id'] + "\n\talert_name: " + actioner.alert_name, logger)
+      actioner.db_id = id
+      Print.info("Successfully added AlertAction to DB. \n\tID: " + actioner.db_id + "\n\talert_name: " + actioner.alert_name, logger)
     end
   end
 end
