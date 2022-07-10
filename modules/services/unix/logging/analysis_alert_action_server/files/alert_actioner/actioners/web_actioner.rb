@@ -18,10 +18,9 @@ class WebActioner < AlertActioner
 
   def perform_action
     uri = URI.parse(self.hacktivity_url)
-
     case self.request_type
     when 'GET'
-
+      ENV['http_proxy'] = "http://172.22.0.51:3128"  # TODO: hard-coded temporary fix. Parameterise me!
       response = Net::HTTP.get_response(uri)
     when 'POST'
       request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
