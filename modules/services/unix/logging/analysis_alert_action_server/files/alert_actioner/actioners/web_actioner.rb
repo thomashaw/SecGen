@@ -24,6 +24,7 @@ class WebActioner < AlertActioner
       ENV['http_proxy'] = "http://172.22.0.51:3128"  # TODO: hard-coded temporary fix. Parameterise me!
       response = Net::HTTP.get_response(uri)
     when 'POST'
+      ENV['http_proxy'] = "http://172.22.0.51:3128"  # TODO: hard-coded temporary fix. Parameterise me!
       request = Net::HTTP::Post.new(uri.request_uri, 'Content-Type' => 'application/json')
       request.body = self.data
       response = Net::HTTP.start(uri.hostname, uri.port) do |http|
