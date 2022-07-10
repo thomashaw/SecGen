@@ -38,8 +38,8 @@ class WebActioner < AlertActioner
     else
       response = Net::HTTP.get_response(uri)
     end
-    Print.info response.body.to_s
-    Print.info "Web Action complete #{alertactioner_name}"
+    Print.info response.body.to_s, logger
+    Print.info "Web Action complete #{alertactioner_name}", logger
   end
 
   # TODO: Override me in superclass to print actioner type + all parameters??
