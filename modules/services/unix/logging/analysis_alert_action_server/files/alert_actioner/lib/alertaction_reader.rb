@@ -29,7 +29,7 @@ class AlertActionReader < XMLReader
         when 'WebAction'
           target_host = action_node.xpath('target_host').text
           request_type = action_node.xpath('request_type').text
-          data = action_node.xpath('data').text
+          data = GCI.unescapeHTML(action_node.xpath('data').text)
 
           web_actioner = WebActioner.new(config_filename, alertaction_index, alert_name, target_host, request_type, data)
           Print.info("Created #{web_actioner.to_s}", Logging.logger)
