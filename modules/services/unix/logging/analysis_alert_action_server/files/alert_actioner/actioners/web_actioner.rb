@@ -28,8 +28,9 @@ class WebActioner < AlertActioner
       http.use_ssl = true
       http.set_debug_output($stdout)
       request = Net::HTTP::Post.new(uri.request_uri)
-      request.body = URI.encode(self.data)
+      # request.body = URI.encode(self.data)  # commented as we're putting the parameter string directly into the url
       request["Content-Type"] = "application/json"
+      request["User-Agent"] = "curl/7.55.1"
       response = http.request(request)
     when 'PUT'
       # TODO: later
