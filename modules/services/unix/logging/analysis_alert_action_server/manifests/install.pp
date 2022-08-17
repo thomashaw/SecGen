@@ -9,8 +9,15 @@ class analysis_alert_action_server::install (
     require => [Package['ruby-dev'], Package['postgresql'], Package['postgresql-contrib'], Package['libpq-dev']]
   }
 
+
+  package { 'activesupport':
+    provider => 'gem',
+    version => '6.1.6.1'
+  }
+
   package { 'gci':
-    provider => 'gem'
+    provider => 'gem',
+    require => Package['activesupport']
   }
 
   # TODO: Needed for VDI actioners (later)
