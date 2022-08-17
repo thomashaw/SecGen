@@ -9,6 +9,10 @@ class analysis_alert_action_server::install (
     require => [Package['ruby-dev'], Package['postgresql'], Package['postgresql-contrib'], Package['libpq-dev']]
   }
 
+  package { 'gci':
+    provider => 'gem'
+  }
+
   # TODO: Needed for VDI actioners (later)
   # package {  'ovirt-engine-sdk':
   #   ensure => '4.3.0',
