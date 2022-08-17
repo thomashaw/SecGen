@@ -12,7 +12,7 @@ class analysis_alert_action_server::install (
 
   package { 'activesupport':
     provider => 'gem',
-    version => '6.1.6.1'
+    ensure => '6.1.6.1'
   }
 
   package { 'gci':
