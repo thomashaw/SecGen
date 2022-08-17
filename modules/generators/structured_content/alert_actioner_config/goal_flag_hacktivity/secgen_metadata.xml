@@ -18,7 +18,8 @@
   <read_fact>mapping_type</read_fact>
 
   <default_input into="hacktivity_url">
-    <value>https://hacktivity.leedsbeckett.ac.uk/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</value>
+<!--    <value>https://hacktivity.leedsbeckett.ac.uk/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</value>-->
+    <value>https://localhost:3000/hacktivities/0/challenges/0/vm_sets/0/vms/auto_flag_submit</value>
   </default_input>
 
   <!-- Mapping types tell the project_file_creator what to do.-->
