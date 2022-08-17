@@ -108,7 +108,7 @@ class XmlAlertActionConfigGenerator
                           'action_type' => 'WebAction',
                           'target_host' => aa_conf['hacktivity_url'],
                           'request_type' => 'POST',
-                          'data' => "vm_name=" + auto_grader_hostname + "&amp;flag=" + @goal_flags.pop # TODO: test if this works
+                          'data' => "vm_name=" + auto_grader_hostname + "&flag=" + @goal_flags.pop # TODO: update this to the format: Vm ID + Scenario name + auto_grader_hostname
                           # 'data' => goal_flags[i] # TODO: Update this to the correct format
         }
       end
