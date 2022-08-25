@@ -186,11 +186,18 @@ class ProjectFilesCreator
         # Calculate the number of goals in the scenario and generate flags to insert into the alert action and hints XML generators
         n_goals = get_total_number_of_goals
 
-        i = 0
-        (1..n_goals).each { |_|
-          @extra_flags << "flag{#{SecureRandom.hex}}"
-        }
 
+        # TODO: Uncomment after testing
+        # i = 0
+        # (1..n_goals).each { |_|
+        #   @extra_flags << "flag{#{SecureRandom.hex}}"
+        # }
+
+        i = 2
+        (1..n_goals).each { |_|
+          @extra_flags << "flag{test_flag_concat#{i}}"
+          i = i+1
+        }
         xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs, @options, @extra_flags)
         xml = xml_aa_conf_generator.output
         Print.std "AlertActioner: Creating alert_actioner configuration file: #{xml_aa_conf_file}"
