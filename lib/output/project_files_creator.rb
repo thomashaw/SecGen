@@ -195,7 +195,7 @@ class ProjectFilesCreator
 
         i = 2
         (1..n_goals).each { |_|
-          @extra_flags << "flag{test_flag_concat#{i}}"
+          @extra_flags << "flag{test_flag_concat#{i.to_s}}"
           i = i+1
         }
         xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs, @options, @extra_flags)
