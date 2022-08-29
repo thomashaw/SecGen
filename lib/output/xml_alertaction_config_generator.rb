@@ -71,7 +71,7 @@ class XmlAlertActionConfigGenerator
   end
 
   def generate_hacktivity_flags(aa_conf)
-    auto_grader_hostname = "p-42-472-0-Eeq2-test-static-flags-ts-test-grader" # TODO: Remove me after testing pre-built hacktivity flag
+    auto_grader_hostname = "p-42-472-0-FQBe-test-static-flags-ts-test-grader" # TODO: Remove me after testing pre-built hacktivity flag
     # auto_grader_hostname = get_auto_grader_hostname #
 
     Print.info("auto_grader_hostname: " + auto_grader_hostname)
