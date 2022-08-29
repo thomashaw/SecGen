@@ -31,20 +31,18 @@ class WebActioner < AlertActioner
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.set_debug_output($stdout)
-      request = Net::HTTP::Post.new(uri.request_uri)
-      # request.body = URI.encode(self.data)  # commented as we're putting the parameter string directly into the url
-      request["Content-Type"] = "application/json"
-      # request["User-Agent"] = "curl/7.55.1"
 
-      # add POST data
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request["Content-Type"] = "application/json"
       form_data = URI.decode_www_form(self.data).to_h
       request.set_form_data(form_data)
 
       Print.info "  Request Data: \n", logger
       Print.info(request.body, logger)
-      response = http.request(request)
-      Print.info "  Response: \n", logger
-      Print.info(response, logger)
+      # response = http.request(request)
+      # Print.info "  Response: \n", logger
+      # Print.info(response, logger)
+      Print.warn("TODO: uncomment web_actioner.rb when merging", logger)  # TODO: uncomment web_actioner.rb when merging
     when 'PUT'
       # TODO: later
       response = ''
