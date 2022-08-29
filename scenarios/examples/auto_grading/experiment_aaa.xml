@@ -69,7 +69,7 @@
               <value>root</value>
             </input>
             <input into="password">
-              <value>test</value>
+              <value>test_cli</value>
             </input>
             <input into="recipient">
               <value>challenger</value>
@@ -140,6 +140,12 @@
       </input>
     </vulnerability>
 
+    <build type="cleanup">
+      <input into="root_password">
+        <value>test_cli</value>
+      </input>
+    </build>
+
     <network type="private_network">
       <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
@@ -167,7 +173,7 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <value>test</value>
+        <value>test_srv</value>
       </input>
     </build>
   </system>
