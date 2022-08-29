@@ -41,9 +41,9 @@ class WebActioner < AlertActioner
       request.set_form_data(form_data)
 
       Print.info "  Request Data: \n", logger
-      Print.info(request, logger)
+      Print.info(request.body, logger)
       response = http.request(request)
-      Print.info "  Response Data: \n", logger
+      Print.info "  Response: \n", logger
       Print.info(response, logger)
     when 'PUT'
       # TODO: later
