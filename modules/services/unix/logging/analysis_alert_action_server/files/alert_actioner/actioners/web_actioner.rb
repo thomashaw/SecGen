@@ -35,6 +35,12 @@ class WebActioner < AlertActioner
       # request.body = URI.encode(self.data)  # commented as we're putting the parameter string directly into the url
       request["Content-Type"] = "application/json"
       # request["User-Agent"] = "curl/7.55.1"
+
+      # add POST data
+      request.set_form_data({'vm_name' => 'p-42-472-0-Eeq2-test-static-flags-ts-test-grader', 'flag' => 'flag{test_flag_concat4}'})
+      # request.body(data)
+
+
       Print.info "  Request Data: \n", logger
       Print.info(request, logger)
       response = http.request(request)
