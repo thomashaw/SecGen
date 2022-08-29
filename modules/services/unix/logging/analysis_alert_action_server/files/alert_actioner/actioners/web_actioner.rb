@@ -37,9 +37,8 @@ class WebActioner < AlertActioner
       # request["User-Agent"] = "curl/7.55.1"
 
       # add POST data
-      request.set_form_data({'vm_name' => 'p-42-472-0-Eeq2-test-static-flags-ts-test-grader', 'flag' => 'flag{test_flag_concat4}'})
-      # request.body(data)
-
+      form_data = URI.decode_www_form(self.data).to_h
+      request.set_form_data(form_data)
 
       Print.info "  Request Data: \n", logger
       Print.info(request, logger)
