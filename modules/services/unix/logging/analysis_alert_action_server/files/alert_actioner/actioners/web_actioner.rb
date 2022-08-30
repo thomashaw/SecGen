@@ -42,7 +42,6 @@ class WebActioner < AlertActioner
       # response = http.request(request)
       # Print.info "  Response: \n", logger
       # Print.info(response, logger)
-      Print.warn("TODO: uncomment web_actioner.rb when merging", logger)  # TODO: uncomment web_actioner.rb when merging
     when 'PUT'
       # TODO: later
       response = ''
@@ -52,7 +51,8 @@ class WebActioner < AlertActioner
     else
       response = Net::HTTP.get_response(uri)
     end
-    Print.info response.body.to_s, logger
+    # Print.info response.body.to_s, logger
+    Print.warn("TODO: uncomment web_actioner.rb when merging", logger)  # TODO: uncomment web_actioner.rb when merging
     Print.info "Web Action complete #{alertactioner_name}", logger
   end
 

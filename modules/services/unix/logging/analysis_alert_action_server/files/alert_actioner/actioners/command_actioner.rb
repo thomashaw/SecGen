@@ -19,7 +19,7 @@ class CommandActioner < AlertActioner
     self.commands = commands
   end
 
-  def perform_actions # TODO: change me back to perform_action when testing this module
+  def perform_action
     # Create config/commands directory
     FileUtils.mkdir_p COMMANDS_DIRECTORY
     commands_sh_path = COMMANDS_DIRECTORY + "#{self.alertactioner_name}.sh"
