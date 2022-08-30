@@ -1,6 +1,6 @@
 class analysis_alert_action_server::config (
   $install_path = '/opt/alert_actioner',
-  $db_username = 'aaa_admin',
+  $db_username = 'aaa_admin',  # TODO: This is not fully parameterised across the application
   $db_password,
 ) {
 
@@ -15,6 +15,7 @@ class analysis_alert_action_server::config (
     ensure => present,
     gid    => $_group,
     password => pw_hash($db_password, 'SHA-512', 'mysalt'),
+    managehome => true,
   }
 
   ## Moving across the shell script which setups the database
