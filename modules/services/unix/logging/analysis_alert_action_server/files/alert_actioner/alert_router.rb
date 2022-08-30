@@ -123,6 +123,7 @@ end
 ##         start           ##
 ##    raise_alert_event    ##
 ##          list           ##
+#       test_actions       ##
 ##          reset          ##
 #############################
 
@@ -199,6 +200,14 @@ def reset(reset_opts)
   end
 end
 
+def test_actions(opts)
+  db_conn = PG::Connection.open(:dbname => 'alert_events')
+  alert_name = opts[:alert_to_test]
+  Print.info("Testing actions associated with: #{alert_name}")
+
+  load_configs
+  run_alert_actions(db_conn, alert_name)
+end
 
 def delete_db
   Print.info("Resetting db", logger)
@@ -216,7 +225,6 @@ end
 
 
 ###### Options + Parsing ######
-
 def misc_opts
   [['--help', '-h', GetoptLong::NO_ARGUMENT]]
 end
@@ -239,6 +247,11 @@ def get_reset_opts
   end
 end
 
+def get_test_opts
+  test_opts = misc_opts + [['--alert_name','-a',GetoptLong::REQUIRED_ARGUMENT]]
+  parse_opts(GetoptLong.new(*test_opts))
+end
+
 def parse_opts(opts)
   options = {:instances => '', :max_threads => 3, :id => nil, :all => false}
   opts.each do |opt, arg|
@@ -246,6 +259,7 @@ def parse_opts(opts)
     case opt
     when '--alert_name', '--alert-name'
       options[:raised_alert] = arg
+      options[:alert_to_test] = arg
     when '--all'
       options[:all] = true
     else
@@ -267,6 +281,8 @@ when 'list'
   list
 when 'reset'
   reset(get_reset_opts)
+when 'test_actions'
+  test_actions(get_test_opts)
 when 'delete_db'
   delete_db
 else
