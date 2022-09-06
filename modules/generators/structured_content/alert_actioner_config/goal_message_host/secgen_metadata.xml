@@ -21,6 +21,10 @@
   <read_fact>mappings</read_fact>
   <read_fact>mapping_type</read_fact>
 
+  <default_input into="mapping_type">
+    <value>message_host_all</value>
+  </default_input>
+
   <output_type>json</output_type>
 
 </generator>

@@ -68,6 +68,9 @@
             <input into="recipient">
               <value>challenger</value>
             </input>
+            <input into="mapping_type">
+              <value>message_host</value>
+            </input>
             <input into="mappings">
               <generator type="goal_message_map">
                 <input into="unique_id">
