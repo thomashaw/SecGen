@@ -4,6 +4,7 @@ require_relative '../../../../../../lib/objects/local_string_generator.rb'
 
 # Generate a config hash for the XmlAlertActionConfigGenerator
 class GoalMessageMap < StringGenerator
+  attr_accessor :unique_id
   attr_accessor :host
   attr_accessor :sender
   attr_accessor :password

@@ -76,7 +76,7 @@
                 <input into="message_header">
                   <value>Excellent job!</value>
                 </input>
-                <input into="message_body">
+                <input into="message_subtext">
                   <value>Well done exploiting the distcc vulnerability.</value>
                 </input>
                 <input into="recipient">
@@ -90,7 +90,7 @@
                 <input into="message_header">
                   <value>Great job! You found something useful.</value>
                 </input>
-                <input into="message_body">
+                <input into="message_subtext">
                   <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try cracking the hash for the 'crackme' user.</value>
                 </input>
               </generator>
@@ -101,18 +101,18 @@
                 <input into="message_header">
                   <value>A hidden tip.</value>
                 </input>
-                <input into="message_body">
+                <input into="message_subtext">
                   <value>Well done finding the hidden file. The system administrator has made an access control mistake with one of the system files used in password management.</value>
                 </input>
               </generator>
-              <generator type="goal_mapping_generator">
+              <generator type="goal_message_map">
                 <input into="unique_id">
                   <value>scenariogoal1</value>                      <!-- Password cracking -->
                 </input>
                 <input into="message_header">
                   <value>Fantastic work!</value>
                 </input>
-                <input into="message_body">
+                <input into="message_subtext">
                   <value>Great job accessing the crackme account! If you haven't finished all of the challenges yet, try investigate the contents of /home/challenger/ closely. Additionally, scan the network to identify a vulnerable service.</value>
                 </input>
                 <input into="recipient">
