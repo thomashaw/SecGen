@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'json'
 
 require_relative '../helpers/rules'
 
@@ -26,6 +27,10 @@ class XmlAlertActionConfigGenerator
     generate_xml_config
   end
 
+  def generate_message_host(aa_conf)
+    # code here
+  end
+
   def create_alert_actions
     Print.info 'AlertActioner: Creating alert actions from aa_conf.'
     @aa_confs.each do |aa_conf|
@@ -38,11 +43,9 @@ class XmlAlertActionConfigGenerator
           unless aa_conf['mappings']
             Print.err 'AlertActioner Config: message_host mapping type requires mappings'
           end
-
-          # TODO
-
-        when 'message_host_all'
           generate_message_host(aa_conf)
+        when 'message_host_all'
+          generate_message_host_all(aa_conf)
         else
           Print.err("AlertActioner Config: Invalid mapping type #{aa_conf['mapping_type']}")
           exit(1)
@@ -54,7 +57,70 @@ class XmlAlertActionConfigGenerator
     end
   end
 
-  def generate_message_host(aa_conf)
+  def generate_messsage_host(aa_conf)
+    # create objects from each mapping
+    aa_conf['mappings'].each_with_index do |mapping, i|
+      # Create an aa for each object
+
+      aa_mapping = JSON.parse mapping
+      # find the goal using the unique id
+
+      # different behaviour for finding system goals and vulnerability goals
+      if aa_mapping['unique_id'].include? 'scenariosystem' and 'goal' # system level goal
+
+      else # vulnerability goal
+
+           # TODO
+
+        mod = nil
+        @systems.each do |system|
+          system.module_selections.each do |mod|
+            if mod['unique_id'] == aa_mapping['unique_id']
+              goals = mod['goals']
+            end
+         end
+      end
+      end
+
+      #
+      #
+      # if it's a vulnerability do y
+
+      # Initialise with the default data (from aa_conf)
+      message_host_aa = get_message_host_aa(hostname, source_name, aa_conf, goal, i)
+
+      # Overwrite where not nil
+      message_host_aa['host'] = aa_mapping['host'] if aa_mapping['host']
+      message_host_aa['sender'] = aa_mapping['sender'] if aa_mapping['sender']
+      message_host_aa['password'] = aa_mapping['password'] if aa_mapping['password']
+      message_host_aa['recipient'] = aa_mapping['recipient'] if aa_mapping['recipient']
+      message_host_aa['message_header'] = aa_mapping['message_header'] if aa_mapping['message_header']
+      message_host_aa['message_subtext'] = aa_mapping['message_subtext'] if aa_mapping['message_subtext']
+
+      @alert_actions << message_host_aa
+    end
+
+    @systems.each do |system|
+      # System goals
+      if system.goals != []
+        system.goals.each_with_index do |goal, i|
+          @alert_actions << get_message_host_aa(system.hostname, system.name, aa_conf, goal, i)
+        end
+      end
+      # Module goals
+      system.module_selections.each do |module_selection|
+        module_name = module_selection.module_path_end
+        module_goals = module_selection.goals
+        if module_goals != []
+          module_selection.goals.each_with_index do |goal, i|
+            @alert_actions << get_message_host_aa(system.hostname, module_name, aa_conf, goal, i)
+          end
+        end
+      end
+    end
+  end
+
+  def generate_message_host_all(aa_conf)
     @systems.each do |system|
       # System goals
       if system.goals != []

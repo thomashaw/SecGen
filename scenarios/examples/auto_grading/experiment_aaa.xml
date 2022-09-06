@@ -110,7 +110,7 @@
               </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariogoal1</value>                      <!-- Password cracking -->
+                  <value>scenariosystem2goal1</value>                      <!-- Password cracking -->
                 </input>
                 <input into="message_header">
                   <value>Fantastic work!</value>
