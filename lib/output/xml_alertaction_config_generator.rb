@@ -63,31 +63,22 @@ class XmlAlertActionConfigGenerator
 
       # different behaviour for finding system goals and vulnerability goals
       if aa_mapping['unique_id'].include? 'scenariosystem' and aa_mapping['unique_id'].include? 'goal' # system level goal
-
-        test = ''
-      else
-        # vulnerability goal
-
-        # TODO
-        message_host_aa = nil
-
-        # Initialise with the default data (from aa_conf)
+        @systems.each_with_index do |system, i|
+          system.goals.each_with_index do |goal, j|
+            system_goal_id = "scenariosystem" + (i+1).to_s + "goal" + (j+1).to_s
+            if aa_mapping['unique_id'] == system_goal_id
+              message_host_aa = get_message_host_aa(system.hostname, system.name, aa_conf, goal, i)
+              @alert_actions << update_message_host_aa(aa_mapping, message_host_aa)
+            end
+          end
+        end
+      else # vulnerability goal
         @systems.each do |system|
           system.module_selections.each do |mod|
             if mod.unique_id == aa_mapping['unique_id']
               mod.goals.each_with_index do |goal, i|
                 message_host_aa = get_message_host_aa(system.hostname, mod.module_path_end, aa_conf, goal, i)
-
-                # Overwrite  where not nil
-                message_host_aa['host'] = aa_mapping['host'] unless aa_mapping['host'] == ''
-                message_host_aa['sender'] = aa_mapping['sender'] unless aa_mapping['sender'] == ''
-                message_host_aa['password'] = aa_mapping['password'] unless aa_mapping['password'] == ''
-                message_host_aa['recipient'] = aa_mapping['recipient'] unless aa_mapping['recipient'] == ''
-                message_host_aa['message_header'] = aa_mapping['message_header'] unless aa_mapping['message_header'] == ''
-                message_host_aa['message_subtext'] = aa_mapping['message_subtext'] unless aa_mapping['message_subtext'] == ''
-
-                @alert_actions << message_host_aa
-
+                @alert_actions << update_message_host_aa(aa_mapping, message_host_aa)
               end
             end
           end
@@ -230,5 +221,17 @@ class XmlAlertActionConfigGenerator
      'recipient' => aa_conf['recipient'],
      'message_header' => aa_conf['message_header'],
      'message_subtext' => aa_conf['message_subtext']}
+  end
+
+  private
+
+  def update_message_host_aa(aa_mapping, message_host_aa)
+    message_host_aa['host'] = aa_mapping['host'] unless aa_mapping['host'] == ''
+    message_host_aa['sender'] = aa_mapping['sender'] unless aa_mapping['sender'] == ''
+    message_host_aa['password'] = aa_mapping['password'] unless aa_mapping['password'] == ''
+    message_host_aa['recipient'] = aa_mapping['recipient'] unless aa_mapping['recipient'] == ''
+    message_host_aa['message_header'] = aa_mapping['message_header'] unless aa_mapping['message_header'] == ''
+    message_host_aa['message_subtext'] = aa_mapping['message_subtext'] unless aa_mapping['message_subtext'] == ''
+    message_host_aa
   end
 end
