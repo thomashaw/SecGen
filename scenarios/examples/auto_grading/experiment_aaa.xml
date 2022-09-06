@@ -59,12 +59,6 @@
             <input into="host">
               <datastore access="1">IP_addresses</datastore>
             </input>
-            <input into="message_header">
-              <value>Well done!</value>
-            </input>
-            <input into="message_subtext">
-              <value>Here is some subtext from the scenario.</value>
-            </input>
             <input into="sender">
               <value>root</value>
             </input>
@@ -73,6 +67,58 @@
             </input>
             <input into="recipient">
               <value>challenger</value>
+            </input>
+            <input into="mappings">
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC -->
+                </input>
+                <input into="message_header">
+                  <value>Excellent job!</value>
+                </input>
+                <input into="message_body">
+                  <value>Well done exploiting the distcc vulnerability.</value>
+                </input>
+                <input into="recipient">
+                  <value>distccd</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability2</value>     <!-- Readable shadow file -->
+                </input>
+                <input into="message_header">
+                  <value>Great job! You found something useful.</value>
+                </input>
+                <input into="message_body">
+                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try cracking the hash for the 'crackme' user.</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability3</value>      <!-- Hidden file -->
+                </input>
+                <input into="message_header">
+                  <value>A hidden tip.</value>
+                </input>
+                <input into="message_body">
+                  <value>Well done finding the hidden file. The system administrator has made an access control mistake with one of the system files used in password management.</value>
+                </input>
+              </generator>
+              <generator type="goal_mapping_generator">
+                <input into="unique_id">
+                  <value>scenariogoal1</value>                      <!-- Password cracking -->
+                </input>
+                <input into="message_header">
+                  <value>Fantastic work!</value>
+                </input>
+                <input into="message_body">
+                  <value>Great job accessing the crackme account! If you haven't finished all of the challenges yet, try investigate the contents of /home/challenger/ closely. Additionally, scan the network to identify a vulnerable service.</value>
+                </input>
+                <input into="recipient">
+                  <value>crackme</value>
+                </input>
+              </generator>
             </input>
           </generator>
         </input>
