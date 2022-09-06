@@ -35,13 +35,18 @@ class XmlAlertActionConfigGenerator
         when 'hacktivity_flags'
           generate_hacktivity_flags(aa_conf)
         when 'message_host'
+          unless aa_conf['mappings']
+            Print.err 'AlertActioner Config: message_host mapping type requires mappings'
+          end
+
+          # TODO
+
+        when 'message_host_all'
           generate_message_host(aa_conf)
         else
           Print.err("AlertActioner Config: Invalid mapping type #{aa_conf['mapping_type']}")
           exit(1)
         end
-      elsif aa_conf['mapping']
-        # TODO: Implement me later
       else
         Print.err "AlertActioner Config: Either mapping_type or mapping required."
         exit(1)

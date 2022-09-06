@@ -27,7 +27,7 @@ class GoalMessageHost < StringGenerator
   end
 
   def generate
-    self.outputs << {:host => self.host, :sender => self.sender, :password => self.password, :recipient => self.recipient, :message_header => self.message_header, :message_subtext => self.message_subtext, :mapping => self.mapping, :mapping_type => self.mapping_type}.to_json
+    self.outputs << {:host => self.host, :sender => self.sender, :password => self.password, :recipient => self.recipient, :message_header => self.message_header, :message_subtext => self.message_subtext, :mappings => self.mappings, :mapping_type => self.mapping_type}.to_json
   end
 
   def get_options_array
