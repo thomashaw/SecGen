@@ -78,7 +78,7 @@ class Rules
         '        query: "event.action: opened-file"' + "\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        "        query: \"process.executable: \"/bin/cat\" OR \"/usr/bin/vim.basic\" OR \"/bin/less\" OR \"/bin/more\" OR \"/bin/nano\" OR  \"/usr/bin/kate\"\""
+        "        query: \"process.executable: \"/bin/cat\" OR \"/usr/bin/vim.basic\" OR \"/bin/less\" OR \"/bin/more\" OR \"/bin/nano\" OR  \"/usr/bin/kate\"\"" + "\n" +
         # Different OR clause in EA
         #
         # TODO: WIP - improve this rule!
