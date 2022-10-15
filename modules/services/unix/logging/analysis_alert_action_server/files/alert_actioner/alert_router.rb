@@ -202,11 +202,17 @@ end
 
 def test_actions(opts)
   db_conn = PG::Connection.open(:dbname => 'alert_events')
-  alert_name = opts[:alert_to_test]
-  Print.info("Testing actions associated with: #{alert_name}")
-
   load_configs
-  run_alert_actions(db_conn, alert_name)
+
+  if opts[:alert_to_test]
+    alert_name = opts[:alert_to_test]
+    Print.info("Testing actions associated with: #{alert_name}")
+    run_alert_actions(db_conn, alert_name)
+  else
+    @alert_actioners.each do |actioner|
+      run_alert_actions(db_conn, actioner.alert_name)
+    end
+  end
 end
 
 def delete_db
@@ -291,4 +297,5 @@ else
 end
 rescue Exception => e
   Print.err e.to_s, logger
+  Print.err e.backtrace, logger
 end
