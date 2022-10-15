@@ -69,7 +69,7 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        '        query: "combined_path: \"' + goal['file_path'] + '\"' + "\n" +
+        '        query: "combined_path: \"' + goal['file_path'] + '\""' + "\n" +
         "  - query:\n" +
         "      query_string:\n" +
         '        query: "auditd.result: success"' + "\n" +
@@ -78,7 +78,7 @@ class Rules
         '        query: "event.action: opened-file"' + "\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        "        query: \"process.executable: \"/bin/cat\" OR \"/usr/bin/vim.basic\" OR \"/bin/less\" OR \"/bin/more\" OR \"/bin/nano\" OR  \"/usr/bin/kate\"\"" + "\n" +
+        "        query: \"process.executable: \\\"/bin/cat\\\" OR \\\"/usr/bin/vim.basic\\\" OR \\\"/usr/bin/less\\\" OR \\\"/bin/more\\\" OR \\\"/bin/nano\\\" OR  \\\"/usr/bin/kate\\\"\"" + "\n" +
         # Different OR clause in EA
         #
         # TODO: WIP - improve this rule!
