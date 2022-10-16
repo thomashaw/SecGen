@@ -5,4 +5,5 @@
   else
     name = @module_name
   end
-  Rules.generate_elastalert_rule(@hostname, name, @goal, @counter) %>
+   -%>
+<%=Rules.generate_elastalert_rule(@hostname, name, @goal, @counter)%>
