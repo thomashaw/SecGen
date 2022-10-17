@@ -140,10 +140,10 @@ class ProjectFilesCreator
 
           if sys.goals != []
             sys.goals.each_with_index do |goal, i|
-              @system_name = sys.name
+              @name = sys.name
               @goal = goal
               @counter = i
-              rule_name = Rules.get_ea_rulename(@hostname, @system_name, @goal, @counter)
+              rule_name = Rules.get_ea_rulename(@hostname, @name, @goal, @counter)
               elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
               Print.std "Creating server side alerting rules (system): #{elastalert_rules_file}"
               template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
@@ -153,10 +153,10 @@ class ProjectFilesCreator
           sys.module_selections.each do |module_selection|
             if module_selection.goals != {}
               module_selection.goals.each_with_index do |goal, i|
-                @module_name = module_selection.module_path_end
+                @name = module_selection.module_path_end
                 @goal = goal
                 @counter = i
-                rule_name = Rules.get_ea_rulename(@hostname, @module_name, @goal, @counter)
+                rule_name = Rules.get_ea_rulename(@hostname, @name, @goal, @counter)
                 elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
                 Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
                 template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)

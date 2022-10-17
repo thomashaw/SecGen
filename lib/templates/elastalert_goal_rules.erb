@@ -1,7 +1,2 @@
 <% require './lib/helpers/rules' -%>
-<% if @system.goals != []
-    name = @system.name
-  else
-    name = @module_name
-  end -%>
-<%= Rules.generate_elastalert_rule(@hostname, name, @goal, @counter) %>
+<%= Rules.generate_elastalert_rule(@hostname, @name, @goal, @counter) %>
