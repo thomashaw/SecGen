@@ -56,6 +56,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 <%=     if @options.has_key? :cpu_cores
 "        ovirt.cpu_cores = #{@options[:cpu_cores]}\n"
         end -%>
+<%=      if  system.name.include? 'grading'  # TODO: Update this later, eugh...
+"        ovirt.cpu_cores = 2\n"
+         end -%>
         ovirt.console = 'spice'
         # ovirt.filtered_api = true
         ovirt.insecure = true
