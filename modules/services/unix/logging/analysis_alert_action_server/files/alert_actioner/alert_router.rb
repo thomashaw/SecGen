@@ -28,7 +28,6 @@ def run_alert_actions(db_conn, alert_name)
   @alert_actioners.each do |alert_actioner|
     if alert_actioner.alert_name == alert_name
       if alert_actioner.last_actioned == nil
-        # TODO: uncomment before pushing for testing
         alert_actioner.action_alert
         alert_actioner.status = 'actioned'
       else
@@ -156,6 +155,7 @@ def start
         run_alert_actions(db_conn, result['alert_name'])
       end
     end
+    sleep 0.25  # TODO: Tweak this value
   end
 end
 
