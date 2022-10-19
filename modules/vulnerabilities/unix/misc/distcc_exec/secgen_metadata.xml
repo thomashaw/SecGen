@@ -15,9 +15,8 @@
   <difficulty>medium</difficulty>
 
   <goals>
-    <!--TODO: Test me, is this the correct username? -->
     <access_account>
-      <account_name>distcc</account_name>
+      <account_name>distccd</account_name>
     </access_account>
   </goals>
 
