@@ -79,33 +79,6 @@ class Rules
         "  - query:\n" +
         "      query_string:\n" +
         "        query: \"process.executable: \\\"/bin/cat\\\" OR \\\"/usr/bin/vim.basic\\\" OR \\\"/usr/bin/less\\\" OR \\\"/bin/more\\\" OR \\\"/bin/nano\\\" OR  \\\"/usr/bin/kate\\\"\"" + "\n" +
-        # Different OR clause in EA
-        #
-        # TODO: WIP - improve this rule!
-        #
-        #
-        # '        query: "combined_path: \"' + goal['file_path'] + '\" AND auditd.result: success AND event.action: opened-file"' + "\n" +
-        #
-        # process: {
-        #     "executable": "/bin/su",
-        #     "name": "su",
-        #     "pid": 11853,
-        #     "ppid": 5982,
-        #     "title": "su vagrant",
-        #     "working_directory": "/home/challenger"/
-        # }
-        #
-        # process: {
-        #     "executable": "/usr/bin/passwd",
-        #     "name": "passwd",
-        #     "pid": 13027,
-        #     "ppid": 13020,
-        #     "title": "passwd",
-        #     "working_directory": "/home/vagrant"
-        # }
-        #
-        #
-        #
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\", \"raise\", \"--alert-name\", \"" + get_ea_rulename(hostname, source_name, goal, counter) +"\"]\n" +
@@ -121,9 +94,13 @@ class Rules
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        # on box as:
-                # query: "related.user: 'crackme' AND (event.category: 'authentication' OR event.category: 'session') AND (event.action: 'user_login' OR event.action: 'started-session' OR event.action: 'acquired-credentials') AND event.outcome: 'success'"
-        '        query: "related.user: \'' + goal['account_name'] +'\' AND (event.action: \'user_login\' OR event.action: \'started-session\' OR event.action: \'acquired-credentials\') AND event.outcome: \'success\'"' + "\n" +
+        '        query: "related.user: \"' + goal['account_name'] + '\" OR user.name: \"' + goal['account_name'] + '\""' + "\n" +
+        "  - query:\n" +
+        "      query_string:\n" +
+        '        query: "event.action: \"user_login\" OR \"started-session\" OR \"acquired-credentials\" OR \"opened-file\""' + "\n" +
+        "  - query:\n" +
+        "      query_string:\n" +
+        '        query: "auditd.result: success"' + "\n" +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\", \"raise\", \"--alert-name\", \"" + get_ea_rulename(hostname, source_name, goal, counter) +"\"]\n" +
