@@ -16,6 +16,10 @@ class WebActioner < AlertActioner
   end
 
   def perform_action
+    Print.info "WebActioner disabled for testing - uncomment me when pushed to Hacktivity (web_actioner.rb:19)"
+  end
+
+  def perform_actions
     Print.info "Running WebActioner", logger
     # uri = URI.parse("http://www.google.com")
     uri = URI.parse(self.target_host)
