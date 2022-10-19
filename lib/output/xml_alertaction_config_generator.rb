@@ -67,7 +67,7 @@ class XmlAlertActionConfigGenerator
           system.goals.each_with_index do |goal, j|
             system_goal_id = "scenariosystem" + (i+1).to_s + "goal" + (j+1).to_s
             if aa_mapping['unique_id'] == system_goal_id
-              message_host_aa = get_message_host_aa(system.hostname, system.name, aa_conf, goal, i)
+              message_host_aa = get_message_host_aa(system.hostname, system.name, aa_conf, goal, j)
               @alert_actions << update_message_host_aa(aa_mapping, message_host_aa)
             end
           end
