@@ -145,6 +145,7 @@
     <utility module_path=".*/metasploit_framework"/>
     <utility module_path=".*/nmap"/>
     <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/numpy"/>
 
     <service type="httpd"/>
 
