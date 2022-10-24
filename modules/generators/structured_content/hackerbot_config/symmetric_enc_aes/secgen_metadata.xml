@@ -3,12 +3,13 @@
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-  <name>Hackerbot config for a protecting integrity lab</name>
-  <author>Z. Cliffe Schreuders</author>
+  <name>Hackerbot config for an AES symmetric encryption lab</name>
+  <author>Thomas Shaw</author>
+  <author>Mo Hassan</author>
   <module_license>GPLv3</module_license>
-  <description>Generates a config file for a hackerbot for an integrity lab.
-    Topics covered: Protecting integrity with file attributes;
-    Protecting integrity with read-only filesystems.</description>
+  <description>Generates a config file for a hackerbot for a symmetric encryption lab.
+    Topics covered: Symmetric Encryption;
+    Advanced Encryption Standard (AES).</description>
 
   <type>hackerbot_config</type>
   <platform>linux</platform>
