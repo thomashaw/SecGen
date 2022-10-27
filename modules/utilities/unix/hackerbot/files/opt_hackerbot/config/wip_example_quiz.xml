@@ -149,7 +149,7 @@
 
     <quiz>
       <question>What is the ciphertext? (answer as a python byte string e.g. b"hello")</question>
-      <answer>^b'cTy\xc7\x8d4u\x07\xc4\x17\xc5\xeb\rR5U'$</answer>
+      <answer>^b\'cTy\\xc7\\x8d4u\\x07\\xc4\\x17\\xc5\\xeb\\rR5U\'$</answer>
       <correct_answer_response>:) flag{806dfdf9223cfe947f674cc40d8012b9}</correct_answer_response>
       <trigger_next_attack />
     </quiz>
