@@ -20,7 +20,6 @@
   <read_fact>flags</read_fact>
   <read_fact>root_password</read_fact>
 
-
   <default_input into="accounts">
     <generator type="account">
       <input into="username">
@@ -30,8 +29,10 @@
   </default_input>
 
   <default_input into="messages">
+    <value>b\'\\x0r\\xyz\'</value>
     <value>b"Winter is coming"</value>
   </default_input>
+
   <default_input into="keys">
     <generator module_path=".*aes_key_byte_str"/>
   </default_input>
