@@ -14,8 +14,8 @@
   <type>hackerbot_config</type>
   <platform>linux</platform>
 
-  <read_fact>accounts</read_fact>
-  <read_fact>messages</read_fact>
+  <read_fact>aes_challenges</read_fact>
+
   <read_fact>keys</read_fact>
   <read_fact>flags</read_fact>
   <read_fact>root_password</read_fact>
@@ -28,14 +28,16 @@
     </generator>
   </default_input>
 
-  <default_input into="messages">
-    <value>b\'\\x0r\\xyz\'</value>
-    <value>b"Winter is coming"</value>
+  <default_input into="aes_challenges">
+    <generator type="aes_challenge"/>
   </default_input>
 
-  <default_input into="keys">
-    <generator module_path=".*aes_key_byte_str"/>
-  </default_input>
+<!--  <default_input into="messages">-->
+<!--    <value>b"Winter is coming"</value>-->
+<!--  </default_input>-->
+<!--  <default_input into="keys">-->
+<!--    <generator module_path=".*aes_key_byte_str"/>-->
+<!--  </default_input>-->
 
   <default_input into="flags">
     <generator type="flag_generator"/>
