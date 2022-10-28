@@ -70,11 +70,15 @@ def populate_db(db_conn)
       end
     end
   else
+    added_alerts = []
     @alert_actioners.each_with_index do |actioner, count|
-      statement = "insert_row_#{count}"
-      db_conn.prepare(statement, 'insert into alert_events (alert_name, status, last_actioned) values ($1, $2, $3) returning id')
-      actioner.db_id = db_conn.exec_prepared(statement, [actioner.alert_name, actioner.status, actioner.last_actioned])[0]['id'].to_i
-      Print.info("Successfully added AlertAction to DB. \n\tID: " + actioner.db_id.to_s + "\n\talert_name: " + actioner.alert_name, logger)
+      unless added_alerts.include? actioner.alert_name
+        statement = "insert_row_#{count}"
+        db_conn.prepare(statement, 'insert into alert_events (alert_name, status, last_actioned) values ($1, $2, $3) returning id')
+        actioner.db_id = db_conn.exec_prepared(statement, [actioner.alert_name, actioner.status, actioner.last_actioned])[0]['id'].to_i
+        Print.info("Successfully added AlertAction to DB. \n\tID: " + actioner.db_id.to_s + "\n\talert_name: " + actioner.alert_name, logger)
+        added_alerts << actioner.alert_name
+      end
     end
   end
 end
@@ -94,7 +98,6 @@ def insert_row(prepared_statements, statement_id, secgen_args)
   result = @db_conn.exec_prepared(statement, [secgen_args, 'todo'])
   Print.info "id: #{result.first['id']}"
 end
-
 
 
 def update_reset_objects(db_conn)
@@ -155,7 +158,7 @@ def start
         run_alert_actions(db_conn, result['alert_name'])
       end
     end
-    sleep 0.25  # TODO: Tweak this value
+    sleep 0.25 # TODO: Tweak this value
   end
 end
 
@@ -254,7 +257,7 @@ def get_reset_opts
 end
 
 def get_test_opts
-  test_opts = misc_opts + [['--alert_name','-a',GetoptLong::REQUIRED_ARGUMENT]]
+  test_opts = misc_opts + [['--alert_name', '-a', GetoptLong::REQUIRED_ARGUMENT]]
   parse_opts(GetoptLong.new(*test_opts))
 end
 
@@ -277,24 +280,24 @@ def parse_opts(opts)
 end
 
 begin
-Print.info("Argument vector: " + ARGV.to_s, logger)
-case ARGV[0]
-when 'start'
-  start
-when 'raise'
-  raise_alert_event(get_raise_alert_event_opts)
-when 'list'
-  list
-when 'reset'
-  reset(get_reset_opts)
-when 'test_actions'
-  test_actions(get_test_opts)
-when 'delete_db'
-  delete_db
-else
-  Print.err "Unknown command", logger
-  usage
-end
+  Print.info("Argument vector: " + ARGV.to_s, logger)
+  case ARGV[0]
+  when 'start'
+    start
+  when 'raise'
+    raise_alert_event(get_raise_alert_event_opts)
+  when 'list'
+    list
+  when 'reset'
+    reset(get_reset_opts)
+  when 'test_actions'
+    test_actions(get_test_opts)
+  when 'delete_db'
+    delete_db
+  else
+    Print.err "Unknown command", logger
+    usage
+  end
 rescue Exception => e
   Print.err e.to_s, logger
   Print.err e.backtrace, logger
