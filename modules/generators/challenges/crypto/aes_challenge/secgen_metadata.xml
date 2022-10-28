@@ -6,9 +6,10 @@
   <name>AES Challenge Generator</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
-  <description>AES 256 ChallengeGenerator. Outputs IV, Message, Key, and Ciphertext in JSON.</description>
+  <description>AES 256 ChallengeGenerator. Outputs IV, Message, Key, and Ciphertext (formatted as Base64) in JSON.</description>
 
   <type>aes</type>
+  <type>aes_challenge</type>
   <type>challenge_generator</type>
   <type>crypto_challenge_generator</type>
   <type>local_calculation</type>
@@ -24,11 +25,7 @@
   </default_input>
 
   <default_input into="key">
-    <value>ThisIsASecretKey</value>
-  </default_input>
-
-  <default_input into="iv">
-    <value>example_iv</value>
+    <value>ThisIsASecretKeyThisIsASecretKey</value>
   </default_input>
 
   <output_type>json</output_type>
