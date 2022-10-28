@@ -60,10 +60,10 @@
               <datastore access="1">IP_addresses</datastore>
             </input>
             <input into="sender">
-              <value>root</value>
+              <value>challenger</value>
             </input>
             <input into="password">
-              <value>test_cli</value>
+              <value>test</value>
             </input>
             <input into="recipient">
               <value>challenger</value>
