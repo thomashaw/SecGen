@@ -3,8 +3,7 @@ require_relative '../../../../../../lib/objects/local_hackerbot_config_generator
 
 class SymmetricEncAES < HackerbotConfigGenerator
 
-  attr_accessor :keys
-  attr_accessor :messages
+  attr_accessor :aes_challenges
 
   def initialize
     super
@@ -15,22 +14,19 @@ class SymmetricEncAES < HackerbotConfigGenerator
     self.templates_path = "#{self.local_dir}/templates/"
     self.config_template_path = "#{self.local_dir}/templates/symmetric_enc_aes_lab.xml.erb"
     self.html_template_path = "#{self.local_dir}/templates/labsheet.html.erb"
-    self.keys = []
-    self.messages = []
+    self.aes_challenges = []
   end
 
   def get_options_array
-    super + [['--keys', GetoptLong::REQUIRED_ARGUMENT],
-             ['--messages', GetoptLong::REQUIRED_ARGUMENT]]
+    super + [['--aes_challenges', GetoptLong::REQUIRED_ARGUMENT]]
   end
 
   def process_options(opt, arg)
     super
     case opt
-    when '--keys'
-      self.keys << arg;
-    when '--messages'
-      self.messages << arg;
+    when '--aes_challenges'
+      Print.info("AES Challenges Added to HB Config: " + arg)
+      self.aes_challenges << arg;
     end
   end
 end

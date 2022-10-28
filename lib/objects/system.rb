@@ -342,6 +342,12 @@ class System
         # stop if any generators/encoders fail to execute
         unless status == 0
           Print.err "Module failed to run (#{command})"
+          Print.err "stdout"
+          Print.err stdout
+
+          Print.err "stderr"
+          Print.err stderr
+
           # TODO: this works, but subsequent attempts at resolving the scenario always fail ("Error can't add no data...")
           raise 'failed'
         end
