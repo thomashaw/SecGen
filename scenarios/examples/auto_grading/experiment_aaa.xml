@@ -76,14 +76,23 @@
                 <input into="unique_id">
                   <value>scenariosystem2vulnerability1</value>     <!-- DistCC -->
                 </input>
+                <input into="host">
+                  <datastore access="0">IP_addresses</datastore>
+                </input>
                 <input into="message_header">
                   <value>Excellent job!</value>
                 </input>
                 <input into="message_subtext">
                   <value>Well done exploiting the distcc vulnerability.</value>
                 </input>
+                <input into="sender">
+                  <value>root</value>
+                </input>
                 <input into="recipient">
-                  <value>distccd</value>
+                  <value>root</value>
+                </input>
+                <input into="password">
+                  <value>toor</value>
                 </input>
               </generator>
               <generator type="goal_message_map">
