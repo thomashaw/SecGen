@@ -25,7 +25,6 @@ class SymmetricEncAES < HackerbotConfigGenerator
     super
     case opt
     when '--aes_challenges'
-      Print.info("AES Challenges Added to HB Config: " + arg)
       self.aes_challenges << arg;
     end
   end

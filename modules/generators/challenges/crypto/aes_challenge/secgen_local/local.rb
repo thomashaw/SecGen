@@ -1,18 +1,20 @@
 #!/usr/bin/ruby
-require_relative '../../../../../../lib/objects/local_string_encoder.rb'
+require_relative '../../../../../../lib/objects/local_string_generator'
 require 'openssl'
 require 'json'
 
-class AESChallenge < StringEncoder
+class AESChallenge < StringGenerator
   attr_accessor :key
+  attr_accessor :strings_to_encode
 
   def initialize
     super
     self.module_name = 'AES Challenge Generator'
     self.key = ''
+    self.strings_to_encode = []
   end
 
-  def encode(str)
+  def generate
 
     # Validation:
     if self.key.length != 32
@@ -30,22 +32,13 @@ class AESChallenge < StringEncoder
     cipher.key = challenge['key'] = self.key
     challenge['ciphertext'] = cipher.update(challenge['message']) + cipher.final
 
-    Print.info "AES Challenge Generator"
-    Print.info "  ciphertext: <added>"
-    Print.info "  key: <added>"
-    Print.info "  iv: <added>"
-
     b64_utf8_ct = Base64.strict_encode64(challenge['ciphertext']).encode('utf-8')
     b64_utf8_key = Base64.strict_encode64(challenge['key']).encode('utf-8')
     b64_utf8_iv = Base64.strict_encode64(challenge['iv']).encode('utf-8')
+    b64_utf8_msg = Base64.strict_encode64(challenge['message']).encode('utf-8')
 
-    Print.info "  b64_ciphertext: " + b64_utf8_ct
-    Print.info "  b64_key: " + b64_utf8_key
-    Print.info "  b64_iv: " + b64_utf8_iv
+    b64_utf8_challenge = {'message'=> b64_utf8_msg, 'key' => b64_utf8_key, 'ciphertext' => b64_utf8_ct, 'iv' => b64_utf8_iv }.to_json
 
-    b64_utf8_challenge = {'key' => b64_utf8_key, 'ciphertext' => b64_utf8_ct, 'iv' => b64_utf8_iv }.to_json
-
-    Print.info "b64_utf8_challenge: " + b64_utf8_challenge.to_s
     # Code to test decoding + decrypting...
     # decoded_ct = Base64.strict_decode64(b64_utf8_ct)
     # decoded_key = Base64.strict_decode64(b64_utf8_key)
@@ -57,12 +50,12 @@ class AESChallenge < StringEncoder
     # decipher.iv = decoded_iv
     # decrypted = decipher.update(decoded_ct)+ decipher.final
 
-
-    self.outputs << Base64.strict_encode64(b64_utf8_challenge)
+    self.outputs << Base64.strict_encode64(b64_utf8_challenge).force_encoding('utf-8')
   end
 
   def get_options_array
-    super + [['--message', GetoptLong::REQUIRED_ARGUMENT],
+    super + [['--strings_to_encode', GetoptLong::REQUIRED_ARGUMENT],
+             ['--message', GetoptLong::REQUIRED_ARGUMENT],
      ['--key', GetoptLong::REQUIRED_ARGUMENT]]
   end
 
@@ -70,6 +63,8 @@ class AESChallenge < StringEncoder
     super
     case opt
       # Removes any non-alphabet characters
+    when '--strings_to_encode'
+      self.strings_to_encode << arg
     when '--key'
       self.key = arg
     else
