@@ -80,6 +80,29 @@
                   <datastore access="0">IP_addresses</datastore>
                 </input>
                 <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+                <input into="sender">
+                  <value>root</value>
+                </input>
+                <input into="recipient">
+                  <value>root</value>
+                </input>
+                <input into="password">
+                  <value>toor</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC -->
+                </input>
+                <input into="host">
+                  <datastore access="0">IP_addresses</datastore>
+                </input>
+                <input into="message_header">
                   <value>Excellent job!</value>
                 </input>
                 <input into="message_subtext">
@@ -95,6 +118,19 @@
                   <value>toor</value>
                 </input>
               </generator>
+
+
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability2</value>     <!-- Readable shadow file -->
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+              </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
                   <value>scenariosystem2vulnerability2</value>     <!-- Readable shadow file -->
@@ -106,6 +142,21 @@
                   <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try cracking the hash for the 'crackme' user.</value>
                 </input>
               </generator>
+
+
+
+
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability3</value>      <!-- Hidden file -->
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+              </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
                   <value>scenariosystem2vulnerability3</value>      <!-- Hidden file -->
@@ -115,6 +166,22 @@
                 </input>
                 <input into="message_subtext">
                   <value>Well done finding the hidden file. The system administrator has made an access control mistake with one of the system files used in password management.</value>
+                </input>
+              </generator>
+
+
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2goal1</value>                      <!-- Password cracking -->
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+                <input into="recipient">
+                  <value>crackme</value>
                 </input>
               </generator>
               <generator type="goal_message_map">
@@ -170,7 +237,7 @@
             <value>challenger</value>
           </input>
           <input into="password">
-            <value>test</value>
+            <value>tiaspbiqe2r</value>
           </input>
         </generator>
         <!-- Crackable account -->
