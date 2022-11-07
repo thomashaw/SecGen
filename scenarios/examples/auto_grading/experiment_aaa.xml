@@ -36,6 +36,28 @@
       <value>172.16.0.4</value>
     </input>
 
+    <input into_datastore="accounts">
+      <!-- Default account -->
+      <generator type="account">
+        <input into="username">
+          <value>challenger</value>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+      </generator>
+      <!-- Crackable account -->
+      <generator type="account">
+        <input into="username">
+          <value>crackme</value>
+        </input>
+        <input into="password" into_datastore="server_crackme_password">
+          <!--            <generator type="weak_password_generator"/>-->
+          <value>test</value>
+        </input>
+      </generator>
+    </input>
+
     <input into_datastore="aaa_config">
       <generator type="aaa_config">
         <input into="server_ip">
@@ -63,7 +85,8 @@
               <value>challenger</value>
             </input>
             <input into="password">
-              <value>test</value>
+              <datastore access="0" access_json="['password']">accounts</datastore>
+<!--              <value>test</value>-->
             </input>
             <input into="recipient">
               <value>challenger</value>
@@ -183,6 +206,9 @@
                 <input into="recipient">
                   <value>crackme</value>
                 </input>
+                <input into="password">
+                  <datastore access="1" access_json="['password']">accounts</datastore>
+                </input>
               </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
@@ -196,6 +222,9 @@
                 </input>
                 <input into="recipient">
                   <value>crackme</value>
+                </input>
+                <input into="password">
+                  <datastore access="1" access_json="['password']">accounts</datastore>
                 </input>
               </generator>
             </input>
@@ -230,26 +259,8 @@
     </goals>
 
     <utility module_path=".*/parameterised_accounts">
-      <input into="accounts" into_datastore="account">
-        <!-- Default account -->
-        <generator type="account">
-          <input into="username">
-            <value>challenger</value>
-          </input>
-          <input into="password">
-            <value>tiaspbiqe2r</value>
-          </input>
-        </generator>
-        <!-- Crackable account -->
-        <generator type="account">
-          <input into="username">
-            <value>crackme</value>
-          </input>
-          <input into="password" into_datastore="server_crackme_password">
-            <!--            <generator type="weak_password_generator"/>-->
-            <value>test</value>
-          </input>
-        </generator>
+      <input into="accounts">
+        <datastore>accounts</datastore>
       </input>
     </utility>
 
