@@ -23,7 +23,7 @@ class analysis_alert_action_client::config {
 
   exec  { "create_directory_chall_conf":
     path => '/bin:/sbin:/usr/bin:/usr/sbin',
-    command => "mkdir -p challenger:challenger /home/challenger/.config/"
+    command => "mkdir -p challenger:challenger /home/challenger/.config/ && chown challenger:challenger /home/challenger/.config/"
   }
 
   file { "/home/challenger/.config/konsole.notifyrc":
