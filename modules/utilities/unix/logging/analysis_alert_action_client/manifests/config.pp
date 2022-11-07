@@ -21,9 +21,9 @@ class analysis_alert_action_client::config {
 
   # Testing hard-coded, then parameterise
 
-  ::secgen_functions::create_directory { "create_/home/challenger/.config/":
-    path => '/home/challenger/.config/',
-    notify => File["/home/challenger/.config/konsole.notifyrc"],
+  exec  { "create_directory_chall_conf":
+    path => '/bin:/sbin:/usr/bin:/usr/sbin',
+    command => "mkdir -p challenger:challenger /home/challenger/.config/"
   }
 
   file { "/home/challenger/.config/konsole.notifyrc":
@@ -31,7 +31,7 @@ class analysis_alert_action_client::config {
     source  => 'puppet:///modules/analysis_alert_action_client/kde_config/konsole.notifyrc',
     owner   => 'challenger',
     group   => 'challenger',
-    notify => File["/home/challenger/.config/kwrited.notifyrc"],
+    require => Exec['create_directory_chall_conf']
   }
 
   file { "/home/challenger/.config/kwrited.notifyrc":
@@ -39,6 +39,7 @@ class analysis_alert_action_client::config {
     source  => 'puppet:///modules/analysis_alert_action_client/kde_config/kwrited.notifyrc',
     owner   => 'challenger',
     group   => 'challenger',
+    require => Exec['create_directory_chall_conf']
   }
 
 }
