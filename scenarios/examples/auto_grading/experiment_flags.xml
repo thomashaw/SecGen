@@ -105,13 +105,54 @@
     </vulnerability>
     <vulnerability module_path=".*/hidden_file">
       <input into="file_path_to_leak">
-        <value>/home/challenger/.flag</value>
+        <value>/home/challenger/.top_secret_file</value>
       </input>
       <input into="strings_to_leak">
-        <!-- TODO: Add some instructions/narrative content? -->
+            <value>no warnings;
+              `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
+            </value>
+            <generator type="personal_sensitive"/>
+            <encoder type="csv">
+              <input into="strings_to_encode" into_datastore="clients">
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+              </input>
+            </encoder>
+            <encoder type="csv">
+              <input into="strings_to_encode">
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+                <generator type="person"/>
+              </input>
+            </encoder>
         <generator type="flag_generator"/>
       </input>
     </vulnerability>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </build>
 
     <network type="private_network">
       <input into="IP_address">

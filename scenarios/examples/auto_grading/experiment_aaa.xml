@@ -291,9 +291,21 @@
       </input>
     </vulnerability>
 
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+
     <build type="cleanup">
       <input into="root_password">
-        <value>test_cli</value>
+        <generator type="strong_password_generator"/>
       </input>
     </build>
 
