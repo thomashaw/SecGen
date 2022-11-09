@@ -97,7 +97,7 @@
             <input into="mappings">
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC -->
+                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC FLAG TODO -->
                 </input>
                 <input into="host">
                   <datastore access="0">IP_addresses</datastore>
@@ -120,7 +120,7 @@
               </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC -->
+                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC MESSAGE TODO -->
                 </input>
                 <input into="host">
                   <datastore access="0">IP_addresses</datastore>
@@ -162,8 +162,7 @@
                   <value>Great job! You found something useful.</value>
                 </input>
                 <input into="message_subtext">
-                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try
-                    cracking the hash for the 'crackme' user.
+                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try cracking the hash for the 'crackme' user.
                   </value>
                 </input>
               </generator>
@@ -195,7 +194,7 @@
 
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariosystem2goal1</value>                      <!-- Password cracking -->
+                  <value>scenariosystem2goal1</value>                      <!-- Password cracking FLAG TODO *testing* -->
                 </input>
                 <input into="message_header">
                   <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
@@ -203,28 +202,16 @@
                 <input into="message_subtext">
                   <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
                 </input>
-                <input into="recipient">
-                  <value>crackme</value>
-                </input>
-                <input into="password">
-                  <datastore access="1" access_json="['password']">accounts</datastore>
-                </input>
               </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariosystem2goal1</value>                      <!-- Password cracking -->
+                  <value>scenariosystem2goal1</value>                      <!-- Password cracking MESSAGE TODO *testing* -->
                 </input>
                 <input into="message_header">
                   <value>Fantastic work!</value>
                 </input>
                 <input into="message_subtext">
                   <value>Great job accessing the crackme account!</value>
-                </input>
-                <input into="recipient">
-                  <value>crackme</value>
-                </input>
-                <input into="password">
-                  <datastore access="1" access_json="['password']">accounts</datastore>
                 </input>
               </generator>
             </input>
