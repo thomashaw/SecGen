@@ -52,8 +52,7 @@
           <value>crackme</value>
         </input>
         <input into="password" into_datastore="server_crackme_password">
-          <!--            <generator type="weak_password_generator"/>-->
-          <value>test</value>
+          <generator type="weak_password_generator"/>
         </input>
       </generator>
     </input>
@@ -86,7 +85,7 @@
             </input>
             <input into="password">
               <datastore access="0" access_json="['password']">accounts</datastore>
-<!--              <value>test</value>-->
+              <!--              <value>test</value>-->
             </input>
             <input into="recipient">
               <value>challenger</value>
@@ -162,7 +161,8 @@
                   <value>Great job! You found something useful.</value>
                 </input>
                 <input into="message_subtext">
-                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try cracking the hash for the 'crackme' user.
+                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try
+                    cracking the hash for the 'crackme' user.
                   </value>
                 </input>
               </generator>
@@ -194,7 +194,8 @@
 
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariosystem2goal1</value>                      <!-- Password cracking FLAG TODO *testing* -->
+                  <value>scenariosystem2goal1
+                  </value>                      <!-- Password cracking FLAG TODO *testing* -->
                 </input>
                 <input into="message_header">
                   <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
@@ -205,7 +206,8 @@
               </generator>
               <generator type="goal_message_map">
                 <input into="unique_id">
-                  <value>scenariosystem2goal1</value>                      <!-- Password cracking MESSAGE TODO *testing* -->
+                  <value>scenariosystem2goal1
+                  </value>                      <!-- Password cracking MESSAGE TODO *testing* -->
                 </input>
                 <input into="message_header">
                   <value>Fantastic work!</value>
