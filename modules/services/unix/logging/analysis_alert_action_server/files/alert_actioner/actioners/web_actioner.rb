@@ -16,10 +16,6 @@ class WebActioner < AlertActioner
   end
 
   def perform_action
-    Print.info "WebActioner disabled for testing - uncomment me when pushed to Hacktivity (web_actioner.rb:19)"
-  end
-
-  def perform_actions
     Print.info "Running WebActioner", logger
     # uri = URI.parse("http://www.google.com")
     uri = URI.parse(self.target_host)
@@ -43,9 +39,9 @@ class WebActioner < AlertActioner
 
       Print.info "  Request Data: \n", logger
       Print.info(request.body, logger)
-      # response = http.request(request)
-      # Print.info "  Response: \n", logger
-      # Print.info(response, logger)
+      response = http.request(request)
+      Print.info "  Response: \n", logger
+      Print.info(response, logger)
     when 'PUT'
       # TODO: later
       response = ''
@@ -55,8 +51,7 @@ class WebActioner < AlertActioner
     else
       response = Net::HTTP.get_response(uri)
     end
-    # Print.info response.body.to_s, logger
-    Print.warn("TODO: uncomment web_actioner.rb when merging", logger)  # TODO: uncomment web_actioner.rb when merging
+    Print.info response.body.to_s, logger
     Print.info "Web Action complete #{alertactioner_name}", logger
   end
 

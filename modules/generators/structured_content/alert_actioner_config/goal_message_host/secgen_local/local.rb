@@ -53,11 +53,11 @@ class GoalMessageHost < StringGenerator
     when '--recipient'
       self.recipient = arg
     when '--message_header'
-      self.message_header = arg
+      self.message_header = arg.force_encoding('UTF-8')
     when '--message_subtext'
-      self.message_subtext = arg
+      self.message_subtext = arg.force_encoding('UTF-8')
     when '--mappings'
-      self.mappings << arg
+      self.mappings << arg.force_encoding('UTF-8')
     when '--mapping_type'
       self.mapping_type = arg
     end
