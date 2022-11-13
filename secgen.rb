@@ -453,6 +453,7 @@ opts = GetoptLong.new(
     ['--no-tests', GetoptLong::NO_ARGUMENT],
     ['--no-destroy-on-failure', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
+    ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxi-url', GetoptLong::REQUIRED_ARGUMENT],
@@ -579,6 +580,9 @@ opts.each do |opt, arg|
   when '--retries'
     Print.info "Number of retries to build vms : #{arg}"
     options[:retries] = arg
+  when '--no-parallel'
+    Print.info "Will not build VMs in parallel"
+    options[:noparallel] = true
   else
     Print.err "Argument not valid: #{arg}"
     usage
