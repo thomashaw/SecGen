@@ -48,7 +48,7 @@
     <base distro="Debian 10" type="desktop"/>
 
     <utility module_path=".*/parameterised_accounts">
-      <input into="accounts" into_datastore="account">
+      <input into="accounts" into_datastore="accounts">
         <!-- Default account -->
         <generator type="account">
           <input into="username">
