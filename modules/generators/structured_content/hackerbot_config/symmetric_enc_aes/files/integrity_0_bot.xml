@@ -1,0 +1,388 @@
+<?xml version="1.0"?>
+
+<hackerbot
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.github/cliffe/SecGen/hackerbot">
+  <!--<hackerbot xmlns="http://www.github/cliffe/SecGen/hackerbotz"-->
+
+  <name>Hackerbot</name>
+
+  <AIML_chatbot_rules>config/AIML</AIML_chatbot_rules>
+
+  <!--Method for gaining shell access, can be overwritten per-attack-->
+  <!--<get_shell>bash</get_shell>-->
+  <get_shell>sshpass -p test ssh -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>
+
+  <messages>
+    <show_attack_numbers />
+
+    <greeting>Your system is about to be hacked. I'll do what I can hold them off, but you are going to have to work with me to protect yourself. I'll cough up some flags if you work with me.</greeting>
+
+    <!--Must provide alternatives for each message-->
+    <say_ready>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and I'll move things along.</say_ready>
+    <say_ready>When you are ready, simply say 'ready'.</say_ready>
+    <say_ready>'Ready'?</say_ready>
+    <say_ready>Better hurry, the attack is imminent... Let me know when you're 'ready'.</say_ready>
+    <next>Ok, I'll do what I can to move things along...</next>
+    <next>Moving things along to the next attack...</next>
+    <next>Ok, next attack...</next>
+    <previous>Ok, I'll do what I can to back things up...</previous>
+    <previous>Ok, previous attack...</previous>
+    <previous>Ok, backing up.</previous>
+    <goto>Ok, skipping it along.</goto>
+    <goto>Let me see what I can do to goto that attack.</goto>
+    <last_attack>That was the last attack for now. You can rest easy, until next time... (End.)</last_attack>
+    <last_attack>That was the last attack. Game over?</last_attack>
+    <first_attack>You are back to the beginning!</first_attack>
+    <first_attack>This is where it all began.</first_attack>
+    <getting_shell>Ok. Gaining shell access, and running post command...</getting_shell>
+    <getting_shell>Hacking in progress...</getting_shell>
+    <getting_shell>Attack underway...</getting_shell>
+    <getting_shell>Here we go...</getting_shell>
+    <got_shell>We are in to your system.</got_shell>
+    <got_shell>You are pwned.</got_shell>
+    <got_shell>We have shell.</got_shell>
+    <repeat>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and I'll move things along.</repeat>
+    <repeat>Say 'ready', 'next', or 'previous'.</repeat>
+
+    <!--Single responses:-->
+    <help>I am waiting for you to say 'ready', 'next', 'previous', 'list', 'goto *X*', or 'answer *X*'</help>
+    <say_answer>Say "The answer is *X*".</say_answer>
+    <no_quiz>There is no question to answer</no_quiz>
+    <correct_answer>Correct</correct_answer>
+    <incorrect_answer>Incorrect</incorrect_answer>
+    <invalid>That's not possible.</invalid>
+    <non_answer>Wouldn't you like to know.</non_answer>
+
+    <!--can be overwritten per-attack-->
+    <shell_fail_message>Oh no. Failed to get shell... You need to let us in.</shell_fail_message>
+  </messages>
+
+  <tutorial_info>
+    <title>Integrity Management: Protecting Against and Detecting Change</title>
+    <tutorial># Integrity Management: Protecting Against Change
+
+      ## Getting started
+      ### VMs in this lab
+
+      ==Start these VMs== (if you haven't already):
+      - hackerbot_server (leave it running, you don't log into this)
+      - desktop
+
+      ### Your login details for the "desktop" VM
+      User: phantomkangaroo
+      Password: tiaspbiqe2r (**t**his **i**s **a** **s**ecure **p**assword **b**ut **i**s **q**uite **e**asy **2** **r**emember)
+
+      You won't login to the hackerbot_server, but the VM needs to be running to complete the lab.
+
+      ### For marks in the module
+      1. **You need to submit flags**. Note that the flags and the challenges in your VMs are different to other's in the class. Flags will be revealed to you as you complete challenges throughout the module. Flags look like this: ==flag{*somethingrandom*}==. Follow the link on the module page to submit your flags.
+      2. **You need to document the work and your solutions in a Log Book**. This needs to include screenshots (including the flags) of how you solved each Hackerbot challenge and a writeup describing your solution to each challenge, and answering any "Log Book Questions". The Log Book will be submitted later in the semester.
+
+      ## Meet Hackerbot!
+      ![small-right](images/skullandusb.svg)
+
+      This exercise involves interacting with Hackerbot, a chatbot who will attack your system. If you satisfy Hackerbot by completing the challenges she will reveal flags to you.
+
+      **On the desktop VM:**
+
+      ==Open Pidgin and send some messages to Hackerbot:==
+
+      - Try asking Hackerbot some questions
+      - Send "help"
+      - Send "list"
+      - Send "hello"
+
+      Work through the below exercises, completing the Hackerbot challenges as noted.
+
+      ---
+
+      ## Integrity
+
+      Security is often described in terms of confidentiality, integrity, and availability. Protecting the integrity of information involves preventing and detecting unauthorised changes. In many commercial organisations integrity of information is the highest priority security goal. Managing who is authorised to make changes to databases or files, and monitoring the integrity of resources for unauthorised changes is an important task in managing information security.
+
+      ## Protecting integrity
+
+      Protecting the integrity of resources, such as the files on a system, involves successfully managing a variety of security mechanisms, such as authentication, access controls and file permissions, firewalls, and so on.
+
+      > On Linux systems this can include managing passwords, packet filtering IPTables rules, standard Unix file permissions (rwx), Linux extended attributes (including ACLs for detailed authentication, labels for mandatory access control (MAC), and Linux Capabilities). Linux (like other Unix-like and Unix-based systems) has a long history of adding new security features as and when they are required.
+      >
+      > Note that many security controls such as those listed above are very important for protecting the integrity of files, but are beyond the scope of this lab. Here the focus is on techniques that are focussed on integrity rather than confidentiality or availability.
+
+      There are precautions that can be taken to reduce the chances of unauthorised changes.
+    </tutorial>
+    <footer>#### Limitations of integrity checking
+
+      Perhaps the greatest limitation to all of these approaches, is that if a system is compromised, you may not be able to trust any of the tools on the system, or even the operating system itself to behave as expected. In the case of a security compromise, your configuration files may have been altered, including any hashes you have stored locally, and tools may have been replaced by Trojan horses. For this reason it is safer to run tools over the network or from a removable drive, with read-only access to protect your backups and hashes. Even then, the OS/kernel/shell may not be telling you the truth about what is happening, since a rootkit could be concealing the truth from other programs.
+
+
+      ## Resources
+
+      An excellent resource on the subject of integrity management is Chapter 20 of the excellent book *Practical Unix &amp; Internet Security, 3rd Ed*, by Garfinkel et al (2003).
+
+      Bind mounting: [http://lwn.net/Articles/281157/](http://lwn.net/Articles/281157/)
+
+      ## License
+      This lab by [*Z. Cliffe Schreuders*](http://z.cliffe.schreuders.org) at Leeds Beckett University is licensed under a [*Creative Commons Attribution-ShareAlike 3.0 Unported License*](http://creativecommons.org/licenses/by-sa/3.0/deed.en_GB).
+
+      Included software source code is also licensed under the GNU General Public License, either version 3 of the License, or (at your option) any later version.
+
+      ![small](images/leedsbeckett-logo.png)
+
+
+      Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (2022-10-24 12:28:37 +0100)
+    </footer>
+
+    <provide_tutorial>true</provide_tutorial>
+
+  </tutorial_info>
+
+  <!--	<attack>-->
+  <!--		<prompt>An attempt to write /tmp/ is coming from user . Stop the attack by creating the file without permission for other users to write to the file.</prompt>-->
+
+  <!--		<post_command>sudo -u  bash -c 'echo boom > /tmp/'; echo $?</post_command>-->
+  <!--		<condition>-->
+  <!--			<output_matches>Permission denied</output_matches>-->
+  <!--			<message>:) Well done! </message>-->
+  <!--			<trigger_next_attack>true</trigger_next_attack>-->
+  <!--		</condition>-->
+  <!--		<condition>-->
+  <!--			<output_equals>0</output_equals>-->
+  <!--			<message>:( We managed to write to your file! You need to use access controls to protect the file. Create a new file.</message>-->
+  <!--		</condition>-->
+  <!--		<else_condition>-->
+  <!--			<message>:( Something was not right...</message>-->
+  <!--		</else_condition>-->
+
+  <!--		<tutorial></tutorial>-->
+  <!--	</attack>-->
+
+  <attack>
+    <!-- topic: Protecting integrity with file attributes-->
+    <prompt>An attempt to delete /home/phantomkangaroo/logs is coming. Stop the attack using file attributes.</prompt>
+
+    <post_command>rm --interactive=never /home/phantomkangaroo/logs; echo $?</post_command>
+    <condition>
+      <output_matches>Operation not permitted</output_matches>
+      <message>:) Well done! flag{84ceb49c11aac9fb5f529bdfbebd8a43}</message>
+      <trigger_next_attack>true</trigger_next_attack>
+    </condition>
+    <condition> <!-- TODO: chmod to defeat the defense? -->
+      <output_matches>Permission denied</output_matches>
+      <message>:( You did protect the file, but not using file attributes.</message>
+    </condition>
+    <condition>
+      <output_equals>0</output_equals>
+      <message>:( We managed to delete your file! You need to use file attributes to protect the file.  Create a new file.</message>
+    </condition>
+    <condition>
+      <output_matches>No such file or directory</output_matches>
+      <message>:( The file should exist!</message>
+    </condition>
+    <else_condition>
+      <message>:( Something was not right...</message>
+    </else_condition>
+
+    <tutorial>### Protecting integrity with file attributes
+      #### Getting to know file attributes
+      Unix systems (such as Linux or FreeBSD) include file attributes that, amongst other features, can make files immutable or append only. Setting these file attributes can provide an effective layer of security, and yet could be considered one of the more obscure Unix security features[^1]. Note that this feature is dependent on the use of a compatible filesystem (most Unix filesystems, such as ext, are compatible with file attributes). Once configured, file attributes can even prevent root (the all-powerful Unix superuser) from making changes to certain files.
+
+      [^1]: Setting a file to immutable (and therefore impossible to simply delete) can be an effective prank against the uninitiated in Unix ways.
+
+      ==Run:==
+
+      ```bash
+      lsattr /home/phantomkangaroo/sit.xls
+      ```
+      ``
+      -------------e- /home/phantomkangaroo/sit.xls
+      ``
+
+      The 'e' flag is common on ext filesystems, may or may not be present when you run the above, and does not really concern us. From a security perspective the 'a' and 'i' flags are the most interesting. Read the man page for chattr to find out more about these flags and what they do:
+
+      ```bash
+      man chattr
+      ```
+      > (Press q to leave the manual page)
+
+      ==Set the 'i' flag== using the chattr command:
+
+      ```bash
+      sudo chattr +i /home/phantomkangaroo/sit.xls
+      ```
+
+      Now ==try to delete the file== and see what happens:
+
+      ```bash
+      rm /home/phantomkangaroo/sit.xls
+      ```
+      Denied!
+
+      ==Use root permissions== to try to delete the file:
+
+      ```bash
+      sudo rm /home/phantomkangaroo/sit.xls
+      ```
+
+      It still didn't work! That's right, *even root can't delete the file*, without changing the file's attributes back first.
+
+      ==Use some commands to remove the 'i' flag==
+      > Hint: '-i', instead of '+i'.
+
+      Now run a command to ==set the 'a' flag on /home/phantomkangaroo/sit.xls.==
+
+      If you have done so correctly, attempting to overwrite the file with a test message should fail. ==Run:==
+
+      ```bash
+      sudo bash -c 'echo "test message" > /home/phantomkangaroo/sit.xls'
+      ```
+      > This should produce an error, since > causes the output of the program to be written to the specified log file, which is not allowed due to the chattr command you have run.
+
+      Yet you should be able to append messages to the end of the file:
+
+      ```bash
+      sudo bash -c 'echo "YOURNAME: test message" >> /home/phantomkangaroo/sit.xls'
+      ```
+      > This should succeed, since >> causes the output of the program to be appended (added to the end of) to the specified log file, which is allowed. Use your name above, for example 'echo "==Cliffe==: test message" >> /home/phantomkangaroo/sit.xls'.
+
+      ==View your changes== at the end of the file:
+
+      ```bash
+      tail /home/phantomkangaroo/sit.xls
+      ```
+
+      This has obvious security benefits, this feature can be used to allow files to be written to without altering existing content. For example, for ensuring that log files can be written to, but avoiding giving everyone who can write to the file the ability to alter its contents.
+    </tutorial>
+  </attack>
+
+  <attack>
+    <!-- topic: Protecting integrity with file attributes-->
+    <prompt>An attempt to overwrite /home/phantomkangaroo/logs is coming. Stop the attack by making the file append only.</prompt>
+
+    <post_command>echo 'your logs are gone!' > /home/phantomkangaroo/logs; echo 'appended!' >> /home/phantomkangaroo/logs; tail -n2 /home/phantomkangaroo/logs; echo $?</post_command>
+    <condition>
+      <output_not_matches>appended!</output_not_matches>
+      <message>:( You stopped anything from being appended to the file. What kind of log file do you think this is?</message>
+    </condition>
+    <condition>
+      <output_matches>Operation not permitted</output_matches>
+      <message>:) Well done! flag{spQB5ApXMemyAsEFd8t9vg}</message>
+      <trigger_next_attack>true</trigger_next_attack>
+    </condition>
+    <condition>
+      <output_matches>No such file or directory</output_matches>
+      <message>:( The file should exist!</message>
+    </condition>
+    <else_condition>
+      <message>:( Something was not right...</message>
+    </else_condition>
+  </attack>
+
+  <attack>
+    <!-- topic: Protecting integrity with read-only filesystems-->
+    <prompt>An attempt to edit a file in /etc/ is coming. Stop the attack by bind mounting /etc/ as read-only.</prompt>
+
+    <post_command>echo 'not read only!' > /etc/you_were_hacked; adduser --disabled-password --gecos "" yourehacked</post_command>
+    <condition>
+      <output_matches>Read-only file system</output_matches>
+      <message>:) Well done! flag{nataliancenturiatorsstelazineszizelsoliverian}</message>
+      <trigger_next_attack />
+    </condition>
+    <condition>
+      <output_matches>Permission denied|Operation not permitted</output_matches>
+      <message>:( You stopped the attack, but not by using read only bind mounting...</message>
+    </condition>
+    <else_condition>
+      <message>:( Something was not right...</message>
+    </else_condition>
+
+    <tutorial>### Protecting integrity with read-only filesystems
+      #### Getting to know read-only mounting
+      On Unix, a filesystem is mounted to a particular point in the directory structure; for example, a USB thumb drive may be mounted to /media/myUSB/. Some filesystems will automatically mount read-only; for example, if you insert a CD-ROM, since those disks are physically read-only. It is possible to optionally mount almost any filesystem, such as a USB or even a directory, in read-only mode, which will make it practically impossible to write changes to it (without remounting or accessing the drive/directory in other ways, which normally only root can do).
+
+      In new versions of Linux, it is possible to have a directory (one part of what is on a disk) present in the directory structure twice with different mount options (for example, /home/phantomkangaroo and /home/phantomkangaroo-read-only). This can be achieved by bind mounting, and then remounting to set the bind mount to read only.
+
+      In a command prompt, ==run:==
+
+      ```bash
+      mount
+      ```
+      > Note that many of the devices and directories have been mounted for read and write access (**rw**). For security reasons, it can be safer to mount things as read-only, when we don't need to be able to make changes to the contents.
+
+      Ordinary users can only read the /etc/ directory but the superuser root who owns the /etc/ directory can read and write to it. In the following example, you are going to mount the /etc/ directory to a mount point (another directory within the filesystem) and the contents of the /etc/ directory will be accessible via the mount point.
+
+      List the contents of the /etc/ directory so you are familiar with its contents:
+
+      ```bash
+      ls /etc/
+      ```
+      Create a new directory to be the mount point. ==Run:==
+
+      ```bash
+      mkdir /home/phantomkangaroo/etc
+      ```
+      ==Mount the /etc/ directory to the new mount point:==
+
+      ```bash
+      sudo mount -o bind /etc/ /home/phantomkangaroo/etc/
+      ```
+      Make sure the /etc/ directory is accessible via the home-etc directory mount point:
+
+      ```bash
+      ls /home/phantomkangaroo/etc/
+      ```
+      Ordinary users can only read but the superuser root can still write to the directory. Test this by creating a new file as the superuser root in the /home/phantomkangaroo/etc/ directory:
+
+      ```bash
+      sudo touch /home/phantomkangaroo/etc/newfile1
+      ```
+      Check that a new file has been created using the following commands:
+
+      ```bash
+      ls -l /home/phantomkangaroo/etc/newfile1
+      ```
+
+      ```bash
+      ls -l /etc/newfile1
+      ```
+
+      We can use read only mounting to make filesystems and directories available read-only. Next you will ==remount /etc/ in read-only mode== so that even the superuser root who owns the /etc/ directory cannot make changes to its contents via the mount point.
+
+      ```bash
+      sudo mount -o remount,ro,bind /etc/ /home/phantomkangaroo/etc/
+      ```
+      ==Test this== by trying to create a new file as the superuser root in the /home/phantomkangaroo/etc/ directory:
+
+      ```bash
+      sudo touch /home/phantomkangaroo/etc/newfile2
+      ```
+
+      This should prevent changes being accidentally being made to important configuration files in the /etc/ directory.
+
+
+      We can ==remount a directory as read-only to itself==:
+
+      ```bash
+      sudo mount -o bind /home/phantomkangaroo/personal_secrets/ /home/phantomkangaroo/personal_secrets/
+      sudo mount -o remount,ro,bind /home/phantomkangaroo/personal_secrets/ /home/phantomkangaroo/personal_secrets/
+      ```
+
+      Now even the owner of the directory (you), can't make changes. ==Try:==
+
+      ```bash
+      cat > /home/phantomkangaroo/personal_secrets/new_file
+      ```
+
+      Mounting read-only can be an effective way of protecting resources that you don't need to make any changes to. Read-only mounting is particularly effective when an actual disk resides externally, and *can be enforced remotely*. For example, when sharing files over the network.
+
+      > Note that mounting read-only may be circumvented by root (or a user with enough privilege) via direct access to the device files (/dev/sdc1 in the example above), or by re-mounting as read-write (when the mounting ro is not enforced via remote network share).
+    </tutorial>
+  </attack>
+
+
+  <attack>
+    <prompt>Finally, try to prevent me from obtaining shell access to your system</prompt>
+    <shell_fail_message>:) Failed to get shell... flag{gazumper voluntaryisms}</shell_fail_message>
+  </attack>
+
+</hackerbot>
