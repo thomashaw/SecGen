@@ -200,7 +200,7 @@
 		<post_command></post_command>
 
 		<prompt>This is a prompt for example 5. Decode the following b64 string: "Pz8/Pz8=".</prompt>
-		<tutorial>example 4's tutorial</tutorial>
+		<tutorial>example 5's tutorial</tutorial>
 		<condition>
 			<output_matches>OK</output_matches>
 			<message>Matches OK - uppercase, first condition</message>
@@ -222,20 +222,27 @@
 	<!-- example 6: Running a command on the remote server to read the contents of a file -->
 
 	<attack>
+		<prompt>This is a prompt for example 6. Create a file at /home/testfile with the string "test" in it</prompt>
+		<tutorial>example 6's tutorial</tutorial>
 
 		<post_command>cat /home/testfile</post_command>
 
-		<prompt>This is a prompt for example 6. The ".</prompt>
-		<tutorial>example 6's tutorial</tutorial>
-
 		<condition>
-			<output_matches>test</output_matches>
-			<message>Correct. The file contains the string "test". <% $flags.pop %></message>
+			<output_matches>.*test.*</output_matches>
+			<message>Correct. The file contains the string "test". <%= $flags.pop %></message>
 		</condition>
 		<else_condition>
+			<output_matches>*</output_matches>
 			<message>Incorrect. The file needs to contain the string "test".</message>
 		</else_condition>
 	</attack>
+
+	<!-- example 7: decode a binary file on the system into base64 and give a flag if it is correct.-->
+
+
+	<!-- example 8 -->
+
+
 
 	<!--	<attack>-->
 
