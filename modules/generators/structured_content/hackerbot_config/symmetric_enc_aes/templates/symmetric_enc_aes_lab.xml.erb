@@ -134,19 +134,44 @@
 		<tutorial>example 2's tutorial</tutorial>
 	</attack>
 
-	<!-- example 3: -->
+	<!-- example 3: Quiz with no shell interaction. -->
 
+	<attack>
 
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
 
+		<prompt>This is a prompt for example 3. The answer is "test".</prompt>
+
+				<condition>
+					<output_matches>OK</output_matches>
+					<message>Matches OK - uppercase, first condition</message>
+					<trigger_quiz/>
+				</condition>
+				<condition>
+					<output_matches>ok</output_matches>
+					<mesage>Matches ok - lowercase, second condition</mesage>
+					<trigger_quiz/>
+				</condition>
+				<else_condition>
+					<message>No match- runs as else - both conditions failed</message>
+					<trigger_quiz />
+				</else_condition>
+				<quiz>
+					<question>What is the answer? </question>
+					<answer>test</answer>
+					<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+				</quiz>
+	</attack>
 
 <!--	<attack>-->
-		<!-- topic: -->
 
 <!--		<pre_shell>echo 'OK'</pre_shell>-->
 <!--		<get_shell>false</get_shell>-->
 <!--		<post_command></post_command>-->
 
-<!--		<prompt>Using AES (in ECB mode) encrypt the following string message = <%#= $chal_1['message'] %>" key= "<%#= $chal_1['key'] %>" iv = " <%#= $chal_1['iv'] %>.</prompt>-->
+		<!--		<prompt>Using AES (in ECB mode) encrypt the following string message = <%#= $chal_1['message'] %>" key= "<%#= $chal_1['key'] %>" iv = " <%#= $chal_1['iv'] %>.</prompt>-->
 
 <!--		<condition>-->
 <!--			<output_matches>OK</output_matches>-->
