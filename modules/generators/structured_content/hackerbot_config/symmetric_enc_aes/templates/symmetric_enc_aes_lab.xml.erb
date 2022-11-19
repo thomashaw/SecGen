@@ -165,14 +165,45 @@
 				</quiz>
 	</attack>
 
-	<!-- example 4: Running a command on the remote server to read the contents of a file -->
+
+	<!-- example 4: Quiz that accepts a *static* base64 string as an answer, with a backslash character in it. -->
+
+
+	<attack>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
+
+		<prompt>This is a prompt for example 4. The answer is "Pz8/Pz8=".</prompt>
+		<tutorial>example 4's tutorial</tutorial>
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Matches OK - uppercase, first condition</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>No match- runs as else - both conditions failed</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What is the answer? </question>
+			<answer>\QPz8/Pz8=\E</answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+		</quiz>
+	</attack>
+
+	<!-- example 5: Quiz that accepts a *static* base64 string as an answer, with a backslash character in it. -->
+
+
+
+	<!-- example 6: Running a command on the remote server to read the contents of a file -->
 
 	<attack>
 
 		<post_command>cat /home/testfile</post_command>
 
-		<prompt>This is a prompt for example 4. The ".</prompt>
-		<tutorial>example 4's tutorial</tutorial>
+		<prompt>This is a prompt for example 6. The ".</prompt>
+		<tutorial>example 6's tutorial</tutorial>
 
 		<condition>
 			<output_matches>test</output_matches>
