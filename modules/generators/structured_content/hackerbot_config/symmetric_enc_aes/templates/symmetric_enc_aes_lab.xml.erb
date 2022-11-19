@@ -49,8 +49,8 @@
 
 	<!--Method for gaining shell access, can be overwritten per-attack-->
 	<!--<get_shell>bash</get_shell>-->
-<!--	<get_shell>sshpass -p <%#= $root_password %> ssh -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>-->
-	<get_shell>false</get_shell>
+	<get_shell>sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>
+<!--	<get_shell>false</get_shell>-->
 
 	<messages>
     <show_attack_numbers />
@@ -143,7 +143,7 @@
 		<post_command></post_command>
 
 		<prompt>This is a prompt for example 3. The answer is "test".</prompt>
-
+		<tutorial>example 3's tutorial</tutorial>
 				<condition>
 					<output_matches>OK</output_matches>
 					<message>Matches OK - uppercase, first condition</message>
@@ -165,7 +165,25 @@
 				</quiz>
 	</attack>
 
-<!--	<attack>-->
+	<!-- example 4: Running a command on the remote server to read the contents of a file -->
+
+	<attack>
+
+		<post_command>cat /home/testfile</post_command>
+
+		<prompt>This is a prompt for example 4. The ".</prompt>
+		<tutorial>example 4's tutorial</tutorial>
+
+		<condition>
+			<output_matches>test</output_matches>
+			<message>Correct. The file contains the string "test". <% $flags.pop %></message>
+		</condition>
+		<else_condition>
+			<message>Incorrect. The file needs to contain the string "test".</message>
+		</else_condition>
+	</attack>
+
+	<!--	<attack>-->
 
 <!--		<pre_shell>echo 'OK'</pre_shell>-->
 <!--		<get_shell>false</get_shell>-->
