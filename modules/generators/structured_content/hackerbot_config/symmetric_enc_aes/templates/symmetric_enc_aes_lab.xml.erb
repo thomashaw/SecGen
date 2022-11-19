@@ -226,10 +226,13 @@
 		<tutorial>example 6's tutorial</tutorial>
 
 		<post_command>cat /home/testfile</post_command>
-
 		<condition>
-			<output_matches>.*test.*</output_matches>
+			<output_matches>test</output_matches>
 			<message>Correct. The file contains the string "test". <%= $flags.pop %></message>
+		</condition>
+		<condition>
+			<output_matches>No such file or directory</output_matches>
+			<message>Oops!</message>
 		</condition>
 		<else_condition>
 			<output_matches>*</output_matches>
