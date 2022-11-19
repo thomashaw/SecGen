@@ -127,14 +127,14 @@
 <!--	</attack>-->
 
 
-	<!-- example two: text in tutorial with an attack -->
+	<!-- example 1: text in tutorial with an attack -->
 
 	<attack>
-		<prompt>example 2's prompt - just prompt and tutorial here within an attack</prompt>
-		<tutorial>example 2's tutorial</tutorial>
+		<prompt>example 1's prompt - just prompt and tutorial here within an attack</prompt>
+		<tutorial>example 1's tutorial</tutorial>
 	</attack>
 
-	<!-- example 3: Quiz with no shell interaction. -->
+	<!-- example 2: Quiz with no shell interaction. -->
 
 	<attack>
 
@@ -142,8 +142,8 @@
 		<get_shell>false</get_shell>
 		<post_command></post_command>
 
-		<prompt>This is a prompt for example 3. The answer is "test".</prompt>
-		<tutorial>example 3's tutorial</tutorial>
+		<prompt>This is a prompt for example 2. The answer is "test".</prompt>
+		<tutorial>example 2's tutorial</tutorial>
 				<condition>
 					<output_matches>OK</output_matches>
 					<message>Matches OK - uppercase, first condition</message>
@@ -166,33 +166,24 @@
 	</attack>
 
 
-	<!-- example 4: Quiz that accepts a *static* base64 string as an answer, with a backslash character in it. -->
-
+	<!-- example 3: Save an ascii string encoded in b64 in a file -->
 
 	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
+		<prompt>This is a prompt for example 3. Save this string, encoded in base64, in a file on your system at /home/testfile/b64.</prompt>
+		<get_shell>true</get_shell>
+		<post_command>cat /etc/testfile/b64</post_command>
 
-		<prompt>This is a prompt for example 4. The answer is "Pz8/Pz8=".</prompt>
-		<tutorial>example 4's tutorial</tutorial>
+		<tutorial>example 3's tutorial</tutorial>
 		<condition>
-			<output_matches>OK</output_matches>
-			<message>Matches OK - uppercase, first condition</message>
-			<trigger_quiz/>
+			<output_matches>\QPz8/Pz8=\E</output_matches>
+			<message>Well done! <%= $flags.pop %></message>
 		</condition>
 		<else_condition>
 			<message>No match- runs as else - both conditions failed</message>
-			<trigger_quiz />
 		</else_condition>
-		<quiz>
-			<question>What is the answer? </question>
-			<answer>\QPz8/Pz8=\E</answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-		</quiz>
 	</attack>
 
-	<!-- example 5: Quiz that provides ascii text and expects a base64 string as an answer -->
+	<!-- example 4: Quiz that provides ascii text and expects a base64 string as an answer -->
 
 	<attack>
 		<pre_shell>echo 'OK'</pre_shell>
@@ -212,7 +203,7 @@
 		</else_condition>
 		<quiz>
 			<question>What is the answer? "?????" </question>
-			<answer>\Q?????\E</answer>
+			<answer>?????</answer>
 			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
 		</quiz>
 	</attack>
@@ -220,7 +211,6 @@
 
 
 	<!-- example 6: Running a command on the remote server to read the contents of a file -->
-
 	<attack>
 		<prompt>This is a prompt for example 6. Create a file at /home/testfile with the string "test" in it</prompt>
 		<tutorial>example 6's tutorial</tutorial>
@@ -235,7 +225,6 @@
 			<message>Oops!</message>
 		</condition>
 		<else_condition>
-			<output_matches>*</output_matches>
 			<message>Incorrect. The file needs to contain the string "test".</message>
 		</else_condition>
 	</attack>
