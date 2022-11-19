@@ -169,9 +169,8 @@
 	<!-- example 3: Save an ascii string encoded in b64 in a file -->
 
 	<attack>
-		<prompt>This is a prompt for example 3. Save this string, encoded in base64, in a file on your system at /home/testfile/b64.</prompt>
-		<get_shell>true</get_shell>
-		<post_command>cat /etc/testfile/b64</post_command>
+		<prompt>This is a prompt for example 3. Save this string "?????", encoded in base64, in a file on your system at /home/testfile/b64.</prompt>
+		<post_command>cat /home/<%= $main_user %>/b64</post_command>
 
 		<tutorial>example 3's tutorial</tutorial>
 		<condition>
