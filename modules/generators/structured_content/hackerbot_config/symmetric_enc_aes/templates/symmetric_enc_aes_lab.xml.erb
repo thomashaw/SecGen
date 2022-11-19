@@ -176,6 +176,7 @@
 		<condition>
 			<output_matches>\QPz8/Pz8=\E</output_matches>
 			<message>Well done! <%= $flags.pop %></message>
+			<trigger_next_attack />
 		</condition>
 		<else_condition>
 			<message>No match- runs as else - both conditions failed</message>
@@ -204,6 +205,7 @@
 			<question>What is the answer? "?????" </question>
 			<answer>?????</answer>
 			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack />
 		</quiz>
 	</attack>
 
@@ -216,6 +218,7 @@
 		<condition>
 			<output_matches>test</output_matches>
 			<message>Correct. The file contains the string "test". <%= $flags.pop %></message>
+			<trigger_next_attack />
 		</condition>
 		<condition>
 			<output_matches>No such file or directory</output_matches>
