@@ -30,8 +30,7 @@ class HackerbotConfigGenerator < StringGenerator
 
     self.local_dir = File.expand_path('../../', __FILE__)
     self.templates_path = "#{self.local_dir}/templates/"
-    # self.config_template_path = "#{self.local_dir}/templates/symmetric_enc_aes_lab.xml.erb"  # TODO: Fix this properly before merge
-    self.config_template_path = "#{self.local_dir}/templates/hb_examples.xml.erb"  # TODO: Fix this properly before merge
+    self.config_template_path = "#{self.local_dir}/templates/symmetric_enc_aes_lab.xml.erb"  # TODO: Fix this properly before merge
     self.html_template_path = "#{self.local_dir}/templates/labsheet.html.erb"
 
   end
