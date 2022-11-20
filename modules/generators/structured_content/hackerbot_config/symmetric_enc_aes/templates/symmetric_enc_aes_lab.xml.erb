@@ -28,6 +28,9 @@
   $flags = self.flags
 
   $attack_1_ascii = SecureRandom.hex(8)
+  $attack_1_binary = $attack_1_ascii.unpack("B*").first
+  $attack_2_ascii = SecureRandom.hex(8)
+  $attack_2_binary = $attack_2_ascii.unpack("B*").first
 
   REQUIRED_FLAGS = 5
   while $flags.length < REQUIRED_FLAGS
@@ -132,8 +135,7 @@
     <get_shell>false</get_shell>
     <post_command></post_command>
 
-    <prompt>Encode the following ASCII string into binary, WITHOUT spaces between each byte (e.g. "01101010110001" represents "j1"): "<%= $attack_1_ascii %>"</prompt>
-
+    <prompt>Encode the following binary string as ASCII "<%= $attack_1_binary %>"</prompt>
     <tutorial>
       <%= ERB.new(File.read self.templates_path + 'encoding_intro_manual.md.erb').result(self.get_binding) %>
       <%= ERB.new(File.read self.templates_path + 'encoding_bin_ascii_script.md.erb').result(self.get_binding) %>
@@ -155,7 +157,7 @@
     </else_condition>
     <quiz>
       <question>What is the answer?</question>
-      <answer><%= $attack_1_ascii.unpack("B*")[0] %></answer>
+      <answer><%= $attack_1_ascii %></answer>
       <correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
       <trigger_next_attack/>
     </quiz>
@@ -164,6 +166,40 @@
 
   <!-- EVERYTHING ABOVE THIS IS READY (but untested)!!! except:
          - finding resources.md.erb's reading recommendation -->
+
+  <!-- attack 2: Encode binary to ASCII, TODO: When attack 1 and 2 both work, invert the order. -->
+
+  <attack>
+    <pre_shell>echo 'OK'</pre_shell>
+    <get_shell>false</get_shell>
+    <post_command></post_command>
+
+    <prompt>Encode the following ASCII string into binary, WITHOUT spaces between each byte (e.g. "j1" in ASCII is represented as "01101010110001" in binary): "<%= $attack_2_ascii %>"</prompt>
+    <tutorial>Adapt your script to encode the ASCII string into it's binary equivalent.</tutorial>
+    <condition>
+      <output_matches>OK</output_matches>
+      <message>Matches OK - uppercase, first condition</message>
+      <trigger_quiz/>
+    </condition>
+    <condition>
+      <output_matches>ok</output_matches>
+      <mesage>Matches ok - lowercase, second condition</mesage>
+      <trigger_quiz/>
+    </condition>
+    <else_condition>
+      <message>No match- runs as else - both conditions failed</message>
+      <trigger_quiz/>
+    </else_condition>
+    <quiz>
+      <question>What is the answer?</question>
+      <answer><%= $attack_2_binary %></answer>
+      <correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+      <trigger_next_attack/>
+    </quiz>
+  </attack>
+
+
+
 
 
   <!-- example 2: Quiz with no shell interaction. -->
