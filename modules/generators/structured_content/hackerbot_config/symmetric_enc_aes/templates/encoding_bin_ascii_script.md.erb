@@ -1,87 +1,77 @@
 #### Programatically Encoding Binary and ASCII
 
-Here is another binary message to decode:
-
-`00100010 01010100 01101000 01100101 01110010 01100101 00100000 01100001 01110010 01100101 00100000 01110100 01110111 01101111 00100000 01101011 01101001 01101110 01100100 01110011 00100000 01101111 01100110 00100000 01100011 01110010 01111001 01110000 01110100 01101111 01100111 01110010 01100001 01110000 01101000 01111001 00100000 01101001 01101110 00100000 01110100 01101000 01101001 01110011 00100000 01110111 01101111 01110010 01101100 01100100 00111010 00100000 01100011 01110010 01111001 01110000 01110100 01101111 01100111 01110010 01100001 01110000 01101000 01111001 00100000 01110100 01101000 01100001 01110100 00100000 01110111 01101001 01101100 01101100 00100000 01110011 01110100 01101111 01110000 00100000 01111001 01101111 01110101 01110010 00100000 01101011 01101001 01100100 00100000 01110011 01101001 01110011 01110100 01100101 01110010 00100000 01100110 01110010 01101111 01101101 00100000 01110010 01100101 01100001 01100100 01101001 01101110 01100111 00100000 01111001 01101111 01110101 01110010 00100000 01100110 01101001 01101100 01100101 01110011 00101100 00100000 01100001 01101110 01100100 00100000 01100011 01110010 01111001 01110000 01110100 01101111 01100111 01110010 01100001 01110000 01101000 01111001 00100000 01110100 01101000 01100001 01110100 00100000 01110111 01101001 01101100 01101100 00100000 01110011 01110100 01101111 01110000 00100000 01101101 01100001 01101010 01101111 01110010 00100000 01100111 01101111 01110110 01100101 01110010 01101110 01101101 01100101 01101110 01110100 01110011 00100000 01100110 01110010 01101111 01101101 00100000 01110010 01100101 01100001 01100100 01101001 01101110 01100111 00100000 01111001 01101111 01110101 01110010 00100000 01100110 01101001 01101100 01100101 01110011 00101110 00100000 01000010 01110010 01110101 01100011 01100101 00100000 01010011 01100011 01101000 01101110 01100101 01101001 01100101 01110010`
-
 Whilst this example uses python3, a popular cross-platform scripting language, to encode and decode between binary and ASCII data. You are free to do the following exercise in any programming language of your choice, using libraries to assist you.
+
 
 Create a file called encoder.py with a text editor of your choice and paste the following template code in:
 
-Source: https://stackoverflow.com/questions/7396849/convert-binary-to-ascii-and-vice-versa/7397689#7397689
-
-```python
-import binascii
-
-def text_to_bits(text, encoding='utf-8', errors='surrogatepass'):
-    bits = bin(int(binascii.hexlify(text.encode(encoding, errors)), 16))[2:]
-    return bits.zfill(8 * ((len(bits) + 7) // 8))
-
-def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
-    n = int(bits, 2)
-    return int2bytes(n).decode(encoding, errors)
-
-def int2bytes(i):
-    hex_string = '%x' % i
-    n = len(hex_string)
-    return binascii.unhexlify(hex_string.zfill(n + (n & 1)))
-
-def text_from_bits(bits, encoding='utf-8', errors='surrogatepass'):
-    n = int(bits, 2)
-    return int2bytes(n).decode(encoding, errors)
-
-binary_string_to_encode = ""  # TASK: Add the string to decode provided above within the quotations here
-
-print(binary_string_to_encode)
 ```
 
->Run the script with `python3 encoder.py` to verify our binary string is being stored in the variable and printed out correctly.
 
-To test the text_from_bits function works, add the following two lines print the first 2 characters of our string out.
 
-```python
-...
 
-print(text_from_bits("00100010"))
-print(text_from_bits("01010100"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Encoding
+
+As we covered in the Introduction to Cryptography lab, there is a distinction between encoding and encrypting data.
+
+Whilst both encoding and encryption involve converting the format to another, encoding typically has the property of reversibility and, whilst from the human readability perspective the data may look obfuscated, the process is reversible. Encoding does not aim to securely to apply confidentiality the data being processed.
+
+
+Create a file called encoder.py with a text editor of your choice and paste the following template code in:
+Common applications of encoding are:
 ```
 
-> Run the script again with `python3 encoder.py` and verify the first two binary bytes have been converted to ascii
+- Interpreting binary data to printable characters (ASCII, Unicode, Braille, etc.)
+- Converting arbitrary data into an ASCII printable format for transferring between systems (base64)
+- Extending the usability of a legacy protocol whilst staying within the legal character set (URL percentage encoding for special characters)
 
-Let's try print them side by side, rather than one character per line:
 
-print(text_from_bits("00100010 01010100"))
+#### Manual Character Encoding
 
-Oops - looks like an error!
+Given the following string of bytes in binary representation, we can manually encode the binary into ASCII.
 
-```bash
-root@kali:~# python3 encoder.py
-Traceback (most recent call last):
-  File "/root/encoder.py", line 24, in <module>
-    print(text_from_bits("01001100 01000010"))
-  File "/root/encoder.py", line 17, in text_from_bits
-    n = int(bits, 2)
-ValueError: invalid literal for int() with base 2: '01001100 01000010'
+`01011001 01101111 01110010 01101011 01110011 01101000 01101001 01110010 01100101 00100001`
+
+![ASCII table](https://cloud.githubusercontent.com/assets/670192/17168883/b18ff362-53dc-11e6-8288-fa49a5f3459e.png)
+Source: https://web.alfredstate.edu/faculty/weimandn/miscellaneous/ascii/ascii_index.html
+
+| Decimal (ordinal)   | Binary   | Octal   | Hex   |  ASCII  |
+| :-----------------: | :------: | :-----: | :---: | :-----: |
+|         89          |	01011001 |  131    |   59  |    Y    |
+|        111          | 01101111 |	157    | 6F    |    o    |
+
+
+==Logbook task: Encode the rest of the string manually in both ASCII and Hexadecimal in your logbook.==
+> (e.g. ASCII: "Yo....", Hex: "59 6F ...").
+
+
+#### Character encoding with tools
+
+As you can see, the manual route takes a while. Particularly for larger strings of data. Luckily automated tools exist to assist!
+
+==Logbook task: The longer string below would take a while to convert manually. Use an web tool converter such as [CyberChef](https://gchq.github.io/CyberChef/) or another web-based encoding tool of your choice to decode the text. Take a screenshot of your solution in your browser as evidence in your logbook.==
+
+```
+01000001 01101110 01111001 01101111 01101110 01100101 00101100 00100000 01100110 01110010 01101111 01101101 00100000 01110100 01101000 01100101 00100000 01101101 01101111 01110011 01110100 00100000 01100011 01101100 01110101 01100101 01101100 01100101 01110011 01110011 00100000 01100001 01101101 01100001 01110100 01100101 01110101 01110010 00100000 01110100 01101111 00100000 01110100 01101000 01100101 00100000 01100010 01100101 01110011 01110100 00100000 01100011 01110010 01111001 01110000 01110100 01101111 01100111 01110010 01100001 01110000 01101000 01100101 01110010 00101100 00100000 01100011 01100001 01101110 00100000 01100011 01110010 01100101 01100001 01110100 01100101 00100000 01100001 01101110 00100000 01100001 01101100 01100111 01101111 01110010 01101001 01110100 01101000 01101101 00100000 01110100 01101000 01100001 01110100 00100000 01101000 01100101 00100000 01101000 01101001 01101101 01110011 01100101 01101100 01100110 00100000 01100011 01100001 01101110 00100111 01110100 00100000 01100010 01110010 01100101 01100001 01101011 00101110 00001010 00001010 00101101 00100000 01010011 01100011 01101000 01101110 01100101 01101001 01100101 01110010 00101100 00100000 01000010 01110010 01110101 01100011 01100101 00100000 00101000 00110001 00111001 00111001 00111000 00101101 00110001 00110000 00101101 00110001 00110101 00101001 00101110 00100000 01001101 01100101 01101101 01101111 00100000 01110100 01101111 00100000 01110100 01101000 01100101 00100000 01000001 01101101 01100001 01110100 01100101 01110101 01110010 00100000 01000011 01101001 01110000 01101000 01100101 01110010 00100000 01000100 01100101 01110011 01101001 01100111 01101110 01100101 01110010 00101110 00100000 01000011 01110010 01111001 01110000 01110100 01101111 01100111 01110010 01100001 01101101 00100000 01101110 01100101 01110111 01110011 01101100 01100101 01110100 01110100 01100101 01110010 00101110 00100000 00101000 01100001 01101011 01100001 00100000 01010011 01100011 01101000 01101110 01100101 01101001 01100101 01110010 00100111 01110011 00100000 01001100 01100001 01110111 00101001```
 ```
 
-Can you see why Try update the ?
-
-Spoiler: Try remove the space character from your binary string like so: `print(text_from_bits("0100110001000010"))`
-
-Now that we can see this works, we'll need to ensure our binary_string_to_encode has no spaces in it, before passing it to the text_from_bits() function.
-
-Test out the example below:
-
-```python3
-...
-binary_string_to_encode = "01100101 01111000 01100001 01101101 01110000 01101100 01100101".replace(" ", "") # the string "example"
-print(binary_string_to_encode)
-```
-
-Now try print the whole string at once.
-
-> Update your script to add the .replace(" ","") call to the end of your binary_string_to_decode to remove all spaces.
-> Add the following line to the bottom of your script to reveal the full message.
-`print(text_from_bits(string_to_encode))`
-
-==Logbook Task: Include screenshot evidence of your python code, along with your script running to print the ASCII text in your logbook==
+Web applications such as the one linked above are helpful for one-off, such as lab tasks or capture-the-flag competitions, but it would be far more useful if we could use this functionality in our own scripts and applications.
