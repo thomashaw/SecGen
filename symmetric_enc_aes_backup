@@ -4,35 +4,29 @@
   require 'digest/sha1'
   require 'fileutils'
   require 'erb'
-  require 'openssl'
+	require 'openssl'
 
   if self.accounts.empty?
     abort('Sorry, you need to provide an account')
   end
 
-  $aes_challenges = self.aes_challenges
+	$aes_challenges = self.aes_challenges
 
 
-  $chal_1 = JSON.parse(Base64.strict_decode64(self.aes_challenges[0]))
-  $key_1 = Base64.strict_decode64 $chal_1['key']
-  $iv_1 = Base64.strict_decode64 $chal_1['iv']
-  $ct_1 = Base64.strict_decode64 $chal_1['ciphertext']
-  $msg_1 = Base64.strict_decode64 $chal_1['message']
+	$chal_1 = JSON.parse(Base64.strict_decode64(self.aes_challenges[0]))
+	$key_1 = Base64.strict_decode64 $chal_1['key']
+	$iv_1 = Base64.strict_decode64 $chal_1['iv']
+	$ct_1 = Base64.strict_decode64 $chal_1['ciphertext']
+	$msg_1 = Base64.strict_decode64 $chal_1['message']
 
-  ####
+	$first_account = JSON.parse(self.accounts.first)
 
-  $first_account = JSON.parse(self.accounts.first)
   $main_user = $first_account['username'].to_s
 
   $root_password = self.root_password
   $flags = self.flags
 
-  $attack_1_ascii = SecureRandom.hex(8)
-  $attack_1_binary = $attack_1_ascii.unpack("B*").first
-  $attack_2_ascii = SecureRandom.hex(8)
-  $attack_2_binary = $attack_2_ascii.unpack("B*").first
-
-  REQUIRED_FLAGS = 5
+	REQUIRED_FLAGS = 5
   while $flags.length < REQUIRED_FLAGS
     $flags << "flag{#{SecureRandom.hex}}"
     Print.err "Warning: Not enough flags provided to hackerbot_config generator, some flags won't be tracked/marked!"
@@ -45,158 +39,127 @@
 <?xml version="1.0"?>
 
 <hackerbot
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.github/cliffe/SecGen/hackerbot">
-  <!--<hackerbot xmlns="http://www.github/cliffe/SecGen/hackerbotz"-->
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/hackerbot">
+<!--<hackerbot xmlns="http://www.github/cliffe/SecGen/hackerbotz"-->
 
-  <name>Hackerbot</name>
+	<name>Hackerbot</name>
 
-  <AIML_chatbot_rules>config/AIML</AIML_chatbot_rules>
+	<AIML_chatbot_rules>config/AIML</AIML_chatbot_rules>
 
-  <!--Method for gaining shell access, can be overwritten per-attack-->
-  <!--<get_shell>bash</get_shell>-->
-  <get_shell>sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash
-  </get_shell>
-  <!--	<get_shell>false</get_shell>-->
+	<!--Method for gaining shell access, can be overwritten per-attack-->
+	<!--<get_shell>bash</get_shell>-->
+	<get_shell>sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>
+<!--	<get_shell>false</get_shell>-->
 
-  <messages>
-    <show_attack_numbers/>
+	<messages>
+    <show_attack_numbers />
 
-    <greeting>You've got some encryption challenges to solve. This involves you answering question and creating files on
-      your system. I'll cough up some flags if you work with me.
-    </greeting>
+		<greeting>You've got some encryption challenges to solve. This involves you answering question and creating files on your system. I'll cough up some flags if you work with me.</greeting>
 
-    <!--Must provide alternatives for each message-->
-    <say_ready>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and
-      I'll move things along.
-    </say_ready>
-    <say_ready>When you are ready, simply say 'ready'.</say_ready>
-    <say_ready>'Ready'?</say_ready>
-    <say_ready>Better hurry, the attack is imminent... Let me know when you're 'ready'.</say_ready>
-    <next>Ok, I'll do what I can to move things along...</next>
-    <next>Moving things along to the next attack...</next>
-    <next>Ok, next attack...</next>
-    <previous>Ok, I'll do what I can to back things up...</previous>
-    <previous>Ok, previous attack...</previous>
-    <previous>Ok, backing up.</previous>
-    <goto>Ok, skipping it along.</goto>
-    <goto>Let me see what I can do to goto that attack.</goto>
-    <last_attack>That was the last attack for now. You can rest easy, until next time... (End.)</last_attack>
-    <last_attack>That was the last attack. Game over?</last_attack>
-    <first_attack>You are back to the beginning!</first_attack>
-    <first_attack>This is where it all began.</first_attack>
-    <getting_shell>Ok. Gaining shell access, and running post command...</getting_shell>
-    <getting_shell>Here we go...</getting_shell>
-    <got_shell>We are in to your system.</got_shell>
-    <got_shell>We have shell.</got_shell>
-    <repeat>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and
-      I'll move things along.
-    </repeat>
-    <repeat>Say 'ready', 'next', or 'previous'.</repeat>
+		<!--Must provide alternatives for each message-->
+		<say_ready>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and I'll move things along.</say_ready>
+		<say_ready>When you are ready, simply say 'ready'.</say_ready>
+		<say_ready>'Ready'?</say_ready>
+		<say_ready>Better hurry, the attack is imminent... Let me know when you're 'ready'.</say_ready>
+		<next>Ok, I'll do what I can to move things along...</next>
+		<next>Moving things along to the next attack...</next>
+		<next>Ok, next attack...</next>
+		<previous>Ok, I'll do what I can to back things up...</previous>
+		<previous>Ok, previous attack...</previous>
+		<previous>Ok, backing up.</previous>
+		<goto>Ok, skipping it along.</goto>
+		<goto>Let me see what I can do to goto that attack.</goto>
+		<last_attack>That was the last attack for now. You can rest easy, until next time... (End.)</last_attack>
+		<last_attack>That was the last attack. Game over?</last_attack>
+		<first_attack>You are back to the beginning!</first_attack>
+		<first_attack>This is where it all began.</first_attack>
+		<getting_shell>Ok. Gaining shell access, and running post command...</getting_shell>
+		<getting_shell>Here we go...</getting_shell>
+		<got_shell>We are in to your system.</got_shell>
+		<got_shell>We have shell.</got_shell>
+		<repeat>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and I'll move things along.</repeat>
+		<repeat>Say 'ready', 'next', or 'previous'.</repeat>
 
-    <!--Single responses:-->
-    <help>I am waiting for you to say 'ready', 'next', 'previous', 'list', 'goto *X*', or 'answer *X*'</help>
-    <say_answer>Say "The answer is *X*".</say_answer>
-    <no_quiz>There is no question to answer</no_quiz>
-    <correct_answer>Correct</correct_answer>
-    <incorrect_answer>Incorrect</incorrect_answer>
-    <invalid>That's not possible.</invalid>
-    <non_answer>Wouldn't you like to know.</non_answer>
+		<!--Single responses:-->
+		<help>I am waiting for you to say 'ready', 'next', 'previous', 'list', 'goto *X*', or 'answer *X*'</help>
+		<say_answer>Say "The answer is *X*".</say_answer>
+		<no_quiz>There is no question to answer</no_quiz>
+		<correct_answer>Correct</correct_answer>
+		<incorrect_answer>Incorrect</incorrect_answer>
+		<invalid>That's not possible.</invalid>
+		<non_answer>Wouldn't you like to know.</non_answer>
 
-    <!--can be overwritten per-attack-->
-    <shell_fail_message>Oh no. Failed to get shell... You need to let us in.</shell_fail_message>
-  </messages>
+		<!--can be overwritten per-attack-->
+		<shell_fail_message>Oh no. Failed to get shell... You need to let us in.</shell_fail_message>
+	</messages>
 
-  <tutorial_info>
-    <title>Symmetric Encryption with Advanced Encryption Standard (AES)</title>
-    <tutorial>
-      <%= ERB.new(File.read self.templates_path + 'intro.md.erb').result(self.get_binding) %>
-      <%= ERB.new(File.read self.templates_path + 'learning_objectives.md.erb').result(self.get_binding) %>
-    </tutorial>
-    <footer>
+	<tutorial_info>
+		<title>Symmetric Encryption with Advanced Encryption Standard (AES)</title>
+				<tutorial>
+					<%= ERB.new(File.read self.templates_path + 'intro.md.erb').result(self.get_binding) %>
+					<%= ERB.new(File.read self.templates_path + 'learning_objectives.md.erb').result(self.get_binding) %>
+				</tutorial>
+		<footer>
 
 
-      <%= File.read self.templates_path + 'resources.md.erb' %>
-      <!--|-->
-      <%= File.read self.templates_path + 'license.md.erb' %>
+			<%= File.read self.templates_path + 'resources.md.erb' %>
+<!--|-->
+<%= File.read self.templates_path + 'license.md.erb' %>
 
-      Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (<%= Time.new.to_s %>)
-    </footer>
+Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (<%= Time.new.to_s %>)
+		</footer>
 
-    <provide_tutorial>true</provide_tutorial>
-  </tutorial_info>
+		<provide_tutorial>true</provide_tutorial>
+	</tutorial_info>
 
-  <!-- Tutorial for attack one: Encoding vs Encryption -->
-  <!-- Attack one: HB provides binary string with spaces, answer is encoded in ascii -->
+	<!-- Tutorial for attack one: Encoding vs Encryption -->
+	<!-- Attack one: HB provides binary string with spaces, answer is encoded in ascii -->
 
   <attack>
 
-    <pre_shell>echo 'OK'</pre_shell>
-    <get_shell>false</get_shell>
-    <post_command></post_command>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
 
-    <prompt>Encode the following binary string as ASCII "<%= $attack_1_binary %>"</prompt>
-    <tutorial>
-      <%= ERB.new(File.read self.templates_path + 'encoding_intro_manual.md.erb').result(self.get_binding) %>
-      <%= ERB.new(File.read self.templates_path + 'encoding_bin_ascii_script.md.erb').result(self.get_binding) %>
-    </tutorial>
+<!-- THIS WAS PREVIOUS POSITION OF PROMPT,
+			<prompt>This is a prompt for example 2. The answer is "test".</prompt>
+			TESTING IF IT MATTERS AS THIS ORDERLOOKS NEATER -->
 
-    <condition>
-      <output_matches>OK</output_matches>
-      <message>Matches OK - uppercase, first condition</message>
-      <trigger_quiz/>
-    </condition>
-    <condition>
-      <output_matches>ok</output_matches>
-      <mesage>Matches ok - lowercase, second condition</mesage>
-      <trigger_quiz/>
-    </condition>
-    <else_condition>
-      <message>No match- runs as else - both conditions failed</message>
-      <trigger_quiz/>
-    </else_condition>
-    <quiz>
-      <question>What is the answer?</question>
-      <answer><%= $attack_1_ascii %></answer>
-      <correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-      <trigger_next_attack/>
-    </quiz>
+		<tutorial>
+			<%= ERB.new(File.read self.templates_path + 'encoding_intro_manual.md.erb').result(self.get_binding) %>
 
-  </attack>
+			<!-- EVERYTHING ABOVE THIS IS READY!!! except:
+             - finding resources.md.erb's reading recommendation -->
 
-  <!-- EVERYTHING ABOVE THIS IS READY (but untested)!!! except:
-         - finding resources.md.erb's reading recommendation -->
+			<%= ERB.new(File.read self.templates_path + 'encoding_bin_ascii_script.md.erb').result(self.get_binding) %>
+		</tutorial>
+		<prompt>This is a prompt for example 2. The answer is "test".</prompt>
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Matches OK - uppercase, first condition</message>
+			<trigger_quiz/>
+		</condition>
+		<condition>
+			<output_matches>ok</output_matches>
+			<mesage>Matches ok - lowercase, second condition</mesage>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>No match- runs as else - both conditions failed</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What is the answer? </question>
+			<answer>test</answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack />
+		</quiz>
 
-  <!-- attack 2: Encode binary to ASCII, TODO: When attack 1 and 2 both work, invert the order. -->
 
-  <attack>
-    <pre_shell>echo 'OK'</pre_shell>
-    <get_shell>false</get_shell>
-    <post_command></post_command>
 
-    <prompt>Encode the following ASCII string into binary, WITHOUT spaces between each byte (e.g. "j1" in ASCII is represented as "01101010110001" in binary): "<%= $attack_2_ascii %>"</prompt>
-    <tutorial>Adapt your script to encode the ASCII string into it's binary equivalent.</tutorial>
-    <condition>
-      <output_matches>OK</output_matches>
-      <message>Matches OK - uppercase, first condition</message>
-      <trigger_quiz/>
-    </condition>
-    <condition>
-      <output_matches>ok</output_matches>
-      <mesage>Matches ok - lowercase, second condition</mesage>
-      <trigger_quiz/>
-    </condition>
-    <else_condition>
-      <message>No match- runs as else - both conditions failed</message>
-      <trigger_quiz/>
-    </else_condition>
-    <quiz>
-      <question>What is the answer?</question>
-      <answer><%= $attack_2_binary %></answer>
-      <correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-      <trigger_next_attack/>
-    </quiz>
-  </attack>
+
+	</attack>
 
   <!-- TODO: LATER - Include the Tutorial and tasks to convert: ASCII to Base64 and back -->
   <!--
@@ -241,133 +204,135 @@
 
 
 
-  <!-- example 2: Quiz with no shell interaction. -->
 
-  <!--	<attack>-->
+	<!-- example 2: Quiz with no shell interaction. -->
 
-  <!--		<pre_shell>echo 'OK'</pre_shell>-->
-  <!--		<get_shell>false</get_shell>-->
-  <!--		<post_command></post_command>-->
+	<attack>
 
-  <!--		<prompt>This is a prompt for example 2. The answer is "test".</prompt>-->
-  <!--		<tutorial>example 2's tutorial</tutorial>-->
-  <!--				<condition>-->
-  <!--					<output_matches>OK</output_matches>-->
-  <!--					<message>Matches OK - uppercase, first condition</message>-->
-  <!--					<trigger_quiz/>-->
-  <!--				</condition>-->
-  <!--				<condition>-->
-  <!--					<output_matches>ok</output_matches>-->
-  <!--					<mesage>Matches ok - lowercase, second condition</mesage>-->
-  <!--					<trigger_quiz/>-->
-  <!--				</condition>-->
-  <!--				<else_condition>-->
-  <!--					<message>No match- runs as else - both conditions failed</message>-->
-  <!--					<trigger_quiz />-->
-  <!--				</else_condition>-->
-  <!--				<quiz>-->
-  <!--					<question>What is the answer? </question>-->
-  <!--					<answer>test</answer>-->
-  <!--					<correct_answer_response> :) <%#= $flags.pop %></correct_answer_response>-->
-  <!--					<trigger_next_attack />-->
-  <!--				</quiz>-->
-  <!--	</attack>-->
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
 
-
-  <!-- example 3: Save an ascii string encoded in b64 in a file -->
-
-  <!--	<attack>-->
-  <!--		<prompt>This is a prompt for example 3. Save this string "?????", encoded in base64, in a file on your system at /home/testfile/b64.</prompt>-->
-  <!--		<tutorial>example 3's tutorial</tutorial>-->
-  <!--		<post_command>cat /home/<%#= $main_user %>/b64</post_command>-->
-  <!--		<condition>-->
-  <!--			<output_matches>\QPz8/Pz8=\E</output_matches>-->
-  <!--			<message>Well done! <%#= $flags.pop %></message>-->
-  <!--			<trigger_next_attack />-->
-  <!--		</condition>-->
-  <!--		<else_condition>-->
-  <!--			<message>No match- runs as else - both conditions failed</message>-->
-  <!--		</else_condition>-->
-  <!--	</attack>-->
-
-  <!-- example 4: Quiz that provides ascii text and expects a base64 string as an answer -->
-
-  <!--	<attack>-->
-  <!--		<pre_shell>echo 'OK'</pre_shell>-->
-  <!--		<get_shell>false</get_shell>-->
-  <!--		<post_command></post_command>-->
-
-  <!--		<prompt>This is a prompt for example 4. Decode the following b64 string: "Pz8/Pz8=".</prompt>-->
-  <!--		<tutorial>example 4's tutorial</tutorial>-->
-  <!--		<condition>-->
-  <!--			<output_matches>OK</output_matches>-->
-  <!--			<message>Matches OK - uppercase, first condition</message>-->
-  <!--			<trigger_quiz/>-->
-  <!--		</condition>-->
-  <!--		<else_condition>-->
-  <!--			<message>No match- runs as else - both conditions failed</message>-->
-  <!--			<trigger_quiz />-->
-  <!--		</else_condition>-->
-  <!--		<quiz>-->
-  <!--			<question>What is the answer? "?????" </question>-->
-  <!--			<answer>?????</answer>-->
-  <!--			<correct_answer_response> :) <%#= $flags.pop %></correct_answer_response>-->
-  <!--			<trigger_next_attack />-->
-  <!--		</quiz>-->
-  <!--	</attack>-->
-
-  <!-- example 5: Running a command on the remote server to read the contents of a file -->
-  <!--	<attack>-->
-  <!--		<prompt>This is a prompt for example 5. Create a file at /home/<%#= $main_user %>> with the string "test" in it</prompt>-->
-  <!--		<tutorial>example 5's tutorial</tutorial>-->
-
-  <!--		<post_command>cat /home/<%#= $main_user %>/example_5</post_command>-->
-  <!--		<condition>-->
-  <!--			<output_matches>test</output_matches>-->
-  <!--			<message>Correct. The file contains the string "test". <%#= $flags.pop %></message>-->
-  <!--			<trigger_next_attack />-->
-  <!--		</condition>-->
-  <!--		<condition>-->
-  <!--			<output_matches>No such file or directory</output_matches>-->
-  <!--			<message>Oops!</message>-->
-  <!--		</condition>-->
-  <!--		<else_condition>-->
-  <!--			<message>Incorrect. The file needs to contain the string "test".</message>-->
-  <!--		</else_condition>-->
-  <!--	</attack>-->
-
-  <!-- example 7: decode a binary file on the system into base64 and give a flag if it is correct.-->
-  <!-- example 8 -->
+		<prompt>This is a prompt for example 2. The answer is "test".</prompt>
+		<tutorial>example 2's tutorial</tutorial>
+				<condition>
+					<output_matches>OK</output_matches>
+					<message>Matches OK - uppercase, first condition</message>
+					<trigger_quiz/>
+				</condition>
+				<condition>
+					<output_matches>ok</output_matches>
+					<mesage>Matches ok - lowercase, second condition</mesage>
+					<trigger_quiz/>
+				</condition>
+				<else_condition>
+					<message>No match- runs as else - both conditions failed</message>
+					<trigger_quiz />
+				</else_condition>
+				<quiz>
+					<question>What is the answer? </question>
+					<answer>test</answer>
+					<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+					<trigger_next_attack />
+				</quiz>
+	</attack>
 
 
-  <!--	<attack>-->
+	<!-- example 3: Save an ascii string encoded in b64 in a file -->
 
-  <!--		<pre_shell>echo 'OK'</pre_shell>-->
-  <!--		<get_shell>false</get_shell>-->
-  <!--		<post_command></post_command>-->
+	<attack>
+		<prompt>This is a prompt for example 3. Save this string "?????", encoded in base64, in a file on your system at /home/testfile/b64.</prompt>
+		<tutorial>example 3's tutorial</tutorial>
+		<post_command>cat /home/<%= $main_user %>/b64</post_command>
+		<condition>
+			<output_matches>\QPz8/Pz8=\E</output_matches>
+			<message>Well done! <%= $flags.pop %></message>
+			<trigger_next_attack />
+		</condition>
+		<else_condition>
+			<message>No match- runs as else - both conditions failed</message>
+		</else_condition>
+	</attack>
 
-  <!--		<prompt>Using AES (in ECB mode) encrypt the following string message = <%#= $chal_1['message'] %>" key= "<%#= $chal_1['key'] %>" iv = " <%#= $chal_1['iv'] %>.</prompt>-->
+	<!-- example 4: Quiz that provides ascii text and expects a base64 string as an answer -->
 
-  <!--		<condition>-->
-  <!--			<output_matches>OK</output_matches>-->
-  <!--			<message>OK... your turn.</message>-->
-  <!--			<trigger_quiz/>-->
-  <!--		</condition>-->
-  <!--		<condition>-->
-  <!--			<output_matches>ok</output_matches>-->
-  <!--			<mesage>ok... your turn.</mesage>-->
-  <!--			<trigger_quiz/>-->
-  <!--		</condition>-->
-  <!--		<else_condition>-->
-  <!--			<message>else..</message>-->
-  <!--			<trigger_quiz />-->
-  <!--		</else_condition>-->
-  <!--		<quiz>-->
-  <!--			<question>What is the ciphertext? (answer as base64 encoded string). Answer: <%#= $chal_1['message'] %>^</question>-->
-  <!--			<answer>$<%#= $chal_1['ciphertext'] %>^</answer>-->
-  <!--			<correct_answer_response> :) <%#= $flags.pop %></correct_answer_response>-->
-  <!--		</quiz>-->
+	<attack>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
 
-  <!--	</attack>-->
+		<prompt>This is a prompt for example 4. Decode the following b64 string: "Pz8/Pz8=".</prompt>
+		<tutorial>example 4's tutorial</tutorial>
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Matches OK - uppercase, first condition</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>No match- runs as else - both conditions failed</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What is the answer? "?????" </question>
+			<answer>?????</answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack />
+		</quiz>
+	</attack>
+
+	<!-- example 5: Running a command on the remote server to read the contents of a file -->
+	<attack>
+		<prompt>This is a prompt for example 5. Create a file at /home/<%= $main_user %>> with the string "test" in it</prompt>
+		<tutorial>example 5's tutorial</tutorial>
+
+		<post_command>cat /home/<%= $main_user %>/example_5</post_command>
+		<condition>
+			<output_matches>test</output_matches>
+			<message>Correct. The file contains the string "test". <%= $flags.pop %></message>
+			<trigger_next_attack />
+		</condition>
+		<condition>
+			<output_matches>No such file or directory</output_matches>
+			<message>Oops!</message>
+		</condition>
+		<else_condition>
+			<message>Incorrect. The file needs to contain the string "test".</message>
+		</else_condition>
+	</attack>
+
+	<!-- example 7: decode a binary file on the system into base64 and give a flag if it is correct.-->
+	<!-- example 8 -->
+
+
+
+	<!--	<attack>-->
+
+<!--		<pre_shell>echo 'OK'</pre_shell>-->
+<!--		<get_shell>false</get_shell>-->
+<!--		<post_command></post_command>-->
+
+		<!--		<prompt>Using AES (in ECB mode) encrypt the following string message = <%#= $chal_1['message'] %>" key= "<%#= $chal_1['key'] %>" iv = " <%#= $chal_1['iv'] %>.</prompt>-->
+
+<!--		<condition>-->
+<!--			<output_matches>OK</output_matches>-->
+<!--			<message>OK... your turn.</message>-->
+<!--			<trigger_quiz/>-->
+<!--		</condition>-->
+<!--		<condition>-->
+<!--			<output_matches>ok</output_matches>-->
+<!--			<mesage>ok... your turn.</mesage>-->
+<!--			<trigger_quiz/>-->
+<!--		</condition>-->
+<!--		<else_condition>-->
+<!--			<message>else..</message>-->
+<!--			<trigger_quiz />-->
+<!--		</else_condition>-->
+<!--		<quiz>-->
+<!--			<question>What is the ciphertext? (answer as base64 encoded string). Answer: <%#= $chal_1['message'] %>^</question>-->
+<!--			<answer>$<%#= $chal_1['ciphertext'] %>^</answer>-->
+<!--			<correct_answer_response> :) <%#= $flags.pop %></correct_answer_response>-->
+<!--		</quiz>-->
+
+<!--	</attack>-->
 
 </hackerbot>
