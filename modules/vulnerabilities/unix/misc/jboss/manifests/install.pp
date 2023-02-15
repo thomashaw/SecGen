@@ -1,10 +1,7 @@
 class jboss::install {
   Exec {
     path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'], 
-    environment => ['http_proxy=http://172.22.0.51:3128',
-        'https_proxy=http://172.22.0.51:3128',
-        'ftp_proxy=http://172.22.0.51:3128',
-        'JAVA_HOME="/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64/bin/java"']}
+    environment => ['JAVA_HOME="/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64/bin/java"']}
 
   ensure_packages(['apt-transport-https', 'ca-certificates', 'wget', 'dirmngr', 'gnupg', 'software-properties-common'])
 
