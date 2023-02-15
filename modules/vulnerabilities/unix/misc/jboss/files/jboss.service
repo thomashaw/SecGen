@@ -1,0 +1,8 @@
+[Unit]
+Description=Vulnerable JBOSS server.
+
+[Service]
+ExecStart=/opt/jboss-6.1.0.Final/bin/run.sh
+
+[Install]
+WantedBy=multi-user.target
