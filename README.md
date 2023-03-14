@@ -327,6 +327,11 @@ The table below is a key for the abbreviations you will find within the CyBOK XM
 *Development team:*
 - Dr Z. Cliffe Schreuders http://z.cliffe.schreuders.org
 - Tom Shaw
+- James Davis
+- Sofia Markusfeld
+- Harry Hall
+- Jack Biggs
+- Tom Harrison
 - Jason Keighley
 - Lewis Ardern -- author of the first proof-of-concept release of SecGen
 - Connor Wilson
