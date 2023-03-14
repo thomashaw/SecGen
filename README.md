@@ -341,7 +341,9 @@ Many thanks to everyone who has contributed to the project. The above list is no
 This project is supported by a Higher Education Academy (HEA) learning and teaching in cyber security grant (2015-2017).
 This project is supported by a Leeds Beckett University Teaching Excellence Fund grant (2018-2019).
 This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.0 grant (2021).
-This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.1 grant (2021).
+This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.1 grant (2021-2022).
+This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.1 grant (2022-2023).
+This project is supported by a CyberASAP (Cyber Security Academic Startup Accelerator Programme) Innovate UK grant (2022-2023).
 
 ## Contributing
 We encourage contributions to the project.
