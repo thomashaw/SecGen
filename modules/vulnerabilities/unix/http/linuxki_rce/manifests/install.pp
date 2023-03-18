@@ -4,6 +4,10 @@
 class linuxki_rce::install {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
 
+  exec { 'apt update':
+    command => 'apt-get update',
+  }
+
   # Maybe automate linux-headers to use uname -r?
   ensure_packages(['make', 'elfutils', 'php', 'linux-headers-4.19.0-21-amd64'])
 

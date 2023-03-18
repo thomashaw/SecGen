@@ -4,6 +4,8 @@
 class linuxki_rce::apache {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
+  $port = '80' #$secgen_parameters['port'][0]
+
   file { '/etc/apache2/sites-enabled/000-default.conf':
     ensure => absent,
   }
@@ -15,7 +17,7 @@ class linuxki_rce::apache {
     mpm_module      => 'prefork',
   }
   -> ::apache::vhost { 'linuxki':
-    port        => '80',
+    port        => $port,
     options     => 'FollowSymLinks',
     override    => 'All',
     docroot     => '/opt/',
