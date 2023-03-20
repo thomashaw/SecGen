@@ -2,8 +2,10 @@
 # LinuxKI configuration
 #
 class linuxki_rce::configure {
-  $leaked_filenames = ['flagtest'] ##$secgen_parameters['leaked_filenames']
-  $strings_to_leak = ['this is a list of strings that are secrets / flags','another secret'] ##$secgen_parameters['strings_to_leak']
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
+
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
