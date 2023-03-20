@@ -13,7 +13,7 @@
     resulting in security vulnerability.
   </description>
 
-  <type>misc</type>
+  <type>web</type>
   <type>in_the_wild</type>
   <privilege>user_rwx</privilege>
   <access>remote</access>
@@ -25,7 +25,7 @@
   <read_fact>leaked_filenames</read_fact>
 
   <default_input into="port">
-    <value>80</value>
+    <generator module_path=".*/random_unregistered_port" />
   </default_input>
 
   <!-- flags or other secrets exposed after exploitation -->
@@ -41,18 +41,16 @@
   vulnerability details-->
   <cve>CVE-2020-7209</cve>
   <cvss_base_score>9.8</cvss_base_score>
-  <cvss_vector>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
-  <software_name>LinuxKI</software_name>
-  <software_license>GNU GPLv2</software_license>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/linuxki_rce.rb</reference>
-  <reference>
-    https://github.com/HewlettPackard/LinuxKI/releases/tag/v6.0-1</reference>
+  <reference>https://github.com/HewlettPackard/LinuxKI/releases/tag/v6.0-1</reference>
+  <software_name>LinuxKI</software_name>
+  <software_license>GNU GPLv2</software_license>
 
-  <!-- can't live alongside other web sites, since it accepts any virtual host name -->
-  <conflict>
-    <type>webapp</type>
-  </conflict>
+  <requires>
+    <type>update</type>
+  </requires>
 
   <requires>
     <module_path>.*apache.*compatible.*</module_path>
