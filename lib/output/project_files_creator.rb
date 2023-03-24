@@ -135,6 +135,36 @@ class ProjectFilesCreator
     Print.std "Creating flags and hints file: #{x2file}"
     write_data_to_file(xml, x2file)
 
+    Print.std "Saving spoiler/admin records..."
+
+    jfile = "#{@out_dir}/datastores"
+    Print.std "Saving datastore records: #{jfile}"
+    json = JSON.generate($datastore)
+    write_data_to_file(json, jfile)
+
+    if $datastore.has_key? "IP_addresses"
+      system_names = @systems.map { |system| system.name }
+      system_ips = Hash[system_names.zip($datastore["IP_addresses"])]
+      jfile = "#{@out_dir}/IP_addresses.json"
+      Print.std "Saving IP addresses: #{jfile}"
+      json = JSON.generate(system_ips)
+      write_data_to_file(json, jfile)
+    end
+
+    if $datastore.has_key? "spoiler_admin_pass"
+      pfile = "#{@out_dir}/spoiler_admin_pass"
+      Print.std "Saving spoiler/admin passwords: #{pfile}"
+      pass_notes = $datastore["spoiler_admin_pass"].join("\n")
+      write_data_to_file(pass_notes, pfile)
+    end
+
+    if $datastore.has_key? "hackerbot_instructions"
+      jfile = "#{@out_dir}/instructions.html"
+      Print.std "Saving instructions: #{jfile}"
+      html = JSON.parse($datastore["hackerbot_instructions"][0])["html_lab_sheet"]
+      write_data_to_file(html, jfile)
+    end
+
     # Create the CTFd zip file for import
     ctfdfile = "#{@out_dir}/CTFd_importable.zip"
     Print.std "Creating CTFd configuration: #{ctfdfile}"
@@ -151,13 +181,6 @@ class ProjectFilesCreator
             f.print ctfd_file_content
           }
         end
-        # zipfile.mkdir("uploads")
-        # TODO: could add a logo image
-        # zipfile.mkdir("uploads/uploads") # empty as in examples
-        # zipfile.mkdir("uploads/fca9b07e1f3699e07870b86061815b1c")
-        # zipfile.get_output_stream("uploads/fca9b07e1f3699e07870b86061815b1c/logo.svg") { |f|
-        #   f.print File.readlines(ROOT_DIR + '/lib/resources/images/svg_icons/flag.svg')
-        # }
       }
     rescue StandardError => e
       Print.err "Error writing zip file: #{e.message}"
