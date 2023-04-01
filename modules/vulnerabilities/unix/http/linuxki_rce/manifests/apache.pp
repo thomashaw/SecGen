@@ -7,12 +7,15 @@ class linuxki_rce::apache {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $port = $secgen_parameters['port'][0]
 
-  file { '/etc/apache2/sites-available/000-default.conf':
+  file { '/etc/apache2/sites-enabled/000-default.conf':
     ensure => absent,
   }
 
   class { '::apache':
-    default_vhost   => true,
+    default_vhost   => false,
+    default_mods    => ['rewrite'], # php5 via separate module
+    overwrite_ports => false,
+    mpm_module      => 'prefork',
   }
   -> ::apache::vhost { 'linuxki':
     port        => $port,
@@ -44,6 +47,7 @@ class linuxki_rce::apache {
   exec { 'append-directories':
     command   => "grep -qE '<Directory (\/opt\/)>|<Directory (\/var\/www\/)>' /etc/apache2/apache2.conf && echo '' || echo \"${dirmatch}\" | sudo tee -a /etc/apache2/apache2.conf",
   }
+  # restart apache
   -> exec { 'restart-apache-linuxki':
     command   => 'service apache2 restart',
     logoutput => true

@@ -30,11 +30,15 @@
 
   <!-- flags or other secrets exposed after exploitation -->
   <default_input into="strings_to_leak">
-    <generator type="message_generator" />
+    <generator type="flag_generator" />
   </default_input>
 
   <default_input into="leaked_filenames">
     <generator type="filename_generator" />
+  </default_input>
+
+  <default_input into="leaked_username">
+    <generator type="username_generator" />
   </default_input>
 
   <!--optional
