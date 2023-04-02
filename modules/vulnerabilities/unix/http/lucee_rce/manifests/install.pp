@@ -8,6 +8,9 @@ class lucee_rce::install {
   $splits = ["${releasename}.partaa",
   "${releasename}.partab"]
 
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $port = $secgen_parameters['port']
+
   ensure_packages(['openjdk-11-jdk'], { ensure => 'installed'})
 
   $splits.each |String $split| {
@@ -30,6 +33,9 @@ class lucee_rce::install {
   }
   -> exec { 'giveperms-lucee':
     command => 'chmod -R 777 /usr/local/src/bin/',
+  }
+  -> exec { 'set-port':
+    command => "sed -i 's/8888/${port}/' /usr/local/src/conf/server.xml"
   }
   #-> file { '/usr/local/src/lucee-express-5.3.7.43.zip':
   #  ensure => absent
