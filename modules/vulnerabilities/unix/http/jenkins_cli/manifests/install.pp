@@ -3,6 +3,11 @@
 # https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/linux/http/jenkins_cli_deserialization.md
 class jenkins_cli::install {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
+
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $user = $secgen_parameters['leaked_username'][0]
+  $port = $secgen_parameters['port'][0]
+
   $modulename = 'jenkins_cli'
   $releasename = 'jenkins.war'
   $splits = ["${releasename}.partaa",
@@ -33,9 +38,9 @@ class jenkins_cli::install {
     command => "cat ${releasename}.parta* >/usr/local/bin/${releasename}",
   }
   -> file { '/etc/systemd/system/jenkins.service':
-    source => 'puppet:///modules/jenkins_cli/jenkins.service',
-    owner  => 'root',
-    mode   => '0777',
+    content => template("${modulename}/jenkins.service.erb"),
+    owner   => 'root',
+    mode    => '0755',
   }
   -> service { 'jenkins':
     ensure => running,

@@ -27,37 +27,31 @@
   <read_fact>leaked_filenames</read_fact>
 
   <default_input into="port">
-    <value>8080</value>
+    <generator module_path=".*/random_unregistered_port" />
   </default_input>
 
-  <!-- flags or other secrets exposed after exploitation -->
   <default_input into="strings_to_leak">
-    <generator type="message_generator" />
+    <generator type="flag_generator" />
   </default_input>
 
   <default_input into="leaked_filenames">
-    <generator type="filename_generator" />
+    <value>flag</value>
+  </default_input>
+
+  <default_input into="leaked_username">
+    <generator type="username_generator" />
   </default_input>
 
   <!--optional
   vulnerability details-->
   <cve>CVE-2017-1000353</cve>
   <cvss_base_score>9.8</cvss_base_score>
-  <cvss_vector>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
-  <software_name>Jenkins</software_name>
-  <software_license>MIT</software_license>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/jenkins_cli_deserialization.rb</reference>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/linux/http/jenkins_cli_deserialization.md</reference>
-
-  <!--optional
-  hints-->
-  <hint>Navigate to IP:8080</hint>
-  <hint>Check Metasploit DB</hint>
-
-  <requires>
-    <module_path>openjdk-8</module_path>
-  </requires>
+  <software_name>Jenkins</software_name>
+  <software_license>MIT</software_license>
 
 </vulnerability>
