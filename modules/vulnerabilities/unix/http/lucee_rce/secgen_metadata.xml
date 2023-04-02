@@ -13,7 +13,7 @@
 
   <type>http</type>
   <type>in_the_wild</type>
-  <privilege>user_rwx</privilege>
+  <privilege>root_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
   <difficulty>low</difficulty>
@@ -23,43 +23,31 @@
   <read_fact>leaked_filenames</read_fact>
 
   <default_input into="port">
-    <value>8888</value>
+    <generator module_path=".*/random_unregistered_port" />
   </default_input>
 
   <!-- flags or other secrets exposed after exploitation -->
   <default_input into="strings_to_leak">
-    <generator type="message_generator" />
+    <generator type="flag_generator" />
   </default_input>
 
   <default_input into="leaked_filenames">
-    <generator type="filename_generator" />
+    <value>flag</value>
   </default_input>
 
   <!--optional
   vulnerability details-->
   <cve>CVE-2021-21307</cve>
   <cvss_base_score>9.8</cvss_base_score>
-  <cvss_vector>
-    CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
-  <software_name>Lucee Server</software_name>
-  <software_license>
-    Apache/LGPL</software_license>
-  <reference>
-    https://github.com/httpvoid/writeups/blob/main/Apple-RCE.md</reference>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+  <reference>https://github.com/httpvoid/writeups/blob/main/Apple-RCE.md</reference>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/lucee_admin_imgprocess_file_write.rb</reference>
-
-  <!--optional
-  hints-->
-  <hint>visit
-    ip:8888</hint>
+  <software_name>Lucee Server</software_name>
+  <software_license>Apache/LGPL</software_license>
 
   <requires>
-    <module_path>services/unix/**check modules**</module_path>
-  </requires>
-
-  <requires>
-    <module_path>services/unix/**add service file**</module_path>
+    <type>update</type>
   </requires>
 
 </vulnerability>
