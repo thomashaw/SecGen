@@ -2,10 +2,13 @@
 # Service behaviour
 #
 class lucee_rce::service {
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $user = $secgen_parameters['leaked_username'][0]
+
   file { '/etc/systemd/system/lucee.service':
-    source => 'puppet:///modules/lucee_rce/lucee.service',
-    owner  => 'root',
-    mode   => '0777',
+    content => template('lucee_rce/lucee.service.erb'),
+    owner   => 'root',
+    mode    => '0777',
   }
 
   service { 'lucee':

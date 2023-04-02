@@ -10,6 +10,8 @@ class lucee_rce::install {
 
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $port = $secgen_parameters['port'][0]
+  $user = $secgen_parameters['leaked_username'][0]
+  $user_home = "/home/${user}"
 
   ensure_packages(['openjdk-11-jdk'], { ensure => 'installed'})
 
@@ -18,6 +20,13 @@ class lucee_rce::install {
       ensure => file,
       source => "puppet:///modules/${modulename}/${split}",
     }
+  }
+
+  # Create user
+  user { $user:
+    ensure     => present,
+    home       => $user_home,
+    managehome => true,
   }
 
   exec { 'rebuild-archive':
@@ -34,8 +43,8 @@ class lucee_rce::install {
   -> exec { 'giveperms-lucee':
     command => 'chmod -R 777 /usr/local/src/bin/',
   }
-  -> exec { 'chown-lucee':
-    command => 'chown -R www-data:www-data /usr/local/src/bin/',
+  -> exec { 'chmod-lucee':
+    command => "chown -R ${user} /usr/local/src/",
   }
   -> exec { 'set-port':
     command => "sed -i 's/8888/${port}/' /usr/local/src/conf/server.xml"

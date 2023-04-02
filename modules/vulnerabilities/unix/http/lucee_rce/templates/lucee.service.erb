@@ -2,6 +2,7 @@
 Description=Lucee
 [Service]
 Type=forking
+User=<%= @user %>
 ExecStart=/usr/local/src/bin/startup.sh
 ExecStop=/usr/local/src/bin/shutdown.sh
 TimeoutStopSec=5
