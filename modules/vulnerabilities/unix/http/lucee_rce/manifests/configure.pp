@@ -8,6 +8,10 @@ class lucee_rce::configure {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
+  file { '/usr/local/src/lucee-express-5.3.7.43.zip':
+    ensure => absent
+  }
+
   ::secgen_functions::leak_files { 'lucee-flag-leak':
     storage_directory => '/root',
     leaked_filenames  => $leaked_filenames,
