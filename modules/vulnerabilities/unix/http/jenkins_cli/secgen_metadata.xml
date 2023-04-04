@@ -31,11 +31,11 @@
   </default_input>
 
   <default_input into="strings_to_leak">
-    <generator type="flag_generator" />
+    <generator type="message_generator"/>
   </default_input>
 
   <default_input into="leaked_filenames">
-    <value>flag</value>
+    <generator type="filename_generator"/>
   </default_input>
 
   <default_input into="leaked_username">
