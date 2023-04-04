@@ -13,7 +13,8 @@
 
   <type>http</type>
   <type>in_the_wild</type>
-  <privilege>user_rwx</privilege>
+  <!-- currently running as root but leaking to user home dir -->
+  <privilege>root_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
   <difficulty>low</difficulty>
@@ -53,5 +54,17 @@
   <requires>
     <type>update</type>
   </requires>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
 
 </vulnerability>

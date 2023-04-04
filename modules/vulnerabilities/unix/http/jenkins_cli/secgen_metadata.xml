@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
 
-  <name>Jenkins CLI Deserialization - v2.56 and below</name>
+  <name>Jenkins CLI Deserialization - Unauthenticated RCE - v2.56 and below</name>
   <author>James Davis</author>
   <module_license>MIT</module_license>
   <description>An unauthenticated Java object deserialization vulnerability exists
@@ -53,5 +53,17 @@
     https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/linux/http/jenkins_cli_deserialization.md</reference>
   <software_name>Jenkins</software_name>
   <software_license>MIT</software_license>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
 
 </vulnerability>
