@@ -2,10 +2,12 @@ require 'erb'
 require_relative '../helpers/constants.rb'
 require_relative 'xml_scenario_generator.rb'
 require_relative 'xml_marker_generator.rb'
+require_relative 'xml_cybok_generator.rb'
 require_relative 'ctfd_generator.rb'
 require 'fileutils'
 require 'librarian'
 require 'zip/zip'
+require 'json'
 
 class ProjectFilesCreator
 # Creates project directory, uses .erb files to create a report and the vagrant file that will be used
@@ -127,16 +129,25 @@ class ProjectFilesCreator
     Print.std "Creating scenario definition file: #{xfile}"
     write_data_to_file(xml, xfile)
 
+    write_data_to_file(@systems.to_s, "#{@out_dir}/systems")
+    write_data_to_file(@scenario.to_s, "#{@out_dir}/scenario")
+
+
     # Create the marker xml file
     x2file = "#{@out_dir}/#{FLAGS_FILENAME}"
-
     xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time)
     xml = xml_marker_generator.output
     Print.std "Creating flags and hints file: #{x2file}"
     write_data_to_file(xml, x2file)
 
-    Print.std "Saving spoiler/admin records..."
+    # Create the CyBOK xml file
+    x3file = "#{@out_dir}/#{CYBOK_FILENAME}"
+    xml_cybok_generator = XmlCybokGenerator.new(@systems, @scenario, @time)
+    xml = xml_cybok_generator.output
+    Print.std "Creating flags and hints file: #{x3file}"
+    write_data_to_file(xml, x3file)
 
+    Print.std "Saving spoiler/admin records..."
     jfile = "#{@out_dir}/datastores"
     Print.std "Saving datastore records: #{jfile}"
     json = JSON.generate($datastore)
@@ -145,14 +156,14 @@ class ProjectFilesCreator
     if $datastore.has_key? "IP_addresses"
       system_names = @systems.map { |system| system.name }
       system_ips = Hash[system_names.zip($datastore["IP_addresses"])]
-      jfile = "#{@out_dir}/IP_addresses.json"
+      jfile = "#{@out_dir}/#{IP_ADDRESSES_FILENAME}"
       Print.std "Saving IP addresses: #{jfile}"
       json = JSON.generate(system_ips)
       write_data_to_file(json, jfile)
     end
 
     if $datastore.has_key? "spoiler_admin_pass"
-      pfile = "#{@out_dir}/spoiler_admin_pass"
+      pfile = "#{@out_dir}/#{SPOILER_ADMIN_FILENAME}"
       Print.std "Saving spoiler/admin passwords: #{pfile}"
       pass_notes = $datastore["spoiler_admin_pass"].join("\n")
       write_data_to_file(pass_notes, pfile)
