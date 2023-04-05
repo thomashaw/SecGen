@@ -66,5 +66,9 @@
     <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
     <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
   </CyBOK>
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>Arbitrary file write</keyword>
+  </CyBOK>
 
 </vulnerability>
