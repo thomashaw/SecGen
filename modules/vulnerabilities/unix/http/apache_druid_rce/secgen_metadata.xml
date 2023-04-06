@@ -15,7 +15,7 @@
         Server process. More critically, authentication is not enabled in Apache Druid by default.</description>
 
     <type>http</type>
-    <privilege>root_rwx</privilege>
+    <privilege>user_rwx</privilege>
     <access>remote</access>
     <platform>linux</platform>
     <difficulty>low</difficulty>
@@ -25,7 +25,7 @@
     <read_fact>leaked_filenames</read_fact>
 
     <default_input into="port">
-        <value>8888</value>
+        <generator module_path=".*/random_unregistered_port" />
     </default_input>
 
     <!-- flags or other secrets exposed after exploitation -->
@@ -37,23 +37,22 @@
         <generator type="filename_generator" />
     </default_input>
 
-    <!--optional vulnerability details-->
+    <default_input into="leaked_username">
+        <value>druid</value>
+    </default_input>
+
+    <!--optional
+    vulnerability details-->
     <cve>CVE-2021-25646</cve>
     <cvss_base_score>8.8</cvss_base_score>
-    <cvss_vector>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
-    <software_name>Apache Druid</software_name>
-    <software_license>Apache License 2.0</software_license>
-
+    <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
     <reference>
         https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/apache_druid_js_rce.rb</reference>
     <reference>
         https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/linux/http/apache_druid_js_rce.md</reference>
-    <reference>
-        https://archive.apache.org/dist/druid/0.20.0/</reference>
+    <reference>https://archive.apache.org/dist/druid/0.20.0/</reference>
     <reference>https://github.com/apache/druid</reference>
-
-    <!--optional hints-->
-    <hint>Scan the servers for other
-        machines </hint>
+    <software_name>Apache Druid</software_name>
+    <software_license>Apache License 2.0</software_license>
 
 </vulnerability>

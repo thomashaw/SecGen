@@ -2,13 +2,15 @@
 # Service behaviour
 #
 class apache_druid_rce::service {
-  file { '/etc/systemd/system/druid.service':
-    source => 'puppet:///modules/apache_druid_rce/druid.service',
-    owner  => 'root',
-    mode   => '0777',
-  }
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $user = $secgen_parameters['leaked_username'][0]
 
-  service { 'druid':
+  file { '/etc/systemd/system/druid.service':
+    content => template('apache_druid_rce/druid.service.erb'),
+    owner   => 'root',
+    mode    => '0755',
+  }
+  -> service { 'druid':
     ensure => running,
     enable => true,
   }
