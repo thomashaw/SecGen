@@ -1,6 +1,7 @@
 # datastore related global variables
 $datastore = {}
 $datastore_iterators = {} # keeps track of previous access to datastore elements datastorevariablename => prev_index_accessed
+$cybok_coverage = [] # array of XML nodes
 
 ## FILE / DIR CONSTANTS ##
 
@@ -55,8 +56,12 @@ SAMP_DBS_DIR = "#{ROOT_DIR}/lib/resources/sample_databases"
 LOCAL_PUPPET_DIR = "#{MODULES_DIR}build/puppet"
 SECGEN_FUNCTIONS_PUPPET_DIR = "#{MODULES_DIR}build/puppet/secgen_functions"
 
-# Filename for flags
+# Filename for flags, etc
 FLAGS_FILENAME = "flag_hints.xml"
+CYBOK_FILENAME = "cybok.xml"
+SPOILER_ADMIN_FILENAME = "spoiler_admin_pass"
+IP_ADDRESSES_FILENAME = "IP_addresses.json"
+
 
 ## PACKER CONSTANTS ##
 

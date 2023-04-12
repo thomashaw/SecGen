@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>Encoding and encryption lab</name>
+  <name>Encoding and Encryption Lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>Decode the files in your home directory.</description>
 
@@ -15,8 +15,16 @@
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
-  <!-- TODO: CyBOK -->
-
+  <CyBOK KA="AC" topic="Algorithms, Schemes and Protocols">
+    <keyword>Encoding vs Cryptography</keyword>
+    <keyword>Caesar cipher</keyword>
+    <keyword>Vigenere cipher</keyword>
+    <keyword>SYMMETRIC CRYPTOGRAPHY - AES (ADVANCED ENCRYPTION STANDARD)</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+  
   <system>
     <system_name>desktop</system_name>
     <base distro="Debian 10" type="desktop" name="KDE"/>
