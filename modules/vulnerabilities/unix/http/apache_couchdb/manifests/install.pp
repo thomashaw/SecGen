@@ -21,12 +21,12 @@ class apache_couchdb::install {
     source => "puppet:///modules/apache_couchdb/${packagename}.deb",
   }
   -> file { "/usr/bin/${responsefile}" :
-     ensure  => file,
-     content => template("apache_couchdb/${responsefile}.erb"),
+    ensure  => file,
+    content => template("apache_couchdb/${responsefile}.erb"),
   }
   -> file { "/usr/bin/${jsondb}.json" :
-     ensure  => file,
-     content => template("apache_couchdb/${jsondb}.erb"),
+    ensure  => file,
+    content => template("apache_couchdb/${jsondb}.erb"),
   }
   #install couch db from deb file
   -> package {'couchdb-install':

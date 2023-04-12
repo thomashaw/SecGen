@@ -11,9 +11,10 @@ class apache_couchdb::couchdb {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
   #create user
   #create system user
-  user { $username :
-    ensure => present,
-    shell  => '/bin/bash',
+  user { $username:
+    ensure   => present,
+    shell    => '/bin/bash',
+    password => pw_hash($password, 'SHA-512', 'mysalt'),
   }
   #set folder permissions
   -> exec { 'chown-couchdb':
@@ -24,11 +25,10 @@ class apache_couchdb::couchdb {
     command   => "chmod -R 770 ${docroot}",
     logoutput => true
   }
-
   #configuration file
   -> file { "${docroot}/etc/local.ini" :
-     ensure  => file,
-     content => template('apache_couchdb/local.ini.erb'),
+    ensure  => file,
+    content => template('apache_couchdb/local.ini.erb'),
   }
   # add vm.args files
   -> file { "${docroot}/etc/vm.args":
@@ -43,11 +43,13 @@ class apache_couchdb::couchdb {
     logoutput => true,
     notify    => Exec['wait-apache-couchdb'],
   }
+
   exec { 'wait-apache-couchdb':
     command   => 'sleep 4',
     logoutput => true,
     notify    => Exec['chown-uri-file'],
   }
+
   exec { 'chown-uri-file':
     command   => "chown -R ${username}:${username} /var/run/couchdb/",
     logoutput => true,
@@ -57,3 +59,4 @@ class apache_couchdb::couchdb {
     logoutput => true,
   }
 }
+

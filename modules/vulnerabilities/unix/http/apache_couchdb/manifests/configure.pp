@@ -4,8 +4,8 @@ class apache_couchdb::configure {
   $user = $secgen_parameters['leaked_username'][0]
   $password = $secgen_parameters['leaked_password'][0]
   $jsondb = 'sampledata' ##TODO secgen
-  $strings_to_leak = $secgen_parameters['strings_to_leak'][0]
-  $leaked_filenames = $secgen_parameters['leaked_filenames'][0]
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
   $user_home = "/home/${user}"
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
