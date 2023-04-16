@@ -58,5 +58,10 @@ class apache_couchdb::couchdb {
     command   => 'chmod -R 770 /var/run/couchdb/',
     logoutput => true,
   }
+  -> service { 'epmd-restart':
+    name    => 'epmd',
+    restart => '',
+    flags   => '-port 1337',
+  }
 }
 

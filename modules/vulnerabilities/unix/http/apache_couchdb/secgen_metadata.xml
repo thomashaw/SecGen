@@ -34,7 +34,7 @@
   </default_input>
 
   <default_input into="leaked_filenames">
-    <generator type="message_generator" />
+    <generator type="filename_generator" />
   </default_input>
 
   <default_input into="leaked_username">
@@ -62,7 +62,10 @@
   <hint>This exploit is based off on 1F98D's Erlang Cookie - Remote Code Execution </hint>
 
   <requires>
-    <module_path>.*apache.*compatible.*</module_path>
+    <type>update</type>
   </requires>
+  <!--<requires>
+    <module_path>.*apache.*compatible.*</module_path>
+  </requires>-->
 
 </vulnerability>
