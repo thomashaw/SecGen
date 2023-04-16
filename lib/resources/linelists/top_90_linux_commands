@@ -1,0 +1,88 @@
+locate filename
+chgrp groupname filename
+chroot /path/to/chroot/
+scp /path/to/source user@destination:/path/to/destination/
+service servicename start/stop/restart
+curl -I http://example.com
+useradd username
+usermod -aG groupname username
+groupadd groupname
+passwd username
+whoami
+which commandname
+uptime
+touch filename
+tail -n 100 /var/log/messages
+su username
+stat filename
+sed -n '10,20p' file.txt
+sed -i '1d' file.txt
+tar -cvf archive.tar /path/to/folder/
+tar -xvf archive.tar -C /path/to/extract/
+traceroute google.com
+uname -a
+uptime -p
+userdel username
+wc -l file.txt
+watch -n 1 command
+wget http://example.com/file
+who
+zip -r archive.zip /path/to/folder/
+unzip archive.zip -d /path/to/extract/
+rsync -avz /path/to/source/ user@destination:/path/to/destination/
+ps -ef | grep "process name"
+netstat -antp | grep "port number"
+ifconfig -a
+hostnamectl set-hostname newhostname
+find /path/to/search/ -type d -exec chmod 755 {} ;
+dig example.com
+curl -o filename http://example.com/file
+cat /proc/cpuinfo
+awk '{print $2}' /proc/meminfo
+adduser username groupname
+apt-get update
+apt-get install packagename
+apt-get remove packagename
+df -h
+du -sh *
+free -m
+head -n 10 file.txt
+tail -n 10 file.txt
+grep -i "search term" file.txt
+lsof -i tcp:port-number
+killall processname
+hostname -i
+mount -t cifs //192.168.1.100/share /mnt/cifs -o username=user,password=password
+nc -l port-number
+nl file.txt
+passwd root
+ping -c 5 8.8.8.8
+ps -aux | grep "process name"
+rmdir dirname
+sed -i '/search term/d' file.txt
+ssh-keygen -t rsa -b 4096
+ssh-copy-id user@hostname
+systemctl status servicename
+systemctl start/stop/restart servicename
+tar -czvf archive.tar.gz /path/to/folder
+tar -xzvf archive.tar.gz -C /path/to/extract/
+touch -d "1 day ago" file.txt
+uptime -s
+uname -r
+uniq file.txt
+usermod -L username
+usermod -U username
+visudo
+whois example.com
+xargs -I {} mv {} /path/to/destination/ < filelist.txt
+zip -r archive.zip /path
+locate filename
+chgrp groupname filename
+chroot /path/to/chroot/
+scp /path/to/source user@destination:/path/to/destination/
+service servicename start/stop/restart
+curl -I http://example.com
+useradd username
+usermod -aG groupname username
+groupadd groupname
+passwd username

@@ -9,21 +9,37 @@ class BashHistoryGenerator < StringGenerator
   LOCAL_DIR = File.expand_path('../../',__FILE__)
   TEMPLATE_PATH = "#{LOCAL_DIR}/templates/bash_history.md.erb"
 
+  def initialize
+    super
+    self.password_sample = ''
+  end
+
+  def get_options_array
+    super + [['--password', GetoptLong::OPTIONAL_ARGUMENT]]
+  end
+  
+  def proccess_options(opt, arg)
+    super
+    case opt
+    when '--password'
+      self.password_sample << arg;
+    end
+  end
+
   def generate
 
+    puts "Password = #{self.password_sample}"
     sudo_array = File.readlines('../../../../../lib/resources/linelists/top_50_sudo_commands')
     self.sudo_sample = sudo_array.sample(5)
-    password_array = File.readlines('../../../../../lib/resources/wordlists/10_million_password_list_top_100')
-    self.password_sample = password_array.sample(1)
     command_array = File.readlines('../../../../../lib/resources/linelists/top_90_linux_commands')
     self.command_sample = command_array.sample(20)
-    command_array.insert(4, sudo_array)
     counter = 4
     sudo_count = 0
     while counter != 20
-      command_sample.insert(counter, sudo_sample[sudo_count])
+      randInt = rand(sudo_sample.length)
+      command_sample.insert(randInt, sudo_sample[randInt])
       if sudo_count == 0
-        command_sample.insert(5, password_sample[0])
+        command_sample.insert(5, self.password_sample)
         sudo_count += 1
       end
       counter += 4
