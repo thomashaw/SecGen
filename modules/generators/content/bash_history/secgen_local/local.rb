@@ -27,15 +27,15 @@ class BashHistoryGenerator < StringGenerator
   end
 
   def generate
-
-    puts "Password = #{self.password_sample}"
     sudo_array = File.readlines('../../../../../lib/resources/linelists/top_50_sudo_commands')
-    self.sudo_sample = sudo_array.sample(5)
     command_array = File.readlines('../../../../../lib/resources/linelists/top_90_linux_commands')
+    puts "Password = #{self.password_sample}"
+    if self.password_sample != ''
+    self.sudo_sample = sudo_array.sample(5)
     self.command_sample = command_array.sample(20)
     counter = 4
     sudo_count = 0
-    while counter != 20
+    while counter != 20 
       randInt = rand(sudo_sample.length)
       command_sample.insert(randInt, sudo_sample[randInt])
       if sudo_count == 0
@@ -43,6 +43,9 @@ class BashHistoryGenerator < StringGenerator
         sudo_count += 1
       end
       counter += 4
+    end
+    else
+      self.command_sample = command_array.sample(30)
     end
     template_out = ERB.new(File.read(TEMPLATE_PATH), 0, '<>-')
     self.outputs << template_out.result(self.get_binding)
