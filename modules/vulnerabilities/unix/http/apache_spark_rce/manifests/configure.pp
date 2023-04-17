@@ -6,6 +6,7 @@ class apache_spark_rce::configure {
   $sparkconf='spark-defaults.conf'
   $leaked_filenames = $secgen_parameters['leaked_filenames']
   $strings_to_leak = $secgen_parameters['strings_to_leak']
+  $user = $secgen_parameters['unix_username'][0]
 
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
 
@@ -16,7 +17,7 @@ class apache_spark_rce::configure {
   }
 
   ::secgen_functions::leak_files { 'spark-flag-leak':
-    storage_directory => '/usr/local/spark/bin/',
+    storage_directory => "/home/${user}",
     leaked_filenames  => $leaked_filenames,
     strings_to_leak   => $strings_to_leak,
     owner             => 'root',
