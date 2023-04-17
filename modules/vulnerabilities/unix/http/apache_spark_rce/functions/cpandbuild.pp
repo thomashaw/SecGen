@@ -1,4 +1,4 @@
-function apache_spark_rce::cpandbuild(Array $collection, String $filename) >> Undef {
+function apache_spark_rce::cpandbuild(Array $collection, String $filename) {
   $collection.each |String $item| {
     file { "/tmp/${item}":
       ensure => file,
@@ -7,6 +7,6 @@ function apache_spark_rce::cpandbuild(Array $collection, String $filename) >> Un
   }
   exec { "rebuild-${filename}":
     cwd     => '/tmp/',
-    command => "cat ${filename}.parta* >${filename}",
+    command => "/bin/cat ${filename}.parta* >${filename}",
   }
 }

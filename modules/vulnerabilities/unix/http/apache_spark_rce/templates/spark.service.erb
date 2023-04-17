@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=forking
-User=root
+User=<%= @user %>
 Environment="PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/usr/local/spark/sbin"
 WorkingDirectory=/usr/local/spark/bin/
 ExecStart=/usr/local/spark/sbin/start-master.sh

@@ -29,6 +29,18 @@ class apache_spark_rce::install {
     apache_spark_rce::cpandbuild($pkg[0], $pkg[1])
   }
 
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $user = $secgen_parameters['leaked_username'][0]
+
+  $user_home = "/home/${user}"
+
+  # Create user
+  user { $user:
+    ensure     => present,
+    home       => $user_home,
+    managehome => true,
+  }
+
   # We run older versions of debian, for now source from local deb file
   package { 'scala':
     ensure   => latest,
@@ -45,5 +57,8 @@ class apache_spark_rce::install {
     cwd     => '/tmp',
     command => "mv /tmp/${shortrelease} /usr/local/spark/",
     creates => '/usr/local/spark',
+  }
+  -> exec { 'chown-spark':
+    command => "chown -R ${user} /usr/local/spark/",
   }
 }

@@ -19,7 +19,7 @@
     3.2.0 to 3.2.1.</description>
 
   <type>http</type>
-  <privilege>root_rwx</privilege>
+  <privilege>user_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
   <difficulty>low</difficulty>
@@ -29,7 +29,7 @@
   <read_fact>leaked_filenames</read_fact>
 
   <default_input into="port">
-    <value>8080</value>
+    <generator module_path=".*/random_unregistered_port" />
   </default_input>
 
   <!-- flags or other secrets exposed after exploitation -->
@@ -41,29 +41,26 @@
     <generator type="filename_generator" />
   </default_input>
 
+  <default_input into="leaked_username">
+    <generator type="username_generator" />
+  </default_input>
 
-  <!--optional vulnerability details-->
-  <cve>CVE 2022-33891</cve>
+  <!--optional
+  vulnerability details-->
+  <cve>CVE-2022-33891</cve>
   <cvss_base_score>8.8</cvss_base_score>
-  <cvss_vector>CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
-  <software_name>Apache Spark</software_name>
-  <software_license>Apache License 2.0</software_license>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
   <reference>
     https://packetstormsecurity.com/files/168309/Apache-Spark-Unauthenticated-Command-Injection.html</reference>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/apache_spark_rce_cve_2022_33891.rb</reference>
   <reference>https://spark.apache.org/docs/3.1.2/</reference>
   <reference>https://archive.apache.org/dist/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz</reference>
-
-  <!--optional hints-->
-  <hint>Scan the servers for other machines </hint>
-
-  <requires>
-    <module_path>.*java 11 (OpenJDK)*</module_path>
-  </requires>
+  <software_name>Apache Spark</software_name>
+  <software_license>Apache License 2.0</software_license>
 
   <requires>
-    <module_path>.*scala 2.12*</module_path>
+    <type>update</type>
   </requires>
 
 </vulnerability>

@@ -2,9 +2,10 @@
 # Configure apache spark and secgen
 #
 class apache_spark_rce::configure {
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $sparkconf='spark-defaults.conf'
-  $leaked_filenames = ['flagtest'] ##$secgen_parameters['leaked_filenames']
-  $strings_to_leak = ['this is a list of strings that are secrets / flags','another secret'] ##$secgen_parameters['strings_to_leak']
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
 
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
 
