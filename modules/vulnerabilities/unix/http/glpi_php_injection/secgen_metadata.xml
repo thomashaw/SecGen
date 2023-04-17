@@ -28,7 +28,7 @@
   <read_fact>web_pre_leak_filename</read_fact>
 
   <default_input into="port">
-    <value>80</value>
+    <generator module_path=".*/random_unregistered_port" />
   </default_input>
 
   <!-- flags or other secrets exposed after exploitation -->
@@ -40,57 +40,24 @@
     <generator type="filename_generator" />
   </default_input>
 
-  <!-- these details need to be known or bruteforced to successful exploit the service -->
-  <!-- By default the username is admin, but it can be something else, so long as they can easily
-  guess it (for example leak it to them) -->
-  <default_input into="known_username">
-    <!-- <generator type="random_sanitised_word">
-			<input into="wordlist">
-    <value>admin_name</value>
-			</input>
-		</generator> -->
-    <value>admin</value>
-  </default_input>
-
-  <default_input into="known_password">
-    <generator type="weak_password_generator" />
-  </default_input>
-
-  <!-- pre-leaked, these details are leaked before the main vuln is exploited, for example hidden
-  content or hosted files -->
-  <default_input into="strings_to_pre_leak">
-    <generator type="message_generator" />
-  </default_input>
-
-  <!-- ideally something found by dirbuster -->
-  <default_input into="web_pre_leak_filename">
-    <generator type="random_sanitised_word">
-      <input into="wordlist">
-        <value></value>
-      </input>
-    </generator>
-  </default_input>
-
-  <!--optional vulnerability details-->
+  <!--optional
+  vulnerability details-->
   <cve>CVE-2022-35914</cve>
   <cvss_base_score>9.8</cvss_base_score>
-  <cvss_vector>CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
-  <software_name>GLPI Management Suite</software_name>
-  <software_license>GNU GPLv3</software_license>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/glpi_htmlawed_php_injection.rb</reference>
   <reference>
     https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/linux/http/glpi_htmlawed_php_injection.md</reference>
-
-  <!--optional hints-->
-  <hint></hint>
+  <software_name>GLPI Management Suite</software_name>
+  <software_license>GNU GPLv3</software_license>
 
   <requires>
-    <module_path>services/unix/http/apache_stretch_compatible/apache</module_path>
+    <module_path>.*apache.*compatible.*</module_path>
   </requires>
 
   <requires>
-    <module_path>services/unix/database/mysql_stretch_compatible/mysql</module_path>
+    <module_path>.*mysql.*compatible.*</module_path>
   </requires>
 
 </vulnerability>

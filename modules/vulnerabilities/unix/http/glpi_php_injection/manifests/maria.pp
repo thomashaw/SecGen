@@ -2,6 +2,8 @@
 # maria db install and configuration
 #
 class glpi_php_injection::maria {
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $port = $secgen_parameters['port'][0]
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
 
   $db_name = 'glpidb'
@@ -36,7 +38,7 @@ class glpi_php_injection::maria {
   # See: https://glpi-install.readthedocs.io/en/latest/command-line.html#cdline-install
   -> exec { 'glpi-cli-install':
     cwd       => '/var/www/html/glpi/bin/',
-    command   => "php console db:install -f -H localhost -P 80 -d ${db_name} -u ${db_user} -p ${db_pass}",
+    command   => "php console db:install -f -H localhost -P ${port} -d ${db_name} -u ${db_user} -p ${db_pass}",
     logoutput => true,
   }
 }

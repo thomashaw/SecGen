@@ -2,8 +2,9 @@
 # Apache configuration
 #
 class glpi_php_injection::apache {
-  $port = '80'
-  $docroot = '/var/www/html/glpi'
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $port = $secgen_parameters['port'][0]
+  $docroot = '/var/www/html/'
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
