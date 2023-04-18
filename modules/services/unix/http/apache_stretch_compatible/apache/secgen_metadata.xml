@@ -29,7 +29,7 @@
     <name>.*Wheezy.*</name>
   </conflict>
   <conflict>
-    <name>bases/.*kali.*</name>
+    <module_path>bases/.*kali.*</module_path>
   </conflict>
   <requires>
     <type>update</type>
