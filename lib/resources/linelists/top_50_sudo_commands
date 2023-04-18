@@ -1,0 +1,50 @@
+sudo apt-get update
+sudo apt-get install packagename
+sudo apt-get remove packagename
+sudo systemctl restart servicename
+sudo systemctl stop servicename
+sudo systemctl start servicename
+sudo ufw enable/disable
+sudo ufw allow/deny port-number
+sudo useradd -m -s /bin/bash username
+sudo usermod -aG groupname username
+sudo groupadd groupname
+sudo userdel username
+sudo chown -R username:groupname /path/to/folder
+sudo chmod -R 755 /path/to/folder
+sudo systemctl enable/disable servicename
+sudo systemctl status servicename
+sudo apt-get upgrade
+sudo apt-get dist-upgrade
+sudo apt-get autoremove
+sudo apt-get clean
+sudo add-apt-repository ppa:repositoryname
+sudo sed -i 's/oldstring/newstring/g' /path/to/file
+sudo find /path/to/search/ -type f -exec rm {} ;
+sudo tar -xvf archive.tar -C /path/to/extract/
+sudo tail -f /var/log/messages
+sudo chmod 700 /path/to/file
+sudo chgrp groupname /path/to/file
+sudo passwd username
+sudo chsh -s /bin/bash username
+sudo ln -s /path/to/file /path/to/link
+sudo mount /dev/sdb1 /mnt/usb
+sudo umount /mnt/usb
+sudo chattr +i /path/to/file
+sudo crontab -e
+sudo dpkg -i packagename.deb
+sudo dpkg --configure -a
+sudo service ssh restart
+sudo service apache2 restart
+sudo service mysql restart
+sudo service postfix restart
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys keynumber
+sudo apt-get install -y packagename
+sudo apt-get install -f
+sudo apt-get install build-essential
+sudo apt-get install python3-pip
+sudo usermod -L username
+sudo usermod -U username
+sudo systemctl reload servicename
+sudo systemctl mask/unmask servicename
+sudo visudo
