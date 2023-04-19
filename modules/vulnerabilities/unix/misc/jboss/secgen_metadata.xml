@@ -1,29 +1,36 @@
 <?xml version="1.0"?>
-<vulnerability xmlns="http://github.com/cliffe/SecGen/vulnerability"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="http://github.com/cliffe/SecGen/vulnerability">
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
 
   <name>JBOSS EAP/AS Remoting Unified Invoker RCE</name>
   <author>Harry J. Hall</author>
+  <author>James Davis</author>
   <module_license>MIT</module_license>
-  <description>JBOSS EAP versions 6.x contain an RCE vulnerability that can be executed by a unauthenticated user.
+  <description>JBOSS EAP versions 6.x contain an RCE vulnerability that can be executed by a
+    unauthenticated user.
     This invovles sending a serialized Java object to JBOSS EAP over a network.</description>
 
   <type>Java web exploit</type>
-  <privilege>root_rwx</privilege>
+  <privilege>user_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
   <difficulty>medium</difficulty>
 
-  <read_fact>server_name</read_fact>
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
+  <read_fact>leaked_username</read_fact>
 
   <default_input into="strings_to_leak">
-    <generator type="message_generator"/>
+    <generator type="message_generator" />
   </default_input>
 
   <default_input into="leaked_filenames">
-    <generator type="filename_generator">
+    <generator type="filename_generator" />
   </default_input>
+
+  <default_input into="leaked_username">
+    <generator type="username_generator" />
+  </default_input>
+
 </vulnerability>
