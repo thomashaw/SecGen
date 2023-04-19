@@ -168,7 +168,6 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8.2)
-    vagrant (1.5.0)
     wordlist (0.1.1)
       spidr (~> 0.2)
     yard (0.9.26)
@@ -187,6 +186,7 @@ DEPENDENCIES
   bcrypt
   braille!
   cinch
+  concurrent-ruby (= 1.1.9)
   credy
   digest-siphash
   duplicate
@@ -219,7 +219,6 @@ DEPENDENCIES
   sha3
   smbhash
   sshkey
-  vagrant
   wordlist
   yard
   zip-zip
