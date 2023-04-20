@@ -37,7 +37,7 @@
   <software_name>jboss</software_name>
   <software_license>LGPL v2.1</software_license>
 
-  <msf_module>exploits/multi/misc/jboss_remoting_unified_invoker_rce</msf_module>
+  <msf_module>exploit/multi/misc/jboss_remoting_unified_invoker_rce</msf_module>
   <solution>JBoss is vulnerable.</solution>
 
   <requires>
