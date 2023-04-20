@@ -1,4 +1,4 @@
-class jboss::flags {
+class jboss_remoting_unified_invoker_rce::flags {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $leaked_filenames = $secgen_parameters['leaked_filenames']
   $strings_to_leak = $secgen_parameters['strings_to_leak']

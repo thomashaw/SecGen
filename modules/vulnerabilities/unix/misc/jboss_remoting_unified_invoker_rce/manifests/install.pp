@@ -1,4 +1,4 @@
-class jboss::install {
+class jboss_remoting_unified_invoker_rce::install {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'],
     environment => ['JAVA_HOME="/usr/lib/jvm/adoptopenjdk-8-hotspot-amd64/bin/java"']}
 
