@@ -6,7 +6,7 @@ class linuxki_rce::configure {
   $leaked_filenames = $secgen_parameters['leaked_filenames']
   $strings_to_leak = $secgen_parameters['strings_to_leak']
 
-  $user = $secgen_parameters['leaked_username'][0]
+  $user = $secgen_parameters['unix_username'][0]
   $user_home = "/home/${user}"
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
