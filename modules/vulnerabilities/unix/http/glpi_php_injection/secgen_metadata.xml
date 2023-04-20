@@ -3,7 +3,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
 
-  <name>GLPI htmLawed php command injection - GLPI versions 10.0.2 and below</name>
+  <name>GLPI htmLawed php command injection - GLPI versions 10.0.2 and below - Unauthenticated</name>
   <author>James Davis</author>
   <module_license>MIT</module_license>
   <description>This
@@ -13,19 +13,15 @@
   <type>http</type>
   <type>bruteforceable</type>
   <type>in_the_wild</type>
+  <!-- access to the www-data user -->
   <privilege>user_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
   <difficulty>low</difficulty>
 
   <read_fact>port</read_fact>
-  <read_fact>organisation</read_fact>
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
-  <read_fact>known_username</read_fact>
-  <read_fact>known_password</read_fact>
-  <read_fact>strings_to_pre_leak</read_fact>
-  <read_fact>web_pre_leak_filename</read_fact>
 
   <default_input into="port">
     <generator module_path=".*/random_unregistered_port" />
@@ -60,4 +56,19 @@
     <module_path>.*mysql.*compatible.*</module_path>
   </requires>
 
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>Command injection</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
 </vulnerability>
