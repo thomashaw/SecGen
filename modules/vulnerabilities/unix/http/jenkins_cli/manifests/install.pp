@@ -5,7 +5,7 @@ class jenkins_cli::install {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
 
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $user = $secgen_parameters['leaked_username'][0]
+  $user = $secgen_parameters['unix_username'][0]
   $port = $secgen_parameters['port'][0]
 
   $modulename = 'jenkins_cli'

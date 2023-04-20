@@ -8,7 +8,7 @@ class jenkins_cli::configure {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
-  $user = $secgen_parameters['leaked_username'][0]
+  $user = $secgen_parameters['unix_username'][0]
   $user_home = "/home/${user}"
 
   # Create user

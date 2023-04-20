@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=<%= @leaked_username %>
+User=<%= @user %>
 ExecStart=/bin/sh -c "java -Djenkins.install.runSetupWizard=false -jar /usr/local/bin/jenkins.war --httpPort=<% @port %>"
 Restart=on-abort
 RestartSec=1
