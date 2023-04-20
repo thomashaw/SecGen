@@ -18,11 +18,9 @@
   <difficulty>low</difficulty>
 
   <read_fact>port</read_fact>
-  <read_fact>known_username</read_fact>
-  <read_fact>known_password</read_fact>
   <read_fact>strings_to_leak</read_fact>
-  <read_fact>strings_to_preleak</read_fact>
   <read_fact>leaked_filenames</read_fact>
+  <read_fact>unix_username</read_fact>
 
   <default_input into="port">
     <generator type="random_number_generator" />
@@ -37,16 +35,15 @@
     <generator type="filename_generator" />
   </default_input>
 
-  <default_input into="leaked_username">
+  <default_input into="unix_username">
     <value>couchdb</value>
   </default_input>
 
-  <default_input into="leaked_password">
+  <default_input into="used_password">
     <generator type="password_generator" />
   </default_input>
 
-  <!--optional
-  vulnerability details-->
+  <!--optional vulnerability details-->
   <!-- rce vuln -->
   <cve>CVE-2022-24706</cve>
   <cvss_base_score>9</cvss_base_score>
@@ -57,15 +54,26 @@
   <software_name>Apache CouchDB</software_name>
   <software_license>Apache</software_license>
 
-  <!--optional
-  hints-->
+  <!--optional hints-->
   <hint>This exploit is based off on 1F98D's Erlang Cookie - Remote Code Execution </hint>
 
   <requires>
     <type>update</type>
   </requires>
-  <!--<requires>
-    <module_path>.*apache.*compatible.*</module_path>
-  </requires>-->
 
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>Vulnerable defaults</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
 </vulnerability>

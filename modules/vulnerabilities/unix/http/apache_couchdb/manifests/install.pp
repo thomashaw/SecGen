@@ -3,7 +3,7 @@ class apache_couchdb::install {
   $responsefile = 'installresponse'
   $packagename = 'couchdb_3.2.1_buster_amd64'
   $jsondb = 'sampledata.json'
-  $password = $secgen_parameters['leaked_password'][0]
+  $password = $secgen_parameters['used_password'][0]
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
@@ -15,7 +15,7 @@ class apache_couchdb::install {
   'libcurl4-openssl-dev',
   'gnupg'])
 
-  # copy archive 
+  # copy archive
   file { "/usr/local/src/${packagename}.deb" :
     ensure => file,
     source => "puppet:///modules/apache_couchdb/${packagename}.deb",

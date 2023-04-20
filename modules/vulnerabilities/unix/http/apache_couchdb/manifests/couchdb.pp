@@ -1,7 +1,7 @@
 class apache_couchdb::couchdb {
   $secgen_parameters=secgen_functions::get_parameters($::base64_inputs_file)
-  $username = $secgen_parameters['leaked_username'][0]
-  $password = $secgen_parameters['leaked_password'][0]
+  $username = $secgen_parameters['unix_username'][0]
+  $password = $secgen_parameters['used_password'][0]
   $host ='127.0.0.1'
   $docroot = '/opt/couchdb'
   $database_dir = '/var/lib/couchdb'
@@ -64,4 +64,3 @@ class apache_couchdb::couchdb {
     flags   => '-port 1337',
   }
 }
-
