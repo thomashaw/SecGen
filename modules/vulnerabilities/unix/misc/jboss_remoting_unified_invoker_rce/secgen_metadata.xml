@@ -30,7 +30,7 @@
   </default_input>
 
   <default_input into="unix_username">
-    <generator type="username_generator" />
+    <value>jboss</value>
   </default_input>
 
   <reference>https://s3.amazonaws.com/files.joaomatosf.com/slides/alligator_slides.pdf</reference>
