@@ -14,10 +14,6 @@
   <platform>linux</platform>
   
   <read_fact>password1</read_fact>
-  <read_fact>passwrod2</read_fact>
-  <read_fact>password3</read_fact>
-  <read_fact>password4</read_fact>
-  <read_fact>password5</read_fact>
 
   <output_type>generated_strings</output_type>
 </generator>
