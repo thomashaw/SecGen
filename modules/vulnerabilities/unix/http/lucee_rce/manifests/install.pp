@@ -10,7 +10,7 @@ class lucee_rce::install {
 
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $port = $secgen_parameters['port'][0]
-  $user = $secgen_parameters['leaked_username'][0]
+  $user = $secgen_parameters['unix_username'][0]
   $user_home = "/home/${user}"
 
   ensure_packages(['openjdk-11-jdk'], { ensure => 'installed'})

@@ -5,7 +5,7 @@ class lucee_rce::configure {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $leaked_filenames = $secgen_parameters['leaked_filenames']
   $strings_to_leak = $secgen_parameters['strings_to_leak']
-  $user = $secgen_parameters['leaked_username'][0]
+  $user = $secgen_parameters['unix_username'][0]
   $user_home = "/home/${user}"
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
