@@ -25,43 +25,14 @@ Remember, this is a training scenario and any hacking / cyber security practices
   <type>pwn-ctf</type>
   <difficulty>medium</difficulty>
 
-  <!-- bludit -->
-  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
-    <keyword>authentication</keyword>
-    <keyword>passwords and alternatives</keyword>
-  </CyBOK>
-  <CyBOK KA="AAA" topic="Authentication">
-    <keyword>user authentication</keyword>
-    <keyword>BRUTEFORCE</keyword>
-  </CyBOK>
-  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
-    <keyword>server-side misconfiguration and vulnerable components</keyword>
-    <keyword>FILE UPLOAD VULNERABILITY</keyword>
-  </CyBOK>
+  <!-- CyBOK is further generated based on which modules are selected -->
   <CyBOK KA="MAT" topic="Attacks and exploitation">
     <keyword>EXPLOITATION</keyword>
-    <keyword>EXPLOITATION FRAMEWORKS</keyword>
-  </CyBOK>
-  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
-    <keyword>CVEs and CWEs</keyword>
   </CyBOK>
   <CyBOK KA="SOIM" topic="PENETRATION TESTING">
     <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
     <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
   </CyBOK>
-
-  <!-- escalate to user and to root via sudo -->
-  <CyBOK KA="AAA" topic="Authorisation">
-    <keyword>access control</keyword>
-    <keyword>Elevated privileges</keyword>
-    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
-  </CyBOK>
-  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
-    <keyword>Access controls and operating systems</keyword>
-    <keyword>Linux security model</keyword>
-    <keyword>Attacks against SUDO</keyword>
-  </CyBOK>
-
   <CyBOK KA="AB" topic="Models">
     <keyword>kill chains</keyword>
   </CyBOK>
@@ -69,16 +40,7 @@ Remember, this is a training scenario and any hacking / cyber security practices
     <keyword>cyber kill chain</keyword>
   </CyBOK>
 
-  <!-- decrypt zip file -->
-  <CyBOK KA="C" topic="Symmetric Cryptography">
-    <keyword>symmetric encryption and authentication</keyword>
-  </CyBOK>
-  <CyBOK KA="AAA" topic="Authentication">
-    <keyword>BRUTEFORCE</keyword>
-  </CyBOK>
-
-<!-- TODO: narrative content; -->
-<!-- TODO: test -->
+  <!-- TODO: test -->
 
   <system>
     <system_name>attack_vm</system_name>
@@ -157,7 +119,7 @@ Remember, this is a training scenario and any hacking / cyber security practices
             <value>flag</value>
           </input>
           <input into="strings_to_leak">
-            <generator type="random_line">
+            <generator module_path=".*/random_line">
               <input into="linelist">
                 <value>secrets</value>
               </input>
@@ -171,6 +133,7 @@ Remember, this is a training scenario and any hacking / cyber security practices
     <vulnerability privilege="user_rwx" access="remote" read_fact="strings_to_leak">
       <!-- will have strings_to_leak -->
       <input into="strings_to_leak">
+        <generator type="evil_file_generator"/>
         <generator type="flag_generator" module_path=".*/flag_words"/>
       </input>
       <!-- inputs that don't exist are ignored -->
@@ -191,7 +154,6 @@ Remember, this is a training scenario and any hacking / cyber security practices
       <input into="port" into_datastore="selected_ports">
         <generator module_path=".*random_unregistered_port" />
       </input>
-
     </vulnerability>
 
     <!-- 2nd vuln gives root, which sometimes might be a shortcut to the above flag -->
@@ -199,6 +161,7 @@ Remember, this is a training scenario and any hacking / cyber security practices
     <vulnerability privilege="root_rwx" access="remote|local" read_fact="strings_to_leak">
       <!-- will have strings_to_leak -->
       <input into="strings_to_leak">
+        <generator type="evil_file_generator"/>
         <generator type="flag_generator" module_path=".*/flag_words"/>
       </input>
       <!-- inputs that don't exist are ignored -->
@@ -218,13 +181,13 @@ Remember, this is a training scenario and any hacking / cyber security practices
       <input into="port" into_datastore="selected_ports">
         <generator module_path=".*random_unregistered_port" />
       </input>
-
     </vulnerability>
 
     <!-- 3rd vuln reveals info/flag -->
     <vulnerability privilege="user_rw|info_leak" access="remote|local" read_fact="strings_to_leak">
       <!-- will have strings_to_leak -->
       <input into="strings_to_leak">
+        <generator type="evil_file_generator"/>
         <generator type="flag_generator" module_path=".*/flag_words"/>
       </input>
       <!-- inputs that don't exist are ignored -->
@@ -243,7 +206,6 @@ Remember, this is a training scenario and any hacking / cyber security practices
       <input into="port" into_datastore="selected_ports">
         <generator module_path=".*random_unregistered_port" />
       </input>
-
     </vulnerability>
 
     <vulnerability type="zip_file">
@@ -253,6 +215,7 @@ Remember, this is a training scenario and any hacking / cyber security practices
             <datastore>password</datastore>
           </input>
           <input into="strings_to_leak">
+            <generator type="evil_file_generator"/>
             <generator type="flag_generator" module_path=".*/flag_words"/>
             <value>
               Congratulations you have cracked our protected zip file. Here is a flag for your troubles, plus something more.
@@ -262,7 +225,6 @@ Remember, this is a training scenario and any hacking / cyber security practices
                 <generator type="flag_generator" module_path=".*/flag_words"/>
               </input>
             </encoder>
-
           </input>
         </generator>
       </input>
@@ -273,7 +235,6 @@ Remember, this is a training scenario and any hacking / cyber security practices
         <value>/root/</value>
       </input>
     </vulnerability>
-
 
     <network type="private_network">
       <input into="IP_address">
