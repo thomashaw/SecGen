@@ -49,6 +49,7 @@
     https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/lucee_admin_imgprocess_file_write.rb</reference>
   <software_name>Lucee Server</software_name>
   <software_license>Apache/LGPL</software_license>
+  <msf_module>exploit/linux/http/lucee_admin_imgprocess_file_write</msf_module>
 
   <requires>
     <type>update</type>
