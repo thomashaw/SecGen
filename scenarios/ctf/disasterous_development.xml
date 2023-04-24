@@ -81,7 +81,7 @@
             </input>
         </vulnerability>
 
-        <vulnerability module_path=".*/writable_passwd"></vulnerability>
+        <vulnerability module_path=".*/ssh_root_login"></vulnerability>
 
         <network type="private_network">
             <input into="IP_address">
