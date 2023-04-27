@@ -58,7 +58,7 @@
             </input>
         </vulnerability>
 
-        <vulnerability module_path=".*/writable_groups" />
+        <vulnerability module_path=".*/writable_groups"></vulnerability>
 
         <network type="private_network">
             <input into="IP_address">
