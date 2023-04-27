@@ -7,7 +7,7 @@ class glpi_php_injection::configure {
   $strings_to_leak = $secgen_parameters['strings_to_leak']
 
   ::secgen_functions::leak_files { 'glpi-flag-leak':
-    storage_directory => '/var/www/html/glpi/',
+    storage_directory => '/var/www/html/glpi/vendor/htmlawed/htmlawed',
     leaked_filenames  => $leaked_filenames,
     strings_to_leak   => $strings_to_leak,
     owner             => 'www-data',
