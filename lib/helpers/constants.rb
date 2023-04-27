@@ -50,8 +50,7 @@ ASCII_ART_DIR = "#{ROOT_DIR}/lib/resources/ascii_art"
 EVIL_PLANS_DIR = "#{ROOT_DIR}/lib/resources/narrative/evil_plans"
 PASSWORDLISTS_DIR = "#{ROOT_DIR}/lib/resources/passwordlists"
 WS_ATTACK_DIR = "#{ROOT_DIR}/lib/resources/ws_attacks"
-STYLING_DIR = "#{ROOT_DIR}/lib/resources/website_styling"
-SAMP_DBS_DIR = "#{ROOT_DIR}/lib/resources/sample_databases"
+SQLITE_DIR = "#{ROOT_DIR}/lib/resources/sqlite"
 
 # Path to build puppet modules
 LOCAL_PUPPET_DIR = "#{MODULES_DIR}build/puppet"
@@ -63,6 +62,8 @@ CYBOK_FILENAME = "cybok.xml"
 SPOILER_ADMIN_FILENAME = "spoiler_admin_pass"
 IP_ADDRESSES_FILENAME = "IP_addresses.json"
 
+INTERESTS_DIR = "#{ROOT_DIR}/lib/resources/interests"
+TMP_DIR = "/tmp"
 
 ## PACKER CONSTANTS ##
 

@@ -1,13 +1,9 @@
 #!/usr/bin/ruby
 require_relative '../../../../../lib/objects/local_string_generator.rb'
-require 'erb'
+# require 'erb'
 require 'fileutils'
 class BashHistoryGenerator < StringGenerator
-  attr_accessor :command_sample
-  attr_accessor :sudo_sample
   attr_accessor :password_sample
-  LOCAL_DIR = File.expand_path('../../',__FILE__)
-  TEMPLATE_PATH = "#{LOCAL_DIR}/templates/bash_history.md.erb"
 
   def initialize
     super
@@ -17,7 +13,7 @@ class BashHistoryGenerator < StringGenerator
   def get_options_array
     super + [['--password', GetoptLong::OPTIONAL_ARGUMENT]]
   end
-  
+
   def process_options(opt, arg)
     super
     case opt
@@ -27,35 +23,22 @@ class BashHistoryGenerator < StringGenerator
   end
 
   def generate
-    sudo_array = File.readlines('../../../../../lib/resources/linelists/top_50_sudo_commands')
-    command_array = File.readlines('../../../../../lib/resources/linelists/top_90_linux_commands')
-    if self.password_sample != ''
-    self.sudo_sample = sudo_array.sample(5)
-    self.command_sample = command_array.sample(20)
-    counter = 4
-    sudo_count = 0
-    while counter != 20 
-      randInt = rand(sudo_sample.length)
-      command_sample.insert(randInt, sudo_sample[randInt])
-      if sudo_count == 0
-        command_sample.insert(5, self.password_sample)
-        sudo_count += 1
-      end
-      counter += 4
+    sudo_array = File.readlines("#{LINELISTS_DIR}/sudo_commands")
+    command_array = File.readlines("#{LINELISTS_DIR}/linux_commands")
+
+    # choose some random command samples
+    sudo_sample = sudo_array.sample(5)
+    command_sample = command_array.sample(20)
+    # if we have a password to leak, we can put it after a sudo command
+    unless self.password_sample.empty?
+      sudo_sample[0] += "#{self.password_sample}\n"
     end
-    else
-      self.command_sample = command_array.sample(30)
-    end
-    template_out = ERB.new(File.read(TEMPLATE_PATH), 0, '<>-')
-    self.outputs << template_out.result(self.get_binding)
+    # copy to a flat array
+    commands = [*sudo_sample, *command_sample]
+    # output a shuffled array joined with new lines
+    self.outputs << commands.shuffle.join
   end
 
-  # Returns binding for erb files (access to variables in this classes scope)
-  # @return binding
-  def get_binding
-    binding
-  end
 end
 
 BashHistoryGenerator.new.run
-
