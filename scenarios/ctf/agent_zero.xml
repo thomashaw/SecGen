@@ -8,15 +8,15 @@
   <author>Z. Cliffe Schreuders</author>
   <description>In this scenario, as a secret agent analyst specializing in cyber security, you are authorized to conduct offensive operations against those who threaten the digital safety and security of your country.
 
-You have been tasked with conducting a cyber attack and to investigate the operations of 'The Organization' in order to discover their evil plans. As the exercise progresses, you will uncover more and more evidence of the organization's evil plans. We beleive they are using aliases, and cover businesses. The only reliable intel we have is that there is an operative that goes by the alias 'viper'.
+You have been tasked with conducting a cyber attack and to investigate the operations of 'The Organization' in order to discover their evil plans. As the exercise progresses, you will uncover more and more evidence of the organization's evil plans. We beleive they are using aliases, and cover businesses.
+
+The only reliable intel we have is that there is an operative that goes by the alias 'viper'.
 
 You will need to use a variety of tools and techniques to perform an attack: network scanning and exploitation to gain a foothold, escalate privileges as necessary, and gather and analyze data data to collect evidence.
 
 Submit the flags you find to track your progress.
 
 This challenge will be different each time, and can be taken again and again to hone your skills and experience different attacks.
-
-Remember, this is a training scenario and any hacking / cyber security practices should always be conducted legally and with the proper permissions and authorization.
 
   </description>
 
@@ -40,12 +40,10 @@ Remember, this is a training scenario and any hacking / cyber security practices
     <keyword>cyber kill chain</keyword>
   </CyBOK>
 
-  <!-- TODO: test -->
 
   <system>
     <system_name>attack_vm</system_name>
     <base distro="Kali" name="MSF"/>
-
 
     <input into_datastore="IP_addresses">
       <!-- 0 attack_vm -->
@@ -100,7 +98,6 @@ Remember, this is a training scenario and any hacking / cyber security practices
     <input into_datastore="username">
       <value>viper</value>
     </input>
-
 
     <!--Create the user-->
     <utility module_path=".*/parameterised_accounts">
