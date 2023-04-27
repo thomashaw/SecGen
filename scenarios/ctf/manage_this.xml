@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <name>Manage this!</name>
+    <name>Manage This!</name>
     <author>James Davis</author>
     <description>
         A vulnerable website is active on a server. Find a way in and obtain root.
