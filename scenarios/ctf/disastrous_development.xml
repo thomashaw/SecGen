@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <name>Disasterous Development</name>
+    <name>Disastrous Development</name>
     <author>James Davis</author>
     <description>Sometimes developers aren't always the smartest...</description>
 
