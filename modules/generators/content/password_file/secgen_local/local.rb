@@ -7,6 +7,7 @@ class PasswordFileGenerator < StringGenerator
   attr_accessor :username_sample
   attr_accessor :pass_list
   LOCAL_DIR = File.expand_path('../../',__FILE__)
+  INTERESTS_DIR = "../../../../../lib/resources/interests"
   TEMPLATE_PATH = "#{LOCAL_DIR}/templates/password_file.md.erb"
 
   def initialize
@@ -15,13 +16,13 @@ class PasswordFileGenerator < StringGenerator
   end
   
   def get_options_array
-    super + [['--password1', GetoptLong::OPTIONAL_ARGUMENT]]
+    super + [['--passwords', GetoptLong::REQUIRED_ARGUMENT]]
   end
 
   def process_options(opt, arg)
     super
     case opt
-    when '--password1'
+    when '--passwords'
       arr = arg.split(',', -1)
       arr.each{ |pass|
         self.pass_list << pass.strip!
@@ -31,10 +32,19 @@ class PasswordFileGenerator < StringGenerator
 
 def generate
 
+  random_interest = Dir.glob(File.join("#{INTERESTS_DIR}/benign/", '*')).select { |f| File.directory? f }.sample
+
+  malicious_interest = Dir.glob(File.join("#{INTERESTS_DIR}/malicious/", '*')).select { |f| File.directory? f}.sample
+
+  website_lines = File.readlines("#{random_interest}/websites").map(&:strip)
+  
+  mal_website_lines = File.readlines("#{malicious_interest}/websites").map(&:strip)
+
   arrayLength = self.pass_list.length()
   pass_array = File.readlines('../../../../../lib/resources/wordlists/10_million_password_list_top_100')
-  website_array = File.readlines('../../../../../lib/resources/linelists/top_100_websites')
-  self.website_sample = website_array.sample(10)
+  self.website_sample = website_lines.sample(5)
+  self.website_sample << mal_website_lines.sample(5)
+  self.website_sample = self.website_sample.shuffle()
   username_array = File.readlines('../../../../../lib/resources/wordlists/mythical_creatures')
   self.username_sample = username_array.sample(5)
 
