@@ -7,46 +7,14 @@
   <name>Filezilla Config File Generator</name>
   <author>Jack Biggs</author>
   <module_license>MIT</module_license>
-  <description>Creates a Filezilla config file which includes either 1 or 2 sets of plaintext credentials</description>
+  <description>Creates a Filezilla config file which includes a host, a port and a password</description>
 
   <type>string_generator</type>
   <type>local_calculation</type>
   <platform>linux</platform>
   
-  <read_fact>ftp_user</read_fact>
-  <read_fact>ftp_pass</read_fact>
-  <read_fact>ftp_user</read_fact>
-  <read_fact>ftp_pass</read_fact>
+  <read_fact>host</read_fact>
+  <read_fact>port</read_fact>
+  <read_fact>password</read_fact>
 
-  <!-- START: ftp_user input -->
-  <default_input into="ftp_user">
-    <encoder type="string_selector">
-      <input into="strings_to_encode">
-        <value>Nothing to see here</value>
-      </input>
-    </encoder>
-  </default_input>
-  <!-- END: ftp_user input -->
-
-  <!-- START: ftp_pass input -->
-  <default_input into="ftp_pass">
-    <generator type="password_generator"/>
-  </default_input>
-  <!-- END: ftp_pass input -->
-
-  <!-- START proxy_user input -->
-  <default_input into="proxy_user">
-    <encoder type="string_selector">
-      <input into="strings_to_encode">
-        <value>Nothing to see here</value>
-      </input>
-    </encoder>
-  </default_input>
-  <!-- END: proxy_user input -->
-  <!-- START: proxy_pass input -->
-  <default_input into="proxy_pass">
-    <generator type="password_generator"/>
-  </default_input>    
-  <!-- END: proxy_pass input -->
-  <output_type>generated_strings</output_type>
-</generator>
+  </generator>
