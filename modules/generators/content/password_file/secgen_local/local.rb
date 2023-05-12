@@ -4,19 +4,32 @@ require 'erb'
 require 'fileutils'
 class PasswordFileGenerator < StringGenerator
   attr_accessor :website_sample
-  attr_accessor :username_sample
+  attr_accessor :user_list
   attr_accessor :pass_list
+  attr_accessor :malicious
+  attr_accessor :benign
+  attr_accessor :mal_website_lines
+  attr_accessor :website_lines
   LOCAL_DIR = File.expand_path('../../',__FILE__)
   INTERESTS_DIR = "../../../../../lib/resources/interests"
   TEMPLATE_PATH = "#{LOCAL_DIR}/templates/password_file.md.erb"
-
+  MALICIOUS_PATH = "#{INTERESTS_DIR}/malicious/"
+  BENIGN_PATH = "#{INTERESTS_DIR}/benign/"
   def initialize
     super
     self.pass_list = Array.new
+    self.user_list = Array.new
+    self.malicious = ''
+    self.benign = ''
+    self.mal_website_lines = Array.new
+    self.website_lines = Array.new
   end
   
   def get_options_array
-    super + [['--passwords', GetoptLong::REQUIRED_ARGUMENT]]
+    super + [['--passwords', GetoptLong::REQUIRED_ARGUMENT],
+    ['--usernames', GetoptLong::REQUIRED_ARGUMENT],
+    ['--benign', GetoptLong::REQUIRED_ARGUMENT],
+    ['--malicious', GetoptLong::OPTIONAL_ARGUMENT]]
   end
 
   def process_options(opt, arg)
@@ -25,35 +38,41 @@ class PasswordFileGenerator < StringGenerator
     when '--passwords'
       arr = arg.split(',', -1)
       arr.each{ |pass|
-        self.pass_list << pass.strip!
+        self.pass_list << pass.delete(' ')
       }
+    when '--usernames'
+      arr = arg.split(',', -1)
+      arr.each{ |user|
+        self.user_list << user.delete(' ')
+      }
+    when '--benign'
+      self.benign << arg;
+    when '--malicious'
+      self.malicious << arg;
     end
   end
 
 def generate
 
-  random_interest = Dir.glob(File.join("#{INTERESTS_DIR}/benign/", '*')).select { |f| File.directory? f }.sample
 
-  malicious_interest = Dir.glob(File.join("#{INTERESTS_DIR}/malicious/", '*')).select { |f| File.directory? f}.sample
+  if self.malicious != "" 
+    malicious_interest = "#{MALICIOUS_PATH}#{self.malicious}"
+    self.mal_website_lines = File.readlines("#{malicious_interest}/websites").map(&:strip)
+  end
+  random_interest = "#{BENIGN_PATH}#{self.benign}"
 
-  website_lines = File.readlines("#{random_interest}/websites").map(&:strip)
+  self.website_lines = File.readlines("#{random_interest}/websites").map(&:strip)
   
-  mal_website_lines = File.readlines("#{malicious_interest}/websites").map(&:strip)
-
-  arrayLength = self.pass_list.length()
-  pass_array = File.readlines('../../../../../lib/resources/wordlists/10_million_password_list_top_100')
-  self.website_sample = website_lines.sample(5)
-  self.website_sample << mal_website_lines.sample(5)
+  passLength = self.pass_list.length()
+  userLength = self.user_list.length()
+  self.website_sample = website_lines.sample(10)
+  self.website_sample << mal_website_lines.sample(10)
+  self.website_sample = self.website_sample.flatten
   self.website_sample = self.website_sample.shuffle()
-  username_array = File.readlines('../../../../../lib/resources/wordlists/mythical_creatures')
-  self.username_sample = username_array.sample(5)
-
-  if arrayLength == 0
-    self.pass_list = pass_array.sample(10)
-  elsif arrayLength < 10
-    while self.pass_list.length() < 10
-       self.pass_list << pass_array.sample(1)
-     end
+  
+  if passLength == 0
+    warn "Empty Array"
+   exit 1
   end
 
   template_out = ERB.new(File.read(TEMPLATE_PATH), 0, '<>-')
