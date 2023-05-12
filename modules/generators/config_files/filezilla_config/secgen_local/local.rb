@@ -3,43 +3,41 @@ require_relative '../../../../../lib/objects/local_string_generator.rb'
 require 'erb'
 require 'fileutils'
 class FilezillaConfigFileGenerator < StringGenerator
-  attr_accessor :ftp_user
-  attr_accessor :ftp_pass
-  attr_accessor :proxy_user
-  attr_accessor :proxy_pass
+  attr_accessor :name
+  attr_accessor :host
+  attr_accessor :port
+  attr_accessor :password
   LOCAL_DIR = File.expand_path('../../',__FILE__)
-  TEMPLATE_PATH = "#{LOCAL_DIR}/templates/filezilla_config.md.erb"
+  TEMPLATE_PATH = "#{LOCAL_DIR}/templates/filezilla_config.xml.erb"
 
   def initialize
     super
-    self.ftp_user = 'admin'
-    self.ftp_pass = 'admin'
-    self.proxy_user = ''
-    self.proxy_pass = ''
+    self.name = ''
+    self.host = ''
+    self.port = ''
+    self.password = ''
   end
 
   def get_options_array
-    super + [['--ftp_user', GetoptLong::REQUIRED_ARGUMENT],
-             ['--ftp_pass', GetoptLong::REQUIRED_ARGUMENT],
-             ['--proxy_user', GetoptLong::OPTIONAL_ARGUMENT],
-             ['--proxy_pass', GetoptLong::OPTIONAL_ARGUMENT]]
+    super + [['--host', GetoptLong::REQUIRED_ARGUMENT],
+             ['--port', GetoptLong::OPTIONAL_ARGUMENT],
+             ['--password', GetoptLong::OPTIONAL_ARGUMENT]]
   end
 
   def process_options(opt, arg)
     super
     case opt
-      when '--ftp_user'
-        self.ftp_user << arg;
-      when '--ftp_pass'
-        self.ftp_pass << arg;
-      when '--proxy_user'
-        self.proxy_user << arg;
-      when '--proxy_pass'
-        self.proxy_pass << arg;
-    end
+      when '--host'
+        self.host << arg;
+      when '--port'
+        self.port << arg;
+      when '--password'
+        self.password << arg;
+      end
   end
   def generate
 
+    self.name = "#{self.host}:#{self.port}"
     template_out = ERB.new(File.read(TEMPLATE_PATH), 0, '<>-')
     self.outputs << template_out.result(self.get_binding)
   end
