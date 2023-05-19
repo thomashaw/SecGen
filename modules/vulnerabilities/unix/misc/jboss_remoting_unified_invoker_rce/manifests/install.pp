@@ -5,7 +5,7 @@ class jboss_remoting_unified_invoker_rce::install {
   ensure_packages(['apt-transport-https', 'ca-certificates', 'wget', 'dirmngr', 'gnupg', 'software-properties-common'])
 
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $user = $secgen_parameters['leaked_username'][0]
+  $user = $secgen_parameters['unix_username'][0]
   $user_home = "/home/${user}"
 
   # Create user
@@ -20,7 +20,7 @@ class jboss_remoting_unified_invoker_rce::install {
   }
   -> file { '/usr/local/java/jre-archive-files':
     ensure  => directory,
-    source  => 'puppet:///modules/jboss/jre-archive-files',
+    source  => 'puppet:///modules/jboss_remoting_unified_invoker_rce/jre-archive-files',
     recurse => true,
   }
   -> exec { 'extract-java':
@@ -43,7 +43,7 @@ class jboss_remoting_unified_invoker_rce::install {
   }
   -> file { '/opt/jboss-archive-files':
     ensure  => directory,
-    source  => 'puppet:///modules/jboss/jboss-archive-files',
+    source  => 'puppet:///modules/jboss_remoting_unified_invoker_rce/jboss-archive-files',
     recurse => true,
   }
   -> exec { 'unzip-jboss':
@@ -69,7 +69,7 @@ class jboss_remoting_unified_invoker_rce::install {
     command => 'chmod a+x /opt/jboss-6.1.0.Final',
   }
   -> file { '/etc/systemd/system/jboss.service':
-    content => template('jboss/jboss.service.erb'),
+    content => template('jboss_remoting_unified_invoker_rce/jboss.service.erb'),
   }
   -> service { 'jboss':
     ensure => running,
