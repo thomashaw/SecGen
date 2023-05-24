@@ -16,5 +16,13 @@
   <read_fact>host</read_fact>
   <read_fact>port</read_fact>
   <read_fact>password</read_fact>
-
+  <default_input into="host">
+    <value>0.0.0.0</value>
+  </default_input>
+  <default_input into="port">
+     <value>21</value>
+  </default_input>
+  <default_input into="password">
+     <value>Nothing to see here</value>
+  </default_input>
   </generator>
