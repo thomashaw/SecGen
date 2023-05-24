@@ -17,6 +17,19 @@
   <read_fact>usernames</read_fact>
   <read_fact>benign</read_fact>
   <read_fact>malicious</read_fact>
+           
+  <default_input into="passwords">
+     <value>password</value>
+  </default_input>
+  <default_input into="usernames">
+     <value>root</value>
+  </default_input>
+  <default_input into="benign">
+     <value>Cars</value>
+  </default_input>
+     <default_input into="malicious">
+     <value>world_domination</value>
+  </default_input>
 
   <output_type>generated_strings</output_type>
 </generator>
