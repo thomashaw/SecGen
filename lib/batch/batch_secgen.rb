@@ -245,10 +245,10 @@ def start(options)
 
         # Back up project flags, scenario, and log file
         FileUtils.mkdir_p("#{backup_path}#{project_id}") unless Dir.exist?("#{backup_path}#{project_id}")
-        FileUtils.cp(log_path, ("#{backup_path}#{project_id}/" + log_name))
-        FileUtils.cp("#{project_path}/#{FLAGS_FILENAME}", "#{backup_path}#{project_id}/")
-        FileUtils.cp("#{project_path}/scenario.xml", "#{backup_path}#{project_id}/")
-        FileUtils.cp("#{project_path}/Vagrantfile", "#{backup_path}#{project_id}/")
+        FileUtils.cp(log_path, ("#{backup_path}#{project_id}/" + log_name)) if File.exist? log_path
+        FileUtils.cp("#{project_path}/#{FLAGS_FILENAME}", "#{backup_path}#{project_id}/") if File.exist? "#{project_path}/#{FLAGS_FILENAME}"
+        FileUtils.cp("#{project_path}/scenario.xml", "#{backup_path}#{project_id}/") if File.exist? "#{project_path}/scenario.xml"
+        FileUtils.cp("#{project_path}/Vagrantfile", "#{backup_path}#{project_id}/") if File.exist? "#{project_path}/Vagrantfile"
 
         db_conn.finish
       }
