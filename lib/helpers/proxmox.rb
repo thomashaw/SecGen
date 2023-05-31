@@ -66,7 +66,7 @@ class ProxmoxFunctions
         file = File.open(id_path, 'r')
         node, id = file.read.split('/')
 
-        Print.std " Setting network for #{node}/#{id}"
+        Print.std " Setting network for #{node}/#{id} (network: #{options[:proxmoxnetwork]}, vlan: #{options[:proxmoxvlan].to_i})"
         connection.network_qemu_vm(id, node, options[:proxmoxnetwork], options[:proxmoxvlan].to_i||1)
       rescue => e
         Print.err "Error: #{e.message}"
