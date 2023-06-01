@@ -151,33 +151,6 @@
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/nmap"/>
 
-    <!--<utility module_path=".*/iceweasel">-->
-      <!--<input into="accounts">-->
-        <!--<datastore>accounts</datastore>-->
-      <!--</input>-->
-      <!--<input into="autostart">-->
-        <!--<value>true</value>-->
-      <!--</input>-->
-      <!--<input into="start_page">-->
-        <!--<datastore access="3">IP_addresses</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <!--<utility module_path=".*/pidgin">-->
-      <!--<input into="server_ip">-->
-        <!--<datastore access="3">IP_addresses</datastore>-->
-      <!--</input>-->
-      <!--<input into="accounts">-->
-        <!--<datastore access="0">accounts</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <!--<vulnerability module_path=".*/ssh_root_login">-->
-      <!--<input into="root_password">-->
-        <!--<datastore>hackerbot_access_root_password</datastore>-->
-      <!--</input>-->
-    <!--</vulnerability>-->
-
     <network type="private_network" >
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
@@ -188,12 +161,6 @@
   <system>
     <system_name>web_server</system_name>
     <base distro="Debian 9" type="desktop" name="KDE"/>
-
-    <!--<utility module_path=".*/parameterised_accounts">-->
-      <!--<input into="accounts">-->
-        <!--<datastore>accounts</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
 
     <vulnerability module_path=".*/unrealirc_3281_backdoor">
       <input into="strings_to_leak">
@@ -213,11 +180,6 @@
       </input>
     </service>
 
-    <!--<vulnerability module_path=".*/ssh_root_login">-->
-      <!--<input into="root_password">-->
-        <!--<datastore>hackerbot_access_root_password</datastore>-->
-      <!--</input>-->
-    <!--</vulnerability>-->
 
     <network type="private_network" >
       <input into="IP_address">
@@ -225,53 +187,6 @@
       </input>
     </network>
   </system>
-
-  <!--<system>-->
-    <!--<system_name>hackerbot_server</system_name>-->
-    <!--<base distro="Kali" name="MSF"/>-->
-
-    <!--<service type="ircd"/>-->
-
-    <!--<utility module_path=".*/metasploit_framework"/>-->
-    <!--<utility module_path=".*/handy_cli_tools"/>-->
-    <!--<utility module_path=".*/nmap"/>-->
-
-    <!--<service type="httpd"/>-->
-
-    <!--<utility module_path=".*/hackerbot">-->
-      <!--<input into="hackerbot_configs" into_datastore="hackerbot_instructions">-->
-        <!--<generator module_path=".*/ids_exfiltration">-->
-          <!--<input into="accounts">-->
-            <!--<datastore>accounts</datastore>-->
-          <!--</input>-->
-          <!--<input into="root_password">-->
-            <!--<datastore>hackerbot_access_root_password</datastore>-->
-          <!--</input>-->
-          <!--<input into="ids_server_ip">-->
-            <!--<datastore access="1">IP_addresses</datastore>-->
-          <!--</input>-->
-          <!--<input into="web_server_ip">-->
-            <!--<datastore access="2">IP_addresses</datastore>-->
-          <!--</input>-->
-          <!--<input into="hackerbot_server_ip">-->
-            <!--<datastore access="3">IP_addresses</datastore>-->
-          <!--</input>-->
-        <!--</generator>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <!--<network type="private_network" >-->
-      <!--<input into="IP_address">-->
-        <!--<datastore access="3">IP_addresses</datastore>-->
-      <!--</input>-->
-    <!--</network>-->
-
-    <!--<build type="cleanup">-->
-      <!--<input into="root_password">-->
-        <!--<generator type="strong_password_generator"/>-->
-      <!--</input>-->
-    <!--</build>-->
-  <!--</system>-->
 
   <system>
     <system_name>kali</system_name>
@@ -282,9 +197,6 @@
     <utility module_path=".*/nmap"/>
 
     <utility module_path=".*/armitage"/>
-
-    <!--TODO: REMOVE ME - THIS SHOULD BE IN THE KALI TEMPLATE-->
-    <!-- <utility module_path=".*/ovirt_agents"/> -->
 
     <network type="private_network" >
       <input into="IP_address">

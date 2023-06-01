@@ -198,33 +198,17 @@ Diner's Club  3000 0000 0000 04</value>
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+
+    <!-- an admin account only for spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
-
-  <!--<system>-->
-    <!--<system_name>server</system_name>-->
-    <!--<base platform="linux" distro="Debian 7.8"/>-->
-
-    <!--<utility module_path=".*/parameterised_accounts">-->
-      <!--<input into="accounts">-->
-        <!--<datastore>accounts</datastore>-->
-      <!--</input>-->
-    <!--</utility>-->
-
-    <!--<vulnerability module_path=".*/ssh_root_login">-->
-      <!--<input into="root_password">-->
-        <!--<value>randompassword</value>-->
-      <!--</input>-->
-    <!--</vulnerability>-->
-
-    <!--&lt;!&ndash;TODO: parameterise with business details&ndash;&gt;-->
-    <!--&lt;!&ndash;TODO: weechat config&ndash;&gt;-->
-    <!--<utility module_path=".*/weechat"/>-->
-
-    <!--<service module_path="services/unix/http/parameterised_website"/>-->
-    <!--<service type="ftp"/>-->
-
-    <!--<network type="private_network" range="172.16.0.0"/>-->
-  <!--</system>-->
 
   <system>
     <system_name>hackerbot_server</system_name>
@@ -251,15 +235,15 @@ Diner's Club  3000 0000 0000 04</value>
       </input>
     </utility>
 
-        <network type="private_network" >
-           <input into="IP_address">
-            <datastore access="1">IP_addresses</datastore>
-           </input>
-        </network>
+    <network type="private_network" >
+       <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+       </input>
+    </network>
 
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
   </system>

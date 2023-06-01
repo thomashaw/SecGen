@@ -88,15 +88,6 @@
       </input>
     </utility>
 
-    <!-- <utility module_path=".*/pidgin">
-      <input into="server_ip">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-      <input into="accounts">
-        <datastore access="0">user_accounts</datastore>
-      </input>
-    </utility> -->
-
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
         <datastore>desktop_root_password</datastore>
@@ -108,65 +99,6 @@
     <network type="private_network">
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
-  </system>
-
-
-  <system>
-    <system_name>staff_desktop</system_name>
-    <base distro="Debian 10" type="desktop" name="KDE"/>
-
-    <!--Create the users-->
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-    </utility>
-
-    <utility module_path=".*/kde_minimal">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-      <input into="autostart_konsole">
-        <value>true</value>
-      </input>
-    </utility>
-    <utility module_path=".*/handy_cli_tools"/>
-    <utility module_path=".*/hash_tools"/>
-    <utility module_path=".*/pam_modules"/>
-
-    <utility module_path=".*/iceweasel">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-      <input into="autostart">
-        <value>true</value>
-      </input>
-      <input into="start_page">
-        <datastore access="1">IP_addresses</datastore>
-      </input>
-    </utility>
-
-    <!-- <utility module_path=".*/pidgin">
-      <input into="server_ip">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-      <input into="accounts">
-        <datastore access="0">user_accounts</datastore>
-      </input>
-    </utility> -->
-
-    <vulnerability module_path=".*/ssh_root_login">
-      <input into="root_password">
-        <datastore>desktop_root_password</datastore>
-      </input>
-    </vulnerability>
-    <vulnerability type="access_control_misconfiguration"/>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="3">IP_addresses</datastore>
       </input>
     </network>
   </system>
@@ -217,6 +149,72 @@
   </system>
 
   <system>
+    <system_name>staff_desktop</system_name>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
+
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>user_accounts</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="accounts">
+        <datastore>user_accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/hash_tools"/>
+    <utility module_path=".*/pam_modules"/>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <datastore>user_accounts</datastore>
+      </input>
+      <input into="autostart">
+        <value>true</value>
+      </input>
+      <input into="start_page">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
+
+    <system>
+      <system_name>win7_desktop</system_name>
+      <base platform="windows" distro="7"/>
+
+      <utility module_path=".*/parameterised_accounts" platform="windows">
+        <input into="accounts">
+          <datastore>user_accounts</datastore>
+        </input>
+      </utility>
+
+      <network type="private_network">
+        <input into="IP_address">
+          <datastore access="2">IP_addresses</datastore>
+        </input>
+      </network>
+    </system>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>desktop_root_password</datastore>
+      </input>
+    </vulnerability>
+    <vulnerability type="access_control_misconfiguration"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="3">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
     <system_name>auth_server</system_name>
     <base distro="Debian 10" type="desktop"/>
 
@@ -254,63 +252,5 @@
       </input>
     </network>
   </system>
-
-
-  <system>
-    <system_name>win7_desktop</system_name>
-    <base platform="windows" distro="7"/>
-
-    <utility module_path=".*/parameterised_accounts" platform="windows">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-    </utility>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="6">IP_addresses</datastore>
-      </input>
-    </network>
-  </system>
-  <!-- <system>
-    <system_name>sec_spec_server</system_name>
-    <base distro="Kali" name="MSF"/>
-
-    <service type="ircd"/>
-
-    <utility module_path=".*/metasploit_framework"/>
-    <utility module_path=".*/nmap"/>
-    <utility module_path=".*/handy_cli_tools"/>
-
-    <service type="httpd"/>
-
-    <utility module_path=".*/hackerbot">
-      <input into="hackerbot_configs" into_datastore="hackerbot_instructions">
-        <generator module_path=".*/hb_assignment_spec">
-          <input into="accounts">
-            <datastore>user_accounts</datastore>
-          </input>
-          <input into="root_password">
-            <datastore>desktop_root_password</datastore>
-          </input>
-          <input into="server_ip">
-            <datastore access="1">IP_addresses</datastore>
-          </input>
-        </generator>
-      </input>
-    </utility>
-
-    <network type="private_network" >
-       <input into="IP_address">
-        <datastore access="2">IP_addresses</datastore>
-       </input>
-    </network>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <generator type="strong_password_generator"/>
-      </input>
-    </build>
-  </system> -->
 
 </scenario>

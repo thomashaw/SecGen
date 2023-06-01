@@ -45,8 +45,6 @@
     <input into_datastore="IP_addresses">
       <value>172.16.0.2</value>
       <value>172.16.0.3</value>
-      <value>172.16.0.4</value>
-      <value>172.16.0.5</value>
     </input>
 
     <utility module_path=".*/iceweasel">
@@ -101,7 +99,7 @@
 
     <network type="private_network">
       <input into="IP_address">
-        <datastore access="3">IP_addresses</datastore>
+        <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
     <build type="cleanup">

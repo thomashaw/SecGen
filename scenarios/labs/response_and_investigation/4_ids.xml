@@ -227,6 +227,16 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+
+    <!-- an admin account only for spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -266,6 +276,13 @@
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
+
+    <!-- an admin account only for spoilers/administration of the challenge -->
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -280,8 +297,6 @@
 
     <vulnerability module_path=".*/distcc_exec"/>
 
-    <!--TODO: FIXME ftp modules are currently broken-->
-    <!--<service module_path=".*/vsftpd"/>-->
 
     <!--TODO: Fix the apache module -->
     <service type="httpd" module_path=".*/apache.*"/>
@@ -303,6 +318,13 @@
         <datastore access="2">IP_addresses</datastore>
       </input>
     </network>
+
+    <!-- an admin account only for spoilers/administration of the challenge -->
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -345,9 +367,10 @@
       </input>
     </network>
 
+    <!-- an admin account only for spoilers/administration of the challenge -->
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
   </system>

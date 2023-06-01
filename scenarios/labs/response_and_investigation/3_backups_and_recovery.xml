@@ -212,6 +212,16 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+
+    <!-- an admin account only for spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -230,14 +240,18 @@
       </input>
     </vulnerability>
 
-    <!-- TODO: weechat config -->
-    <!-- <utility module_path=".*/weechat"/> -->
-
     <network type="private_network" >
       <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
+
+    <!-- an admin account only for spoilers/administration of the challenge -->
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -274,11 +288,13 @@
       </input>
     </network>
 
+    <!-- an admin account only for spoilers/administration of the challenge -->
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
+
   </system>
 
 </scenario>

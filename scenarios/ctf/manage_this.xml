@@ -34,31 +34,6 @@
         <keyword>FILE - TRANSFER PROTOCOL (FTP)</keyword>
     </CyBOK>
 
-    <system>
-        <system_name>server</system_name>
-        <base distro="Debian 10" type="desktop" name="KDE" />
-
-        <vulnerability module_path=".*/glpi_php_injection">
-            <input into="strings_to_leak">
-                <generator type="flag_generator" />
-            </input>
-            <input into="strings_to_pre_leak">
-                <encoder type="^(ascii|alpha)_reversible$" difficulty="low">
-                    <input into="strings_to_encode">
-                        <generator type="flag_generator" />
-                    </input>
-                </encoder>
-            </input>
-        </vulnerability>
-
-        <vulnerability module_path=".*/vsftpd_234_backdoor" />
-
-        <network type="private_network">
-            <input into="IP_address">
-                <datastore access="1">IP_addresses</datastore>
-            </input>
-        </network>
-    </system>
 
     <system>
         <system_name>attack_vm</system_name>
@@ -92,5 +67,32 @@
             </input>
         </network>
     </system>
+
+    <system>
+        <system_name>server</system_name>
+        <base distro="Debian 10" type="desktop" name="KDE" />
+
+        <vulnerability module_path=".*/glpi_php_injection">
+            <input into="strings_to_leak">
+                <generator type="flag_generator" />
+            </input>
+            <input into="strings_to_pre_leak">
+                <encoder type="^(ascii|alpha)_reversible$" difficulty="low">
+                    <input into="strings_to_encode">
+                        <generator type="flag_generator" />
+                    </input>
+                </encoder>
+            </input>
+        </vulnerability>
+
+        <vulnerability module_path=".*/vsftpd_234_backdoor" />
+
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </network>
+    </system>
+
 
 </scenario>
