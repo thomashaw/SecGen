@@ -57,9 +57,15 @@
       <value>172.16.0.2</value>
     </input>
 
-    <input into_datastore="kali_root_account">
-      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+    <input into_datastore="kali_account">
+      <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
     </input>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>kali_account</datastore>
+      </input>
+    </utility>
 
     <utility module_path=".*/kali_web"/>
     <utility module_path=".*/metasploit_framework"/>
@@ -68,7 +74,7 @@
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
-        <datastore>kali_root_account</datastore>
+        <datastore>kali_account</datastore>
       </input>
       <input into="autostart">
         <value>true</value>
@@ -93,6 +99,14 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 </scenario>

@@ -206,7 +206,8 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
       </generator>
     </input>
 
-    <input into_datastore="desktop_root_password">
+    <!-- an admin account used for hackerbot access to the desktop and also spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
     </input>
 
@@ -254,7 +255,7 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -264,10 +265,6 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
       </input>
     </network>
 
-    <!-- an admin account only for spoilers/administration of the challenge -->
-    <input into_datastore="spoiler_admin_pass">
-      <generator type="strong_password_generator"/>
-    </input>
     <build type="cleanup">
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
@@ -363,7 +360,7 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -398,7 +395,7 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
             <datastore>user_accounts_desktop</datastore>
           </input>
           <input into="root_password">
-            <datastore>desktop_root_password</datastore>
+            <datastore>spoiler_admin_pass</datastore>
           </input>
           <input into="server_ip">
             <datastore access="1">IP_addresses</datastore>
@@ -424,9 +421,11 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
     <system_name>kali_cracker</system_name>
     <base distro="Kali" name="MSF"/>
 
-    <input into_datastore="kali_root_account">
-      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
-    </input>
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+    </utility>
 
     <utility module_path=".*/kali_pwtools"/>
     <utility module_path=".*/metasploit_framework"/>
@@ -435,7 +434,7 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
-        <datastore>kali_root_account</datastore>
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
       <input into="autostart">
         <value>true</value>
@@ -450,6 +449,11 @@ A Hackerbot lab. Work through the lab instructions, then when prompted interact 
         <datastore access="3">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 </scenario>

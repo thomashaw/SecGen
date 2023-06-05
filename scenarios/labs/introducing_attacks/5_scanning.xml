@@ -87,15 +87,26 @@ This week we learn how to scan networks to get an understanding of and to map ou
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
   </system>
 
   <system>
     <system_name>kali</system_name>
     <base distro="Kali" name="MSF"/>
 
-    <input into_datastore="kali_root_account">
-      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
-    </input>
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+    </utility>
 
     <utility module_path=".*/metasploit_framework"/>
     <utility module_path=".*/handy_cli_tools"/>
@@ -108,6 +119,12 @@ This week we learn how to scan networks to get an understanding of and to map ou
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
   </system>
 
 </scenario>

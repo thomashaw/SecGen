@@ -53,7 +53,8 @@
       </generator>
     </input>
 
-    <input into_datastore="desktop_root_password">
+    <!-- an admin account used for hackerbot access to the desktop and also spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
     </input>
 
@@ -90,7 +91,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
     <vulnerability type="access_control_misconfiguration"/>
@@ -101,6 +102,11 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -117,7 +123,6 @@
     <utility module_path=".*/handy_cli_tools"/>
 
     <vulnerability type="ftp"/>
-    <!-- TODO <service type="smb"/> -->
 
     <service module_path="services/unix/http/parameterised_website">
       <input into="organisation" into_datastore="organisation">
@@ -135,7 +140,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
     <vulnerability type="access_control_misconfiguration"/>
@@ -146,6 +151,11 @@
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -198,11 +208,16 @@
           <datastore access="2">IP_addresses</datastore>
         </input>
       </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
     </system>
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
     <vulnerability type="access_control_misconfiguration"/>
@@ -212,6 +227,11 @@
         <datastore access="3">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -230,7 +250,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -240,6 +260,11 @@
         <datastore access="4">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -251,6 +276,11 @@
         <datastore access="5">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 </scenario>

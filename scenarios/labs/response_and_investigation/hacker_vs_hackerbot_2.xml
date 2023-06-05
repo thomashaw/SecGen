@@ -151,7 +151,8 @@
       </generator>
     </input>
 
-    <input into_datastore="hackerbot_access_root_password">
+    <!-- an admin account used for hackerbot access to the desktop and also spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
     </input>
 
@@ -200,7 +201,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>hackerbot_access_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -209,6 +210,11 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 
@@ -240,7 +246,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>hackerbot_access_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -249,6 +255,11 @@
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 
@@ -275,7 +286,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>hackerbot_access_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -284,6 +295,11 @@
         <datastore access="2">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -305,7 +321,7 @@
             <datastore>accounts</datastore>
           </input>
           <input into="root_password">
-            <datastore>hackerbot_access_root_password</datastore>
+            <datastore>spoiler_admin_pass</datastore>
           </input>
           <input into="ids_server_ip">
             <datastore access="1">IP_addresses</datastore>
@@ -332,6 +348,11 @@
     <build type="cleanup">
       <input into="root_password">
         <generator type="strong_password_generator"/>
+      </input>
+    </build>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
   </system>
@@ -388,7 +409,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>hackerbot_access_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -397,6 +418,11 @@
         <datastore access="4">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 </scenario>

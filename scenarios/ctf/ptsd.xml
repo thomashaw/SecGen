@@ -48,9 +48,15 @@
       <value>172.16.0.3</value>
     </input>
 
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+    </utility>
+
     <utility module_path=".*/iceweasel">
       <input into="accounts">
-        <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
       <input into="autostart">
         <value>false</value>
@@ -65,6 +71,14 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
   <system>
@@ -106,6 +120,11 @@
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 <!-- TODO further testing, including that the /home/www-data is correctly created with www-data ownership  -->

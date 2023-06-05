@@ -147,9 +147,12 @@
     </vulnerability>
 
     <network module_path=".*/private_network_1"/>
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
   </system>

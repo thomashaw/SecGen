@@ -148,7 +148,8 @@ A Hackerbot lab. Work through the labsheet, then when prompted interact with Hac
       </generator>
     </input>
 
-    <input into_datastore="hackerbot_access_root_password">
+    <!-- an admin account used for hackerbot access to the desktop and also spoilers/administration of the challenge -->
+    <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
     </input>
 
@@ -203,7 +204,7 @@ A Hackerbot lab. Work through the labsheet, then when prompted interact with Hac
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>hackerbot_access_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -212,6 +213,11 @@ A Hackerbot lab. Work through the labsheet, then when prompted interact with Hac
         <datastore access="0">IP_addresses</datastore>
       </input>
     </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
   </system>
 
 
@@ -234,7 +240,7 @@ A Hackerbot lab. Work through the labsheet, then when prompted interact with Hac
             <datastore>accounts</datastore>
           </input>
           <input into="root_password">
-            <datastore>hackerbot_access_root_password</datastore>
+            <datastore>spoiler_admin_pass</datastore>
           </input>
         </generator>
       </input>
@@ -249,6 +255,11 @@ A Hackerbot lab. Work through the labsheet, then when prompted interact with Hac
     <build type="cleanup">
       <input into="root_password">
         <generator type="strong_password_generator"/>
+      </input>
+    </build>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
   </system>
