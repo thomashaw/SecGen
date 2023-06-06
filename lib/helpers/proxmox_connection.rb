@@ -169,8 +169,8 @@ module Proxmox
     end
 
     def network_qemu_vm(vm_id, node, nic, vlan)
-      # random MAC address (starting with "ff" ensures a valid mac that isn't multicast or global - http://sqa.fyicenter.com/1000208_MAC_Address_Validator.html)
-      mac = "ff:" + 5.times.map { '%02x' % rand(0..255) }.join(':')
+      # random MAC address (starting with "1a" ensures a valid mac that isn't multicast or global - http://sqa.fyicenter.com/1000208_MAC_Address_Validator.html)
+      mac = "1a:" + 5.times.map { '%02x' % rand(0..255) }.join(':')
       response = post "/nodes/#{node}/qemu/#{vm_id}/config/", {node: node, vmid: vm_id, net0: "virtio=#{mac},bridge=#{nic},firewall=1,tag=#{vlan.to_s}" }
       wait_for_completion task_response: response, timeout_message: 'vagrant_proxmox.errors.shutdown_vm_timeout'
     end

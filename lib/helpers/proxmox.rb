@@ -37,7 +37,7 @@ class ProxmoxFunctions
         Print.std " Creating snapshot for #{node}/#{id}"
         connection.snapshot_qemu_vm(id, node)
       rescue => e
-        Print.err "Error: #{e.message}"
+        Print.err "Error: Failed to create snapshot: #{e.message}"
       ensure
         file.close if file
       end
@@ -67,9 +67,10 @@ class ProxmoxFunctions
         node, id = file.read.split('/')
 
         Print.std " Setting network for #{node}/#{id} (network: #{options[:proxmoxnetwork]}, vlan: #{options[:proxmoxvlan].to_i})"
-        connection.network_qemu_vm(id, node, options[:proxmoxnetwork], options[:proxmoxvlan].to_i||1)
+        status = connection.network_qemu_vm(id, node, options[:proxmoxnetwork], options[:proxmoxvlan].to_i||1)
       rescue => e
-        Print.err "Error: #{e.message}"
+        Print.err "Error: Failed to set network: #{e.message}"
+        exit(1)
       ensure
         file.close if file
       end
