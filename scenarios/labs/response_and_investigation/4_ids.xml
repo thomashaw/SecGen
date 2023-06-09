@@ -284,7 +284,7 @@
 
   <system>
     <system_name>web_server</system_name>
-    <base platform="linux" distro="Debian 9" type="server"/>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
 
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts">
