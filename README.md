@@ -345,6 +345,7 @@ This project is supported by a Cyber Security Body of Knowledge (CyBOK) resource
 This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.1 grant (2021-2022).
 This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.1 grant (2022-2023).
 This project is supported by a CyberASAP (Cyber Security Academic Startup Accelerator Programme) Innovate UK grant (2022-2023).
+This project is supported by a Leeds Beckett University Teaching Excellence Fund grant (2023).
 
 ## Contributing
 We encourage contributions to the project.
