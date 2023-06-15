@@ -29,7 +29,9 @@ class gitlist_040::configure {
 
   file { $leaked_files_path:
     ensure => directory,
-    before => Exec['create-repo-file_leak']
+    before => Exec['create-repo-file_leak'],
+    owner => 'www-data',
+    mode => '0700'
   } ->
 
   exec { 'create-repo-file_leak':
