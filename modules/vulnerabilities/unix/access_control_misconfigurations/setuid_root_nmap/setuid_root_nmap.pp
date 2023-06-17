@@ -1,1 +1,1 @@
-include setuid_nmap::init
+include setuid_root_nmap::init
