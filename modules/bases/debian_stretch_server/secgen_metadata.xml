@@ -17,7 +17,7 @@
   <url>https://app.vagrantup.com/secgen/boxes/debian_stretch_server/versions/1.3/providers/virtualbox.box</url>
   <esxi_url>https://app.vagrantup.com/redwiz666/boxes/debian_stretch_server/versions/1.0.0/providers/vmware.box</esxi_url>
   <!-- use the ovirt kde template even for servers, so there are less bases to maintain -->
-  <ovirt_template>stretch_desktop_kde_20210911</ovirt_template>
+  <ovirt_template>stretch_desktop_kde_20230615</ovirt_template>
   <proxmox_template>StretchDesktopKDE20210911</proxmox_template>
 
   <software_license>various</software_license>

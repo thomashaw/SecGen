@@ -16,7 +16,7 @@
   <distro>Kali Linux Rolling</distro>
   <url>https://app.vagrantup.com/secgen/boxes/kali_light_msf/versions/1.0/providers/virtualbox.box</url>
   <esxi_url></esxi_url>
-  <ovirt_template>kali_linux_msf_20221031</ovirt_template>
+  <ovirt_template>kali_linux_msf_20230615</ovirt_template>
   <proxmox_template>kalilinuxmsf20221031</ovirt_template>
 
 
