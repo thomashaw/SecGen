@@ -8,7 +8,7 @@ You can browse the list below in terms of the [CyBOK Knowledge Areas, and Topics
 
 > The all lowercase topics and keywords are provided by NCSC for CyBOK mapping, while all caps indicates it is taken from the [CyBOK mapping reference](https://www.cybok.org/media/downloads/CyBOk-mapping-reference-v1.1.pdf), mixed case keywords are ones that we have added.
 
-> Cyber Securtiy Body of Knowledge (CyBOK) Issue 1.1 is Crown Copyright, The National Cyber Security Centre 2021, licensed under the Open Government Licence http://www.nationalarchives.gov.uk/doc/open-government-licence/.
+> Cyber Security Body of Knowledge (CyBOK) Issue 1.1 is Crown Copyright, The National Cyber Security Centre 2021, licensed under the Open Government Licence http://www.nationalarchives.gov.uk/doc/open-government-licence/.
 
 # Scenarios Indexed By CyBOK Knowledge Area (KA)
 
@@ -3448,5 +3448,3 @@ Command to build VMs and start scenario:
 ```ruby secgen.rb -s scenarios/labs/web_security/websec_lab.xml run```
 
 [View source](scenarios/labs/web_security/websec_lab.xml)
-
-
