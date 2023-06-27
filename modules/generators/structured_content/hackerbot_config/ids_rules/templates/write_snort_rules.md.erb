@@ -41,7 +41,7 @@ Keep in mind that in recent years more and more network based functionality is m
 
 Note that in Wireshark you can view individual packets, including IP and TCP headers. Wireshark also has support for viewing TCP streams, so that you can view the traffic at the application layer as it is sent between the two computers (such as, client and server). (Simply right-click on a TCP entry and select *Follow > TCP Stream*.)
 
-**On the ids_snoop VM:**
+**On the ids_monitor VM:**
 
 ==Start Wireshark:==
 
@@ -50,14 +50,14 @@ kdesudo wireshark
 ```
 > For this exercise you can ignore the warnings about running Wireshark as root, or read online to learn to use setcap to grant Wireshark more specific privileges.
 
-Start capturing, listening to the interface with IP address <%= $ids_snoop_ip %>.
+Start capturing, listening to the interface with IP address <%= $ids_monitor_ip %>.
 > If you are not sure, list the interfaces with `ifconfig` or `ip a s`
 
 **On the desktop VM:**
 
 While Wireshark is listening, ==access a web page from Firefox, browse to [*http://<%= $web_server_ip %>*](http://<%= $web_server_ip %>)== (In a new tab.)
 
-**On the ids_snoop VM:**
+**On the ids_monitor VM:**
 
 Note that Wireshark uses colouring to make it easier to view traffic at a glance. ==View the colouring rules== via *View > Coloring Rules*.
 
@@ -116,7 +116,7 @@ So for example the body could be:
 And bringing all this together a Snort rule could read:
 > `alert tcp any any -> <%= $web_server_ip %> 80 (msg: "Website access <%= $random_string %>"; content: "GET /"; sid:1000001; rev:1;)`
 
-**On the ids_snoop VM:**
+**On the ids_monitor VM:**
 
 ==Add this rule== to /etc/snort/rules/local.rules:
 
@@ -138,7 +138,7 @@ sudo service snort restart
 
 While Wireshark is listening, ==access a web page from Firefox == browse to ==[*http://<%= $web_server_ip %>*](http://<%= $web_server_ip %>)== (In a new tab.)
 
-**On the ids_snoop VM:**
+**On the ids_monitor VM:**
 ==View the Snort alert file, to confirm your new rule generated an alert==
 
 ```bash

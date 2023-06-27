@@ -1,6 +1,6 @@
 ## Intrusion detection system (IDS) monitoring basics
 
-Continuing **on the ids_snoop VM:**
+Continuing **on the ids_monitor VM:**
 
 ==Make a backup== of the snort's configuration file in case anything goes wrong:
 
@@ -41,7 +41,7 @@ Snort should now be running, monitoring network traffic for activity.
 
 This should trigger an alert from Snort, which is stored in an alerts log file.
 
-**From the ids_snoop**, ==follow the Snort alert log== file by running (you may like to do this from a new tab):
+**From the ids_monitor**, ==follow the Snort alert log== file by running (you may like to do this from a new tab):
 
 ```bash
 sudo tail -f /var/log/snort/alert
@@ -76,7 +76,7 @@ You can use tcpdump's various flags to change the way it is displayed, or you co
 
 ##Configuring Snort
 
-**On the ids_snoop**, ==edit /etc/snort/snort.conf==; for example:
+**On the ids_monitor**, ==edit /etc/snort/snort.conf==; for example:
 
 ```bash
 vi /etc/snort/snort.conf

@@ -217,6 +217,12 @@
       </input>
     </utility>
 
+    <utility module_path=".*/mirror_traffic_to_ids_iptables">
+      <input into="ids_IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
+
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
@@ -237,7 +243,7 @@
   </system>
 
   <system>
-    <system_name>ids_snoop</system_name>
+    <system_name>ids_monitor</system_name>
     <base distro="Debian 10" type="desktop" name="KDE"/>
 
     <utility module_path=".*/parameterised_accounts">
@@ -303,6 +309,12 @@
         <datastore>organisation</datastore>
       </input>
     </service>-->
+
+    <utility module_path=".*/mirror_traffic_to_ids_iptables">
+      <input into="ids_IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
