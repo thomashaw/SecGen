@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Mirror traffic to IDS via IPtables rules</name>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>Apache v2</module_license>
+  <description>Forwards all traffic to an IDS, such as Snort. Uses IPtables TEE feature.</description>
+
+  <type>ids_tools</type>
+  <platform>linux</platform>
+
+  <!-- required: where should we send the copied packets? -->
+  <read_fact>ids_IP_address</read_fact>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</utility>

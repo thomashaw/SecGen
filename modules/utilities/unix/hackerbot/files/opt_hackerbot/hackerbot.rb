@@ -434,7 +434,7 @@ def read_bots (irc_server_ip_address)
                     m.reply bots[bot_name]['messages']['shell_fail_message']
                 end
                 # under specific situations reveal the error message to the user
-                if lines =~ /command not found/
+                if defined?(lines) && lines =~ /command not found/
                     m.reply "Looks like there is some software missing: #{lines}"
                 end
               end
