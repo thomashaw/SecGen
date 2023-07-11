@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+
+  <name>Security Shepherd</name>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>The OWASP Security Shepherd Project is a web and mobile application security training
+    platform. Security Shepherd has been designed to foster and improve security awareness among a
+    varied skill-set demographic. The aim of this project is to take AppSec novices or experienced
+    engineers and sharpen their penetration testing skill set to security expert status.</description>
+
+  <type>web_training_platform</type>
+  <type>webapp</type>
+  <platform>linux</platform>
+
+  <reference>https://github.com/OWASP/SecurityShepherd</reference>
+
+  <software_name>security_shepherd</software_name>
+  <software_license>GPLv3</software_license>
+
+  <requires>
+    <module_path>.*mysql.*compatible.*</module_path>
+  </requires>
+
+</vulnerability>
