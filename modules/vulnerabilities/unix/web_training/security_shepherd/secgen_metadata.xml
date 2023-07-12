@@ -13,7 +13,9 @@
 
   <type>web_training_platform</type>
   <type>webapp</type>
-  <platform>linux</platform>
+  <privilege>none</privilege>
+  <access>user_action</access>
+  <platform>unix</platform>
 
   <reference>https://github.com/OWASP/SecurityShepherd</reference>
 

@@ -3,35 +3,25 @@ class security_shepherd::mariadb {
   $user = 'root'
   $db_pass = 'CowSaysMoo'
 
-  file { '/tmp/mysql_secure.sh':
-    ensure => file,
-    source => 'puppet:///modules/security_shepherd/mysql_secure.sh',
-  }
-  -> exec { 'chmod-mysql-secure':
-    cwd     => '/tmp',
-    command => 'chmod +x mysql_secure.sh',
-  }
-  -> exec { 'mysql-secure-install':
-    provider => 'shell',
-    cwd      => '/tmp',
-    command  => "./mysql_secure.sh ${db_pass}",
-  }
+  Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
-  mysql::db {  'core':
-    user     => $user,
-    password => $db_pass,
-    dbname   => 'core',
-    host     => 'localhost',
-    grant    => ['ALL'],
+  # Execute this before we lock down root permissions.
+  file { '/tmp/grant.sql':
+    ensure => file,
+    source => 'puppet:///modules/security_shepherd/grant.sql',
+  }
+  -> exec { 'grant-root':
+    cwd     => '/tmp',
+    command => "mysql -u ${user} -p${db_pass} < grant.sql",
   }
 
   file { '/tmp/coreSchema.sql':
     ensure => file,
-    source => 'puppet://modules/modules/security_shepherd/coreSchema.sql',
+    source => 'puppet:///modules/security_shepherd/coreSchema.sql',
   }
   -> file { '/tmp/moduleSchemas.sql':
     ensure => file,
-    source => 'puppet://modules/modules/security_shepherd/moduleSchemas.sql',
+    source => 'puppet:///modules/security_shepherd/moduleSchemas.sql',
   }
 
   exec { 'create-core':
