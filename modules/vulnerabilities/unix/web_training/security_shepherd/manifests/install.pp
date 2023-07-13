@@ -17,6 +17,11 @@ class security_shepherd::install {
   exec { 'remove-default-site':
     command => 'rm -rf /var/lib/tomcat9/webapps/*',
   }
+  # If Security Shepherd ever updates, this will neep updating. 
+  # Ensure you have Maven installed, then run:
+  # mvn -Pdocker clean install -DskipTests
+  # The war file is usually within the generated target directory
+  # if it cannot be found reference the pom.xml file for all relevant files.
   -> file { '/var/lib/tomcat9/webapps/ROOT.war':
     ensure  => file,
     source  => 'puppet:///modules/security_shepherd/ROOT.war',
