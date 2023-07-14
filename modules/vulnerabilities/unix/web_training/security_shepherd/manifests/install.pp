@@ -1,18 +1,9 @@
 # Installer process
 class security_shepherd::install {
+  include stdlib
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
-  package { 'install-tomcat':
-    ensure => installed,
-    name   => 'tomcat9',
-  }
-  -> package { 'install-mariadb':
-    ensure => installed,
-    name   => 'mariadb-server',
-  } -> package { 'install-jdk11':
-    ensure => installed,
-    name   => 'openjdk-11-jdk',
-  }
+  ensure_packages(['tomcat9', 'mariadb-server', 'openjdk-11-jdk'], {ensure => installed})
 
   exec { 'remove-default-site':
     command => 'rm -rf /var/lib/tomcat9/webapps/*',
