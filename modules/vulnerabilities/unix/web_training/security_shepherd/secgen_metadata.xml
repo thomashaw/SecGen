@@ -17,6 +17,16 @@
   <access>user_action</access>
   <platform>unix</platform>
 
+  <read_fact>unix_username</read_fact>
+
+  <default_input into="unix_username">
+    <generator type="username_generator" />
+  </default_input>
+
+  <default_input into="flag_store">
+    <generator type="flag_generator" />
+  </default_input>
+
   <reference>https://github.com/OWASP/SecurityShepherd</reference>
 
   <software_name>security_shepherd</software_name>

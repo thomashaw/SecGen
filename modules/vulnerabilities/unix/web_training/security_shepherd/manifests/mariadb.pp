@@ -1,5 +1,7 @@
 # Mariadb setup
 class security_shepherd::mariadb {
+  $secgen_parameters=secgen_functions::get_parameters($::base64_inputs_file)
+  $unix_username = $secgen_parameters['unix_username'][0]
   $user = 'root'
   $db_pass = 'CowSaysMoo'
 
@@ -16,8 +18,8 @@ class security_shepherd::mariadb {
   }
 
   file { '/tmp/coreSchema.sql':
-    ensure => file,
-    source => 'puppet:///modules/security_shepherd/coreSchema.sql',
+    ensure  => file,
+    content => template('security_shepherd/coreSchema.sql.erb'),
   }
   -> file { '/tmp/moduleSchemas.sql':
     ensure => file,
