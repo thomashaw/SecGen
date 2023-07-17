@@ -2,13 +2,13 @@
 <build xmlns="http://www.github/cliffe/SecGen/build"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/build">
-  <name>Cleanup Module</name>
+  <name>Cleanup Windows Module</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
   <description>Cleanup module which remove traces left on the box during setup. </description>
 
   <type>cleanup</type>
-  <platform>linux</platform>
+  <platform>windows</platform>
 
   <read_fact>remove_history</read_fact>
   <read_fact>root_password</read_fact>
@@ -31,7 +31,13 @@
     <value>false</value>
   </default_input>
 
-  <requires>
-    <module_path>utilities/unix/system/.*/accounts</module_path>
-  </requires>
+  <!-- for now we just make all windows modules conflict with linux bases -->
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+  <!-- <requires>
+    <module_path>utilities/windows/system/.*/accounts</module_path>
+  </requires> -->
 </build>
