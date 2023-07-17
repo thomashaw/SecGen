@@ -27,10 +27,6 @@
   </requires>
 
   <requires>
-    <name>Git VCS</name>
-  </requires>
-
-  <requires>
 <!--    <module_path>.*elasticsearch</module_path>-->
     <module_path>.*elasticsearch</module_path>
   </requires>
