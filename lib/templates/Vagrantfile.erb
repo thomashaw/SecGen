@@ -256,7 +256,6 @@ when "proxmox" # nothing
 <%     # Static networking -%>
 <%     else -%>
 <%      # Static oVirt/Proxmox networking -%>
-# @base_template: <%= @base_template %>
 <%       if (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template !~ /win/i -%>
 <%         interface = 'ens3' if provider =="ovirt" -%>
 <%         interface = 'ens18' if provider =="proxmox" -%>
