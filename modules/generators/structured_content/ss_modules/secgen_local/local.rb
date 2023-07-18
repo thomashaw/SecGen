@@ -10,50 +10,24 @@ class SSModuleListGenerator < StringGenerator
 
   def initialize
     super
-    self.filter = ''
+
+    self.module_name = 'Security Shepherd Module Generator'
+    self.filter = []
   end
 
-  def run
-    read_arguments
-    self.outputs = []
+  def generate
     modules = File.new(TEMPLATE_PATH)
     if not self.filter.empty?
-      self.filter.split(',').each { |criteria|
+      self.filter.each { |criteria|
         IO.foreach(modules) { |line|
           # Very basic filter to capture matches based on a filter string
           if "#{line}".match(criteria)
-            self.outputs << "#{line}"
+            self.outputs << "#{line}".strip
           end
         }
       }
     else
-      modules.each { |line| self.outputs << "#{line}"}
-    end
-    puts self.outputs
-  end
-
-  def read_arguments
-    if ARGV.size == 0
-      begin
-        args_array = []
-        ARGF.each do |arg|
-          arg.strip.split(' ').each do |split|
-            args_array << split
-          end
-        end
-        ARGV.unshift(*args_array)
-      rescue
-        # Do nothing...
-      end
-    end
-
-    opts = get_options
-
-    # process option arguments
-    opts.each do |opt, arg|
-      if opt == '--filter'
-        self.filter = arg
-      end
+      modules.each { |line| self.outputs << "#{line}".strip}
     end
   end
 
@@ -62,15 +36,11 @@ class SSModuleListGenerator < StringGenerator
   end
 
   def process_options(opt, arg)
-    unless option_is_valid(opt)
-      Print.err "Argument not valid: #{arg}"
-      usage
-      exit
-    end
+    super
 
     case opt
       when '--filter'
-        usage
+        self.filter << arg
     end
   end
 

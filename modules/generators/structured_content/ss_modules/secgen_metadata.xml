@@ -3,20 +3,18 @@
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-
-    <name>Filezilla Config File Generator</name>
-    <author>Jack Biggs</author>
+    <name>Security Shepherd module list Generator</name>
+    <author>James Davis</author>
     <module_license>MIT</module_license>
-    <description>Creates a Filezilla config file which includes a host, a port and a password</description>
+    <description>Generates a list of strings based on security shepherd modules
+    </description>
 
-    <type>string_generator</type>
-    <type>local_calculation</type>
+    <type>ss_modules</type>
     <platform>linux</platform>
 
-    <read_fact>host</read_fact>
-    <read_fact>port</read_fact>
-    <read_fact>password</read_fact>
+    <!--Takes
+    a comma seperated list I.E SQL,CSRF-->
+    <read_fact>filter</read_fact>
 
-    <output_type>config_file</output_type>
-
+    <output_type>module_list</output_type>
 </generator>
