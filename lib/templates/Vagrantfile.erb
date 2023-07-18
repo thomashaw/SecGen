@@ -187,7 +187,7 @@ end
 
     <%  # Adds line that stops cloud-init from attempting to grab meta-data as eth0 is overwritten with provided networks.
         # TODO: Remove when mutli-network vagrant-plugin issue is resolved
-        if provider == "ovirt" && @base_template && @base_template !~ /win/ -%>
+        if provider == "ovirt" && @base_template && @base_template !~ /win/i -%>
         <%= system.name %>.vm.provision 'shell', inline: "echo 'datasource_list: [ None ] '> /etc/cloud/cloud.cfg.d/90_dpkg.cfg"
     <%  end -%>
 
@@ -255,8 +255,9 @@ when "proxmox" # nothing
      # ip_address_for_<%= system.name %>=DHCP
 <%     # Static networking -%>
 <%     else -%>
-<%      # Static oVirt networking -%>
-<%       if (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template !~ /win/ -%>
+<%      # Static oVirt/Proxmox networking -%>
+# @base_template: <%= @base_template %>
+<%       if (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template !~ /win/i -%>
 <%         interface = 'ens3' if provider =="ovirt" -%>
 <%         interface = 'ens18' if provider =="proxmox" -%>
 <%         if @base_template =~ /kali|debian_desktop_kde|debian_wheezy_server/ -%>
@@ -267,7 +268,7 @@ when "proxmox" # nothing
            <%= system.name %>.vm.provision 'shell', inline: "echo '' > /etc/environment"
           <% # Below string is used within testing, do not delete. -%>
           # ip_address_for_<%= system.name %>=<%= resolve_network(selected_module)%>
-<%       elsif (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template =~ /win/ -%>
+<%       elsif (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template =~ /win/i -%>
 <%         # Windows on oVirt/Proxmox
            # re-activate windows -%>
           <%= system.name %>.vm.provision 'shell', inline: 'cscript //b c:\windows\system32\slmgr.vbs /ato'
