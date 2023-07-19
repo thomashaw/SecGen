@@ -18,13 +18,19 @@
   <platform>unix</platform>
 
   <read_fact>unix_username</read_fact>
+  <read_fact>modules</read_fact>
+  <read_fact>flag_store</read_fact>
 
   <default_input into="unix_username">
     <generator type="username_generator" />
   </default_input>
 
+  <default_input into="modules">
+    <generator type="ss_modules" />
+  </default_input>
+
   <default_input into="flag_store">
-    <generator type="flag_generator" />
+    <generator type="flag_counter" />
   </default_input>
 
   <reference>https://github.com/OWASP/SecurityShepherd</reference>

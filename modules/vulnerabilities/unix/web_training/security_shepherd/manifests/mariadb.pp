@@ -2,7 +2,7 @@
 class security_shepherd::mariadb {
   $secgen_parameters=secgen_functions::get_parameters($::base64_inputs_file)
   $unix_username = $secgen_parameters['unix_username'][0]
-    $flag_store = $secgen_parameters['flag_store']
+  $flag_store = $secgen_parameters['flag_store']
   $modules = $secgen_parameters['modules']
   $user = 'root'
   $db_pass = 'CowSaysMoo'

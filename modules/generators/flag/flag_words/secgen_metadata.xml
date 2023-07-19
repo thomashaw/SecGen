@@ -11,14 +11,13 @@
 
   <type>flag_generator</type>
   <type>local_calculation</type>
-  <type>flag_counter</type>
   <platform>linux</platform>
   <platform>windows</platform>
 
   <reference>https://github.com/sophsec/wordlist</reference>
   <reference>http://wordlist.sourceforge.net/</reference>
 
-  <read_fact>counter</read_fact>
+  <read_fact>no_of_words</read_fact>
 
   <output_type>generated_strings</output_type>
 

@@ -2,10 +2,6 @@
 class security_shepherd::install {
   include stdlib
 
-  $secgen_parameters=secgen_functions::get_parameters($::base64_inputs_file)
-  $flag_store = $secgen_parameters['flag_store']
-  $modules = $secgen_parameters['modules']
-
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   ensure_packages(['tomcat9', 'mariadb-server', 'openjdk-11-jdk'], {ensure => installed})

@@ -2,12 +2,13 @@
 require_relative '../../../../../lib/objects/local_string_generator.rb'
 require_relative '../../../../../lib/helpers/blacklist.rb'
 class WordFlagGenerator < StringGenerator
-  attr_accessor :counter
+  attr_accessor :number_of_words
 
   def initialize
     super
     self.module_name = 'Random Word Based Flag Generator'
-    self.counter = 1
+    # Default to 4
+    self.number_of_words = 4
   end
 
   def generate
@@ -15,7 +16,7 @@ class WordFlagGenerator < StringGenerator
     flag_string = ''
     blacklist = Blacklist.new
 
-    self.counter.times do |i|
+    self.number_of_words.times do |i|
       flag_word = ''
       until flag_word != ''
         selected_word = file.sample.chomp
@@ -34,17 +35,17 @@ class WordFlagGenerator < StringGenerator
     super
 
     case opt
-      when '--counter'
+      when '--number_of_words'
         if arg.to_i == 0
-          self.counter = 1
+          self.number_of_words = 1
         else
-          self.counter = arg.to_i
+          self.number_of_words = arg.to_i
         end
       end
   end
 
   def get_options_array
-    super + [['--counter', GetoptLong::OPTIONAL_ARGUMENT]]
+    super + [['--number_of_words', GetoptLong::OPTIONAL_ARGUMENT]]
   end
 end
 
