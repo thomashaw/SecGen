@@ -30,7 +30,7 @@
   </default_input>
 
   <default_input into="flag_store">
-    <generator type="flag_counter" />
+    <generator type="flag_generator" />
   </default_input>
 
   <reference>https://github.com/OWASP/SecurityShepherd</reference>

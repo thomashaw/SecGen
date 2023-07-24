@@ -1,3 +1,2 @@
 include security_shepherd::install
-include security_shepherd::tomcat
-include security_shepherd::config
+include security_shepherd::mariadb
