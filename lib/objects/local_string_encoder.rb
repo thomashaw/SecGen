@@ -17,6 +17,7 @@ class StringEncoder
   attr_accessor :strings_to_encode
   attr_accessor :has_base64_inputs
   attr_accessor :outputs
+  attr_accessor :iterations
 
   # override this
   def initialize
@@ -24,6 +25,7 @@ class StringEncoder
     self.strings_to_encode = []
     self.module_name = 'Null encoder'
     self.has_base64_inputs = false
+    self.iterations = 1
     self.outputs = []
   end
 
@@ -79,7 +81,8 @@ class StringEncoder
   def get_options_array
     [['--help', '-h', GetoptLong::NO_ARGUMENT],
      ['--b64', GetoptLong::OPTIONAL_ARGUMENT],
-     ['--strings_to_encode', '-s', GetoptLong::OPTIONAL_ARGUMENT]]
+     ['--strings_to_encode', '-s', GetoptLong::OPTIONAL_ARGUMENT],
+     ['--iterations', GetoptLong::OPTIONAL_ARGUMENT],]
   end
 
   # Override this when using read_fact's in your module. Always call super first.
@@ -97,6 +100,12 @@ class StringEncoder
         self.strings_to_encode << arg;
       when '--b64'
         # do nothing
+      when '--iterations'
+        if not arg.to_i == 0
+          self.iterations = arg.to_i
+        else
+          self.iterations = 1
+        end
     end
   end
 
