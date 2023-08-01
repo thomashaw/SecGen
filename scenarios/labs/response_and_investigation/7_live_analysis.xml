@@ -97,6 +97,12 @@
         </input>
       </generator>
     </input>
+    <input into_datastore="hidden_string">
+      <generator module_path=".*/random_hex"/>
+    </input>
+    <input into_datastore="nc_port">
+      <generator module_path=".*/random_unregistered_port" />
+    </input>
 
     <input into_datastore="IP_addresses">
       <!-- desktop -->
@@ -245,9 +251,6 @@
       <system_name>compromised_server</system_name>
       <base distro="Debian 10" type="desktop" name="KDE"/>
 
-      <input into_datastore="hidden_string">
-        <generator module_path=".*/random_hex"/>
-      </input>
 
       <input into_datastore="accounts_compromised">
         <generator type="account">
@@ -281,8 +284,8 @@
       <utility module_path=".*./lime"/>
 
       <vulnerability module_path=".*/nc_backdoor">
-        <input into="port" into_datastore="nc_port">
-          <generator module_path=".*/random_unregistered_port" />
+        <input into="port">
+          <datastore>nc_port</datastore>
         </input>
         <input into="strings_to_leak">
           <generator type="flag_generator" />
