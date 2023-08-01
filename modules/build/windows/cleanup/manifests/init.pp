@@ -1,14 +1,14 @@
 class cleanup::init {
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
-  $remove_history = str2bool($secgen_params['remove_history'][0])
-  $root_password = $secgen_params['root_password'][0]
-  $clobber_file_times = str2bool($secgen_params['clobber_file_times'][0])
-  $disable_ssh = str2bool($secgen_params['disable_ssh'][0])
-
-  Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
+  # $remove_history = str2bool($secgen_params['remove_history'][0])
+  # $root_password = $secgen_params['root_password'][0]
+  # $clobber_file_times = str2bool($secgen_params['clobber_file_times'][0])
+  # $disable_ssh = str2bool($secgen_params['disable_ssh'][0])
+  #
+  # Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
 
   # TODO: clean up Windows
-  
+
   # file_line { 'comment_out_legacy_login_config1':
   #   line   => '# NONEXISTENT',
   #   match  => 'NONEXISTENT.*',

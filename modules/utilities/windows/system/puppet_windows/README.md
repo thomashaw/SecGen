@@ -1,4 +1,5 @@
 # Puppet on Windows
+Meta package (list in metadata.json) edited for SecGen
 
 [commercial support]: http://puppet.com/services/customer-support
 
