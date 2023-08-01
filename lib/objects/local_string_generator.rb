@@ -14,12 +14,14 @@ class StringGenerator
   attr_accessor :module_name
   attr_accessor :has_base64_inputs
   attr_accessor :outputs
+  attr_accessor :iterations
 
   # override this
   def initialize
     # default values
     self.module_name = 'Null generator'
     self.has_base64_inputs = false
+    self.iterations = 1
     self.outputs = []
   end
 
@@ -66,7 +68,8 @@ class StringGenerator
 
   def get_options_array
     [['--help', '-h', GetoptLong::NO_ARGUMENT],
-     ['--b64', GetoptLong::OPTIONAL_ARGUMENT]]
+     ['--b64', GetoptLong::OPTIONAL_ARGUMENT],
+     ['--iterations', GetoptLong::OPTIONAL_ARGUMENT]]
   end
 
   # Override this when using read_fact's in your module. Always call super first
@@ -82,6 +85,12 @@ class StringGenerator
         usage
       when '--b64'
         # do nothing
+      when '--iterations'
+        if not arg.to_i == 0
+          self.iterations = arg.to_i
+        else
+          self.iterations = 1
+        end
     end
   end
 
@@ -91,6 +100,7 @@ class StringGenerator
 
    OPTIONS:
      --strings_to_encode [string]
+     --iterations [Integer]
 "
     exit
   end
@@ -101,7 +111,9 @@ class StringGenerator
     read_arguments
 
     Print.local_verbose "Generating..."
-    generate
+    self.iterations.times do
+      generate
+    end
 
     # print the first 1000 chars to screen
     output = self.outputs.to_s
