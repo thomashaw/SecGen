@@ -125,12 +125,12 @@ class StringGenerator
       Print.local_verbose "(Displaying 1000/#{length} length output)"
     end
 
-    enforce_utf8(self.outputs)
+    self.outputs = enforce_utf8(self.outputs)
     print_outputs
   end
 
   def enforce_utf8(values)
-    values.map { |o| o.force_encoding('UTF-8') }
+    values.map { |o| o.dup.force_encoding('UTF-8') }
   end
 
   def print_outputs
@@ -154,4 +154,3 @@ class StringGenerator
     arg_validity
   end
 end
-
