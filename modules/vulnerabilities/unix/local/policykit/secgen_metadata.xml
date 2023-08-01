@@ -32,6 +32,9 @@
   </default_input>
 
   <conflict>
+    <name>.*</name>
+  </conflict>
+  <conflict>
     <name>.*Stretch.*</name>
   </conflict>
   <conflict>
