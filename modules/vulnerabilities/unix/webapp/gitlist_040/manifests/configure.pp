@@ -25,22 +25,22 @@ class gitlist_040::configure {
   file { ['/home/git', '/home/git/repositories']:
     ensure => directory,
     owner  => 'www-data',
-  }
+  } ->
 
   file { $leaked_files_path:
     ensure => directory,
-    before => Exec['create-repo-file_leak'],
     owner => 'www-data',
     mode => '0700'
   } ->
 
   exec { 'create-repo-file_leak':
     cwd     => $leaked_files_path,
-    command => "git init",
+    command => "sudo -u www-data git init",
   } ->
 
   file { "$leaked_files_path/.git/description":
-    content => "secret_files"
+    content => "secret_files",
+    owner => 'www-data'
   }
 
   ::secgen_functions::leak_files { 'gitlist_040-flag-leak':
@@ -66,6 +66,6 @@ class gitlist_040::configure {
 
   exec { 'initial_commit_leaked_files_repo':
     cwd     => $leaked_files_path,
-    command => "git $git_args add *; git $git_args commit -a -m 'initial commit'",
+    command => "sudo -u www-data git $git_args add *; sudo -u www-data git $git_args commit -a -m 'initial commit'",
   }
 }
