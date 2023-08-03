@@ -1,21 +1,25 @@
 class nostromo_code_exec::install {
   Exec { path => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ] }
   #$secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
-  $user = 'nostromousr'#$secgen_parameters['leaked_username'][0]
+  $user = 'nostromousr'
   $user_home = "/home/${user}"
-
 
   # Install dependancies - make, gcc libssl-dev
   ensure_packages(['make','gcc','libssl-dev'])
 
   user { "${user}":
-    ensure     => present,
-    uid        => '666',
-    gid        => 'root',#
-    home       => "${user_home}/",
-    managehome => true,
-    password   => 'toor', # Temp, remove in final.
+    ensure => present,
+    home   => "${user_home}",
     require    => Package['libssl-dev'],
+  } ->
+  group {"${user}":
+    ensure => present,
+  } ->
+  # distccd home directory permissions
+  file { "${user_home}":
+    ensure => directory,
+    owner => "${user}",
+    mode  =>  '0750',
   } ->
 
   # TODO: install into /opt/ rather than user home
