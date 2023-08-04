@@ -101,6 +101,7 @@
     </utility>
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/hash_tools"/>
+    <utility module_path=".*/python_crypto_libs"/>
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
@@ -145,12 +146,13 @@
     <utility module_path=".*/metasploit_framework"/>
     <utility module_path=".*/nmap"/>
     <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/python_crypto_libs"/>
 
     <service type="httpd"/>
 
     <utility module_path=".*/hackerbot">
       <input into="hackerbot_configs">
-        <generator module_path=".*/integrity_protection">
+        <generator module_path=".*/symmetric_enc_aes">
           <input into="accounts">
             <datastore>accounts</datastore>
           </input>

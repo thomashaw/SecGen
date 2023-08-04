@@ -346,7 +346,9 @@ class System
           raise 'failed'
         end
         output_array = outputs.split("\n")
-        selected.output = output_array.map { |o| (Base64.strict_decode64 o).force_encoding('UTF-8') }
+        selected.output = output_array.map { |o|
+          (Base64.strict_decode64 o).force_encoding('UTF-8')
+        }
       end
 
       # store the output of the module into a datastore, if specified

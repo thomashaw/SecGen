@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>AES Key Generator (python byte string)</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Generates a key for use with AES in python byte string format.</description>
+
+  <type>aes_key</type>
+  <type>byte_str</type>
+  <type>aes_key_byte_str</type>
+  <platform>linux</platform>
+
+  <output_type>byte_str</output_type>
+
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+  </CyBOK>
+
+</generator>

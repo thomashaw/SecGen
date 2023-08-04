@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>AES Challenge Generator</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>AES 256 ChallengeGenerator. Outputs IV, Message, Key, and Ciphertext (formatted as Base64) in JSON.</description>
+
+  <type>aes</type>
+  <type>aes_challenge</type>
+  <type>challenge_generator</type>
+  <type>crypto_challenge_generator</type>
+  <type>local_calculation</type>
+  <platform>linux</platform>
+  <platform>windows</platform>
+
+  <read_fact>strings_to_encode</read_fact>
+  <read_fact>key</read_fact>
+  <read_fact>iv</read_fact>
+
+  <default_input into="strings_to_encode">
+    <value>Winter is coming!</value>
+  </default_input>
+
+  <default_input into="key">
+    <value>ThisIsASecretKeyThisIsASecretKey</value>
+  </default_input>
+
+  <output_type>json</output_type>
+
+  <CyBOK KA="C" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+  </CyBOK>
+
+</generator>
