@@ -17,8 +17,8 @@
 	$answer_1 = SecureRandom.hex(4)
 	$decode_1 = Base64.strict_encode64 $answer_1
 
-	$answer_2 = Base64.strict_encode64 $encode_1
 	$encode_1 = SecureRandom.hex(4)
+	$answer_2 = Base64.strict_encode64 $encode_1
 
 
 	$chal_1 = JSON.parse(Base64.strict_decode64(self.aes_challenges[0]))
