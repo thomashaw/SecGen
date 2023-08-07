@@ -171,7 +171,8 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+<!--        <generator type="strong_password_generator"/>-->
+        <value>toor</value>
       </input>
     </build>
   </system>
