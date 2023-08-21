@@ -26,7 +26,7 @@
 
 	$xor_2_a = SecureRandom.hex(4)
 	$xor_2_b = rand(255).to_s
-	$answer_4 = ($xor_2_a.to_i(16) ^ ($xor_2_a.length * $xor_2_b.to_i(16))
+	$answer_4 = ($xor_2_a.to_i(16) ^ ($xor_2_a.length * $xor_2_b.to_i(16)))
 
 
 	$chal_1 = JSON.parse(Base64.strict_decode64(self.aes_challenges[0]))
