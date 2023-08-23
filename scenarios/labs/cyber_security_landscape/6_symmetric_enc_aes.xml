@@ -139,7 +139,7 @@
 
   <system>
     <system_name>hb_server</system_name>
-    <base distro="Kali" name="MSF"/>
+    <base distro="Debian 10" type="desktop" name="KDE"/>
 
     <service type="ircd"/>
 
