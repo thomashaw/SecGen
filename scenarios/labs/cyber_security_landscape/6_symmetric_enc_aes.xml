@@ -141,7 +141,7 @@
     <system_name>hb_server</system_name>
     <base distro="Debian 10" type="desktop" name="KDE"/>
 
-    <service type="ircd"/>
+    <service module_path=".*/ircd-hybrid"/>
 
 <!--    <utility module_path=".*/metasploit_framework"/>-->
     <utility module_path=".*/nmap"/>
