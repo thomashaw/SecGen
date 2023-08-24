@@ -139,11 +139,11 @@
 
   <system>
     <system_name>hb_server</system_name>
-    <base distro="Debian 10" type="desktop" name="KDE"/>
+    <base  distro="Kali" name="MSF"/>
 
-    <service module_path=".*/ircd_hybrid"/>
+    <service type="ircd"/>
 
-<!--    <utility module_path=".*/metasploit_framework"/>-->
+    <utility module_path=".*/metasploit_framework"/>
     <utility module_path=".*/nmap"/>
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/python_crypto_libs"/>
