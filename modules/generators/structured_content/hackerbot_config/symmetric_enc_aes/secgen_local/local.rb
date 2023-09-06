@@ -4,6 +4,8 @@ require_relative '../../../../../../lib/objects/local_hackerbot_config_generator
 class SymmetricEncAES < HackerbotConfigGenerator
 
   attr_accessor :aes_challenges
+  attr_accessor :hackerbot_server_ip
+  attr_accessor :desktop_ip
 
   def initialize
     super
