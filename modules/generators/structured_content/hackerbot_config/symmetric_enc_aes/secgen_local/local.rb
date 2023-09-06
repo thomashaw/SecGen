@@ -15,6 +15,8 @@ class SymmetricEncAES < HackerbotConfigGenerator
     self.config_template_path = "#{self.local_dir}/templates/symmetric_enc_aes_lab.xml.erb"
     self.html_template_path = "#{self.local_dir}/templates/labsheet.html.erb"
     self.aes_challenges = []
+    self.hackerbot_server_ip = ''
+    self.desktop_ip = ''
   end
 
   def get_options_array
@@ -24,8 +26,12 @@ class SymmetricEncAES < HackerbotConfigGenerator
   def process_options(opt, arg)
     super
     case opt
-    when '--aes_challenges'
-      self.aes_challenges << arg;
+      when '--aes_challenges'
+        self.aes_challenges << arg;
+      when '--hackerbot_server_ip'
+        self.hackerbot_server_ip << arg;
+      when '--desktop_ip'
+        self.desktop_ip << arg;
     end
   end
 end

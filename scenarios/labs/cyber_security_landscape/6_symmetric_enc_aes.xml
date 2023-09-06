@@ -159,6 +159,12 @@
           <input into="root_password">
             <datastore>desktop_root_password</datastore>
           </input>
+          <input into="desktop_ip">
+            <datastore access="0">IP_addresses</datastore>
+          </input>
+          <input into="hackerbot_server_ip">
+            <datastore access="1">IP_addresses</datastore>
+          </input>
         </generator>
       </input>
     </utility>

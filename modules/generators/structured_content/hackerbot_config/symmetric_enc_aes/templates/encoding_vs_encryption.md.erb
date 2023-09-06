@@ -2,7 +2,7 @@
 
 Encoding and encryption are two types of process used within cyber security and computing more broadly in order to transform data from one format into another.
 
-*Encoding* involves converting data from one format into another using a pre-defined scheme, generally for compatability or representational purposes. Examples include: converting binary data into hexadecimal, representing raw binary data as printable strings (ASCII, Unicode), or encoding binary data with non-printable characters into base64 or URL encoding formats.
+*Encoding* involves converting data from one format into another using a pre-defined scheme, generally for compatibility or representational reasons.
 
 *Encryption* similarly involves converting the data into another format using a pre-defined scheme, but the schemes aim to securely hide the data from 3rd parties. Encrypting a message with an encryption algorithm involves a secret key to encrypt the message into ciphertext. Examples of encryption algorithms include AES (symmetric-key cryptography) and RSA (asymmetric-key, aka public-key cryptography).
 
@@ -14,7 +14,16 @@ The key distinction between the two is that encryption aims to transform the dat
 ### Encoding
 
 Encoding can be viewed as translating data from one format to another.
-Computers communicate
+Computers fundamentally operate using high and low electric charges, which are represented in binary as '1' and '0'.
+Early computers were programmed with binary systems using punch cards, where a punched hole may represent one operation and no hole represented another.
+
+Examples include:
+- Representing raw binary data in a more human-friendly format
+-- e.g. Using Hexadecimal instead of Binary within low-level
+- Representing raw binary data as printable text strings (e.g. [ASCII](https://www.asciitable.com/) and [Unicode]()).
+-- e.g. In ASCII the character 'A' is mapped to the 8-bit binary (base 2) value '01000001', which is '65' in decimal (base 10), and '41' in hexadecimal (base 16).
+- encoding binary data with non-printable characters into base64 or URL encoding formats.
+- converting raw binary data into hexadecimal (e.g. Decimal 15 in Binary is 1111 and in Hexadecimal is F)
 
 
 - Refresher on Encoding
@@ -23,8 +32,6 @@ Computers communicate
   Here's how it works
   How to encode/decode b64 in terminal (including the echo -n flag)
   Web link for those that prefer it
-
-
 
 
 ---
