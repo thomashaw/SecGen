@@ -1,8 +1,11 @@
 # An example of RSA using OpenSSL
 
-1. Let’s create a new message "msg.txt" as per the command below.
+1. Let's create a new message "msg.txt" as per the command below.
+
 `echo '"All paid jobs absorb and degrade the mind." - Aristotle' > msg.txt`[^4]
-- Nice one from Aristotle, but no one will work then :)
+
+Nice one from Aristotle, but no one will work then :)
+
 2. The below is just an example of using openssl to encrypt and decrypt a message, but of course private
 key should never be shared and/or exported in a plaintext.
 
@@ -10,19 +13,19 @@ key should never be shared and/or exported in a plaintext.
 # *** Generate a pair of keys (public and private) ***
 openssl genrsa -out keys.txt 4096
 # *** Export the public key from keys.txt ***
-openssl rsa -in keys.txt -pubout -out Bob\’s-key.pub
-# *** Check Bob’s public key ***
+openssl rsa -in keys.txt -pubout -out Bob's-key.pub
+# *** Check Bob's public key ***
 cat Bob-key.pub
 # * it should start with -----BEGIN PUBLIC KEY-----
 # *** Encrypt msg.txt ***
 openssl pkeyutl -in msg.txt -encrypt -pubin -inkey \
 Bob-pub-key.key > msg-rsa.enc
 # *** Decrypt msg-rsa.enc ***
-# *** Step 1 - Export Bob’s private key from keys.txt ***
-openssl rsa -in keys.txt -out Bob\’s-private-key.private
+# *** Step 1 - Export Bob's private key from keys.txt ***
+openssl rsa -in keys.txt -out Bobs-private-key.private
 # *** Step 2 - Decrypt msg-rsa.enc
 openssl pkeyutl -in msg-rsa.enc -decrypt -inkey \
-Bob\’s-private-key.private | tee msg-decrypted.txt
+Bobs-private-key.private | tee msg-decrypted.txt
 ```
 
 [^4]: https://www.quoteambition.com/aristotle-quotes/
