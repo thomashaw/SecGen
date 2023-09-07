@@ -152,7 +152,7 @@
 
     <utility module_path=".*/hackerbot">
       <input into="hackerbot_configs">
-        <generator module_path=".*/ssymmetric_enc_rsa">
+        <generator module_path=".*/asymmetric_enc_rsa">
           <input into="accounts">
             <datastore>accounts</datastore>
           </input>
