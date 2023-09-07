@@ -36,14 +36,6 @@
 	$hex_to_file_1 = SecureRandom.hex(8)
 	$hex_to_file_path = "/home/#{$main_user}/binary1"
 
-	$aes_challenges = self.aes_challenges
-	$chal_1 = JSON.parse(Base64.strict_decode64(self.aes_challenges[0]))
-	$key_1 = Base64.strict_decode64 $chal_1['key']
-	$iv_1 = Base64.strict_decode64 $chal_1['iv']
-	$ct_1 = Base64.strict_decode64 $chal_1['ciphertext']
-	$msg_1 = Base64.strict_decode64 $chal_1['message']
-
-
 
 	REQUIRED_FLAGS = 5
   while $flags.length < REQUIRED_FLAGS
@@ -117,7 +109,7 @@
 	</messages>
 
 	<tutorial_info>
-		<title>Symmetric Encryption with Advanced Encryption Standard (AES)</title>
+		<title>Public-key Cryptography - Asymmetric Key Encryption with RSA</title>
 		<tutorial><%= ERB.new(File.read self.templates_path + 'intro.md.erb').result(self.get_binding) %></tutorial>
 		<footer>
 <%= File.read self.templates_path + 'resources.md.erb' %>
