@@ -29,10 +29,6 @@
     </generator>
   </default_input>
 
-  <default_input into="rsa_challenges">
-    <generator type="rsa_challenge"/>
-  </default_input>
-
   <default_input into="flags">
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
