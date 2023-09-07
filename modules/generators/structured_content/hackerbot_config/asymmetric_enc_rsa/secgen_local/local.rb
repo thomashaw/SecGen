@@ -22,16 +22,15 @@ class AsymmetricEncRSA < HackerbotConfigGenerator
   end
 
   def get_options_array
-    super + [['--rsa_challenges', GetoptLong::REQUIRED_ARGUMENT],
-             ['--desktop_ip', GetoptLong::REQUIRED_ARGUMENT],
+    super + [['--desktop_ip', GetoptLong::REQUIRED_ARGUMENT],
              ['--hackerbot_server_ip', GetoptLong::REQUIRED_ARGUMENT]]
   end
 
   def process_options(opt, arg)
     super
     case opt
-      when '--rsa_challenges'
-        self.rsa_challenges << arg;
+      # when '--rsa_challenges'
+      #   self.rsa_challenges << arg;
       when '--desktop_ip'
         self.desktop_ip << arg;
       when '--hackerbot_server_ip'
