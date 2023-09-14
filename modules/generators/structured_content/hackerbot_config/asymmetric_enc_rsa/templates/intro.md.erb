@@ -60,56 +60,39 @@ There is a reading selection related to PKI and managing trust in public key cry
 ## A Summary of RSA Cipher
 
 1. Choose two large prime numbers *p* and *q*
-2. Compute **N (the modulus):       N = p . q**
-3. Compute Phi ** &Phi;(N):     &Phi;(N) = (p-1)(q-1)**
 
-Examples for testing:
+2. Compute **N (the modulus):**
 
-Plain ampersand w/ spaces
-1. &Phi;(N)
-2. &Phi; (N)
-3. &phi; (N)
-4. &phi;(N)
+    N = p . q
 
-Escaped ampersand w/ spaces
-1. \&Phi;(N)
-2. \&Phi; (N)
-3. \&phi; (N)
-4. \&phi;(N)
-5. &amp;phi;(N)
+3. Compute **phi(N):**
 
+    phi(N) = (p-1)(q-1)**
 
-4. Choose the encryption (exponent) key (public key) **e
+4. Choose the encryption (exponent) key (public key) **e** (**e** must satisfy two conditions):
 
-e** must satisfy two conditions:
+- a number in between 1 and phi(N)
 
-\t 4.1. a number in between 1 and &Phi;(N)
+ - a co-prime with N and phi(N)
 
-\t 4.2. a co-prime with N and &Phi;(N)
+5. Choose the decryption key (private key) **d:**
 
-5. Choose the decryption key (private key) **d: e . d (mod &Phi;(N)) = 1**
+    e . d (mod phi(N)) = 1**
 
 We can compute **d** by using **extended Euclidean algorithm** to get the inverse of **e**
 
-      **d = e^-1^(mod &Phi;(N))**
-
-examples for testing:
-
-1. e&gt;sup&lt;-1&gt;&#47;sup&lt;(mod &Phi;(N))**
-2. e&gt;sup&lt;-1&gt;/sup&lt;
-3. e^(-1)(mod (N))
-4. e<sup>-1</sup>(mod (N)
+    d = (e^-1)(mod phi(N))
 
 
 **Encryption/Decryption operations:**
-Encryption: **Me^(mod N)**
-Decryption: **C^d^(mod N)**
 
+Encryption:
 
+    (M^e)(mod N)
 
+Decryption:
 
-### TODO: If the above superscript fails, try &sup; or whatever the html code is for <sup></sup>
-
+    (C^d)(mod N)
 
 Where **M** is the message (clear/plain text), **e** is the public key (the encryption key), **N** is the modulus, **C** is the ciphertext, and **d** is the private key (decryption key).
 
