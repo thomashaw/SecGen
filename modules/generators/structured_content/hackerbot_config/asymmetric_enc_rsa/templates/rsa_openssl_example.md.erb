@@ -13,7 +13,7 @@ key should never be shared and/or exported in a plaintext.
 # *** Generate a 4096-byte RSA private key using openssl
 openssl genrsa -out bobs-private-key.private 4096
 # *** Check Bob's private key ***
-cat bobs-public-key.pub
+cat bobs-private-key.private
 # * it should start with -----BEGIN RSA PRIVATE KEY-----
 # *** Generate a public key from the private key ***
 openssl rsa -in bobs-private-key.private -pubout -out bobs-public-key.pub
