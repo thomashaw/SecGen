@@ -30,7 +30,7 @@
   </default_input>
 
   <default_input into="chall_3_msg">
-    <generator type="random_weak_password"/>
+    <generator type="weak_password_generator"/>
   </default_input>
 
   <default_input into="flags">
