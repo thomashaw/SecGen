@@ -26,12 +26,12 @@
 	$chall_3_message = self.chall_3_msg
 	$chall_3_ciphertext = encrypt_rsa($chall_3_message, 5, 161)
 
-	$chall_4_message = rand(1..9)
+	$chall_4_message = rand(1..9).to_s
 	$chall_4_ciphertext = encrypt_rsa($chall_4_message, 5, 161)
 
 	# $chall_5_message = rand(1..9)
 	# $chall_5_ciphertext = encrypt_rsa($chall_5_message, )
-	$chall_5_message = rand(1..9)
+	$chall_5_message = rand(1..9).to_s
 	$chall_5_ciphertext = 'test'
 
 	REQUIRED_FLAGS = 3
