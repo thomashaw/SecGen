@@ -1,114 +1,13 @@
-# An example of RSA using Python3
+==Complete the following Log Book task:==
 
-In this example we will go through the following steps:
-
-- Pick 2 prime numbers, *p* and *q*
-- Calculate *N*
-- Calculate phi*N*
-- Select exponent *e* (used for encryption)
-- Select *d* (used for decryption)
-
-From your Linux shell prompt open the python3 REPL to begin:
-`python3`
-
-### Pick 2 prime numbers p and q
-
-```
->>> p = 7
->>> q = 23
-```
-
-### Calculate N
-```
->>> N = p * q
-```
-
-### Calculate phiN
-```
->>> phiN = (p-1)*(q-1)
->>> print(p, q, N, phiN)
-```
-
-So far we've got: *p* = 7, *q* = 23, *N* = 161 and *phiN* = 132
-
-### Find e (exponent / encryption key / public key)
-
-- *e* must be between 1 and 132 (1 and *phiN*)
-- Also, *e* must be a co-prime with *n* and *phiN*
-
-1. Check all of the numbers in the ring (1-132), once the above conditions are met, select *e*
-2. Let's keep it simple and choose 5 as e (as it satisfies both conditions)
-3. For this example, the public key (e, N) is (5, 161)
-
-### Find d (decryption key / private key)
-
-- *d* must satisfy this condition *d*.*e*(mod phi(N)) = 1
-- *d* will always be within the 1-132 ring of integers
-
-1. To find the decryption key, multiply each number of the ring (modulo 132) until you reach 1
-
-- Such that (d * 5) mod 132 = 1
-
-2. Let's select *d* as 53
-- Such that d = 53
-
-3. (53 * 5) % 132 = 1
-
-
-### Encryption
-
-RSA works using numbers, so let's find the integer representation of this message: "The Hobbit"
-
-Python's built in ord() function takes in a character as an argument and returns the integer that represents the character in [ASCII](https://www.rapidtables.com/code/text/ascii-table.html).
-
-e.g. ord('Z') will return 90.
-
-```
->>> ord(’T’)
->>> ord(’h’)
->>> ord(’e’)
->>> ord(’’)
->>> ord(’H’)
->>> ord(’o’)
->>> ord(’b’)
->>> ord(’i’)
->>> ord(’t’)
->>> ord(’t’)
-*** 84 104 101 32 72 111 98 105 116 116 ***
-(84 ** e) % N
-(104 ** e) % N
-(101 ** e) % N
-(32 ** e) % N
-(72 ** e) % N
-(111 ** e) % N
-(98 ** e) % N
-(105 ** e) % N
-(116 ** e) % N
-(116 ** e) % N
-*** Ciphertext: 7 41 54 100 151 34 140 119 93 93 ***
-*** To decrypt ***
-(7 ** d) % N
-(41 ** d) % N
-...
-...
-...
-...
-...
-...
-```
-
-
-== Complete the following Log Book task ==
-
-## Log Book Task - (10 pts)
 Encryption/decryption techniques are methods that help with confusion and diffusion in a cryptosystem.
 You may highlight the mathematics behind the reviewed algorithms/cipher if you would like to do so;
 however, this is not required unless necessary as part of your discussion/review.
-A) The Security of RSA cryptosystem. (5 pts)
-B) Diffie-Hellman algorithm and its security. (5 pts)
+A) The Security of RSA cryptosystem.
+B) Diffie-Hellman algorithm and its security.
 
 
-### Requirements for Task 1
+### Requirements for Log Book Task
 1. Provide a clear explanation of the reviewed cipher/algorithm (how it works).
 2. Include illustrations, flow charts, digrams to underpin your arguments.
 3. Critically evaluate the cipher/algorithm (strengths, weaknesses, efficiency, etc..).

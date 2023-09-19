@@ -23,27 +23,8 @@
 	$chall_2_path = "/home/#{$main_user}/challenge_2"
 	$chall_2_msg = SecureRandom.hex(4)
 
-	$chall_3_message = 'The Hobbit'
-	$chall_3_ciphertext = '7 41 54 100 151 34 140 119 93 93'
-
-	$answer_1 = SecureRandom.hex(4)
-	$decode_1 = Base64.strict_encode64 $answer_1
-
-	$encode_1 = SecureRandom.hex(4)
-	$answer_2 = Base64.strict_encode64 $encode_1
-
-	$xor_1_a = SecureRandom.hex(4)
-	$xor_1_b = SecureRandom.hex(8)
-	$answer_3 = ($xor_1_a.to_i(16) ^ $xor_1_b.to_i(16)).to_s(16)
-
-	$xor_2_a = SecureRandom.hex(4)
-	$xor_2_b = rand(255).to_s
-	$answer_4 = ($xor_2_a.to_i(16) ^ ($xor_2_a.length * $xor_2_b.to_i(16)))
-
-
-	$hex_to_file_1 = SecureRandom.hex(8)
-	$hex_to_file_path = "/home/#{$main_user}/binary1"
-
+	$chall_3_message = self.chall_3_msg
+	$chall_3_ciphertext = encrypt_rsa($chall_3_message, 5, 161)
 
 	REQUIRED_FLAGS = 5
   while $flags.length < REQUIRED_FLAGS
@@ -54,6 +35,28 @@
   def get_binding
     binding
   end
+
+	def encrypt_rsa(message, e, n)
+		ciphertext = ''
+		message_split = message.split('')
+		message_split.each_with_index do |char, i|
+			ciphertext << ((char.ord ** e) % n).to_s
+			unless message.length == i + 1
+				ciphertext << ' '
+			end
+		end
+		ciphertext
+	end
+
+	def decrypt_rsa(ciphertext, d, n)
+		message = ''
+		ct_split = ciphertext.split(' ')
+		ct_split.each do |byte|
+			int_byte = byte.to_i
+			message << (((int_byte ** d) % n))
+		end
+		message
+	end
 -%>
 <?xml version="1.0"?>
 

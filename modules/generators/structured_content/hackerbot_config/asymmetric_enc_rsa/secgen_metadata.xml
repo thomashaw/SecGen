@@ -13,7 +13,7 @@
   <type>hackerbot_config</type>
   <platform>linux</platform>
 
-  <read_fact>rsa_challenges</read_fact>
+  <read_fact>chall_3_msg</read_fact>
 
   <read_fact>keys</read_fact>
   <read_fact>flags</read_fact>
@@ -27,6 +27,10 @@
         <value>vagrant</value>
       </input>
     </generator>
+  </default_input>
+
+  <default_input into="chall_3_msg">
+    <generator type="random_weak_password"/>
   </default_input>
 
   <default_input into="flags">

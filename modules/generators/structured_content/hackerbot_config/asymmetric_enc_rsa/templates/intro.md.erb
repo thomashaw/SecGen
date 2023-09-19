@@ -79,23 +79,23 @@ There is a reading selection related to PKI and managing trust in public key cry
 
 5. Choose the decryption key (private key) **d:**
 
-    e . d (mod phi(N)) = 1
+    (e . d) mod phi(N) = 1
 
 
 We can compute **d** by using **extended Euclidean algorithm** to get the inverse of **e**
 
-    d = (e^-1)(mod phi(N))
+    d = (e^-1) mod phi(N)
 
 
 **Encryption/Decryption operations:**
 
 Encryption:
 
-    (M^e)(mod N)
+    (M^e) mod N
 
 Decryption:
 
-    (C^d)(mod N)
+    (C^d) mod N
 
 Where:
 - **M** is the message (clear/plain text)
