@@ -36,27 +36,6 @@
     binding
   end
 
-	def encrypt_rsa(message, e, n)
-		ciphertext = ''
-		message_split = message.split('')
-		message_split.each_with_index do |char, i|
-			ciphertext << ((char.ord ** e) % n).to_s
-			unless message.length == i + 1
-				ciphertext << ' '
-			end
-		end
-		ciphertext
-	end
-
-	def decrypt_rsa(ciphertext, d, n)
-		message = ''
-		ct_split = ciphertext.split(' ')
-		ct_split.each do |byte|
-			int_byte = byte.to_i
-			message << (((int_byte ** d) % n))
-		end
-		message
-	end
 -%>
 <?xml version="1.0"?>
 
