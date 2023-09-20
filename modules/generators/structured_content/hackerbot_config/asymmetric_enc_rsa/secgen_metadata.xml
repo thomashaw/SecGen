@@ -43,6 +43,9 @@
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
+    <generator type="flag_generator"/>
+    <generator type="flag_generator"/>
+    <generator type="flag_generator"/>
   </default_input>
 
   <output_type>hackerbot</output_type>
