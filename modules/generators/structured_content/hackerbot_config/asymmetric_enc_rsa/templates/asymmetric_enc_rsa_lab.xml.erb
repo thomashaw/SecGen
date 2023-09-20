@@ -30,7 +30,7 @@
 	$chall_4_ciphertext = encrypt_rsa($chall_4_message, 5, 161)
 
 	$chall_5_message = rand(1..9)
-	$chall_5_ciphertext = encrypt_rsa($chall_5_message, 3, 15)
+	$chall_5_ciphertext = encrypt_rsa_byte($chall_5_message, 3, 15)
 
 	$chall_6_message = rand(1..9)
 	$chall_6_ciphertext = encrypt_rsa_byte($chall_6_message, 3, 15)
