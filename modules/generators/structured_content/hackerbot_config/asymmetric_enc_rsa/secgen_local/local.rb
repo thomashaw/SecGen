@@ -44,12 +44,12 @@ def encrypt_rsa(message, e, n)
   ciphertext = ''
   message_split = message.split('')
   message_split.each_with_index do |char, i|
-    ciphertext << ((char.ord ** e) % n).to_s
+    ciphertext << encrypt_rsa_byte(char.ord, e, n)
     unless message.length == i + 1
       ciphertext << ' '
     end
   end
-  ciphertext
+  return ciphertext
 end
 
 def decrypt_rsa(ciphertext, d, n)
@@ -59,7 +59,13 @@ def decrypt_rsa(ciphertext, d, n)
     int_byte = byte.to_i
     message << (((int_byte ** d) % n))
   end
-  message
+  return message
+end
+
+
+def encrypt_rsa_byte(message, e, n)
+  ciphertext = ((message ** e) % n).to_s
+  return ciphertext
 end
 
 AsymmetricEncRSA.new.run
