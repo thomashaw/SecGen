@@ -1,4 +1,9 @@
-# docker::volumes
-class docker::volumes($volumes) {
-  create_resources(docker_volumes, $volumes)
+# @summary
+#
+# @param volumes
+#
+class docker::volumes (
+  Hash $volumes
+) {
+  create_resources(docker_volume, $volumes)
 }

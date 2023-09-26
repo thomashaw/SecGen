@@ -1,32 +1,41 @@
-require 'shellwords'
+# frozen_string_literal: true
+
 #
 # docker_run_flags.rb
 #
 module Puppet::Parser::Functions
+  newfunction(:'docker::escape', type: :rvalue) do |args|
+    subject = args[0]
+
+    escape_function = if self['facts'] && self['facts']['os']['family'] == 'windows'
+                        'stdlib::powershell_escape'
+                      else
+                        'stdlib::shell_escape'
+                      end
+
+    call_function(escape_function, subject)
+  end
+
   # Transforms a hash into a string of docker flags
-  newfunction(:docker_run_flags, :type => :rvalue) do |args|
+  newfunction(:docker_run_flags, type: :rvalue) do |args|
     opts = args[0] || {}
     flags = []
 
-    if opts['username']
-      flags << "-u '#{opts['username'].shellescape}'"
-    end
+    flags << "-u #{call_function('docker::escape', [opts['username']])}" if opts['username']
 
-    if opts['hostname']
-      flags << "-h '#{opts['hostname'].shellescape}'"
-    end
+    flags << "-h #{call_function('docker::escape', [opts['hostname']])}" if opts['hostname']
 
-    if opts['restart']
-      flags << "--restart '#{opts['restart']}'"
-    end
+    flags << "--restart '#{opts['restart']}'" if opts['restart']
 
     if opts['net']
-      flags << "--net #{opts['net']}"
+      if opts['net'].is_a? String
+        flags << "--net #{call_function('docker::escape', [opts['net']])}"
+      elsif opts['net'].is_a? Array
+        flags += opts['net'].map { |item| ["--net #{call_function('docker::escape', [item])}"] }
+      end
     end
 
-    if opts['memory_limit']
-      flags << "-m #{opts['memory_limit']}"
-    end
+    flags << "-m #{opts['memory_limit']}" if opts['memory_limit']
 
     cpusets = [opts['cpuset']].flatten.compact
     unless cpusets.empty?
@@ -34,43 +43,27 @@ module Puppet::Parser::Functions
       flags << "--cpuset-cpus=#{value}"
     end
 
-    if opts['disable_network']
-      flags << '-n false'
-    end
+    flags << '-n false' if opts['disable_network']
 
-    if opts['privileged']
-      flags << '--privileged'
-    end
+    flags << '--privileged' if opts['privileged']
 
-    if opts['detach']
-      flags << '--detach=true'
-    end
+    flags << "--health-cmd='#{opts['health_check_cmd']}'" if opts['health_check_cmd'] && opts['health_check_cmd'].to_s != 'undef'
 
-    if opts['health_check_cmd'].to_s != 'undef'
-      flags << "--health-cmd='#{opts['health_check_cmd']}'"
-    end
+    flags << "--health-interval=#{opts['health_check_interval']}s" if opts['health_check_interval'] && opts['health_check_interval'].to_s != 'undef'
 
-    if opts['health_check_interval'].to_s != 'undef'
-      flags << "--health-interval=#{opts['health_check_interval']}s"
-    end
+    flags << '-t' if opts['tty']
 
-    if opts['tty']
-      flags << '-t'
-    end
+    flags << '--read-only=true' if opts['read_only']
 
-    if opts['read_only']
-      flags << '--read-only=true'
-    end
-
-    params_join_char = if opts['osfamily'].to_s != 'undef'
+    params_join_char = if opts['osfamily'] && opts['osfamily'].to_s != 'undef'
                          opts['osfamily'].casecmp('windows').zero? ? " `\n" : " \\\n"
                        else
                          " \\\n"
                        end
 
-    multi_flags = lambda { |values, format|
+    multi_flags = ->(values, fmt) {
       filtered = [values].flatten.compact
-      filtered.map { |val| sprintf(format + params_join_char, val) }
+      filtered.map { |val| (fmt + params_join_char) % call_function('docker::escape', [val]) }
     }
 
     [
@@ -78,9 +71,9 @@ module Puppet::Parser::Functions
       ['--dns-search %s',   'dns_search'],
       ['--expose=%s',       'expose'],
       ['--link %s',         'links'],
-      ['--lxc-conf="%s"',   'lxc_conf'],
+      ['--lxc-conf=%s',     'lxc_conf'],
       ['--volumes-from %s', 'volumes_from'],
-      ['-e "%s"',           'env'],
+      ['-e %s',             'env'],
       ['--env-file %s',     'env_file'],
       ['-p %s',             'ports'],
       ['-l %s',             'labels'],
