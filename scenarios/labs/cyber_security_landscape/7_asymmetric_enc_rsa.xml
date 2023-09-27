@@ -13,40 +13,12 @@
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
-  <!--  TODO: Update CyBOK -->
-  <CyBOK KA="AAA" topic="Authorisation">
-    <keyword>access control</keyword>
-    <keyword>Protecting integrity</keyword>
+  <CyBOK KA="C" topic="Schemes">
+    <keyword>RSA</keyword>
   </CyBOK>
-  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
-    <keyword>Linux read only protections: ro mounts, file attributes</keyword>
+  <CyBOK KA="C" topic="Public key cryptography">
+    <keyword>public key encryption</keyword>
   </CyBOK>
-  <!--  /TODO: Update CyBOK -->
-
-  <!--  TODO: Update Videos -->
-  <video>
-    <title>The CIA Triad</title>
-    <by>Z. Cliffe Schreuders</by>
-    <url>https://www.youtube.com/watch?v=sv1pHuuoW9g</url>
-    <type>lecture-prerecorded</type>
-    <CyBOK KA="IC" topic="Foundational Concepts">
-      <keyword>objectives of cyber security</keyword>
-    </CyBOK>
-  </video>
-  <video>
-    <title>Protecting Integrity</title>
-    <by>Z. Cliffe Schreuders</by>
-    <url>https://www.youtube.com/watch?v=grISRv-CuHE</url>
-    <type>lecture-prerecorded</type>
-    <CyBOK KA="AAA" topic="Authorisation">
-      <keyword>access control</keyword>
-      <keyword>Protecting integrity</keyword>
-    </CyBOK>
-    <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
-      <keyword>Linux read only protections: ro mounts, file attributes</keyword>
-    </CyBOK>
-  </video>
-  <!--  /TODO: Update Videos -->
 
   <system>
     <system_name>desktop</system_name>
@@ -77,8 +49,7 @@
     </input>
 
     <input into_datastore="desktop_root_password">
-<!--  TODO: Uncomment when ready    <generator type="strong_password_generator"/>-->
-      <value>test</value>
+      <generator type="strong_password_generator"/>
     </input>
 
     <!--Create the users-->
@@ -177,8 +148,7 @@
 
     <build type="cleanup">
       <input into="root_password">
-<!--        <generator type="strong_password_generator"/>-->
-        <value>toor</value>
+        <generator type="strong_password_generator"/>
       </input>
     </build>
   </system>
