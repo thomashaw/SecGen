@@ -1,0 +1,77 @@
+## AES using python3
+
+From the Linux shell (command prompt) open the python3 REPL[^1] with the following command:
+
+```bash
+python3
+```
+
+Import the AES cipher implementation from the Cryptodome module:
+
+```python3
+>>> from Cryptodome.Cipher import AES
+>>>
+```
+
+
+Create a message *m* in byte format, hence the *b* before the string. Remember in AES we work on bytes.
+
+```python3
+>>> m = b"Winter is coming"
+```
+
+Create a key *k*, again in byte format.
+
+```python3
+>>> k = b"ThisIsASecretKey"
+```
+
+Create new AES cipher object, initialised with the key *k* using ECB mode.[^2]
+
+```python3
+>>> e = AES.new(k, AES.MODE_ECB)
+```
+
+Encrypt message *m* and generate ciphertext *c*
+
+```python3
+>>> c = e.encrypt(m)
+```
+
+Inspect the message *m* after the encryption (ciphertext)
+
+```python3
+>>> print(c)
+<TODO: Paste output>
+```
+
+``````python3
+>>> c = e.encrypt(m)
+```
+
+```python3
+>>>
+>>> m = b"Winter is coming"
+>>>
+>>> k = b"ThisIsASecretKey"
+>>>
+>>> e = AES.new(k, AES.MODE_ECB)
+>>>
+>>> c = e.encrypt(m)
+>>>
+```
+
+
+To decrypt, pass the ciphertext *c* to the decrypt() function and print the original message.
+
+```python3
+>>> print(e.decrypt(c))
+b'Winter is coming'
+>>>
+```
+
+---
+
+
+[^1]: **R**ead-**E**valuate-**P**rint **L**oop - an interactive interpreter.
+[^2]: https://pycryptodome.readthedocs.io/en/latest/src/cipher/aes.html

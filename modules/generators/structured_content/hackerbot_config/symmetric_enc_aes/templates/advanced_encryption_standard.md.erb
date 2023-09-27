@@ -1,5 +1,18 @@
-## Advanced Encryption Standard (AES)
+# Advanced Encryption Standard (AES)
 
-TODO
+AES is a block cipher based on a symmetric key cryptosystem and it is an iterated cipher (up to 14 rounds of iteration, based on the key size). It uses key sizes of 128, 192, or 256 bits. However, it operates on a block size of 128-bit.
+
+
+## AES: A High Level Description
+
+This is a basic description of AES (TODO: Reference).
+
+1. Given a message (plaintext) *m*, initialise **State** to be *m*, add Round Key (**ROUNDKEY**), then XOR it with **State**.
+
+2. For each N - 1 rounds, do a substitution operation (**SUBBYTES**) on **State** using pre-defined s-box (substitution-box); then perform permutation using (**SHIFTROWS**) followed by (**MIXCOLUMNS**) on **State** and then add (**ROUNDKEY**).
+
+3. On the last round perform all of the operations in stage 2 **except** the **MIXCOLUMNS** operation.
+
+4. Generate the ciphertext *y*
 
 ---

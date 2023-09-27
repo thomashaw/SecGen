@@ -1,0 +1,29 @@
+## AES using GPG
+
+Create a file and name it msg.txt using the following command:
+
+```bash
+echo '"Science does not aim at establishing immutable truths and eternal dogmas; its aim is to approach the truth by successive approximations, without claiming that at any stage final and complete accuracy has been achieved." - Bertrand Russell' > msg.txt
+```
+
+TODO: Review this is doing what it looks like, why do we need the public key pair here?
+
+Generate a pair of keys (public and private)
+
+```bash
+gpg --gen-key
+```
+
+Encrypt msg.txt producing ciphertext as output (msg.enc)
+
+```bash
+gpg -o msg.enc -s --cipher-algo AES128 msg.txt
+```
+
+Decrypt msg.enc and redirect the plaintext output to msg.txt-decrypted
+
+```bash
+gpg -o msg.txt-decrypted -d msg.enc
+```
+
+---
