@@ -8,16 +8,10 @@ echo '"Science does not aim at establishing immutable truths and eternal dogmas;
 
 TODO: Review this is doing what it looks like, why do we need the public key pair here?
 
-Generate a pair of keys (public and private)
-
-```bash
-gpg --gen-key
-```
-
 Encrypt msg.txt producing ciphertext as output (msg.enc)
 
 ```bash
-gpg -o msg.enc -s --cipher-algo AES128 msg.txt
+gpg --cipher-algo AES128 -o msg.enc msg.txt
 ```
 
 Decrypt msg.enc and redirect the plaintext output to msg.txt-decrypted
