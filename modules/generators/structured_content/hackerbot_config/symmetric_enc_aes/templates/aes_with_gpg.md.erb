@@ -11,7 +11,7 @@ TODO: Review this is doing what it looks like, why do we need the public key pai
 Encrypt msg.txt producing ciphertext as output (msg.enc)
 
 ```bash
-gpg --cipher-algo AES128 -o msg.enc msg.txt
+gpg --cipher-algo AES128 -o msg.enc --symmetric msg.txt
 ```
 
 Decrypt msg.enc and redirect the plaintext output to msg.txt-decrypted
