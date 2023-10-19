@@ -20,11 +20,11 @@
 
 	$enc_gpg_path = "/home/#{$main_user}/encrypt_with_gpg"
 	$enc_gpg_message = SecureRandom.hex(4)
-	$enc_gpg_passphrase = "test"
+	$enc_gpg_passphrase = SecureRandom.hex(3)
 
 	$dec_gpg_path = "/home/#{$main_user}/decrypt_with_gpg"
 	$dec_gpg_message = SecureRandom.hex(4)
-	$dec_gpg_passphrase = "test"
+	$dec_gpg_passphrase = SecureRandom.hex(3)
 
 
 	REQUIRED_FLAGS = 5
