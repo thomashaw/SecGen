@@ -48,7 +48,7 @@
       </generator>
     </input>
 
-    <input into_datastore="desktop_root_password">
+    <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
     </input>
 
@@ -97,7 +97,7 @@
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
-        <datastore>desktop_root_password</datastore>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
 
@@ -128,7 +128,7 @@
             <datastore>accounts</datastore>
           </input>
           <input into="root_password">
-            <datastore>desktop_root_password</datastore>
+            <datastore>spoiler_admin_pass</datastore>
           </input>
           <input into="desktop_ip">
             <datastore access="0">IP_addresses</datastore>
@@ -148,7 +148,7 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+        <datastore>spoiler_admin_pass</datastore>
       </input>
     </build>
   </system>
