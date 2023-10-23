@@ -17,10 +17,10 @@
   <reference>https://forge.puppet.com/puppetlabs/accounts</reference>
 
   <conflict>
-    <module_path>.*bases/.*wheezy.*</name>
+    <module_path>.*bases/.*wheezy.*</module_path>
   </conflict>
   <conflict>
-    <module_path>.*bases/.*stretch.*</name>
+    <module_path>.*bases/.*stretch.*</module_path>
   </conflict>
 
 </utility>

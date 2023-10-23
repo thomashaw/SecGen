@@ -30,7 +30,7 @@ Now let's encrypt the /etc/hosts file, please note that the key is randomly gene
 
 
 ```python3
->>> key == b"71830edfe47b1b808af76fb62114b349"
+>>> key = b"71830edfe47b1b808af76fb62114b349"
 >>> e = AES.new(key, AES.MODE_CBC)
 >>> c = e.encrypt(pad(file,16))
 ```
