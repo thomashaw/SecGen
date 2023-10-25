@@ -7,12 +7,19 @@ AES is a block cipher based on a symmetric key cryptosystem and it is an iterate
 
 This is a basic description of AES (Stinson and Paterson, 2019).
 
-1. Given a message (plaintext) *m*, initialise **State** to be *m*, add Round Key (**ROUNDKEY**), then XOR it with **State**.
+1. Given a message (plaintext) *m*, initialise **State** to be *m*, add Round Key[^2] (**ROUNDKEY**), then XOR it with **State**.
 
-2. For each N - 1 rounds, do a substitution operation (**SUBBYTES**) on **State** using pre-defined s-box (substitution-box); then perform permutation using (**SHIFTROWS**) followed by (**MIXCOLUMNS**) on **State** and then add (**ROUNDKEY**).
+2. For each N - 1 rounds, do a substitution operation (**SUBBYTES**)[^3] on **State** using pre-defined s-box (substitution-box); then perform permutation using (**SHIFTROWS**)[^4] followed by (**MIXCOLUMNS**)[^5] on **State** and then add (**ROUNDKEY**).
 
 3. On the last round perform all of the operations in stage 2 **except** the **MIXCOLUMNS** operation.
 
 4. Generate the ciphertext *y*
+
+
+[^1]: In AES State is a 4x4 matrix
+[^2]: Individual Round Keys are generated for each round of encryption, based on the encryption key using a key schedule AES uses the four transformations above.
+[^3]: The SubBytes transformation replaces the values in State with other values, making use of the Rijnadel S-box (see: https://en.wikipedia.org/wiki/Rijndael_S-box).
+[^4]: The ShiftRows transformation shifts the data in the rows 4x4 state matrix based on an offset. (see: https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#The_ShiftRows_step).
+[^5]: The MixColumns transformation switches the values of the columns in the 4x4 state matrix using matrix multiplication (see: https://en.wikipedia.org/wiki/Rijndael_MixColumns).
 
 ---
