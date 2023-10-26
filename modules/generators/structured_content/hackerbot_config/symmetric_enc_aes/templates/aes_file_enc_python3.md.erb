@@ -1,0 +1,54 @@
+## File encryption using AES and python3
+
+We will encrypt /etc/hosts file using python3 and the Cryptodome module. Feel free to use any other file.
+
+Open the python3 REPL in your terminal.
+
+`python3`
+
+Import the required modules[^8]
+
+```python3
+>>> from Cryptodome.Cipher import AES
+>>> from Cryptodome.Util.Padding import pad, unpad
+```
+
+Open and read from the /etc/hosts file
+
+```python3
+>>> with open("/etc/hosts", "rb") as f:
+>>>   file = f.read()
+```
+
+You can generate random key using this command in a bash shell:
+
+`head -c16 /dev/random | xxd -ps`
+
+where -c16 is the number of bytes we're reading from the /dev/random pseudorandom number generator using the head command. The raw data is passed to xxd which represents it in hexadecimal.
+
+Now let's encrypt the /etc/hosts file, please note that the key is randomly generated using the command above.
+
+
+```python3
+>>> key = b"71830edfe47b1b808af76fb62114b349"
+>>> e = AES.new(key, AES.MODE_CBC)
+>>> c = e.encrypt(pad(file,16))
+```
+
+You can inspect the contents of the ciphertext
+
+`>>> print(c)`
+
+To decrypt...
+
+
+```python3
+>>> d = AES.new(key, AES.MODE_CBC)
+>>> getMsg = d.decrypt(c)
+>>> print(unpad(getMsg,16))
+```
+
+---
+
+[^8]: The pad and unpad functions are needed for ECB and/or CBC mode(s)
+
