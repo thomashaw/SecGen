@@ -77,8 +77,7 @@
     </input>
 
     <input into_datastore="spoiler_admin_pass">
-<!--  TODO: Uncomment when ready    <generator type="strong_password_generator"/>-->
-      <value>test</value>
+      <generator type="strong_password_generator"/>
     </input>
 
     <!--Create the users-->

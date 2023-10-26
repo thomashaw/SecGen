@@ -6,15 +6,13 @@ Create a file and name it msg.txt using the following command:
 echo '"Science does not aim at establishing immutable truths and eternal dogmas; its aim is to approach the truth by successive approximations, without claiming that at any stage final and complete accuracy has been achieved." - Bertrand Russell' > msg.txt
 ```
 
-TODO: Review this is doing what it looks like, why do we need the public key pair here?
-
 Encrypt msg.txt producing ciphertext as output (msg.enc)
 
 ```bash
 gpg --cipher-algo AES128 -o msg.enc --symmetric msg.txt
 ```
 
-Decrypt msg.enc and redirect the plaintext output to msg.txt-decrypted
+Decrypt msg.enc and instruct gpg to store the plaintext output in msg.txt-decrypted
 
 ```bash
 gpg -o msg.txt-decrypted -d msg.enc
