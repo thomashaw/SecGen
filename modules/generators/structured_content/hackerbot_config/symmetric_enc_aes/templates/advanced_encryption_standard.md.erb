@@ -7,7 +7,7 @@ AES is a block cipher based on a symmetric key cryptosystem and it is an iterate
 
 This is a basic description of AES (Stinson and Paterson, 2019).
 
-1. Given a message (plaintext) *m*, initialise **State** to be *m*, add Round Key[^2] (**ROUNDKEY**), then XOR it with **State**.
+1. Given a message (plaintext) *m*, initialise **State**[^1] to be *m*, add Round Key[^2] (**ROUNDKEY**), then XOR it with **State**.
 
 2. For each N - 1 rounds, do a substitution operation (**SUBBYTES**)[^3] on **State** using pre-defined s-box (substitution-box); then perform permutation using (**SHIFTROWS**)[^4] followed by (**MIXCOLUMNS**)[^5] on **State** and then add (**ROUNDKEY**).
 
