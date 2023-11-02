@@ -128,8 +128,21 @@ module Proxmox
       params.delete(:description)
       params.delete(:memory)
       params.delete(:net0)
-      response = post "/nodes/#{node}/#{vm_type}/#{vm_id}/clone", params
-      wait_for_completion task_response: response, timeout_message: 'vagrant_proxmox.errors.create_vm_timeout'
+      retries = 5
+      begin
+        response = post "/nodes/#{node}/#{vm_type}/#{vm_id}/clone", params
+        wait_for_completion task_response: response, timeout_message: 'vagrant_proxmox.errors.create_vm_timeout'
+      rescue => e
+        if retries > 0
+          puts "Error: #{e.message}. Retrying..."
+          retries -= 1
+          sleep 5
+          retry
+        else
+          puts "Failed to clone VM after multiple retries."
+          raise e # Raising the error after retries are exhausted
+        end
+      end
     end
 
     def config_clone(node: required('node'), vm_type: required('node'), params: required('params'))
