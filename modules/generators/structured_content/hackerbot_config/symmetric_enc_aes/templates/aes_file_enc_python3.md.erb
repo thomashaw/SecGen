@@ -17,7 +17,9 @@ Open and read from the /etc/hosts file
 
 ```python3
 >>> with open("/etc/hosts", "rb") as f:
->>>   file = f.read()
+...   file = f.read()
+...
+>>>
 ```
 
 You can generate random key using this command in a bash shell:
@@ -38,6 +40,14 @@ Now let's encrypt the /etc/hosts file, please note that the key is randomly gene
 You can inspect the contents of the ciphertext
 
 `>>> print(c)`
+
+To write data to a file, open the file in *w*rite *b*inary mode
+```python3
+>>> with open("/etc/hosts.enc", "wb") as f:
+...   f.write(c)
+...
+>>>
+```
 
 To decrypt...
 
