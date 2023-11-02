@@ -18,7 +18,7 @@
   <url>https://app.vagrantup.com/secgen/boxes/debian_wheezy_kde_puppet/versions/1.0.1/providers/virtualbox.box</url>
   <esxi_url>https://app.vagrantup.com/redwiz666/boxes/debian_wheezy_desktop_kde/versions/1.0.0/providers/vmware.box</esxi_url>
   <ovirt_template>debian_desktop_kde</ovirt_template>
-  <proxmox_template>DebianDesktopKDE</proxmox_template>
+  <proxmox_template>DebianWheezyDesktopKDE2</proxmox_template>
 
   <reference>https://atlas.hashicorp.com/puppetlabs</reference>
   <software_license>various</software_license>
