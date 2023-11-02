@@ -351,6 +351,12 @@
       </input>
     </utility>
 
+    <utility module_path=".*/mirror_traffic_to_ids_iptables">
+      <input into="ids_IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </utility>
+
     <network type="private_network" >
       <input into="IP_address">
         <datastore access="3">IP_addresses</datastore>

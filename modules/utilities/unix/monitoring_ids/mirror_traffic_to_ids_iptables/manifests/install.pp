@@ -9,5 +9,10 @@ class mirror_traffic_to_ids_iptables::install {
     path     => [ '/bin/', '/sbin/' , '/usr/bin/', '/usr/sbin/' ],
     command  => "iptables -t mangle -A PREROUTING -i `ls /sys/class/net | grep lo -v  | head -n1` -j TEE --gateway $ids_IP_address ; iptables-save > /etc/iptables/rules.v4",
     provider => shell,
+  }->
+  service { 'netfilter-persistent':
+    enable => true,
+    ensure => 'running',
+    provider => systemd,
   }
 }

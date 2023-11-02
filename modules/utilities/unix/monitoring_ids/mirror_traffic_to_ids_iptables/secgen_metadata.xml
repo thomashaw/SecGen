@@ -6,7 +6,15 @@
   <name>Mirror traffic to IDS via IPtables rules</name>
   <author>Z. Cliffe Schreuders</author>
   <module_license>Apache v2</module_license>
-  <description>Forwards all traffic to an IDS, such as Snort. Uses IPtables TEE feature.</description>
+  <description>
+    Forwards all INCOMING traffic to an IDS, such as Snort.
+    This approach means no special networking is required to get monitoring working.
+    However, because each VM only fowards on the traffic it RECEIVES, all VMs in
+    the scenario (including attackers) need this module, so that the IDS sees
+    all the traffic.
+    Snort needs checksums set to none.
+    Uses IPtables TEE feature.
+  </description>
 
   <type>ids_tools</type>
   <platform>linux</platform>
