@@ -1,4 +1,4 @@
-# Integrity Management: Protecting Against Change
+# Symmetric Encryption with Advanced Encryption Standard (AES)
 
 ## Getting started
 ### VMs in this lab
@@ -14,13 +14,13 @@ Password: tiaspbiqe2r (**t**his **i**s **a** **s**ecure **p**assword **b**ut **i
 You won't login to the hackerbot_server, but the VM needs to be running to complete the lab.
 
 ### For marks in the module
-1. **You need to submit flags**. Note that the flags and the challenges in your VMs are different to other's in the class. Flags will be revealed to you as you complete challenges throughout the module. Flags look like this: ==flag{*somethingrandom*}==. Follow the link on the module page to submit your flags.
+1. **You need to submit flags**. Note that the flags and the challenges in your VMs are different to other's in the class. Flags will be revealed to you as you complete challenges throughout the module. Flags look like this: ==flag{*somethingrandom*}==. Submit your flags in Hacktivity to register your progress in the lab.
 2. **You need to document the work and your solutions in a Log Book**. This needs to include screenshots (including the flags) of how you solved each Hackerbot challenge and a writeup describing your solution to each challenge, and answering any "Log Book Questions". The Log Book will be submitted later in the semester.
 
 ## Meet Hackerbot!
 ![small-right](images/skullandusb.svg)
 
-This exercise involves interacting with Hackerbot, a chatbot who will attack your system. If you satisfy Hackerbot by completing the challenges she will reveal flags to you.
+This exercise involves Hackerbot, a chatbot who will interact with you and your system. If you satisfy Hackerbot by completing the challenges she will reveal flags to you.
 
 **On the desktop VM:**
 
@@ -31,20 +31,11 @@ This exercise involves interacting with Hackerbot, a chatbot who will attack you
 - Send "list"
 - Send "hello"
 
-Work through the below exercises, completing the Hackerbot challenges as noted.
+Work through the following exercises, completing the Hackerbot challenges as noted.
 
 ---
 
-## Integrity
+# Purpose
 
-Security is often described in terms of confidentiality, integrity, and availability. Protecting the integrity of information involves preventing and detecting unauthorised changes. In many commercial organisations integrity of information is the highest priority security goal. Managing who is authorised to make changes to databases or files, and monitoring the integrity of resources for unauthorised changes is an important task in managing information security.
+The purpose of this lab is to understand the application of the **A**dvanced **E**ncryption **S**tandard (**AES**) cipher and to work with a couple of the common encryption modes it provides, such as **C**ipher **B**lock **C**haining (**CBC**) and **E**lectronic **C**ode **B**ook (**ECB**).
 
-## Protecting integrity
-
-Protecting the integrity of resources, such as the files on a system, involves successfully managing a variety of security mechanisms, such as authentication, access controls and file permissions, firewalls, and so on.
-
-> On Linux systems this can include managing passwords, packet filtering IPTables rules, standard Unix file permissions (rwx), Linux extended attributes (including ACLs for detailed authentication, labels for mandatory access control (MAC), and Linux Capabilities). Linux (like other Unix-like and Unix-based systems) has a long history of adding new security features as and when they are required.
->
-> Note that many security controls such as those listed above are very important for protecting the integrity of files, but are beyond the scope of this lab. Here the focus is on techniques that are focussed on integrity rather than confidentiality or availability.
-
-There are precautions that can be taken to reduce the chances of unauthorised changes.
