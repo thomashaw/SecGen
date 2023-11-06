@@ -7,8 +7,7 @@
   <name>Encoding and Encryption Lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>Decode the files in your home directory.</description>
-
-  <!-- TODO: lab sheet link -->
+  <lab_sheet_url>http://docs.google.com/document/d/1_zA32_-A55gnxfgtHZfQx35TwdtjizHRQnMNOZwQnoA/edit?usp=sharing</lab_sheet_url>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>
