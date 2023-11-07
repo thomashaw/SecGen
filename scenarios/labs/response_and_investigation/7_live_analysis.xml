@@ -6,7 +6,14 @@
 
   <name>Live analysis lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. </description>
+  <description>
+    # Introduction
+    In this lab, you will dive into the world of digital forensics and incident response by investigating a potentially compromised server. Security breaches and compromises are a common occurrence in the digital age, and it's essential to understand how to analyze and gather evidence from a compromised system to determine the extent of the intrusion and identify potential threats. This lab will walk you through the process of live system analysis, using both standard Unix commands and tools provided by the FIRE (Forensic and Incident Response Environment) CD/DVD ISO, in order to collect volatile data and assess the system's security.
+
+    Throughout this hands-on lab, you will learn essential techniques for live system analysis, such as collecting information about running processes, network connections, kernel modules, and system state. You will also explore the use of static binaries to avoid potential tampering with dynamically linked executables. Additionally, you will employ tools like Chkrootkit to detect rootkits and perform offline analysis to uncover any suspicious activity or security breaches. By completing tasks such as creating a list of suspicious open ports, identifying unreported processes, and analyzing the output of data collection scripts, you will gain practical experience in investigating compromised systems, a crucial skill for cybersecurity professionals and digital forensics experts.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

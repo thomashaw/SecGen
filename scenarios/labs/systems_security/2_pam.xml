@@ -7,14 +7,24 @@
   <name>Pluggable Authentication Modules lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
-# Lecture
-[Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_6/WNS_ADS_Lectures_5_Authentication.html)
+    # Introduction
+    In this lab, you will explore Pluggable Authentication Modules (PAM) and Secure Shell (SSH) to enhance your understanding of authentication and security in Linux and Unix-like systems. PAM is a component that allows for the flexibility and extensibility of authentication methods, making it possible for various programs to leverage different authentication schemes, providing a standardized way to configure and manage authentication rules.
 
-# Reading
-[Chapter 4 "Users, Passwords, and Authentication": Garfinkel, S. Spafford, G. and Schwartz, A. (2003), Practical Unix and Internet Security, O'Reilly. (ISBN-10: 0596003234)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/abstract/9781449310325)
+    Throughout the lab, you will gain hands-on experience with PAM by examining available PAM modules, understanding the structure of PAM configuration files, and making modifications to enforce policies including: password complexity requirements, time constraints, lockout policies after repeated login failures, creating home directories, enforcing session limits through cron jobs. You will also explore SSH password-less authentication, a powerful method of securely accessing remote systems without the need for traditional passwords. By generating SSH key pairs and configuring authorized keys, you will learn how to enhance the security and convenience of remote access.
 
-# Lab
-A short lab this week, exploring PAM. Work through the labsheet, then when prompted interact with Hackerbot.
+    By the end of this lab, you will have a solid grasp of PAM's role in authentication, the benefits of SSH key-based authentication, and the practical skills to enhance the security and usability of authentication mechanisms in Linux systems.
+
+    # Hackerbot and CTF challenges
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+
+    The Hackerbot tasks involve configuring password policies, testing your ability to use PAM to enhance authentication security.
+
+    # Lecture
+    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_6/WNS_ADS_Lectures_5_Authentication.html)
+
+    # Reading
+    [Chapter 4 "Users, Passwords, and Authentication": Garfinkel, S. Spafford, G. and Schwartz, A. (2003), Practical Unix and Internet Security, O'Reilly. (ISBN-10: 0596003234)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/abstract/9781449310325)
+
   </description>
 
   <type>ctf-lab</type>

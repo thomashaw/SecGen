@@ -7,14 +7,21 @@
   <name>Authentication lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
-# Lecture
-[Slides here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_6/WNS_ADS_Lectures_5_Authentication.html)
+    # Introduction
+    Authentication is the process of verifying a user's identity, ensuring that individuals are who they claim to be before granting them access to systems and resources. This lab will provide you with hands-on experience, enabling you to explore the intricacies of user accounts and identity on Unix/Linux systems, gain insights into password storage and hashing, and even attempt to crack passwords using dictionary attacks. By the end of this lab, you will have a deeper understanding of how authentication works, the role of password security, and the importance of safeguarding user identities.
 
-# Reading
-[Chapter 11 "Authentication": Bishop, M. (2004), Introduction to Computer Security, Addison-Wesley. (ISBN-10:  0321247442)](https://my.leedsbeckett.ac.uk/bbcswebdav/pid-2221598-dt-content-rid-4451698_1/institution/Online%20Learning/AET/CT/MSc%20Computer%20Security/Principles%20of%20Digital%20Security/Readings/Week%205/DCS-85139%20%281%29.pdf)
+    Throughout this lab, you will learn about user accounts, their attributes, and their association with user and group IDs. You'll also explore the concept of salts in password hashing, understand the strengths and weaknesses of different passwords, and attempt to crack passwords using tools like John the Ripper. Practical tasks include examining the system's /etc/passwd and /etc/group files, changing user identities, and analyzing the /etc/shadow file to understand password storage. By actively engaging in these activities, you will gain a comprehensive understanding of authentication processes and the key factors that contribute to securing user identities in Unix/Linux systems.
 
-# Lab
-A Hackerbot lab. Work through the lab instructions, then when prompted interact with Hackerbot.
+    # Hackerbot and CTF challenges
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+
+    The Hackerbot tasks in this lab involve configuring new users and group membership. Then you will attempt to crack the passwords of users on the desktop VM whose user IDs (UIDs) are higher than 1001. After successfully cracking passwords, you will use these credentials to SSH into the separate server VM, where you will discover flags. This task showcases the practical implications of password security and cracking.
+
+    # Lecture
+    [Slides here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_6/WNS_ADS_Lectures_5_Authentication.html)
+
+    # Reading
+    [Chapter 11 "Authentication": Bishop, M. (2004), Introduction to Computer Security, Addison-Wesley. (ISBN-10:  0321247442)](https://my.leedsbeckett.ac.uk/bbcswebdav/pid-2221598-dt-content-rid-4451698_1/institution/Online%20Learning/AET/CT/MSc%20Computer%20Security/Principles%20of%20Digital%20Security/Readings/Week%205/DCS-85139%20%281%29.pdf)
   </description>
 
   <type>ctf-lab</type>

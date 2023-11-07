@@ -6,7 +6,13 @@
 
   <name>Symmetric Encryption with AES</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. Topics covered: Symmetric Encryption, Advanced Encryption Standard (AES)</description>
+  <description>
+    Symmetric encryption involves using the same key for both the encryption and decryption of data. In this lab, you will explore symmetric encryption with a focus on the Advanced Encryption Standard (AES). AES is a widely used block cipher that plays a crucial role in securing data in various applications, from secure communications to data protection. This lab aims to provide you with a high-level understanding of AES and its fundamental operations, such as Substitution (SubBytes), Permutation (ShiftRows and MixColumns), and Key Addition (Round Key). You will also explore how to work with AES encryption and decryption using both the GPG tool and Python3 with the Cryptodome module. This practical hands-on experience will equip you with the knowledge and skills necessary to apply AES encryption to secure your data.
+
+    Throughout this lab, you will have the opportunity to complete a series of tasks and challenges. These practical exercises will not only help you understand the underlying principles of AES but also equip you with the skills to apply this encryption technique to real-world scenarios, ensuring the security and confidentiality of your data.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

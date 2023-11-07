@@ -8,7 +8,9 @@
   <author>Z. Cliffe Schreuders</author>
   <description>
 # Introduction
-This week we will cover one of the major threats in computer security: software vulnerabilities. You will learn about the danger these pose, and start to learn about the power of the Metasploit framework, a popular hacking and penetration testing tool. You will learn and apply a number of important concepts such as payloads, shell code, bind and reverse shells, and both remote and local (client-side) exploits.
+In this lab you will explore one of the major threats in computer security: software vulnerabilities. It's a critical topic in the field of cybersecurity, as understanding how attackers exploit weaknesses in software systems is essential for both defensive and offensive security measures. The lab will cover various aspects, starting with an introduction to software vulnerabilities and the causes behind them, moving on to explore different types of payloads, such as bind shells and reverse shells. You will also get hands-on experience with the Metasploit framework, a powerful tool for conducting security assessments and penetration testing.
+
+Throughout this lab, you will gain a deeper understanding of software vulnerabilities, how exploits work, and the techniques attackers use to gain remote access to vulnerable systems. You will learn and apply both remote and local (client-side) exploits. You'll simulate creating and using a malicious PDF document to compromise a system, as well as remotely exploiting a system with known vulnerabilities. This hands-on experience will provide you with valuable insights into the world of cybersecurity and start to learn about the power of the Metasploit framework, a popular hacking and penetration testing tool.
 
 # Lecture
 [Slides here](http://z.cliffe.schreuders.org/presentations/slides/DSL_DS_OSPT_Lectures_3_Vulnerabilities.html)

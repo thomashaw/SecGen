@@ -6,7 +6,14 @@
 
   <name>Integrity detection lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. Topics covered: Detecting changes to resources using backups; File integrity checkers; Detecting changes to resources using package management.</description>
+  <description>
+    # Introduction
+    Integrity management is a crucial aspect of information security, focusing on preventing and detecting unauthorized changes to resources, such as files and configurations, within a computer system. Maintaining the integrity of these resources is vital in ensuring the trustworthiness of a system, as any unauthorized changes can lead to security breaches and data corruption. This lab sheet delves into the various techniques for detecting changes to system integrity, including the use of backups, file hashing, and package verification. It emphasizes the importance of these methods in safeguarding the integrity of a system and provides hands-on exercises to demonstrate their practical application.
+
+    In this lab, you will learn about different strategies for detecting unauthorized changes. You will create and compare backups of critical system files, generate and compare file hashes using tools like md5sum and sha1deep, and explore the concept of package verification to check the integrity of installed software packages. You will face challenges from Hackerbot, where you'll apply the learned techniques to detect and respond to various security threats, such as detecting new users, changes to config files, and replaced binary files with malware. This hands-on experience will equip you with the skills and knowledge needed to protect and maintain the integrity of a computer system, a fundamental component of effective information security.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

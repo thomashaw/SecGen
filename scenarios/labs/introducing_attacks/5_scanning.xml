@@ -8,7 +8,9 @@
   <author>Z. Cliffe Schreuders</author>
   <description>
 # Introduction
-This week we learn how to scan networks to get an understanding of and to map out a network. Scanning is a critical stage for an attacker, since it can give them the information they need in order to launch an attack.
+Information gathering and network scanning are processes aimed at understanding the structure of a network and identifying potential vulnerabilities, and ensuring the overall security of the network. Scanning a critical stage for an attacker, since it can give them the information they need in order to launch an attack. By delving into this lab, you will acquire essential knowledge and practical skills necessary for both defensive and offensive security strategies
+
+This lab provides an in-depth exploration of scanning techniques. You will learn how to perform ping sweeps to identify live hosts on a network, create your own ping sweep bash script, and use Nmap (a popular and powerful open source tool) for host discovery. You will also explore the world of port scanning, creating your own port scanner using a bash script, and conducting SYN port scans. Additionally, you will gain insights into service identification through banner grabbing and protocol analysis, and discover methods to detect the operating system of a remote system. By the end of this lab, you will be equipped with a comprehensive understanding of network scanning techniques and will have hands-on experience in executing these scans to assess the security of target systems.
 
 # Reading
 [Chapter 2 Reconnaissance and Chapter 3 Scanning. Engebretson, P. (2011), The Basics of Hacking and Penetration Testing: Ethical Hacking and Penetration Testing Made Easy, Elsevier Inc. (ISBN: 978-1-59749-655-1) Available online via the library](http://www.sciencedirect.com/science/book/9781597496551)

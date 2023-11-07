@@ -6,9 +6,16 @@
 
   <name>Encoding and Encryption Lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>Decode the files in your home directory.</description>
+  <description>
+    # Introduction
+    Cryptography is a fundamental aspect of information security, enabling us to secure data from prying eyes and malicious actors. This hands-on lab will equip you with essential knowledge and skills related to encoding schemes, hash algorithms, and the use of tools like OpenSSL and Gnu Privacy Guard (GPG). You'll explore concepts like encoding data into different formats, encrypting and decrypting information, and managing keys. These skills are crucial for anyone interested in the field of cybersecurity, data protection, or simply understanding how secure communication works in the digital age.
 
-  <!-- TODO: lab sheet link -->
+    Throughout the lab, you'll learn to encode strings into various formats, including hexadecimal and Base64. You'll experiment with symmetric key encryption using the Data Encryption Standard (DES) and the Advanced Encryption Standard (AES). Additionally, you'll explore public-key cryptography with GPG, creating and managing keys, encrypting and decrypting data, and understanding the importance of key pairs.
+
+    In the home directory of your VM there are a series of encoding and encryption CTF challenges for you to complete, to put your knowledge into practice.
+  </description>
+
+  <lab_sheet_url>https://docs.google.com/document/d/1wKm2c7yxhM-9GnAiS_Mgvk_8-H7FKEBeGeMc6H0KlwA/edit?usp=sharing</lab_sheet_url>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

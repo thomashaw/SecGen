@@ -6,7 +6,14 @@
 
   <name>Security information and event management (SIEM) and Elastic (ELK) Stack lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. </description>
+  <description>
+    # Introduction
+    This lab provides a comprehensive overview of logging and security information and event management (SIEM) concepts, with an emphasis on the context of Linux systems. Logging is a critical aspect of system administration and security, enabling the monitoring of system events and providing valuable insights into system activities. The lab covers the fundamentals of logging, including the systemd journal and traditional syslog, and introduces the Elastic (ELK) Stack as a powerful SIEM solution. It also explores the usage of Auditbeat to monitor system audit information and highlights the role of a Security Operations Centre (SOC) in managing and responding to security incidents.
+
+    In this lab, you will learn how to use various logging tools and commands, such as journalctl and syslog, to access and analyze system logs. You will gain practical experience in configuring logging rules, utilizing regular expressions to filter log data, and exploring log rotation for efficient log management. Additionally, you will set up Auditbeat to monitor system activities and visualize the collected data using Elastic Stack. By the end of the lab, you will have a strong foundation in log management, SIEM, and be well-equipped to enhance the security and monitoring capabilities of Linux systems.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

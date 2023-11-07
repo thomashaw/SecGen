@@ -6,7 +6,14 @@
 
   <name>IDS lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. </description>
+  <description>
+    # Introduction
+    Intrusion Detection and Prevention Systems (IDS/IPS) are crucial components of network security, helping organizations monitor and defend against malicious activities and unauthorized access. This lab focuses on network monitoring basics and hands-on experience with tools like Tcpdump, Wireshark, and Snort, all useful for detecting and responding to potential threats. Network monitoring is a foundational practice in cybersecurity, as it allows you to observe network traffic and identify any suspicious or unwanted behavior. In this lab, you will gain practical experience by monitoring live network traffic, setting up Snort to detect network attacks, and analyzing the captured data. By the end of this lab, you will have a better understanding of how IDS/IPS systems work and how to configure and use them effectively to enhance network security.
+
+    During this hands-on lab, you will learn how to set up network monitoring tools like Tcpdump and Wireshark to observe live network traffic. You will use these tools to detect specific strings in network packets and identify port scanning attempts on a web server. Additionally, you will configure Snort, a popular IDS, to monitor network traffic to detect network activities of interest. As part of your practical exercises, you will trigger Snort alerts by sending ICMP pings and monitor the alerts generated. Throughout the lab, you will also interact with Hackerbot, which will simulate network attacks, and you will need to use the tools you've learned to detect and respond to these simulated attacks. By completing these tasks, you will develop practical skills in network monitoring and intrusion detection.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

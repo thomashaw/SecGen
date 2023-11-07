@@ -6,7 +6,14 @@
 
   <name>Dead analysis lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. </description>
+  <description>
+    # Introduction
+    In this lab, you will delve into the world of digital forensics and offline analysis by examining a compromised system to uncover evidence of a security breach. This lab provides a hands-on experience with various forensic tools and techniques to investigate a compromised server. You will explore key theoretical concepts such as integrity management, log analysis, file recovery, and timeline reconstruction to piece together the events leading to the system compromise.
+
+    You will learn how to mount a disk image read-only, analyze file integrity using MD5 hashes, use Autopsy on Kali to examine file types and check for trojanized executables, conduct timeline analysis to reconstruct the sequence of events, and examine deleted files for hidden clues. You will also investigate log files, identify attempted SSH and Telnet logins, and recover email addresses used in communication. By the end of the lab, you will have gained valuable practical experience in forensic analysis and incident response, equipping you with skills to identify and understand security breaches in real-world scenarios.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

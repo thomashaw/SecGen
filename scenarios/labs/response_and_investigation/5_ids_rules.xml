@@ -7,11 +7,12 @@
   <name>IDS rules lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
+    # Introduction
     In this lab on Intrusion Detection and Prevention Systems, you will delve into the world of network security, learning how to configure and monitor a network using Snort, a popular open-source intrusion detection system. This lab will guide you through the process of setting up Snort, and creating custom intrusion detection rules.
 
     Throughout this lab, you will gain hands-on experience in configuring Snort to monitor network traffic. You will learn how to create custom Snort rules to detect specific network activities, and use Wireshark to capture and analyze network packets. The lab will also present you with a series of Hackerbot challenges, where you will apply your knowledge to detect and respond to various network attacks. For example, you will create Snort rules to detect attempts to access specific ports, monitor unencrypted email authentication, and more. By the end of this lab, you will have a solid understanding of intrusion detection and prevention systems, as well as practical experience in configuring and monitoring them to safeguard your network from potential threats.
 
-    This is a Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot.
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
   </description>
 
   <type>ctf-lab</type>
@@ -360,7 +361,7 @@
         </generator>
       </input>
     </utility>
-    
+
     <utility module_path=".*/mirror_traffic_to_ids_iptables">
       <input into="ids_IP_address">
         <datastore access="1">IP_addresses</datastore>

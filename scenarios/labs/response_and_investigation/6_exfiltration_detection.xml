@@ -7,11 +7,12 @@
   <name>Exfiltration detection lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
+    # Introduction
     In this lab, you will delve into the critical realm of Data Loss Prevention (DLP) and exfiltration detection. Data loss prevention is a vital cybersecurity practice aimed at safeguarding sensitive information from unauthorized access or leakage. It is highly relevant in today's digital age, where data breaches and insider threats pose significant risks to organizations. This lab provides you with hands-on experience in setting up and configuring Snort, a popular Intrusion Detection System (IDS), to monitor network traffic and detect the unauthorized transfer of sensitive data.
 
     In this lab, you will learn how to configure Snort to detect unauthorized data transfers and exfiltration. By editing Snort configuration files, you will set up monitoring rules that trigger alerts when sensitive data, like credit card details and national insurance numbers, are being transported over the network. You will also extend your rule to detect the transfer of a fake data file so that your rules are effective without revealing the actual sensitive content. To accomplish this, you'll explore various Snort rule techniques, such as text-based, regular expression-based, and hash-based matching, gaining an in-depth understanding of data loss prevention strategies. By the end of the lab, you'll have practical experience in setting up DLP measures using Snort, a valuable skill for protecting an organization's sensitive data assets.
 
-    This is a Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot.
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
   </description>
 
   <type>ctf-lab</type>
@@ -369,7 +370,7 @@
         </generator>
       </input>
     </utility>
-    
+
     <utility module_path=".*/mirror_traffic_to_ids_iptables">
       <input into="ids_IP_address">
         <datastore access="1">IP_addresses</datastore>

@@ -8,7 +8,9 @@
   <author>Z. Cliffe Schreuders</author>
   <description>
 # Introduction
-The topic of information gathering spans two weeks, and covers practical steps that an attacker needs to take in order to attack a system, starting with footprinting (discovering systems to attack) and scanning (learning more about the systems such as what kinds of attacks they are vulnerable to).
+In this lab on information gathering, you will dive into the initial stage of preparing for various cybersecurity assessments and penetration tests. Information gathering involves understanding a target and its potential vulnerabilities by collecting data that can be used for social engineering attacks, identifying network ranges and exposed systems, and discovering various services that may be potential entry points for attackers. This lab focuses on identifying hosts using DNS (Domain Name System) and provides hands-on experience with tools and techniques that ethical hackers and security professionals use to gather valuable insights about their targets.
+
+Throughout this lab, you will learn how to use DNS-related commands and tools to determine IP addresses associated with domain names, perform reverse DNS lookups, explore DNS zone transfers to identify servers, and utilize Whois to extract domain ownership information. You will also work with automated DNS footprinting tools like dnstracer, dnsmap, dnsenum, and dnsrecon to efficiently collect valuable data. By the end of this lab, you will have a solid foundation in information gathering techniques that are essential for ethical hacking and security testing, allowing you to move on to the scanning phase of a target assessment.
 
 # Lecture
 [Slides here](http://z.cliffe.schreuders.org/presentations/slides/DSL_DS_OSPT_Lectures_4_Information_gathering.html)

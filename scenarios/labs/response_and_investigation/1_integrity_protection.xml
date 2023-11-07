@@ -6,7 +6,14 @@
 
   <name>Integrity protection lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. Topics covered: Protecting integrity with file attributes; Protecting integrity with read-only filesystems.</description>
+  <description>
+    # Introduction
+    This lab addresses preserving the integrity of your digital assets. In today's data-driven world, ensuring the accuracy and reliability of information is of utmost importance. Unauthorized changes, whether intentional or accidental, can lead to significant data breaches and compromise the trustworthiness of your system. This lab is designed to provide you with essential knowledge and practical skills to fortify the security of your data by exploring key theoretical concepts like file permissions, file attributes, and read-only filesystems.
+
+    Throughout this lab, you will engage in practical exercises to grasp fundamental principles of data integrity protection. You'll explore the use of file attributes to restrict access and protect sensitive information. Furthermore, you'll discover the utility of read-only filesystems by mounting directories in read-only mode, ensuring that changes cannot be made to critical system files. By completing these exercises and challenges, you will acquire the skills to protect your system's integrity, thereby bolstering your cybersecurity proficiency and enhancing your ability to maintain data confidentiality and availability.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

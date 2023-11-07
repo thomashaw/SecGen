@@ -8,7 +8,9 @@
   <author>Z. Cliffe Schreuders</author>
   <description>
 # Introduction
-This topic covers lots of ground regarding fundamentals of Linux and free open source software (FOSS).
+In this lab, you will delve into the fascinating world of Linux and security tools, gaining practical knowledge and skills that are highly relevant in the field of cybersecurity. Linux is a powerful and versatile operating system widely used in the IT industry. Understanding Linux and its command-line interface is crucial for anyone interested in security testing and ethical hacking. You'll begin by familiarizing yourself with Linux basics, from fundamental command-line operations to concepts like piping between programs and file redirection. This lab will also introduce you to the Kali Linux distribution, a platform designed for penetration testing and ethical hacking.
+
+Throughout this lab, you will learn how to perform various tasks, such as creating and manipulating files, exploring the Linux file system, and conducting network-related activities. You will gain hands-on experience with SSH, a secure remote shell protocol used for administration, and even attempt online brute force attacks to understand the importance of security in the digital realm. By the end of this lab, you will have honed your Linux command-line skills, developed a basic understanding of networking, and practiced using essential security tools, preparing you for more advanced challenges in the field of cybersecurity. Get ready to embark on an engaging journey where you will explore the core elements of Linux and security.
 
 # Lecture
 [Slides here](http://z.cliffe.schreuders.org/presentations/slides/DSL_DS_OSPT_Lectures_1_Intro_to_Unix_FOSS_and_Linux.html)

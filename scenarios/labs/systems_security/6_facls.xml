@@ -7,15 +7,21 @@
   <name>Access Control Lists (ACLs) lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
-# Lecture
-[Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)
+    # Introduction
+    Access Control Lists (ACLs) are sets of rules attached to resources, specifying which subjects (users or entities) are authorized to access the resource and the type of permissions granted to each subject. ACLs allow for a granular and flexible approach to managing who can access a file, what kind of access they have, and how these permissions are inherited and checked.
 
-# Reading
-[Grunbacher, Andreas. "POSIX Access Control Lists on Linux." *USENIX Annual Technical Conference*, FREENIX Track. 2003.](https://www.usenix.org/legacy/events/usenix03/tech/freenix03/full_papers/gruenbacher/gruenbacher.pdf)
+    You will learn about the fundamental concepts of Full ACLs, their syntax and usage on Linux systems, and how they differ from traditional Unix file permissions. Through hands-on tasks, you will set ACLs on files, manipulate permissions for specific users, explore the mask entry's role in determining maximum permissions, and understand the behavior of access checks in ACLs. Additionally, you will discover the concept of default ACLs and their impact on newly created files within a directory. By comparing Linux ACLs to Windows ACLs, you'll gain insights into the unique features and nuances of each system, such as inheritance logic and the use of global security identifiers. This lab will equip you with practical skills and knowledge to manage access control effectively in a diverse range of computing environments.
 
-# Lab
-A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot.
+    # Hackerbot and CTF challenges
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
 
+    The Hackerbot tasks involve creating and managing files and directories using Linux ACLs to control access, allowing specific users to read and write while denying access to others. There is also a file permissions challenge on a server where you take what you've learned over the last few topics to find and exploit a permissions weakness.
+
+    # Lecture
+    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)
+
+    # Reading
+    [Grunbacher, Andreas. "POSIX Access Control Lists on Linux." *USENIX Annual Technical Conference*, FREENIX Track. 2003.](https://www.usenix.org/legacy/events/usenix03/tech/freenix03/full_papers/gruenbacher/gruenbacher.pdf)
   </description>
 
   <type>ctf-lab</type>

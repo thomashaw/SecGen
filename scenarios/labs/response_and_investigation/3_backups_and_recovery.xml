@@ -6,7 +6,27 @@
 
   <name>Backups lab</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. Topics covered: Rsync, and backups and restoring data using differential and incremental backups.</description>
+  <description>
+    # Introduction
+    This lab focuses on the critical aspect of contingency planning in the context of cybersecurity and data management. It highlights the importance of maintaining data availability and system reliability, especially when dealing with potential disasters and security incidents. The lab delves into practical strategies for creating reliable backups, understanding recovery procedures, and implementing backup solutions using the powerful rsync command.
+
+    In this lab, you will learn how to utilize SSH/SCP for secure file transfer, create full, differential, and incremental backups using the rsync tool, and employ backups for efficient data protection. You will also explore the concept of snapshot backups, which allow for efficient storage of data by using hard links to unchanged files. Throughout the lab, you will engage in hands-on tasks such as copying directories, performing backups, restoring files, and setting up remote backups. By completing these exercises, you will gain valuable skills in contingency planning and data backup strategies, which are essential for maintaining the availability and security of critical systems and data.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+
+    # Tips for the lab
+
+    [This resource is really really useful for understanding what happens when using Rsync depending on whether you include or don't include a slash at the end of a path, which often catches people out.](https://web.archive.org/web/20220703112235/http://qdosmsq.dunbar-it.co.uk/blog/2013/02/rsync-to-slash-or-not-to-slash/)
+
+    This lab needs to be completed in order.
+
+    Manually check you have done your backups correctly before telling Hackerbot you are ready. It may be a good idea to ssh to your backup server in a separate console tab ssh IP-ADDRESS (but do keep an eye on which system you are running each command on!).
+
+    Keep an eye on the trailing slashes in rsync commands and how it changes the behaviour (the difference between copying a directory or it's contents).
+
+    Each time you can test that your rsync command is going to do what you expect by adding -n to the command, which does a "Dry Run" without making any of the actual changes -- once you are happy it's making the changes you expect, run it again without the -n
+
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

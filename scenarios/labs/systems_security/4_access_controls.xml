@@ -7,14 +7,21 @@
   <name>Access Controls lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
-# Lecture
-[Slides here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)
+    # Introduction
+    Access control involves authorizing and mediating access to resources, determining what actions are permitted, and enforcing security policies. In this lab, you will delve into access control and Unix file permissions, gaining a practical understanding of how they work and their significance in maintaining system security. The lab will introduce you to subjects and objects in the context of access control, different access control models, and Unix file permissions.
 
-# Reading
-[Chapter 1 "Foundations of Security and Access Control in Computing": Benantar, M. (2006), Access Control Systems: Security, Identity Management and Trust Models, Springer. (ISBN-10: 0387004459)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/readonline/9780387277165)
+    Throughout this lab, you will learn how to view and manipulate file permissions in a Unix-like operating system. You will explore the concept of inodes, examine file permissions using the ls command, create and manage hard and symbolic links to files, and understand how directory-level permissions affect file access. Additionally, you will work with the chmod command to change file permissions and discover the significance of the umask command in setting default permissions for new files. By the end of this lab, you will have an understanding of access control, file permissions, and practical skills in managing access rights on a Linux system.
 
-# Lab
-A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot.
+    # Hackerbot and CTF challenges
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+
+    The Hackerbot tasks are designed to provide hands-on experience in managing user access, group permissions, and file ownership, and will enhance your understanding of access control mechanisms. You will create files with specific permissions, ownership, and group assignments while ensuring that other users are appropriately restricted from accessing these files.
+
+    # Lecture
+    [Slides here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)
+
+    # Reading
+    [Chapter 1 "Foundations of Security and Access Control in Computing": Benantar, M. (2006), Access Control Systems: Security, Identity Management and Trust Models, Springer. (ISBN-10: 0387004459)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/readonline/9780387277165)
   </description>
 
   <type>ctf-lab</type>

@@ -7,18 +7,25 @@
   <name>AppArmor lab</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
-# Lecture
-[Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/slides_out_sandboxing/ADS_PDS_Lectures_8_Sandboxes_and_Virtualisation.html)
+    # Introduction
+    Mandatory Access Controls (MAC) encompass mechanisms such as Capabilities and AppArmor, which provide system-wide access controls to manage and enforce permissions for processes and applications, mitigating security risks and enhancing overall system security. In this lab, you will explore two aspects of system-wide access controls in Linux security: Capabilities and AppArmor.
 
-# Lectures for the next two weeks
-[Secure software development](https://leedsbeckettreplay.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=31ee4531-1834-4028-8829-aa1d00a73a7e)
+    First, you will delve into the concept of Capabilities, a coarse-grained approach to control privileges in Linux. You will learn how capabilities can be used to grant specific permissions to programs without having them run as the all-powerful root user. You will also explore AppArmor, a rule-based, fine-grained access control system for Linux. You will examine how AppArmor profiles are used to specify the resources and permissions that a program can access, effectively creating a whitelist of allowed actions. You will create rules and experience the learning mode of AppArmor, which helps construct rules based on actual program behavior and understand the advantages and disadvantages of a blacklist (deny) versus a whitelist (ignore) approach to writing AppArmor rules. By the end of this lab, you will have a deep understanding of how capabilities and AppArmor can enhance the security of your Linux system by controlling what programs can do and which resources they can access.
 
-[Secure design principles](https://leedsbeckettreplay.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6f409b1c-2daa-4798-8bc7-aa2400952d29)
+    # Hackerbot and CTF challenges
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
 
-[Slides](http://z.cliffe.schreuders.org/presentations/slides/slides_secure_design/ADS_PDS_Lectures_3_Secure_Software_Development_and_Bug_Hunting.html)
+    Hackerbot will challenge you to use AppArmor to provide a shell to attackers, with only limitted access to specific resources.
 
-# Lab
-A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot.
+    # Lecture
+    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/slides_out_sandboxing/ADS_PDS_Lectures_8_Sandboxes_and_Virtualisation.html)
+
+    # Lectures for the next two weeks
+    [Secure software development](https://leedsbeckettreplay.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=31ee4531-1834-4028-8829-aa1d00a73a7e)
+
+    [Secure design principles](https://leedsbeckettreplay.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6f409b1c-2daa-4798-8bc7-aa2400952d29)
+
+    [Slides](http://z.cliffe.schreuders.org/presentations/slides/slides_secure_design/ADS_PDS_Lectures_3_Secure_Software_Development_and_Bug_Hunting.html)
   </description>
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

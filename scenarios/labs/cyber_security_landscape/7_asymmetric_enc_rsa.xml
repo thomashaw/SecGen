@@ -6,7 +6,13 @@
 
   <name>Asymmetric Encryption with RSA</name>
   <author>Z. Cliffe Schreuders</author>
-  <description>A Hackerbot lab. Work through the labsheet, then when prompted interact with Hackerbot. Topics covered: Asymmetric Encryption, RSA</description>
+  <description>
+    Public key cryptography (also known as asymmetric encryption) enables secure communication, digital signatures, and data encryption without the need for a shared secret key. In this lab you will delve into the world of public key cryptography, specifically focusing on the RSA (Rivest-Shamir-Adleman) cipher, one of the most widely used asymmetric encryption methods. This lab will help you understand the fundamental principles of RSA encryption, key pair generation, and encryption/decryption processes. You will also interact with Hackerbot, a chatbot designed to challenge and test your knowledge as you progress through the exercises.
+
+    Throughout this lab, you will learn the key concepts and procedures related to RSA encryption. You will start by generating RSA key pairs and performing encryption and decryption operations using both OpenSSL and Python. You will pick prime numbers, calculate modulus and phi(N), select encryption and decryption keys, and apply these concepts to encrypt and decrypt messages. The lab includes various Hackerbot challenges that you will complete, such as creating key pairs, encrypting and decrypting messages, and solving encryption-related quizzes. These practical exercises will deepen your understanding of RSA encryption and help you gain hands-on experience in using this cryptographic technique to secure information and communication.
+
+    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
+  </description>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>
