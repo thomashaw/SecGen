@@ -9,6 +9,7 @@
   <description>Generates all parameters required by the coconut malware sample's configuration</description>
 
   <type>coconut_config_generator</type>
+  <type>coconut_config</type>
   <platform>linux</platform>
 
   <read_fact>pack_binary</read_fact>
