@@ -9,7 +9,7 @@
   if self.accounts.empty?
     abort('Sorry, you need to provide an account')
   end
-	$coconut_config = JSON.parse(self.coconut_config.first)
+	$coconut_config = JSON.parse(self.coconut_config)
 	$first_account = JSON.parse(self.accounts.first)
 
 	$main_user = $first_account['username'].to_s
