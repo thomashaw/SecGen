@@ -5,6 +5,7 @@ class REMACoconut < HackerbotConfigGenerator
 
   attr_accessor :desktop_ip
   attr_accessor :hackerbot_server_ip
+  attr_accessor :victim_server_ip
   attr_accessor :coconut_config
 
   def initialize
@@ -18,12 +19,14 @@ class REMACoconut < HackerbotConfigGenerator
     self.html_template_path = "#{self.local_dir}/templates/labsheet.html.erb"
     self.desktop_ip = ''
     self.hackerbot_server_ip = ''
+    self.victim_server_ip = ''
     self.coconut_config = ''
   end
 
   def get_options_array
     super + [['--desktop_ip', GetoptLong::REQUIRED_ARGUMENT],
              ['--coconut_config', GetoptLong::REQUIRED_ARGUMENT],
+             ['--victim_server_ip', GetoptLong::REQUIRED_ARGUMENT],
              ['--hackerbot_server_ip', GetoptLong::REQUIRED_ARGUMENT]]
   end
 
@@ -34,6 +37,8 @@ class REMACoconut < HackerbotConfigGenerator
         self.desktop_ip << arg;
       when '--hackerbot_server_ip'
         self.hackerbot_server_ip << arg;
+      when '--victim_server_ip'
+        self.victim_server_ip << arg;
       when '--coconut_config'
         self.coconut_config << arg;
     end
