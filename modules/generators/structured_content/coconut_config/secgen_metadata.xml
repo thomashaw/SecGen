@@ -49,16 +49,44 @@
     </generator>
   </default_input>
   <default_input into="http_bd_port">
-    <value>1337</value>
+    <generator type="number">
+      <input into="minimum">
+        <value>1025</value>
+      </input>
+      <input into="maximum">
+        <value>65535</value>
+      </input>
+    </generator>
   </default_input>
   <default_input into="icmp_bd_port">
-    <value>1338</value>
+    <generator type="number">
+      <input into="minimum">
+        <value>1025</value>
+      </input>
+      <input into="maximum">
+        <value>65535</value>
+      </input>
+    </generator>
   </default_input>
   <default_input into="bind_bd_port">
-    <value>1339</value>
+    <generator type="number">
+      <input into="minimum">
+        <value>1025</value>
+      </input>
+      <input into="maximum">
+        <value>65535</value>
+      </input>
+    </generator>
   </default_input>
   <default_input into="transport_port">
-    <value>1400</value>
+    <generator type="number">
+      <input into="minimum">
+        <value>1025</value>
+      </input>
+      <input into="maximum">
+        <value>65535</value>
+      </input>
+    </generator>
   </default_input>
   <default_input into="bd_password">
     <value>test123</value>
