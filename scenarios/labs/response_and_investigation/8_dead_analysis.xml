@@ -252,7 +252,7 @@
     <base distro="Kali" name="MSF"/>
 
     <input into_datastore="kali_root_account">
-      <value>{"username":"root","password":"toor","super_user":"","strings_to_leak":[],"leaked_filenames":[]}</value>
+      <value>{"username":"root","password":"toor","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
     </input>
 
     <utility module_path=".*/metasploit_framework"/>
