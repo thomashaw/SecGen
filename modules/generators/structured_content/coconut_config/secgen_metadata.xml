@@ -89,7 +89,7 @@
     </generator>
   </default_input>
   <default_input into="bd_password">
-    <value>test123</value>
+    <generator type="weak_password_generator"/>
   </default_input>
 
   <output_type>json</output_type>
