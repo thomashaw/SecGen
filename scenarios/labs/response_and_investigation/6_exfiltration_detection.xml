@@ -41,30 +41,27 @@
     <by>Z. Cliffe Schreuders</by>
     <url>https://youtu.be/4zYn4hbwKYQ</url>
     <type>lecture-prerecorded</type>
-    <CyBOK KA="N/A" topic="Hints">
-      <keyword>Technical hint</keyword>
-    </CyBOK>
   </video>
   <video>
     <title>Snort Regexp Tips</title>
     <by>Z. Cliffe Schreuders</by>
     <url>https://youtu.be/Y32tmFrCEBk</url>
     <type>demo-prerecorded</type>
-      <CyBOK KA="SOIM" topic="Monitor: Data Sources">
-        <keyword>network traffic</keyword>
-      </CyBOK>
-      <CyBOK KA="SOIM" topic="Analyse: Analysis Methods">
-        <keyword>misuse detection</keyword>
-        <keyword>anomaly detection</keyword>
-      </CyBOK>
-      <CyBOK KA="NS" topic="Network Defence Tools">
-        <keyword>packet filters</keyword>
-        <keyword>intrusion detection systems</keyword>
-        <keyword>IDS rules creation</keyword>
-      </CyBOK>
-      <CyBOK KA="MAT" topic="Malware Detection">
-        <keyword>attack detection</keyword>
-      </CyBOK>
+    <CyBOK KA="SOIM" topic="Monitor: Data Sources">
+      <keyword>network traffic</keyword>
+    </CyBOK>
+    <CyBOK KA="SOIM" topic="Analyse: Analysis Methods">
+      <keyword>misuse detection</keyword>
+      <keyword>anomaly detection</keyword>
+    </CyBOK>
+    <CyBOK KA="NS" topic="Network Defence Tools">
+      <keyword>packet filters</keyword>
+      <keyword>intrusion detection systems</keyword>
+      <keyword>IDS rules creation</keyword>
+    </CyBOK>
+    <CyBOK KA="MAT" topic="Malware Detection">
+      <keyword>attack detection</keyword>
+    </CyBOK>
   </video>
 
   <system>
