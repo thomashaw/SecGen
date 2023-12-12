@@ -7,12 +7,11 @@
 ==Start these VMs== (if you haven't already):
 
 - hackerbot-server (leave it running, you don't log into this)
-- kali (user: root, password: toor)
-- desktop (user: <%= $main_user %>, password: tiaspbiqe2r)
+- kali (user: kali, password: kali)
 
 All of these VMs need to be running to complete the lab.
 
-Analysis is done on the Kali VM, answers stored on the Desktop VM.
+Analysis is done on the Kali VM.
 
 ## Introduction to dead (offline) analysis
 
@@ -32,13 +31,13 @@ It is possible to mount the partition image directly as a [*loop device*](http:/
 ==Create a directory to mount our evidence onto:==
 
 ```bash
-mkdir /mnt/compromised
+sudo mkdir /mnt/compromised
 ```
 
 ==Mount the image== that we previously captured of the state of the main partition on the compromised system:
 
 ```bash
-mount -O ro -o loop evidence/hda1.img /mnt/compromised
+sudo mount -O ro -o loop /root/evidence/hda1.img /mnt/compromised
 ```
 
 Confirm that you can now see the files that were on the compromised system:
@@ -69,7 +68,7 @@ Autopsy is a front-end for the Sleuth Kit (TSK) collection of forensic analysis 
 ==Create a directory== for storing the evidence files from Autopsy:
 
 ```bash
-mkdir /root/evidence/autopsy
+sudo mkdir /root/evidence/autopsy
 ```
 
 Start Autopsy. You can do this using the program menu. ==Click Applications / Forensics / autopsy.==
