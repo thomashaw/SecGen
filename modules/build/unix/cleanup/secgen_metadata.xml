@@ -31,6 +31,11 @@
     <value>false</value>
   </default_input>
 
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>windows</platform>
+  </conflict>
+
   <requires>
     <module_path>utilities/unix/system/.*/accounts</module_path>
   </requires>
