@@ -265,19 +265,25 @@ when "proxmox" # nothing
            # use some shell scripting to identify the name of the network interface (eth0/ens3/...), and set the IP address statically
            <%= system.name %>.vm.provision 'shell', inline: "echo -e \"auto lo\niface lo inet loopback\n\nauto <%= interface %>\niface <%= interface %> inet static\n\taddress <%= resolve_network(selected_module)%>\" > /etc/network/interfaces"
            <%= system.name %>.vm.provision 'shell', inline: "echo '' > /etc/environment"
-          <% # Below string is used within testing, do not delete. -%>
+<%        # Below string is used within testing, do not delete. -%>
           # ip_address_for_<%= system.name %>=<%= resolve_network(selected_module)%>
 <%       elsif (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template =~ /win/i -%>
 <%         # Windows on oVirt/Proxmox
-           # re-activate windows -%>
-          <%= system.name %>.vm.provision 'shell', inline: 'cscript //b c:\windows\system32\slmgr.vbs /ato'
-
-<%           #  change network on reboot via scheduled task, so that it gets the new IP on reboot (not mid-provision)
-           # TODO: use some clever scripting to identify the network name : $interface = $(wmic.exe nic where "NetConnectionStatus=2" get NetConnectionID | findstr Local).Trim(); schtasks /create /rl HIGHEST /ru system /sc ONSTART /tn networksettings /f /tr "netsh interface ip set address '$interface' static IPADDRESS 255.0.0.0" %>
-          <%= system.name %>.vm.provision 'shell', inline: 'schtasks /create /rl HIGHEST /ru system /sc ONSTART /tn networksettings1 /f /tr "netsh interface ip set address \'Local Area Connection\' static <%= resolve_network(selected_module)%> 255.0.0.0\" '
-          <%= system.name %>.vm.provision 'shell', inline: 'schtasks /create /rl HIGHEST /ru system /sc ONSTART /tn networksettings2 /f /tr "netsh interface ip set address \'Local Area Connection 2\' static <%= resolve_network(selected_module)%> 255.0.0.0\" '
-          <%= system.name %>.vm.provision 'shell', inline: 'schtasks /create /rl HIGHEST /ru system /sc ONSTART /tn networksettings3 /f /tr "netsh interface ip set address \'Local Area Connection 3\' static <%= resolve_network(selected_module)%> 255.0.0.0\" '
-          <%= system.name %>.vm.provision 'shell', inline: 'schtasks /create /rl HIGHEST /ru system /sc ONSTART /tn networksettings3 /f /tr "netsh interface ip set address \'Ethernet\' static <%= resolve_network(selected_module)%> 255.0.0.0\" '
+           # re-activate windows now, and then rearm on reboot (after it's started after provisioning) -%>
+           <%= system.name %>.vm.provision 'shell', inline: 'cscript //b c:\windows\system32\slmgr.vbs /ato'
+           <%= system.name %>.vm.provision 'shell', inline: "reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce /v RearmWindows /t REG_SZ /d \"cscript //b c:\\windows\\system32\\slmgr.vbs /rearm\" /f"
+<%         #  change network on reboot via registry, so that it gets the new IP on reboot (not mid-provision)
+           # TODO: use some clever scripting to identify the network name -%>
+           <%= system.name %>.vm.provision 'shell', inline: "
+             $interfaceNames = @('Local Area Connection', 'Local Area Connection 2', 'Local Area Connection 3', 'Ethernet')
+             $ipAddress = '<%= resolve_network(selected_module)%>'
+             $subnetMask = '255.0.0.0'
+             foreach ($interfaceName in $interfaceNames) {
+               $command = \"netsh interface ip set address name=`\"$interfaceName`\" static $ipAddress $subnetMask\"
+               $registryPath = 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run'
+               New-ItemProperty -Path $registryPath -Name ('SetStaticIP_' + $interfaceName) -Value $command -PropertyType String -Force
+             }
+           "
 <%       else # not windows or not ovirt -%>
   <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, ip: "<%= resolve_network(selected_module)%>"
 <%       # Below string is used within testing, do not delete. -%>
