@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+    <name>WNS Intro</name>
+    <author>James Davis</author>
+    <description>Web and Network Security - Packet analysis, firewalls and VPNs</description>
+
+    <type>lab-environment</type>
+    <type>ctf-lab</type>
+
+    <system>
+        <system_name>wns_shepherd</system_name>
+        <base distro="Debian 10" type="desktop" name="KDE" />
+
+        <vulnerability module_path=".*/security_shepherd">
+            <input into="modules">
+                <generator type="ss_modules">
+                    <input into="filter">
+                        <value>Insecure C 1 2 3,Unv</value>
+                    </input>
+                </generator>
+            </input>
+            <input into="unix_username">
+                <value>shepherd</value>
+            </input>
+            <input into="flag_store" into_datastore="flag_store">
+                <generator type="flag_generator">
+                    <input into="iterations">
+                        <value>1</value>
+                    </input>
+                </generator>
+            </input>
+        </vulnerability>
+
+        <network type="private_network" range="dhcp" />
+    </system>
+
+</scenario>

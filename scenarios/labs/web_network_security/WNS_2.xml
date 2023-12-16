@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+    <name>WNS Intro</name>
+    <author>James Davis</author>
+    <description>Web and Network Security - Introducing Web security</description>
+
+    <type>lab-environment</type>
+    <type>ctf-lab</type>
+
+    <system>
+        <system_name>wns_2</system_name>
+        <base distro="Kali Linux Rolling" />
+
+        <input into_datastore="kali_account">
+            <value>
+                {"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+        </input>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <datastore>kali_account</datastore>
+            </input>
+        </utility>
+
+        <vulnerability module_path=".*/security_shepherd">
+            <input into="modules">
+                <generator type="ss_modules">
+                    <input into="filter">
+                        <value>Session Management 1 2 3 4 5,Valid, Mis</value>
+                    </input>
+                </generator>
+            </input>
+            <input into="unix_username">
+                <value>kali</value>
+            </input>
+            <input into="flag_store" into_datastore="flag_store">
+                <generator type="flag_generator">
+                    <input into="iterations">
+                        <value>1</value>
+                    </input>
+                </generator>
+            </input>
+        </vulnerability>
+
+        <vulnerability module_path=".*/dvwa" />
+
+        <vulnerability module_path=".*/webgoat">
+            <input into="port">
+                <value>8085</value>
+            </input>
+        </vulnerability>
+
+        <utility module_path=".*/kali_web" />
+
+        <utility module_path=".*/iceweasel">
+            <input into="accounts">
+                <datastore>kali_account</datastore>
+            </input>
+            <input into="autostart">
+                <value>true</value>
+            </input>
+            <input into="start_page">
+                <value>http://localhost:8085/WebGoat|http://localhost/</value>
+            </input>
+        </utility>
+
+        <network type="private_network" range="dhcp" />
+    </system>
+
+</scenario>
