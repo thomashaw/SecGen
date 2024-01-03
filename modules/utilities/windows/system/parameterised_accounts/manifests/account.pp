@@ -22,6 +22,23 @@ define parameterised_accounts::account (
     managehome => true,
   } ->
 
+  registry_value { "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\AutoAdminLogon":
+    ensure => present,
+    type   => dword,
+    data   => 1,
+  } ->
+  registry_value { "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DefaultUserName":
+    ensure => present,
+    type   => string,
+    data   => $username,
+  } ->
+
+  registry_value { "HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\DefaultPassword":
+    ensure => present,
+    type   => string,
+    data   => $password,
+  }
+
   # Leak strings in a text file in the users home directory
   ::secgen_functions::leak_files { "$username-file-leak":
     storage_directory => "C:/Users/$username/Desktop",
