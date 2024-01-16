@@ -12,8 +12,8 @@
     <type>ctf-lab</type>
 
     <system>
-        <system_name>wns_shepherd</system_name>
-        <base distro="Debian 10" type="desktop" name="KDE" />
+        <system_name>wns_server</system_name>
+        <base distro="Debian 10 Buster amd64" />
 
         <input into_datastore="IP_addresses">
             <!-- 0 developer_desktop -->
@@ -21,6 +21,22 @@
             <!-- 1 server -->
             <value>172.16.0.3</value>
         </input>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <generator type="account">
+                    <input into="username">
+                        <value>shepherd</value>
+                    </input>
+                    <input into="password">
+                        <value>tiaspbiqe2r</value>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                </generator>
+            </input>
+        </utility>
 
         <vulnerability module_path=".*/security_shepherd">
             <input into="modules">
@@ -50,7 +66,7 @@
     </system>
 
     <system>
-        <system_name>wns_intro</system_name>
+        <system_name>wns_attack</system_name>
         <base distro="Kali" name="MSF" />
 
         <input into_datastore="kali_account">

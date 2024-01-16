@@ -37,20 +37,17 @@ class security_shepherd::mariadb {
     command => "mysql -u ${user} -p${db_pass} < moduleSchemas.sql",
   }
 
-
   file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flags':
-    ensure  => present,
+    ensure  => file,
     content => template('security_shepherd/flags.erb'),
-    replace => true,
   }
   -> file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/active-modules':
-    ensure  => present,
+    ensure  => file,
     content => template('security_shepherd/active-modules.erb'),
-    replace => true,
     notify  => Service['tomcat9']
   }
   # This needs updating? Weird chicanery happens if not used this way
-  -> exec { 'restart-tom':
+  exec { 'restart-tom':
     command => 'systemctl restart tomcat9',
   }
 }
