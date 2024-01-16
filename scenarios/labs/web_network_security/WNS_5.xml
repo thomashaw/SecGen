@@ -32,7 +32,7 @@
                         <value>tiaspbiqe2r</value>
                     </input>
                     <input into="super_user">
-                        <value>true</value>
+                        <value>false</value>
                     </input>
                 </generator>
             </input>
