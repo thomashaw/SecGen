@@ -4,9 +4,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <name>WNS Intro</name>
+    <name>Cross-Site Scripting</name>
     <author>James Davis</author>
     <description>Web and Network Security - Cross-Site Scripting</description>
+    <lab_sheet_url>https://docs.google.com/document/d/1f7hD_sZnBChklLZmskpxp1dIJUG9Ntw_06t76ltnPTk/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>

@@ -4,9 +4,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <name>WNS Intro</name>
+    <name>SQL injection</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Introducing Web security</description>
+    <description>Web and Network Security - SQL</description>
+    <lab_sheet_url>https://docs.google.com/document/d/1G_b4f25ufopbDw6djpO1D-nhbJ7vFOCY-QZJtoTUSKg/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
@@ -42,7 +43,7 @@
             <input into="modules">
                 <generator type="ss_modules">
                     <input into="filter">
-                        <value>Insecure Direct Object References</value>
+                        <value>Session 6 7 8,SQL 1 2 3 4 5 6 7,Escaping</value>
                     </input>
                 </generator>
             </input>
@@ -52,7 +53,7 @@
             <input into="flag_store" into_datastore="flag_store">
                 <generator type="flag_generator">
                     <input into="iterations">
-                        <value>1</value>
+                        <value>11</value>
                     </input>
                 </generator>
             </input>
@@ -66,7 +67,7 @@
     </system>
 
     <system>
-        <system_name>wns_attack</system_name>
+        <system_name>wns_intro</system_name>
         <base distro="Kali" name="MSF" />
 
         <input into_datastore="kali_account">
@@ -79,6 +80,8 @@
                 <datastore>kali_account</datastore>
             </input>
         </utility>
+
+        <vulnerability module_path=".*/dvwa" />
 
         <vulnerability module_path=".*/webgoat">
             <input into="port">

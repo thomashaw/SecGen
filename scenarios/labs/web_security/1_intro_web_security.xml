@@ -4,16 +4,18 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <name>WNS Intro</name>
+    <name>Introducing Web security</name>
     <author>James Davis</author>
     <description>Web and Network Security - Introducing Web security</description>
+    <lab_sheet_url>https://docs.google.com/document/d/1vLy56U53lqb8ZpQVLwxznCBsGv0KPM_uXJW1WD5DCiI/edit?usp=sharing</lab_sheet_url>
 
-    <type>lab-environment</type>
     <type>ctf-lab</type>
+    <type>lab-sheet</type>
+    <difficulty>intermediate</difficulty>
 
     <system>
         <system_name>wns_server</system_name>
-        <base distro="Debian 10 Buster amd64" />
+        <base distro="Debian 10 Buster" />
 
         <input into_datastore="IP_addresses">
             <!-- 0 developer_desktop -->
@@ -42,7 +44,7 @@
             <input into="modules">
                 <generator type="ss_modules">
                     <input into="filter">
-                        <value>Session Management 1 2 3 4 5,Valid, Mis</value>
+                        <value>Insecure Direct Object References</value>
                     </input>
                 </generator>
             </input>
@@ -52,7 +54,7 @@
             <input into="flag_store" into_datastore="flag_store">
                 <generator type="flag_generator">
                     <input into="iterations">
-                        <value>10</value>
+                        <value>1</value>
                     </input>
                 </generator>
             </input>
@@ -66,8 +68,8 @@
     </system>
 
     <system>
-        <system_name>wns_2</system_name>
-        <base distro="Kali Linux Rolling" />
+        <system_name>wns_attack</system_name>
+        <base distro="Kali" name="MSF" />
 
         <input into_datastore="kali_account">
             <value>
@@ -79,8 +81,6 @@
                 <datastore>kali_account</datastore>
             </input>
         </utility>
-
-        <vulnerability module_path=".*/dvwa" />
 
         <vulnerability module_path=".*/webgoat">
             <input into="port">
@@ -98,11 +98,15 @@
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat|http://localhost/</value>
+                <value>http://localhost:8085/WebGoat</value>
             </input>
         </utility>
 
-        <network type="private_network" range="dhcp" />
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </network>
     </system>
 
 </scenario>

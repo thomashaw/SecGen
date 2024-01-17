@@ -7,6 +7,7 @@
     <name>WNS Intro</name>
     <author>James Davis</author>
     <description>Web and Network Security - Advanced Injection</description>
+    <lab_sheet_url>https://docs.google.com/document/d/1tj7qQ-1HbmxXaZNMOCPVECHrFAHpkRVcD_Q0FvMhIWQ/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
