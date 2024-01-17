@@ -284,6 +284,8 @@ when "proxmox" # nothing
                New-ItemProperty -Path $registryPath -Name ('SetStaticIP_' + $interfaceName) -Value $command -PropertyType String -Force
              }
            "
+           # disable sleep mode (freezes SPICE)
+           <%= system.name %>.vm.provision 'shell', inline: "powercfg -x -standby-timeout-ac 0"
 <%       else # not windows or not ovirt -%>
   <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, ip: "<%= resolve_network(selected_module)%>"
 <%       # Below string is used within testing, do not delete. -%>

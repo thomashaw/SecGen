@@ -29,6 +29,9 @@
     <module_path>.*local_security_policy</module_path>
   </requires>
 
+  <requires>
+    <module_path>.*puppet_windows</module_path>
+  </requires>
 
 
 </utility>
