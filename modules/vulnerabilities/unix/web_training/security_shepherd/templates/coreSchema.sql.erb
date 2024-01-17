@@ -1740,12 +1740,16 @@ CALL cheatSheetCreate('08b3dffd4b837ebe53d52e53b5bbbabf4a4ca9ae', '08b3dffd4b837
 
 COMMIT;
 
+-- Add a secgen class
+--call classCreate('secgen1', '2023');
+
 -- Default admin user
 -- Use password shepherd-admin
 call userCreate(null, 'admin', '$argon2i$v=19$m=65535,t=10,p=1$Z05BaG5SdTZaQ3l2OUJvbA$SN7TyTDF/gd07wi7T96RK8pYgQ', 'admin', null, 'admin@securityShepherd.org', 'login', false, false);
 
 -- Generate a user account
-call userCreate(null, '<%= @unix_username %>', '$argon2i$v=19$m=65536,t=10,p=1$7oxgR8QkdOd4tsHFieFKrw$eOy0TCxhY1bQIAbLQcLr9Sz2+4q9DhPTz1frsytgtTk', 'player', null, '<%= @unix_username %> @securityShepherd.org', 'login', true, false);
+-- Default password to tiaspbiqe2r
+call userCreate(null, '<%= @unix_username %>', '$argon2i$v=19$m=65535,t=10,p=1$c2hlcGhlcmQ$HiyZr2J5J5dRM6HQoHw15A', 'player', null, '<%= @unix_username %>@securityShepherd.org', 'login', true, false);
 
 -- Enable backup script
 

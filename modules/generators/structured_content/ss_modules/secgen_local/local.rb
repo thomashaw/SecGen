@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 require_relative '../../../../../lib/objects/local_string_generator.rb'
 require 'fileutils'
+require 'json'
 
 class SSModuleListGenerator < StringGenerator
   attr_accessor :filter
@@ -12,22 +13,37 @@ class SSModuleListGenerator < StringGenerator
     super
 
     self.module_name = 'Security Shepherd Module Generator'
-    self.filter = []
+
+    self.filter = ''
   end
 
   def generate
-    modules = File.new(TEMPLATE_PATH)
+    modules_file = File.new(TEMPLATE_PATH)
     if not self.filter.empty?
-      self.filter.each { |criteria|
-        IO.foreach(modules) { |line|
-          # Very basic filter to capture matches based on a filter string
-          if "#{line}".match(criteria)
+      # Returns string based around the format (search_term)(\s\d)+
+      self.filter.split(/,/).each { |filter_term|
+        words = filter_term.match(/[^\d|\n]+/).to_s.strip;
+        filter_nos = filter_term.split(/\s+/).select!{|item| item.to_s.match?(/\d/)};
+
+        modules_file = File.new(TEMPLATE_PATH)
+        modules_file.each { |line|
+          if line.include?(words) && filter_nos.size == 0
             self.outputs << "#{line}".strip
+          elsif filter_nos.size > 0
+            filter_nos.each { |number|
+              if line.include?(words) && line.include?(number)
+                self.outputs << "#{line}".strip
+              end
+            }
           end
         }
+        modules_file.close;
       }
     else
-      modules.each { |line| self.outputs << "#{line}".strip}
+      modules_file.each { |line|
+        self.outputs << "#{line}".strip;
+      }
+      modules_file.close;
     end
   end
 
@@ -50,7 +66,7 @@ class SSModuleListGenerator < StringGenerator
 
    OPTIONS:
      --filter [String]
-"
+    "
     exit
   end
 end

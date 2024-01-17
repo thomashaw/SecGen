@@ -4,17 +4,16 @@ class security_shepherd::install {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
-  ensure_packages(['tomcat9', 'mariadb-server', 'openjdk-11-jdk'], {ensure => installed})
-
-  service { 'tomcat9':
-    ensure     => running,
-    name       => 'tomcat9',
-    enable     => true,
-    hasrestart => true,
-    subscribe  => [
-      File['/var/lib/tomcat9/webapps/ROOT.war'],
-    ],
+  # Temp fix. Seemed to not be able to generate this...
+  file { '/etc/ssl/certs/java/':
+    ensure => directory,
   }
+  -> package { 'install-ca-certs':
+    name => 'ca-certificates-java',
+    ensure => installed,
+  }
+
+  ensure_packages(['tomcat9', 'mariadb-server', 'openjdk-11-jdk'], {ensure => installed})
 
   exec { 'remove-default-site':
     command => 'rm -rf /var/lib/tomcat9/webapps/*',
@@ -45,5 +44,15 @@ class security_shepherd::install {
     ensure  => file,
     source  => 'puppet:///modules/security_shepherd/my.cnf',
     replace => true,
+  }
+
+  service { 'tomcat9':
+    ensure     => running,
+    name       => 'tomcat9',
+    enable     => true,
+    hasrestart => true,
+    subscribe  => [
+      File['/var/lib/tomcat9/webapps/ROOT.war'],
+    ],
   }
 }
