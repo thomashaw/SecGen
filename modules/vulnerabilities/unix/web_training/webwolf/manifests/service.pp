@@ -1,11 +1,12 @@
 class webwolf::service{
 
-  file { '/etc/systemd/system/webwolf.service':
-    ensure => 'link',
-    target => '/opt/webwolf/webwolf.service',
+  exec { 'systemctl-daemon-reload':
+    command => '/bin/systemctl daemon-reload',
+    path    => '/bin:/usr/bin',
   }->
   service { 'webwolf':
     ensure   => running,
     enable   => true,
+    provider => 'systemd',
   }
 }

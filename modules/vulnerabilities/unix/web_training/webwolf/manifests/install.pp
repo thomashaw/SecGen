@@ -22,7 +22,7 @@ class webwolf::install {
     source => 'puppet:///modules/webwolf/webwolf-8.0.0.M26.jar',
   } ->
 
-  file { "$docroot/webwolf.service":
+  file { "/etc/systemd/system/webwolf.service":
     ensure  => present,
     mode   => '0644',
     owner => 'root',

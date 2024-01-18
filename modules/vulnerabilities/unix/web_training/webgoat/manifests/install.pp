@@ -22,7 +22,7 @@ class webgoat::install {
     source => 'puppet:///modules/webgoat/webgoat-server-8.0.0.M26.jar',
   } ->
 
-  file { "$docroot/webgoat.service":
+  file { "/etc/systemd/system/webgoat.service":
     ensure  => present,
     mode   => '0644',
     owner => 'root',

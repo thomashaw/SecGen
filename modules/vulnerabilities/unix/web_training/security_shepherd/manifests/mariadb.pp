@@ -37,7 +37,10 @@ class security_shepherd::mariadb {
     command => "mysql -u ${user} -p${db_pass} < moduleSchemas.sql",
   }
 
-  file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flags':
+  file { ['/var/lib/tomcat9/webapps/ROOT', '/var/lib/tomcat9/webapps/ROOT/WEB-INF', '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes', '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flag-store']:
+    ensure  => directory,
+  }
+  -> file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flags':
     ensure  => file,
     content => template('security_shepherd/flags.erb'),
   }
