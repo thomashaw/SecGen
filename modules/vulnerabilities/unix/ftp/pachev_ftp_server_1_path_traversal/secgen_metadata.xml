@@ -64,6 +64,11 @@
   <software_name>pachev</software_name>
   <software_license>MIT</software_license>
 
+  <!--Disable (TODO: fixme cargo commands fail due to online lib changes)-->
+  <conflict>
+    <module_path>.*</module_path>
+  </conflict>
+
   <!--Cannot co-exist with other ftp servers (default to same ports)-->
   <conflict>
     <type>^ftp$</type>
