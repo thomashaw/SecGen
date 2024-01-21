@@ -18,11 +18,22 @@ class security_shepherd::install {
   exec { 'remove-default-site':
     command => 'rm -rf /var/lib/tomcat9/webapps/*',
   }
-  -> file { '/var/lib/tomcat9/webapps/ROOT.war':
+  #-> file { '/var/lib/tomcat9/webapps/ROOT.war':
+  #  ensure => file,
+  #  source => 'puppet:///modules/security_shepherd/ROOT.war',
+  #}
+  -> file { '/tmp/ROOT.zip':
     ensure => file,
-    source => 'puppet:///modules/security_shepherd/ROOT.war',
+    source => 'puppet:///modules/security_shepherd/ROOT.zip',
   }
-  file { '/var/lib/tomcat9/conf/shepherdKeystore.p12':
+  -> file { ['/tmp/ROOT' ,'/tmp/ROOT/WEB-INF', '/tmp/ROOT/WEB-INF/classes']:
+      ensure => directory,
+  }
+  exec { 'extract ROOT':
+      cwd => '/tmp',
+      command => 'unzip ROOT.zip -d ROOT',
+  }
+  -> file { '/var/lib/tomcat9/conf/shepherdKeystore.p12':
     ensure => file,
     source => 'puppet:///modules/security_shepherd/shepherdKeystore.p12',
   }
@@ -45,14 +56,15 @@ class security_shepherd::install {
     source  => 'puppet:///modules/security_shepherd/my.cnf',
     replace => true,
   }
-
-  service { 'tomcat9':
+  -> service { 'tomcat9':
     ensure     => running,
     name       => 'tomcat9',
     enable     => true,
     hasrestart => true,
-    subscribe  => [
-      File['/var/lib/tomcat9/webapps/ROOT.war'],
-    ],
+    #subscribe  => [
+    #  File['/var/lib/tomcat9/webapps/ROOT.war'],
+    #],
   }
+  
+
 }

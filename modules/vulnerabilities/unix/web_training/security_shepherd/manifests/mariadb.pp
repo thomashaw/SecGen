@@ -36,19 +36,27 @@ class security_shepherd::mariadb {
     cwd     => '/tmp',
     command => "mysql -u ${user} -p${db_pass} < moduleSchemas.sql",
   }
-
-  file { ['/var/lib/tomcat9/webapps/ROOT', '/var/lib/tomcat9/webapps/ROOT/WEB-INF', '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes', '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flag-store']:
-    ensure  => directory,
-  }
-  -> file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flags':
+  
+  # /var/lib/tomcat9/webapps
+  -> file { '/tmp/ROOT/WEB-INF/classes/flags':
     ensure  => file,
+    replace => true,
+    owner => 'tomcat',
+    group => 'tomcat',
     content => template('security_shepherd/flags.erb'),
   }
-  -> file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/active-modules':
+  # /var/lib/tomcat9/webapps
+  -> file { '/tmp/ROOT/WEB-INF/classes/active-modules':
     ensure  => file,
+    replace => true,
+    owner => 'tomcat',
+    group => 'tomcat',
     content => template('security_shepherd/active-modules.erb'),
-    notify  => Service['tomcat9']
   }
+  -> exec { 'jar -cvf ROOT.war *':
+      cwd => '/tmp/ROOT',
+  }
+  -> exec { 'mv /tmp/ROOT/ROOT.war /var/lib/tomcat9/webapps':}
   # This needs updating? Weird chicanery happens if not used this way
   exec { 'restart-tom':
     command => 'systemctl restart tomcat9',
