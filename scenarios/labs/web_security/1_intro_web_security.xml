@@ -6,22 +6,26 @@
 
     <name>Introducing Web security</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Introducing Web security</description>
-    <lab_sheet_url>
-        https://docs.google.com/document/d/1vLy56U53lqb8ZpQVLwxznCBsGv0KPM_uXJW1WD5DCiI/edit?usp=sharing</lab_sheet_url>
+    <description>
+# Introduction
+In this lab you will delve into concepts and practical exercises that will equip you with a foundational understanding of web security. This hands-on lab explores various aspects of web security, starting with an introduction to client-server interactions using HTTP (HyperText Transfer Protocol). The lab guides you through simulating a web server from scratch using tools like netcat, creating dynamic web pages with PHP, and understanding the intricacies of client-server architecture. The importance of local web proxies, illustrated through the use of Zed Attack Proxy (ZAP), is emphasized as a means to intercept and modify web traffic for security testing purposes. The lab further introduces fuzzing techniques in ZAP and encourages practical application through tasks such as intercepting and altering HTTP requests.
+
+Throughout this lab, you will learn by doing, actively engaging in activities. As part of the hands-on experience, you will also work through scored flag-based tasks, such as completing challenges related to Insecure Direct Object References. By the end of the lab, you will have acquired a solid foundation in web security fundamentals, simulation of web server activities, and practical skills in using tools like ZAP for security testing and assessment. This sets the stage for deeper exploration and learning in subsequent topics, contributing to the development of your web security expertise.
+    </description>
+    <lab_sheet_url>https://docs.google.com/document/d/1vLy56U53lqb8ZpQVLwxznCBsGv0KPM_uXJW1WD5DCiI/edit?usp=sharing</lab_sheet_url>
 
     <type>ctf-lab</type>
     <type>lab-sheet</type>
     <difficulty>intermediate</difficulty>
 
     <system>
-        <system_name>wns_server</system_name>
+        <system_name>web_server</system_name>
         <base distro="Debian 10 Buster" />
 
         <input into_datastore="IP_addresses">
-            <!-- 0 developer_desktop -->
+            <!-- 0 web_server -->
             <value>172.16.0.2</value>
-            <!-- 1 server -->
+            <!-- 1 kali -->
             <value>172.16.0.3</value>
         </input>
 
@@ -61,6 +65,26 @@
             </input>
         </vulnerability>
 
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="0">IP_addresses</datastore>
@@ -69,7 +93,7 @@
     </system>
 
     <system>
-        <system_name>wns_attack</system_name>
+        <system_name>kali</system_name>
         <base distro="Kali" name="MSF" />
 
         <input into_datastore="kali_account">
@@ -99,10 +123,26 @@
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat</value>
+                <value>http://localhost:8085/WebGoat|webserver</value>
             </input>
         </utility>
 
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="1">IP_addresses</datastore>
