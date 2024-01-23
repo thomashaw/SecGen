@@ -6,21 +6,25 @@
 
     <name>Cross-Site Scripting</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Cross-Site Scripting</description>
-    <lab_sheet_url>
-        https://docs.google.com/document/d/1f7hD_sZnBChklLZmskpxp1dIJUG9Ntw_06t76ltnPTk/edit?usp=sharing</lab_sheet_url>
+    <description>
+# Introduction
+In this web security lab you will delve into the critical realm of web application security, focusing specifically on the pervasive threat of Cross-Site Scripting (XSS). XSS is a type of injection attack where malicious code is inserted into a trusted website, often exploiting vulnerabilities in user input handling. The lab covers three main types of XSS attacks: Reflected, Stored, and DOM-Based. These attacks involve injecting malicious scripts into a web application, potentially compromising user data, sessions, and overall security. The lab introduces theoretical concepts behind XSS and provides hands-on experience through practical exercises and challenges.
+
+Throughout this lab, you will engage with various learning resources, including Damn Vulnerable Web App (DVWA), OWASP WebGoat and WebWolf, and OWASP Security Shepherd. The hands-on activities involve creating and manipulating PHP pages, implementing XSS filters, and exploring vulnerabilities in web applications using DVWA challenges. You will also work with WebGoat and Security Shepherd to further validate your understanding of XSS attacks in different scenarios. By the end of this lab, you will have gained practical insights into identifying, exploiting, and mitigating XSS vulnerabilities, a crucial skill in the field of web security.
+    </description>
+    <lab_sheet_url>https://docs.google.com/document/d/1f7hD_sZnBChklLZmskpxp1dIJUG9Ntw_06t76ltnPTk/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
 
     <system>
-        <system_name>wns_server</system_name>
+        <system_name>web_server</system_name>
         <base distro="Debian 10 Buster amd64" />
 
         <input into_datastore="IP_addresses">
-            <!-- 0 developer_desktop -->
+            <!-- 0 web_server -->
             <value>172.16.0.2</value>
-            <!-- 1 server -->
+            <!-- 1 kali -->
             <value>172.16.0.3</value>
         </input>
 
@@ -60,6 +64,26 @@
             </input>
         </vulnerability>
 
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="0">IP_addresses</datastore>
@@ -68,7 +92,7 @@
     </system>
 
     <system>
-        <system_name>wns_3</system_name>
+        <system_name>kali</system_name>
         <base distro="Kali Linux Rolling" />
 
         <input into_datastore="kali_account">
@@ -100,11 +124,32 @@
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat|http://localhost/</value>
+                <value>http://localhost:8085/WebGoat|http://localhost/|webserver</value>
             </input>
         </utility>
 
-        <network type="private_network" range="dhcp" />
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </network>
     </system>
 
 </scenario>

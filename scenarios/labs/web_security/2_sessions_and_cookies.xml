@@ -6,21 +6,24 @@
 
     <name>Session Management</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Session Management</description>
-    <lab_sheet_url>
-        https://docs.google.com/document/d/1xcbf0bqtdMGgJAjeedw5MUbkRosMyQ_UZ0gN4IeCBFs/edit?usp=sharing</lab_sheet_url>
+    <description>
+In this web security lab you will delve into sessions and cookies. The relevance of this lies in the critical role cookies play in web interactions, enabling websites to remember user states and enhance user experiences. The lab employs practical exercises and open-ended challenges, utilizing tools such as Damn Vulnerable Web App (DVWA), OWASP WebGoat, and OWASP Security Shepherd. As you navigate through the labs, you will gain hands-on experience in understanding cookies, creating a basic PHP page to set cookies, using a local web proxy (OWASP Zap) to inspect cookie interactions, and exploring session cookies. This practical approach provides a foundation for subsequent topics like cross-site scripting and cross-site request forgery.
+
+Throughout the lab, you will learn to self-host PHP pages, use OWASP Zap to analyze and manipulate cookies, and comprehend the nuances of session cookies. The DVWA challenges offer a real-world application of your knowledge, requiring you to assess and exploit vulnerabilities at different security levels. For instance, you will investigate weaknesses in session ID generation, analyze source code for session IDs, and assess the security implications of various approaches. Additionally, CTF tasks in Security Shepherd will provide hands-on experiences in session management, poor data validation, and security misconfigurations. By completing these challenges, you will develop practical skills addressing complex security scenarios mirroring the challenges faced by penetration testers and ethical hackers in real-world scenarios.
+    </description>
+    <lab_sheet_url>https://docs.google.com/document/d/1xcbf0bqtdMGgJAjeedw5MUbkRosMyQ_UZ0gN4IeCBFs/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
 
     <system>
-        <system_name>wns_server</system_name>
+        <system_name>web_server</system_name>
         <base distro="Debian 10 Buster amd64" />
 
         <input into_datastore="IP_addresses">
-            <!-- 0 developer_desktop -->
+            <!-- 0 web_server -->
             <value>172.16.0.2</value>
-            <!-- 1 server -->
+            <!-- 1 kali -->
             <value>172.16.0.3</value>
         </input>
 
@@ -60,6 +63,26 @@
             </input>
         </vulnerability>
 
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="0">IP_addresses</datastore>
@@ -68,7 +91,7 @@
     </system>
 
     <system>
-        <system_name>wns_2</system_name>
+        <system_name>kali</system_name>
         <base distro="Kali Linux Rolling" />
 
         <input into_datastore="kali_account">
@@ -100,11 +123,31 @@
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat|http://localhost/</value>
+                <value>http://localhost:8085/WebGoat|http://localhost/|webserver</value>
             </input>
         </utility>
 
-        <network type="private_network" range="dhcp" />
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </network>
     </system>
 
 </scenario>

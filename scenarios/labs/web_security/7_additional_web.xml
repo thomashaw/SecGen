@@ -6,16 +6,25 @@
 
     <name>Additional Web Challenges</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Packet analysis, firewalls and VPNs</description>
-    <lab_sheet_url>
-        https://docs.google.com/document/d/1DDjyBGtB9vaFD6S2s1jQn7_bpVn4UlK-njbmVX5_UiM/edit?usp=sharing</lab_sheet_url>
+    <description>
+# Introduction
+Web and Network Security additional CTF challenges.
+    </description>
+    <lab_sheet_url>https://docs.google.com/document/d/1DDjyBGtB9vaFD6S2s1jQn7_bpVn4UlK-njbmVX5_UiM/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
 
     <system>
-        <system_name>wns_server</system_name>
+        <system_name>web_server</system_name>
         <base distro="Debian 10 Buster amd64" />
+
+        <input into_datastore="IP_addresses">
+            <!-- 0 web_server -->
+            <value>172.16.0.2</value>
+            <!-- 1 kali -->
+            <value>172.16.0.3</value>
+        </input>
 
         <utility module_path=".*/parameterised_accounts">
             <input into="accounts">
@@ -53,7 +62,92 @@
             </input>
         </vulnerability>
 
-        <network type="private_network" range="dhcp" />
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="0">IP_addresses</datastore>
+            </input>
+        </network>
     </system>
+
+    <system>
+        <system_name>kali</system_name>
+        <base distro="Kali" name="MSF" />
+
+        <input into_datastore="kali_account">
+            <value>
+                {"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+        </input>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <datastore>kali_account</datastore>
+            </input>
+        </utility>
+
+        <vulnerability module_path=".*/dvwa" />
+
+        <vulnerability module_path=".*/webgoat">
+            <input into="port">
+                <value>8085</value>
+            </input>
+        </vulnerability>
+
+        <utility module_path=".*/kali_web" />
+
+        <utility module_path=".*/iceweasel">
+            <input into="accounts">
+                <datastore>kali_account</datastore>
+            </input>
+            <input into="autostart">
+                <value>true</value>
+            </input>
+            <input into="start_page">
+                <value>webserver</value>
+            </input>
+        </utility>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </network>
+    </system>
+
 
 </scenario>

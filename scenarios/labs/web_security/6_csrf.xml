@@ -6,21 +6,25 @@
 
     <name>Cross-Site Request Forgery</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Cross-Site Request Forgery</description>
-    <lab_sheet_url>
-        https://docs.google.com/document/d/1ABryiNKLDiIG6i7PQUztzzynjPo3fRSBP4OakxCPraY/edit?usp=sharing</lab_sheet_url>
+    <description>
+# Introduction
+In this web security lab focused on Cross-Site Request Forgery (CSRF), you will delve into the intricacies of a prevalent attack that exploits the trust websites have in their users. CSRF, also known as session riding, involves users unknowingly sending requests to services they are logged into, utilizing their session cookies and other identifying information. The lab employs resources such as Damn Vulnerable Web App (DVWA), OWASP WebGoat and WebWolf, and CTF via OWASP Security Shepherd. The theoretical foundation covers the distinction between XSS and CSRF, emphasizing CSRF's exploitation of user trust to execute state-changing transactions. The lab introduces you to tools like Zap and WebWolf, guiding you through various exercises in WebGoat and DVWA to simulate and understand CSRF attacks at different security levels.
+
+Throughout the lab, you will engage in hands-on tasks that mirror real-world scenarios. For instance, you'll create an external form using vi text editor, host it with WebWolf, and understand the parameters necessary for a POST request. In DVWA challenges, you'll manipulate HTML forms to exploit vulnerabilities at low, medium, and high security levels. The tasks also extend to combining CSRF with XSS to overcome anti-CSRF measures. By the end of the lab, you'll have a comprehensive understanding of CSRF attacks, CORS limitations, and practical skills in executing and defending against such attacks, enhancing your expertise in web application security.
+    </description>
+    <lab_sheet_url>https://docs.google.com/document/d/1ABryiNKLDiIG6i7PQUztzzynjPo3fRSBP4OakxCPraY/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
 
     <system>
-        <system_name>wns_server</system_name>
+        <system_name>web_server</system_name>
         <base distro="Debian 10 Buster amd64" />
 
         <input into_datastore="IP_addresses">
-            <!-- 0 developer_desktop -->
+            <!-- 0 web_server -->
             <value>172.16.0.2</value>
-            <!-- 1 server -->
+            <!-- 1 kali -->
             <value>172.16.0.3</value>
         </input>
 
@@ -60,6 +64,26 @@
             </input>
         </vulnerability>
 
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="0">IP_addresses</datastore>
@@ -68,7 +92,7 @@
     </system>
 
     <system>
-        <system_name>wns_intro</system_name>
+        <system_name>kali</system_name>
         <base distro="Kali" name="MSF" />
 
         <input into_datastore="kali_account">
@@ -100,10 +124,26 @@
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat</value>
+                <value>http://localhost:8085/WebGoat|webserver</value>
             </input>
         </utility>
 
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="1">IP_addresses</datastore>

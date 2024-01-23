@@ -6,21 +6,25 @@
 
     <name>WNS Intro</name>
     <author>James Davis</author>
-    <description>Web and Network Security - Advanced Injection</description>
-    <lab_sheet_url>
-        https://docs.google.com/document/d/1tj7qQ-1HbmxXaZNMOCPVECHrFAHpkRVcD_Q0FvMhIWQ/edit?usp=sharing</lab_sheet_url>
+    <description>
+# Introduction
+In this web security lab you will delve into the intricacies of injection attacks, focusing on OS command injection and automated SQL injection. The lab begins by simulating OS command injection in a simple C application, demonstrating how unvalidated user input can lead to potential system shell exploitation. Subsequently, you will explore OS command injection in a PHP application, uncovering the risks associated with unfiltered user input in web environments. The lab sheet then introduces automated SQL injection using sqlmap, a penetration testing tool designed to detect and exploit SQL vulnerabilities efficiently.
+
+Throughout the lab, you will engage with various vulnerable environments, including Damn Vulnerable Web App (DVWA), OWASP WebGoat, and OWASP Security Shepherd. Practical tasks include exploiting SQL injection in DVWA with different security levels, automating SQL injection attacks using sqlmap, and tackling blind SQL injection scenarios. Additionally, you will apply your knowledge to WebGoat, a web application specifically designed for learning security concepts, and complete CTF challenges in Security Shepherd. By the end of the lab, you will have gained hands-on experience in identifying, exploiting, and mitigating OS command injection and SQL injection vulnerabilities, crucial skills for securing web applications in real-world scenarios.
+    </description>
+    <lab_sheet_url>https://docs.google.com/document/d/1tj7qQ-1HbmxXaZNMOCPVECHrFAHpkRVcD_Q0FvMhIWQ/edit?usp=sharing</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
 
     <system>
-        <system_name>wns_server</system_name>
+        <system_name>web_server</system_name>
         <base distro="Debian 10 Buster amd64" />
 
         <input into_datastore="IP_addresses">
-            <!-- 0 developer_desktop -->
+            <!-- 0 web_server -->
             <value>172.16.0.2</value>
-            <!-- 1 server -->
+            <!-- 1 kali -->
             <value>172.16.0.3</value>
         </input>
 
@@ -60,6 +64,26 @@
             </input>
         </vulnerability>
 
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="0">IP_addresses</datastore>
@@ -68,7 +92,7 @@
     </system>
 
     <system>
-        <system_name>wns_intro</system_name>
+        <system_name>kali</system_name>
         <base distro="Kali" name="MSF" />
 
         <input into_datastore="kali_account">
@@ -100,10 +124,26 @@
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat</value>
+                <value>http://localhost:8085/WebGoat|webserver</value>
             </input>
         </utility>
 
+        <utility module_path=".*/hosts">
+            <input into="hosts">
+                <value>webserver</value>
+                <value>kali</value>
+            </input>
+            <input into="IP_addresses">
+                <datastore access="0">IP_addresses</datastore>
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="1">IP_addresses</datastore>
