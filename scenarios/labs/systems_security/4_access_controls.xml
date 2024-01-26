@@ -366,6 +366,11 @@
         <datastore>spoiler_admin_pass</datastore>
       </input>
     </vulnerability>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
 
     <!-- This needs to come after the above to work -->
     <!-- TODO: enforce order in the module metadata somehow? -->
@@ -376,11 +381,6 @@
         <datastore access="1">IP_addresses</datastore>
       </input>
     </network>
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
   </system>
 
   <system>
