@@ -39,7 +39,7 @@
   </conflict> -->
 
   <requires>
-    <module_path>.*/apache.*</module_path>
+    <module_path>.*/services/unix/http/.*/apache.*</module_path>
   </requires>
   <requires>
     <module_path>.*/mysql$</module_path>
