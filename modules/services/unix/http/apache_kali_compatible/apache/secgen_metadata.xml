@@ -24,13 +24,13 @@
     <software_name>apache</software_name>
   </conflict>
   <conflict>
-    <name>.*Stretch.*</name>
+    <module_path>.*debian_stretch.*</module_path>
   </conflict>
   <conflict>
-    <name>.*Buster.*</name>
+    <module_path>.*debian_buster.*</module_path>
   </conflict>
   <conflict>
-    <name>.*Wheezy.*</name>
+    <module_path>.*debian_wheezy.*</module_path>
   </conflict>
   <requires>
     <type>update</type>
