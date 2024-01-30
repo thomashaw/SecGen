@@ -20,8 +20,15 @@
   <software_license>GPL v2</software_license>
 
   <conflict>
-    <name>.*Wheezy.*</name>
+    <module_path>.*debian_stretch.*</module_path>
   </conflict>
+  <conflict>
+    <module_path>.*kali_light.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*debian_wheezy.*</module_path>
+  </conflict>
+
   <!--Cannot co-exist with other MySQL installations-->
   <conflict>
     <software_name>mysql</software_name>

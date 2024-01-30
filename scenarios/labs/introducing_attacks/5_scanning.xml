@@ -81,7 +81,7 @@ This lab provides an in-depth exploration of scanning techniques. You will learn
       </input>
     </utility>
 
-    <service type="httpd"/>
+    <service type="httpd" module_path=".*/apache$"/>
     <service type="ftp"/>
 
     <network type="private_network">

@@ -19,14 +19,14 @@
   <software_name>mysql</software_name>
   <software_license>GPL v2</software_license>
 
-  <conflict>
-    <name>.*Stretch.*</name>
+   <conflict>
+    <module_path>.*debian_stretch.*</module_path>
   </conflict>
   <conflict>
-    <name>.*Buster.*</name>
+    <module_path>.*debian_buster.*</module_path>
   </conflict>
   <conflict>
-    <name>.*Kali.*</name>
+    <module_path>.*kali_light.*</module_path>
   </conflict>
   <!--Cannot co-exist with other MySQL installations-->
   <conflict>

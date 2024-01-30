@@ -35,10 +35,13 @@
 
   <!-- FIXME: Currently fails to install PHP on kali and Stretch... -->
   <conflict>
-    <name>Kali</name>
+    <module_path>.*debian_stretch.*</module_path>
   </conflict>
   <conflict>
-    <name>Stretch</name>
+    <module_path>.*debian_buster.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*kali_light.*</module_path>
   </conflict>
 
 </service>
