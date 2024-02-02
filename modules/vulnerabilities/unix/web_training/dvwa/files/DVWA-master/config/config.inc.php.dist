@@ -44,4 +44,7 @@ $_DVWA[ 'default_phpids_level' ] = 'disabled';
 #   The default is 'disabled'. You can set this to be either 'true' or 'false'.
 $_DVWA[ 'default_phpids_verbose' ] = 'false';
 
+# Turn off new PHP error raising
+mysqli_report(MYSQLI_REPORT_OFF);
+
 ?>

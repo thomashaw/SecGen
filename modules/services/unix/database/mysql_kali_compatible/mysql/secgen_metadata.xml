@@ -3,7 +3,7 @@
 <service xmlns="http://www.github/cliffe/SecGen/service"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
-  <name>MySQL database - Stretch compatible</name>
+  <name>MySQL database - Kali compatible</name>
   <author>Connor Wilson</author>
   <author>David Schmitt</author>
   <author>Puppet Labs</author>
@@ -23,12 +23,11 @@
     <module_path>.*debian_stretch.*</module_path>
   </conflict>
   <conflict>
-    <module_path>.*kali_light.*</module_path>
+    <module_path>.*debian_buster.*</module_path>
   </conflict>
   <conflict>
     <module_path>.*debian_wheezy.*</module_path>
   </conflict>
-
   <!--Cannot co-exist with other MySQL installations-->
   <conflict>
     <software_name>mysql</software_name>

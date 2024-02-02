@@ -5,8 +5,9 @@ class dvwa::apache {
   $docroot = '/var/www/dvwa'
 
   # TODO: there is probably a better way to get the PHP module name
+  notice("AAAA operatingsystem: ${operatingsystem} operatingsystemrelease: ${operatingsystemrelease}")
 
-  if ($operatingsystem == 'Debian') {
+  if ($operatingsystem == 'Debian' or $operatingsystem == 'Kali') {
     case $operatingsystemrelease {
       /^(10).*/: { # do 10.x buster stuff
         $php_version = "php7.3"
@@ -21,8 +22,8 @@ class dvwa::apache {
         ensure_packages(["mysql-server", 'php-mysqli'])
       }
       'kali-rolling': { # do kali
-        $php_version = "php7.4"
-        ensure_packages(["default-mysql-server", 'php7.4-mysql'])
+        $php_version = "php8.2"
+        ensure_packages(['php8.2-mysql'])
       }
       default: {
         $php_version = "php"
@@ -38,7 +39,6 @@ class dvwa::apache {
   class { '::apache':
     default_vhost => false,
     default_mods => $php_version,
-    overwrite_ports => false,
     mpm_module => 'prefork',
   } ->
 
@@ -54,10 +54,10 @@ class dvwa::apache {
   }
 
 
-  mysql_user{ 'dvwa_user@localhost':
-    ensure        => present,
-    password_hash => mysql_password($db_password)
-  } ->
+  # mysql_user{ 'dvwa_user@localhost':
+  #   ensure        => present,
+  #   password_hash => mysql_password($db_password)
+  # } ->
 
   mysql::db { 'dvwa_database':
     user     => 'dvwa_user',
