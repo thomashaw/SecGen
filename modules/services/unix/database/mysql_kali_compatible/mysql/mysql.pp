@@ -17,5 +17,5 @@ class {'::mysql::server':
 
 exec { 'start_and_enable_mariadb':
   command     => '/usr/bin/systemctl start mariadb && /usr/bin/systemctl enable mariadb',
-  refreshonly => true,
+  logoutput   => true,
 }
