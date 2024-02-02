@@ -15,9 +15,7 @@ class {'::mysql::server':
   service_manage   => true, # this doesn't work (workaround below)
 } ->
 
-
-service { "enable_mariadb":
-    name => "mariadb"
-    ensure  => running,
-    enable  => true,
+exec { 'start_and_enable_mariadb':
+  command     => '/usr/bin/systemctl start mariadb && /usr/bin/systemctl enable mariadb',
+  refreshonly => true,
 }
