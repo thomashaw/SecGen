@@ -47,7 +47,7 @@ Throughout the lab, you will learn to self-host PHP pages, use OWASP Zap to anal
             <input into="modules">
                 <generator type="ss_modules">
                     <input into="filter">
-                        <value>Session Management 1 2 3 4 5,Valid, Mis</value>
+                        <value>Session Management 1 2 3 4 5,Valid</value>
                     </input>
                 </generator>
             </input>
@@ -57,7 +57,7 @@ Throughout the lab, you will learn to self-host PHP pages, use OWASP Zap to anal
             <input into="flag_store" into_datastore="flag_store">
                 <generator type="flag_generator" module_path=".*base64">
                     <input into="iterations">
-                        <value>10</value>
+                        <value>8</value>
                     </input>
                 </generator>
             </input>
