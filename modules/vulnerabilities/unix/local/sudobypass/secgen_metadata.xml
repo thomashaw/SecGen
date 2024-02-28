@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+    <name>Sudo Bypass</name>
+    <author>James Davis</author>
+    <module_license>MIT</module_license>
+    <description>In Sudo before 1.8.28, an attacker with access to a Runas ALL sudoer account can
+        bypass certain policy blacklists and session PAM modules, and can cause incorrect logging,
+        by invoking sudo with a crafted user ID. For example, this allows bypass of !root
+        configuration, and USER= logging, for a "sudo -u \#$((0xffffffff))" command.
+    </description>
+
+    <type>local_priv_escal</type>
+    <privilege>root_rwx</privilege>
+    <access>local</access>
+    <platform>linux</platform>
+    <difficulty>medium</difficulty>
+
+    <read_fact>strings_to_leak</read_fact>
+    <read_fact>leaked_filenames</read_fact>
+
+    <default_input into="strings_to_leak">
+        <generator type="flag_generator" />
+    </default_input>
+
+    <default_input into="leaked_filenames">
+        <generator type="filename_generator" />
+    </default_input>
+
+    <default_input into="unix_username">
+        <generator type="username_generator" />
+    </default_input>
+
+    <default_input into="used_password">
+        <value>tiaspbiqe2r</value>
+    </default_input>
+
+    <conflict>
+        <name>.*Stretch.*</name>
+    </conflict>
+    <conflict>
+        <name>.*Kali.*</name>
+    </conflict>
+    <conflict>
+        <name>.*Windows.*</name>
+    </conflict>
+    <conflict>
+        <name>.*Ubuntu.*</name>
+    </conflict>
+
+    <cve>CVE-2019-14287</cve>
+    <cvss_base_score>8</cvss_base_score>
+    <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+    <reference>https://www.exploit-db.com/exploits/47502</reference>
+    <software_name>Sudo</software_name>
+    <software_license>Misc</software_license>
+
+    <CyBOK KA="MAT" topic="Attacks and exploitation">
+        <keyword>EXPLOITATION</keyword>
+        <keyword>EXPLOITATION FRAMEWORKS</keyword>
+    </CyBOK>
+    <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+        <keyword>CVEs and CWEs</keyword>
+    </CyBOK>
+    <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+        <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+        <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+    </CyBOK>
+    <CyBOK KA="AB" topic="Models">
+        <keyword>kill chains</keyword>
+    </CyBOK>
+    <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+        <keyword>cyber kill chain</keyword>
+    </CyBOK>
+</vulnerability>
