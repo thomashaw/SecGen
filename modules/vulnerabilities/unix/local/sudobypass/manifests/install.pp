@@ -19,11 +19,11 @@ class sudobypass::install {
   }
 
   # Leak a file containing a string/flag to /root/
-  ::secgen_functions::leak_files { 'sudoedit-file-leak':
+  ::secgen_functions::leak_files { 'sudobypass-file-leak':
     storage_directory => '/root',
     leaked_filenames => $leaked_filenames,
     strings_to_leak => $strings_to_leak,
-    leaked_from => "sudoedit",
+    leaked_from => "sudobypass",
     mode => '0600'
   }
 }
