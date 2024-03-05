@@ -39,6 +39,13 @@
         <value>tiaspbiqe2r</value>
     </default_input>
 
+    <cve>CVE-2023-22809</cve>
+    <cvss_base_score>7</cvss_base_score>
+    <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+    <reference>https://nvd.nist.gov/vuln/detail/CVE-2023-22809</reference>
+    <software_name>Sudo</software_name>
+    <software_license>Misc</software_license>
+
     <conflict>
         <name>.*Stretch.*</name>
     </conflict>
@@ -51,13 +58,6 @@
     <conflict>
         <name>.*Ubuntu.*</name>
     </conflict>
-
-    <cve>CVE-2023-22809</cve>
-    <cvss_base_score>7</cvss_base_score>
-    <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
-    <reference>https://nvd.nist.gov/vuln/detail/CVE-2023-22809</reference>
-    <software_name>Sudo</software_name>
-    <software_license>Misc</software_license>
 
     <CyBOK KA="MAT" topic="Attacks and exploitation">
         <keyword>EXPLOITATION</keyword>
