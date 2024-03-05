@@ -1534,6 +1534,11 @@ INSERT INTO `core`.`sequence` (`tableName`, `currVal`) VALUES ('modules', '28247
 
 COMMIT;
 
+-- Add a secgen class
+call classCreate('secgen1', YEAR(now()));
+
+SET @class_id=(SELECT classId FROM `core`.`class` WHERE className='secgen1');
+
 -- -----------------------------------------------------
 SELECT "Data for table `core`.`settings`" FROM DUAL;
 -- -----------------------------------------------------
@@ -1553,7 +1558,7 @@ INSERT INTO `core`.`settings` (`setting`, `value`) VALUES ('lockTime', '2020-01-
 INSERT INTO `core`.`settings` (`setting`, `value`) VALUES ('hasEndTime', false);
 INSERT INTO `core`.`settings` (`setting`, `value`) VALUES ('endTime', '2020-02-01T12:00:00');
 INSERT INTO `core`.`settings` (`setting`, `value`) VALUES ('enableTranslations', true);
-INSERT INTO `core`.`settings` (`setting`, `value`) VALUES ('defaultClass', '');
+INSERT INTO `core`.`settings` (`setting`, `value`) VALUES ('defaultClass', @class_id);
 
 COMMIT;
 
@@ -1740,16 +1745,13 @@ CALL cheatSheetCreate('08b3dffd4b837ebe53d52e53b5bbbabf4a4ca9ae', '08b3dffd4b837
 
 COMMIT;
 
--- Add a secgen class
---call classCreate('secgen1', 'wns');
-
 -- Default admin user
 -- Use password shepherd-admin
-call userCreate(null, 'admin', '$argon2i$v=19$m=65535,t=10,p=1$Z05BaG5SdTZaQ3l2OUJvbA$SN7TyTDF/gd07wi7T96RK8pYgQ', 'admin', null, 'admin@securityShepherd.org', 'login', false, false);
+call userCreate(@class_id, 'admin', '$argon2i$v=19$m=65535,t=10,p=1$Z05BaG5SdTZaQ3l2OUJvbA$SN7TyTDF/gd07wi7T96RK8pYgQ', 'admin', null, 'admin@securityShepherd.org', 'login', false, false);
 
 -- Generate a user account
 -- Default password to tiaspbiqe2r
-call userCreate(null, '<%= @unix_username %>', '$argon2i$v=19$m=65535,t=10,p=1$c2hlcGhlcmQ$HiyZr2J5J5dRM6HQoHw15A', 'player', null, '<%= @unix_username %>@securityShepherd.org', 'login', false, false);
+call userCreate(@class_id, '<%= @unix_username %>', '$argon2i$v=19$m=65535,t=10,p=1$c2hlcGhlcmQ$HiyZr2J5J5dRM6HQoHw15A', 'player', null, '<%= @unix_username %>@securityShepherd.org', 'login', false, false);
 
 -- Enable backup script
 
