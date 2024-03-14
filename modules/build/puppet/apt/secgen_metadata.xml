@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<build xmlns="http://www.github/cliffe/SecGen/build"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.github/cliffe/SecGen/build">
+  <name>Apt puppet module</name>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>MIT</module_license>
+  <description>A puppet module for Apt.
+  </description>
+
+  <type>puppet</type>
+  <platform>linux</platform>
+
+</build>

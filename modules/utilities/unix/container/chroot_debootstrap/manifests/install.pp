@@ -9,7 +9,7 @@ class chroot_debootstrap::install {
     ensure => 'directory',
   } ->
 
-  exec { "sudo -E debootstrap stretch $chroot_dir http://deb.debian.org/debian/":
+  exec { "sudo -E debootstrap bookworm $chroot_dir http://deb.debian.org/debian/":
     cwd     => '/var/tmp',
     provider     => 'shell',
     creates => "$chroot_dir/etc",

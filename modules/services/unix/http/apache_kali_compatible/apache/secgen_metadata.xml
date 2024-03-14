@@ -26,9 +26,9 @@
   <conflict>
     <module_path>.*debian_stretch.*</module_path>
   </conflict>
-  <conflict>
+  <!-- <conflict>
     <module_path>.*debian_buster.*</module_path>
-  </conflict>
+  </conflict> -->
   <conflict>
     <module_path>.*debian_wheezy.*</module_path>
   </conflict>

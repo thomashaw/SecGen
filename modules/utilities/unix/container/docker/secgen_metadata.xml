@@ -37,5 +37,7 @@
   <requires>
     <type>update</type>
   </requires>
-
+  <requires>
+    <module_path>.*build/puppet/apt.*</module_path>
+  </requires>
 </utility>
