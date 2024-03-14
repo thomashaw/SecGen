@@ -1,1 +1,1 @@
-include sudoedit::install
+include sudo_baron::install

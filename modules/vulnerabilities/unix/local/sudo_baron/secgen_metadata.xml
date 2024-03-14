@@ -35,17 +35,9 @@
     <software_name>Sudo</software_name>
     <software_license>Misc</software_license>
 
+    <!-- only known to be compatible with debian bases -->
     <conflict>
-        <name>.*Stretch.*</name>
-    </conflict>
-    <conflict>
-        <name>.*Kali.*</name>
-    </conflict>
-    <conflict>
-        <name>.*Windows.*</name>
-    </conflict>
-    <conflict>
-        <name>.*Ubuntu.*</name>
+      <module_path>(?!.+debian)</name>
     </conflict>
 
     <CyBOK KA="MAT" topic="Attacks and exploitation">
