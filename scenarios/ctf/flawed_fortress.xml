@@ -17,7 +17,7 @@
   <type>pwn-ctf</type>
   <difficulty>intermediate</difficulty>
 
-  <CyBOK KA="C" topic="Symmetric Cryptography">
+  <CyBOK KA="AC" topic="Symmetric Cryptography">
     <keyword>symmetric encryption and authentication</keyword>
   </CyBOK>
   <CyBOK KA="F" topic="Artifact Analysis">

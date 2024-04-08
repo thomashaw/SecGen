@@ -15,7 +15,7 @@
   <type>web-hints</type>
   <difficulty>easy</difficulty>
 
-  <CyBOK KA="C" topic="Symmetric Cryptography">
+  <CyBOK KA="AC" topic="Symmetric Cryptography">
     <keyword>symmetric encryption and authentication</keyword>
   </CyBOK>
   <CyBOK KA="AAA" topic="Authentication">

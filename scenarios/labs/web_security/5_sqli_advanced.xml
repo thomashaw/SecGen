@@ -17,6 +17,32 @@ Throughout the lab, you will engage with various vulnerable environments, includ
     <type>lab-environment</type>
     <type>ctf-lab</type>
 
+    <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+        <keyword>HYPERTEXT MARKUP LANGUAGE (HTML)</keyword>
+        <keyword>HYPERTEXT TRANSFER PROTOCOL (HTTP) - PROXYING</keyword>
+        <keyword>DATABASE</keyword>
+        <keyword>SESSION HIJACKING</keyword>
+        <keyword>CLIENT-SERVER MODELS</keyword>
+    </CyBOK>
+    <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+        <keyword>injection vulnerabilities</keyword>
+        <keyword>server-side misconfiguration and vulnerable components</keyword>
+        <keyword>COMMAND INJECTION</keyword>
+        <keyword>SQL-INJECTION</keyword>
+        <keyword>BACK-END</keyword>
+        <keyword>BLIND ATTACKS</keyword>
+    </CyBOK>
+    <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+        <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+    </CyBOK>
+    <CyBOK KA="SS" topic="Prevention of Vulnerabilities">
+        <keyword>coding practices</keyword>
+        <keyword>Protecting against session management attacks, XSS, SQLi, CSRF</keyword>
+    </CyBOK>
+    <CyBOK KA="SS" topic="Detection of Vulnerabilities">
+        <keyword>dynamic detection</keyword>
+    </CyBOK>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10 Buster amd64" />

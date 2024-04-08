@@ -37,7 +37,7 @@
     <CyBOK KA="F" topic="Artifact Analysis">
         <keyword>Encoding and alternative data formats</keyword>
     </CyBOK>
-    <CyBOK KA="C" topic="Symmetric Cryptography">
+    <CyBOK KA="AC" topic="Symmetric Cryptography">
         <keyword>symmetric encryption and authentication</keyword>
     </CyBOK>
 

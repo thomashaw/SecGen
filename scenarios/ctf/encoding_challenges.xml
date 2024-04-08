@@ -15,10 +15,10 @@
   <type>crypto-ctf</type>
   <difficulty>easy</difficulty>
 
-  <CyBOK KA="C" topic="Symmetric Cryptography">
+  <CyBOK KA="AC" topic="Symmetric Cryptography">
     <keyword>symmetric encryption and authentication</keyword>
   </CyBOK>
-  <CyBOK KA="C" topic="Public-Key Cryptography">
+  <CyBOK KA="AC" topic="Public-Key Cryptography">
     <keyword>public-key encryption</keyword>
   </CyBOK>
   <CyBOK KA="AAA" topic="Authentication">

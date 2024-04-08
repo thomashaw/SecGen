@@ -19,6 +19,20 @@
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
+  <CyBOK KA="AC" topic="Algorithms, Schemes and Protocols">
+    <keyword>ADVANCED ENCRYPTION STANDARD (AES)</keyword>
+    <keyword>ECB (ELECTRONIC CODE BOOK) BLOCK CIPHER MODE</keyword>
+  </CyBOK>
+  <CyBOK KA="AC" topic="Symmetric Cryptography">
+    <keyword>symmetric primitives</keyword>
+    <keyword>symmetric encryption and authentication</keyword>
+  </CyBOK>
+  <CyBOK KA="AC" topic="Cryptographic Implementation">
+    <keyword>Cryptographic Libraries</keyword>
+    <keyword>ENCRYPTION - TOOLS</keyword>
+  </CyBOK>
+  
+
   <system>
     <system_name>desktop</system_name>
     <base distro="Debian 10" type="desktop" name="KDE"/>

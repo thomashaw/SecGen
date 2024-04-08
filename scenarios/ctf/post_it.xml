@@ -39,7 +39,7 @@
     <keyword>Post-exploitation: pivoting attacks, information gathering</keyword>
   </CyBOK>
   <!-- decrypt zip file -->
-  <CyBOK KA="C" topic="Symmetric Cryptography">
+  <CyBOK KA="AC" topic="Symmetric Cryptography">
     <keyword>symmetric encryption and authentication</keyword>
   </CyBOK>
   <CyBOK KA="AAA" topic="Authentication">

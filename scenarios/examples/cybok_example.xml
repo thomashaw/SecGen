@@ -21,7 +21,7 @@
 		<keyword>ACCESS CONTROL - DAC (DISCRETIONARY ACCESS CONTROL)</keyword>
 		<keyword>Unix File Permissions</keyword>
 	</CyBOK>
-	<CyBOK KA="C" topic="Cryptography">
+	<CyBOK KA="AC" topic="Cryptography">
 		<keyword>stream ciphers</keyword>
 		<keyword>substitution ciphers</keyword>
 	</CyBOK>

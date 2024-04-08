@@ -34,7 +34,7 @@ Your password on both systems is: tiaspbiqe2r
     <keyword>setuid/setgid</keyword>
     <keyword>Hardlink protections</keyword>
   </CyBOK>
-  <CyBOK KA="C" topic="Public-Key Cryptography">
+  <CyBOK KA="AC" topic="Public-Key Cryptography">
     <keyword>public-key signatures</keyword>
   </CyBOK>
 

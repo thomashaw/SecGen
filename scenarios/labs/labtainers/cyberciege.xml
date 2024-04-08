@@ -19,7 +19,7 @@
   <CyBOK KA="AAA" topic="Authorisation">
     <keyword>ACCESS CONTROL - MAC (MANDATORY ACCESS CONTROL)</keyword>
   </CyBOK>
-  <CyBOK KA="C" topic="Schemes">
+  <CyBOK KA="AC" topic="Algorithms, Schemes and Protocols">
     <keyword>TLS</keyword>
   </CyBOK>
   <CyBOK KA="CPS" topic="Cyber-Physical Systems">
