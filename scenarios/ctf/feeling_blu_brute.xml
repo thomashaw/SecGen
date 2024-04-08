@@ -174,9 +174,8 @@
         <datastore>password</datastore>
       </input>
       <input into="strings_to_pre_leak">
-        <value>Creds:</value>
+        <value>Username</value>
         <datastore access_json="['manager']['username']">organisation</datastore>
-        <datastore>password</datastore>
         <generator type="flag_generator"/>
       </input>
     </vulnerability>
