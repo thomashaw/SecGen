@@ -12,11 +12,11 @@
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
-  <CyBOK KA="C" topic="Schemes">
+  <CyBOK KA="AC" topic="Algorithms, Schemes and Protocols">
     <keyword>AES</keyword>
   </CyBOK>
 
-  <CyBOK KA="C" topic="Symmetric Cryptography">
+  <CyBOK KA="AC" topic="Symmetric Cryptography">
     <keyword>symmetric primitives</keyword>
     <keyword>symmetric encryption and authentication</keyword>
   </CyBOK>

@@ -31,6 +31,10 @@
   <CyBOK KA="F" topic="Artifact Analysis">
     <keyword>Encoding and alternative data formats</keyword>
   </CyBOK>
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>ENCODING</keyword>
+    <keyword>BASE64</keyword>
+  </CyBOK>
 
   <system>
     <system_name>desktop</system_name>

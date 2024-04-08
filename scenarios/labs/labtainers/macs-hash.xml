@@ -16,7 +16,7 @@
     <keyword>user authentication</keyword>
     <keyword>Cryptography and authentication (hashes and attacks against authentication schemes / passwords)</keyword>
   </CyBOK>
-  <CyBOK KA="C" topic="Public-Key Cryptography">
+  <CyBOK KA="AC" topic="Public-Key Cryptography">
     <keyword>symmetric encryption and authentication</keyword>
     <keyword>MESSAGE AUTHENTICATION CODE (MAC)</keyword>
     <keyword>HASHED MESSAGE AUTHENTICATION CODE (HMAC)</keyword>

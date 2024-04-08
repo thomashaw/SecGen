@@ -12,7 +12,7 @@
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
-  <CyBOK KA="C" topic="Schemes">
+  <CyBOK KA="AC" topic="Algorithms, Schemes and Protocols">
     <keyword>TLS</keyword>
   </CyBOK>
   <CyBOK KA="NS" topic="Internet Architecture">

@@ -19,6 +19,25 @@
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
+  <CyBOK KA="AC" topic="Algorithms, Schemes and Protocols">
+    <keyword>CRYPTOGRAPHY - ASYMMETRIC - RSA</keyword>
+    <keyword>DIFFIE-HELLMAN ALGORITHM</keyword>
+  </CyBOK>
+  <CyBOK KA="AC" topic="Public-Key Cryptography">
+    <keyword>public-key encryption</keyword>
+    <keyword>public-key signatures</keyword>
+    <keyword>RSA MODULUS</keyword>
+    <keyword>RSA PROBLEM</keyword>
+    <keyword>RSA TRANSFORM</keyword>
+  </CyBOK>
+  <CyBOK KA="AC" topic="Key Management">
+    <keyword>key generation</keyword>
+  </CyBOK>
+  <CyBOK KA="AC" topic="Cryptographic Implementation">
+    <keyword>Cryptographic Libraries</keyword>
+    <keyword>ENCRYPTION - TOOLS</keyword>
+  </CyBOK>
+
   <system>
     <system_name>desktop</system_name>
     <base distro="Debian 10" type="desktop" name="KDE"/>

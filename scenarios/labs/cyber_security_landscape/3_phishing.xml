@@ -29,7 +29,12 @@
     <keyword>MALCODE/MALWARE - SOCIAL ENGINEERING - BAITING</keyword>
     <keyword>MALCODE/MALWARE - SOCIAL ENGINEERING - PRETEXTING</keyword>
     <keyword>MALCODE/MALWARE - VIRUSES - COUNTERMEASUMALCODE/MALWARE - VIRUSES - MACRO VIRUSES</keyword>
-    <keyword>MALCODE/MALWARE - SPAM . . . . .MALCODE/MALWARE - SPOOFING</keyword>
+    <keyword>MALCODE/MALWARE - SPAM</keyword>
+    <keyword>MALCODE/MALWARE - SPOOFING</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Client-Side Vulnerabilities and Mitigations">
+    <keyword>E-MAIL - PHISHING</keyword>
+    <keyword>E-MAIL - SPOOFING</keyword>
   </CyBOK>
 
   <system>

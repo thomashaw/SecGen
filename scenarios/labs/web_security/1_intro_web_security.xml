@@ -18,6 +18,25 @@ Throughout this lab, you will learn by doing, actively engaging in activities. A
     <type>lab-sheet</type>
     <difficulty>intermediate</difficulty>
 
+    <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+        <keyword>JAVASCRIPT</keyword>
+        <keyword>HYPERTEXT MARKUP LANGUAGE (HTML)</keyword>
+        <keyword>CASCADING STYLE SHEETS (CSS)</keyword>
+        <keyword>HYPERTEXT TRANSFER PROTOCOL (HTTP)</keyword>
+        <keyword>HYPERTEXT TRANSFER PROTOCOL (HTTP) - PROXYING</keyword>
+        <keyword>Broken Access Control / Insecure Direct Object References</keyword>
+        <keyword>CLIENT-SERVER MODELS</keyword>
+    </CyBOK>
+    <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+        <keyword>server-side misconfiguration and vulnerable components</keyword>
+    </CyBOK>
+    <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+        <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+    </CyBOK>
+    <CyBOK KA="SS" topic="Detection of Vulnerabilities">
+        <keyword>dynamic detection</keyword>
+    </CyBOK>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10 Buster" />
