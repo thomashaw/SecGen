@@ -59,7 +59,7 @@
   </CyBOK>
 
   <!-- decrypt zip file -->
-  <CyBOK KA="AC" topic="Symmetric Cryptography">
+  <CyBOK KA="C" topic="Symmetric Cryptography">
     <keyword>symmetric encryption and authentication</keyword>
   </CyBOK>
   <CyBOK KA="AAA" topic="Authentication">
@@ -174,9 +174,8 @@
         <datastore>password</datastore>
       </input>
       <input into="strings_to_pre_leak">
-        <value>Creds:</value>
+        <value>Username</value>
         <datastore access_json="['manager']['username']">organisation</datastore>
-        <datastore>password</datastore>
         <generator type="flag_generator"/>
       </input>
     </vulnerability>
