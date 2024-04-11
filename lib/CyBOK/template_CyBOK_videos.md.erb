@@ -14,7 +14,7 @@ There are <%= VIDEO_HASH.length %> videos with CyBOK metadata.
 <%
 VIDEO_HASH.each{|url,array|
 %>
-<% array.each{|arr| %>
+<% array.each do |arr| %>
    ## <%= arr['title'] %>
    by <%= arr['by'] %>
 
@@ -25,17 +25,18 @@ rescue YouTubeImages::IncorrectYouTubeID
 %>)<%
 end
 %>
-   <%= arr['url'] %>
+<%= arr['url'] %>
 
-   <% unless arr['CyBOK'].kind_of?(Array)
-    arr['CyBOK'] = [arr['CyBOK']]
-   end %>
+<% unless arr['CyBOK'].nil? -%>
+<%   unless arr['CyBOK'].kind_of?(Array)
+   arr['CyBOK'] = [arr['CyBOK']]
+   end -%>
 | KA | Topics | Keywords |
 | --- | --- | --- |
-<% arr['CyBOK'].each {|cybok| -%>
+<%     arr['CyBOK'].each do |cybok| -%>
 | <%= CyBOK_ACRONYMS[cybok["@KA"]] %> (<%= cybok["@KA"] %>) | <%= cybok["@topic"] %> | <%= cybok["keyword"].to_s.gsub(/"|\[|\]/, '').gsub(',',';') %> |
-<% } -%>
-<% } %>
-
+<%     end -%>
+<%   end -%>
+<% end -%>
 <%
 } %>

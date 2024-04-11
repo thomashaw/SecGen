@@ -118,7 +118,7 @@ scenarios.each { |scenario|
         KA_TOPIC_SCENARIOS_HASH[ka][topic][scenario] = "-"
         (SCENARIOS_HASH[scenario] ||= []) << cybok_entry
       }
-    elsif (scenario_hash['scenario']['CyBOK'])
+    elsif (scenario_hash['scenario']['CyBOK'].is_a?(Hash))
       # KA_HASH[scenario] << scenario
       ka = scenario_hash['scenario']['CyBOK']['@KA']
       (@ka_hash[ka] ||= []) << scenario
@@ -145,25 +145,6 @@ scenarios.each { |scenario|
       # SCENARIOS_HASH[scenario]['VMs'] << scenario_hash['scenario']['system']['system_name']
     end
 
-    # puts @ka_hash.to_s
-    # puts SCENARIOS_HASH.to_s
-    # SCENARIOS_HASH[scenario] = {};
-    # SCENARIOS_HASH[scenario]['name'] = scenario_hash['scenario']['name']
-    # SCENARIOS_HASH[scenario]['type'] = scenario_hash['scenario']['type']
-    # SCENARIOS_HASH[scenario]['author'] = scenario_hash['scenario']['author']
-    # SCENARIOS_HASH[scenario]['description'] = scenario_hash['scenario']['description']
-    # SCENARIOS_HASH[scenario]['difficulty'] = scenario_hash['scenario']['difficulty']
-    # SCENARIOS_HASH[scenario]['VMs'] = []
-    # # puts '>>>>>>'
-    #
-    # if (scenario_hash['scenario']['system'].kind_of?(Array))
-    #   scenario_hash['scenario']['system'].each {|vm|
-    #     SCENARIOS_HASH[scenario]['VMs'] << vm['system_name']
-    #   }
-    #
-    # else
-    #   SCENARIOS_HASH[scenario]['VMs'] << scenario_hash['scenario']['system']['system_name']
-    # end
   else
     Print.err "Error reading scenario xml: #{scenario}"
   end

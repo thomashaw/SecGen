@@ -49,20 +49,6 @@
       <keyword>The fallibility of digital evidence to tampering</keyword>
     </CyBOK>
   </video>
-  <video>
-    <title>Log Management</title>
-    <by>Z. Cliffe Schreuders</by>
-    <url>https://youtu.be/0EafG4CLwA4</url>
-    <type>lecture-prerecorded</type>
-    <CyBOK KA="SOIM" topic="Monitor: Data Sources">
-      <keyword>system and kernel logs</keyword>
-      <keyword>application logs: web server logs and files</keyword>
-      <keyword>Syslog</keyword>
-    </CyBOK>
-    <CyBOK KA="SOIM" topic="Analyse: Analysis Methods">
-      <keyword>contribution of SIEM to analysis and detection</keyword>
-    </CyBOK>
-  </video>
 
   <system>
     <system_name>kali</system_name>

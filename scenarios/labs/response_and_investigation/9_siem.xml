@@ -14,12 +14,66 @@
 
     This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.
   </description>
+  <lab_sheet_url>https://docs.google.com/document/d/13fzmV01ju4sTFc9R-Fzr6Ti2zQ5UYSx3ClGrycs9XVA/edit?usp=sharing</lab_sheet_url>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
+  <CyBOK KA="SOIM" topic="Fundamental Concepts">
+    <keyword>workflows and vocabulary</keyword>
+    <keyword>PURPOSE OF LOGGING AND AUDITING</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="Monitor: Data Sources">
+    <keyword>system and kernel logs</keyword>
+    <keyword>Syslog</keyword>
+    <keyword>Linux Journal and SystemD</keyword>
+    <keyword>EVENTS - LOGGING</keyword>
+    <keyword>LOG FILES - CENTRALIZED LOGGING</keyword>
+    <keyword>LOG FILES - EVENT SOURCE CONFIGURATION</keyword>
+    <keyword>LOGGING AND AUDITING OF CHANGES</keyword>
+    <keyword>MONITORING - INTEGRITY</keyword>
+    <keyword>AuditBeat</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="Analyse: Analysis Methods">
+    <keyword>contribution of SIEM to analysis and detection</keyword>
+    <keyword>EVENTS - ANALYSIS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="Plan: Security Information and Event Management">
+    <keyword>data collection</keyword>
+    <keyword>alert correlation</keyword>
+    <keyword>LOG FILES - INCIDENT RESPONSE</keyword>
+    <keyword>MONITORING - INCIDENT RESPONSE</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="Execute: Mitigation and Countermeasures">
+    <keyword>SIEM platforms and countermeasures</keyword>
+    <keyword>SECURITY INFORMATION AND EVENT MANAGEMENT (SIEM)</keyword>
+    <keyword>Configuring Elastic Stack for centralised logging and SIEM</keyword>
+  </CyBOK>
+
+  <video>
+    <title>Log Management</title>
+    <by>Z. Cliffe Schreuders</by>
+    <url>https://youtu.be/0EafG4CLwA4</url>
+    <type>lecture-prerecorded</type>
+    <CyBOK KA="SOIM" topic="Fundamental Concepts">
+      <keyword>workflows and vocabulary</keyword>
+      <keyword>PURPOSE OF LOGGING AND AUDITING</keyword>
+    </CyBOK>
+    <CyBOK KA="SOIM" topic="Monitor: Data Sources">
+      <keyword>system and kernel logs</keyword>
+      <keyword>Syslog</keyword>
+      <keyword>Linux Journal and SystemD</keyword>
+      <keyword>EVENTS - LOGGING</keyword>
+      <keyword>LOG FILES - CENTRALIZED LOGGING</keyword>
+      <keyword>LOG FILES - EVENT SOURCE CONFIGURATION</keyword>
+      <keyword>Log format: Common Log Format (CLF)</keyword>
+    </CyBOK>
+    <CyBOK KA="SOIM" topic="Analyse: Analysis Methods">
+      <keyword>contribution of SIEM to analysis and detection</keyword>
+    </CyBOK>
+  </video>
 
   <system>
     <system_name>siem_management</system_name>

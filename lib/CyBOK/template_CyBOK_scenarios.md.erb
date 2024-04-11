@@ -55,7 +55,7 @@ SCENARIOS_HASH.keys.each{|scenario|
 | --- | --- |
 |Name | <%= SCENARIOS_FULL_HASH[scenario][0]["name"].to_s %> |
 |Description | <%= SCENARIOS_FULL_HASH[scenario][0]["description"].to_s.delete('#').gsub(/\n/,'</br>') %> |
-|Lab sheet | <%= SCENARIOS_FULL_HASH[scenario][0]["lab_sheet_url"].to_s.delete('#').gsub(/\n/,'</br>') %> |
+|Lab sheet | <%= SCENARIOS_FULL_HASH[scenario][0]["lab_sheet_url"].to_s.delete('#').gsub(/\n/,'</br>') if SCENARIOS_FULL_HASH[scenario] && SCENARIOS_FULL_HASH[scenario][0]["lab_sheet_url"] %> |
 |Type | <%= SCENARIOS_FULL_HASH[scenario][0]["type"].to_s.gsub(/"|\[|\]/, '').gsub(',',';') %> |
 |Author | <%= SCENARIOS_FULL_HASH[scenario][0]["author"].to_s %> |
 |Linked videos| <%= SCENARIOS_FULL_HASH[scenario][0].dig_deep(:url).to_s.gsub(/"|\[|\]/, '').gsub(',',';') %> |

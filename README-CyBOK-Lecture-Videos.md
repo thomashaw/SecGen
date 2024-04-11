@@ -19,14 +19,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/sv1pHuuoW9g/mqdefault.jpg)
 
-   https://www.youtube.com/watch?v=sv1pHuuoW9g
-
+https://www.youtube.com/watch?v=sv1pHuuoW9g
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 |  (IC) | Foundational Concepts | objectives of cyber security |
-
-
 
 
    ## Protecting Integrity
@@ -35,15 +32,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/grISRv-CuHE/mqdefault.jpg)
 
-   https://www.youtube.com/watch?v=grISRv-CuHE
-
+https://www.youtube.com/watch?v=grISRv-CuHE
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | access control; Protecting integrity |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | Linux read only protections: ro mounts; file attributes |
-
-
 
 
    ## Monitoring Integrity
@@ -52,8 +46,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/qzyEdeQ_7ZY/mqdefault.jpg)
 
-   https://www.youtube.com/watch?v=qzyEdeQ_7ZY
-
+https://www.youtube.com/watch?v=qzyEdeQ_7ZY
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -62,16 +55,13 @@ There are 71 videos with CyBOK metadata.
 | Operating Systems &amp; Virtualisation (OSV) | OS Hardening | code and data integrity checks |
 
 
-
-
    ## Incident Response
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/kz7m-iyzSOw/mqdefault.jpg)
 
-   https://www.youtube.com/watch?v=kz7m-iyzSOw
-
+https://www.youtube.com/watch?v=kz7m-iyzSOw
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -80,22 +70,17 @@ There are 71 videos with CyBOK metadata.
 | Law &amp; Regulation (LR) | Data Protection | investigation and prevention of crime; personal data breach notification; enforcement and penalties |
 
 
-
-
    ## Contingency Planning
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/lak1Sued4GY/mqdefault.jpg)
 
-   https://youtu.be/lak1Sued4GY
-
+https://youtu.be/lak1Sued4GY
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Operating Systems &amp; Virtualisation (OSV) | Human Factors: Incident Management | prepare: incident management planning; BUSINESS CONTINUITY PLAN - AND INCIDENT RESPONSE |
-
-
 
 
    ## Backup Planning
@@ -104,15 +89,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/stVomGROfbQ/mqdefault.jpg)
 
-   https://youtu.be/stVomGROfbQ
-
+https://youtu.be/stVomGROfbQ
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Security Operations &amp; Incident Management (SOIM) | Execute: Mitigation and Countermeasures | Recover data and services after an incident |
 | Operating Systems &amp; Virtualisation (OSV) | Human Factors: Incident Management | prepare: incident management planning; BUSINESS CONTINUITY PLAN - AND INCIDENT RESPONSE |
-
-
 
 
    ## Backup Levels: Differential and Incremental Backups Using Rsync
@@ -121,15 +103,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/n8IKEJUOISY/mqdefault.jpg)
 
-   https://youtu.be/n8IKEJUOISY
-
+https://youtu.be/n8IKEJUOISY
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Security Operations &amp; Incident Management (SOIM) | Execute: Mitigation and Countermeasures | Recover data and services after an incident; BACKUP - DIFFERENTIAL; BACKUP - INFERENTIAL |
 | Operating Systems &amp; Virtualisation (OSV) | Human Factors: Incident Management | prepare: incident management planning |
-
-
 
 
    ## The Cloud
@@ -138,8 +117,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/raR0HstMnjg/mqdefault.jpg)
 
-   https://youtu.be/raR0HstMnjg
-
+https://youtu.be/raR0HstMnjg
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -149,22 +127,17 @@ There are 71 videos with CyBOK metadata.
 | Privacy &amp; Online Rights (POR) | Confidentiality | CLOUD COMPUTING - PRIVACY CONCERNS |
 
 
-
-
    ## Redundancy and RAID
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/3oDVTSFhl8Y/mqdefault.jpg)
 
-   https://youtu.be/3oDVTSFhl8Y
-
+https://youtu.be/3oDVTSFhl8Y
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Security Operations &amp; Incident Management (SOIM) | Execute: Mitigation and Countermeasures | DATA REDUNDANCY |
-
-
 
 
    ## Intrusion Detection and Prevention Systems (IDS IPS)
@@ -173,8 +146,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/M6MisvbU32M/mqdefault.jpg)
 
-   https://youtu.be/M6MisvbU32M
-
+https://youtu.be/M6MisvbU32M
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -185,16 +157,13 @@ There are 71 videos with CyBOK metadata.
 | Malware &amp; Attack Technology (MAT) | Malware Detection | attack detection |
 
 
-
-
    ## IDS accuracy
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/ZUMBsMppsLo/mqdefault.jpg)
 
-   https://youtu.be/ZUMBsMppsLo
-
+https://youtu.be/ZUMBsMppsLo
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -204,16 +173,13 @@ There are 71 videos with CyBOK metadata.
 | Network Security (NS) | Network Defence Tools | intrusion detection systems |
 
 
-
-
    ## Snort IDS
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/nuUm4NO_S1s/mqdefault.jpg)
 
-   https://youtu.be/nuUm4NO_S1s
-
+https://youtu.be/nuUm4NO_S1s
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -224,21 +190,13 @@ There are 71 videos with CyBOK metadata.
 | Malware &amp; Attack Technology (MAT) | Malware Detection | attack detection |
 
 
-
-
    ## Regexp (unstructured demo)
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/4zYn4hbwKYQ/mqdefault.jpg)
 
-   https://youtu.be/4zYn4hbwKYQ
-
-
-| KA | Topics | Keywords |
-| --- | --- | --- |
-|  (N/A) | Hints | Technical hint |
-
+https://youtu.be/4zYn4hbwKYQ
 
 
 
@@ -248,8 +206,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Y32tmFrCEBk/mqdefault.jpg)
 
-   https://youtu.be/Y32tmFrCEBk
-
+https://youtu.be/Y32tmFrCEBk
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -259,16 +216,13 @@ There are 71 videos with CyBOK metadata.
 | Malware &amp; Attack Technology (MAT) | Malware Detection | attack detection |
 
 
-
-
    ## Live System Analysis: Concepts
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/aNvVtF437LI/mqdefault.jpg)
 
-   https://youtu.be/aNvVtF437LI
-
+https://youtu.be/aNvVtF437LI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -276,8 +230,6 @@ There are 71 videos with CyBOK metadata.
 | Operating Systems &amp; Virtualisation (OSV) | OS Hardening | anomaly detection |
 | Authentication, Authorisation &amp; Accountability (AAA) | Accountability | The fallibility of digital evidence to tampering |
 | Malware &amp; Attack Technology (MAT) | Malware Detection | identifying the presence of malware |
-
-
 
 
    ## Live System Analysis: Tools Demo
@@ -286,8 +238,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/iUInvMrBw3k/mqdefault.jpg)
 
-   https://www.youtube.com/watch?v=iUInvMrBw3k
-
+https://www.youtube.com/watch?v=iUInvMrBw3k
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -297,22 +248,17 @@ There are 71 videos with CyBOK metadata.
 | Malware &amp; Attack Technology (MAT) | Malware Detection | identifying the presence of malware |
 
 
-
-
    ## Investigating a running process
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/9nyvtJRQ17w/mqdefault.jpg)
 
-   https://youtu.be/9nyvtJRQ17w
-
+https://youtu.be/9nyvtJRQ17w
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Forensics (F) | Main Memory Forensics | process information; file information; network connections |
-
-
 
 
    ## Dead System Analysis
@@ -321,8 +267,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/3kiV0ZJWmMY/mqdefault.jpg)
 
-   https://youtu.be/3kiV0ZJWmMY
-
+https://youtu.be/3kiV0ZJWmMY
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -331,23 +276,19 @@ There are 71 videos with CyBOK metadata.
 | Authentication, Authorisation &amp; Accountability (AAA) | Accountability | The fallibility of digital evidence to tampering |
 
 
-
-
    ## Log Management
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/0EafG4CLwA4/mqdefault.jpg)
 
-   https://youtu.be/0EafG4CLwA4
-
+https://youtu.be/0EafG4CLwA4
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
-| Security Operations &amp; Incident Management (SOIM) | Monitor: Data Sources | system and kernel logs; application logs: web server logs and files; Syslog |
+| Security Operations &amp; Incident Management (SOIM) | Fundamental Concepts | workflows and vocabulary; PURPOSE OF LOGGING AND AUDITING |
+| Security Operations &amp; Incident Management (SOIM) | Monitor: Data Sources | system and kernel logs; Syslog; Linux Journal and SystemD; EVENTS - LOGGING; LOG FILES - CENTRALIZED LOGGING; LOG FILES - EVENT SOURCE CONFIGURATION; Log format: Common Log Format (CLF) |
 | Security Operations &amp; Incident Management (SOIM) | Analyse: Analysis Methods | contribution of SIEM to analysis and detection |
-
-
 
 
    ## Reverse Engineering and Malware Analysis: Part 1 Static Analysis
@@ -356,14 +297,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/14Hv_QodLxs/mqdefault.jpg)
 
-   https://youtu.be/14Hv_QodLxs
-
+https://youtu.be/14Hv_QodLxs
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; analysis environments; STATIC ANALYSIS |
-
-
 
 
    ## Reverse Engineering and Malware Analysis: Part 2 Dynamic Analysis
@@ -372,14 +310,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/quKsZbpvYIY/mqdefault.jpg)
 
-   https://youtu.be/quKsZbpvYIY
-
+https://youtu.be/quKsZbpvYIY
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; analysis environments; DYNAMIC ANALYSIS |
-
-
 
 
    ## The Problem of Malware
@@ -388,15 +323,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/CxZx7b3OPsg/mqdefault.jpg)
 
-   https://youtu.be/CxZx7b3OPsg
-
+https://youtu.be/CxZx7b3OPsg
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Taxonomy | potentially unwanted programs |
 | Operating Systems &amp; Virtualisation (OSV) | Attacker Model | attack surface; threats to security for modern OSs |
-
-
 
 
    ## Malware Types
@@ -405,14 +337,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/3qmmqfBtJio/mqdefault.jpg)
 
-   https://youtu.be/3qmmqfBtJio
-
+https://youtu.be/3qmmqfBtJio
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Taxonomy | dimensions; kinds; potentially unwanted programs |
-
-
 
 
    ## Stopping Malware
@@ -421,14 +350,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/k3NwrFWuhaY/mqdefault.jpg)
 
-   https://youtu.be/k3NwrFWuhaY
-
+https://youtu.be/k3NwrFWuhaY
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Detection | ANTI-MALWARE - SYSTEMS; ANTIVIRUS SOFTWARE; MALCODE/MALWARE - COUNTERMEASURES - CODE SIGNING; MALCODE/MALWARE - COUNTERMEASURES - SANDBOXING; MALCODE/MALWARE - THIRD-PARTY CERTIFICATIONS |
-
-
 
 
    ## Introduction to C - Part 1
@@ -437,14 +363,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/chebVVwj1kM/mqdefault.jpg)
 
-   https://youtu.be/chebVVwj1kM
-
+https://youtu.be/chebVVwj1kM
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Technical Underpinning | Technical underpinnings for malware analysis: C |
-
-
 
 
    ## Introduction to C - Part 2
@@ -453,14 +376,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/2R4QzDAfzLQ/mqdefault.jpg)
 
-   https://youtu.be/2R4QzDAfzLQ
-
+https://youtu.be/2R4QzDAfzLQ
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Technical Underpinning | Technical underpinnings for malware analysis: C |
-
-
 
 
    ## From C to Assembly Language
@@ -469,14 +389,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/QbyorEb3WTs/mqdefault.jpg)
 
-   https://youtu.be/QbyorEb3WTs
-
+https://youtu.be/QbyorEb3WTs
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Technical Underpinning | Technical underpinnings for malware analysis: ASM; Technical underpinnings for malware analysis: C |
-
-
 
 
    ## Recognising C Constructs in Assembly
@@ -485,14 +402,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/8b6JokfEFEo/mqdefault.jpg)
 
-   https://youtu.be/8b6JokfEFEo
-
+https://youtu.be/8b6JokfEFEo
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques |
-
-
 
 
    ## SRE with Ghidra: Overview and Interface
@@ -501,14 +415,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/0zUmUZoEpC4/mqdefault.jpg)
 
-   https://youtu.be/0zUmUZoEpC4
-
+https://youtu.be/0zUmUZoEpC4
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; analysis environments; STATIC ANALYSIS |
-
-
 
 
    ## SRE with Ghidra: Analysis and Renaming Variables and Editing Function Signatures
@@ -517,14 +428,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/m73pHO_0vhI/mqdefault.jpg)
 
-   https://youtu.be/m73pHO_0vhI
-
+https://youtu.be/m73pHO_0vhI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; analysis environments; STATIC ANALYSIS |
-
-
 
 
    ## Dynamic Analysis and Debugging
@@ -533,14 +441,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/6MeJIr3EKKM/mqdefault.jpg)
 
-   https://youtu.be/6MeJIr3EKKM
-
+https://youtu.be/6MeJIr3EKKM
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; analysis environments; DYNAMIC ANALYSIS |
-
-
 
 
    ## Dynamic Analysis and Debugging
@@ -549,14 +454,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/pExTbDVt0Gw/mqdefault.jpg)
 
-   https://youtu.be/pExTbDVt0Gw
-
+https://youtu.be/pExTbDVt0Gw
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; analysis environments; DYNAMIC ANALYSIS |
-
-
 
 
    ## Malware Behaviour
@@ -565,14 +467,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/6XMrHyAqD-4/mqdefault.jpg)
 
-   https://youtu.be/6XMrHyAqD-4
-
+https://youtu.be/6XMrHyAqD-4
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; MALICIOUS ACTIVITIES BY MALWARE |
-
-
 
 
    ## DLL injection for Linux: LD_PRELOAD Demo
@@ -581,14 +480,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/KJPeZptzl1U/mqdefault.jpg)
 
-   https://youtu.be/KJPeZptzl1U
-
+https://youtu.be/KJPeZptzl1U
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; MALICIOUS ACTIVITIES BY MALWARE |
-
-
 
 
    ## Packers and UPX Short Demo
@@ -597,14 +493,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/6qeDnjOaRiI/mqdefault.jpg)
 
-   https://youtu.be/6qeDnjOaRiI
-
+https://youtu.be/6qeDnjOaRiI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Malware Analysis | analysis techniques; MALICIOUS ACTIVITIES BY MALWARE |
-
-
 
 
    ## Software, Vulnerabilities and Exploits
@@ -613,14 +506,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/jo_07iOplzA/mqdefault.jpg)
 
-   https://youtu.be/jo_07iOplzA
-
+https://youtu.be/jo_07iOplzA
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Attacks and exploitation | EXPLOITATION |
-
-
 
 
    ## Software Vulnerabilities
@@ -629,14 +519,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/1Hy_166CwRk/mqdefault.jpg)
 
-   https://youtu.be/1Hy_166CwRk
-
+https://youtu.be/1Hy_166CwRk
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Malware &amp; Attack Technology (MAT) | Attacks and exploitation | EXPLOITATION |
-
-
 
 
    ## Structured Output Generation Vulnerabilities
@@ -645,15 +532,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/nVpqjsfii6c/mqdefault.jpg)
 
-   https://youtu.be/nVpqjsfii6c
-
+https://youtu.be/nVpqjsfii6c
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Categories of Vulnerabilities | structured output generation vulnerabilities |
 | Software Security (SS) | Prevention of Vulnerabilities | structured output generations mitigations |
-
-
 
 
    ## Race Conditions and Time of Check to Time of Use TOCTTOU Vulnerabilities
@@ -662,15 +546,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/PH73lpG2B1M/mqdefault.jpg)
 
-   https://youtu.be/PH73lpG2B1M
-
+https://youtu.be/PH73lpG2B1M
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Categories of Vulnerabilities | race condition vulnerabilities |
 | Software Security (SS) | Prevention of Vulnerabilities | race condition mitigations |
-
-
 
 
    ## The Format String Vulnerability
@@ -679,14 +560,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Du3fVc_ZLiI/mqdefault.jpg)
 
-   https://youtu.be/Du3fVc_ZLiI
-
+https://youtu.be/Du3fVc_ZLiI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Categories of Vulnerabilities | Format string attacks |
-
-
 
 
    ## Fuzzing Part 1
@@ -695,14 +573,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/nwxtlR31hvw/mqdefault.jpg)
 
-   https://youtu.be/nwxtlR31hvw
-
+https://youtu.be/nwxtlR31hvw
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Detection of Vulnerabilities | dynamic detection |
-
-
 
 
    ## Fuzzing Part 2
@@ -711,14 +586,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/vT2PP7VnSNw/mqdefault.jpg)
 
-   https://youtu.be/vT2PP7VnSNw
-
+https://youtu.be/vT2PP7VnSNw
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Detection of Vulnerabilities | dynamic detection |
-
-
 
 
    ## Overflows and Stack Smashing Buffer Overflows
@@ -727,14 +599,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Zh7IdmnCfy0/mqdefault.jpg)
 
-   https://youtu.be/Zh7IdmnCfy0
-
+https://youtu.be/Zh7IdmnCfy0
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Categories of Vulnerabilities | memory management vulnerabilities |
-
-
 
 
    ## Writing Exploits (Buffer Overflows Part 2)
@@ -743,14 +612,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/WU06L-u0t2Q/mqdefault.jpg)
 
-   https://youtu.be/WU06L-u0t2Q
-
+https://youtu.be/WU06L-u0t2Q
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Categories of Vulnerabilities | memory management vulnerabilities |
-
-
 
 
    ## Memory Vulnerabilities
@@ -759,14 +625,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/j2S-XgY-Fyg/mqdefault.jpg)
 
-   https://youtu.be/j2S-XgY-Fyg
-
+https://youtu.be/j2S-XgY-Fyg
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Categories of Vulnerabilities | memory management vulnerabilities |
-
-
 
 
    ## The Stack (part 1)
@@ -775,14 +638,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Lf1UPaqPJMM/mqdefault.jpg)
 
-   https://youtu.be/Lf1UPaqPJMM
-
+https://youtu.be/Lf1UPaqPJMM
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Technical Underpinning | Technical underpinnings for memory management vulnerabilities: the stack |
-
-
 
 
    ## The Stack (part 2)
@@ -791,14 +651,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/5OUQ7ExlgKI/mqdefault.jpg)
 
-   https://youtu.be/5OUQ7ExlgKI
-
+https://youtu.be/5OUQ7ExlgKI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Software Security (SS) | Technical Underpinning | Technical underpinnings for memory management vulnerabilities: the stack |
-
-
 
 
    ## Threat modeling using STRIDE and Attack Trees
@@ -807,15 +664,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/oi_CfBe_umU/mqdefault.jpg)
 
-   https://youtu.be/oi_CfBe_umU
-
+https://youtu.be/oi_CfBe_umU
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 |  (﻿SSL) | Prescriptive Processes | Microsoft SDL |
 | Risk Management &amp; Governance (RMG) | THREAT ANALYSIS | THREAT MODEL; ATTACK TREES |
-
-
 
 
    ## STRIDE Threat Modeling using Microsoft Threat Modeling Tool
@@ -824,15 +678,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Wry2get_RRc/mqdefault.jpg)
 
-   https://youtu.be/Wry2get_RRc
-
+https://youtu.be/Wry2get_RRc
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 |  (﻿SSL) | Prescriptive Processes | Microsoft SDL |
 | Risk Management &amp; Governance (RMG) | THREAT ANALYSIS | THREAT MODEL; ATTACK TREES |
-
-
 
 
    ## Secure Design Principles
@@ -841,14 +692,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/ywLXfSR5YWk/mqdefault.jpg)
 
-   https://youtu.be/ywLXfSR5YWk
-
+https://youtu.be/ywLXfSR5YWk
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Operating Systems &amp; Virtualisation (OSV) | OS Security Principles | Saltzer and Schroeder’s principles; newer principles |
-
-
 
 
    ## Secure Development Lifecycles
@@ -857,15 +705,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/v2rChKDAmFg/mqdefault.jpg)
 
-   https://youtu.be/v2rChKDAmFg
-
+https://youtu.be/v2rChKDAmFg
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 |  (﻿SSL) | Motivations for Secure Software Lifecycle | vulnerabilities can be exploited without being noticed |
 |  (﻿SSL) | Prescriptive Processes | Microsoft SDL; SAFECode; Touchpoints |
-
-
 
 
    ## Open source development and security practices
@@ -874,14 +719,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/xwsBaNQZozg/mqdefault.jpg)
 
-   https://youtu.be/xwsBaNQZozg
-
+https://youtu.be/xwsBaNQZozg
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 |  (﻿SSL) | Prescriptive Processes | Open source secure development |
-
-
 
 
    ## User accounts and Linux
@@ -890,15 +732,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/2I_JSdTu-oI/mqdefault.jpg)
 
-   https://youtu.be/2I_JSdTu-oI
-
+https://youtu.be/2I_JSdTu-oI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | user authentication |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | authentication and identification; Linux authentication; Types of user accounts |
-
-
 
 
    ## Passwords Part 1 Hashing and salt
@@ -907,15 +746,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/pGcJEML1mRo/mqdefault.jpg)
 
-   https://youtu.be/pGcJEML1mRo
-
+https://youtu.be/pGcJEML1mRo
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | user authentication; Cryptography and authentication (hashes and attacks against authentication schemes / passwords) |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | authentication and identification; Linux authentication |
-
-
 
 
    ## Passwords Part 2 Attacks and Countermeasures
@@ -924,15 +760,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/icC2Zrno_uM/mqdefault.jpg)
 
-   https://youtu.be/icC2Zrno_uM
-
+https://youtu.be/icC2Zrno_uM
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | user authentication; Cryptography and authentication (hashes and attacks against authentication schemes / passwords) |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | authentication and identification; Linux authentication |
-
-
 
 
    ## Password cracking with Johnny
@@ -941,15 +774,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Wrg6XZu6Luw/mqdefault.jpg)
 
-   https://youtu.be/Wrg6XZu6Luw
-
+https://youtu.be/Wrg6XZu6Luw
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | user authentication; Cryptography and authentication (hashes and attacks against authentication schemes / passwords) |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | authentication and identification; Linux authentication |
-
-
 
 
    ## Authentication
@@ -958,15 +788,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/z4L6Yv5ry1A/mqdefault.jpg)
 
-   https://youtu.be/z4L6Yv5ry1A
-
+https://youtu.be/z4L6Yv5ry1A
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | identity management; user authentication; facets of authentication |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | authentication and identification; Linux authentication |
-
-
 
 
    ## Biometrics
@@ -975,14 +802,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/-zcnfmoLjYI/mqdefault.jpg)
 
-   https://youtu.be/-zcnfmoLjYI
-
+https://youtu.be/-zcnfmoLjYI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | identity management; user authentication; facets of authentication; AUTHENTICATION - BIOMETRICS |
-
-
 
 
    ## Authentication Tokens and One-Time Passwords
@@ -991,14 +815,11 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/xHs3LB4Yyrk/mqdefault.jpg)
 
-   https://youtu.be/xHs3LB4Yyrk
-
+https://youtu.be/xHs3LB4Yyrk
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | identity management; user authentication; facets of authentication; AUTHENTICATION - OTP (ONE-TIME PASSWORD); AUTHENTICATION - TOKENS |
-
-
 
 
    ## Network-based Authentication (SSO, AD, LDAP, Kerberos)
@@ -1007,16 +828,13 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/c2dPdQmaVyo/mqdefault.jpg)
 
-   https://youtu.be/c2dPdQmaVyo
-
+https://youtu.be/c2dPdQmaVyo
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | identity management; authentication in distributed systems; user authentication; Network based-authentication with heterogeneous Linux and Windows networks |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | AUTHORIZATION - SSO (SINGLE SIGN-ON); AUTHORIZATION - LDAP (LIGHTWEIGHT DIRECTORY ACCESS PROTOCOL); AUTHENTICATION - KERBEROS; ACTIVE DIRECTORY DOMAIN SERVICES (ADDS) |
 | Authentication, Authorisation &amp; Accountability (AAA) | Access Control in Distributed Systems | core concepts; federated access control |
-
-
 
 
    ## Lightweight Directory Access Protocol (LDAP)
@@ -1025,15 +843,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/dCBabesIXo8/mqdefault.jpg)
 
-   https://youtu.be/dCBabesIXo8
-
+https://youtu.be/dCBabesIXo8
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | identity management; authentication in distributed systems; user authentication |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | theory; Network based-authentication with heterogeneous Linux and Windows networks; AUTHORIZATION - LDAP (LIGHTWEIGHT DIRECTORY ACCESS PROTOCOL) |
-
-
 
 
    ## Kerberos overview
@@ -1042,15 +857,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/rhdcxhSDqp4/mqdefault.jpg)
 
-   https://youtu.be/rhdcxhSDqp4
-
+https://youtu.be/rhdcxhSDqp4
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authentication | identity management; authentication in distributed systems; user authentication; Network based-authentication with heterogeneous Linux and Windows networks |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | AUTHENTICATION - KERBEROS |
-
-
 
 
    ## Active Directory
@@ -1059,8 +871,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/PCXK2cK8tpE/mqdefault.jpg)
 
-   https://youtu.be/PCXK2cK8tpE
-
+https://youtu.be/PCXK2cK8tpE
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -1069,16 +880,13 @@ There are 71 videos with CyBOK metadata.
 | Authentication, Authorisation &amp; Accountability (AAA) | Access Control in Distributed Systems | core concepts; federated access control |
 
 
-
-
    ## Access Controls: Introduction
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/yWJyZEFbchQ/mqdefault.jpg)
 
-   https://youtu.be/yWJyZEFbchQ
-
+https://youtu.be/yWJyZEFbchQ
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -1087,16 +895,13 @@ There are 71 videos with CyBOK metadata.
 | Operating Systems &amp; Virtualisation (OSV) | Role of Operating Systems | mediation; TRUSTED COMPUTING BASE (TCB); REFERENCE MONITOR |
 
 
-
-
    ## Unix File Permissions
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/i0kO_3ExJv4/mqdefault.jpg)
 
-   https://youtu.be/i0kO_3ExJv4
-
+https://youtu.be/i0kO_3ExJv4
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -1105,23 +910,18 @@ There are 71 videos with CyBOK metadata.
 | Operating Systems &amp; Virtualisation (OSV) | Role of Operating Systems | mediation |
 
 
-
-
    ## Access Control Models
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/viSkkNB777k/mqdefault.jpg)
 
-   https://youtu.be/viSkkNB777k
-
+https://youtu.be/viSkkNB777k
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | access control; theory; ACCESS CONTROL - DAC (DISCRETIONARY ACCESS CONTROL); ACCESS CONTROL - MAC (MANDATORY ACCESS CONTROL); ACCESS CONTROL - NDAC (NON-DISCRETIONARY ACCESS CONTROL); ACCESS CONTROL - ROLE-BASED |
 | Operating Systems &amp; Virtualisation (OSV) | OS Security Principles | security models |
-
-
 
 
    ## Special File Permissions SetUID, SetGUI
@@ -1130,15 +930,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/PGHsb3bg_h4/mqdefault.jpg)
 
-   https://youtu.be/PGHsb3bg_h4
-
+https://youtu.be/PGHsb3bg_h4
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | access control; Elevated privileges; Real and effective identity; Vulnerabilities and attacks on access control misconfigurations |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | Access controls and operating systems; Linux security model; Unix File Permissions; setuid/setgid |
-
-
 
 
    ## ACLs and Capabilities
@@ -1147,15 +944,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/Bn3NJhgmdLk/mqdefault.jpg)
 
-   https://youtu.be/Bn3NJhgmdLk
-
+https://youtu.be/Bn3NJhgmdLk
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | access control; ACCESS CONTROL - MATRIX; ACCESS CONTROL LIST (ACL); Vulnerabilities and attacks on access control misconfigurations |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | capabilities |
-
-
 
 
    ## Linux Extended ACLs
@@ -1164,15 +958,12 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/OT7ifs8PkHI/mqdefault.jpg)
 
-   https://youtu.be/OT7ifs8PkHI
-
+https://youtu.be/OT7ifs8PkHI
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
 | Authentication, Authorisation &amp; Accountability (AAA) | Authorisation | access control; ACCESS CONTROL LIST (ACL); Vulnerabilities and attacks on access control misconfigurations |
 | Operating Systems &amp; Virtualisation (OSV) | Primitives for Isolation and Mediation | Access controls and operating systems; Linux security model; Linux Extended Access Control Lists (facl) |
-
-
 
 
    ## Sandboxing and Virtualisation
@@ -1181,8 +972,7 @@ There are 71 videos with CyBOK metadata.
 
    ![thumbnail](http://img.youtube.com/vi/f4yBcKkb12g/mqdefault.jpg)
 
-   https://youtu.be/f4yBcKkb12g
-
+https://youtu.be/f4yBcKkb12g
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
@@ -1192,16 +982,13 @@ There are 71 videos with CyBOK metadata.
 | Web &amp; Mobile Security (WAM) | Fundamental Concepts and Approaches | sandboxing; permission dialog based access control |
 
 
-
-
    ## Rule-based Sandboxing and Mandatory Access Controls
    by Z. Cliffe Schreuders
 
 
    ![thumbnail](http://img.youtube.com/vi/Xgs5akM6ayc/mqdefault.jpg)
 
-   https://youtu.be/Xgs5akM6ayc
-
+https://youtu.be/Xgs5akM6ayc
 
 | KA | Topics | Keywords |
 | --- | --- | --- |
