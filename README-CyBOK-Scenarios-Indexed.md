@@ -211,7 +211,6 @@ Cyber-Physical Systems Domains | [labtainers/grassmarlin.xml](#labtainersgrassma
 |Lab sheet | https://docs.google.com/document/d/1Yb28GYRLD0Ihnb5oeFp-TGurhb8BZfm_qFbSSrGEknI/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  victim_server; kali |
 
 
@@ -243,7 +242,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1wKm2c7yxhM-9GnAiS_Mgvk_8-H7FKEBeGeMc6H0KlwA/edit?usp=sharing |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -271,10 +269,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Symmetric Encryption with AES |
 |Description | </br>    Symmetric encryption involves using the same key for both the encryption and decryption of data. In this lab, you will explore symmetric encryption with a focus on the Advanced Encryption Standard (AES). AES is a widely used block cipher that plays a crucial role in securing data in various applications, from secure communications to data protection. This lab aims to provide you with a high-level understanding of AES and its fundamental operations, such as Substitution (SubBytes), Permutation (ShiftRows and MixColumns), and Key Addition (Round Key). You will also explore how to work with AES encryption and decryption using both the GPG tool and Python3 with the Cryptodome module. This practical hands-on experience will equip you with the knowledge and skills necessary to apply AES encryption to secure your data.</br></br>    Throughout this lab, you will have the opportunity to complete a series of tasks and challenges. These practical exercises will not only help you understand the underlying principles of AES but also equip you with the skills to apply this encryption technique to real-world scenarios, ensuring the security and confidentiality of your data.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop; hb_server |
 
 
@@ -302,10 +298,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Asymmetric Encryption with RSA |
 |Description | </br>    Public key cryptography (also known as asymmetric encryption) enables secure communication, digital signatures, and data encryption without the need for a shared secret key. In this lab you will delve into the world of public key cryptography, specifically focusing on the RSA (Rivest-Shamir-Adleman) cipher, one of the most widely used asymmetric encryption methods. This lab will help you understand the fundamental principles of RSA encryption, key pair generation, and encryption/decryption processes. You will also interact with Hackerbot, a chatbot designed to challenge and test your knowledge as you progress through the exercises.</br></br>    Throughout this lab, you will learn the key concepts and procedures related to RSA encryption. You will start by generating RSA key pairs and performing encryption and decryption operations using both OpenSSL and Python. You will pick prime numbers, calculate modulus and phi(N), select encryption and decryption keys, and apply these concepts to encrypt and decrypt messages. The lab includes various Hackerbot challenges that you will complete, such as creating key pairs, encrypting and decrypting messages, and solving encryption-related quizzes. These practical exercises will deepen your understanding of RSA encryption and help you gain hands-on experience in using this cryptographic technique to secure information and communication.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop; hb_server |
 
 
@@ -334,10 +328,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Digital Forensics: Trashed Evidence |
 |Description | </br>   Introduction</br>  Welcome to the world of digital forensics!</br></br>  In this CTF problem-based learning task, you will be given a virtual machine (VM) representing a seized PC from an operative who works for an evil organization bent on global domination. Your task is to analyze the contents of the VM to gather evidence and identify any evidence of malicious activities on the machine.</br></br>  In this task, you will be using digital forensics techniques to extract information from the VM, including files, and internet history, and and will involve retrieving deleted files and identifying and extracting data hidden using steganography.</br></br>  These tasks will require a combination of technical skills, creativity, and critical thinking. With your help we can discover more about their evil plans!</br></br>  The password to login is: tiaspbiqe2r</br>   |
-|Lab sheet |  |
 |Type | ctf-lab |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  seized_desktop |
 
 
@@ -368,7 +360,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1vA_Ev_GPqPg3cGZblgVclWmTU-sUEEBqwYpFH09mQjg/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop; kali |
 
 
@@ -398,7 +389,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1QsOLdqwBP6njIoKbeQRdattbLBLPFCB-eKHW0OxdE8U/edit?usp=sharing |
 |Type | lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  windows_victim; kali |
 
 
@@ -430,7 +420,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/11I8xMUXrT5ArJIsAhwGDtQ4RkH4l9CR4C2wh9_wz8xM/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  windows_victim; linux_victim_server; kali |
 
 
@@ -460,7 +449,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1Whs4c_mN7fFjtrYgg_uzmCGBH_EYjr7fTAgoM-OZTqQ/edit?usp=sharing |
 |Type | lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  kali |
 
 
@@ -492,7 +480,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1KScKw7M4Bt_FE5F_2tI6tnK1NrKNAJkyh5F2TpOh9hA/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  linux_victim_server; kali |
 
 
@@ -524,7 +511,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1puLuKwqiFMTAZhMKKLhS_aK7kKwWnKw1e3StJBiFmFA/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  windows_server; linux_server; kali |
 
 
@@ -557,7 +543,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1bt0yKzKjExEih5cmXyl-D__loGwV0UJxQJEDIXxCGxw/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  windows_server; linux_server; kali |
 
 
@@ -589,7 +574,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1rdNcOmYOjsRu97Gh3ds8HbTpORGxbMcd2Q7U4TATIbw/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  linux_server; kali |
 
 
@@ -616,10 +600,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: acl |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop; hackerbot_server |
 
 
@@ -649,10 +631,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: acl |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -682,10 +662,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: arp-spoof |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -712,10 +690,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: backups |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -742,10 +718,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: backups2 |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -772,10 +746,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: bufoverflow |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -803,10 +775,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: capabilities |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -833,10 +803,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: centos-log |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -862,10 +830,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: centos-log2 |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -891,10 +857,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: denyhost |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -922,10 +886,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: dmz-example |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -951,10 +913,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: dmz-lab |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -980,10 +940,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: file-deletion |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1009,10 +967,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: file-integrity |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1040,10 +996,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: formatstring |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1070,10 +1024,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: gdblesson |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1099,10 +1051,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: grassmarlin |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1130,10 +1080,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: grfics |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1162,10 +1110,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: ida |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1191,10 +1137,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: iptables-ics |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1224,10 +1168,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: iptables |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1255,10 +1197,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: iptables2 |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1286,10 +1226,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: ldap |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1317,10 +1255,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: local-dns |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1346,10 +1282,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: macs-hash |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1377,10 +1311,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: metasploit |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1408,10 +1340,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: nix-commands |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1438,10 +1368,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: nmap-discovery |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1467,10 +1395,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: nmap-ssh |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1497,10 +1423,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: onewayhash |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1528,10 +1452,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: packet-introspection |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1558,10 +1480,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: pass-crack |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1588,10 +1508,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: pcapanalysis |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1619,10 +1537,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: plc-app |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1649,10 +1565,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: plc-forensics-adv |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1679,10 +1593,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: plc-forensics |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1709,10 +1621,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: plc |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1739,10 +1649,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: pubkey |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1769,10 +1677,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: radius |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1799,10 +1705,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: remote-dns |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1828,10 +1732,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: retlibc |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1859,10 +1761,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: routing-basics |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1888,10 +1788,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: routing-basics2 |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1917,10 +1815,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: setuid-env |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1947,10 +1843,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: snort |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -1980,10 +1874,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: softplc |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2010,10 +1902,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: softplc2 |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2040,10 +1930,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: sql-inject |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2071,10 +1959,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: ssh-agent |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2100,10 +1986,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: sshlab |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2129,10 +2013,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: ssl |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2160,10 +2042,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: symkeylab |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2190,10 +2070,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: sys-log |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2219,10 +2097,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: tcpip |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2249,10 +2125,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: telnetlab |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2279,10 +2153,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: vpnlab |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2308,10 +2180,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: vpnlab2 |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2337,10 +2207,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: webtrack |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2367,10 +2235,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: wireshark-intro |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2396,10 +2262,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: xforge |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2426,10 +2290,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Labtainers lab: xsite |
 |Description | A Labtainers lab. |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  desktop |
 
 
@@ -2456,7 +2318,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Integrity protection lab |
 |Description | </br>     Introduction</br>    This lab addresses preserving the integrity of your digital assets. In today's data-driven world, ensuring the accuracy and reliability of information is of utmost importance. Unauthorized changes, whether intentional or accidental, can lead to significant data breaches and compromise the trustworthiness of your system. This lab is designed to provide you with essential knowledge and practical skills to fortify the security of your data by exploring key theoretical concepts like file permissions, file attributes, and read-only filesystems.</br></br>    Throughout this lab, you will engage in practical exercises to grasp fundamental principles of data integrity protection. You'll explore the use of file attributes to restrict access and protect sensitive information. Furthermore, you'll discover the utility of read-only filesystems by mounting directories in read-only mode, ensuring that changes cannot be made to critical system files. By completing these exercises and challenges, you will acquire the skills to protect your system's integrity, thereby bolstering your cybersecurity proficiency and enhancing your ability to maintain data confidentiality and availability.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://www.youtube.com/watch?v=sv1pHuuoW9g; https://www.youtube.com/watch?v=grISRv-CuHE |
@@ -2486,7 +2347,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Integrity detection lab |
 |Description | </br>     Introduction</br>    Integrity management is a crucial aspect of information security, focusing on preventing and detecting unauthorized changes to resources, such as files and configurations, within a computer system. Maintaining the integrity of these resources is vital in ensuring the trustworthiness of a system, as any unauthorized changes can lead to security breaches and data corruption. This lab sheet delves into the various techniques for detecting changes to system integrity, including the use of backups, file hashing, and package verification. It emphasizes the importance of these methods in safeguarding the integrity of a system and provides hands-on exercises to demonstrate their practical application.</br></br>    In this lab, you will learn about different strategies for detecting unauthorized changes. You will create and compare backups of critical system files, generate and compare file hashes using tools like md5sum and sha1deep, and explore the concept of package verification to check the integrity of installed software packages. You will face challenges from Hackerbot, where you'll apply the learned techniques to detect and respond to various security threats, such as detecting new users, changes to config files, and replaced binary files with malware. This hands-on experience will equip you with the skills and knowledge needed to protect and maintain the integrity of a computer system, a fundamental component of effective information security.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://www.youtube.com/watch?v=qzyEdeQ_7ZY; https://www.youtube.com/watch?v=kz7m-iyzSOw |
@@ -2517,7 +2377,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Backups lab |
 |Description | </br>     Introduction</br>    This lab focuses on the critical aspect of contingency planning in the context of cybersecurity and data management. It highlights the importance of maintaining data availability and system reliability, especially when dealing with potential disasters and security incidents. The lab delves into practical strategies for creating reliable backups, understanding recovery procedures, and implementing backup solutions using the powerful rsync command.</br></br>    In this lab, you will learn how to utilize SSH/SCP for secure file transfer, create full, differential, and incremental backups using the rsync tool, and employ backups for efficient data protection. You will also explore the concept of snapshot backups, which allow for efficient storage of data by using hard links to unchanged files. Throughout the lab, you will engage in hands-on tasks such as copying directories, performing backups, restoring files, and setting up remote backups. By completing these exercises, you will gain valuable skills in contingency planning and data backup strategies, which are essential for maintaining the availability and security of critical systems and data.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>     Tips for the lab</br></br>    [This resource is really really useful for understanding what happens when using Rsync depending on whether you include or don't include a slash at the end of a path, which often catches people out.](https://web.archive.org/web/20220703112235/http://qdosmsq.dunbar-it.co.uk/blog/2013/02/rsync-to-slash-or-not-to-slash/)</br></br>    This lab needs to be completed in order.</br></br>    Manually check you have done your backups correctly before telling Hackerbot you are ready. It may be a good idea to ssh to your backup server in a separate console tab ssh IP-ADDRESS (but do keep an eye on which system you are running each command on!).</br></br>    Keep an eye on the trailing slashes in rsync commands and how it changes the behaviour (the difference between copying a directory or it's contents).</br></br>    Each time you can test that your rsync command is going to do what you expect by adding -n to the command, which does a "Dry Run" without making any of the actual changes -- once you are happy it's making the changes you expect, run it again without the -n</br></br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/lak1Sued4GY; https://youtu.be/stVomGROfbQ; https://youtu.be/n8IKEJUOISY |
@@ -2546,7 +2405,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | IDS lab |
 |Description | </br>     Introduction</br>    Intrusion Detection and Prevention Systems (IDS/IPS) are crucial components of network security, helping organizations monitor and defend against malicious activities and unauthorized access. This lab focuses on network monitoring basics and hands-on experience with tools like Tcpdump, Wireshark, and Snort, all useful for detecting and responding to potential threats. Network monitoring is a foundational practice in cybersecurity, as it allows you to observe network traffic and identify any suspicious or unwanted behavior. In this lab, you will gain practical experience by monitoring live network traffic, setting up Snort to detect network attacks, and analyzing the captured data. By the end of this lab, you will have a better understanding of how IDS/IPS systems work and how to configure and use them effectively to enhance network security.</br></br>    During this hands-on lab, you will learn how to set up network monitoring tools like Tcpdump and Wireshark to observe live network traffic. You will use these tools to detect specific strings in network packets and identify port scanning attempts on a web server. Additionally, you will configure Snort, a popular IDS, to monitor network traffic to detect network activities of interest. As part of your practical exercises, you will trigger Snort alerts by sending ICMP pings and monitor the alerts generated. Throughout the lab, you will also interact with Hackerbot, which will simulate network attacks, and you will need to use the tools you've learned to detect and respond to these simulated attacks. By completing these tasks, you will develop practical skills in network monitoring and intrusion detection.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/raR0HstMnjg; https://youtu.be/3oDVTSFhl8Y; https://youtu.be/M6MisvbU32M |
@@ -2579,7 +2437,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | IDS rules lab |
 |Description | </br>     Introduction</br>    In this lab on Intrusion Detection and Prevention Systems, you will delve into the world of network security, learning how to configure and monitor a network using Snort, a popular open-source intrusion detection system. This lab will guide you through the process of setting up Snort, and creating custom intrusion detection rules.</br></br>    Throughout this lab, you will gain hands-on experience in configuring Snort to monitor network traffic. You will learn how to create custom Snort rules to detect specific network activities, and use Wireshark to capture and analyze network packets. The lab will also present you with a series of Hackerbot challenges, where you will apply your knowledge to detect and respond to various network attacks. For example, you will create Snort rules to detect attempts to access specific ports, monitor unencrypted email authentication, and more. By the end of this lab, you will have a solid understanding of intrusion detection and prevention systems, as well as practical experience in configuring and monitoring them to safeguard your network from potential threats.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/ZUMBsMppsLo; https://youtu.be/nuUm4NO_S1s |
@@ -2611,7 +2468,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Exfiltration detection lab |
 |Description | </br>     Introduction</br>    In this lab, you will delve into the critical realm of Data Loss Prevention (DLP) and exfiltration detection. Data loss prevention is a vital cybersecurity practice aimed at safeguarding sensitive information from unauthorized access or leakage. It is highly relevant in today's digital age, where data breaches and insider threats pose significant risks to organizations. This lab provides you with hands-on experience in setting up and configuring Snort, a popular Intrusion Detection System (IDS), to monitor network traffic and detect the unauthorized transfer of sensitive data.</br></br>    In this lab, you will learn how to configure Snort to detect unauthorized data transfers and exfiltration. By editing Snort configuration files, you will set up monitoring rules that trigger alerts when sensitive data, like credit card details and national insurance numbers, are being transported over the network. You will also extend your rule to detect the transfer of a fake data file so that your rules are effective without revealing the actual sensitive content. To accomplish this, you'll explore various Snort rule techniques, such as text-based, regular expression-based, and hash-based matching, gaining an in-depth understanding of data loss prevention strategies. By the end of the lab, you'll have practical experience in setting up DLP measures using Snort, a valuable skill for protecting an organization's sensitive data assets.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/4zYn4hbwKYQ; https://youtu.be/Y32tmFrCEBk |
@@ -2643,7 +2499,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Live analysis lab |
 |Description | </br>     Introduction</br>    In this lab, you will dive into the world of digital forensics and incident response by investigating a potentially compromised server. Security breaches and compromises are a common occurrence in the digital age, and it's essential to understand how to analyze and gather evidence from a compromised system to determine the extent of the intrusion and identify potential threats. This lab will walk you through the process of live system analysis, using both standard Unix commands and tools provided by the FIRE (Forensic and Incident Response Environment) CD/DVD ISO, in order to collect volatile data and assess the system's security.</br></br>    Throughout this hands-on lab, you will learn essential techniques for live system analysis, such as collecting information about running processes, network connections, kernel modules, and system state. You will also explore the use of static binaries to avoid potential tampering with dynamically linked executables. Additionally, you will employ tools like Chkrootkit to detect rootkits and perform offline analysis to uncover any suspicious activity or security breaches. By completing tasks such as creating a list of suspicious open ports, identifying unreported processes, and analyzing the output of data collection scripts, you will gain practical experience in investigating compromised systems, a crucial skill for cybersecurity professionals and digital forensics experts.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/aNvVtF437LI; https://www.youtube.com/watch?v=iUInvMrBw3k; https://youtu.be/9nyvtJRQ17w |
@@ -2675,7 +2530,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Dead analysis lab |
 |Description | </br>     Introduction</br>    In this lab, you will delve into the world of digital forensics and offline analysis by examining a compromised system to uncover evidence of a security breach. This lab provides a hands-on experience with various forensic tools and techniques to investigate a compromised server. You will explore key theoretical concepts such as integrity management, log analysis, file recovery, and timeline reconstruction to piece together the events leading to the system compromise.</br></br>    You will learn how to mount a disk image read-only, analyze file integrity using MD5 hashes, use Autopsy on Kali to examine file types and check for trojanized executables, conduct timeline analysis to reconstruct the sequence of events, and examine deleted files for hidden clues. You will also investigate log files, identify attempted SSH and Telnet logins, and recover email addresses used in communication. By the end of the lab, you will have gained valuable practical experience in forensic analysis and incident response, equipping you with skills to identify and understand security breaches in real-world scenarios.</br></br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/3kiV0ZJWmMY |
@@ -2742,7 +2596,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1UsC3zykLAZwoV7bg5hP2hL1zpdxusjSZ3HVBnwZb5M4/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  metactf |
 
 
@@ -2768,10 +2621,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Malware Behaviour: Live Sample Analysis |
 |Description | A Hackerbot lab involving the analysis of a live malware sample. |
-|Lab sheet |  |
 |Type | hackerbot-lab; ctf-lab; lab-sheet |
 |Author | ["Tom Shaw", "Mo Hassan"] |
-|Linked videos|  |
 |VM names|  desktop; hb_server; victim_server |
 
 
@@ -2945,10 +2796,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Ghidra lab analysis |
 |Description | </br>       Introduction</br>      Using the skills you have developed thus far, there are two binaries to practice SRE with Ghidra.</br></br>      In your home directory you will find some binaries that you need to reverse engineer in order to determine the password that the program expects. Once you have found the password, run the program and enter the password to receive the flag.</br>     |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  metactf |
 
 
@@ -2974,10 +2823,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Ghidra lab with LIVE MALWARE SAMPLES |
 |Description | You will find live malware samples in /opt/theZoo.</br>     |
-|Lab sheet |  |
 |Type | lab-sheet |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  metactf |
 
 
@@ -3061,7 +2908,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Malware Behaviour |
 |Description | </br>       Introduction</br>      A MetaCTF lab. In your home directory you will find some binaries that you need to reverse engineer in order to determine the password that the</br>        program expects. Once you have found the password, run the program and enter the password to receive the file.</br></br>        There are binaries to perform dynamic SRE.</br>     |
-|Lab sheet |  |
 |Type | ctf-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/6XMrHyAqD-4; https://youtu.be/KJPeZptzl1U; https://youtu.be/6qeDnjOaRiI |
@@ -3305,7 +3151,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1Ap-h6YSDtfU4bLwiKhxP5x2nf1vjSJ2V2zEL5wzW84U/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | Thomas Shaw |
-|Linked videos|  |
 |VM names|  metactf_desktop |
 
 
@@ -3332,7 +3177,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Authentication lab |
 |Description | </br>     Introduction</br>    Authentication is the process of verifying a user's identity, ensuring that individuals are who they claim to be before granting them access to systems and resources. This lab will provide you with hands-on experience, enabling you to explore the intricacies of user accounts and identity on Unix/Linux systems, gain insights into password storage and hashing, and even attempt to crack passwords using dictionary attacks. By the end of this lab, you will have a deeper understanding of how authentication works, the role of password security, and the importance of safeguarding user identities.</br></br>    Throughout this lab, you will learn about user accounts, their attributes, and their association with user and group IDs. You'll also explore the concept of salts in password hashing, understand the strengths and weaknesses of different passwords, and attempt to crack passwords using tools like John the Ripper. Practical tasks include examining the system's /etc/passwd and /etc/group files, changing user identities, and analyzing the /etc/shadow file to understand password storage. By actively engaging in these activities, you will gain a comprehensive understanding of authentication processes and the key factors that contribute to securing user identities in Unix/Linux systems.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    The Hackerbot tasks in this lab involve configuring new users and group membership. Then you will attempt to crack the passwords of users on the desktop VM whose user IDs (UIDs) are higher than 1001. After successfully cracking passwords, you will use these credentials to SSH into the separate server VM, where you will discover flags. This task showcases the practical implications of password security and cracking.</br></br>     Lecture</br>    [Slides here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_6/WNS_ADS_Lectures_5_Authentication.html)</br></br>     Reading</br>    [Chapter 11 "Authentication": Bishop, M. (2004), Introduction to Computer Security, Addison-Wesley. (ISBN-10:  0321247442)](https://my.leedsbeckett.ac.uk/bbcswebdav/pid-2221598-dt-content-rid-4451698_1/institution/Online%20Learning/AET/CT/MSc%20Computer%20Security/Principles%20of%20Digital%20Security/Readings/Week%205/DCS-85139%20%281%29.pdf)</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/2I_JSdTu-oI; https://youtu.be/pGcJEML1mRo; https://youtu.be/icC2Zrno_uM; https://youtu.be/Wrg6XZu6Luw |
@@ -3362,7 +3206,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Pluggable Authentication Modules lab |
 |Description | </br>     Introduction</br>    In this lab, you will explore Pluggable Authentication Modules (PAM) and Secure Shell (SSH) to enhance your understanding of authentication and security in Linux and Unix-like systems. PAM is a component that allows for the flexibility and extensibility of authentication methods, making it possible for various programs to leverage different authentication schemes, providing a standardized way to configure and manage authentication rules.</br></br>    Throughout the lab, you will gain hands-on experience with PAM by examining available PAM modules, understanding the structure of PAM configuration files, and making modifications to enforce policies including: password complexity requirements, time constraints, lockout policies after repeated login failures, creating home directories, enforcing session limits through cron jobs. You will also explore SSH password-less authentication, a powerful method of securely accessing remote systems without the need for traditional passwords. By generating SSH key pairs and configuring authorized keys, you will learn how to enhance the security and convenience of remote access.</br></br>    By the end of this lab, you will have a solid grasp of PAM's role in authentication, the benefits of SSH key-based authentication, and the practical skills to enhance the security and usability of authentication mechanisms in Linux systems.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    The Hackerbot tasks involve configuring password policies, testing your ability to use PAM to enhance authentication security.</br></br>     Lecture</br>    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_6/WNS_ADS_Lectures_5_Authentication.html)</br></br>     Reading</br>    [Chapter 4 "Users, Passwords, and Authentication": Garfinkel, S. Spafford, G. and Schwartz, A. (2003), Practical Unix and Internet Security, O'Reilly. (ISBN-10: 0596003234)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/abstract/9781449310325)</br></br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/z4L6Yv5ry1A; https://youtu.be/-zcnfmoLjYI; https://youtu.be/xHs3LB4Yyrk; https://youtu.be/c2dPdQmaVyo; https://youtu.be/dCBabesIXo8; https://youtu.be/rhdcxhSDqp4; https://youtu.be/PCXK2cK8tpE |
@@ -3392,7 +3235,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Access Controls lab |
 |Description | </br>     Introduction</br>    Access control involves authorizing and mediating access to resources, determining what actions are permitted, and enforcing security policies. In this lab, you will delve into access control and Unix file permissions, gaining a practical understanding of how they work and their significance in maintaining system security. The lab will introduce you to subjects and objects in the context of access control, different access control models, and Unix file permissions.</br></br>    Throughout this lab, you will learn how to view and manipulate file permissions in a Unix-like operating system. You will explore the concept of inodes, examine file permissions using the ls command, create and manage hard and symbolic links to files, and understand how directory-level permissions affect file access. Additionally, you will work with the chmod command to change file permissions and discover the significance of the umask command in setting default permissions for new files. By the end of this lab, you will have an understanding of access control, file permissions, and practical skills in managing access rights on a Linux system.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    The Hackerbot tasks are designed to provide hands-on experience in managing user access, group permissions, and file ownership, and will enhance your understanding of access control mechanisms. You will create files with specific permissions, ownership, and group assignments while ensuring that other users are appropriately restricted from accessing these files.</br></br>     Lecture</br>    [Slides here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)</br></br>     Reading</br>    [Chapter 1 "Foundations of Security and Access Control in Computing": Benantar, M. (2006), Access Control Systems: Security, Identity Management and Trust Models, Springer. (ISBN-10: 0387004459)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/readonline/9780387277165)</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/yWJyZEFbchQ; https://youtu.be/i0kO_3ExJv4 |
@@ -3423,7 +3265,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Set User ID lab |
 |Description | </br>     Introduction</br>    Special file permissions, such as Set UID (SUID) and Set GID (SGID) play a crucial role in Unix-based operating systems by enabling certain processes to run with elevated privileges. Understanding SUID and SGID provides insights into access controls and how Unix systems handle privilege escalation while maintaining control over who can execute specific operations. This lab will empower you with practical knowledge on the use and implications of SUID and SGID.</br></br>    Throughout this lab, you will learn about the concepts of Real UID (RUID) and Effective UID (EUID), explore SUID and SGID permissions in detail, and analyze their significance in managing system security. You will inspect processes to identify cases where RUID and EUID differ, discover SUID and SGID programs on your system, and understand why they require these special permissions. Additionally, you will compile a SUID C program, assess its security implications, and modify it to rectify vulnerabilities. By the end of this lab, you will have a comprehensive understanding of SUID and SGID, their importance in Unix system security, and practical experience in working with SUID programs.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    In the Hackerbot tasks, you'll use SUID to mediate access to a file (accessible exclusively by a specific user through a SUID executable). There are also some problem-based challenges involving hardlinks, relative paths, and combining shell programs with SGID and SUID permissions.</br></br>     Lecture</br>    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)</br></br>     Reading</br>    [Chapter 6 "Filesystems and Security": Garfinkel, S. Spafford, G. and Schwartz, A. (2003), Practical Unix and Internet Security, O'Reilly. (ISBN-10: 0596003234)](https://www-dawsonera-com.ezproxy.leedsbeckett.ac.uk/abstract/9781449310325)</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/viSkkNB777k; https://youtu.be/PGHsb3bg_h4 |
@@ -3453,7 +3294,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Access Control Lists (ACLs) lab |
 |Description | </br>     Introduction</br>    Access Control Lists (ACLs) are sets of rules attached to resources, specifying which subjects (users or entities) are authorized to access the resource and the type of permissions granted to each subject. ACLs allow for a granular and flexible approach to managing who can access a file, what kind of access they have, and how these permissions are inherited and checked.</br></br>    You will learn about the fundamental concepts of Full ACLs, their syntax and usage on Linux systems, and how they differ from traditional Unix file permissions. Through hands-on tasks, you will set ACLs on files, manipulate permissions for specific users, explore the mask entry's role in determining maximum permissions, and understand the behavior of access checks in ACLs. Additionally, you will discover the concept of default ACLs and their impact on newly created files within a directory. By comparing Linux ACLs to Windows ACLs, you'll gain insights into the unique features and nuances of each system, such as inheritance logic and the use of global security identifiers. This lab will equip you with practical skills and knowledge to manage access control effectively in a diverse range of computing environments.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    The Hackerbot tasks involve creating and managing files and directories using Linux ACLs to control access, allowing specific users to read and write while denying access to others. There is also a file permissions challenge on a server where you take what you've learned over the last few topics to find and exploit a permissions weakness.</br></br>     Lecture</br>    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/1718/ADS_slides_out_week_7/ADS_PDS_Lectures_7_Access_Control.html)</br></br>     Reading</br>    [Grunbacher, Andreas. "POSIX Access Control Lists on Linux." *USENIX Annual Technical Conference*, FREENIX Track. 2003.](https://www.usenix.org/legacy/events/usenix03/tech/freenix03/full_papers/gruenbacher/gruenbacher.pdf)</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/Bn3NJhgmdLk; https://youtu.be/OT7ifs8PkHI |
@@ -3483,7 +3323,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Containers lab |
 |Description | </br>     Introduction</br>    Sandboxing involves restricting the capabilities of individual programs or groups of programs, minimizing the potential damage a rogue program can inflict on a system. This lab focuses on container-based sandboxes and the use of chroot. You will learn how to create a chroot environment, effectively isolating a set of programs within a directory, and run commands inside this sandbox. Furthermore, the lab introduces you to Docker, a popular tool that builds upon the principles of chroot and adds features to automate the creation and deployment of containerized operating systems and applications. You will explore the concept of Docker images as reusable base environments and containers as instances of these images. You will create and manage containers, observe the speed and efficiency of containerization compared to traditional chroot, and analyze the level of isolation Docker provides. This lab equips you with practical knowledge of sandboxing and isolation.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    You need to find a way into then escape to root a docker container and a chroot container. The flags are stored in /root/ on the two VMs but you first need to find your way in (try a port scan and try connecting to open ports), and then escape confinement.</br></br>     Lecture</br>    [Slides here](http://z.cliffe.schreuders.org/presentations/slides/slides_out_sandboxing/ADS_PDS_Lectures_8_Sandboxes_and_Virtualisation.html)</br></br>     Reading</br>    [Z. C. Schreuders, T. McGill, and C. Payne, "The State of the Art of Application Restrictions and Sandboxes: A Survey of Application-oriented Access Controls and their Shortfalls," Computers and Security, Volume 32, Elsevier B.V., 2013. DOI: 10.1016/j.cose.2012.09.007](http://z.cliffe.schreuders.org/publications/Computers&Security%20-%20The%20State%20of%20the%20Art%20of%20Application%20Restrictions%20and%20Sandboxes%20-%20Author%20Version.pdf)</br></br>     Lab</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/f4yBcKkb12g |
@@ -3515,7 +3354,6 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | AppArmor lab |
 |Description | </br>     Introduction</br>    Mandatory Access Controls (MAC) encompass mechanisms such as Capabilities and AppArmor, which provide system-wide access controls to manage and enforce permissions for processes and applications, mitigating security risks and enhancing overall system security. In this lab, you will explore two aspects of system-wide access controls in Linux security: Capabilities and AppArmor.</br></br>    First, you will delve into the concept of Capabilities, a coarse-grained approach to control privileges in Linux. You will learn how capabilities can be used to grant specific permissions to programs without having them run as the all-powerful root user. You will also explore AppArmor, a rule-based, fine-grained access control system for Linux. You will examine how AppArmor profiles are used to specify the resources and permissions that a program can access, effectively creating a whitelist of allowed actions. You will create rules and experience the learning mode of AppArmor, which helps construct rules based on actual program behavior and understand the advantages and disadvantages of a blacklist (deny) versus a whitelist (ignore) approach to writing AppArmor rules. By the end of this lab, you will have a deep understanding of how capabilities and AppArmor can enhance the security of your Linux system by controlling what programs can do and which resources they can access.</br></br>     Hackerbot and CTF challenges</br>    This is a Hackerbot lab. The labsheet is available once you claim a set of VMs. Work through the labsheet, then when prompted interact with Hackerbot.</br></br>    Hackerbot will challenge you to use AppArmor to provide a shell to attackers, with only limitted access to specific resources.</br></br>     Lecture</br>    [Slides continued here](http://z.cliffe.schreuders.org/presentations/slides/slides_out_sandboxing/ADS_PDS_Lectures_8_Sandboxes_and_Virtualisation.html)</br></br>     Lectures for the next two weeks</br>    [Secure software development](https://leedsbeckettreplay.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=31ee4531-1834-4028-8829-aa1d00a73a7e)</br></br>    [Secure design principles](https://leedsbeckettreplay.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6f409b1c-2daa-4798-8bc7-aa2400952d29)</br></br>    [Slides](http://z.cliffe.schreuders.org/presentations/slides/slides_secure_design/ADS_PDS_Lectures_3_Secure_Software_Development_and_Bug_Hunting.html)</br>   |
-|Lab sheet |  |
 |Type | ctf-lab; hackerbot-lab; lab-sheet |
 |Author | Z. Cliffe Schreuders |
 |Linked videos| https://youtu.be/Xgs5akM6ayc |
@@ -3549,7 +3387,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1vLy56U53lqb8ZpQVLwxznCBsGv0KPM_uXJW1WD5DCiI/edit?usp=sharing |
 |Type | ctf-lab; lab-sheet |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3581,7 +3418,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1xcbf0bqtdMGgJAjeedw5MUbkRosMyQ_UZ0gN4IeCBFs/edit?usp=sharing |
 |Type | lab-environment; ctf-lab |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3614,7 +3450,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1f7hD_sZnBChklLZmskpxp1dIJUG9Ntw_06t76ltnPTk/edit?usp=sharing |
 |Type | lab-environment; ctf-lab |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3648,7 +3483,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1G_b4f25ufopbDw6djpO1D-nhbJ7vFOCY-QZJtoTUSKg/edit?usp=sharing |
 |Type | lab-environment; ctf-lab |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3681,7 +3515,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1tj7qQ-1HbmxXaZNMOCPVECHrFAHpkRVcD_Q0FvMhIWQ/edit?usp=sharing |
 |Type | lab-environment; ctf-lab |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3714,7 +3547,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1ABryiNKLDiIG6i7PQUztzzynjPo3fRSBP4OakxCPraY/edit?usp=sharing |
 |Type | lab-environment; ctf-lab |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3748,7 +3580,6 @@ Command to build VMs and start scenario:
 |Lab sheet | https://docs.google.com/document/d/1DDjyBGtB9vaFD6S2s1jQn7_bpVn4UlK-njbmVX5_UiM/edit?usp=sharing |
 |Type | lab-environment; ctf-lab |
 |Author | James Davis |
-|Linked videos|  |
 |VM names|  web_server; kali |
 
 
@@ -3784,10 +3615,8 @@ Command to build VMs and start scenario:
 | --- | --- |
 |Name | Web security lab environment |
 |Description | An environment for web security labs. Kali Linux with Damn Vulnerable Web App server, WebGoat, and web sec tools.  |
-|Lab sheet |  |
 |Type | lab-environment; ctf-lab |
 |Author | Z. Cliffe Schreuders |
-|Linked videos|  |
 |VM names|  kali |
 
 
