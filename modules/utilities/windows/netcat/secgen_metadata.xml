@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Netcat</name>
+  <author>Oscar Langford</author>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>Netcat (often abbreviated to nc) is a computer networking utility for reading from and writing to network connections using TCP or UDP.</description>
+
+  <type>win_security</type>
+  <platform>windows</platform>
+
+  <reference>https://nmap.org/ncat/</reference>
+  <software_name>netcat</software_name>
+  <software_license>custom</software_license>
+  
+  <!-- for now we just make all windows modules conflict with linux bases -->
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>
