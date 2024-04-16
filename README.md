@@ -9,6 +9,8 @@ Boxes like Metasploitable2 are always the same, this project uses Vagrant, Puppe
 
 [Please complete a short survey to tell us how you are using SecGen.](https://tinyurl.com/SecGenFeedback)
 
+[For a hosted solution visit: https://hacktivity.leedsbeckett.ac.uk/](https://hacktivity.leedsbeckett.ac.uk/)
+
 ## Introduction
 Computer security students benefit from engaging in hacking challenges. Practical lab work and pre-configured hacking challenges are common practice both in security education and also as a pastime for security-minded individuals. Competitive hacking challenges, such as capture the flag (CTF) competitions have become a mainstay at industry conferences and are the focus of large online communities. Virtual machines (VMs) provide an effective way of sharing targets for hacking, and can be designed in order to test the skills of the attacker. Websites such as Vulnhub host pre-configured hacking challenge VMs and are a valuable resource for those learning and advancing their skills in computer security. However, developing these hacking challenges is time consuming, and once created, essentially static. That is, once the challenge has been "solved" there is no remaining challenge for the student, and if the challenge is created for a competition or assessment, the challenge cannot be reused without risking plagiarism, and collusion.
 
@@ -323,11 +325,11 @@ The table below is a key for the abbreviations you will find within the CyBOK XM
 | CPS   | Cyber Physical Systems | [link](https://www.cybok.org/media/downloads/Cyber-Physical_Systems_Security_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Cyber_Physical_Systems_Security.pdf)|
 | PLT  | Physical Layer and Telecommunications Security | [link](https://www.cybok.org/media/downloads/Physical_Layer__Telecommunications_Security_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Physical_Layer__Telecomms_Security.pdf)|
 
-## Roadmap
-- **More modules!** Including more CTF-style modules.
-- Windows baseboxes and vulnerabilities.
-- More security labs with worksheets.
-- Further gamification and immersive scenarios.
+## Hacktivity Cyber Security Labs
+
+[For a hosted solution visit: https://hacktivity.leedsbeckett.ac.uk/](https://hacktivity.leedsbeckett.ac.uk/)
+
+Hacktivity is powered by SecGen, and provides a fully-hosted lab environment for cyber security education. Track your progress with CyBOK insights.
 
 ## Acknowledgments
 *Development team:*
