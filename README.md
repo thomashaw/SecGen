@@ -182,8 +182,13 @@ SecGen accepts arguments to change the way that it behaves, the currently implem
 
 ```
 
-## Troubleshooting: updating VirtualBox base boxes
+## Troubleshooting: updating base boxes
 If SecGen experiences errors installing packages, the template VMs (base boxes) we publish on Vagrant cloud may need updating (especially Kali, which is a rolling-release). After you have built some VMs, browse in your home directory `.vagrant.d/boxes/`, from here you can manually launch the VMs that are used as templates, and apply software updates `sudo apt-get update; sudo apt-get upgrade`. Then power down the VM, and try SecGen again.
+
+For Proxmox, use this Vagrant plugin: https://github.com/cliffe/vagrant-proxmox/, and make this fix to Vagrant: https://github.com/hashicorp/vagrant/pull/12463/files. 
+
+You will typically need to create a Debian Buster base VM, broadly following these instructions:
+https://github.com/cliffe/SecGen/blob/master/README-Creating-Bases.md
 
 ## Scenarios
 SecGen generates VMs based on a scenario specification, which describes the constraints and properties of the VMs to be created.
