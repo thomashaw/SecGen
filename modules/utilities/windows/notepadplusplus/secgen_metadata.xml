@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>NotepadPlusPlus</name>
+  <author>Oscar Langford</author>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>Notepad++ is a free (as in "free speech" and also as in "free beer") source code editor and Notepad replacement that supports several languages.</description>
+
+  <type>win_documents</type>
+  <platform>windows</platform>
+
+  <reference>https://notepad-plus-plus.org/</reference>
+  <software_name>notepadplusplus</software_name>
+  <software_license>GPLV2</software_license>
+  
+  <!-- for now we just make all windows modules conflict with linux bases -->
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>
