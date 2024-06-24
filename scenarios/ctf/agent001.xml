@@ -128,7 +128,7 @@ You will need to use a variety of tools and techniques to perform an attack: net
       </input>
     </utility>
 
-    <vulnerability module_path=".*(apache_druid_rce|glpi_php_injection|linuxki_rce|gitlist_040|moinmoin_195|jboss_remoting_unified_invoker_rce)" privilege="user_rwx" access="remote" read_fact="strings_to_leak">
+    <vulnerability module_path=".*(nostromo_code_exec|apache_druid_rce|glpi_php_injection|linuxki_rce|gitlist_040|moinmoin_195|jboss_remoting_unified_invoker_rce)" privilege="user_rwx" access="remote" read_fact="strings_to_leak">
       <!-- will have strings_to_leak -->
       <input into="strings_to_leak">
         <generator type="evil_file_generator"/>
@@ -149,7 +149,7 @@ You will need to use a variety of tools and techniques to perform an attack: net
 
     <!-- 2nd vuln gives root, which sometimes might be a shortcut to the above flag -->
     <!-- could make it an priv esc with - access="local" -->
-    <vulnerability module_path=".*(nostromo_code_exec|sudo_root_apt_get|sudo_root_awk|sudobypass)" privilege="root_rwx" access="remote|local" read_fact="strings_to_leak">
+    <vulnerability module_path=".*(sudo_root_apt_get|sudo_root_awk|sudobypass)" privilege="root_rwx" access="remote|local" read_fact="strings_to_leak">
       <!-- will have strings_to_leak -->
       <input into="strings_to_leak">
         <generator type="evil_file_generator"/>
