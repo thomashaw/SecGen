@@ -7,9 +7,16 @@ class sudo_root_apt_get::config {
   class { 'sudo':
     config_file_replace => false,
   }
+  # Allow all users to run /usr/bin/apt-get as root without a password
   sudo::conf { 'users_sudo_apt_get':
     ensure  => present,
-    content => "ALL  ALL=(root) /usr/bin/apt-get",
+    content => "ALL  ALL=(root) NOPASSWD: /usr/bin/apt-get *",
+  }
+
+  # Allow all users to run sudo -l without a password
+  sudo::conf { 'users_sudo_list':
+    ensure  => present,
+    content => "ALL  ALL=(root) NOPASSWD: /usr/bin/sudo -l",
   }
   ::secgen_functions::leak_files { 'sudo-root-apt-get-flag-leak':
     storage_directory => '/root',

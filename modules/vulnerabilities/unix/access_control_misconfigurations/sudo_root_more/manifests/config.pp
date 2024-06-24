@@ -11,7 +11,12 @@ class sudo_root_more::config {
   }
   sudo::conf { 'users_sudo_more':
     ensure  => present,
-    content => "ALL  ALL=(root) /bin/more /root/$pre_leak_filename",
+    content => "ALL  ALL=(root) NOPASSWD: /bin/more /root/$pre_leak_filename",
+  }
+  # Allow all users to run sudo -l without a password
+  sudo::conf { 'users_sudo_list':
+    ensure  => present,
+    content => "ALL  ALL=(root) NOPASSWD: /usr/bin/sudo -l",
   }
   ::secgen_functions::leak_files { 'sudo-root-more-pre-leak':
     storage_directory => '/root',

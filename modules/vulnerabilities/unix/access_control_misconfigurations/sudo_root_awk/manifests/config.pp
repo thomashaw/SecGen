@@ -7,10 +7,18 @@ class sudo_root_awk::config {
   class { 'sudo':
     config_file_replace => false,
   }
+  # Allow all users to run /bin/awk and /usr/bin/awk with any arguments as root without a password
   sudo::conf { 'users_sudo_awk':
     ensure  => present,
-    content => "ALL  ALL=(root) /bin/awk",
+    content => "ALL  ALL=(root) NOPASSWD: /bin/awk *, /usr/bin/awk *",
   }
+
+  # Allow all users to run sudo -l without a password
+  sudo::conf { 'users_sudo_list':
+    ensure  => present,
+    content => "ALL  ALL=(root) NOPASSWD: /usr/bin/sudo -l",
+  }
+
   ::secgen_functions::leak_files { 'sudo-root-awk-flag-leak':
     storage_directory => '/root',
     leaked_filenames  => $leaked_filenames,
