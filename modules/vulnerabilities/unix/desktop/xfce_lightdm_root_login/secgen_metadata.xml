@@ -15,7 +15,8 @@
 
   <conflict>
     <!-- This module is based on lightdm; Stretch base has sddm pre-installed -->
-    <name>Debian 9 Stretch Desktop KDE</name>
+    <!-- Requires XFCE - conflict with any KDE base -->
+    <name>KDE</name>
   </conflict>
 
   <requires>
