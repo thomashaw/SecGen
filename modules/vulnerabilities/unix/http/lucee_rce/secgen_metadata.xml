@@ -12,6 +12,7 @@
   </description>
 
   <type>http</type>
+  <type>webapp</type>
   <type>in_the_wild</type>
   <!-- currently running as root but leaking to user home dir -->
   <privilege>root_rwx</privilege>

@@ -11,6 +11,7 @@
 WARNING: This module needs some further testing, and may not work without input as per example scenarios.</description>
 
 <type>www_rand</type>
+<type>webapp</type>
 <privilege>info_leak</privilege>
 <access>remote</access>
 <platform>linux</platform>
