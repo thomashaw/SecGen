@@ -5,6 +5,8 @@ class jboss_remoting_unified_invoker_rce::install {
   ensure_packages(['apt-transport-https', 'ca-certificates', 'wget', 'dirmngr', 'gnupg', 'software-properties-common'])
 
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
   $user = $secgen_parameters['unix_username'][0]
   $user_home = "/home/${user}"
 
@@ -74,5 +76,14 @@ class jboss_remoting_unified_invoker_rce::install {
   -> service { 'jboss':
     ensure => running,
     enable => true,
+  }
+
+  ::secgen_functions::leak_files { 'jboss-flag':
+    storage_directory => $user_home,
+    leaked_filenames  => $leaked_filenames,
+    strings_to_leak   => $strings_to_leak,
+    owner             => $user,
+    mode              => '0600',
+    leaked_from       => 'jboss',
   }
 }
