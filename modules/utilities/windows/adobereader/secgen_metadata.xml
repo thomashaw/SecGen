@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Adobe Acrobat Reader DC</name>
+  <author>Oscar Langford</author>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>Adobe Acrobat Reader DC software is the free, trusted global standard for viewing, printing, signing, sharing, and annotating PDFs.</description>
+
+  <type>win_documents</type>
+  <platform>windows</platform>
+
+  <reference>https://acrobat.com/</reference>
+  <software_name>Adobe Reader</software_name>
+  <software_license>non-free license</software_license>
+  
+  <!-- for now we just make all windows modules conflict with linux bases -->
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>

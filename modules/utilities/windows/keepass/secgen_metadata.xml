@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>KeePass</name>
+  <author>Oscar Langford</author>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>KeePass is a free open source password manager, which helps you to manage your passwords in a secure way.</description>
+
+  <type>win_debugger</type>
+  <platform>windows</platform>
+
+  <reference>https://keepass.info/</reference>
+  <software_name>keepass</software_name>
+  <software_license>GPLv2</software_license>
+  
+  <!-- for now we just make all windows modules conflict with linux bases -->
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>

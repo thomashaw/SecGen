@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Process Monitor</name>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>Process Monitor is an advanced monitoring tool for Windows that shows real-time file system, Registry and process/thread activity. 
+  It combines the features of two legacy Sysinternals utilities, Filemon and Regmon, and adds an extensive list of enhancements including rich and non-destructive filtering, 
+  comprehensive event properties such as session IDs and user names, reliable process information, full thread stacks with integrated symbol support for each operation, simultaneous logging to a file, 
+  and much more.</description>
+
+  <type>win_security</type>
+  <platform>windows</platform>
+
+  <reference>https://learn.microsoft.com/en-us/sysinternals/downloads/procmon</reference>
+  <software_name>procmon</software_name>
+  <software_license>non-free license</software_license>
+  
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>

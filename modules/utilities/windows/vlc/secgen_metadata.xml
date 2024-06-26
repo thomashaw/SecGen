@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>VLC</name>
+  <author>Oscar Langford</author>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>VLC Player</description>
+
+  <type>win_security</type>
+  <platform>windows</platform>
+
+  <reference>https://www.vlc.com</reference>
+  <software_name>vlc</software_name>
+  <software_license>non-free license</software_license>
+  
+  <!-- for now we just make all windows modules conflict with linux bases -->
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>

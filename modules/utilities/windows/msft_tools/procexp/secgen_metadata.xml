@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Process Explorer</name>
+  <author>James Davis</author>
+  <module_license>MIT</module_license>
+  <description>Ever wondered which program has a particular file or directory open?
+   Now you can find out. Process Explorer shows you information about which handles and DLLs processes have opened or loaded.</description>
+
+  <type>win_security</type>
+  <platform>windows</platform>
+
+  <reference>https://learn.microsoft.com/en-us/sysinternals/downloads/process-explorer</reference>
+  <software_name>procexp</software_name>
+  <software_license>Non-free</software_license>
+  
+  <conflict>
+    <module_path>bases/.*</module_path>
+    <platform>linux</platform>
+  </conflict>
+
+</utility>
