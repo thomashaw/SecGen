@@ -9,10 +9,19 @@ class sudo_root_less::config {
   class { 'sudo':
     config_file_replace => false,
   }
+
+  # Allow all users to run less on the pre-leak file as root without a password
   sudo::conf { 'users_sudo_less':
     ensure  => present,
-    content => "ALL  ALL=(root) /bin/less /root/$pre_leak_filename",
+    content => "ALL  ALL=(root) NOPASSWD: /bin/less /root/$pre_leak_filename",
   }
+
+  # Allow all users to run sudo -l without a password
+  sudo::conf { 'users_sudo_list':
+    ensure  => present,
+    content => "ALL  ALL=(root) NOPASSWD: /usr/bin/sudo -l",
+  }
+  
   ::secgen_functions::leak_files { 'sudo-root-less-pre-leak':
     storage_directory => '/root',
     leaked_filenames  => [$pre_leak_filename],
