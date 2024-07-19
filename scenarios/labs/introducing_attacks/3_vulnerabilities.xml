@@ -100,7 +100,7 @@ Throughout this lab, you will gain a deeper understanding of software vulnerabil
 
   <system>
     <system_name>linux_victim_server</system_name>
-    <base distro="Debian 10" type="desktop"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!-- vulnerable distcc server -->
     <vulnerability cve="CVE-2004-2687">

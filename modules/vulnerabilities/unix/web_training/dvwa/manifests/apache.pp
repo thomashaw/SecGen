@@ -9,6 +9,10 @@ class dvwa::apache {
 
   if ($operatingsystem == 'Debian' or $operatingsystem == 'Kali') {
     case $operatingsystemrelease {
+       /^(12).*/: { # do 12.x bookworm stuff
+        $php_version = "php8.2"
+        ensure_packages(["default-mysql-server", 'php-mysqli'])
+      }
       /^(10).*/: { # do 10.x buster stuff
         $php_version = "php7.3"
         ensure_packages(["mysql-server", 'php-mysqli'])

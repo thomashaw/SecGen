@@ -7,7 +7,7 @@ class nc_backdoor::install {
 
   ensure_packages("nmap")
   case $operatingsystemrelease {
-    /^(10).*/: { # do buster stuff
+    /^(1[0-9]).*/: { # do buster stuff
       ensure_packages("ncat")
     }
   }

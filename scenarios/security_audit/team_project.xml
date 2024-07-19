@@ -19,7 +19,7 @@
   <!-- Web Server on NIC1 and NIC2 -->
   <system>
     <system_name>web</system_name>
-    <base platform="linux" distro="Debian 10"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <input into_datastore="IP_addresses">
       <value>172.10.0.2</value>
@@ -78,7 +78,7 @@
   <!-- Intranet Server on NIC 2 -->
   <system>
     <system_name>intranet</system_name>
-    <base platform="linux" distro="Debian 10"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!-- Web server hosting acceptable use policy and security audit remit -->
     <service module_path="services/unix/http/parameterised_website">
@@ -166,7 +166,7 @@
   <system>
     <system_name>desktop</system_name>
     <!-- Starts as a server base, and installs XFCE via a vulnerability -->
-    <base platform="linux" distro="Debian 10"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts">

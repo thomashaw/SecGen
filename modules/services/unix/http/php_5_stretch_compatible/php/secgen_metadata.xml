@@ -18,8 +18,9 @@
   <software_name>php</software_name>
   <software_license>PHP License v3.01</software_license>
 
+  <!-- works with pretty much any base except wheezy -->
   <conflict>
-    <name>.*Wheezy.*</name>
+    <module_path>.*bases/debian_wheezy.*</module_path>
   </conflict>
 
   <requires>

@@ -28,7 +28,7 @@ class gitlist_040::install {
   }
 
   case $operatingsystemrelease {
-    /^(9|10).*/: { # do 9.x stretch stuff
+    /^(9|1[0-9]).*/: { # do 9.x stretch stuff
 
       file { '/var/www/gitlist/.htaccess':
         require => Exec['unpack-gitlist'],

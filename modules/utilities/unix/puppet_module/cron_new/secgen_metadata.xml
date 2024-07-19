@@ -3,12 +3,17 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
 
-  <name>cron</name>
-  <author>Thomas Shaw</author>
+  <name>cron new</name>
+  <author>Z. Cliffe Schreuders</author>
   <module_license>MIT</module_license>
   <description>cron</description>
 
   <type>puppet_module</type>
   <platform>linux</platform>
+
+  <conflict>
+    <!-- don't use this versioin with older distros -->
+    <module_path>.*bases/debian_(stretch|buster|wheezy)</module_path>
+  </conflict>
 
 </utility>

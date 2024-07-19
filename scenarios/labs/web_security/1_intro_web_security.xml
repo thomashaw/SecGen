@@ -39,7 +39,7 @@ Throughout this lab, you will learn by doing, actively engaging in activities. A
 
     <system>
         <system_name>web_server</system_name>
-        <base distro="Debian 10 Buster" />
+        <base distro="Debian 12" type="desktop" name="KDE"/>
 
         <input into_datastore="IP_addresses">
             <!-- 0 web_server -->

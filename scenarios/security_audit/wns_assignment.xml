@@ -7,7 +7,7 @@
   <!-- Security audit of an in the wild web application that uses a database -->
   <system>
     <system_name>web_server</system_name>
-    <base platform="linux" type="server" />
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <input into_datastore="IP_addresses">
       <value>172.16.0.2</value>

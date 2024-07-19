@@ -14,7 +14,7 @@
 
   <system>
     <system_name>developer_desktop</system_name>
-    <base distro="Debian 10" type="desktop" name="KDE"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <input into_datastore="IP_addresses">
       <value>172.16.0.2</value>
@@ -104,7 +104,7 @@
 
   <system>
     <system_name>server</system_name>
-    <base distro="Debian 10" type="desktop"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!--Create the users-->
     <utility module_path=".*/parameterised_accounts">
@@ -153,7 +153,7 @@
 
   <system>
     <system_name>staff_desktop</system_name>
-    <base distro="Debian 10" type="desktop" name="KDE"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!--Create the users-->
     <utility module_path=".*/parameterised_accounts">
@@ -207,7 +207,7 @@
 
   <system>
     <system_name>auth_server</system_name>
-    <base distro="Debian 10" type="desktop"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!--Create the users-->
     <utility module_path=".*/parameterised_accounts">

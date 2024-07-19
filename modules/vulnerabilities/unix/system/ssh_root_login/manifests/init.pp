@@ -18,11 +18,12 @@ class ssh_root_login::init {
     require   => Package["openssh-server"],
   }
 
-  augeas { "sshd_config":
-    context => "/files/etc/ssh/sshd_config",
-    changes => [
-      "set PermitRootLogin yes",
-    ],
+  file_line { 'sshd_config_permitrootlogin':
+    path               => '/etc/ssh/sshd_config',
+    line               => 'PermitRootLogin yes',
+    match              => '^PermitRootLogin',
+    replace            => true,
+    append_on_no_match => true,
   }
 
   user { 'root':

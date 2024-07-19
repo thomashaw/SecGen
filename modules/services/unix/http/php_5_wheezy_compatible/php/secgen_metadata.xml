@@ -16,14 +16,9 @@
   <software_name>php</software_name>
   <software_license>PHP License v3.01</software_license>
 
+  <!-- exclude any other base  -->
   <conflict>
-    <name>.*Kali.*</name>
-  </conflict>
-  <conflict>
-    <name>.*Stretch.*</name>
-  </conflict>
-  <conflict>
-    <name>.*Buster.*</name>
+    <module_path>.*bases/(?!debian_wheezy).*</module_path>
   </conflict>
   <requires>
     <type>update</type>

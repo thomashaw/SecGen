@@ -5,7 +5,7 @@ class kde_minimal::config {
   $autostart_konsole = str2bool($secgen_params['autostart_konsole'][0])
 
   case $operatingsystemrelease {
-    /^10.*/: { # do 10.x buster stuff
+    /^1[0-9].*/: { # do 10.x buster|bookworm stuff
       if $autologin_user != "false" {
         file { "/etc/sddm.conf":
           ensure  => file,
@@ -65,7 +65,7 @@ class kde_minimal::config {
         }
       }
 
-      if $operatingsystemrelease =~ /^(9|10).*/ { # Disable stretch auto screen lock
+      if $operatingsystemrelease =~ /^(9|10).*/ { # Disable stretch auto screen lock (not needed for our new templates)
         file { "/home/$username/.config/kscreenlockerrc":
           ensure  => file,
           source  => 'puppet:///modules/kde_minimal/kscreenlockerrc',

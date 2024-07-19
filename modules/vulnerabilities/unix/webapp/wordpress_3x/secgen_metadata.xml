@@ -56,12 +56,13 @@
     <generator type="username_generator"/>
   </default_input>
 
-  <!--<conflict>-->
-    <!--<name>Stretch</name>-->
-  <!--</conflict>-->
+  <!-- disable untested module -->
+  <conflict>
+    <name>.*</name>
+  </conflict>
 
   <requires>
-    <module_path>.*/cron</module_path>
+    <module_path>.*/puppet_module/cron.*</module_path>
   </requires>
 
   <requires>

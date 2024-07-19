@@ -1,7 +1,7 @@
 class reversing_tools::install {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
-  ensure_packages(['gdb', 'git', 'ltrace', 'strace', 'valgrind', 'pax-utils', 'binwalk', 'vbindiff', 'ssdeep', 'pyew', 'gcc-multilib','yara'])
+  ensure_packages(['gdb', 'git', 'ltrace', 'strace', 'valgrind', 'pax-utils', 'binwalk', 'vbindiff', 'ssdeep', 'gcc-multilib','yara'])
 
   # java
   ensure_packages(['procyon-decompiler'])
@@ -9,7 +9,7 @@ class reversing_tools::install {
   # ensure ncat is installed for testing purposes
   ensure_packages("nmap")
   case $operatingsystemrelease {
-    /^(10).*/: { # do buster stuff
+    /^(1[0-9]).*/: { # do buster stuff
       ensure_packages("ncat")
     }
   }

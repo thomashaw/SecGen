@@ -19,14 +19,9 @@
   <software_name>mysql</software_name>
   <software_license>GPL v2</software_license>
 
+  <!-- exclude any base except bookworm and buster and stretch -->
   <conflict>
-    <module_path>.*debian_stretch.*</module_path>
-  </conflict>
-  <conflict>
-    <module_path>.*kali_light.*</module_path>
-  </conflict>
-  <conflict>
-    <module_path>.*debian_wheezy.*</module_path>
+    <module_path>.*bases/(?!.*debian_(bookworm|buster|stretch).*)</module_path>
   </conflict>
 
   <!--Cannot co-exist with other MySQL installations-->
@@ -34,6 +29,9 @@
     <software_name>mysql</software_name>
   </conflict>
 
+  <requires>
+    <module_path>.*/puppet_module/cron.*</module_path>
+  </requires>
   <requires>
     <type>update</type>
   </requires>

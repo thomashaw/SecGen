@@ -40,7 +40,7 @@ class wordpress_3x {
   }
 
   case $operatingsystemrelease {
-    /^(9|10).*/: { # do 9.x stretch stuff
+    /^(9|1[0-9]).*/: { # do 9.x stretch stuff
       exec { 'a2enmod php5.6':
         command => '/usr/sbin/a2enmod php5.6',
         require => Class['::apache']

@@ -8,7 +8,27 @@ class phish_victim_bot::install {
   $passwords = $secgen_parameters['passwords']
   $phish_victim_bot_configs = $secgen_parameters['phish_victim_bot_configs']
 
-  ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk', 'zip','libreoffice-writer','libreoffice-calc','xvfb'])
+  ensure_packages(['zip','libreoffice-writer','libreoffice-calc','xvfb'])
+
+  if ($operatingsystem == 'Debian') {
+    case $operatingsystemrelease {
+      /^(12).*/: { # do 12.x bookworm stuff
+        ensure_packages(['openjdk-17-jre', 'openjdk-17-jdk'])
+      }
+      /^(9|10).*/: { # do 9.x stretch stuff
+        ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
+      }
+      /^7.*/: { # do 7.x wheezy stuff
+        # Will error -- TODO needs repo
+        ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
+      }
+      'kali-rolling': { # do kali
+        ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
+      }
+      default: {
+      }
+    }
+  }
 
 
   user { 'guest':

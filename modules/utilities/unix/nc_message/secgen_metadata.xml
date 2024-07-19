@@ -34,6 +34,9 @@
   <!-- <solution>Simply connecting to the right port will give you a message.</solution> -->
 
   <requires>
+    <module_path>.*/puppet_module/cron.*</module_path>
+  </requires>
+  <requires>
     <type>update</type>
   </requires>
 

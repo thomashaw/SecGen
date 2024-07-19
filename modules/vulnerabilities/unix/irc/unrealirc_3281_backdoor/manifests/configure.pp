@@ -36,7 +36,7 @@ class unrealirc_3281_backdoor::configure {
   }
 
   case $operatingsystemrelease {
-    /^(9|10).*/: { # do 9.x stretch stuff
+    /^(9|1[0-9]).*/: { # do 9.x stretch stuff
       exec { 'restart_unreal_3281_service':
         command => 'systemctl daemon-reload; systemctl restart unreal',
         require => Exec['update_unreal_3281_port'],

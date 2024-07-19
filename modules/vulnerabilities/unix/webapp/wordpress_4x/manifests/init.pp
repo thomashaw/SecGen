@@ -15,6 +15,7 @@ class wordpress_4x {
   class { '::apache':
     default_vhost => false,
     overwrite_ports => false,
+    mpm_module => 'prefork',
   }
   class {'::apache::mod::rewrite': }
 
@@ -39,7 +40,7 @@ class wordpress_4x {
   }
 
   case $operatingsystemrelease {
-    /^(9|10).*/: { # do 9.x stretch stuff
+    /^(9|1[0-9]).*/: { # do 9.x stretch stuff
       exec { 'a2enmod php5.6':
         command => '/usr/sbin/a2enmod php5.6',
         require => Class['::apache']

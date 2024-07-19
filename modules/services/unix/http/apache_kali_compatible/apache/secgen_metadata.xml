@@ -32,6 +32,10 @@
   <conflict>
     <module_path>.*debian_wheezy.*</module_path>
   </conflict>
+  <!-- exclude any base except bookworm and buster and stretch -->
+  <conflict>
+    <module_path>.*bases/(?!kali).*</module_path>
+  </conflict>
   <requires>
     <type>update</type>
   </requires>

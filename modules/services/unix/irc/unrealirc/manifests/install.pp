@@ -42,19 +42,31 @@ class unrealirc::install {
     require => Exec['extract-unrealirc'],
   }
 
-  ensure_packages('build-essential')
-  ensure_packages('gcc-multilib')
+  ensure_packages([
+    'build-essential',
+    'pkg-config',
+    'gdb',
+    'gcc-multilib',
+    'zlib1g-dev',
+    'libssl-dev',
+    'libpcre2-dev',
+    'libargon2-0-dev',
+    'libsodium-dev',
+    'libc-ares-dev',
+    'libcurl4-openssl-dev'
+  ])
 
   # Configure and make unrealircd, with or without ssl enabled
   if $unrealirc::use_ssl {
-    package { 'libssl-dev': 
-      ensure => present,
-    }
+
     exec { 'make-unrealirc':
       command => "${configure} --enable-ssl && make",
       timeout => 0,
       cwd     => "${unrealirc::install_path}",
       creates => "${unrealirc::install_path}/unreal",
+      environment => [
+        'CFLAGS=-fno-strict-aliasing -fno-strict-overflow -std=gnu89 -Wno-pointer-sign -fcommon'
+      ],
       require => [ Package['build-essential','gcc-multilib','libssl-dev'], Exec['unrealirc-dir'] ],
     }
   } else {
@@ -63,7 +75,12 @@ class unrealirc::install {
       timeout => 0,
       cwd     => "${unrealirc::install_path}",
       creates => "${unrealirc::install_path}/unreal",
+      environment => [
+        # these flags are required to get it compiled on newer systems (after Debian Buster)
+        'CFLAGS=-fno-strict-aliasing -fno-strict-overflow -std=gnu89 -Wno-pointer-sign -fcommon'
+      ],
       require => [Package['build-essential', 'gcc-multilib'],Exec['unrealirc-dir']],
+      logoutput => true,
     }
   }
 

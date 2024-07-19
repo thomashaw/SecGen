@@ -9,7 +9,7 @@ class php::install {
 
   exec { 'add repo to sources':
     command =>
-      '/bin/echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list',
+      '/bin/echo "deb http://172.33.0.44/packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list',
   } ->
 
   exec { 'apt update':

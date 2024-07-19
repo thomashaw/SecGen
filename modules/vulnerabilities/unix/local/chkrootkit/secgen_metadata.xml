@@ -46,6 +46,9 @@
   <msf_module>exploit/unix/local/chkrootkit</msf_module>
 
   <requires>
+    <module_path>.*/puppet_module/cron.*</module_path>
+  </requires>
+  <requires>
     <type>update</type>
   </requires>
 

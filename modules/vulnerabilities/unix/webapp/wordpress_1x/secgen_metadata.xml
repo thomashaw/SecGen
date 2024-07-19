@@ -50,10 +50,13 @@
   <default_input into="username">
     <generator type="username_generator"/>
   </default_input>
-
+  
+  <!-- disable untested module -->
   <conflict>
-    <name>Stretch</name>
+    <name>.*</name>
   </conflict>
+
+
 
   <requires>
     <module_path>.*/puppet_module/wordpress</module_path>
@@ -69,6 +72,10 @@
 
   <requires>
     <module_path>.*mysql.*compatible.*</module_path>
+  </requires>
+  
+  <requires>
+    <module_path>.*/puppet_module/cron.*</module_path>
   </requires>
 
   <requires>

@@ -39,7 +39,7 @@ This lab provides an in-depth exploration of scanning techniques. You will learn
 
   <system>
     <system_name>linux_victim_server</system_name>
-    <base distro="Debian 10" type="desktop"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
 
     <input into_datastore="IP_addresses">

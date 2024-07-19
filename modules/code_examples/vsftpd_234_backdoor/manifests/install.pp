@@ -2,7 +2,7 @@ class vsftpd_234_backdoor::install {
 
   # Add 32bit libs for stretch
   case $operatingsystemrelease {
-    /^(9|10).*/: { # do 9.x stretch stuff
+    /^(9|1[0-9]).*/: { # do 9.x stretch-buster-bookworm stuff
       exec { 'add_32bit_libs':
         command => '/usr/bin/dpkg --add-architecture i386 && /usr/bin/apt-get update'
       }

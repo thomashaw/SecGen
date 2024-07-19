@@ -1,16 +1,16 @@
 #!/bin/bash
-<% require 'uri'
+<% require 'cgi'
    $url_base = "#{@https ? 'https' : 'http'}://#{@ip_address}:#{@https ? '443' : @port}"
    $params = ''
-   $params += 'weblog_title=' + URI::encode(@blog_title)
-   $params += '&admin_email=' + URI::encode(@admin_email)
+   $params += 'weblog_title=' + CGI.escape(@blog_title)
+   $params += '&admin_email=' + CGI.escape(@admin_email)
   if @version[0].to_i >= 3
-    $params += '&user_name=' + @username
-    $params += '&admin_password=' + @admin_password
-    $params += '&admin_password2=' + @admin_password
+    $params += '&user_name=' + CGI.escape(@username)
+    $params += '&admin_password=' + CGI.escape(@admin_password)
+    $params += '&admin_password2=' + CGI.escape(@admin_password)
   elsif (@version[0].to_i == 4) and (@version[2].to_i >= 3)
     $params += '&pw_weak=on'
-    $params += '&pass1-text=' + @admin_password
+    $params += '&pass1-text=' + CGI.escape(@admin_password)
   end
   if @version[0].to_i == 1 and @version[2].to_i == 5
     $params += '&Submit=Continue+to+Second+Step+%C2%BB'

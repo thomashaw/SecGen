@@ -42,22 +42,18 @@ class webgoat::install {
   # Consider using the java class
   if ($operatingsystem == 'Debian') {
     case $operatingsystemrelease {
+      /^(12).*/: { # do 12.x bookworm stuff
+        ensure_packages(['openjdk-17-jre'])
+      }
       /^(9|10).*/: { # do 9.x stretch stuff
-        # Will error -- TODO needs repo
-        package { 'openjdk-11-jre':
-          ensure => installed,
-        }
+        ensure_packages(['openjdk-11-jre'])
       }
       /^7.*/: { # do 7.x wheezy stuff
         # Will error -- TODO needs repo
-        package { 'openjdk-11-jre':
-          ensure => installed,
-        }
+        ensure_packages(['openjdk-11-jre'])
       }
       'kali-rolling': { # do kali
-        package { 'openjdk-11-jre':
-          ensure => installed,
-        }
+        ensure_packages(['openjdk-11-jre'])
       }
       default: {
       }

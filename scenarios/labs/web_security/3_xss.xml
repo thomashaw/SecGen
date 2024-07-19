@@ -48,7 +48,7 @@ Throughout this lab, you will engage with various learning resources, including 
 
     <system>
         <system_name>web_server</system_name>
-        <base distro="Debian 10 Buster amd64" />
+        <base distro="Debian 12" type="desktop" name="KDE"/>
 
         <input into_datastore="IP_addresses">
             <!-- 0 web_server -->

@@ -1,7 +1,29 @@
 user_pref("browser.startup.homepage", "<%=@start_pages.map { |k| k.start_with?("http") ? k : "http://#{k}" }.join('|')-%>");
 user_pref("browser.startup.homepage_override.buildID", "20170816210634");
 user_pref("browser.startup.homepage_override.mstone", "55.0.2");
+
+// Disable hardware acceleration
 user_pref("layers.acceleration.disabled", true);
+user_pref("gfx.direct2d.disabled", true);
+user_pref("layers.acceleration.force-enabled", false);
+user_pref("gfx.webrender.all", false);
+user_pref("gfx.webrender.enabled", false);
+
+// Disable the Privacy Notice page
+user_pref("browser.privacy.notificationOnLaunch", false);
+// Disable the What's New page
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+// Disable the default browser check
+user_pref("browser.shell.checkDefaultBrowser", false);
+// Disable the Welcome to Firefox page
+user_pref("browser.aboutwelcome.enabled", false);
+// Disable the Startup Home page
+user_pref("browser.startup.homepage", "about:blank");
+// Disable the First Run page
+user_pref("startup.homepage_welcome_url", "");
+user_pref("startup.homepage_welcome_url.additional", "");
+user_pref("startup.homepage_override_url", "");
+
 <% if @disable_proxy -%>
 user_pref("network.proxy.type",0);
 <% end-%>

@@ -22,6 +22,13 @@ class mysql::server::installdb {
     }
 
   if $options['mysqld']['log-error'] {
+    file { '/var/log/mysql':
+      ensure => 'directory',
+      owner   => $mysqluser,
+      group   => $::mysql::server::mysql_group,
+      mode   => '0750',
+      before => File[$log_error],
+    }
     file { $options['mysqld']['log-error']:
       ensure  => present,
       owner   => $mysqluser,

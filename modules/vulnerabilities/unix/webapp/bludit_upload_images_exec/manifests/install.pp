@@ -4,7 +4,7 @@ class bludit_upload_images_exec::install {
 
   ensure_packages(['php-xml','php-gd','php.mbstring','php-json'])
   case $operatingsystemrelease {
-    /^(9|10).*/: { # do 9.x stretch stuff
+    /^(9|1[0-9]).*/: { # do 9.x stretch stuff
       ensure_packages('php5.6-gd')
     }
   }
