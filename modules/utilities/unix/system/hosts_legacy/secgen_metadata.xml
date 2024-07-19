@@ -19,8 +19,8 @@
   <read_fact>hostnames</read_fact>
 
   <conflict>
-    <!-- don't use this version with older distros -->
-    <module_path>.*bases/debian_(stretch|buster|wheezy)</module_path>
+    <!-- only use this version with older distros -->
+    <module_path>.*bases/(?!debian_(stretch|buster|wheezy)).*$</module_path>
   </conflict>
   
   <requires>

@@ -31,7 +31,8 @@ class security_shepherd::install {
   }
   exec { 'extract ROOT':
       cwd => '/tmp',
-      command => 'unzip ROOT.zip -d ROOT',
+      creates => '/tmp/ROOT',
+      command => 'unzip -o ROOT.zip -d ROOT',
   }
   -> file { '/var/lib/tomcat9/conf/shepherdKeystore.p12':
     ensure => file,
