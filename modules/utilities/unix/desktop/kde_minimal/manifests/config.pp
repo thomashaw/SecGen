@@ -5,7 +5,15 @@ class kde_minimal::config {
   $autostart_konsole = str2bool($secgen_params['autostart_konsole'][0])
 
   case $operatingsystemrelease {
-    /^1[0-9].*/: { # do 10.x buster|bookworm stuff
+    /^12.*/: { # do 10.x buster|bookworm stuff
+      if $autologin_user != "false" {
+        file { "/etc/sddm.conf":
+          ensure  => file,
+          content => template('kde_minimal/bookworm-sddm.conf.erb'),
+        }
+      }
+    }
+    /^10.*/: { # do 10.x buster|bookworm stuff
       if $autologin_user != "false" {
         file { "/etc/sddm.conf":
           ensure  => file,

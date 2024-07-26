@@ -1,6 +1,31 @@
+// Startup and homepage settings
 user_pref("browser.startup.homepage", "<%=@start_pages.map { |k| k.start_with?("http") ? k : "http://#{k}" }.join('|')-%>");
-user_pref("browser.startup.homepage_override.buildID", "20170816210634");
-user_pref("browser.startup.homepage_override.mstone", "55.0.2");
+user_pref("browser.startup.page", 1);
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+
+// Disable "Welcome to Firefox" and other first-run experiences
+user_pref("browser.aboutwelcome.enabled", false);
+user_pref("startup.homepage_welcome_url", "");
+user_pref("startup.homepage_welcome_url.additional", "");
+user_pref("startup.homepage_override_url", "");
+user_pref("browser.messaging-system.whats-new-panel.enabled", false);
+user_pref("browser.uitour.enabled", false);
+
+// Ensure only specified tabs are loaded
+user_pref("browser.newtabpage.enabled", false);
+user_pref("browser.newtab.preload", false);
+user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
+user_pref("browser.newtabpage.activity-stream.showSearch", false);
+user_pref("browser.newtabpage.activity-stream.feeds.snippets", false);
+
+// Performance optimizations
+user_pref("browser.cache.disk.enable", false);
+user_pref("browser.cache.memory.enable", true);
+user_pref("browser.cache.memory.capacity", 524288); // 512 MB
+user_pref("browser.sessionstore.interval", 300000); // 5 minutes
+user_pref("browser.sessionstore.max_tabs_undo", 5);
+user_pref("browser.sessionstore.max_windows_undo", 1);
+user_pref("browser.sessionhistory.max_entries", 10);
 
 // Disable hardware acceleration
 user_pref("layers.acceleration.disabled", true);
@@ -9,21 +34,49 @@ user_pref("layers.acceleration.force-enabled", false);
 user_pref("gfx.webrender.all", false);
 user_pref("gfx.webrender.enabled", false);
 
-// Disable the Privacy Notice page
-user_pref("browser.privacy.notificationOnLaunch", false);
-// Disable the What's New page
-user_pref("browser.startup.homepage_override.mstone", "ignore");
-// Disable the default browser check
-user_pref("browser.shell.checkDefaultBrowser", false);
-// Disable the Welcome to Firefox page
-user_pref("browser.aboutwelcome.enabled", false);
-// Disable the Startup Home page
-user_pref("browser.startup.homepage", "about:blank");
-// Disable the First Run page
-user_pref("startup.homepage_welcome_url", "");
-user_pref("startup.homepage_welcome_url.additional", "");
-user_pref("startup.homepage_override_url", "");
+// Network optimizations
+user_pref("network.http.pipelining", true);
+user_pref("network.http.proxy.pipelining", true);
+user_pref("network.http.pipelining.maxrequests", 8);
+user_pref("network.http.max-connections", 256);
+user_pref("network.http.max-connections-per-server", 32);
 
+// Disable automatic updates
+user_pref("app.update.enabled", false);
+user_pref("app.update.auto", false);
+user_pref("browser.search.update", false);
+
+// Privacy and telemetry settings
+user_pref("datareporting.healthreport.uploadEnabled", false);
+user_pref("datareporting.policy.dataSubmissionEnabled", false);
+user_pref("toolkit.telemetry.unified", false);
+user_pref("toolkit.telemetry.enabled", false);
+
+// Disable crash reporter
+user_pref("breakpad.reportURL", "");
+user_pref("browser.tabs.crashReporting.sendReport", false);
+
+// Optimize session restore
+user_pref("browser.sessionstore.resume_from_crash", false);
+user_pref("browser.sessionstore.max_resumed_crashes", -1);
+
+// Disable prefetching
+user_pref("network.prefetch-next", false);
+user_pref("network.dns.disablePrefetch", true);
+
+// Enable automatic downloads but don't add to recent docs
+user_pref("browser.download.useDownloadDir", true);
+user_pref("browser.download.manager.addToRecentDocs", false);
+user_pref("browser.download.always_ask_before_handling_new_types", false);
+
+// Disable HTTPS-only mode and HSTS for compatibility
+user_pref("dom.security.https_only_mode", false);
+user_pref("network.stricttransportsecurity.preloadlist", false);
+
+// Disable default browser check
+user_pref("browser.shell.checkDefaultBrowser", false);
+
+// Conditional proxy settings
 <% if @disable_proxy -%>
-user_pref("network.proxy.type",0);
+user_pref("network.proxy.type", 0);
 <% end-%>
