@@ -1,8 +1,9 @@
 [Desktop Entry]
+Type=Application
 Name=Resolution auto
 GenericName=Resolution auto
-Comment=Autostart script
-Exec=kscreen-console monitor  | xargs -L1 -I{} xrandr --output Virtual-0 --auto ; xrandr --output Virtual-1 --auto
+Comment=Autostart script for automatic resolution adjustment
+Exec=bash -c "while true; do xrandr | grep ' connected' | cut -f1 -d ' ' | xargs -I{} xrandr --output {} --auto; kscreen-console monitor | grep -m1 'Priorities changed'; done"
 Terminal=false
 StartupNotify=true
 X-GNOME-Autostart-enabled=true
