@@ -72,7 +72,15 @@ class kde_minimal::config {
           group  => $username,
         }
       }
-
+      if $operatingsystemrelease =~ /^12.*/ { # Disable window shadows
+        file { "/home/$username/.config/breezerc":
+          ensure  => file,
+          source  => 'puppet:///modules/kde_minimal/breezerc',
+          owner   => $username,
+          group   => $username,
+          require => File["/home/$username/.config/"],
+        }
+      }
       if $operatingsystemrelease =~ /^(9|10).*/ { # Disable stretch auto screen lock (not needed for our new templates)
         file { "/home/$username/.config/kscreenlockerrc":
           ensure  => file,
