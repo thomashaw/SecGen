@@ -10,7 +10,7 @@ class kde_minimal::config {
   } ->
   file { '/opt/auto-resolution/auto-resolution.sh':
     ensure  => file,
-    source  => 'puppet:///modules/kde_minimal/auto-resolution.desktop.sh',
+    source  => 'puppet:///modules/kde_minimal/auto-resolution.sh',
     mode    => '0755',
   }
 
