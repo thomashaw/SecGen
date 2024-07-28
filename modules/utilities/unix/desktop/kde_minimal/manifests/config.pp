@@ -4,6 +4,16 @@ class kde_minimal::config {
   $autologin_user = $secgen_params['autologin_user'][0]
   $autostart_konsole = str2bool($secgen_params['autostart_konsole'][0])
 
+  # Create auto-resolution script
+  file { '/opt/auto-resolution':
+    ensure => directory,
+  } ->
+  file { '/opt/auto-resolution/auto-resolution.sh':
+    ensure  => file,
+    source  => 'puppet:///modules/kde_minimal/auto-resolution.desktop.sh',
+    mode    => '0755',
+  }
+
   case $operatingsystemrelease {
     /^12.*/: { # do 10.x buster|bookworm stuff
       if $autologin_user != "false" {
