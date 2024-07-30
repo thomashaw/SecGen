@@ -4,6 +4,7 @@ class metactf::install {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
+  ensure_packages('zsh')
   ensure_packages('build-essential')
   ensure_packages('gcc-multilib')
 
@@ -54,7 +55,7 @@ class metactf::install {
   exec { 'build src_malware binaries':
     cwd     => "$install_dir/src_malware/",
     command => "/usr/bin/make",
-    logoutput => on_failure,
+    logoutput => true,
     require => Exec['src_malware chmod executable'],
   }
 
@@ -62,14 +63,14 @@ class metactf::install {
   exec { 'src_sse chmod executable':
     command => 'chmod -R +x */*/*.zsh',
     cwd     => "$install_dir/src_sse/",
-    logoutput => on_failure,
+    logoutput => true,
   }
 
   # Build src_sse
   exec { 'build src_sse binaries':
     cwd     => "$install_dir/src_sse/",
     command => "/usr/bin/make",
-    logoutput => on_failure,
+    logoutput => true,
     require => Exec['src_sse chmod executable'],
   }
 
