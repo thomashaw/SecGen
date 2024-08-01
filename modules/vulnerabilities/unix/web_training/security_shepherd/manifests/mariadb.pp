@@ -38,7 +38,7 @@ class security_shepherd::mariadb {
   }
   
   # /var/lib/tomcat9/webapps
-  -> file { '/tmp/ROOT/WEB-INF/classes/flags':
+  -> file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/flags':
     ensure  => file,
     replace => true,
     owner => 'tomcat',
@@ -46,7 +46,7 @@ class security_shepherd::mariadb {
     content => template('security_shepherd/flags.erb'),
   }
   # /var/lib/tomcat9/webapps
-  -> file { '/tmp/ROOT/WEB-INF/classes/active-modules':
+  -> file { '/var/lib/tomcat9/webapps/ROOT/WEB-INF/classes/active-modules':
     ensure  => file,
     replace => true,
     owner => 'tomcat',
@@ -54,9 +54,9 @@ class security_shepherd::mariadb {
     content => template('security_shepherd/active-modules.erb'),
   }
   -> exec { 'jar -cvf ROOT.war *':
-      cwd => '/tmp/ROOT',
+      cwd => '/var/lib/tomcat9/webapps/ROOT',
   }
-  -> exec { 'mv /tmp/ROOT/ROOT.war /var/lib/tomcat9/webapps':}
+  -> 
   # This needs updating? Weird chicanery happens if not used this way
   exec { 'restart-tom':
     command => 'systemctl restart tomcat9',
