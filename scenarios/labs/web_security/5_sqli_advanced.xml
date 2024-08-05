@@ -99,7 +99,7 @@ Throughout the lab, you will engage with various vulnerable environments, includ
             </input>
         </build>
 
-        <utility module_path=".*/hosts">
+        <utility module_path=".*/hosts_legacy">
             <input into="hosts">
                 <value>webserver</value>
                 <value>kali</value>

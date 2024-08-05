@@ -106,7 +106,7 @@ Throughout the lab, you will engage in hands-on tasks that mirror real-world sce
             </input>
         </build>
 
-        <utility module_path=".*/hosts">
+        <utility module_path=".*/hosts_legacy">
             <input into="hosts">
                 <value>webserver</value>
                 <value>kali</value>
