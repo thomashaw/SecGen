@@ -149,7 +149,7 @@ Throughout this lab, you will engage in a series of tasks across various platfor
                 <value>true</value>
             </input>
             <input into="start_page">
-                <value>http://localhost:8085/WebGoat|webserver</value>
+                <value>http://localhost:8085/WebGoat|http://localhost/|webserver</value>
             </input>
         </utility>
 

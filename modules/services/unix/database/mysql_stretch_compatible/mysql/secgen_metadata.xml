@@ -21,7 +21,7 @@
 
   <!-- exclude any base except bookworm and buster and stretch -->
   <conflict>
-    <module_path>.*bases/(?!.*debian_(bookworm|buster|stretch).*)</module_path>
+    <module_path>.*bases/(?!debian_(bookworm|buster|stretch)).*</module_path>
   </conflict>
 
   <!--Cannot co-exist with other MySQL installations-->
