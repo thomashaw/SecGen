@@ -94,8 +94,8 @@ Throughout the lab, you will learn to self-host PHP pages, use OWASP Zap to anal
             </input>
         </build>
 
-        <utility module_path=".*/hosts">
-            <input into="hosts_legacy">
+        <utility module_path=".*/hosts_legacy">
+            <input into="hosts">
                 <value>webserver</value>
                 <value>kali</value>
             </input>
