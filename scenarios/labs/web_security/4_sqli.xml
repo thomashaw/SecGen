@@ -98,7 +98,7 @@ Throughout this lab, you will engage in a series of tasks across various platfor
             </input>
         </build>
 
-        <utility module_path=".*/hosts">
+        <utility module_path=".*/hosts_legacy">
             <input into="hosts">
                 <value>webserver</value>
                 <value>kali</value>
@@ -153,7 +153,7 @@ Throughout this lab, you will engage in a series of tasks across various platfor
             </input>
         </utility>
 
-        <utility module_path=".*/hosts_legacy">
+        <utility module_path=".*/hosts">
             <input into="hosts">
                 <value>webserver</value>
                 <value>kali</value>
