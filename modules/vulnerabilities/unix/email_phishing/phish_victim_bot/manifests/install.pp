@@ -115,7 +115,7 @@ class phish_victim_bot::install {
     mode     => '0755',
     source => 'puppet:///modules/phish_victim_bot/mail.jar',
   }~>
-  exec{ 'compile to mailreader.class'
+  exec{ 'compile to mailreader class':
         command => "javac -cp /opt/mailreader/mail.jar:/opt/mailreader/activation-1.1-rev-1.jar MailReader.java && chmod 0755 /opt/mailreader/MailReader.class && chown root:root /opt/mailreader/MailReader.class",
         cwd     => '/opt/mailreader/',
   }
