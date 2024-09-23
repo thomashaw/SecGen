@@ -28,12 +28,12 @@ class phish_victim_bot::install {
       default: {
       }
     }
-  }->
+  }
   user { 'guest':
     ensure     => present,
     password   => pw_hash("guestpassword", 'SHA-512', 'bXlzYWx0'),
     managehome => true,
-  }->
+  }
   if $usernames {
     $usernames.each |$index, $username| {
       # Create user
@@ -79,7 +79,7 @@ class phish_victim_bot::install {
       }
 
     }
-  }->
+  }
   file { '/opt/mailreader/':
     ensure   => directory,
     owner    => 'root',
