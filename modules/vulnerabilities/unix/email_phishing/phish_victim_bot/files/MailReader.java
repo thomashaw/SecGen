@@ -162,8 +162,8 @@ public class MailReader implements AutoCloseable {
 
 		// Now set the actual message
 		String msg = "";
-		if (reasons.contains("Attachments accepted... running the attachment.\n")) {
-			msg = "Successful message!";
+		if (reasons.contains("Attachments accepted... running the attachment.")) {
+			msg = "Successful message!\n";
 		} else {
 			msg = "I'm not accepting this email because:\n";
 		}
