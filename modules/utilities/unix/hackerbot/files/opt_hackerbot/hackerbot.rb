@@ -216,6 +216,11 @@ def read_bots (irc_server_ip_address)
               shell_outputs = bots[bot_name]['attacks'][current]['shell_command_outputs'].map { |output| output.lines.first.to_s.strip }.join('|')
               correct_answer.gsub!(/{{shell_command_output_first_line}}/, shell_outputs)
             end
+            if bots[bot_name]['attacks'][current].key?('pre_shell')
+              pre_shell_outputs = bots[bot_name]['attacks'][current]['pre_shell_command_outputs'] || []
+              pre_shell_output = pre_shell_outputs.map { |output| output.lines.first.to_s.strip }.join('|')
+              correct_answer.gsub!(/{{pre_shell_command_output_first_line}}/, pre_shell_output)
+            end
             correct_answer.chomp!
             Print.debug "#{correct_answer}====#{answer}"
         
@@ -317,9 +322,9 @@ def read_bots (irc_server_ip_address)
             unless bots[bot_name]['attacks'][current].key?('suppress_command_output_feedback')
               m.reply "FYI: #{pre_output}"
             end
-            bots[bot_name]['attacks'][current]['get_shell_command_output'] = pre_output
+            bots[bot_name]['attacks'][current]['pre_shell_command_outputs'] ||= []
+            bots[bot_name]['attacks'][current]['pre_shell_command_outputs'] << pre_output
             current = check_output_conditions(bot_name, bots, current, pre_output, m)
-
           end
 
           # use bot-wide method for obtaining shell, unless specified per-attack
