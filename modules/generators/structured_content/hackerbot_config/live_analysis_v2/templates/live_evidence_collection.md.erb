@@ -225,7 +225,7 @@ Note that on this system the root partition (mounted on "/"), is /dev/sda1.
 Then **you could** copy byte-for-byte the contents of the entire root ("/") partition over the network (where /dev/sda1 was identified from the previous command):
 
 ```bash
-ssh -t <%= $compromised_server_ip %> "/media/cdrom0/statbins/linux2.2_x86/dd if=/dev/sda1 bs=1M count=5 conv=noerror,sync" | tee evidence/sda1.img
+ssh -t <%= $compromised_server_ip %> "sudo /media/cdrom0/statbins/linux2.2_x86/dd if=/dev/sda1 bs=1M count=5 conv=noerror,sync" | tee evidence/sda1.img
 ```
 > Tip: Doing a full copy of the disk would take quite some time, so for demonstration purposes we are only copying 5MB of the disk.
 
