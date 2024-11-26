@@ -59,6 +59,7 @@
         <value>j.addams</value>
         <value>j.baker</value>
         <value>j.wilkinson</value>
+        <value>kali</value>
       </input>
       <input into="passwords">
         <value>newbie</value>
