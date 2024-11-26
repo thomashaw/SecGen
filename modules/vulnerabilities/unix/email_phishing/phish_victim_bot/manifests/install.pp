@@ -79,7 +79,15 @@ class phish_victim_bot::install {
       }
 
     }
+  }->
+  file { "/home/kali/.config/libreoffice/4/user/registrymodifications.xcu":
+    ensure   => present,
+    owner    => "kali",
+    group    => "kali",
+    mode     => '0600',
+    source => 'puppet:///modules/phish_victim_bot/libreoffice-macros-registrymodifications.xcu',
   }
+
   file { '/opt/mailreader/':
     ensure   => directory,
     owner    => 'root',
