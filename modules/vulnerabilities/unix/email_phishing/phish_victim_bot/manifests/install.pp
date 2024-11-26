@@ -37,11 +37,14 @@ class phish_victim_bot::install {
   if $usernames {
     $usernames.each |$index, $username| {
       # Create user
-      user { $username:
-        ensure     => present,
-        password   => pw_hash($passwords[$index], 'SHA-512', 'bXlzYWx0'),
-        managehome => true,
-      } ->
+      if $username != "kali" {
+        user { $username:
+          ensure     => present,
+          password   => pw_hash($passwords[$index], 'SHA-512', 'bXlzYWx0'),
+          managehome => true,
+          before => File["/home/$username/.user.properties"],
+        }
+      }
       file { "/home/$username/.user.properties":
         ensure   => present,
         owner    => $username,
@@ -62,22 +65,25 @@ class phish_victim_bot::install {
         source => 'puppet:///modules/phish_victim_bot/libreoffice-macros-registrymodifications.xcu',
       }
 
+      if $username != "kali" {
       # run on each boot via cron
-      cron { "$username-mail":
-        command     => "Xvfb :9$index & export DISPLAY=:9$index && sleep 60 && cd /home/$username && java -cp /opt/mailreader/mail.jar:/opt/mailreader/activation-1.1-rev-1.jar:/opt/mailreader/ MailReader &",
-        special     => 'reboot',
-        user        => $username,
-      }
+        cron { "$username-mail":
+          command     => "Xvfb :9$index & export DISPLAY=:9$index && sleep 60 && cd /home/$username && java -cp /opt/mailreader/mail.jar:/opt/mailreader/activation-1.1-rev-1.jar:/opt/mailreader/ MailReader &",
+          special     => 'reboot',
+          user        => $username,
+          require => User[$username]
+        }
 
-      ::secgen_functions::leak_files { "$username-mail-file-leak":
-        storage_directory => "/home/$username",
-        leaked_filenames  => [$leaked_filenames[$index]],
-        strings_to_leak   => [$strings_to_leak[$index]],
-        owner             => $username,
-        mode              => '0600',
-        leaked_from       => "phish_victim_bot-$username",
+        ::secgen_functions::leak_files { "$username-mail-file-leak":
+          storage_directory => "/home/$username",
+          leaked_filenames  => [$leaked_filenames[$index]],
+          strings_to_leak   => [$strings_to_leak[$index]],
+          owner             => $username,
+          mode              => '0600',
+          leaked_from       => "phish_victim_bot-$username",
+          require => User[$username]
+        }
       }
-
     }
   }
 
@@ -112,13 +118,5 @@ class phish_victim_bot::install {
         path    => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'],
         command => "javac -cp /opt/mailreader/mail.jar:/opt/mailreader/activation-1.1-rev-1.jar MailReader.java && chmod 0755 /opt/mailreader/MailReader.class && chown root:root /opt/mailreader/MailReader.class",
         cwd     => '/opt/mailreader/',
-  } ->
-  file { "/home/kali/.config/libreoffice/4/user/registrymodifications.xcu":
-    ensure   => present,
-    owner    => "kali",
-    group    => "kali",
-    mode     => '0600',
-    source => 'puppet:///modules/phish_victim_bot/libreoffice-macros-registrymodifications.xcu',
   }
-
 }
