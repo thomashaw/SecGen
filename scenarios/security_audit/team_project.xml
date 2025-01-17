@@ -165,7 +165,6 @@
    <!--Desktop Client on NIC2 -->
   <system>
     <system_name>desktop</system_name>
-    <!-- Starts as a server base, and installs XFCE via a vulnerability -->
     <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <utility module_path=".*/parameterised_accounts">
@@ -174,7 +173,17 @@
       </input>
     </utility>
 
-    <vulnerability module_path=".*/xfce_lightdm_root_login"/>
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access_json="['manager']['username']">organisation</datastore>
+      </input>
+      <input into="accounts">
+        <datastore access_json="['manager']">organisation</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
