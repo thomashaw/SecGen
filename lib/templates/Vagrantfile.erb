@@ -221,10 +221,15 @@ end
       <%= system.name %>.vm.box = 'ovirt4'
       <%= system.name %>.vm.box_url = 'https://github.com/myoung34/vagrant-ovirt4/blob/master/example_box/dummy.box?raw=true'
 <%
-when "proxmox" # nothing
+    when "proxmox"
 %>
       <%= system.name %>.vm.box = 'dummy'
       <%= system.name %>.vm.box_url = 'https://github.com/myoung34/vagrant-ovirt4/blob/master/example_box/dummy.box?raw=true'
+
+      <% if selected_module.attributes['platform'].first.downcase != 'windows' %>
+        # Set hostname for Linux systems (as an extra step on Proxmox)
+        <%= system.name %>.vm.provision 'shell', inline: "hostname <%= system.get_hostname %> && echo <%= system.get_hostname %> > /etc/hostname && sed -i \"s/127.0.1.1.*/127.0.1.1\t<%= system.get_hostname %>/g\" /etc/hosts"
+      <% end %>
 <%
     when "esxi"
 %>
