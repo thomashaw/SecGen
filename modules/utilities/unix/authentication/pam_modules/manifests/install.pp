@@ -2,13 +2,14 @@ class pam_modules::install {
   # Security and Access Control Modules
   # Provides brute force protection, two-factor auth, and biometric authentication
   ensure_packages(['libpam-abl', 'libpam-google-authenticator', 'libpam-oath'])
-  ensure_packages(['libqrencode4'])
+  ensure_packages(['libqrencode4', 'pamtester'])
   # not installed: 'libpam-barada', 'libpam-biometric'
 
   # Authentication Backend Modules
   # Provides integration with various authentication systems like LDAP, MySQL, Kerberos
-  ensure_packages(['libpam-ldapd', 'libpam-mysql', 'libpam-krb5',
-                 'libpam-heimdal'])
+  # ensure_packages(['libpam-ldapd', 'libpam-mysql',
+  #                'libpam-heimdal'])
+  # not installed: 'libpam-krb5'
 
   # Storage and Encryption Modules
   # Handles encrypted filesystems and mount operations
