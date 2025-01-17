@@ -57,6 +57,11 @@
     <module_path>.*mysql.*compatible.*</module_path>
   </requires>
 
+  <!-- disable faulty module (TODO: FIXME module is vulnerable/exploitable but not discoverable or functioning as normal) -->
+  <conflict>
+    <name>.*</name>
+  </conflict>
+
   <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
     <keyword>server-side misconfiguration and vulnerable components</keyword>
     <keyword>Command injection</keyword>
