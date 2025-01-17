@@ -15,7 +15,7 @@
   <url>http://TODO</url>
   <esxi_url></esxi_url>
   <ovirt_template>win2016_20220207</ovirt_template>
-  <proxmox_template>Win2016z20220207</ovirt_template>
+  <proxmox_template>win2016-20250113</proxmox_template>
 
   <software_license>various</software_license>
 
