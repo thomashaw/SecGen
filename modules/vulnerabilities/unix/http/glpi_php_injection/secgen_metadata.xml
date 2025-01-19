@@ -49,6 +49,11 @@
   <software_name>GLPI Management Suite</software_name>
   <software_license>GNU GPLv3</software_license>
 
+  <!-- disable faulty module (TODO: FIXME module is vulnerable/exploitable but not discoverable or functioning as normal) -->
+  <conflict>
+    <name>.*</name>
+  </conflict>
+
   <requires>
     <module_path>.*apache.*compatible.*</module_path>
   </requires>
@@ -56,11 +61,6 @@
   <requires>
     <module_path>.*mysql.*compatible.*</module_path>
   </requires>
-
-  <!-- disable faulty module (TODO: FIXME module is vulnerable/exploitable but not discoverable or functioning as normal) -->
-  <conflict>
-    <name>.*</name>
-  </conflict>
 
   <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
     <keyword>server-side misconfiguration and vulnerable components</keyword>
