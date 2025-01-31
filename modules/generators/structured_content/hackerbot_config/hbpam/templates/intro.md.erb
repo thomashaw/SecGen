@@ -631,7 +631,9 @@ google-authenticator
 
 ==Scan the QR code== with your authenticator app on your smartphone.
 
-==Get google-authenticator working for ssh logins== with your PAM configuration, require the user to enter a TOTP code, in addition to their password. Hint: you need to add a line to the sshd PAM configuration.
+==Get google-authenticator working for su logins== with your PAM configuration, require the user to enter a TOTP code, in addition to their password. 
+- Hint: you need to add a line to the sshd PAM configuration. 
+- Don't forget to remove the rule before taking on the Hackerbot tasks.
 
 
 ==Log Book Questions:==
