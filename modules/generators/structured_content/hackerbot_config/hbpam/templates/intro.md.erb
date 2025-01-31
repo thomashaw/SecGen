@@ -73,6 +73,8 @@ Depending on what is installed on the system, there will be a few configuration 
 less /etc/pam.d/other
 ```
 
+> Reminder: press the "q" key to exit less.
+
 On Debian the default behaviour is to use the common authentication behaviour defined in common-auth, account access rules defined in "common-account", password rules in "common-password", and "common-session" rules for sessions.
 
 ```bash
@@ -119,8 +121,6 @@ There is also a more complex rule syntax available, described in the man page.
 less /etc/pam.d/passwd
 ```
 
-> Reminder: press the "q" key to exit less.
-
 Note that this indicates that PAM will apply the password rules in "common-password" for the passwd program.
 
 ==Edit the rules in common-password:==
@@ -128,6 +128,8 @@ Note that this indicates that PAM will apply the password rules in "common-passw
 ```bash
 sudo vi /etc/pam.d/common-password
 ```
+
+> **Reminder**: Vi is 'modal': it has an insert mode, where you can type text into the file, and normal mode, where what you type is interpreted as commands. Press the "i" key to enter "insert mode". Type your changes to the file, then exit back to "normal mode" by pressing the Esc key. Now to exit and save the file press the ":" key, followed by "wq" (write quit), and press Enter.
 
 ==Edit the pam_pwquality line, so it reads:==
 
@@ -140,8 +142,6 @@ password requisite pam_pwquality.so minlen=7 dictcheck=0
 ```
 #password requisite pam_passwdqc.so
 ```
-
-> **Reminder**: Vi is 'modal': it has an insert mode, where you can type text into the file, and normal mode, where what you type is interpreted as commands. Press the "i" key to enter "insert mode". Type your changes to the file, then exit back to "normal mode" by pressing the Esc key. Now to exit and save the file press the ":" key, followed by "wq" (write quit), and press Enter.
 
 ==Create a test user account:==
 ```bash
@@ -210,13 +210,13 @@ When making PAM changes, it's helpful to monitor the authentication logs to unde
 sudo tail -f /var/log/auth.log
 ```
 
+> Press Ctrl+C to stop monitoring
+
 You can also use `journalctl` to monitor system logs, which includes PAM messages:
 
 ```bash
 sudo journalctl -f
 ```
-
-> Press Ctrl+C to stop monitoring
 
 When testing configurations, you'll see various PAM messages. Here are common ones and what they mean:
 
@@ -235,7 +235,7 @@ pam_pwquality(passwd:chauthtok): BAD PASSWORD # Password doesn't meet requiremen
 - Monitor logs while testing to understand what's happening.
 - Make one change at a time and verify it works before proceeding.
 
-Throughout this lab, we'll use these tools to verify each configuration change we make. If something goes wrong, you can always use the root terminal to revert your changes.
+We'll use these tools to verify configuration changes we make. If something goes wrong, you can always use the root terminal to revert your changes.
 
 ## Password Quality Enhancement
 
@@ -281,7 +281,7 @@ sudo -u testuser passwd
 
 ==Test the 7-character rule:==
 
-Should fail - only 7 chars but missing character classes: `NewPw45`
+Should fail - only 7 chars but missing character classes: `New0nn3`
 
 Should succeed - 7 chars with all classes (upper, lower, digits, special): `NewP4$sw`
 
@@ -364,7 +364,7 @@ PAM's power comes from its ability to stack multiple authentication modules. Thi
 auth    required pam_faillock.so preauth audit
 
 # THIS LINE WILL ALREADY BE PRESENT
-auth    [success=1 default=ignore]  pam_unix.so nullok
+auth    [success=1 default=ignore]  pam_unix.so nullok try_first_pass
 
 auth    [default=die] pam_faillock.so authfail audit
 auth    sufficient pam_faillock.so authsucc audit
@@ -496,7 +496,15 @@ auth required pam_abl.so config=/etc/security/pam_abl.conf
 ssh nonexistent_user@localhost
 ```
 
-To clear all blocks:
+The error message to the user attempting a login attempt may simply state permission denied, but the logs will show that pam-abl is "Blocking access".
+
+If you don't already have the logs visible in a terminal tab/window:
+
+```bash
+sudo tail -f /var/log/auth.log
+```
+
+Once done, clear all blocks:
 
 ```bash
 sudo rm /var/lib/abl/hosts.db /var/lib/abl/users.db
@@ -524,7 +532,7 @@ Let's configure PAM to only allow:
 sudo vi /etc/pam.d/common-account
 ```
 
-Add this line:
+Add this line at the start of the account section:
 ```
 account required pam_time.so
 ```
@@ -551,15 +559,6 @@ For testing purposes, you can add a 10-minute window from the current time. For 
 ```
 
 ==Test the time-based restrictions:==
-
-==Test time restrictions with pamtester:==
-```bash
-# Test current time window
-sudo pamtester login testuser authenticate
-
-# You can also test specific PAM configuration:
-sudo pamtester common-auth testuser authenticate
-```
 
 ```bash
 # Check current time
@@ -608,17 +607,10 @@ who
 ```
 
 ==Verify time restrictions are working:==
-- Try logging in 5 minutes before the end time
+- Try logging in before the end time
 - Watch for the warning message
 - Confirm the session is terminated at the end time
 - Attempt to log in again after the end time (should be denied)
-
-==Log Book Question:==
-Document how you can **configure PAM to only allow:**
-
--   **The user "dropbear" to login between 9am and 5pm**
--   **And only on Monday to Friday**
--   **Configure a cron job to force the user to logout at the end of their allowed time**
 
 ## Multi-Factor Authentication (MFA)
 
@@ -630,8 +622,6 @@ Multi-factor authentication (MFA) adds additional security layers beyond just pa
 
 By combining multiple factors, MFA significantly improves security. Even if an attacker obtains a user's password, they still can't gain access without the second factor. This is especially important for protecting sensitive systems and data. Common MFA methods include SMS codes, authenticator apps generating time-based codes (TOTP), hardware security keys, and biometrics.
 
-==Test MFA Configuration:==
-
 ==Initial Setup:==
 
 ```bash
@@ -639,9 +629,9 @@ By combining multiple factors, MFA significantly improves security. Even if an a
 google-authenticator
 ```
 
-==Scan the QR code== with your authenticator app
+==Scan the QR code== with your authenticator app on your smartphone.
 
-==Log Book question:== Get google-authenticator working with your PAM configuration, require the user to enter a TOTP code to login, in addition to their password.
+==Get google-authenticator working for ssh logins== with your PAM configuration, require the user to enter a TOTP code, in addition to their password. Hint: you need to add a line to the sshd PAM configuration.
 
 
 ==Log Book Questions:==
@@ -650,20 +640,13 @@ What are the trade-offs between security and usability in these configurations? 
 - Lockout duration vs legitimate user access
 - Time-based restrictions vs flexibility
 
-How would you implement emergency access procedures? Include:
-- Backup authentication methods
-- Recovery procedures
-- Documentation requirements
 
 Briefly describe what each of the following PAM configurations do:
 ```
 session optional pam_mkhomedir.so skel=/etc/skel umask=077
+
 auth required pam_access.so, /etc/security/access.conf
 ```
-
-Briefly describe what each of the following PAM configurations do:
-`session optional pam_mkhomedir.so skel=/etc/skel umask=077`
-`auth required pam_access.so, /etc/security/access.conf`
 
 ## Secure Shell (SSH) Password-less Authentication
 
@@ -694,19 +677,18 @@ ssh <%= $server_ip %>
 
 In this lab, you've explored the powerful and flexible PAM authentication framework, implementing several critical security controls:
 
-1. Password Quality
+Password Quality:
 - Configured minimum length and complexity requirements
 - Implemented dictionary word checks
 - Set up multi-tiered password requirements based on length
 
-2. Account Protection
+Account Protection:
 - Implemented account lockouts after failed attempts
 - Set up automated IP blacklisting
 - Configured time-based access restrictions
 
-3. Advanced Authentication
+Advanced Authentication:
 - Explored multi-factor authentication using TOTP
 - Implemented SSH key-based authentication
-- Created emergency access procedures
 
 Well done!
