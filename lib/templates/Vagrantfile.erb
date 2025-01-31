@@ -228,7 +228,7 @@ end
 
       <% if selected_module.attributes['platform'].first.downcase != 'windows' %>
         # Set hostname for Linux systems (as an extra step on Proxmox)
-        <%= system.name %>.vm.provision 'shell', inline: "hostname <%= system.get_hostname %> && echo <%= system.get_hostname %> > /etc/hostname && sed -i \"s/127.0.1.1.*/127.0.1.1\t<%= system.get_hostname %>/g\" /etc/hosts"
+        <%= system.name %>.vm.provision 'shell', inline: "hostname <%= system.get_hostname %> && echo <%= system.get_hostname %> > /etc/hostname && hostnamectl set-hostname <%= system.get_hostname %> || true && sed -i \"s/127.0.1.1.*/127.0.1.1\t<%= system.get_hostname %>/g\" /etc/hosts"
       <% end %>
 <%
     when "esxi"
