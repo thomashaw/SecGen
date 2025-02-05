@@ -7,9 +7,9 @@ class kali_web::install{
 
   # The following is a workaround for the crackmapexec package triggering our IPS
   # almost everything in kali-tools-top10:
-  ensure_packages(['apache-users', 'apache2', 'beef-xss', 'burpsuite', 'cadaver', 'commix', 'cutycapt', 'default-mysql-server', 'dirb', 'dirbuster', 'hamster-sidejack', 'heartleech', 'httprint', 'httrack', 'hydra-gtk', 'jboss-autopwn', 'joomscan', 'jsql-injection', 'maltego', 'medusa', 'mitmproxy', 'ncrack', 'nikto', 'nmap', 'oscanner', 'owasp-mantra-ff', 'padbuster', 'paros', 'patator', 'php', 'php-mysql', 'proxychains4', 'proxytunnel', 'qsslcaudit', 'redsocks', 'sidguesser', 'siege', 'skipfish', 'slowhttptest', 'sqldict', 'sqlitebrowser', 'sqlmap', 'sqlninja', 'sqlsus', 'ssldump', 'sslh', 'sslscan', 'sslsniff', 'sslsplit', 'sslyze', 'stunnel4', 'thc-ssl-dos', 'tlssled', 'tnscmd10g', 'uniscan', 'wafw00f', 'wapiti', 'watobo', 'webacoo', 'webscarab', 'weevely', 'wfuzz', 'whatweb', 'wireshark', 'wpscan', 'xsser', 'zaproxy'])
+  ensure_packages(['apache-users', 'apache2', 'beef-xss', 'burpsuite', 'cadaver', 'commix', 'cutycapt', 'default-mysql-server', 'dirb', 'dirbuster', 'hamster-sidejack', 'heartleech', 'httprint', 'httrack', 'jboss-autopwn', 'joomscan', 'jsql-injection', 'maltego', 'medusa', 'mitmproxy', 'ncrack', 'nikto', 'nmap', 'oscanner', 'owasp-mantra-ff', 'padbuster', 'paros', 'patator', 'php', 'php-mysql', 'proxychains4', 'proxytunnel', 'qsslcaudit', 'redsocks', 'sidguesser', 'siege', 'skipfish', 'slowhttptest', 'sqldict', 'sqlitebrowser', 'sqlmap', 'sqlninja', 'sqlsus', 'ssldump', 'sslh', 'sslscan', 'sslsniff', 'sslsplit', 'sslyze', 'stunnel4', 'thc-ssl-dos', 'tlssled', 'tnscmd10g', 'uniscan', 'wafw00f', 'wapiti', 'watobo', 'webacoo', 'webscarab', 'weevely', 'wfuzz', 'whatweb', 'wireshark', 'wpscan', 'xsser', 'zaproxy'])
   # except webshells, nishang, laudanum, davtest, 'plecost','eyewitness', 'lbd', 
-  # 'hydra', # TODO fixme
+  # 'hydra', 'hydra-gtk' # TODO fixme
 
   # TODO: test current zaproxy doesn't still need this fix:
   # Temporary changes:
