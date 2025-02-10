@@ -177,7 +177,24 @@
 
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts">
-         <datastore access_json="['manager']">organisation</datastore>
+        <generator type="account">
+          <input into="username">
+            <datastore access_json="['manager']['username']">organisation</datastore>
+          </input>
+          <input into="password">
+            <datastore>spoiler_admin_pass</datastore>
+          </input>
+          <input into="super_user">
+            <value>true</value>
+          </input>
+          <input into="leaked_filenames">
+            <value>your_password</value>
+          </input>
+          <input into="strings_to_leak">
+            <value>Your friendly system administrator here. Your password is: </value>
+            <datastore>spoiler_admin_pass</datastore>
+          </input>
+        </generator>
       </input>
     </utility>
 
