@@ -72,12 +72,12 @@ WARNING: This module needs some further testing, and may not work without input 
   <generator module_path=".*users_table_name" />
 </default_input>
 
-<conflict>
-	<module_path>.*commando</module_path>
-</conflict>
+<requires>
+  <module_path>.*apache.*compatible.*</module_path>
+</requires>
 
 <requires>
-  <module_path>.*/apache.*</module_path>
+  <module_path>.*php.*compatible.*</module_path>
 </requires>
 <requires>
   <module_path>.*mysql.*compatible.*</module_path>

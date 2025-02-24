@@ -4,7 +4,7 @@ class commando::apache {
   $db_password = $secgen_parameters['db_password'][0]
 
   # essential packages for commando to function
-  package { ['php', 'php-mysqli', 'php-gd', 'libapache2-mod-php','mysql-server']:
+  package { ['php', 'php-gd', 'libapache2-mod-php']:
     ensure => installed,
   }
 
@@ -19,9 +19,9 @@ class commando::apache {
     docroot => '/var/www/commando',
   } ->
 
-  # enabling of the php7.0 module so functions on app work
-  exec { 'a2enmod php7.0':
-    command  => "/usr/sbin/a2enmod php7.0",
+  # enabling of the php5.6 module so functions on app work
+  exec { 'a2enmod php5.6':
+    command  => "/usr/sbin/a2enmod php5.6",
     require => Class['::apache']
   }
 

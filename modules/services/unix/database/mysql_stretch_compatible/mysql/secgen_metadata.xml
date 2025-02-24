@@ -25,9 +25,9 @@
   </conflict>
 
   <!--Cannot co-exist with other MySQL installations-->
-  <conflict>
+  <!-- <conflict>
     <software_name>mysql</software_name>
-  </conflict>
+  </conflict> -->
 
   <requires>
     <module_path>.*/puppet_module/cron.*</module_path>

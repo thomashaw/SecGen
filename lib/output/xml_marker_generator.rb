@@ -42,7 +42,7 @@ class XmlMarkerGenerator
                     system.module_selections.each { |search_module|
                       if search_module.unique_id == selected_module.write_to_module_with_id
                         # special case check for flag that's fed into a parameter that isn't defined within the receiving module
-                        if search_module.attributes["read_fact"].include? selected_module.write_output_variable
+                        if search_module.attributes["read_fact"]&.include? selected_module.write_output_variable
                           xml.flag(output_value)
                         else
                           Print.warn "Ignoring flag generated but fed into a fact that the module doesn't read: #{selected_module.write_to_module_with_id}.#{selected_module.write_output_variable} #{output_value}"
