@@ -46,6 +46,49 @@ Throughout this lab, you will engage with various learning resources, including 
         <keyword>dynamic detection</keyword>
     </CyBOK>
 
+    <video>
+        <title>Cross-Site Scripting (XSS): Part 1 Types of XSS</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=bYYpsdDX43Q</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>cookies</keyword>
+            <keyword>CLIENT-SERVER MODELS</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cross-Site Scripting (XSS): Part 2 Prevention</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=MJX1pShMrio</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="SS" topic="Prevention of Vulnerabilities">
+            <keyword>coding practices</keyword>
+            <keyword>Protecting against session management attacks, XSS, SQLi, CSRF</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cross-Site Scripting (XSS): Demo</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=jG49H73vjng</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+            <keyword>injection vulnerabilities</keyword>
+        </CyBOK>
+        <CyBOK KA="SS" topic="Detection of Vulnerabilities">
+            <keyword>dynamic detection</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Hints: XSS challenges (optional)</title>
+        <by>Thalita Vergilio</by>
+        <url>https://www.youtube.com/watch?v=8GsFBGqnDXM</url>
+        <type>lecture-prerecorded</type>
+    </video>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10" type="desktop" name="KDE"/>

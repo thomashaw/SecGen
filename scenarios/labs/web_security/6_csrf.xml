@@ -50,6 +50,86 @@ Throughout the lab, you will engage in hands-on tasks that mirror real-world sce
         <keyword>dynamic detection</keyword>
     </CyBOK>
 
+    <video>
+        <title>Cross-site Request Forgery (CSRF)</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=qfppHiPn_is</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CROSS-SITE REQUEST FORGERY (CSRF)</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>cookies</keyword>
+            <keyword>CLIENT-SERVER MODELS</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>The Confused Deputy Problem</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=143hyDbnpdw</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CONFUSED DEPUTY ATTACKS</keyword>
+        </CyBOK>
+        <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+            <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Ambient Authority</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=MZF-XKRNfUk</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>SESSION HIJACKING</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CONFUSED DEPUTY ATTACKS</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cross-site Request Forgery (CSRF) Prevention and Defence</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=ega-1gwiW8U</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="SS" topic="Prevention of Vulnerabilities">
+            <keyword>coding practices</keyword>
+            <keyword>Protecting against session management attacks, XSS, SQLi, CSRF</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CROSS-SITE REQUEST FORGERY (CSRF)</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cross-site Request Forgery (CSRF) Examples</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=CqTvI3BeOGU</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CROSS-SITE REQUEST FORGERY (CSRF)</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Client-Side Vulnerabilities and Mitigations">
+            <keyword>CLIENT-SIDE VALIDATION</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cross-site Request Forgery (CSRF) Attack Demo</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=uQHAohHDPF8</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>CROSS-SITE REQUEST FORGERY (CSRF)</keyword>
+            <keyword>CROSS-SITE SCRIPTING (XSS)</keyword>
+        </CyBOK>
+    </video>
+
+    <video>
+        <title>Hints: CSRF challenges (optional)</title>
+        <by>Thalita Vergilio</by>
+        <url>https://www.youtube.com/watch?v=i6RUBt1vFYM</url>
+        <type>lecture-prerecorded</type>
+    </video>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10" type="desktop" name="KDE"/>

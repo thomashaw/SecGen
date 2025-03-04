@@ -42,6 +42,59 @@ Throughout this lab, you will engage in a series of tasks across various platfor
         <keyword>dynamic detection</keyword>
     </CyBOK>
 
+    <video>
+        <title>Injection Attacks and SQL Injection</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=q_krNN5YRSA</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>injection vulnerabilities</keyword>
+            <keyword>SQL-INJECTION</keyword>
+        </CyBOK>
+        <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+            <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Injection Attacks: SQL Injection (SQLi)</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=mzKUJl8R88c</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>SQL-INJECTION</keyword>
+            <keyword>BLIND ATTACKS</keyword>
+            <keyword>BACK-END</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>DATABASE</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Injection Attacks: Prevention</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=efeFBfGtbbI</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="SS" topic="Prevention of Vulnerabilities">
+            <keyword>coding practices</keyword>
+            <keyword>Protecting against session management attacks, XSS, SQLi, CSRF</keyword>
+        </CyBOK>
+        <CyBOK KA="SS" topic="Detection of Vulnerabilities">
+            <keyword>dynamic detection</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Hints: SQLi challenges Part 1 (optional)</title>
+        <by>Thalita Vergilio</by>
+        <url>https://www.youtube.com/watch?v=wL7xsXv3gvo</url>
+        <type>lecture-prerecorded</type>
+    </video>
+    <video>
+        <title>Hints: SQLi challenges Part 2 (optional)</title>
+        <by>Thalita Vergilio</by>
+        <url>https://www.youtube.com/watch?v=v8YuPrLXynQ</url>
+        <type>lecture-prerecorded</type>
+    </video>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10" type="desktop" name="KDE"/>

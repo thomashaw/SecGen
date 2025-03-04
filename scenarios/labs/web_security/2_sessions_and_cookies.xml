@@ -38,6 +38,43 @@ Throughout the lab, you will learn to self-host PHP pages, use OWASP Zap to anal
         <keyword>dynamic detection</keyword>
     </CyBOK>
 
+    <video>
+        <title>Cookies, Sessions, and Security Part 1: Cookies</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=tmVObMBDzFE</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>cookies</keyword>
+            <keyword>CLIENT-SERVER MODELS</keyword>
+        </CyBOK>
+        <CyBOK KA="WAM" topic="Client-Side Vulnerabilities and Mitigations">
+            <keyword>client-side storage</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cookies, Sessions, and Security Part 2: Sessions and Attacks on Session Management</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=HM5Ww74Fu4Q</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>cookies</keyword>
+            <keyword>CLIENT-SERVER MODELS</keyword>
+        </CyBOK>
+        <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+            <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Cookies, Sessions, and Security Part 3: Defences</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=nDOriryvaI0</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>cookies</keyword>
+            <keyword>CLIENT-SERVER MODELS</keyword>
+        </CyBOK>
+    </video>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10" type="desktop" name="KDE"/>

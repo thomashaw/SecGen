@@ -43,6 +43,26 @@ Throughout the lab, you will engage with various vulnerable environments, includ
         <keyword>dynamic detection</keyword>
     </CyBOK>
 
+    <video>
+        <title>Injection Attacks: OS Command Injection</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=tgIBOIY2L4c</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+            <keyword>injection vulnerabilities</keyword>
+            <keyword>server-side misconfiguration and vulnerable components</keyword>
+        </CyBOK>
+        <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+            <keyword>Web vulnerabilities / OWASP Top 10</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>Hints: Failure to Restrict URL Access Hints (optional)</title>
+        <by>Thalita Vergilio</by>
+        <url>https://www.youtube.com/watch?v=1D5dHtQ_7_Y</url>
+        <type>lecture-prerecorded</type>
+    </video>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10" type="desktop" name="KDE"/>

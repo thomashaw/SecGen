@@ -37,6 +37,27 @@ Throughout this lab, you will learn by doing, actively engaging in activities. A
         <keyword>dynamic detection</keyword>
     </CyBOK>
 
+    <video>
+        <title>Introduction to Web Security</title>
+        <by>Z. Cliffe Schreuders</by>
+        <url>https://www.youtube.com/watch?v=tmVObMBDzFE</url>
+        <type>lecture-prerecorded</type>
+        <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+            <keyword>JAVASCRIPT</keyword>
+            <keyword>HYPERTEXT MARKUP LANGUAGE (HTML)</keyword>
+            <keyword>CASCADING STYLE SHEETS (CSS)</keyword>
+            <keyword>HYPERTEXT TRANSFER PROTOCOL (HTTP)</keyword>
+            <keyword>HYPERTEXT TRANSFER PROTOCOL (HTTP) - PROXYING</keyword>
+            <keyword>CLIENT-SERVER MODELS</keyword>
+        </CyBOK>
+    </video>
+    <video>
+        <title>How to Use the Built-in PHP Web Server</title>
+        <by>Thalita Vergilio</by>
+        <url>https://www.youtube.com/watch?v=8GsFBGqnDXM</url>
+        <type>lecture-prerecorded</type>
+    </video>
+
     <system>
         <system_name>web_server</system_name>
         <base distro="Debian 10" type="desktop" name="KDE"/>
