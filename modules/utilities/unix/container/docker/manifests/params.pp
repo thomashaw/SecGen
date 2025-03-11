@@ -148,7 +148,7 @@ class docker::params {
       $service_config = undef
       $storage_setup_file = undef
 
-      $package_ce_source_location = "https://download.docker.com/linux/${os_lc}"
+      $package_ce_source_location = "http://172.33.0.44/download.docker.com/linux/${os_lc}"
       $package_ce_key_source = "https://download.docker.com/linux/${os_lc}/gpg"
       $package_ce_key_id = '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
       $package_ce_release = $::lsbdistcodename

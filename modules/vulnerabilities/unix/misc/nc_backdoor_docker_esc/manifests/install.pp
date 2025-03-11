@@ -22,7 +22,7 @@ class nc_backdoor_docker_esc::install {
 
   # create new docker image with nmap installed
   # docker commit docker$port updateddocker$port
-  exec { "docker run --name=docker$port  -p $port:$port debian:stretch bash -c \"export http_proxy=\$http_proxy; apt-get update; apt-get install -y --force-yes nmap\"; docker commit docker$port updateddocker$port":
+  exec { "docker run --name=docker$port  -p $port:$port debian:bookworm bash -c \"export http_proxy=\$http_proxy; apt-get update; apt-get install -y --force-yes ncat\"; docker commit docker$port updateddocker$port":
     cwd     => '/var/tmp',
     provider     => 'shell',
     path  => ['/bin', '/usr/bin', '/usr/sbin', '/sbin',],
