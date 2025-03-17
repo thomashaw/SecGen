@@ -34,6 +34,8 @@ ls -la /bin/ls
 -rwxr-xr-x 1 root root 138856 Feb 28  2019 /bin/ls
 `
 
+> On some Linux systems, you might see that /bin/ls is a symbolic link to /usr/bin/ls.
+
 These details show that the file in /bin/ls is not a symbolic link.
 
 Now try running the ldd command on ls:
@@ -45,19 +47,11 @@ ldd /bin/ls
 You should get a result that looks something like this:
 
 ```bash
-linux-vdso.so.1 (0x00007ffcfe2cf000)
-
-libselinux.so.1 > /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007f954890d000)
-
-libc.so.6 > /lib/x86_64-linux-gnu/libc.so.6 (0x00007f954856e000)
-
-libpcre.so.3 > /lib/x86_64-linux-gnu/libpcre.so.3 (0x00007f95482fb000)
-
-libdl.so.2 > /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f95480f7000)
-
-/lib64/ld-linux-x86-64.so.2 (0x00007f9548d56000)
-
-libpthread.so.0 > /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f9547eda000)
+        linux-vdso.so.1 (0x00007ffd17771000)
+        libselinux.so.1 => /lib/x86_64-linux-gnu/libselinux.so.1 (0x00007f1410d43000)
+        libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f1410b62000)
+        libpcre2-8.so.0 => /lib/x86_64-linux-gnu/libpcre2-8.so.0 (0x00007f1410ac8000)
+        /lib64/ld-linux-x86-64.so.2 (0x00007f1410dac000)
 ```
 
 If you are patient you could copy each required file into your chroot directory. Otherwise, as you can see, all the files can be found in /lib/ and /lib64/.
@@ -66,6 +60,7 @@ Try the following (copy all the /lib/ files into the cage):
 
 ```bash
 sudo rsync -av /lib* /opt/chrootdir/
+sudo rsync -av /usr/lib* /opt/chrootdir/usr/
 ```
 
 Finally, copy ls.
@@ -94,9 +89,8 @@ Create a more complete chroot environment, for running command line programs, in
 
 ```bash
 sudo rsync -av /bin/ /opt/chrootdir/bin/
-
+sudo rsync -av /usr/bin/ /opt/chrootdir/usr/bin/
 sudo rsync -av /etc/ /opt/chrootdir/etc/
-
 sudo rsync -av /usr/ /opt/chrootdir/usr/
 
 sudo mkdir /opt/chrootdir/home/
