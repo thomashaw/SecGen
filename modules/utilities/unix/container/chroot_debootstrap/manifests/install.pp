@@ -18,7 +18,7 @@ class chroot_debootstrap::install {
     timeout     => 1800, # 30 mins timeout
   } ->
 
-  exec { "sudo -E chroot $chroot_dir /usr/bin/apt-get install nmap -y":
+  exec { "sudo -E chroot $chroot_dir /usr/bin/apt-get install ncat -y":
     cwd     => '/var/tmp',
     provider     => 'shell',
     creates => "$chroot_dir/usr/bin/ncat",
