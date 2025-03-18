@@ -46,6 +46,13 @@ include 'docker'
 #   provider => shell,
 # }
 
+# remove proxy config (it's in the template, and this overrides)
+exec { 'remove_docker_proxy_conf':
+  command => 'sudo rm /etc/systemd/system/docker.service.d/*proxy.conf',
+  path    => ['/bin', '/usr/bin', '/sbin', '/usr/sbin'],
+  onlyif  => 'test -d /etc/systemd/system/docker.service.d && ls /etc/systemd/system/docker.service.d/*proxy.conf',
+}
+
 # download (pull) a set of images
 $images.each |$image| {
   docker::image { "$image": }
