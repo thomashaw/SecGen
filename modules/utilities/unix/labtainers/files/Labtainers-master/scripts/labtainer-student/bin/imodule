@@ -1,0 +1,132 @@
+#!/opt/labtainer/venv/bin/python3
+import os
+import argparse
+import subprocess
+import shutil
+import LabtainerLogging
+home = os.getenv('HOME')
+imodule_path = os.path.join(home, '.local/share/labtainers/imodules.txt')
+
+def fixLabtainerDir():
+    ldir = os.getenv('LABTAINER_DIR')
+    if ldir is None:
+        print('LABTAINER_DIR not defined, exiting')
+        exit(1)
+    elif ldir == '/trunk':
+        ''' special case screw-up of the env variable.  fix it locally. Assume we are in labtainer-student '''
+        ldir = os.path.abspath('../..')
+        os.putenv("LABTAINER_DIR", ldir)
+        os.environ['LABTAINER_DIR'] = ldir
+
+def update(logger, imodule_url):
+    tfile = '/tmp/imodule.tar'
+    try:
+        os.rm(tfile)
+    except:
+        pass
+    if imodule_url.startswith('file://'):
+        shutil.copyfile(imodule_url[6:].strip(), '/tmp/imodule.tar')
+        logger.debug('copied local file from %s' % imodule_url[6:])
+    else:
+        cmd = 'wget -L -O /tmp/imodule.tar %s' % imodule_url.strip()
+        logger.debug('cmd is %s' % cmd)
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) > 0:
+            for line in output[1].decode('utf-8').splitlines(True):
+                logger.debug(line)
+        if len(output[0].strip()) > 0:
+            for line in output[0].decode('utf-8').splitlines(True):
+                logger.debug(line)
+    if os.path.isfile(tfile):
+        logger.debug('Got tar, expand from %s' % imodule_url)
+        cmd = 'tar -xf %s' % tfile
+        print('Updating IModule from %s' % imodule_url.strip())
+        #print('expand into %s with command:' % os.getcwd())
+        #print(cmd)
+        ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        output = ps.communicate()
+        if len(output[1].strip()) > 0:
+            print('Error installing IModule from %s, see $LABTAINER_DIR/logs/imodule.log' % imodule_url)
+            for line in output[1].decode('utf-8').splitlines(True):
+                logger.debug(line)
+        if len(output[0].strip()) > 0:
+            for line in output[0].decode('utf-8').splitlines(True):
+                logger.debug(line)
+    else:
+        print('Unable to retreive IModule from %s' % imodule_url)
+
+def doChdir():
+    retval = True
+    fixLabtainerDir()
+    here = os.getcwd()
+    labdir = os.path.join(os.getenv('LABTAINER_DIR'), 'labs')
+    try:
+        os.chdir(labdir)
+    except:
+        print('could not cd to %s' % labdir)
+        retval = False
+    return retval
+
+def doUpdates(logger):
+    logger.debug('doUpdates')
+    if not doChdir():
+        print('IModule update failed')
+    else:
+        if not os.path.isfile(imodule_path):
+            logger.debug('No imodules at %s to update.' % imodule_path)
+            print('No imodules defined.')
+            return 
+        with open(imodule_path) as fh:
+            for imodule_url in fh:
+                update(logger, imodule_url)
+
+if __name__ == '__main__':
+        
+    fixLabtainerDir()
+    config_file = os.path.join(os.getenv('LABTAINER_DIR'), 'config', 'labtainer.config') 
+    logger = LabtainerLogging.LabtainerLogging("/tmp/imodule.log", '', config_file)
+    parser = argparse.ArgumentParser(prog='imodule', description='Add an imodule URL to extend the set of labs available to this Labtainers installation.')
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument('path', default='NONE', nargs='?', action='store', help='The url of the imodule to add to the local installation.')
+    group.add_argument('-l', '--list', action='store_true', default=False, help='List IModules already added to this installation.')
+    group.add_argument('-u', '--updates', action='store_true', default=False, help='Update IModules for this installation.')
+    group.add_argument('-d', '--delete', action='store_true', default=False, help='Delete all IModule URLs (will not affect existing labs).')
+    args = parser.parse_args()
+    if args.list:
+        if os.path.isfile(imodule_path):
+            with open(imodule_path) as fh:
+                did_one = False
+                for line in fh:
+                    print(line)
+                    did_one = True
+                if not did_one:
+                    print('No IModules have been added to this installation')
+        else:
+            print('No IModules have been added to this installation')
+    elif args.updates:
+        doUpdates(logger)
+    elif args.delete:
+        if os.path.isfile(imodule_path):
+            with open(imodule_path, 'w') as fh:
+                pass
+            print('Deleted all IModule URLs.')
+        else:
+            print('No IModules to delete.')
+    elif args.path is not None and args.path != 'NONE':
+        try:
+            os.makedirs(os.dirname(imodule_path))
+        except:
+            pass
+        with open(imodule_path, 'a') as fh:
+            logger.debug('Adding imodule path %s' % args.path)
+            print('Adding imodule path %s' % args.path)
+            fh.write(args.path+'\n')
+        if doChdir():
+            update(logger, args.path)
+        else:
+            print('IModule failed')
+    else:    
+        parser.print_help()
+        

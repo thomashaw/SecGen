@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # Grader.py
@@ -28,9 +48,11 @@ import string
 import evalBoolean
 import evalExpress
 import InstructorLogging
+import hashlib 
 
 
 default_timestamp = 'default-NONE'
+global seed
 def compare_time_during(goal1timestamp, goal2timestamp):
     goal1start, goal1end = goal1timestamp.split('-')
     goal2start, goal2end = goal2timestamp.split('-')
@@ -59,7 +81,7 @@ def compare_time_before(goal1timestamp, goal2timestamp):
     goal1start, goal1end = goal1timestamp.split('-')
     goal2start, goal2end = goal2timestamp.split('-')
     if goal1start == 'default' or goal2start == 'default':
-        print "Can't compare 'default' timestamp!"
+        print("Can't compare 'default' timestamp!")
         exit(1)
     if goal1start <= goal2start:
         #print "goal1start (%s) <= goal2start (%s)" % (goal1start, goal2start)
@@ -69,11 +91,11 @@ def compare_time_before(goal1timestamp, goal2timestamp):
 
 def evalTimeBefore(goals_tag1, goals_tag2):
     evalTimeBeforeResult = False
-    for goal1timestamp, goal1value in goals_tag1.iteritems():
+    for goal1timestamp, goal1value in goals_tag1.items():
         #print "Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value)
         # For each Goal1 value that is True
         if goal1value:
-            for goal2timestamp, goal2value in goals_tag2.iteritems():
+            for goal2timestamp, goal2value in goals_tag2.items():
                 #print "Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value)
                 # If there is Goal2 value that is True
                 if goal2value:
@@ -98,10 +120,10 @@ def evalTimeDuring(goals_tag1, goals_tag2, logger):
     retval = {}
     ''' make sure dictionary contains entry for each goals_tag2 time range within which
         there exists at least one goals_tag1 time -- independent of the boolean values. '''
-    for goal2timestamp, goal2value in goals_tag2.iteritems():
+    for goal2timestamp, goal2value in goals_tag2.items():
         #logger.debug("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
         value_for_ts2 = None
-        for goal1timestamp, goal1value in goals_tag1.iteritems():
+        for goal1timestamp, goal1value in goals_tag1.items():
             #logger.debug("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
             eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
             if eval_time_during_result:
@@ -125,12 +147,12 @@ def evalTimeNotDuring(goals_tag1, goals_tag2, logger):
     retval = {}
     ''' make sure dictionary contains entry for each goals_tag2 time range within which
         there exists at least one goals_tag1 time -- independent of the boolean values. '''
-    for goal2timestamp, goal2value in goals_tag2.iteritems():
+    for goal2timestamp, goal2value in goals_tag2.items():
         #logger.debug("Goal2 timestamp is (%s) and value is (%s)" % (goal2timestamp, goal2value))
         found_one = False
         ''' only can be true if goalvalue2 is true '''
         if goals_tag1 is not None and goal2value:
-            for goal1timestamp, goal1value in goals_tag1.iteritems():
+            for goal1timestamp, goal1value in goals_tag1.items():
                 #logger.debug("Goal1 timestamp is (%s) and value is (%s)" % (goal1timestamp, goal1value))
                 if goal1value:
                     eval_time_during_result = compare_time_during(goal1timestamp, goal2timestamp)
@@ -225,6 +247,7 @@ def getJsonOutTS(outputjsonfile):
             if new is not None:
                 if type(new) is str:
                     new_filtered = filter(lambda x: x in string.printable, new)
+                    new_filtered = "".join(new_filtered)
                 else:
                     new_filtered = new
             else:
@@ -248,6 +271,7 @@ def getJsonOut(outputjsonfile):
         if new is not None:
             if type(new) is str:
                 new_filtered = filter(lambda x: x in string.printable, new)
+                new_filtered = "".join(new_filtered)
             else:
                 new_filtered = new
         else:
@@ -284,6 +308,13 @@ def compare_result_answer(current_result, current_answer, operator):
     if operator == "string_equal":
         if current_result == current_answer:
             found = True
+    elif operator == "hash_equal":
+        mymd5 = hashlib.new('md5')
+        mymd5.update(current_result.encode('utf-8'))
+        mymd5_hex_string = mymd5.hexdigest()
+        if mymd5_hex_string == current_answer:
+            found = True
+    
     elif operator == "string_diff":
         if current_result != current_answer:
             found = True
@@ -449,21 +480,30 @@ def handle_expression(resulttag, json_output, logger):
     if resulttag.startswith('(') and resulttag.endswith(')'):
         express = resulttag[resulttag.find("(")+1:resulttag.find(")")]
         for tag in json_output:
-            logger.debug('is tag %s in express %s' % (tag, express))
+            logger.debug('is tag %s in express %s ?' % (tag, express))
+            express_replaced = None
             if tag in express:
                 if json_output[tag] != None:
-                    express = express.replace(tag, json_output[tag])
+                    express_replaced = express.replace(tag, json_output[tag])
+                    #print('replaced become %s' % express_replaced)
+                    break
                 else:
+                    #print('json[%s] is none' % tag)
                     return None
-        try:
-            logger.debug('try eval of <%s>' % express)
-            result = evalExpress.eval_expr(express)
-        except:
-            logger.error('could not evaluation %s, which became %s' % (resulttag, express))
-            sys.exit(1)
+        if express_replaced is None:
+            logger.debug('expression did not change, must be no results')
+        else:
+            try:
+                logger.debug('try eval of <%s>' % express_replaced)
+                result = evalExpress.eval_expr(express_replaced)
+                #print('result is %d' % result)
+            except:
+                logger.error('could not evaluate %s, which became %s' % (resulttag, express_replaced))
+                sys.exit(1)
     else:
         logger.error('handleExpress called with %s, expected expression in parens' % resulttag)
     return result
+
 
         
 def processMatchAny(result_sets, eachgoal, goal_times, logger):
@@ -506,7 +546,7 @@ def processMatchAny(result_sets, eachgoal, goal_times, logger):
             try:
                 resulttagresult = results[resulttag]
             except KeyError:
-                logger.debug('%s not found in file %s' % (resulttag, ts))
+                #logger.debug('%s not found in file %s' % (resulttag, ts))
                 continue
         if resulttagresult == None:
             continue 
@@ -558,6 +598,61 @@ def processValue(result_sets, eachgoal, grades, logger):
             value = resulttagresult
     #print 'count is %d' % count
     grades[goalid] = value
+
+def processValueSum(result_sets, eachgoal, grades, logger):
+    ''' assign the sum of all result values '''
+    retval = 0
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    resulttag = eachgoal['resulttag']
+    if resulttag.startswith('result.'):
+       resulttag = resulttag[len('result.'):]
+
+    value = None
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
+
+        if results == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = results[resulttag]
+        except KeyError:
+            continue
+        if resulttagresult != None:
+            retval = retval+resulttagresult
+    grades[goalid] = retval
+
+def processValueMax(result_sets, eachgoal, grades, logger):
+    ''' assign the max of all result values '''
+    retval = 0
+    goalid = eachgoal['goalid']
+    #print goalid
+    jsonanswertag = eachgoal['answertag']
+    #print jsonanswertag
+    resulttag = eachgoal['resulttag']
+    if resulttag.startswith('result.'):
+       resulttag = resulttag[len('result.'):]
+
+    value = None
+    for ts in result_sets.getStamps():
+        results = result_sets.getSet(ts)
+
+        if results == {}:
+            # empty - skip
+            continue
+
+        try:
+            resulttagresult = results[resulttag]
+        except KeyError:
+            continue
+        if resulttagresult != None:
+            if resulttagresult > retval:
+                retval = resulttagresult
+    grades[goalid] = retval
  
 def processCount(result_sets, eachgoal, grades, logger):
     #print "Inside processCount"
@@ -587,7 +682,7 @@ def processCount(result_sets, eachgoal, grades, logger):
                 jsonanswertag = eachgoal['answertag']
                 #print jsonanswertag
                 jsonresulttag = eachgoal['resulttag']
-                print 'tag is %s' %  jsonresulttag
+                #print('tag is %s' %  jsonresulttag)
                 #(resulttagtarget, resulttag) = jsonresulttag.split('.')
                 #print jsonresulttag
                 # Handle special case 'answer=<string>'
@@ -615,7 +710,8 @@ def processCount(result_sets, eachgoal, grades, logger):
                 if found:
                     count += 1
             else:
-                count += 1
+                if resulttagresult:
+                    count += 1
     #print 'count is %d' % count
     grades[goalid] = count
 
@@ -723,7 +819,7 @@ def countTrue(the_goals, current_goals):
                 the_goals.remove(item)
     return count
     
-def processCountGreater(eachgoal, goal_times):
+def processCountGreater(eachgoal, goal_times, studentlabdir):
     goalid = eachgoal['goalid']
     try:
         value = int(eachgoal['answertag'])
@@ -740,7 +836,7 @@ def processCountGreater(eachgoal, goal_times):
     the_goals = the_list.strip().split(',')
     the_goals = [x.strip() for x in the_goals]
     goals_ts_id = goal_times.getGoalTimeStampId()
-    for timestamppart, current_goals in goals_ts_id.iteritems():
+    for timestamppart, current_goals in goals_ts_id.items():
         true_count += countTrue(the_goals, current_goals)
         #print('true_count now %d' % true_count)
     is_greater = False
@@ -749,6 +845,10 @@ def processCountGreater(eachgoal, goal_times):
     #print('true_count is %d' % true_count)
     #print('countGreater result is %r' % is_greater)
     goal_times.addGoal(goalid, default_timestamp, is_greater)
+    fname = 'count_greater_%s.json' % goalid
+    path = os.path.join(studentlabdir, '.local', 'result', fname)
+    with open(path, 'w') as fh:
+        fh.write(json.dumps(the_goals))
     
 
 def processTemporal(eachgoal, goal_times, logger):
@@ -792,20 +892,26 @@ def processTemporal(eachgoal, goal_times, logger):
             goal_times.addGoal(goalid, ts, eval_time_result[ts])
 
 
-def processBoolean(eachgoal, goal_times, logger):
+def processBoolean(eachgoal, goal_times, studentlabdir, logger):
     glist = goal_times.getGoalList()
     t_string = eachgoal['boolean_string']
     evalBooleanResult = None
     goalid = eachgoal['goalid']
     # Process all goals_ts_id dictionary
     goals_ts_id = goal_times.getGoalTimeStampId()
-    for timestamppart, current_goals in goals_ts_id.iteritems():
+    bool_json = {}
+    for timestamppart, current_goals in goals_ts_id.items():
         if timestamppart != default_timestamp or len(goals_ts_id)==1:
-            logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
+            #logger.debug('eval %s against %s tspart %s' % (t_string, str(current_goals), timestamppart))
+            bool_json[timestamppart] = current_goals
             evalBooleanResult = evalBoolean.evaluate_boolean_expression(t_string, current_goals, logger, glist)
             if evalBooleanResult is not None:
-                logger.debug('bool evaluated to %r' % evalBooleanResult)
+                #logger.debug('bool evaluated to %r' % evalBooleanResult)
                 goal_times.addGoal(goalid, timestamppart, evalBooleanResult)
+    bool_fname = 'bool_%s.json' % goalid
+    bool_path = os.path.join(studentlabdir, '.local', 'result', bool_fname)
+    with open(bool_path, 'w') as fh:
+        fh.write(json.dumps(bool_json))
     # if evalBooleanResult is None - means not found
     if evalBooleanResult is None:
         #logger.debug('processBoolean evalBooleanResult is None, goalid %s goal_id_ts %s' % (goalid, goals_ts_id))
@@ -813,21 +919,21 @@ def processBoolean(eachgoal, goal_times, logger):
         goal_times.addGoal(goalid, default_timestamp, False)
 
 class ResultSets():
+    ''' Manage result sets, including timestamps for all results. '''
     def addSet(self, result_set, ts, goal_times):
-        #print('addSet')
         if 'PROGRAM_ENDTIME' in result_set:
             fulltimestamp = '%s-%s' % (ts, result_set['PROGRAM_ENDTIME'])
         else:
             fulltimestamp = '%s-0' % (ts)
-            
+            #fulltimestamp = '%s-%s' % (ts, ts)
+        #print('addSet full %s' % fulltimestamp)    
         if ts in self.result_sets:
-            print('ts')
             ''' add boolean results to goals '''
             for key in result_set:
-                print('look at %s, val %s' % (key, result_set[key]))
+                #print('look at %s, val %s' % (key, result_set[key]))
                 self.result_sets[ts][key] = result_set[key]
                 if isinstance(result_set[key], bool):
-                    print 'is bool ts is %s' % ts
+                    #print('is bool ts is %s' % ts)
                     goal_times.addGoal(key, fulltimestamp, result_set[key])
                     
         else:
@@ -873,7 +979,7 @@ def finalGoalValue(goalid, grades, goal_times):
     #print "goalid is (%s)" % goalid
     current_goals_result = False
     goals_id_ts = goal_times.getGoalIdTimeStamp()
-    for current_goals, timestamp in goals_id_ts.iteritems():
+    for current_goals, timestamp in goals_id_ts.items():
         #print "current_goals is "
         #print current_goals
         if current_goals == goalid:
@@ -881,7 +987,7 @@ def finalGoalValue(goalid, grades, goal_times):
             # Use goals_ts_id for processing 
             # - if found on any timestamp then True
             # - if not found on any timestamp then False
-            for key, value in timestamp.iteritems():
+            for key, value in timestamp.items():
                 #print "Key is (%s) - value is (%s)" % (key, value)
                 if value:
                     current_value = True
@@ -930,17 +1036,21 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
         elif eachgoal['goaltype'] == "execute":
             processExecute(result_sets, eachgoal, goal_times)
         elif eachgoal['goaltype'] == "boolean":
-            processBoolean(eachgoal, goal_times, logger)
+            processBoolean(eachgoal, goal_times, studentlabdir, logger)
         elif eachgoal['goaltype'] == "time_before" or \
              eachgoal['goaltype'] == "time_during" or \
              eachgoal['goaltype'] == "time_not_during":
             processTemporal(eachgoal, goal_times, logger)
         elif eachgoal['goaltype'] == "count_greater":
-            processCountGreater(eachgoal, goal_times)
+            processCountGreater(eachgoal, goal_times, studentlabdir)
         elif eachgoal['goaltype'] == "count":
             processCount(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'] == "value":
             processValue(result_sets, eachgoal, grades, logger)
+        elif eachgoal['goaltype'] == "value_sum":
+            processValueSum(result_sets, eachgoal, grades, logger)
+        elif eachgoal['goaltype'] == "value_max":
+            processValueMax(result_sets, eachgoal, grades, logger)
         elif eachgoal['goaltype'].startswith('is_'):
             processTrueFalse(result_sets, eachgoal, goal_times)
         else:
@@ -950,7 +1060,7 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 
     #print "Goals - id timestamp : "
     #print goals_id_ts
-    #for current_goals, timestamp in goals_id_ts.iteritems():
+    #for current_goals, timestamp in goals_id_ts.items():
     #     print "-----"
     #     print current_goals
     #     print timestamp
@@ -968,6 +1078,24 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 
     return 0
 
+def getMasterSeed(logger):
+    global seed
+    ''' hack until start.config really parsed '''
+    if seed is None:
+        start_config_file = '.local/config/start.config'
+        if not os.path.isfile(start_config_file):
+            logger.error('Could not find %s' % start_config_file)
+            exit(1)
+        with open(start_config_file) as fh:
+            for line in fh:
+                if line.strip().startswith('#'):
+                    continue
+                if 'LAB_MASTER_SEED' in line:
+                    parts = line.strip.split()
+                    seed = parts[1]
+                    break
+    return seed
+        
 # Usage: ProcessStudentLab <studentlabdir> <labidname>
 #   return a dictionary of grades for this student.
 # Arguments:
@@ -976,6 +1104,8 @@ def processLabExercise(studentlabdir, labidname, grades, goals, bool_results, go
 #     <labidname> - labidname should represent filename of output json file
 def ProcessStudentLab(studentlabdir, labidname, logger):
     # Goals
+    global seed
+    seed = None
     goal_times = GoalTimes()
     grades = OrderedDict()
     resultsdir = os.path.join(studentlabdir, '.local','result')
@@ -984,14 +1114,15 @@ def ProcessStudentLab(studentlabdir, labidname, logger):
     except:
         pass
     goalsjsonfname = os.path.join(resultsdir,'goals.json')
-    with open(goalsjsonfname) as fh:
-        goals = json.load(fh)
+    if os.path.isfile(goalsjsonfname):
+        with open(goalsjsonfname) as fh:
+            goals = json.load(fh)
 
-    boolresultsfname = os.path.join(resultsdir,'bool_results.json')
-    with open(boolresultsfname) as fh:
-        bool_results = json.load(fh)
+        boolresultsfname = os.path.join(resultsdir,'bool_results.json')
+        with open(boolresultsfname) as fh:
+            bool_results = json.load(fh)
 
-    processLabExercise(studentlabdir, labidname, grades, goals, bool_results, goal_times, logger)
+        processLabExercise(studentlabdir, labidname, grades, goals, bool_results, goal_times, logger)
     
     return grades
 

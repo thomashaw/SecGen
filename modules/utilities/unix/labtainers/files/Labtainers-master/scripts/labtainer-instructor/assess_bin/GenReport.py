@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # GenReport.py
@@ -16,6 +36,7 @@ import json
 import os
 import sys
 import docgoals
+import docwork
 import collections
 try:
    from collections import OrderedDict
@@ -49,7 +70,7 @@ def ValidateLabGrades(labgrades):
     storedlabname = ""
     storedgoalsline = ""
     storedbarline = ""
-    for emaillabname, keyvalue in sorted(labgrades.iteritems()):
+    for emaillabname, keyvalue in sorted(labgrades.items()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         if storedlabname == "":
@@ -57,8 +78,8 @@ def ValidateLabGrades(labgrades):
         else:
             # Check to make sure labname is the same throughout
             if storedlabname != labname:
-                sys.stderr.write("ERROR: inconsistent labname (%s) vs (%s)\n" % (storedlabname, labname))
-                sys.exit(1)
+                sys.stdout.write("WARNING: inconsistent labname (%s) vs (%s)\n" % (storedlabname, labname))
+                #sys.exit(1)
 
         currentgoalsline = ''
         currentbarline = ''
@@ -68,13 +89,13 @@ def ValidateLabGrades(labgrades):
             continue
 
         #print "keyvalue is (%s)" % keyvalue
-        for key, value in keyvalue.iteritems():
+        for key, value in keyvalue.items():
             #print "key is (%s)" % key
             if key == 'grades':
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
-                for goalid, goalresult in value.iteritems():
-                    if goalid.startswith('_'):
+                for goalid, goalresult in value.items():
+                    if goalid.startswith('_') or goalid.startswith('cw_'):
                         continue
                     #print "goalid is (%s)" % goalid
                     #print "goalresult is (%s)" % goalresult
@@ -117,7 +138,7 @@ def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_chea
     #print keyvalue['actualwatermark']
     elif keyvalue['expectedwatermark'] != keyvalue['actualwatermark']: 
         found_source_email = "Unknown"
-        for source_email, source_watermark in watermark_source.iteritems():
+        for source_email, source_watermark in watermark_source.items():
             #print source_email
             #print source_watermark
             if keyvalue['actualwatermark'] == source_watermark:
@@ -129,48 +150,73 @@ def ReportCheater(gradestxtoutput, watermark_source, email, keyvalue, found_chea
     else:
         gradestxtoutput.write("\n")
 
-def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark):
+def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark, checkwork):
 
     gradestxtoutput = open(gradestxtfile, "w")
     headerline = emailprintformat % 'Student' + goalsline
     barline = emailprintformat % twentyequal + barline
     gradestxtoutput.write("Labname %s" % labname)
     gradestxtoutput.write("\n\n" + headerline + "\n" + barline + "\n")
-
-    for emaillabname, keyvalue in sorted(labgrades.iteritems()):
+    checkwork_failures = []
+    if checkwork:
+        checkwork_feedback = docwork.getCheckworkFeedback('.local/instr_config')
+    for emaillabname, keyvalue in sorted(labgrades.items()):
         email, labname = emaillabname.rsplit('.', 1)
         #print "emaillabname is (%s) email is (%s) labname is (%s)" % (emaillabname, email, labname)
         # Get the first 20 characters of the student's e-mail only
         curline = emailprintformat % email[:20]
 
         #print "keyvalue is (%s)" % keyvalue
-        for key, value in keyvalue.iteritems():
+        for key, value in keyvalue.items():
             #print "key is (%s)" % key
             if key == 'grades':
                 # Do 'grades' portion - skip 'parameter' portion for now
                 #print "value is (%s)" % value
-                for goalid, goalresult in value.iteritems():
+                for goalid, goalresult in value.items():
                     if goalid.startswith('_'):
                         continue
-                    #print "goalid is (%s)" % goalid
-                    #print "goalresult is (%s)" % goalresult
-                    if type(goalresult) is bool:
-                        if goalresult:
-                            curline = curline + goalprintformat % 'Y'
+                    if goalid.startswith('cw_'): 
+                        if checkwork:
+                            if goalid not in checkwork_feedback:
+                                print('%s has no feedback defined.' % goalid)
+                                continue
+                            expect = checkwork_feedback[goalid].expected
+                            if type(goalresult) is bool:
+                               if goalresult != expect:
+                                   checkwork_failures.append(goalid)
+      
+                    else:
+                        #print "goalid is (%s)" % goalid
+                        #print "goalresult is (%s)" % goalresult
+                        if type(goalresult) is bool:
+                            if goalresult:
+                                curline = curline + goalprintformat % 'Y'
+                            else:
+                                curline = curline + goalprintformat % ''
+                        elif type(goalresult) is int:
+                            curline = curline + goalprintformat_int % goalresult 
                         else:
                             curline = curline + goalprintformat % ''
-                    elif type(goalresult) is int:
-                        curline = curline + goalprintformat_int % goalresult 
-                    else:
-                        curline = curline + goalprintformat % ''
         gradestxtoutput.write(curline + "\n")
     summary = docgoals.getGoalInfo('.local/instr_config')
     gradestxtoutput.write(summary)
+    if checkwork:
+        checkwork_feedback = docwork.getCheckworkFeedback('.local/instr_config')
+        if len(checkwork_feedback) > 0:
+            if len(checkwork_failures) > 0:
+                gradestxtoutput.write('\n\nSystem currently fails to meet one or more lab requirements\n')
+                gradestxtoutput.write('per the notices below.  Refer to your lab manual for further guidence.\n')
+                for gid in checkwork_feedback:
+                    if gid in checkwork_failures:
+                        gradestxtoutput.write('\n==> '+checkwork_feedback[gid].message + "\n")
+            elif 'CHECK_OK' in checkwork_feedback:
+                gradestxtoutput.write('\n\n%s\n' % checkwork_feedback['CHECK_OK'].message)
+        
 
     if check_watermark:
         # Create 'Source' watermark
         watermark_source = {}
-        for emaillabname, keyvalue in labgrades.iteritems():
+        for emaillabname, keyvalue in labgrades.items():
             email, labname = emaillabname.rsplit('.', 1)
             # Do not use 'cheater' as source
             if keyvalue['firstlevelzip'] == {} and keyvalue['secondlevelzip'] == {}:
@@ -183,7 +229,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
 
         # Report 'cheaters'
         found_cheater = False
-        for emaillabname, keyvalue in labgrades.iteritems():
+        for emaillabname, keyvalue in labgrades.items():
             email, labname = emaillabname.rsplit('.', 1)
 
             # Report the one with failed_checks on Check_Email_Watermark_OK()
@@ -200,7 +246,7 @@ def PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, che
 #     <gradesjsonfile> - This is the input file <labname>.grades.json
 #     <gradestxtfile> - This is the output file <labname>.grades.txt
 #     <check_watermark> - Whether to do watermark checks or not
-def CreateReport(gradesjsonfile, gradestxtfile, check_watermark):
+def CreateReport(gradesjsonfile, gradestxtfile, check_watermark, checkwork):
     if not os.path.exists(gradesjsonfile):
         sys.stderr.write("ERROR: missing grades.json file (%s)\n" % gradesjsonfile)
         sys.exit(1)
@@ -213,7 +259,7 @@ def CreateReport(gradesjsonfile, gradestxtfile, check_watermark):
 
     labname, goalsline, barline = ValidateLabGrades(labgrades)
 
-    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark)
+    PrintHeaderGrades(gradestxtfile, labgrades, labname, goalsline, barline, check_watermark, checkwork)
 
 # Usage: UniqueReport <uniquejsonfile> <gradestxtfile>
 # Arguments:
@@ -232,9 +278,9 @@ def UniqueReport(uniquejsonfile, gradestxtfile):
 
     gradestxtoutput = open(gradestxtfile, "a")
     unique_header_printed = False
-    for emaillabname, keyvalue in labunique.iteritems():
+    for emaillabname, keyvalue in labunique.items():
         #print "emaillabname is (%s)" % emaillabname
-        for filename, checksum in keyvalue['unique'].iteritems():
+        for filename, checksum in keyvalue['unique'].items():
             #print "filename is (%s)" % filename
             #print "checksum is (%s)" % checksum
             filename_not_printed = True
@@ -242,11 +288,11 @@ def UniqueReport(uniquejsonfile, gradestxtfile):
             # Skip no checksum
             if checksum == "NONE":
                 continue
-            for emaillabname2, keyvalue2 in labunique.iteritems():
+            for emaillabname2, keyvalue2 in labunique.items():
                 #print "emaillabname2 is (%s)" % emaillabname2
                 if emaillabname == emaillabname2:
                     continue
-                for filename2, checksum2 in keyvalue2['unique'].iteritems():
+                for filename2, checksum2 in keyvalue2['unique'].items():
                     if filename == filename2 and checksum == checksum2:
                         email, labname = emaillabname.rsplit('.', 1)
                         email2, labname2 = emaillabname2.rsplit('.', 1)

@@ -28,6 +28,10 @@
   <default_input into="flags">
   </default_input>
 
+  <default_input into="strings_to_leak">
+    <generator type="flag_generator" />
+  </default_input>
+
   <!-- <default_input into="include">
     <utility module_path=".*docker">
       <input into="images">

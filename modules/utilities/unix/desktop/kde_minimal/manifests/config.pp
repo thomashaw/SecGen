@@ -54,7 +54,7 @@ class kde_minimal::config {
       $account = parsejson($raw_account)
       $username = $account['username']
 
-      file { ["/home/$username/", "/home/$username/.config/"]:
+      file { ["/home/$username/", "/home/$username/.config/", "/home/$username/.config/autostart/"]:
         ensure => directory,
         owner  => $username,
         group  => $username,

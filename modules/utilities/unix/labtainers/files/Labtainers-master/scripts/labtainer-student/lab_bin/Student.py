@@ -1,12 +1,32 @@
 #!/usr/bin/env python
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # Student.py
@@ -21,6 +41,7 @@ import zipfile
 import datetime
 import time
 import logging
+import argparse
 
 
 def killMonitoredProcess(homeLocal, keep_running, logger):
@@ -40,7 +61,7 @@ def killMonitoredProcess(homeLocal, keep_running, logger):
                 logger.debug('cmd is %s' % cmd)
                 os.system(cmd)
             else:
-                print line
+                print(line)
   
         else:
             done = True
@@ -54,11 +75,56 @@ def killMonitoredProcess(homeLocal, keep_running, logger):
                 os.system(cmd)
             fh.close()
 
+def otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, skip_starts):
+    ulist = directories=[d for d in os.listdir('/home') if os.path.isdir(d)]
+    here = os.getcwd()
+    udir = '/home'
+    os.chdir('/home')
+    for rootdir, subdirs, files in os.walk(udir):
+            if rootdir == studentHomeDir:
+                continue
+            newdir = rootdir.replace(udir, '.')
+            # TBD FIX this
+            if './.wine' in newdir or './.cache' in newdir:
+                continue
+            for fname in files:
+                savefname = os.path.join(newdir, fname)
+                #print "savefname is %s" % savefname
+                try:
+                    local_time = datetime.datetime.fromtimestamp(os.path.getmtime(savefname))
+                except OSError:
+                    ''' ephemeral '''
+                    continue 
+                ckname = savefname[2:]
+                if local_time < start_time and not ckname.startswith('.local/.'): 
+                    continue
+                local_time = local_time.replace(minute=0)
+                if ckname not in skip_list:
+                    skip_this = False
+                    for ss in skip_starts:
+                        if ckname.startswith(ss):
+                            skip_this = True
+                            break
+                    if skip_this:
+                        continue
+                    if ckname not in dt_skip_list or dt_skip_list[ckname] < local_time: 
+                        arcname = os.path.join('other_users', savefname)
+                        try:
+                            zipoutput.write(savefname, arcname=arcname, compress_type=zipfile.ZIP_DEFLATED)
+                        except:
+                            # do not die if ephemeral files go away
+                            pass
+    os.chdir(here)
 def main():
     #print "Running Student.py"
-    if len(sys.argv) != 4:
-        sys.stderr.write("Usage: Student.py <username> <image_name>\n")
-        return 1
+    parser = argparse.ArgumentParser(prog='Student.py', description='Gather lab artifacts into a zip.')
+    parser.add_argument('user_name', action='store', help='User name')
+    parser.add_argument('container_image', action='store', help='Container image')
+    parser.add_argument('keep_running', type=bool, action='store', help='Whether the container should keep running.')
+    args = parser.parse_args()
+    user_name = args.user_name
+    container_image = args.container_image.split('.')[1]
+    keep_running = args.keep_running
 
     file_log_level = logging.DEBUG
     console_log_level = logging.WARNING
@@ -80,9 +146,6 @@ def main():
     logger.debug('begin')
 
 
-    user_name = sys.argv[1]
-    container_image = sys.argv[2].split('.')[1]
-    keep_running = sys.argv[3]
     studentHomeDir = os.path.join('/home',user_name)
     homeLocal= os.path.join(studentHomeDir, '.local')
     killMonitoredProcess(homeLocal, keep_running, logger)
@@ -182,7 +245,7 @@ def main():
                 ''' ephemeral '''
                 continue 
             ckname = savefname[2:]
-            if local_time < start_time and not ckname.startswith('.local/.'): 
+            if local_time < start_time and not ckname.startswith('.local/.') and not ckname.startswith('.local/bin'): 
                 continue
             local_time = local_time.replace(minute=0)
             if ckname not in skip_list:
@@ -199,9 +262,10 @@ def main():
                     except:
                         # do not die if ephemeral files go away
                         pass
+    otherUsers(start_time, zipoutput, studentHomeDir, skip_list, dt_skip_list, skip_starts)
     zipoutput.close()
    
-    os.chmod(TempOutputName, 0666)
+    os.chmod(TempOutputName, 0o666)
 
     # Rename from temp zip file to its proper location
     os.rename(TempOutputName, OutputName)

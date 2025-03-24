@@ -22,8 +22,8 @@
 
 \section{Lab Overview}
 
-The learning objective of this lab is for students to gain the first-hand
-experience on buffer-overflow vulnerability by putting what they have learned
+The learning objective of this lab is for students to gain first-hand
+experience with a buffer-overflow vulnerability by putting what they have learned
 about the vulnerability from class into action. 
 Buffer overflow is defined as the condition in which a program attempts to
 write data beyond the boundaries of pre-allocated fixed length buffers. This
@@ -33,6 +33,10 @@ due to the mixing of the storage for data (e.g. buffers) and the
 storage for controls (e.g. return addresses): an overflow in the data part can
 affect the control flow of the program, because an overflow can
 change the return address.
+
+This lab builds off of concepts introduced in the \textit{overrun} lab.
+While the overrun lab is not a prerequisite to performing this lab, it may help
+students are are new to low level references to data structures.
 
 In this lab, students will be given a program with a buffer-overflow
 vulnerability; their task is to develop a scheme to exploit 
@@ -356,13 +360,11 @@ on the address randomization:
 If running the vulnerable code once does not get you the root shell, how 
 about running it for many times? You can run {\tt ./stack} 
 using the whilebash.sh script, and see what will happen. If your exploit
-program is designed properly, you should be able to get the root shell
-after a while. You can modify your exploit program to increase the
+program is designed properly, you would eventually be able to get the root shell.
+You can modify your exploit generation program to increase the
 probability of success (i.e., reduce the time that you have to wait).
-After getting a root shell, display the secret file (this is required):
-\begin{verbatim}
-  cat /root/.secret
-\end{verbatim}
+You may get lucky and get a root prompt before too long.  Otherwise use
+{\tt ctrl c} to break out of the whilebash.sh script.
 
 \subsection{Task 3: Stack Guard}
 

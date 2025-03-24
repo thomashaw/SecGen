@@ -15,34 +15,74 @@
 \usepackage[colorlinks=true,linkcolor=blue,urlcolor=black]{hyperref}
 \usepackage{bookmark}
 \usepackage{pdfpages}
+\usepackage{graphicx}
 \usepackage[autostyle, english = american]{csquotes}
+\usepackage[page,toc,titletoc,title]{appendix}
+\usepackage{textcomp}
+
 \begin{document}
-\title {Labtainer Student Guide}
-\maketitle
+\begin{titlepage}
+\centering
+\vfill
+\vspace*{4\baselineskip}
+{\bfseries\Large
+Labtainers Student Guide\par
+}
+\vspace*{4\baselineskip}
+{\bfseries
+Fully provisioned cybersecurity labs\par
+}
+\vspace*{2\baselineskip}
+\today
+\vfill
+\includegraphics[width=2in]{labtainer5-sm.png}
+  %\includegraphics[width=\linewidth, scale=0.50,natwidth=200, natheight=286]{labtainer5-sm.png}
+\vfill
+\end{titlepage}
 
 %----------------
 \section {Introduction}
-This manual is intended for use by students performing labs with Labtainers.
-Labtainers assume you have a Linux system, e.g., a virtual machine.  If you
-do not have a Linux system, our website includes pre-built virtual
-machine images at \url{https://my.nps.edu/web/c3o/virtual-machine-images}.
-Alternately, refer to Appendix A and B for installation of 
-VirtualBox and a Linux system on either a Mac or a Windows computer.
-Note that any Linux system can be used as long as it supports Docker.
+This manual is intended for use by students performing lab exercises with Labtainers.
+Labtainers provide a fully provisioned execution environment for performing
+cybersecurity laboratory exercises, including network topologies that include several different
+interconnected computers.
 
-Labtainers provide a consistent execution environment for performing
-laboratory exercises, and can simulate the execution of several different
-computers interconnected via virtual networks.   
+Labtainers assume you have a Linux system, e.g., a virtual machine appliance described below.
+If you are accessing a pre-defined Labtainers VM via a web browser, you can skip to section \ref{selecting}.
 
 %----------------
 \subsection{Obtaining and installing Labtainers}
-If you are using one of the pre-configured virtual machines from
-\url{https://my.nps.edu/web/c3o/virtual-machine-images}, you may
-skip this section.
+Labtainers requires an x86-based platform.  If your computer has ARM-based processors such as 
+Mac Mx-based Powerbooks, see https://github.com/CamilYed/Labtainer-ARM-mac.  
+Alternately, you can access and run Labtainers exercises on the cloud as described in section \ref{cloud-labtainers}.
+
+The easiest way to obtain Labtainers is to download one of the pre-configured virtual machines from
+\url{https://nps.edu/web/c3o/virtual-machine-images}, and import it into VirtualBox, VMWare or Hyper V.
+Follow the brief instructions on that download page.  When you first boot the resulting VM,
+Labtainers will take a moment to update itself.  You are then provided a terminal that includes
+some hints, and can be used to run Labtainers.  A video tutorial on installing Labtainers is at
+\url{https://nps.edu/web/c3o/labtainers-tutorials}.
+
+Note that the VM's Ubuntu Linux distribution is configured to NOT
+automatically perform system updates.  It may prompt you to download and install updates.  That is typically
+not necessary and may tie up your network bandwidth.  
+
+You may now skip to section \ref{selecting}.
+
+\subsection{Alternatives to the Labtainers VM Appliance}
+Skip this section and go to section \ref{selecting} if you are using a Labtainers VM appliance or accessing
+Labtainers remotely via a browser.
+
+\textbf{Please note} that Docker runs as a privileged service on your computer, and Labtainers containers run as privileged containers.
+If you have sensitive data on your computer, you should understand the isolation provided by Dockers on your system.  An alternative
+is to use one of our virtual machine appliances rather than running Docker directly on your computer.
+
+\subsubsection{Installing Labtainers on an existing Linux system}
+NOTE: This approach is discouraged unless you are experienced with Linux system configuration debugging.
 The Labtainer framework is distributed as a tarball from:
-\url{https://my.nps.edu/web/cisr/labtainers}.
+\url{https://nps.edu/web/c3o/labtainers}
 Click the link named: ``Download the Labtainer framework'', and untar the resulting file into 
-a permanent directory on your Linux system, e.g., into \verb ~/home.  For example, if you downloaded the file
+a permanent directory on your Linux system, e.g., into {\tt \$HOME}.  For example, if you downloaded the file
 from a browser on your Linux system:
 \begin{verbatim}
    cd
@@ -58,17 +98,21 @@ tarball start the installer script:
 This script will install the latest version of Docker and packages required
 by the Labtainer framework.  It will cause your Linux host to reboot when it
 completes.
-Note that older Linux distributions, e.g., Ubuntu 14.* lack the
-\textit{realpath} package, which should be installed prior to using Labtainers.
 
 After the Linux host reboots, open a terminal to your Linux host and
 change directory to wherever you untarred the tarball, e.g., your HOME directory.
 
-%----------------
-\section{Performing a Lab}
+\subsubsection{Browser-based access to Labtainers}
+Labtainers can be run on servers, e.g., VMs on the a cloud service, and accessed
+via your browser.   See section \ref{cloud-labtainers} for information on using
+cloud services.  Alternately your school might have virtual desktop solution such
+as VMWare Horizons that can host the Labtainers VM appliance.
+
+\section{Selecting a Lab}
+\label{selecting}
 All labs are run from the same Labtainer workspace directory, which is typically at:
 \begin{verbatim}
-    cd ~/labtainer/labtainer-student
+    cd $LABTAINER_DIR/scripts/labtainer-student
 \end{verbatim}
 \noindent The prepackaged virtual machines automatically start a terminal in this directory.
 
@@ -76,26 +120,57 @@ To see a list of available labs, run the {\tt labtainer} command with no argumen
 \begin{verbatim}
     labtainer 
 \end{verbatim}
-Then run a specific lab, include the name of the lab:
+\noindent Use the {\tt -k} option to see a list of searchable keywords, and the {\tt -f <keyword>} option to view a summary
+of labs having that keyword.
+
+Lab exercises are also organized into \textit{Labpacks} that are a collection multiple related labs that you may
+wish to perform in sequence (e.g., based on direction from your instructor.)  Use the
+\begin{verbatim}
+    labpack
+\end{verbatim}
+\noindent to view a list of Lab Packs, and provide the name of a Labpack as an argument to see a list of the labs
+within a Labpack.  That command output also includes an indication ({\tt [Y] or [N]}) of whether you've generated any results from 
+each lab.  Your instructor may provide you with custom Labpacks in the form of a URL.  You may add those to your system by
+using the 
+\begin{verbatim}
+    labpack -a <url>
+\end{verbatim}
+
+Your instructor may direct you to add new or custom lab exercises to your installation by providing you with a URL of an \textit{IModule}.
+To get access to those labs, use:
+\begin{verbatim}
+    imodule <url>
+\end{verbatim}
+Additional lab exercises created by other instructors are available as IModules, whose URLs are listed at \url{https://nps.edu/web/c3o/imodules}.
+
+\section{Performing a Lab}
+\label{performing}
+
+To run a specific lab, include the name of the lab in the {\tt labtainer} command:
 \begin{verbatim}
     labtainer <labname>
 \end{verbatim}
 \noindent where \textit{labname} is the name of the lab to run.  
+The first time any given lab is run, a set of files are downloaded, and
+that progress is reported on the screen.  The size of the downloads varies
+between labs.
 
-Most labs direct you to a PDF version of a lab manual, which can usually 
-be done by right clicking on the displayed path, or you can open the file in a browser.
+Most labs direct you to a PDF version of a lab manual, can 
+be viewed by right clicking on the displayed path, or you can open the file in a browser.
 Please note that some of the initial lab instructions repeat the steps you've already taken, and you need
 not perform those again. 
 
-A list of labtainer commands can be found in Appendix C of this document. 
+A list of Labtainer commands can be found in Appendix \ref{sec:appendixA} of this document. 
+A video tutorial on performing Labtainer labs is at \url{https://nps.edu/web/c3o/labtainers-tutorials}.
 
-Once you start the lab, you will typically see one or more virtual terminals conneted to computers within
+Once you start the lab, you will typically see one or more virtual terminals connected to computers within
 the lab.  While running the lab, if you require more virtual terminals, use:
 \begin{verbatim}
     moreterm.py <labname> <container>
 \end{verbatim}
 \noindent where \textit{container} is the host name of the component on which to attach a terminal.  
-It can be omitted for labs having a single component.
+It can be omitted for labs having a single component.  See Appendix \ref{sec:appendixB} for information
+on customizing terminal window colors and text.
 
 The virtual terminals for most labs present bash shells via which you can interact
 with the attached computer, (which is actually a Docker container designed to appear
@@ -117,11 +192,11 @@ When you want to stop working for a while or are finished and ready to turn it i
 
 \noindent from the Linux system from which you issued the {\tt labtainer} command. All changes to the files, etc. will be preserved and you will be able to resume the lab just the way you started it. You can resume your work, as needed.
 
-The {\tt stoplab }command always displays the directory containing a zip file that should be provided to your instructor. It shows the current results of your work. 
+The {\tt stoplab }command always displays the directory containing a file with a {\tt .lab} extension that should be provided to your instructor. It shows the current results of your work. 
 
-The easiest way to forward the complete zip file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
-are running Labtainers.  Then use the browser to either email the zip file, or upload it into an LMS system, e.g., Sakai.
-Alternately, you can configure the VM to use a shared folder, and use that to copy the zip file to the host computer.
+The easiest way to forward the complete {\tt .lab} file to the instructor is to start a browser, e.g., Firefox, on the VM from which you
+are running Labtainers.  Then use the browser to either email the file, or upload it into an LMS system, e.g., Sakai.
+Alternately, you can configure the VM to use a shared folder, and use that to copy the {\tt .lab} file to the host computer.
 
 %----------------
 \subsection{Redoing a Lab}
@@ -135,7 +210,28 @@ This will delete any previous containers associated with this lab and start it f
 \subsection{Checking your work}
 Some labs include criteria by which to automatically assess your progress.
 Where enabled and supported, this feature can be utilized by issuing the {\tt checkwork} command from Linux system.
-That command can be run while the lab is still running.
+That command can be run while the lab is still running.  If the lab has been stopped, you must provide the lab name to
+the checkwork command, e.g.,
+\begin{verbatim}
+    checkwork telnetlab
+\end{verbatim}
+The meaning and value of the {\tt checkwork} output varies by lab.   The command output includes a description of what is being measured,  
+which in some cases may be quite mundane such as the quantity of times you tried a particular command.
+Please note that the {\tt checkwork} output is not a ``score'' or a grade.  
+
+\subsection{Submitting your work}
+When you've completed a lab and run the {\tt stoplab} command, your results are stored in a file with a {\tt .lab} extension
+in the directory at:
+\begin{verbatim}
+    $HOME/labtainer_xfer/<lab name>
+\end{verbatim}
+\noindent That file should be provided to your instructor.  There are several ways to transfer the file.
+\begin{enumerate}
+\item Use the browser on the VM to email the file to your instructor.
+\item Use the browser on the VM to access your school's LMS system such as Saki or Blackboard, and upload the file.
+\item Configure the VM to enable \textit{drag and drop}, then move the file to your host computer to email or upload to an LMS.
+\item Configure the VM and host to share folders and copy the {\tt .lab} file to the shared folder to email or upload to an LMS.
+\end{enumerate}
 
 %----------------
 \subsection{Getting Help and Things to Avoid}
@@ -144,25 +240,38 @@ To get help, type:
     labtainer -h
 \end{verbatim}
 \noindent from the Linux system from which you issued the {\tt labtainer} command. A list of useful labtainer commands will be displayed.
+Also see our support page at \url{nps.edu/web/c3o/support1}
 
 Do not run multiple labs simultaneously.  Consistent results cannot be guaranteed when more than one lab runs at the same time.
 
+\section{Other Considerations}
 %----------------
 \subsection{Networking}
 In addition to network properties defined for the lab,
-each component \texttt{/etc/host} file includes a ``my\_host entry'' that names
-the host Linux.  Most containers will include a default gateway that
-leads to the Linux host.  This allows students to scp files to/from the container and host.
-It also allows the student to reach external networks, e.g., to fetch additional packages in
-support of student exploration.
+each component \texttt{/etc/host} file includes a {\tt my\_host entry} that names
+the Linux host, e.g., the VM.  This allows students to scp files to/from the container and Linux host.
 
-In some instances, the lab requires one or more components to a have different default route.
-Typically, these components will include a \textit{togglegw.sh} script that the student
-can use to toggle the default gateway between one that leads to the host, and one defined for the lab.
-This allows students to add packages on components having lab-specific default gateways.
-Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files).
+Most containers will include a default gateway route that
+leads to a virtual gateway on the Linux host.  This allows the student to reach external networks, e.g., to 
+fetch additional packages in support of student exploration.  Note however that in some labs, one or 
+more components may have a different default route for purposes of the lab.  And these default routes preclude
+reaching external networks, e.g., to add new packages with {\tt apt-get}.  This limitation can be temporarily 
+remedied by running this command on the computer:
+\begin{verbatim}
+    /usr/bin/togglegw.sh host
+\end{verbatim}
+\noindent This will change the default route to use the virtual gateway.  When done, restore the original
+default route with:
+\begin{verbatim}
+    /usr/bin/togglegw.sh container
+\end{verbatim}
+Note however that a few labs preclude connection to external networks, regardless of routing.  The intent is to keep things
+like Metasploit off your campus network.
 
-%----------------
+Use of the \textit{togglegw.sh} script is not necessary to reach the Linux host, (e.g., to scp files) 
+if the default route leads to a gateway having a default route leading to the virtual gateway.  Try the scp, and
+if it fails try using the {\tt togglegw.sh} script.
+
 \subsection{Installing and Using Labtainers Behind a Web Proxy}
 If you are not behind a web proxy, ignore this section (most school environments
 are not behind proxies). 
@@ -195,7 +304,7 @@ which is root-equivalent.  In other words, even though you start a Docker contai
 as a non-privileged user, software in the resulting container can modify the Linux host,
 e.g., the VM.
 
-The computers each include a ``local'' directory beneath the HOME directory.  This is used
+The computers each include a {\tt .local/} directory beneath the HOME directory.  This is used
 by the Labtainer framework and includes results that get packaged up for forwarding to the
 instructor.  Do not modify any files beneath the .local directory.  Otherwise, you can treat
 those containers as Linux systems, and explore them.
@@ -203,37 +312,188 @@ those containers as Linux systems, and explore them.
 Pasting multiple commands into a labtainer terminal may result in the not all of the
 commands being executed.
 
-\appendix 
-\includepdf[pages=1,pagecommand={ \thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxMac.pdf}
-\includepdf[pages=2-,pagecommand={\thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxMac.pdf}
+\subsubsection{Network Limitations}
+Labtainer containers do not include typical OS network configuration files such as /etc/network/interfaces
+or /etc/netplan.  Nor do the containers include networking daemons such as {\tt networkd}.  The initial post-boot network interface
+configurations are managed by Docker as prescribed by the labs design.  Users may alter network configurations, e.g., 
+via the {\tt ip} command, and may control DNS naming by directly modifying the {\tt /etc/resolv.conf} file.  Persistent
+changes to the {\tt resolv.conf} DNS naming can be achieved using {\tt /etc/rc.local}.
 
-\appendix 
-\includepdf[pages=1,pagecommand={ \thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxWin.pdf}
-\includepdf[pages=2-,pagecommand={\thispagestyle{empty}}, fitpaper=true]{InstallingVB-LinuxWin.pdf}
+\section{Cloud Labtainers}
+\label{cloud-labtainers}
+Labtainers can be run on cloud services and accessed via a browser.
+Cloud service providers may offer free accounts for students or others looking to learn about their cloud services.
+Currently, Labtainers works with the Google cloud platform as described below.  Support for Azure has been stopped due to problems with that platform.
 
-\appendix 
+\subsection{Google Cloud Platform}
+These instructions assume you have a google cloud account. \url{https://cloud.google.com/}
+
+This requires that the Google Cloud SDK be installed on  the Mac, Windows or Linux:
+\url{https://cloud.google.com/sdk/docs/quickstart}
+
+On Linux/Mac, add the {\tt google-cloud-sdk/bin} directory to your PATH environment variable.  For example,
+if you put the SDK in your home directory, then add this to your 
+{\tt \$HOME/.bash\_profile}
+\begin{verbatim}
+   PATH=$PATH:$HOME/google-cloud-sdk/bin
+\end{verbatim}
+\noindent and then run
+\begin{verbatim}
+   source $HOME/.bash_profile
+\end{verbatim}
+\noindent On Windows, just reopen a new PowerShell window after installing the SDK.
+
+In the following command examples, use the "ps1" file extension instead of "sh" when using PowerShell.
+\begin{itemize}
+\item Open a terminal on Mac/Linux, or a PowerShell window on Windows.
+\item Install the local scripts by getting this script (make it executable on Mac or Linux):
+\url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/google/install\_labtainers.sh}
+Or on Windows:
+\url{https://raw.githubusercontent.com/mfthomps/Labtainers/master/google/install\_labtainers.ps1}
+
+On Mac or Linux:
+\begin{itemize}
+\item Get the install script:
+\begin{verbatim}
+curl -L https://raw.githubusercontent.com/mfthomps/Labtainers/master/\
+google/install_labtainers.sh --output install_labtainers.sh
+\end{verbatim}
+\item  {\tt chmod a+x install\_labtainers.sh}
+\end{itemize}
+\noindent On Windows:
+\begin{itemize}
+\item Get the script:
+\begin{verbatim}
+wget https://raw.githubusercontent.com/mfthomps/Labtainers/master/\
+google/install_labtainers.ps1 -O install_labtainers.ps1
+\end{verbatim}
+\end{itemize}
+
+\item Then run it (Mac/Linux).   
+\begin{verbatim}
+    ./install_labtainers.sh
+\end{verbatim}
+\noindent Windows:
+\begin{verbatim}
+    ./install_labtainers.ps1
+\end{verbatim}
+
+\noindent That will create a {\tt \$HOME/labtainers\_google} directory.  
+
+\item Change to the {\tt \$HOME/labtainers\_google directory}
+\begin{verbatim}
+    cd $HOME/labtainers_google
+\end{verbatim}
+
+\item Log into your Google cloud account from the command line:
+\begin{verbatim}
+   gcloud auth login
+\end{verbatim}
+\item Define your default region and zone by editing and running the set\_defaults.sh script. And then initialize
+using:
+\begin{verbatim}
+   gcloud init
+\end{verbatim}
+
+\item Once logged into the Google Cloud with default region/zone defined, run the create\_vm.sh (or create\_vm.ps1 for windows) script, passing in a user ID.
+The ID can be any name without special characters, e.g.,
+\begin{verbatim}
+    ./create_vm.sh myname
+\end{verbatim}
+
+\item On Linux/Mac, you will be prompted for an ssh passphase, leave it blank.  On Windows, ignore the warnings
+about ssh keys.
+
+\item The create\_vm script may take a while to run.  The process is complete when you see “Labtainers is up.  
+Point a local browser to http://localhost:6901” and perform the labs.
+When prompted for a password in the browser, just click submit or OK, i.e., leave the password blank.
+The password for the labtainer user in the VM is labtainer.  
+
+\item When done with labs, run the get\_results.sh (or get\_results.ps1) script: 
+\begin{verbatim}
+    ./get_results.sh <user ID>
+\end{verbatim}
+\noindent This will store your Labtainer results in ~/labtainer\_xfer.  Provide those
+results to your instructor.
+
+\item If you become unable to reach the Labtainers via your browser, e.g., after 
+shutting down your computer, simple use the restart.sh script:
+\begin{verbatim}
+    ./restart.sh <user ID>
+\end{verbatim}
+
+\item The create\_vm.sh script will create an SSH key pair named id\_labtainers within your ~/.ssh directory.
+The private key in id\_labtainers is not passphrase protected, so you must protect it.
+You may move the keys to a different computer and access your Labtainers from that computer's
+browser.  You must first run the install\_labtainers.sh script on that computer, and then run
+the restart.sh script.
+
+\item If the terminal on the desktop goes away (e.g., a right-click will sometimes do that), create a new
+terminal using this command:
+\begin{verbatim}
+   ./newterm.sh <user ID>
+\end{verbatim}
+
+\item When done with a lab, use
+\begin{verbatim}
+   ./stop_vm.sh <user ID> 
+\end{verbatim}
+to stop incurring processing charges.  Note you may still incur storage charges until the VM is delete.
+
+\item To restore a VM after you stopped it, use:
+\begin{verbatim}
+    ./start_vm.sh <user ID>
+\end{verbatim}
+
+\item When completely done with the VM, use the delete\_vm.sh script to stop incurring all charges:
+\begin{verbatim}
+    ./delete_vm.sh <user ID>
+\end{verbatim}
+
+\item Shutting down the VM without deleting it will not stop all charges, but will stop processing charges.
+See the Google Cloud dashboard and pricing for more information.
+\end{itemize}
+
+\pagebreak
+\begin{appendices}
+%\appendix 
 \pagenumbering{Alph}
 \setcounter{page}{3}
-\section* {Appendix C: Labtainer Command Summary}
-\label{sec:appendixC}
-The following labtainer commands are available from the \texttt{labtainer/labtainer-student}
-directory:
+\section{Labtainer Command Summary}
+\label{sec:appendixA}
+The following labtainer commands are available from the \texttt{labtainer-student}
+directory.  Most of these commands include a {\tt -h} option for help:
 \begin{itemize}
 \item \texttt{labtainer <lab> --}
-Start the named lab.  If no name is given, a list of available labs will be displayed.
+Start the named lab.  If no name is given, a list of available labs will be displayed. Command completion is
+supported, e.g., typing {\tt labtainer tel} followed by the tab key will display all labs starting with {\tt tel}.
 \item \texttt{stoplab  --} Stop the currently running lab.
 \item \texttt{moreterm.py <lab> <container> --} create a new virtual terminal for the container.
+\item \texttt{labpack} -- List the installed Labpacks, i.e., groups of related labs.
+\item \texttt{imodule} -- Manage local IModule labs, e.g., labs distributed by your instructor.
 \item \texttt{labtainer <lab> -r --}
 Delete any previous containers associated with this lab and start it fresh.  \textbf{Warning}: this will lose any
 previous data from the named lab.
+\item \texttt{checkwork} -- Performs automated assessment for selected labs and provides you with information about your progress.
+Note this is not a grade and is not a score.  It simply reflects a lab-dependent set of goals.
+\item \texttt{quiz} -- Provides a quiz for selected labs to help prepare you to perform the lab.
+\item \texttt{update-labtainer.sh} -- Update the Labtainer installation to include bug fixes and new labs.
+\item \texttt{check\_nets.py} -- Runs diagnostics to potentially resolve Docker related problems.
+
 \end{itemize}
 
-Most labs display lab instructions in one of the windows that appears after the lab starts.  If those instructions
-stop displaying, e.g., because ``q'' is pressed in that window, then type the following in a virtual terminal (e.g.,
-in a new terminal created using the moreterm.py script:
-\begin{verbatim}
-    less instructions.txt
-\end{verbatim}
+\section{Customizing terminals}
+\label{sec:appendixB}
+Terminal colors and text size can be customized by right clicking on a terminal and selecting {\tt Preferences}.  From there, select
+the {\tt Unnamed} or {\tt Default} profile and click its down-arrow and select "clone".  Give the new profile a name, and then
+select your new profile.  Adjust the colors and text appearance by selecting the tabs on the top of the window.  Experiment
+by creating a new terminal window, right-click and select your profile from the {\tt Profiles} submenus.
 
+If you want all of your terminals to look like a new profile, click the down arrow on your new profile and make it the ``default''.
 
+If you create a terminal profile named \textit{labtainers}, that profile will be used with Labtainers lab terminals.  This can 
+be helpful to distinguish the Labtainers terminals from other terminals on your desktop.
+A video tutorial on customizing terminals is at \url{https://nps.edu/web/c3o/labtainers-tutorials}.
+
+\end{appendices}
 \end{document}

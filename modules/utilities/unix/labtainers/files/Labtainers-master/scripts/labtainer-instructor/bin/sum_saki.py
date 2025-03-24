@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 import sys
 import os
 import glob

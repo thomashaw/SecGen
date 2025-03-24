@@ -1,0 +1,8 @@
+if [[ -d /var/tmp/.X11-unix ]]; then
+    sock=$(ls /var/tmp/.X11-unix/)
+    one=$(echo $sock | awk '{print $1'})
+    disp=${one:1:99}
+    export DISPLAY=:$disp
+else
+    export DISPLAY=:0
+fi

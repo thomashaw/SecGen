@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  </head>
+  <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
+    <a href={{back_grades}}>goals</a>
+
+    <h1>{{student_email}}</h1>
+    <h2>Timestamped results for result: {{result_id}}</h2></br>
+    <form method="POST">
+                  Search: <input type="text" name="search" value={{search_string}}>
+                  <input type="submit" value="Submit"><br>
+    </form>
+      {{ts_table}}</br>
+ </body>
+</html>

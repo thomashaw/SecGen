@@ -7,6 +7,17 @@ United States, copyright protection is not available for any works
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 END
 #
 # Install Docker on a Fedora system, along with other packages required by Labtainers
@@ -38,9 +49,9 @@ sudo dnf makecache fast
 sudo dnf -y install docker-ce
 
 #additional packages needed
-sudo dnf -y install python-pip
-sudo pip install --upgrade pip
-sudo pip install netaddr parse python-dateutil
+sudo dnf -y install python3-pip python3-parse
+sudo pip3 install --upgrade pip3
+sudo pip3 install netaddr python-dateutil
 sudo dnf install -y openssh-server 
 sudo dnf install -y xterm
 
@@ -55,7 +66,7 @@ sudo usermod -aG docker $USER
 
 
 #---Checking if packages have been installed. If not, the system will not reboot and allow the user to investigate.
-declare -a packagelist=("dnf-plugins-core"  "docker-ce" "python-pip" "openssh-server")
+declare -a packagelist=("dnf-plugins-core"  "docker-ce" "python3-pip" "openssh-server")
 packagefail="false"
 
 for i in "${packagelist[@]}"
@@ -74,21 +85,14 @@ packagecheck=$(rpm -qa | grep $i)
     fi
 done
 
-pipcheck=$(pip list 2> /dev/null | grep -F netaddr)
+pipcheck=$(pip3 list 2> /dev/null | grep -F netaddr)
 #echo $pipcheck
 if [ -z "$pipcheck" ]; then
-    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install netaddr' "
+    echo "ERROR: 'netaddr' package did not install properly. Please check the terminal output for any errors related to the pacakge installation. Make sure 'python3-pip' is installed and then try running this command: 'sudo -H pip3 install netaddr' "
     packagefail="true"
     #echo $packagefail
 fi
 
-pipcheck=$(pip list 2> /dev/null | grep -F parse)
-#echo $pipcheck
-if [ -z "$pipcheck" ]; then
-    echo "ERROR: 'parse' package did not install properly. Please check the terminal output for any errors related to the package installation. Make sure 'python-pip' is installed and then try running this command: 'sudo -H pip install parse' "
-    packagefail="true"
-    #echo $packagefail
-fi
 
 if [ $packagefail = "true" ]; then
     exit 1

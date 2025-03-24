@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 '''
   GoalsParser.py
@@ -15,7 +35,6 @@ domain and is not subject to copyright.
 '''
 import json
 import glob
-import md5
 import os
 import random
 import sys
@@ -50,53 +69,6 @@ class MyGoal(object):
         self.boolean_string = boolean_string
         self.goal1tag = goal1tag
         self.goal2tag = goal2tag
-
-def getRandom(bounds, type, logger):
-    # Converts lowerbound and upperbound as integer - and pass to
-    # random.randint(a,b)
-    # Starts with assuming will use integer (instead of hexadecimal)
-    use_integer = True
-    lowerboundstr = bounds[0].strip()
-    if lowerboundstr.startswith('0x'):
-        use_integer = False
-        lowerbound_int = int(lowerboundstr, 16)
-    else:
-        lowerbound_int = int(lowerboundstr, 10)
-    upperboundstr = bounds[1].strip()
-    if upperboundstr.startswith('0x'):
-        if use_integer == True:
-            # Inconsistent format of lowerbound (integer format)
-            # vs upperbound (hexadecimal format)
-            logger.error("inconsistent lowerbound (%s) & upperbound (%s) format\n"
-                            % (lowerboundstr, upperboundstr))
-            sys.exit(1)
-        use_integer = False
-        upperbound_int = int(upperboundstr, 16)
-    else:
-        upperbound_int = int(upperboundstr, 10)
-    #print "lowerbound is (%d)" % lowerbound_int
-    #print "upperbound is (%d)" % upperbound_int
-    if lowerbound_int > upperbound_int:
-        logger.error("lowerbound greater than upperbound\n")
-        sys.exit(1)
-    if type == "asciirandom":
-        # Make sure lowerbound/upperbound in ASCII printable characters range
-        # (i.e., starts with 33-126 - excludes 33 (space) and 127 (del)
-        ASCIIlowrange = 33
-        ASCIIhighrange = 126
-        if (lowerbound_int < ASCIIlowrange or upperbound_int > ASCIIhighrange):
-            logger.error("ASCII lowerbound (%s) & upperbound (%s) outside printable\n"
-                            % (lowerboundstr, upperboundstr))
-            sys.exit(1)
-    random_int = random.randint(lowerbound_int, upperbound_int)
-    if type == "asciirandom":
-        random_str = '%s' % chr(random_int)
-    elif type == "hexrandom":
-        random_str = '%s' % hex(random_int)
-    else:
-        # type == "intrandom":
-        random_str = '%s' % int(random_int)
-    return random_str
 
 def getTagValue(parameter_list, target, finaltag, logger):
     if target == "answer":
@@ -139,7 +111,7 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
     elif inputtag.startswith('(') and inputtag.endswith(')'):
         returntag = 'result.%s' % inputtag
     elif '.' in inputtag:
-        logger.debug("tag %s contains '.'" % inputtag)
+        #logger.debug("tag %s contains '.'" % inputtag)
         (target, finaltag) = inputtag.split('.')
         if not target in answer_tokens:
             logger.error("goals.config tag=<string> then tag must be:(%s), got %s" % (','.join(answer_tokens), inputtag))
@@ -150,7 +122,7 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
 
         returntag = getTagValue(parameter_list, target, finaltag, logger)
     else:
-        logger.debug("tag is %s" % inputtag)
+        #logger.debug("tag is %s" % inputtag)
         if not MyUtil.CheckAlphaDashUnder(inputtag):
             logger.error("Invalid characters in goals.config's tag (%s)" % inputtag)
             sys.exit(1)
@@ -161,11 +133,12 @@ def ValidateTag(parameter_list, studentdir, goal_type, inputtag, allowed_special
 def GetLabInstanceSeed(studentdir, logger):
     seed_dir = os.path.join(studentdir, ".local",".seed")
     student_lab_instance_seed = None
-    with open(seed_dir) as fh:
-        student_lab_instance_seed = fh.read().strip()
-    if student_lab_instance_seed is None:
-        logger.error('could not get lab instance seed from %s' % seed_dir)
-        sys.exit(1)
+    if os.path.isfile(seed_dir):
+        with open(seed_dir) as fh:
+            student_lab_instance_seed = fh.read().strip()
+        if student_lab_instance_seed is None:
+            logger.error('could not get lab instance seed from %s' % seed_dir)
+            #sys.exit(1)
     return student_lab_instance_seed
 
 def ParseGoals(homedir, studentdir, logger_in):
@@ -177,6 +150,10 @@ def ParseGoals(homedir, studentdir, logger_in):
     configfilelines = configfile.readlines()
     configfile.close()
     lab_instance_seed = GetLabInstanceSeed(studentdir, logger)
+    if lab_instance_seed is None:
+        logger.debug('No lab instance seed, not grading %s' % studentdir)
+        print('No lab instance seed, not grading %s' % studentdir)
+        return
     container_user = ""
     param_filename = os.path.join(MYHOME, '.local', 'config',
           'parameter.config')
@@ -189,7 +166,7 @@ def ParseGoals(homedir, studentdir, logger_in):
         linestrip = line.rstrip()
         if linestrip:
             if not linestrip.startswith('#'):
-                logger.debug("Current linestrip is (%s)" % linestrip)
+                #logger.debug("Current linestrip is (%s)" % linestrip)
                 try:
                     (each_key, each_value) = linestrip.split('=', 1)
                 except:
@@ -209,7 +186,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                 # <type> : <string>
                 values = each_value.split(" : ")
                 numvalues = len(values)
-                logger.debug('numvalues is %d  values are: %s' % (numvalues, str(values)))
+                #logger.debug('numvalues is %d  values are: %s' % (numvalues, str(values)))
                 if not (numvalues == 4 or numvalues == 3 or numvalues == 2):
                     logger.error("goals.config contains unexpected value (%s) format" % each_value)
                     sys.exit(1)
@@ -227,6 +204,8 @@ def ParseGoals(homedir, studentdir, logger_in):
                         goal_type == "matchacross" or
                         goal_type == "count" or
                         goal_type == "value" or
+                        goal_type == "valueSum" or
+                        goal_type == "valueMax" or
                         goal_type == "execute"):
                         logger.error("Error found in line (%s)" % linestrip)
                         logger.error("goals.config contains unrecognized type (1) (%s)" % goal_type)
@@ -234,6 +213,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                     if not (goal_type == "execute"):
                         # If goal_type is not 'execute' then check the goal_operator
                         if not (goal_operator == "string_equal" or
+                            goal_operator == "hash_equal" or
                             goal_operator == "string_diff" or
                             goal_operator == "string_start" or
                             goal_operator == "string_end" or
@@ -280,7 +260,7 @@ def ParseGoals(homedir, studentdir, logger_in):
                         resulttag = values[1].strip()
                         #print('parsegoals type is %s result %s' % (goal_type, resulttag))
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
-                    elif goal_type == 'count' or goal_type == 'value':
+                    elif goal_type == 'count' or goal_type.startswith('value'):
                         resulttag = values[1].strip()
                         nametags.append(MyGoal(each_key, goal_type, resulttag=resulttag))
                     elif goal_type == 'count_greater':

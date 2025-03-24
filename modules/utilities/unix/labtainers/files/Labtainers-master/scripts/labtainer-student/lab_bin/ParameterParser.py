@@ -1,12 +1,32 @@
 #!/usr/bin/env python
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # ParameterParser.py
@@ -38,7 +58,7 @@ class ParameterParser():
             self.logger = ParameterizeLogging.ParameterizeLogging("/tmp/parameterize.log")
         else:
             self.logger = logger
-        self.logger.debug('start parsing parameters')
+        self.logger.debug('start parsing parameters lab_instance_seed %s' % lab_instance_seed)
     
     def WatermarkCreate(self):
         watermarkcreatelist = {}
@@ -46,7 +66,7 @@ class ParameterParser():
         # Create hash per the_watermark_string (note: there is only one watermark file for now)
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_watermark_string)
         mymd5 = hashlib.new('md5')
-        mymd5.update(string_to_be_hashed)
+        mymd5.update(string_to_be_hashed.encode('utf-8'))
         mymd5_hex_string = mymd5.hexdigest()
         #logger.debug(mymd5_hex_string)
     
@@ -74,14 +94,28 @@ class ParameterParser():
             for the_string in createlist:
                 outfile.write('%s\n' % the_string)
             outfile.close()
-    
+   
+    def compatRandInt(self, low, high, step=1):
+        high = high + 1
+        low = low * step
+        high = high * step
+        if sys.version_info >=(3,0):
+            randint_compat = lambda lo, hi: lo + int(random.random() * (hi + 1 - lo))
+            x = randint_compat(low, high)
+            #print('is 3, x %d' % x)
+        else:
+            x = random.randint(low, high)
+            #print('is 2, x %d' % x)
+        retval = x / step
+        return int(retval)
+ 
     def CheckRandReplaceEntry(self, param_id, each_value, unique=False):
-        # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>
+        # RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound> : <step>
         #print "Checking RAND_REPLACE entry"
         entryline = each_value.split(': ')
         #print entryline
         numentry = len(entryline)
-        if numentry != 4:
+        if numentry < 4:
             self.logger.error("RAND_REPLACE (%s) improper format" % each_value)
             #logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
             sys.exit(1)
@@ -89,7 +123,9 @@ class ParameterParser():
         token = entryline[1].strip()
         #print "filename is (%s)" % myfilename
         #print "token is (%s)" % token
-    
+        step = 1 
+        if numentry == 5:
+            step = int(entryline[4].strip()) 
         # Converts lowerbound and upperbound as integer - and pass to
         # random.randint(a,b)
         # Starts with assuming will use integer (instead of hexadecimal)
@@ -109,7 +145,10 @@ class ParameterParser():
                 #self.logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
                 sys.exit(1)
             use_integer = False
-            upperbound_int = int(upperboundstr, 16)
+            try:
+                upperbound_int = int(upperboundstr, 16)
+            except:
+                self.logger.error("RAND_REPLACE (%s) failed parsing as hex: %s" % (each_value, upperboundstr))
         else:
             if use_integer == False:
                 # Inconsistent format of lowerbound (hexadecimal format)
@@ -117,7 +156,10 @@ class ParameterParser():
                 self.logger.error("RAND_REPLACE (%s) inconsistent lowerbound/upperbound format" % each_value)
                 #self.logger.error("RAND_REPLACE : <filename> : <token> : <LowerBound> : <UpperBound>")
                 sys.exit(1)
-            upperbound_int = int(upperboundstr, 10)
+            try:
+                upperbound_int = int(upperboundstr, 10)
+            except:
+                self.logger.error("RAND_REPLACE (%s) failed parsing as int: %s" % (each_value, upperboundstr))
         #print "lowerbound is (%d)" % lowerbound_int
         #print "upperbound is (%d)" % upperbound_int
         if lowerbound_int > upperbound_int:
@@ -132,12 +174,12 @@ class ParameterParser():
                 self.logger.error("unqiue values for %s consumed" % key)
                 sys.exit(1)
             while True:
-                random_int = random.randint(lowerbound_int, upperbound_int)
+                random_int = self.compatRandInt(lowerbound_int, upperbound_int)
                 if random_int not in self.unique_values[key]:
                     self.unique_values[key].append(random_int)
                     break
         else:
-            random_int = random.randint(lowerbound_int, upperbound_int)
+            random_int = self.compatRandInt(lowerbound_int, upperbound_int, step=step)
         #print "random value is (%d)" % random_int
         if use_integer:
             random_str = '%s' % int(random_int)
@@ -269,7 +311,7 @@ class ParameterParser():
         # Create hash per the_string
         string_to_be_hashed = '%s:%s' % (self.lab_instance_seed, the_string)
         mymd5 = hashlib.new('md5')
-        mymd5.update(string_to_be_hashed)
+        mymd5.update(string_to_be_hashed.encode('utf-8'))
         mymd5_hex_string = mymd5.hexdigest()[:strlen]
         #print "filename is (%s)" % myfilename_field
         #print "token is (%s)" % token
@@ -570,7 +612,10 @@ class ParameterParser():
     
     def ParseParameterConfig(self, configfilename):
         # Seed random with lab seed
-        random.seed(self.lab_instance_seed)
+        if sys.version_info >=(3,0):
+            random.seed(self.lab_instance_seed, version=1)
+        else:
+            random.seed(self.lab_instance_seed)
         configfile = open(configfilename)
         configfilelines = configfile.readlines()
         configfile.close()

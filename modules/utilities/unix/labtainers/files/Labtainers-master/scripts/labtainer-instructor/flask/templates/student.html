@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  </head>
+  <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
+    <a href={{back_grades}}>goals</a>
+
+    <h1>{{student_email}}</h1>
+    {% if table %}
+       <h2>Result Booleans</h2></br>
+         {{table}}</br>
+    {% endif %}
+
+    {% if ts_table %}
+       <h2>Timestamped results</h2></br>
+       <form method="POST">
+                     Search: <input type="text" name="search" value={{search_string}}>
+                     <input type="submit" value="Submit"><br>
+       </form>
+         {{ts_table}}</br>
+    {% endif %}
+    <h2>Artifacts from $HOME and results</h2>
+    <p>{{file_table}}</p>
+    <h2>History (Bash)</h2>
+    {% for entry in hist_list %}
+       <a href={{entry[1]}}>{{entry[0]}}</a></br>
+    {% endfor %}
+    <h2>Miscellaneous</h2>
+    <a href={{goals_json}}>goals.json</a>
+ </body>
+</html>

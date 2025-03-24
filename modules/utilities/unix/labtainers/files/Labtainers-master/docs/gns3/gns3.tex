@@ -97,19 +97,9 @@ cd gns3-gui
 sudo python3 setup.py install
 \end{verbatim}
 \normalsize
-\noindent Run the server from a terminal with LABTAINER\_DIR defined.
 
-\begin{verbatim}
-      gns3server --local --log /tmp/gns3log
-\end{verbatim}
-\noindent The server does not display to stdout.  Tail the /tmp/gns3log to see status.
 
-\noindent Run the gui from a different terminal or tab:
-\begin{verbatim}
-    gns3
-\end{verbatim}
-
-\section{Updating local git repos}
+\subsubsection{Updating local git repos}
 Note below that your Labtainers repo uses the "gns3" branch -- and your GNS3 repo uses the "labtainers" branch.
 From the local GNS3  repo:
 \begin{verbatim}
@@ -124,7 +114,7 @@ git pull origin gns3
 After pulling, always run {\tt sudo python3 setup.py install} to get the latest 
 build of GNS3. Do this as well after making local edits to the source code to see changes in the build.
 
-\section{Updating remote repo}
+\subsubsection{Updating remote repo}
 This step is only for use by Labtainers framework developers.
 The GNS3 repo:
 \begin{verbatim}
@@ -136,6 +126,21 @@ git push --set-upstream origin labtainers
 git push --set-upstream origin gns3
 \end{verbatim}
 
+\section{Starting GNS3}
+Run the server from a terminal with LABTAINER\_DIR defined.
+
+\begin{verbatim}
+      gns3server --local --log /tmp/gns3log
+\end{verbatim}
+\noindent The server does not display to stdout.  Tail the /tmp/gns3log to see status.
+
+\noindent Run the gui from a different terminal or tab:
+\begin{verbatim}
+    gns3
+\end{verbatim}
+\noindent Use the {\tt -s} option to run as a student (to hide unused GUI objects, unused popup menu items
+and nodes and links that are to be hidden from the student.)  Optionally provide the path to the gns3 project
+file to avoid the project dialog.
 
 \section{Porting a Labtainers lab}
 This example illustrates porting the telnetlab from Labtainers to run in the GNS3 environment.
@@ -163,6 +168,7 @@ Create modified Docker images for the lab:
 \begin{verbatim}
       ./noNet.py telnetlab
 \end{verbatim}
+\noindent \textbf{NOTE:} Make note of the container image names displayed.  You will use these when adding appliance templates below.
 
 View the Labtainer network topology.
 \begin{verbatim}
@@ -181,7 +187,8 @@ the lab.
 	will cause the GUI to hide toolbars and widgets that students should not interact with. The container state after quitting gns3 will also persist. Without the student flag a lab's containers state wil reset upon pressing start once.
 	\item Open a new project, assigning the same name as the Labtainers lab, e.g., ``telnetlab''
 	\item Use {\tt Browse all devices / Add appliance template} to add the new container images created
-		via the {\tt noNet.py} command.  Accept all defaults, except set the number of ``Adapaters'' to
+		via the {\tt noNet.py} command (DO NOT select the original container image names, e.g., having ``student'' as a suffix).  
+Accept all defaults, except set the number of ``Adapaters'' to
 		the quantity displayed using {\tt showNet.py} for each component.
 	\item Drag each container image from the list on the left of the GUI onto the workspace.  (Do not try to fix
 		the component names, that will be done later).
@@ -192,6 +199,121 @@ the lab.
 \end{itemize}
 Changes made to Labtainers container images will be picked up by GNS3 the next time the GUI is started,
 assuming you re-run the noNet.py command.  There is no need to redefine appliance templates.
+
+\section{Remote access to containers}
+See the \textit{Lab Designer User Guide} section on ``Remote access and control of Labtainers'' for information 
+on remote management and remote access to containers within a lab.
+
+\section{Simulated USB drives}
+This section outlines Labtainers/GNS3 support for simulating insertion of USB drives.  The goal is for the udevd on selected containers to
+recognize and respond to these events, i.e., based on rules in {\tt /etc/udev/rules.d}.   
+
+All containers will see inserted drives, regardless of how the container is configured.  Thus, any udev rules or other logic that queries
+device attributes must be mitiaged on components that are not to react to insertion.  
+
+A summary of the steps are:
+\begin{itemize}
+\item Build and install the linux dummy\_hcd kernel module.
+\item Create a simple script that uses modprobe to create the simulated device on the VM; and a script to remove it.  Put these scripts in a 
+subdirectory of the lab directory along with a disk image for the USB (i.e., the "backing file").  This can be created with  dd and mkext3...
+\item Identify those scripts within the start.config THUMB.. entries for containers that are to have insertable USB drives.
+\item Gizmo to mount the device on the container after it is \textit{authorized} is TBD, but tractable, e.g., in the rules.d file?
+\end{itemize}
+
+\subsection{Linux dummy\_hcd module build and installation}
+These instructions were tested on an Ubuntu 18 VM.
+\begin{itemize}
+
+\item Get kernel source: {\tt sudo aptitude install linux-source} (You can remove this package prior to minting the VM image)
+
+\item Use git clone to retrive two files some kind soul had posted:
+\begin{verbatim}
+    git clone https://github.com/serianox/DKMS-dummy_hcd.git
+\end{verbatim}
+\item Copy those two files to a new directory created at {\tt /usr/src/dummy\_hcd-01/} on the VM.
+
+\item Use dkms to build and install the module, as sudo:
+\begin{verbatim}
+    dkms add -m dummy_hcd -v 0.1
+    dkms build -m dummy_hcd -v 0.1
+    dkms install -m dummy_hcd -v 0.1
+\end{verbatim}
+
+\item Load the module with {\tt modprobe dummy\_hcd}
+\item Add {\tt dummy\_hcd} to /etc/modules so it loads on the next boot.
+
+\item Test by: 
+\begin{itemize}
+
+\item creating a backing file as file system
+\begin{verbatim}
+    dd if=/dev/zero of=/tmp/usb.img bs=1k count=1k
+    mkfs.ext2 -F usb.img
+\end{verbatim}
+
+\item Create the simulated device:
+\begin{verbatim}
+   sudo modprobe g_mass_storage file=/tmp/usb.img \
+      idVendor=0x1d6b idProduct=0x0104 iManufacturer=Myself \
+      iProduct=VirtualBlockDevice iSerialNumber=123
+\end{verbatim}
+
+\item Check that it exists with {\tt lsusb}
+
+\item Delete device with {\tt sudo modprobe -r g\_mass\_storage}
+
+\end{itemize}
+\end{itemize}
+
+\subsection{Configure the lab}
+See the usbtest lab as an example.
+\begin{itemize}
+\item Start the {\sbin/udevd -d} on each component that is to react to a usb insertion, e.g., in a {\tt faux\_init} file.
+\item Create a subdirectory of your lab, e.g., {\tt host\_data} into which you will place a few scripts and the disk image.
+\item Use the two modprobe commands above as templates for creating two scripts, one for creating the device, and one for removing it (for use
+when stopping the lab so the device does not persist.
+\item Set sudoers to not require a password to run the modprobe script.  Add
+something like the following using {\tt visudo -f /etc/sudoers}
+\begin{verbatim}
+mike ALL=(root) NOPASSWD: /home/mike/git/Labtainers/labs/usbtest/host_data/usb_create.sh
+\end{verbatim}
+\noindent and do the same for the script that deletes the device on stop.
+
+\item Modify the start.config to include THUMB... commands for the components that are to have insertable USB drives.
+Include at least the THUMB\_COMMAND and THUMB\_STOP.  Provide the paths to your scripts, relative to the lab directory.
+
+\item Modify the dockerfiles of components that have THUMB directives to replace filter the {\df} output so that volume lists do not look confusing:
+\begin{verbatim}
+  RUN mv /bin/df /bin/mydf
+  RUN echo "/bin/mydf $@ | grep -v '/dev/sda1' | sort | uniq -u" > /bin/df
+\end{verbatim}
+
+\item Disable auto mount in the VM (TBD, do these gsettings work?):
+\begin{verbatim}
+    gsettings set org.gnome.desktop.media-handling automount false
+    gsettings set org.gnome.desktop.media-handling automount-open false 
+\end{verbatim}
+
+\end{itemize}
+
+\subsection{Implementation notes}   
+Running modprobe on the container has no advantage, because all containers will see the effects.  Running the {\tt modprobe} on the 
+host lets the backing store file live on the host, where its contents can be
+dynamically modified, e.g., to introduce malware into the usb drive.
+
+
+
+\begin{itemize}
+\item The udevd daemon will cause devices to become visible on those components; and that will occur regardless of sharing /dev or privilege.
+\item GNS3 runs containers as privileged, so consider using the {\tt df} filter on all of them.
+\item Perhaps put the mounting in a second udev rule, to run if the device persists?
+\item Student can insert a USB into a stopped container.  What then is the iadrive supposed to do when the system starts?
+\item Use the {\tt lsusb} command on the VM to see the simulated USB, it has a attributes that include the product info provided by the
+create script and the words {\tt Linux Foundation Multifunction Composite Gadget}
+That entry remains, even after the iadrive deletes the device.  So that entry will be our indication that the drive is still inserted.
+\item Fix thumb drive icon in GNS3
+\end{itemize}
+
 
 \section{GNS3 interface changes for Labtainers}
 Once the lab is defined for use in GNS3, it can be run by opening the associated project file.  The following features were added to the GNS interface:
@@ -206,7 +328,16 @@ Once the lab is defined for use in GNS3, it can be run by opening the associated
 		by pressing the "Restart Lab" button.
 	\item All Labtainers containers support X11 applications using the host system X11 server.
 	\item Starting the gns3 program with the \-\-student flag will cause the GUI to hide toolbars and widgets that students should not interact with.
+        \item Right clicking on a Labtainer node will display a pop-up menu including an option to insert a thumb drive.  This will cause
+              a {\tt THUMB\_COMMAND} from the start.config to execute on the VM, i.e., to create a simulated USB device using the dummy\_hcd 
+              kernel module.  Also a {\tt sudo mount} command may run on the container, with arguments provided in start.config THUMB\_VOLUME configuration
+              value for that container.  If the simulated USB drive is already created, then the pop-up menu will include an option to remove the
+              drive, instead of inserting it.  Components that lack THUMB... entries in the start.config will not have any such menu items.
+        \item Use of the {\tt -s} option when starting gns3 will cause any cloud endpoint nodes to be hidden from the student,
+along with any links to them.  It will also hide any Labtainer containers having {\tt HIDE YES} in the start.config.
 \end{itemize}
+
+
 \section{History}
 This section describes steps taken to create the Labtainers version of GNS3.
 The steps outlined here are not intended to be repeated by developers.
@@ -245,4 +376,9 @@ To add icons:
 	\item Run 'sudo python3 setup.py install' in the gns3-gui directory.
 \end{itemize}
 Added lab manual button and check work button.
+\section{Notes}
+The startup file is provided to start\_window.py, and that is provided to loadPath, and that results in
+a call to Topology.loadProject.  The nodes and links are created in graphics\_view.py
+
 \end{document}
+

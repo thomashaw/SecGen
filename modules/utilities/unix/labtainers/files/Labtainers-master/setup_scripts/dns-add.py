@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 import json
 import os
 import subprocess
 '''
+*****SHOULD NOT BE USED: labutils docker create passes DNS info *******
 Update the docker/daemon.json file to reflect the local dns and the google dns.
 Avoid trouble with sites that block use of external dns servers.
 '''
@@ -13,7 +14,7 @@ cmd="nmcli dev show | grep 'IP4.DNS'"
 ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 output = ps.communicate()
 if len(output[0]) > 0:
-    for line in output[0].splitlines(True):
+    for line in output[0].decode('utf-8').splitlines(True):
         dns_add = line.split()[1].strip()
         dns.append(dns_add)
         break
@@ -25,7 +26,7 @@ if os.path.isfile(jfile):
 else:
     print('no file at %s' % jfile)
     if not os.path.isdir('/etc/docker'):
-        os.path.mkdir('/etc/docker')
+        os.mkdir('/etc/docker')
     data = {}
 
 if 'dns' in data:

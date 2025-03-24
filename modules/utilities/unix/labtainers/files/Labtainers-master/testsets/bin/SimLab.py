@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -18,21 +18,12 @@ import sys
 import logging
 sys.path.append('./bin')
 import ParseLabtainerConfig
+import LabtainerLogging
+import labutils
 '''
 Use xdotool to simulate a lab being performed, as driven by
 a simthis.txt file
 '''
-def isProcRunning(proc_string):
-    ''' return True if given string in ps -ao args '''
-    time.sleep(0.5)
-    cmd = 'ps -ao args'
-    ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output = ps.communicate()
-    for line in output[0].splitlines():
-        #print('is %s in %s' % (proc_string, line))
-        if proc_string in output[0]:
-            return True
-    return False
 
 
 def DockerCmd(cmd):
@@ -51,7 +42,7 @@ def DockerCmd(cmd):
         else:
             if len(output[0]) > 0:
                 #print("cmd %s stdout: %s" % (cmd, output[0]))
-                return True, output[0]
+                return True, output[0].decode('utf-8')
             else:
                 #print("cmd %s stdout: ''" % cmd)
                 ok = True
@@ -74,6 +65,32 @@ class SimLab():
 
         if not os.path.isdir(self.sim_path):
             return None
+ 
+    def isProcInContainer(self, name):
+        retval = False
+        cmd = 'getactivewindow -- getwindowname' 
+        title = self.dotool(cmd)
+        if '@' in title:
+            parts = title.split('@')
+            container = parts[1].strip() 
+            if ':' in container:
+                container = container.rsplit(':')[0]
+            image = '%s.%s' % (self.labname, container)
+            #print('container image is %s' % image)
+            container_id = labutils.GetContainerID(image)
+            cmd = 'docker top %s ao pid,cmd' % container_id
+            #print('cmd %s' % cmd)
+            ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            output = ps.communicate()
+            for line in output[0].decode('utf-8').splitlines():
+                #print('is %s in %s' % (name, line))
+                if name in output[0].decode('utf-8'):
+                    retval = True
+                    break
+        else:
+            print('No recent winow for isProcInContainer, title was %s' % title)
+            exit(1)
+        return retval
 
     def hasSim(self):
         if os.path.isdir(self.sim_path):
@@ -90,8 +107,8 @@ class SimLab():
         ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = ps.communicate()
         if len(output[1]) > 0:
-            print output[1]
-        return output[0].strip()
+            print(output[1].decode('utf-8'))
+        return output[0].decode('utf-8').strip()
     
     
     def searchWindows(self, name, wait=False):
@@ -99,6 +116,7 @@ class SimLab():
             The title "Terminal" seems to return most windows, so double check
             the name against the getWindowname results.
         '''
+        ''' hack for tracking which container has focus for docker top command '''
         wid = None
         count = 0
         while wid is None or len(wid) == 0:
@@ -171,9 +189,27 @@ class SimLab():
             else:
                 cmd = 'type "%s\n"' % (string)
             self.dotool(cmd)
-        #cmd = 'key Return'
-        #self.dotool(cmd)
    
+    def typeString(self, string):
+        #cmd = "type --window %d '%s'" % (self.current_wid, string)
+        ''' xdotool cannot handle a mix of single/double quotes.  '''
+        if '"' in string and "'" in string:
+            parts = string.split("'")
+            count = 0
+            for p in parts:
+                count += 1
+                cmd = "type '%s'" % p
+                self.dotool(cmd)
+                if count < len(parts):
+                    cmd = "key apostrophe"
+                    self.dotool(cmd)
+        else:
+            if '"' in string:
+                cmd = "type '%s'" % (string)
+                #print('cmd is %s' % cmd)
+            else:
+                cmd = 'type "%s"' % (string)
+            self.dotool(cmd)
 
     def multilineCommand(self, line, fh):
         cmd = line
@@ -193,7 +229,7 @@ class SimLab():
                     cmd = self.multilineCommand(line, fh)
                     if len(cmd.strip()) > 0:
                         self.typeLine(cmd.strip())
-                        while isProcRunning(cmd.strip()):
+                        while self.isProcInContainer(cmd.strip()):
                             print('%s running, wait' % cmd.strip())
                             time.sleep(1)
                     # at least one to avoid timestamp collisions
@@ -216,7 +252,6 @@ class SimLab():
                     self.typeLine(line.strip())
                     time.sleep(1.1)
                 else:
-                    #print 'sleep 2'
                     time.sleep(2)
 
     def keyFile(self, fname):
@@ -236,7 +271,6 @@ class SimLab():
                     self.dotool(send)
                     time.sleep(1.1)
                 else:
-                    #print 'sleep 2'
                     time.sleep(2)
 
     def cpFile(self, labname, params):
@@ -254,22 +288,35 @@ class SimLab():
         cmd = 'docker cp %s %s:%s' % (src_path, full_containername, dst_path)
         os.system(cmd)
 
-    def addFile(self, params, replace=False):
-        from_file, to_file = params.split()
-        from_file = os.path.join(self.sim_path, from_file) 
-        cmd = 'vi %s' % to_file
-        self.typeLine(cmd.strip()) 
-        if replace:
-            cmd = "type '9999dd'"
-            self.dotool(cmd)
-        else:
+    def addFile(self, params):
+        parts = params.split()
+        if len(parts) == 2:
+            from_file = os.path.join(self.sim_path, parts[0])
+            to_file = parts[1]
+            cmd = 'vi %s' % to_file
+            self.typeLine(cmd.strip()) 
             self.dotool("type 'G'")
-        self.dotool("type 'o'")
+            self.dotool("type 'o'")
+        elif len(parts) == 3:
+            ''' issue the search command before adding lines above resulting line '''
+            from_file = os.path.join(self.sim_path, parts[0])
+            to_file = parts[1]
+            search = parts[2]
+            cmd = 'vi %s' % to_file
+            self.typeLine(cmd.strip()) 
+            print('search is "%s"' % search)
+            time.sleep(1)
+            self.typeLine(search)
+            self.dotool("type 'O'")
+
         with open(from_file) as fh:
             for line in fh:
                 self.typeLine(line.rstrip())
+        time.sleep(1)
         self.dotool("key Escape")
+        self.typeLine(":w!")
         self.dotool("type 'ZZ'")
+        print('done saving')
        
     def includeFile(self, fname):
         full = os.path.join(self.sim_path, fname)
@@ -281,7 +328,6 @@ class SimLab():
                             print('%s' % line.strip())
                             sys.stdout.flush()
                     continue
-                #print line
                 try:
                     cmd, params = line.split(' ', 1)
                 except:
@@ -302,9 +348,8 @@ class SimLab():
             full_containername = "%s.%s.student" % (labname, container)
             hosturl = waitNetURL_string[1]
 
-        netstat_cmd = "sudo netstat -put -W | grep %s" % hosturl
+        netstat_cmd = "sudo netstat -n -put -W | grep %s" % hosturl
         cmd = 'docker exec %s script -q -c "%s" /dev/null' % (full_containername, netstat_cmd)
-        #print "cmd is (%s)" % cmd
         result, output_str = DockerCmd(cmd)
         #print('wait_net %r out is %s' % (result, output_str))
         if not result:
@@ -314,7 +359,6 @@ class SimLab():
             print(output_str)
             sys.stdout.flush()
         if result and output_str == "":
-            #print "After DockerCmd, return False"
             return False
         else:
             for line in output_str.splitlines():
@@ -350,12 +394,21 @@ class SimLab():
             self.keyFile(params)
         elif cmd == 'type_line':
             self.typeLine(params.strip())
+            if params.strip().startswith('sudo su'):
+                time.sleep(1)
         elif cmd == 'type_lit':
             self.typeLit(params.strip())
+        elif cmd == 'type_string':
+            self.typeString(params.strip())
         elif cmd == 'type_command':
             self.typeLine(params.strip())
-            while isProcRunning(params):
+            ''' avoid duplicate timestamps '''
+            slept = False
+            while self.isProcInContainer(params):
                 print('%s running, wait' % params)
+                time.sleep(1)
+                slept=True
+            if not slept:
                 time.sleep(1)
         elif cmd == 'command_file':
             self.commandFile(params)
@@ -381,7 +434,7 @@ class SimLab():
         elif cmd == 'wait_net':
             self.waitNetURL(self.labname, params)
         elif cmd == 'wait_proc':
-            while isProcRunning(params):
+            while self.isProcInContainer(params):
                 print('%s running, wait' % params)
                 time.sleep(1)
         elif cmd == 'sleep':
@@ -390,7 +443,7 @@ class SimLab():
             fun_cmd = os.path.join(self.sim_path, params)
             ps = subprocess.Popen(shlex.split(fun_cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             output = ps.communicate()
-            self.typeLine(output[0].strip())
+            self.typeLine(output[0].decode('utf-8').strip())
            
         else:
             print('Unknown command %s %s' % (cmd, params))
@@ -441,15 +494,10 @@ class SimLab():
             output = ps.communicate()
             if len(output[0]) > 0:
                 self.dconf_orig_hud_string_set = True
-                #print "output[0] is (%s)" % output[0].strip()
-                self.dconf_hud_string = output[0].strip()
+                self.dconf_hud_string = output[0].decode('utf-8').strip()
             else:
                 self.dconf_orig_hud_string_set = False
                 result = 1
-            #if self.dconf_orig_hud_string_set:
-            #    print "hud_string is (%s)" % self.dconf_hud_string
-            #else:
-            #    print "hud_string is not SET!"
         return result
 
     def test_for_program(self, myprogram):
@@ -487,7 +535,6 @@ class SimLab():
                             print('%s' % line.strip())
                             sys.stdout.flush()
                     continue
-                #print line
                 try:
                     cmd, params = line.split(' ', 1)
                 except:
@@ -515,27 +562,8 @@ def __main__():
         exit(1)
     labtainer_config_path = os.path.abspath('../../config/labtainer.config')
     labtainer_config = ParseLabtainerConfig.ParseLabtainerConfig(labtainer_config_path, None)
-    logfilename = '/tmp/simlab.log'
-    logname = "simlab"
-
-    file_log_level = labtainer_config.file_log_level
-    console_log_level = labtainer_config.console_log_level
-
-    logger = logging.getLogger(logname)
-    logger.setLevel(file_log_level)
-    formatter = logging.Formatter('[%(asctime)s - %(levelname)s : %(message)s')
-
-    file_handler = logging.FileHandler(logfilename)
-    file_handler.setLevel(file_log_level)
-    file_handler.setFormatter(formatter)
-
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(console_log_level)
-    console_handler.setFormatter(formatter)
-
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
+    logger = LabtainerLogging.LabtainerLogging("simlab.log", args.labname, labtainer_config_path)
+    labutils.logger = logger
     logger.debug('Begin simlab for %s' % lab)
     simlab = SimLab(lab, verbose_level, in_file=args.file, logger=logger)
     simlab.simThis() 

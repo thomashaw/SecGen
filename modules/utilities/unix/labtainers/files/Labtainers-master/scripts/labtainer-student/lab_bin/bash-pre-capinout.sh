@@ -1,11 +1,31 @@
 : <<'END'
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 END
 local_output=""
 getlocaloutput(){
@@ -53,6 +73,15 @@ treatlocal(){
    local orig_command=$2
    #echo "cmd_path is $cmd_path"
    local TAS=$PRECMD_HOME/.local/bin/treataslocal
+   base_cmd=$(basename "$cmd_path")
+   if [[ $base_cmd == 'python' ]] || [[ $base_cmd == 'python3' ]] || [[ $base_cmd == 'sh' ]] || [[ $base_cmd == 'bash' ]]; then
+       return 1
+   fi
+   which=`which $cmd_path 2>&1`
+   if [[ -z $which ]]; then
+       # command does not exist
+       return 0
+   fi
    if [ -f $TAS ]
    then
        local_output=""
@@ -63,7 +92,6 @@ treatlocal(){
            fi
            read -r -a cmd_array <<< "$cmdlocal"
            the_command=${cmd_array[0]}
-           base_cmd=$(basename "$cmd_path")
            base_treat=$(basename "$the_command")
 
            if [[ $the_command == *.service ]]; then
@@ -176,7 +204,7 @@ forcecheck(){
 # but only if it is not a system command.  Checks the
 # ~/.local/bin/treataslocal for exceptions.
 # If the command includes a pipe, look at both sides of the pipe.
-# Ignore sudo, and treats target command as the command.
+# Ignore sudo and time, and treats target command as the command.
 #
 preexec() {
    #echo "just typed $1";
@@ -205,7 +233,8 @@ preexec() {
            counter=$[$counter +1]
        fi
        cmd_line_array=($command)
-       if [ ${cmd_line_array[0]} == "sudo" ]; then
+       if [ ${cmd_line_array[0]} == "sudo" ] || [ ${cmd_line_array[0]} == "time" ] || \
+          [ ${cmd_line_array[0]} == "sh" ] || [ ${cmd_line_array[0]} == "bash" ]; then
           cmd_path=`which ${cmd_line_array[1]} 2>/dev/null`
        else
           cmd_path=`which ${cmd_line_array[0]} 2>/dev/null`
@@ -222,7 +251,11 @@ preexec() {
           then
               precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
               precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-              $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+              # superstition?
+              if [ ! -z "$precheckoutfile" ]; then
+                  touch $precheckoutfile
+              fi
+              $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
               if [[ ! -s $precheckoutfile ]]; then
                   rm -f $precheckoutfile
               fi
@@ -241,14 +274,18 @@ preexec() {
            then
                precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
                precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+               # superstition regarding concurrance with mynotify service?
+               if [ ! -z "$precheckoutfile" ]; then
+                  touch $precheckoutfile
+               fi
+               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
                if [[ ! -s $precheckoutfile ]]; then
                    rm -f $precheckoutfile
                fi
                # For now, there is nothing (i.e., no stdin) for precheck
                #echo "" >> $precheckinfile
            fi
-           /sbin/capinout "$1" $counter $timestamp $cmd_path
+           /usr/sbin/capinout "$1" $counter $timestamp $cmd_path
            if [[ ! -z "$local_output" ]]; then
                # we are to timestamp a program output file 
                #echo "local output is $local_output"
@@ -265,21 +302,25 @@ preexec() {
        fi
        if [[ ! -z $cmd_path ]] && [[ "$cmd_path" != /usr/* ]] && \
           [[ "$cmd_path" != /bin/* ]] && [[ "$cmd_path" != /sbin/* ]] && \
-          [[ "$cmd_path" != /etc/* ]]; then
+          [[ "$cmd_path" != /usr/sbin/* ]] && [[ "$cmd_path" != /etc/* ]]; then
            #echo "would do this command $1"
            # If file $PRECMD_HOME/.local/bin/precheck.sh exist, run it
            if [ -f $PRECMD_HOME/.local/bin/precheck.sh ]
            then
+               # superstition?
+               if [ ! -z "$precheckoutfile" ]; then
+                  touch $precheckoutfile
+               fi
                precheckoutfile="$PRECMD_HOME/.local/result/precheck.stdout.$timestamp"
                precheckinfile="$PRECMD_HOME/.local/result/precheck.stdin.$timestamp"
-               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path > $precheckoutfile 2>/dev/null
+               $PRECMD_HOME/.local/bin/precheck.sh $cmd_path >> $precheckoutfile 2>/dev/null
                if [[ ! -s $precheckoutfile ]]; then
                    rm -f $precheckoutfile
                fi
                # For now, there is nothing (i.e., no stdin) for precheck
                #echo "" >> $precheckinfile
            fi
-           /sbin/capinout "$1" $counter $timestamp $cmd_path
+           /usr/sbin/capinout "$1" $counter $timestamp $cmd_path
            return 1
        fi
    done

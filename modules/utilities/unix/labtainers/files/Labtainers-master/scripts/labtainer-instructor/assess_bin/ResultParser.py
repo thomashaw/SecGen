@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # ResultParser.py
@@ -17,7 +37,8 @@ domain and is not subject to copyright.
 import datetime
 import json
 import glob
-import md5
+from hashlib import md5
+import parse 
 import os
 import re
 import sys
@@ -25,24 +46,27 @@ import time
 import MyUtil
 import GoalsParser
 import ParameterParser
-from parse import *
 
 MYHOME = ""
 container_exec_proglist = {}
 stdoutfnameslist = []
 timestamplist = {}
+endtimelist = {}
 line_types = ['CHECKSUM', 'CONTAINS', 'FILE_REGEX', 'FILE_REGEX_TS', 'LINE', 'STARTSWITH', 'NEXT_STARTSWITH', 'HAVESTRING', 
-              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'TIME_DELIM']
-just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM']
+              'HAVESTRING_TS', 'LOG_TS', 'LOG_RANGE', 'RANGE_REGEX', 'REGEX', 'REGEX_TS', 'LINE_COUNT', 'PARAM', 'STRING_COUNT', 
+              'COMMAND_COUNT', 'COMMAND_COUNT_REGEX', 'TIME_DELIM', 'SIZE']
+just_field_type = ['CHECKSUM', 'LINE_COUNT', 'TIME_DELIM', 'SIZE']
 logger = None
 resultidlist = {}
 
 def GetExecProgramList(containername, studentlabdir, container_list, targetfile):
+    # Intended for use when the named program is just a wildcard.
     # This will return a list of executable program name matching
-    # <directory>/.local/result/<exec_program>.targetfile.*
-    # If containername is "" then loop through all directory of studentlabdir/container
+    # <directory>/.local/result/targetfile.*
+    # If containername is "" then loop through all directories of studentlabdir/container
     # where container is from the container_list
     # If containername is non "" then directory is studentlabdir/containername
+    # NOTE: it excludes prestop files
     myexec_proglist = []
     mylist = []
     if containername == "":
@@ -64,7 +88,7 @@ def GetExecProgramList(containername, studentlabdir, container_list, targetfile)
             #print "split_string is %s" % split_string
             namesplit = basefilename.split(split_string)
             #print namesplit
-            if namesplit[0] not in myexec_proglist:
+            if namesplit[0] not in myexec_proglist and namesplit[0] != 'prestop':
                 myexec_proglist.append(namesplit[0])
     return myexec_proglist
 
@@ -89,8 +113,8 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     '''
     This function populates a set of global structures used in processing the results
     '''
-    valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS','FILE_REGEX',  
-                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT']
+    valid_field_types = ['TOKEN', 'GROUP', 'PARENS', 'QUOTES', 'SLASH', 'LINE_COUNT', 'CHECKSUM', 'CONTAINS', 'FILE_REGEX',  
+                         'FILE_REGEX_TS', 'SEARCH', 'PARAM', 'STRING_COUNT', 'COMMAND_COUNT', 'COMMAND_COUNT_REGEX', 'SIZE']
     if not MyUtil.CheckAlphaDashUnder(result_key):
         logger.error("Not allowed characters in results.config's key (%s)" % result_key)
         sys.exit(1)
@@ -101,7 +125,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
     values = [x.strip() for x in result_value.split(' : ')]
     #print values
     numvalues = len(values)
-    logger.debug("result_value is %s -- numvalues is (%d)" % (result_value, numvalues))
+    #logger.debug("result_value is %s -- numvalues is (%d)" % (result_value, numvalues))
     if numvalues < 2:
         logger.error("found no ':' delimiter in %s" % result_value)
         sys.exit(1)
@@ -122,12 +146,13 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
 
     # get optional container name and determine if it is 'stdin' or 'stdout'
     newprogname_type = values[0].strip()
-    logger.debug('newprogname_type is %s' % newprogname_type)
+    #logger.debug('newprogname_type is %s' % newprogname_type)
     cmd = values[1].strip()
     # <cfgcontainername>:<exec_program>.<type>
     if ':' in newprogname_type:
         '''
-        [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path[:time_program]
+        DEPRECATED: [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path[:time_program]
+        [container_name:]<prog>.[stdin | stdout] | [container_name:]file_path
 
         '''
         cfgcontainername = ''
@@ -173,10 +198,10 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
         # Can only parse for wildcard if it is actual parsing - not validation
         if exec_program == "*" and actual_parsing:
             exec_program_list = GetExecProgramList(containername, studentlabdir, container_list, targetfile)
-            logger.debug("wildcard, exec_program_list is %s" % exec_program_list)
+            #logger.debug("wildcard, exec_program_list is %s" % exec_program_list)
         else:
             exec_program_list.append(exec_program)
-            logger.debug('exec_program %s, append to list, container is %s' % (exec_program, containername))
+            #logger.debug('exec_program %s, append to list, container is %s' % (exec_program, containername))
         if containername != "":
             #print('containername is %s' % containername)
             if containername not in container_exec_proglist:
@@ -184,7 +209,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
             for cur_exec_program in exec_program_list:
                 if cur_exec_program not in container_exec_proglist[containername]:
                     container_exec_proglist[containername].append(cur_exec_program)
-            logger.debug('proglist is %s' %  str(container_exec_proglist[containername]))
+            #logger.debug('proglist is %s' %  str(container_exec_proglist[containername]))
         else:
             if "CURRENT" not in container_exec_proglist:
                 container_exec_proglist["CURRENT"] = []
@@ -207,7 +232,7 @@ def ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, 
 
     # Sanity check for 'PARAM' type
     if values[line_at] == 'PARAM':
-        logger.debug("progname_type is (%s)" % progname_type)
+        #logger.debug("progname_type is (%s)" % progname_type)
         if not progname_type.endswith('stdin'):
             logger.error("results.config line (%s)\n" % result_value)
             logger.error("PARAM field_type on non stdin file")
@@ -267,8 +292,8 @@ def getToken(linerequested, field_type, token_id, logger):
                     linetokenidx = linetokenidx + 1
                 numlinetokens = len(linetokens)
             elif field_type == 'SEARCH':
-                logger.debug('is search')
-                search_results = search(token_id, linerequested)
+                #logger.debug('is search token_id %s  linerequested %s' % (token_id, linerequested))
+                search_results = parse.search(token_id, linerequested)
                 if search_results is not None:
                     token = str(search_results[0])
                 else: 
@@ -314,19 +339,47 @@ def lineHasCommand(line, look_for):
                 p = p[1:]
             if p.startswith(look_for):
                 retval += 1
+            '''
+            else:
+                sobj = re.search(look_for, p)
+                if sobj is not None:
+                    retval += 1
+            '''
     return retval
 
-def getTS(line):
+def lineHasCommandRegex(line, look_for):
+    retval = 0
+    if not look_for.startswith('time ') and line.startswith('time'):
+        line = line[5:].strip()
+    if not look_for.startswith('sudo ') and line.startswith('sudo'):
+        line = line[5:].strip()
+    commands = line.split(';')
+    for c in commands:
+        c = c.strip()
+        pipes = c.split('|')
+        for p in pipes:
+            p = p.strip()
+            if p.startswith('('):
+                p = p[1:]
+            sobj = re.search(look_for, p)
+            if sobj is not None:
+                retval += 1
+    return retval
+
+def getTS(line, previous_ts):
     retval = None
     ''' try syslog format first '''
     ts_string = line[:15]
-    now = datetime.datetime.now()
-    ts_string = '%d %s' % (now.year, ts_string)
-    try:
-        time_val = datetime.datetime.strptime(ts_string, '%Y %b %d %H:%M:%S')
-        retval = time_val.strftime("%Y%m%d%H%M%S")
-    except:
-        pass
+    if len(ts_string.strip()) == 0:
+        retval = previous_ts
+    if retval is None:
+        now = datetime.datetime.now()
+        ts_string = '%d %s' % (now.year, ts_string)
+        try:
+            time_val = datetime.datetime.strptime(ts_string, '%Y %b %d %H:%M:%S')
+            retval = time_val.strftime("%Y%m%d%H%M%S")
+        except:
+            pass
     if retval is None:
         ''' snort format '''
         ts_string = line[:14]
@@ -336,24 +389,46 @@ def getTS(line):
             retval = time_val.strftime("%Y%m%d%H%M%S")
         except:
             pass
+
+    if retval is None:
+        ''' mariadb format '''
+        ts_string = line[:15]
+        try:
+            time_val = datetime.datetime.strptime(ts_string, '%y%m%d %H:%M:%S')
+            retval = time_val.strftime("%Y%m%d%H%M%S")
+        except:
+            pass
     
     if retval is None:
         ''' httpd format '''
         if '[' in line and ']' in line:
-            ts_string = line[line.find("[")+1:line.find("]")].split()[0]
+            ts_string_full = line[line.find("[")+1:line.find("]")]
             try:
-                time_val = datetime.datetime.strptime(ts_string, '%d/%b/%Y:%H:%M:%S')
+                time_val = datetime.datetime.strptime(ts_string_full.split()[0], '%d/%b/%Y:%H:%M:%S')
+                retval = time_val.strftime("%Y%m%d%H%M%S")
+            except:
+                try:
+                    time_val = datetime.datetime.strptime(ts_string_full, '%d/%b/%Y %H:%M:%S')
+                    retval = time_val.strftime("%Y%m%d%H%M%S")
+                except:
+                    pass
+        elif 'T' in line:
+            ts_string = line[:19]
+            try:
+                time_val = datetime.datetime.strptime(ts_string, '%Y-%m-%dT%H:%M:%S')
                 retval = time_val.strftime("%Y%m%d%H%M%S")
             except:
                 pass
+
     if retval is None:
-        print('ERROR getting timestamp from %s' % line)
+        ''' assume multiline log entry and use previous.  TBD, downside?'''
+        retval = previous_ts
     return retval 
          
 
 def getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key):
             # Read in corresponding file
-            targetf = open(current_targetfname, "r")
+            targetf = open(current_targetfname, encoding='ascii', errors='ignore')
             targetlines = targetf.readlines()
             targetf.close()
             targetfilelen = len(targetlines)
@@ -392,11 +467,13 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 # If not found - set to None
                 if found_lookupstring == False:
                     linerequested = None
-            elif command == 'HAVESTRING_TS' or command == 'LOG_RANGE' or \
+            elif command == 'HAVESTRING_TS' or command == 'LOG_RANGE' or command == 'RANGE_REGEX' or \
                  command == 'REGEX_TS' or command == 'FILE_REGEX_TS' or command == 'LOG_TS':
                 return None
             elif command == 'LINE_COUNT':
                 return targetfilelen
+            elif command == 'SIZE':
+                return os.path.getsize(current_targetfname)
             elif command == 'PARAM':
                 fname = os.path.basename(current_targetfname).rsplit('.',1)[0] 
                 if fname.endswith('stdin'):
@@ -404,7 +481,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                 else:
                     # Config file 'PARAM' has been validated against stdin
                     # Treat this as can't find token
-                    logger.debug('PARAM only valid for stdin files: %s' % current_targetfname)
+                    #logger.debug('PARAM only valid for stdin files: %s' % current_targetfname)
                     return ''
                 if 'PROGRAM_ARGUMENTS' in targetlines[0]:
                     try:
@@ -425,24 +502,23 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                         except:
                             # Couldn't find the corresponding parameter
                             # Treat this as can't find token
-                            logger.debug('did not find parameter %d in %s' % (index-1, param_str))
+                            #logger.debug('did not find parameter %d in %s' % (index-1, param_str))
                             return ''
                     return tagstring
             elif command == 'CHECKSUM':
                 ''' Create a checksum of the targetfile '''
-                mymd5 = md5.new()
+                mymd5 = md5()
                 targetlinestring = "".join(targetlines)
-                mymd5.update(targetlinestring)
+                mymd5.update(targetlinestring.encode('utf-8'))
                 tagstring = mymd5.hexdigest()
                 return tagstring
             elif command == 'CONTAINS':
-                if token_id == 'CONTAINS':
+                if 'CONTAINS' in token_id:
                     ''' search entire file, vice searching for line '''
                     remain = line.split(command,1)[1]
                     remain = remain.split(':', 1)[1].strip()
                     tagstring = False
                     for currentline in targetlines:
-                        #print('look for <%s> in %s' % (remain, currentline))
                         if remain in currentline:
                             tagstring = True
                             break 
@@ -483,6 +559,16 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     count += occurances
                 return count
 
+            elif command == 'COMMAND_COUNT_REGEX':
+                ''' intended for bash_history files, look for occurances of what look like commands '''
+                remain = line.split(command,1)[1]
+                look_for = remain.split(':', 1)[1].strip()
+                count=0
+                for currentline in targetlines:
+                    occurances = lineHasCommandRegex(currentline.strip(), look_for)
+                    count += occurances
+                return count
+
             elif command == 'STARTSWITH':
                 #print('is startswith')
                 found_lookupstring = False
@@ -495,7 +581,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                             break
                 # If not found - set to None
                 if found_lookupstring == False:
-                    logger.debug('*** No line starts with %s ***' % (lookupstring))
+                    #logger.debug('*** No line starts with %s ***' % (lookupstring))
                     linerequested = None
             elif command == 'NEXT_STARTSWITH':
                 found_lookupstring = False
@@ -509,7 +595,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     prev_line = currentline
                 # If not found - set to None
                 if found_lookupstring == False:
-                    logger.debug('*** No next line starts with %s ***' % (lookupstring))
+                    #logger.debug('*** No next line starts with %s ***' % (lookupstring))
                     linerequested = None
             else:
                 # config file should have been validated
@@ -523,7 +609,7 @@ def getTokenFromFile(current_targetfname, command, field_type, token_id, logger,
                     token = ''
             else:
                 token = getToken(linerequested, field_type, token_id, logger)
-            logger.debug('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
+            #logger.debug('field_type %s, token_id %s, got token %s' % (field_type, token_id, token))
             return token
     
 def getParamList(MYHOME, studentdir, logger):    
@@ -544,7 +630,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
          return
     containername= targetfile= result_key= command= field_type= token_id= lookupstring= result_home  = None
     #print('line is %s' % line)
-    logger.debug('line is %s' % line)
+    #logger.debug('line is %s' % line)
     (result_key, result_value) = line.split('=', 1)
     result_key = result_key.strip()
 
@@ -558,7 +644,7 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     # NOTE: Split using ' : ' - i.e., "space colon space"
     values = [x.strip() for x in result_value.split(' : ', num_splits)]
     newtargetfile = values[0].strip()
-    logger.debug('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
+    #logger.debug('line_at is %d newtargetvalue = %s, values: %s' % (line_at, newtargetfile, str(values)))
     #print('newtargetfile is %s' % newtargetfile)
     # <cfgcontainername>:<exec_program>.<type>
     containername = None
@@ -578,10 +664,10 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
     if targetfile.startswith('/'):
         targetfile = os.path.join(result_home, targetfile[1:])
     #print('targetfile is %s containername is %s' % (targetfile, containername))
-    logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
+    #logger.debug('targetfile is %s, containername is %s' % (targetfile, containername))
     if containername is not None and containername not in container_list:
-        print "Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list))
-        logger.debug("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
+        print("Config line (%s) containername %s not in container list (%s), skipping..." % (line, containername, str(container_list)))
+        logger.error("Config line (%s) containername %s not in container list (%s), skipping..." % (line, 
               containername, str(container_list)))
         return None, None, result_key, None, None, None, None, None 
 
@@ -611,32 +697,51 @@ def getConfigItems(labidname, line, studentlabdir, container_list, logger, param
         if lookupstring.startswith('$'):
             tstring = lookupstring[1:]
             if tstring in parameter_list:
-                logger.debug('replacing %s with %s' % (lookupstring, parameter_list[tstring]))
+                #logger.debug('replacing %s with %s' % (lookupstring, parameter_list[tstring]))
                 lookupstring = parameter_list[tstring]
 
     return containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home 
 
 
-def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger, parameter_list):
+def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_list, timestamppart, logger, parameter_list, latest_dict):
     retval = True
     containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, line, studentlabdir, container_list, logger, parameter_list)
     if targetfile is None:
         nametags[result_key]=None
         logger.error('No target file in %s' % line)
         return retval
-    logger.debug('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
+    if result_key.startswith('cw_'):
+        fname = targetfile
+        if fname.endswith('stdout'):
+            fname = targetfile[:-7]
+        elif fname.endswith('stdin'):
+            fname = targetfile[:-6]
+        container_file = '%s:%s' % (containername, fname)
+        #logger.debug('is cw %s ts %s file %s' % (result_key, timestamppart, container_file))   
+        if container_file not in latest_dict or timestamppart != latest_dict[container_file]:
+            ''' is a checkwork (current-state) result and is not the latest timestamp for the file, ignore '''
+            logger.debug('NOT the latest')
+            if container_file not in latest_dict:
+                logger.debug('%s not in dict' % container_file) 
+            else:
+                logger.debug('not latest, which is %s' % latest_dict[container_file])
+            
+            return retval
+        else:
+            logger.debug('is the latest')
+    #logger.debug('command %s, field_type %s, token_id %s' % (command, field_type, token_id))
     targetfname_list = []
     if targetfile.startswith('*'):
         # Handle 'asterisk' -- 
-        #print "Handling asterisk"
-        #print "containername is %s, targetfile is %s" % (containername, targetfile)
+        #print("Handling asterisk")
+        #print("containername is %s, targetfile is %s" % (containername, targetfile))
         # Replace targetfile as a list of files
         targetfileparts = targetfile.split('.')
         targetfilestdinstdout = None
-        if targetfileparts is not None:
+        if targetfileparts is not None and len(targetfileparts)>1:
             targetfilestdinstdout = targetfileparts[1]
         if targetfilestdinstdout is not None:
-            #print "targetfilestdinstdout is %s" % targetfilestdinstdout
+            #print("targetfilestdinstdout is %s" % targetfilestdinstdout)
             if containername in container_exec_proglist:
                 myproglist = container_exec_proglist[containername]
             else:
@@ -644,7 +749,9 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
             for progname in myproglist:
                 if timestamppart is not None:
                     targetfname = '%s%s.%s.%s' % (result_home, progname, targetfilestdinstdout, timestamppart)
-                    targetfname_list.append(targetfname)
+                    if os.path.isfile(targetfname):
+                        targetfname_list.append(targetfname)
+                        #print('appending %s' % targetfname)
     else:
         #print "Handling non-asterisk"
 
@@ -664,56 +771,84 @@ def handleConfigFileLine(labidname, line, nametags, studentlabdir, container_lis
 
     #print "Current targetfname_list is %s" % targetfname_list
 
-    tagstring = ""
+    tagstring = None
     # Loop through targetfname_list
     # Will ONLY contain one entry, except for the case where astrix is used
+    token = None
+    #print('len of targetfname_list is %d' % len(targetfname_list))
+    bool_operators = ['CONTAINS', 'FILE_REGEX']
     for current_targetfname in targetfname_list:
         if not os.path.exists(current_targetfname):
             # If file does not exist, treat as can't find token
-            token = ""
-            logger.debug("No %s file does not exist\n" % current_targetfname)
-            #nametags[result_key] = token
-            return False
+            #logger.debug("No %s file does not exist\n" % current_targetfname)
+            pass
         else:
+            #print('get  cmd %s for %s' % (command, current_targetfname))
             token = getTokenFromFile(current_targetfname, command, field_type, token_id, logger, lookupstring, line, result_key)
-            if token is None:
-                return False
-
-        #print token
-        if token == "":
-            tagstring = ""
-        elif token is None:
-            tagstring = None
-        else:
-            tagstring = token
-            # found the token - break out of the main for loop
-            break
+        if token is not None:
+            #print token
+            if token == "":
+                tagstring = ""
+            elif command in bool_operators:
+                if token is True:
+                    tagstring = token
+                    #print('BREAKING token is <%s>' % token)
+                    break
+                elif result_key in nametags and nametags[result_key] is not True:
+                    #print('result_key %s going false' % result_key)
+                    tagstring = token
+            else:
+                tagstring = token
+                # found the token - break out of the main for loop
+                #print('BREAKING not contains token is <%s>' % token)
+                break
+    if tagstring is None and command in bool_operators:
+        tagstring = False
+    elif token is None:
+        tagstring = None
 
     # set nametags - value pair
     if tagstring is not None:
         nametags[result_key] = tagstring
+        #print('nametags %s set to %s' % (result_key, tagstring))
         return True
     else:
         return False
 
+def stringMatch(line, sub, command):
+    retval = False
+    if 'REGEX' in command:
+        sobj = re.search(sub, line)
+        if sobj is not None:
+            retval = True
+    else:
+        if sub in line:
+            retval = True
+    return retval
+        
 
 def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
     ts_nametags = {}
     for line in configfilelines:
         linestrip = line.rstrip()
+        prior_time_val = None
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
+            if targetfile is None:
+                logger.error('Failed to get file from %s' % linestrip)
+                continue
         
             if command == 'HAVESTRING_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='ascii', errors='ignore') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
-                        time_val = getTS(currentline)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -724,33 +859,38 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             if command == 'LOG_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='ascii', errors='ignore') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     if lookupstring in currentline:
-                        time_val = getTS(currentline)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
                             ts_nametags[ts]['PROGRAM_ENDTIME'] = 0
                         ts_nametags[ts][result_key] = True
 
-            if command == 'LOG_RANGE':
+            if command == 'LOG_RANGE' or command == 'RANGE_REGEX':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='ascii', errors='ignore') as fh:
                     targetlines = fh.readlines()
                 prev_time_val = None
                 last_time_val = None
                 for currentline in targetlines:
-                    time_val = getTS(currentline)
+                    time_val = getTS(currentline, prior_time_val)
                     if time_val is None:
                         continue
+                    prior_time_val = time_val
                     if prev_time_val is None:
                         prev_time_val = time_val
-                    if lookupstring in currentline:
+                    if stringMatch(currentline, lookupstring, command):
+                        if time_val == prev_time_val:
+                            ''' ignore if lacks range '''
+                            continue
                         last_time_val = time_val
                         prev_ts = str(prev_time_val)
                         end_ts = str(time_val)
@@ -763,7 +903,8 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
                         prev_time_val = time_val
                 if last_time_val is not None:
                     prev_ts = str(prev_time_val)
-                    end_ts = str(last_time_val)
+                    ''' set end to end of log '''
+                    end_ts = str(time_val)
                     if prev_ts not in ts_nametags:
                         ts_nametags[prev_ts] = {}
                         ts_nametags[prev_ts]['PROGRAM_ENDTIME'] = end_ts 
@@ -775,14 +916,15 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             elif command == 'REGEX_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='ascii', errors='ignore') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
                     if sobj is not None:
-                        time_val = getTS(currentline)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -798,14 +940,15 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
             elif command == 'FILE_REGEX_TS':
                 if not os.path.isfile(targetfile):
                     continue
-                with open(targetfile, "r") as fh:
+                with open(targetfile, encoding='ascii', errors='ignore') as fh:
                     targetlines = fh.readlines()
                 for currentline in targetlines:
                     sobj = re.search(lookupstring, currentline)
                     if sobj is not None:
-                        time_val = getTS(currentline)
+                        time_val = getTS(currentline, prior_time_val)
                         if time_val is None:
                             continue
+                        prior_time_val = time_val
                         ts = str(time_val)
                         if ts not in ts_nametags:
                             ts_nametags[ts] = {}
@@ -830,7 +973,7 @@ def ParseConfigForTimeRec(studentlabdir, labidname, configfilelines, ts_jsonfnam
 
 def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, lookupstring, logger):
     fname, delim_prog = targetfile.split(':')
-    logger.debug('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
+    #logger.debug('targetfile is time delim %s delim_prog %s fname %s' % (targetfile, delim_prog, fname))
     look_for = os.path.join(result_home,'%s.stdout.*' % delim_prog)
     #print('look for %s' % look_for)
     delim_list = glob.glob(look_for)
@@ -847,12 +990,14 @@ def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, l
     ts = 0
     current_ts_end = delim_ts_set[0]
     index = 0
+    prior_time_val = None
     with open(fname) as fh:
         for currentline in fh:
-            time_val = getTS(currentline)
-            logger.debug('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
+            time_val = getTS(currentline, prior_time_val)
+            prior_time_val = time_val
+            #logger.debug('ts[index] %s  my_time %s' % (delim_ts_set[index], time_val))
             if time_val > delim_ts_set[index]:
-                logger.debug('time greater')
+                #logger.debug('time greater')
                 if ts in ts_nametags:
                     ts_nametags[ts]['PROGRAM_ENDTIME'] = time_val
                 ts = delim_ts_set[index]
@@ -875,29 +1020,38 @@ def doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, l
 
 def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfname, container_list, logger, parameter_list):
     '''
-    Handle case of timestamped log files whose names are qualified by a 
-    "time delimiter" program whose start times will
-    be used to break up a timestamped log file.  The quantity of timestamped groupings
-    of log file results will be one plus the quantity of invocations of the "time delimeter" program.
+    HANDLE TIME_DELIM
+      DEPRECATEND:Handle case of timestamped log files whose names are qualified by a 
+      "time delimiter" program whose start times will
+      be used to break up a timestamped log file.  The quantity of timestamped groupings
+      of log file results will be one plus the quantity of invocations of the "time delimeter" program.
     '''
     ts_nametags = {}
     for line in configfilelines:
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             containername, targetfile, result_key, command, field_type, token_id, lookupstring, result_home = getConfigItems(labidname, linestrip, studentlabdir, container_list, logger, parameter_list)
-            if targetfile is not None and ':' in targetfile:
+            if False and targetfile is not None and ':' in targetfile:
+                 ''' DEPRECATED '''
                  doFileTimeDelim(ts_nametags, result_home, targetfile, result_key, command, lookupstring, logger)
             elif targetfile is not None and command == 'TIME_DELIM':
-                ''' set of timestamped values delimited by named program '''
-                logger.debug('targetfile is time delim %s ' % (targetfile))
-                look_for = os.path.join(result_home,'%s.stdout.*' % targetfile)
-                #print('look for %s' % look_for)
-                delim_list = glob.glob(look_for)
+                tf_list = targetfile.split(';')
+                delim_list = []
+                for tf in tf_list:
+                    ''' set of timestamped values delimited by named program '''
+                    #logger.debug('targetfile is time delim %s ' % (tf))
+                    look_for = os.path.join(result_home,'%s.stdout.*' % tf)
+                    #print('look for %s' % look_for)
+                    tf_ts = glob.glob(look_for)
+                    for f in tf_ts:
+                        ts = f.rsplit('.', 1)[1]
+                        if ts not in delim_list:
+                            delim_list.append(ts)
+
                 delim_ts_set = []
                 prev_ts = 0
-                for delim_ts_file in sorted(delim_list):
+                for ts in sorted(delim_list):
                     end_time='99999999999999'
-                    ts = delim_ts_file.rsplit('.',1)[1]
                     if ts not in ts_nametags:
                         ts_nametags[ts] = {}
                         ts_nametags[ts]['PROGRAM_ENDTIME'] = end_time
@@ -925,7 +1079,7 @@ def ParseConfigForTimeDelim(studentlabdir, labidname, configfilelines, ts_jsonfn
 
 
 def ParseConfigForFile(studentlabdir, labidname, configfilelines, 
-                       outputjsonfname, container_list, timestamppart, end_time, logger, parameter_list):
+                       outputjsonfname, container_list, timestamppart, end_time, logger, parameter_list, latest_dict={}):
     '''
     Invoked for each timestamp to parse results for that timestamp.
     Each config file line is assessed against each results file that corresponds
@@ -940,10 +1094,15 @@ def ParseConfigForFile(studentlabdir, labidname, configfilelines,
         linestrip = line.rstrip()
         if linestrip is not None and not linestrip.startswith('#') and len(line.strip())>0:
             got_one = got_one | handleConfigFileLine(labidname, linestrip, nametags, studentlabdir, 
-                                  container_list, timestamppart, logger, parameter_list)
+                                  container_list, timestamppart, logger, parameter_list, latest_dict)
 
     if end_time is not None:
-        program_end_time = end_time
+        if timestamppart < end_time:
+            program_end_time = end_time
+        else:
+            #logger.debug('timestamppart of %s was greater than end_time %s, use it' % (timestamppart, end_time))
+            program_end_time = timestamppart
+ 
     else:
         program_end_time = 'NONE'
     if got_one:
@@ -990,12 +1149,21 @@ def ParseValidateResultConfig(actual_parsing, homedir, studentlabdir, container_
                 progname_type, cmd = ProcessConfigLine(actual_parsing, studentlabdir, container_list, labidname, result_key, result_value, logger)
                 if result_key not in resultidlist:
                     resultidlist[result_key] = progname_type
-                if cmd == 'CONTAINS' or (cmd is not None and cmd.startswith('FILE_REGEX')):
+                if 'CONTAINS' in cmd or (cmd is not None and cmd.startswith('FILE_REGEX')):
                     bool_results.append(result_key.strip())
         #else:
         #    print "Skipping empty linestrip is (%s)" % linestrip
 
     return configfilelines, resultidlist, bool_results
+
+def EndTimeFromFile(fname):
+    ts = None
+    with open(fname, encoding='latin-1') as fh:
+        for line in fh:
+            if line.startswith('PROGRAM:FINISH'):
+                ts = line.split()[1]
+                #print('found ts of %s' % ts)
+    return ts
 
 def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labidname, logger_in):
     MYHOME = homedir
@@ -1013,7 +1181,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     '''
     jsonoutputfilename = labidname
     #print("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
-    logger.debug("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
+    #logger.debug("ParseStdinStdout: jsonoutputfilename is (%s) studentlabdir %s" % (jsonoutputfilename, studentlabdir))
 
     timestamplist.clear()
 
@@ -1032,6 +1200,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
     with open(bool_results_file, 'w') as fh:
         json.dump(bool_results, fh, indent=4)
 
+    latest_dict = {}
     '''
     A round-about-way of getting all time stamps
     '''
@@ -1051,7 +1220,7 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
             stdinfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdin")
             stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
             prgoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "prgout")
-            logger.debug('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
+            #logger.debug('stdin %s stdout %s' % (stdinfiles, stdoutfiles))
             globstdinfnames = glob.glob('%s*' % stdinfiles)
             globstdoutfnames = glob.glob('%s*' % stdoutfiles)
             if globstdoutfnames != []:
@@ -1069,6 +1238,9 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
             # the only purpose of this is to establish the timestamp dictionary
             # only stdout is looked at.
             #print('for stdout %s' % stdoutfname)
+            # get program end ts from the file
+            end_ts = EndTimeFromFile(stdoutfname)
+
             for exec_prog in container_exec_proglist[mycontainername]:
                 stdoutfiles = '%s%s.%s.' % (RESULTHOME, exec_prog, "stdout")
                 if stdoutfiles in stdoutfname:
@@ -1080,18 +1252,35 @@ def ParseStdinStdout(homedir, studentlabdir, container_list, instructordir, labi
                         timestamplist[timestamppart] = targetmtime
                     elif targetmtime > timestamplist[timestamppart]:
                         timestamplist[timestamppart] = targetmtime
+
+                    if end_ts is not None:
+                        if timestamppart not in endtimelist:
+                            endtimelist[timestamppart] = end_ts
+                        elif end_ts > endtimelist[timestamppart]:
+                            endtimelist[timestamppart] = end_ts
+ 
+                    container_file = '%s:%s' % (mycontainername, exec_prog)
+                    if container_file not in latest_dict or timestamppart > latest_dict[container_file]:
+                        ''' track the most recent of each file for use if result type is checkwork (cw_ prefix) '''
+                        #logger.debug('adding latest_dict[%s] = %s' % (container_file, timestamppart))
+                        latest_dict[container_file] = timestamppart
+                    
                 else:
                     #print "no match"
                     continue
 
     ''' process each timestamped result file. '''
-    for timestamppart in timestamplist:
+    for timestamppart in sorted(timestamplist):
         targetmtime_string = datetime.datetime.fromtimestamp(timestamplist[timestamppart])
-        end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
+        if timestamppart in endtimelist:
+            end_time = endtimelist[timestamppart]
+        else:
+            end_time = targetmtime_string.strftime("%Y%m%d%H%M%S")
         outputjsonfname = '%s%s.%s' % (OUTPUTRESULTHOME, jsonoutputfilename, timestamppart)
         logger.debug("ParseStdinStdout (1): Outputjsonfname is (%s)" % outputjsonfname)
         ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, 
-                           container_list, timestamppart, end_time, logger, parameter_list)
+                           container_list, timestamppart, end_time, logger, parameter_list, latest_dict=latest_dict)
+        
     ''' process files without timestamps '''
     outputjsonfname = '%s%s' % (OUTPUTRESULTHOME, jsonoutputfilename)
     ParseConfigForFile(studentlabdir, labidname, configfilelines, outputjsonfname, container_list, None, None, logger, parameter_list)

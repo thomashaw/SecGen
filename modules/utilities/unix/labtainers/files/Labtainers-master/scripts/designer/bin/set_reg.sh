@@ -1,10 +1,16 @@
+echo "TEST_REGISTRY is $TEST_REGISTRY"
 if [ "$1" == -t ] || [ "$2" == -t ]; then
-    export LABTAINER_REGISTRY="testregistry:5000"
+    registry=$($LABTAINER_DIR/scripts/labtainer-student/bin/registry.py)
+    export LABTAINER_REGISTRY=$registry
 else
-    if [[ "${TEST_REGISTRY}" != YES ]]; then
-        export LABTAINER_REGISTRY="mfthomps"
+    if [ "$TEST_REGISTRY" != "TRUE" ] && [ "$TEST_REGISTRY" != "YES" ]; then
+        registry=$($LABTAINER_DIR/scripts/labtainer-student/bin/registry.py -d)
+        export LABTAINER_REGISTRY=$registry
     else
-        export LABTAINER_REGISTRY="testregistry:5000"
+        echo "Is test registry"
+        registry=$($LABTAINER_DIR/scripts/labtainer-student/bin/registry.py)
+        echo "got $registry"
+        export LABTAINER_REGISTRY=$registry
     fi
 fi
 

@@ -1,11 +1,32 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
-United States Code Section 105.   This software is in the public domain and is not subject to copyright. 
+United States Code Section 105.   This software is in the public domain 
+and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 import sys
 import labutils
@@ -18,6 +39,7 @@ import argparse
 import stat
 import subprocess
 import CurrentLab
+import keywords
 '''
 Start a Labtainers exercise.
 '''
@@ -45,8 +67,8 @@ def hasLabInstalled(lab):
     ps = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     output = ps.communicate()
     if len(output[0]) > 0: 
-        for line in output[0].splitlines():
-            print line
+        for line in output[0].decode('utf-8').splitlines():
+            print(line)
             name = line.split()[1]
             thislab = os.path.basename(name.split('.')[0])
             if thislab == lab:
@@ -63,6 +85,18 @@ def isLatestVersion(versions, lab):
                        return False
     return True
         
+def getLatestVersion(versions, lab):
+    retval = lab
+    if versions is not None:
+        if lab in versions:
+            this_version = versions[lab]
+            #print('this_version is %s' % this_version)
+            for l in versions:
+               if versions[l] > this_version:
+                   retval = l
+                   this_version = versions[l]
+                   #print('this_version now %s' % this_version)
+    return retval
 
 def showLabs(dirs, path, versions, skip):
     description = ''
@@ -71,30 +105,39 @@ def showLabs(dirs, path, versions, skip):
     for loc in sorted(dirs):
         if loc in skip: 
             continue
-    	versionfile = os.path.join(path, loc, "config", "version")
+        versionfile = os.path.join(path, loc, "config", "version")
         lname, dumb = getLabVersion(versionfile)
+        aboutfile = None
         if lname is None or isLatestVersion(versions[lname], loc):
             description = description+'\n  '+loc
-    	    aboutfile = os.path.join(path, loc, "config", "about.txt")
-	
-	    if(os.path.isfile(aboutfile)):
-                description += ' - '
-	        with open(aboutfile) as fh:
-	            for line in fh:
-                        description += line
-            else:
-                description += "\n"
-                #sys.stderr.write(description)
+            aboutfile = os.path.join(path, loc, "config", "about.txt")
+           
+        if aboutfile is not None and os.path.isfile(aboutfile):
+            description += ' - '
+            with open(aboutfile) as fh:
+                for line in fh:
+                    description += line
+        else:
+            description += "\n"
+            #sys.stderr.write(description)
+    description+="\n Use the -k option to see keywords and the -f option to view labs with a keyword.  Also try the 'labpack' command to view a list of lab collections called Labpacks."
     pydoc.pager(description)
     print('Use "-h" for help.')
 
-def getRev():
-    with open('../../README.md') as fh:
+def getRev(labtainer_dir):
+    created = ""
+    readme = os.path.join(labtainer_dir, 'README.md')
+    with open(readme) as fh:
         for line in fh:
-            if line.strip().startswith('Revision:'):
+            if line.strip().startswith('Distribution created'):
+               created = line.strip()
+               created = created.replace("</br>","")
+            if line.strip().startswith('Revision:') or line.strip().startswith('Previous revision:'):
                 parts = line.split(':')
                 if len(parts) == 2 and len(parts[1].strip())>0:
-                    return 'revision: '+parts[1].strip()
+                    rev = parts[1].strip()
+                    rev = rev.replace("</br>","")
+                    return 'revision: '+rev.strip()+" "+created
                 else:
                     return "no revision, build environment"
     return '??'
@@ -105,55 +148,106 @@ def diagnose():
         print("Missing %s, will prevent GUI's from running.  Try rebooting the Linux host" % xpath)
     else:
         print("No problems found with the environment.")
-    
+   
+def checkVersion():
+    if sys.version_info.major == 3 and sys.version_info.minor == 5 and sys.version_info.micro == 2:
+       print('Please start Labtainers by using:  labtainer <lab>')
+       print('instead of using start.py <lab>.  Thank you.')
+       exit()
+    else:
+       #print('version is %s' % str(sys.version_info))
+       pass
+
+def printLabList(dirs, path, versions, skip):
+    for loc in sorted(dirs):
+        if loc in skip: 
+            continue
+        versionfile = os.path.join(path, loc, "config", "version")
+        lname, dumb = getLabVersion(versionfile)
+        if lname is None or isLatestVersion(versions[lname], loc):
+            print(loc)
+
 def main():
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]	
-    path = dir_path + "labs/"
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    if labtainer_dir is None:
+        print('LABTAINER_DIR not defined.  Cannot run Labtainers.')
+        exit(1)
+    checkVersion()
+    # why not just use LABTAINER_DIR?
+    #dir_path = os.path.dirname(os.path.realpath(__file__))
+    #dir_path = dir_path[:dir_path.index("scripts/labtainer-student")]    
+    dir_path = labtainer_dir
+    path = os.path.join(dir_path,"labs")
     dirs = os.listdir(path)
-    rev = getRev()
+    rev = getRev(labtainer_dir)
     #revision='%(prog)s %s' % rev
-    parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments see a list of labs.')
+    parser = argparse.ArgumentParser(prog='labtainer', description='Start a Labtainers lab.  Provide no arguments to see a list of labs.')
     parser.add_argument('labname', default='NONE', nargs='?', action='store', help='The lab to run')
-    parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previoulsy supplied email.')
+    parser.add_argument('-q', '--quiet', action='store_true', help='Do not prompt for email, use previously supplied email.')
     parser.add_argument('-r', '--redo', action='store_true', help='Creates new instance of the lab, previous work will be lost.')
     parser.add_argument('-v', '--version', action='version', version='%(prog)s '+rev)
+    parser.add_argument('-k', '--keywords', action='store_true', help='List all searchable keywords.')
+    parser.add_argument('-f', '--find', action='store', nargs='+', help='List all labs having a given keyword (use quotes if spaces.)')
     parser.add_argument('-d', '--diagnose', action='store_true', help='Run diagnostics on the environment expected by Labtainers')
     parser.add_argument('-s', '--servers', action='store_true', help='Intended for distributed Labtainers, start the containers that are not clients.')
     parser.add_argument('-w', '--workstation', action='store_true', help='Intended for distributed Labtainers, start the client workstation.')
-    parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, itended for multi-user labs')
+    parser.add_argument('-n', '--client_count', action='store', help='Number of clones of client components to create, intended for multi-user labs')
     parser.add_argument('-o', '--only_container', action='store', help='Run only the named container')
     parser.add_argument('-t', '--test_registry', action='store_true', default=False, help='Run with images from the test registry')
+    parser.add_argument('-l', '--list', action='store_true', default=False, help='Print list of labs. Use no options for verbose list.')
     num_args = len(sys.argv)
     versions = getVerList(dirs, path)
+    skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
+    skip = []
+    if os.path.isfile(skip_labs):
+        with open(skip_labs) as fh:
+            for line in fh:
+                f = os.path.basename(line).strip()
+                skip.append(f)
     if num_args < 2: 
-        skip_labs = os.path.join(dir_path, 'distrib', 'skip-labs')
-        skip = []
-        if os.path.isfile(skip_labs):
-            with open(skip_labs) as fh:
-                for line in fh:
-                    f = os.path.basename(line).strip()
-                    skip.append(f)
         showLabs(dirs, path, versions, skip)
         exit(0)
     args = parser.parse_args()
+    if args.keywords:
+        keywords.list()
+        exit(0)
+    if args.find is not None:
+        keywords.find(' '.join(args.find))
+        exit(0)
+    if args.list:
+        printLabList(dirs, path, versions, skip)
+        exit(0)
     labname = args.labname
     if labname == 'NONE' and not args.diagnose:
-        sys.stderr.write("Missing lab name\n" % labname)
-        parser.usage()
+        sys.stderr.write("Missing lab name\n")
+        parser.print_help()
         sys.exit(1)
     if args.diagnose:
         diagnose()
         if labname == 'NONE':
             exit(0)
-    
+
     if labname not in dirs:
-        sys.stderr.write("ERROR: Lab named %s was not found!\n" % labname)
+        sys.stderr.write("ERROR: Lab named %s was not found.\n" % labname)
+        sys.stderr.write("Make sure you have all the latest labs by running:\n")
+        sys.stderr.write("   update-labtainer.sh\n")
         sys.exit(1)
+
+    lpath = os.path.join(path, labname, 'config', 'version')
+    lname, version = getLabVersion(lpath)
+    if lname is not None:
+        latest_lab = getLatestVersion(versions[lname], labname)    
+        if labname != latest_lab:
+            print('Lab %s has been deprecated, will run %s instead.' % (labname, latest_lab))
+            labname = latest_lab
+
+    if labname in skip:
+        print('Warning, %s has been deprecated and is no longer supported.  It may not work as expected.' % labname)
     
     labutils.logger = LabtainerLogging.LabtainerLogging("labtainer.log", labname, "../../config/labtainer.config")
     labutils.logger.info("Begin logging start.py for %s lab" % labname)
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    lab_path = os.path.join(labtainer_dir, 'labs', labname)
     update_flag='../../../.doupdate'
     if os.path.isfile(update_flag):
         ''' for prepackaged VMs, do not auto update after first lab is run '''
@@ -187,7 +281,7 @@ def main():
         labutils.RedoLab(lab_path, quiet_start=args.quiet, 
                      run_container=args.only_container, servers=distributed, clone_count=args.client_count)
     current_lab = CurrentLab.CurrentLab()
-    current_lab.add('lab_name', args.labname)
+    current_lab.add('lab_name', labname)
     current_lab.add('clone_count', args.client_count)
     current_lab.add('servers', distributed)
     current_lab.save()

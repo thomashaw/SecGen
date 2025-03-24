@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  </head>
+  <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
+    <a href={{back_grades}}>goals</a>
+
+    <h1>{{student_email}}</h1>
+    <h1>Lab: {{lab}}</h1>
+    <h2>Goal: {{goal}}</h2>
+    {% if timestamp != 'None' %}
+    <h2>Timestamp: {{timestamp}}</h2>
+    {% endif %}
+    <p>Was {{goal1}}{{not_during}}during {{goal2}}?
+    {% for result1 in result1_rec %}
+        {% if fname1.startswith('/') %}
+           <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:<a href={{result1['raw_url']}}>{{fname1}}</a> : {{ result1['expr'] }}</p>
+        {%else%}
+           <p>Result: {{ result1['result_id'] }} : {{result1['container']}}:{{fname1}} : {{ result1['expr'] }}</p>
+        <pre>    Timestamp: <a href={{result1['raw_url']}}>{{result1['file_ts']}}</a> </pre>
+        {%endif%}
+    {% endfor %}
+    {% for result2 in result2_rec %}
+        {% if fname2.startswith('/') %}
+           <p>Result: {{ result2['result_id'] }} : {{result2['container']}}:<a href={{result2['raw_url']}}>{{fname2}}</a> : {{ result2['expr'] }}</p>
+        {%else%}
+           <p>Result: {{ result2['result_id'] }} : {{result2['container']}}:{{fname2}} : {{ result2['expr'] }}</p>
+        <pre>    Timestamp: <a href={{result2['raw_url']}}>{{result2['file_ts']}}</a> </pre>
+        {%endif%}
+    {% endfor %}
+
+ </body>
+</html>

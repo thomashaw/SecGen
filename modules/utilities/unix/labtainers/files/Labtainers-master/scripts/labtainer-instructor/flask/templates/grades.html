@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  </head>
+  <body>
+    <a href={{url_for('home')}}>home</a>
+    <h1>Student Assessment for Lab: {{lab}}</h1>
+    {{table}}
+    <pre>{{goal_doc}}</pre><br>
+    <a href={{goals_config}}>Goals configuration files</a>
+  </body>
+</html>

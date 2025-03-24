@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
 The Center for the Information Systems Studies and Research (CISR) 
@@ -7,6 +7,26 @@ United States, copyright protection is not available for any works
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 import glob
 import os
@@ -21,7 +41,7 @@ import tarfile
 # 1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files
 # 2. Any tar list file, i.e., <lab>/config/*_tar.list files
 # 3. Any empty tar file, i.e., <lab>/<containers>/*tar/*.tar files
-# 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files
+# 4. Any intermediate pdf file in docs directory, i.e., <lab>/docs/*.aux files
 # Note:
 # 1. This script checks to make sure LABTAINER_DIR is defined
 #
@@ -78,15 +98,26 @@ def DoWork(current_dir, lab_name):
                 print("Fails to remove tar file (%s)" % name)
                 sys.exit(1)
 
-    # 4. Any pdf file in docs directory, i.e., <lab>/docs/*.pdf files that starts
+    # 4. Any intermediate pdf file in docs directory, e.g., <lab>/docs/*.aux files that starts
     #    with the labname
     #print "pdflist is (%s)" % pdflist
-    pdf_extensions = ['pdf','dvi','out','log','aux']
+    version_base = None
+    version_path = os.path.join(current_dir,'config', 'version')
+    if os.path.isfile(version_path):
+        with open(version_path) as fh:
+            for line in fh:
+                if line.strip().startswith('#') or len(line.strip())==0:
+                    continue
+                parts = line.split()
+                if len(parts) == 2:
+                    version_base = parts[0]
+        
+    pdf_extensions = ['dvi','out','log','aux']
     for ext in pdf_extensions:
         pdflist = glob.glob('%s/docs/*.%s' % (current_dir, ext))
         for name in pdflist:
-            #print "current name is %s" % name
-            if os.path.basename(name).startswith(lab_name):
+            #print("current name is %s lab_name %s" % (name, lab_name))
+            if os.path.basename(name).startswith(lab_name) or (version_base is not None and os.path.basename(name).startswith(version_base)):
                 try:
                     os.remove(name)
                 except:
@@ -146,6 +177,7 @@ def usage():
     sys.stderr.write("1. Any tarball '*.tar.gz' in the lab directory, i.e., <lab>/*.tar.gz files\n")
     sys.stderr.write("2. Any tar list file, i.e., <lab>/config/*_tar.list files\n")
     sys.stderr.write("3. Any empty tar file, i.e., <lab>/<containers>/*tar/*.tar files\n")
+    sys.stderr.write("** The gitignore file will be updated to reflect files in bigexternal.txt\n")
     sys.exit(1)
 
 # Usage: cleanlab4svn.py [ -h ]

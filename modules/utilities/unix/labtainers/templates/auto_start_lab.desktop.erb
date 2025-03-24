@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=Lab
-GenericName=Labtainer lab autostart
+Name=Start Lab Containers
+GenericName=Labtainer lab start
 Comment=Autostart script
-Exec=bash -c 'cd /opt/labtainers/scripts/labtainer-student/; echo "Running lab <%= @lab %>"; echo -e '/n'|labtainer <%= @lab %>; bash'
-Terminal=true
+Exec=gnome-terminal -- bash -c 'cd /opt/labtainer/scripts/labtainer-student/; source /opt/labtainer/venv/bin/activate; echo "Running lab <%= @lab %>"; echo -e "\n\n\n"| PYTHONPATH=/opt/labtainer/scripts/labtainer-student/bin/:/opt/labtainer/scripts/labtainer-instructor/bin/ LABTAINER_DIR=/opt/labtainer/ labtainer <%= @lab %>; bash'
 Type=Application
 X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5

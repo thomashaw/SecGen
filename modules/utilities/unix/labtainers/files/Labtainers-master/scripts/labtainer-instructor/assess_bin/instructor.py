@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # Instructor.py
@@ -16,7 +36,7 @@ domain and is not subject to copyright.
 
 import copy
 import json
-import md5
+from hashlib import md5
 import os
 import sys
 import zipfile
@@ -31,6 +51,8 @@ import UniqueCheck
 import InstructorLogging
 import string
 import LabCount
+import subprocess
+import shlex
 
 MYHOME=os.getenv('HOME')
 logger = InstructorLogging.InstructorLogging("/tmp/instructor.log")
@@ -134,16 +156,22 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
         if zname == ".local/.email" or zname == ".local/.seed" or zname == ".local/.watermark":
             zipoutput.extract(zi, TMPDIR)
 
-    with open(TempEmailFile) as fh:
-        student_id_from_file = fh.read().strip().replace("@","_at_")
+    student_id_from_file = None
+    if os.path.isfile(TempEmailFile):
+        with open(TempEmailFile) as fh:
+            student_id_from_file = fh.read().strip().replace("@","_at_")
 
-    # Student ID obtained from zip_file_name must match the one from E-mail file
-    if not all(c in string.printable for c in student_id_from_file): 
-        student_id_from_file = 'not_printable'
-    if student_id != student_id_from_file:
-        print "mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file)
-        store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
-        #check_result = False
+    if student_id_from_file is not None:
+        # Student ID obtained from zip_file_name must match the one from E-mail file
+        if not all(c in string.printable for c in student_id_from_file):
+            student_id_from_file = 'not_printable'
+        if student_id != student_id_from_file:
+            print("mismatch student_id is (%s) student_id_from_file is (%s)" % (student_id, student_id_from_file))
+            store_student_secondlevelzip(gradesjson, email_labname, student_id_from_file)
+            #check_result = False
+    else:
+        print('%s missing file %s' % (email_labname, TempEmailFile))
+        store_student_secondlevelzip(gradesjson, email_labname, 'No_email_file')
 
     if os.path.exists(TempWatermarkFile):
         with open(TempWatermarkFile) as fh:
@@ -155,8 +183,8 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
         the_watermark_string = "LABTAINER_WATERMARK1"
         string_to_be_hashed = '%s:%s' % (seed_from_file, the_watermark_string)
-        mymd5 = md5.new()
-        mymd5.update(string_to_be_hashed)
+        mymd5 = md5()
+        mymd5.update(string_to_be_hashed.encode('utf-8'))
         expected_watermark = mymd5.hexdigest()
         #print expected_watermark
 
@@ -172,7 +200,7 @@ def Check_SecondLevel_EmailWatermark_OK(gradesjson, email_labname, student_id, z
 
 # Usage: Instructor.py
 # Arguments:
-#   check_watermark - whether to do watermark checks or not
+#   checkwork -- True if invoked by checkwork
 def main():
     #print "Running Instructor.py"
     #
@@ -192,17 +220,15 @@ def main():
 
     with open(lab_name_dir) as fh:
         lab_id_name = fh.read().strip()
-    check_watermark_argument=None
+    checkwork_arg=None
+    checkwork = False
+    check_watermark = True
     if len(sys.argv) > 1:
-        check_watermark_argument = str(sys.argv[1]).upper()
+        checkwork_arg = str(sys.argv[1]).upper()
 
-        if check_watermark_argument == "TRUE":
-            check_watermark = True
-        elif check_watermark_argument == "FALSE":
+        if checkwork_arg == "TRUE":
             check_watermark = False
-        else:
-            logger.error('Usage: instructor.py "[True|False]"')
-            exit(1)
+            checkwork = True
 
     # is this used?  
     InstructorBaseDir = os.path.join(MYHOME, '.local', 'base')
@@ -233,6 +259,8 @@ def main():
     ''' unzip everything ''' 
     ''' First level unzip '''
     zip_files = glob.glob(MYHOME+'/*.zip')
+    lab_files = glob.glob(MYHOME+'/*.lab')
+    zip_files.extend(lab_files)
     first_level_zip = []
     for zfile in zip_files:
         zip_file_name = os.path.basename(zfile)
@@ -299,7 +327,8 @@ def main():
         if os.path.isfile(src_count_path):
             #  ad-hoc fix to remnants of old bug, remove this
             if os.path.isdir(dst_count_path):
-                logger.warning('removing errored directory %s' % dst_count_path)
+                logger.debug('removing errored directory %s' % dst_count_path)
+                print('removing errored directory %s' % dst_count_path)
                 shutil.rmtree(dst_count_path)
             parent = os.path.dirname(dst_count_path)
             #print('parent %s' % parent)
@@ -360,6 +389,12 @@ def main():
         # TBD also getting what, student parameters from first container.  
         # Better way to get instr_config files than do duplicate on each container?  Just put on grader? 
         student_parameter = GoalsParser.ParseGoals(MYHOME, DestDirName, logger)
+        if student_parameter is None:
+            print('Could not grade %s, skipping' % email_labname)
+            continue
+        for param in student_parameter:
+            env_var = 'LABTAINER_%s' % param
+            os.environ[env_var] = student_parameter[param]
        
         if do_pregrade:
             ''' invoke pregrade for each container '''
@@ -367,7 +402,11 @@ def main():
                 dest = os.path.join(email_labname, container)
                 cmd = '%s %s %s' % (pregrade_script, MYHOME, dest)
                 logger.debug('invoke pregrade script %s' % cmd)
-                os.system(cmd) 
+                ps = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                output = ps.communicate()
+                if len(output[1]) > 0:
+                    logger.debug('command was %s' % cmd)
+                    logger.debug(output[1].decode('utf-8'))
 
         ''' backward compatible for test sets '''
         for container in student_list[email_labname]:
@@ -440,12 +479,12 @@ def main():
 
     # Output <labname>.grades.txt
     gradestxtname = os.path.join(MYHOME, "%s.grades.txt" % lab_id_name)
-    GenReport.CreateReport(gradesjsonname, gradestxtname, check_watermark)
+    GenReport.CreateReport(gradesjsonname, gradestxtname, check_watermark, checkwork)
     if do_unique:
         GenReport.UniqueReport(uniquejsonname, gradestxtname)
 
     # Inform user where the 'grades.txt' are created
-    print "Grades are stored in '%s'" % gradestxtname
+    print("Grades are stored in '%s'" % gradestxtname)
     return 0
 
 if __name__ == '__main__':

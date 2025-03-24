@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <link rel="stylesheet" href='/static/main.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+  </head>
+  <body>
+    <a href={{url_for('home')}}>home</a> &nbsp
+    <a href={{url_for('student_select', student_id=student_id)}}>{{student_email}}</a>
+    <h1> {{title}} </h1>
+<ul>
+    {% for file in files %}
+    <li>
+        {% if 'other_users' in file %}
+            <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                {{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
+            </a>
+        {% elif 'other_users' in request.path %}
+            <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                {{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
+            </a>
+        {% else %}
+            <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                {{prefix}}{{ (request.path[trim:] + '/' if request.path != '/' else '') + file }}
+            </a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+ </body>
+</html>

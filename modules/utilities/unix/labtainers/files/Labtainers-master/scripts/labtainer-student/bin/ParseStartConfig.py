@@ -1,19 +1,40 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 import os
 import sys
 import re
 if sys.version_info >=(3,0):
-    from ipaddress import *
+    from ipaddress import ip_address as IPAddress
+    from ipaddress import ip_network as IPNetwork
 else:
     from netaddr import *
 import LabtainerLogging
@@ -31,9 +52,10 @@ class ParseStartConfig():
         self.subnets    = {} # dictionary of subnets 
         self.labname = labname
         self.caller = 'student'
-        self.host_home_xfer= "" # HOST_HOME_XFER - directory to transfer artifact to/from containers
         self.lab_master_seed= None # LAB_MASTER_SEED - this is the master seed string for to this laboratory
-        self.grade_container = None # GRADE_CONTAINER - this is where the instructor performs the grading
+        self.grade_container = None # Deprecated
+        self.registry = None # Registry used for this lab, defaults to LabtainerConfig default_registry
+        self.base_registry = None # Registry used base images when building this lab, defaults to LabtainerConfig default_registry
         self.logger = logger
         self.fname = fname
         self.skip_networks = skip_networks
@@ -45,6 +67,7 @@ class ParseStartConfig():
         # default to NO (i.e., do not collect)
         self.collect_docs = 'yes'
         self.lan_hosts = {}
+        self.gns3 = 'no'
 
         if not os.path.exists(fname):
             self.logger.error("Config file %s does not exists!\n" % fname)
@@ -53,7 +76,7 @@ class ParseStartConfig():
         self.get_configs(fname)
         self.multi_user = None
         ''' determine if running as a distributed Labtainers, or many clients on a single VM '''
-        if self.clone_count is not None and self.clone_count > 0: 
+        if self.clone_count is not None and int(self.clone_count > 0): 
             self.multi_user = 'clones'
         elif servers is not None:
             self.multi_user = servers 
@@ -75,6 +98,7 @@ class ParseStartConfig():
             self.script = "bash"
             self.x11 = "no"
             self.registry = None
+            self.base_registry = None
             self.terminal_group = None
             self.add_hosts = []
             self.no_privilege = 'no'
@@ -86,10 +110,31 @@ class ParseStartConfig():
             self.enable = None
             self.disable = None
             self.no_pull = False
+            self.no_gw = False
+            self.no_resolve = False
+            self.thumb_volume = None
+            self.thumb_command = None
+            self.thumb_stop = None
+            self.publish = None
+            self.hide = "no"
+            self.tap = "no"
+            self.kick_me = None  # hack for gns3 cloud interfaces that need a ping to wtfu
+            self.mystuff = "no"
             self.logger = logger
+            self.did_nets = []
+            self.mounts = []   # persist licensed sw installations across labs, e.g., IDA
+            self.lab_gateway = None    # automatic call to set_default_gw.sh
+            self.name_server = None    # update resolv.conf
+            self.wait_for = None    # don't do parameterize/fixlocal until this continer is done.
+            self.num_cpus = None
+            self.cpu_set = None
+            self.no_param = False   # do not parameterize or collect results
 
         def add_net(self, name, ipaddr):
             self.container_nets[name] = ipaddr
+
+        def did_net(self, name):
+            self.did_nets.append(name) 
 
         def validate(self, valid_networks=set(), skip_networks = False):
             self.terminals = int(self.terminals) #replace with something smarter
@@ -118,7 +163,7 @@ class ParseStartConfig():
                     if addr != 'auto' and addr != 'auto_mac':
                         try:
                             IPAddress(addr)
-                        except :
+                        except ValueError:
                             self.logger.error('bad ip addr %s in %s\n' % (addr, name))
                             exit(1)
 
@@ -126,11 +171,12 @@ class ParseStartConfig():
         def __init__(self, name, logger):
             self.name   = name
             self.mask = 0
-            self.gateway = 0
+            self.gateway = None
             self.macvlan = None
             self.macvlan_ext = None
             self.macvlan_use = None
             self.ip_range = None
+            self.tap = None
             self.logger = logger
 
         def validate(self):
@@ -139,10 +185,10 @@ class ParseStartConfig():
                 exit(1)
             try:
                 IPNetwork(self.mask)
-            except:
+            except ValueError:
                 self.logger.error('bad ip subnet %s for subnet %s\n' % (self.mask, self.name))
                 exit(1)
-            if not IPAddress(self.gateway) in IPNetwork(self.mask):
+            if self.gateway is not None and (not IPAddress(self.gateway) in IPNetwork(self.mask)):
                 self.logger.error('network: %s Gateway IP (%s) not in subnet for SUBNET line(%s)!\n' % 
                     (self.name, self.gateway, self.mask))
                 exit(1)
@@ -208,12 +254,17 @@ class ParseStartConfig():
                    
                     '''
                     self.containers[val] = self.Container(val, self.logger)
-                    self.logger.debug('added container %s' % val)
+                    #self.logger.debug('added container %s' % val)
                     active = self.containers[val]
                 elif key == 'add-host':
                     active.add_hosts.append(val)
+                elif key == 'mount':
+                    active.mounts.append(val)
                 elif hasattr(active, key):
                     setattr(active, key, val) 
+                elif key == 'host_home_xfer':
+                    ''' deprecated '''
+                    pass
                 else:
                     try:
                         active.add_net(key,val)
@@ -237,18 +288,10 @@ class ParseStartConfig():
                 self.logger.error("Unexpected collect_docs value in ParseStartConfig module : %s\n" % self.collect_docs)
                 exit(1)
         
-        if not self.host_home_xfer:
-            self.logger.error("Missing host_home_xfer in start.config!\n")
-            exit(1)
-        
         if not self.lab_master_seed:
            self.logger.error("Missing lab_master_seed in start.config!\n")
            exit(1)
 
-        if not self.grade_container:
-            self.logger.error("Missing grade_container in start.config!\n")
-            exit(1)
-        
         if not self.skip_networks:
             for subnet in self.subnets.values():
                 subnet.validate()
@@ -262,12 +305,7 @@ class ParseStartConfig():
         """Combines info provided by user with what we already know about the
            lab to get the final settings we want."""
         # fixing up global parameters
-        self.host_home_xfer = os.path.join(self.host_home_xfer,self.labname)
         self.lab_master_seed = self.labname + self.lab_master_seed
-        if self.grade_container == "default":
-            self.grade_container = self.labname + "." + self.caller 
-        else:
-            self.grade_container = self.labname + "." + self.grade_container + "." + self.caller 
 
         ''' fix macvlan networks, assign use_macvan value based on whether ...'''
         for net in self.subnets:
@@ -326,10 +364,22 @@ class ParseStartConfig():
                self.containers[name].password = self.containers[name].user
             if self.containers[name].script == "none":
                self.containers[name].script = "";
-            if use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
+            if self.registry is None and self.containers[name].registry is None and \
+                   use_test_registry is not None and (use_test_registry.lower() == 'yes' or use_test_registry.lower() == 'true'):
+                #self.logger.debug('Changing registry from %s to test registry %s' % (self.containers[name].registry,
+                #     self.labtainer_config.test_registry))
                 self.containers[name].registry = self.labtainer_config.test_registry
-            elif self.containers[name].registry == None:
-                self.containers[name].registry = self.labtainer_config.default_registry
+            else:
+                if self.containers[name].registry == None:
+                    if self.registry is None:
+                        self.containers[name].registry = self.labtainer_config.default_registry
+                    else:
+                        self.containers[name].registry = self.registry
+                if self.containers[name].base_registry == None:
+                    if self.base_registry is None:
+                        self.containers[name].base_registry = self.labtainer_config.default_registry
+                    else:
+                        self.containers[name].base_registry = self.base_registry
             if self.clone_count is not None and self.containers[name].client == 'yes':
                 if self.containers[name].clone is not None:
                     self.logger.error('Cannot specify clone_count for container having CLONE set in the start.config file')
@@ -338,6 +388,10 @@ class ParseStartConfig():
                     self.containers[name].clone_copies = self.clone_count
             if self.containers[name].clone is not None:
                 self.container[name].clone_copies = self.contaienrs[name].clone
+            if self.containers[name].wait_for is not None:
+                if self.containers[name].wait_for not in self.containers:
+                    self.logger.error('Unknow wait_for container: %s for %s' % (self.containers[name].wait_for, name))
+                    exit(1)
 
     def show_current_settings(self):
         bar = "="*80

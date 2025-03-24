@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 '''
@@ -21,13 +41,22 @@ import logging
 import LabtainerLogging
 import CurrentLab
 import argparse
-import imp
+import subprocess
+import shlex
+try:
+    import imp
+except:
+    from importlib.machinery import SourceFileLoader
+
+
+labtainer_dir = os.getenv('LABTAINER_DIR')
+scripts_dir = os.path.join(labtainer_dir, 'scripts')
+student_dir = os.path.join(scripts_dir, 'labtainer-student')
+lab_bin_dir = os.path.join(student_dir, 'lab_bin')
 here = os.path.dirname(os.path.abspath(__file__))
-lab_bin_dir = os.path.join(here, '../lab_bin')
+#lab_bin_dir = os.path.join(here, '../lab_bin')
 sys.path.append(here)
 sys.path.append(lab_bin_dir)
-student_dir = os.path.dirname(here)
-scripts_dir = os.path.dirname(os.path.dirname(here))
 assess_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'assess_bin')
 instruct_bin_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin')
 sys.path.append(assess_bin_path)
@@ -35,16 +64,38 @@ sys.path.append(instruct_bin_path)
 grade_lab_path = os.path.join(scripts_dir, 'labtainer-instructor', 'bin', 'gradelab')
 orig_dir=os.getcwd()
 os.chdir(student_dir)
-gradelab = imp.load_source('gradelab', grade_lab_path)
+try:
+    gradelab = imp.load_source('gradelab', grade_lab_path)
+except:
+    gradelab = SourceFileLoader('gradelab', grade_lab_path).load_module()
 
+def checkRunning(logger):
+    command = "docker ps"
+    logger.debug("GetListRunningLab Command to execute is (%s)" % command)
+    ps = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    output = ps.communicate()
+    if len(output[1].decode('utf-8').strip()) > 0:
+        logger.error('Fail to get a list of running containers, error returned %s' % output[1].decode('utf-8'))
+        sys.exit(1)
+    if len(output[0].decode('utf-8')) > 0:
+        docker_ps_output = output[0].decode('utf-8').split('\n')
+        for line in docker_ps_output:
+            if len(line.strip()) > 0:
+                name = line.split()[-1]
+                if name.endswith('-igrader'):
+                    print('%s is currently running, it will be stopped before a new checkwork is started.' % (name))
+                    cmd = 'docker stop %s' % name
+                    labutils.DockerCmd(cmd)
 
 def main():
     parser = argparse.ArgumentParser(description='Check your work for a lab.  If no lab name is given, the currently running lab is checked')
     parser.add_argument('lab', nargs='?')
+    parser.add_argument('-p', '--prompt', action='store_true', help='Prompt for user input before exiting.')
     args = parser.parse_args()
     labname = None 
     lablist = []
     labutils.logger = LabtainerLogging.LabtainerLogging("/tmp/checkwork.log", 'checkwork', "../../config/labtainer.config")
+    checkRunning(labutils.logger)
     lablist = labutils.GetListRunningLab()
     if args.lab is not None:
         labname = args.lab
@@ -66,7 +117,9 @@ def main():
 
     labutils.logger.debug("Begin logging checkwork for %s lab" % labname)
     
-    lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    labtainer_dir = os.getenv('LABTAINER_DIR')
+    #lab_path = os.path.join(os.path.abspath('../../labs'), labname)
+    lab_path = os.path.join(labtainer_dir, 'labs', labname)
     labtainer_config, start_config = labutils.GetBothConfigs(lab_path, labutils.logger)
     if labtainer_config.checkwork != 'yes':
         print('Checking own work not supported for this deployment of Labtainers')
@@ -93,11 +146,17 @@ def main():
     servers = current_lab.get('servers')        
     labutils.StopLab(lab_path, False, servers=servers, clone_count=clone_count, keep_running=True)
     os.chdir('../labtainer-instructor')
-    print('cwd is %s' % os.getcwd())
-    gradelab.doGrade(labname, False, False, True, False, copy_json = False)
+    labutils.logger.debug('Lab stopped, now doGrade for lab %s' % labname)
+    #print('cwd is %s' % os.getcwd())
+    gradelab.doGrade(labname, False, False, True, False, copy_json = False, in_logger=labutils.logger, checkwork=True)
     os.chdir(orig_dir)
-
-
+    if args.prompt:
+        prompt = "Press <enter> to close."
+        if sys.version_info >=(3,0):
+            user_input = input(prompt)
+        else:
+            user_input = raw_input(prompt)
+        
     return 0
 
 if __name__ == '__main__':

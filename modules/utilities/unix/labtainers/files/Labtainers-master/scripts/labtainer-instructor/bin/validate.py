@@ -1,12 +1,32 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 
 # Filename: validate.py
@@ -343,7 +363,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     # Create hash using LAB_MASTER_SEED concatenated with user's e-mail
     # LAB_MASTER_SEED is per laboratory - specified in start.config
     string_to_be_hashed = '%s:%s' % (lab_master_seed, user_email)
-    mymd5 = md5.new()
+    mymd5 = md5()
     mymd5.update(string_to_be_hashed)
     lab_instance_seed = mymd5.hexdigest()
     labutils.logger.debug("seed %s" % lab_instance_seed)
@@ -363,7 +383,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     fh.close()
     WATERMARK_NAMEFILE = os.path.join(TEMPLOCAL, ".watermark")
     string_to_be_hashed = '%s:%s' % (lab_instance_seed, user_email)
-    mymd5 = md5.new()
+    mymd5 = md5()
     mymd5.update(string_to_be_hashed)
     watermark = mymd5.hexdigest()
     labutils.logger.debug("watermark %s" % watermark)
@@ -405,7 +425,6 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
     email_labname = "%s.%s" % (user_email.replace("@","_at_"), labname)
 
     container_list = []
-    container_list.append(start_config.grade_container)
     for name, container in start_config.containers.items():
         if container.full_name not in container_list:
             container_list.append(container.full_name)
@@ -415,7 +434,7 @@ def setup_to_validate(lab_path, labname, validatetestsets, validatetestsets_path
 # Validate resultidlist for 'system' in 'treataslocal'
 def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
     checklist = []
-    for key, progname_type in resultidlist.iteritems():
+    for key, progname_type in resultidlist.items():
         if ':' in progname_type:
             #container_name, newprogname_type = progname_type.split(':')
             container_name = labname
@@ -459,7 +478,7 @@ def ValidateTreataslocal(labname, lab_path, resultidlist, logger):
             treataslocal_path = "%s/%s/_bin/treataslocal" % (lab_path, container_name)
             if not (os.path.exists(treataslocal_path) and os.path.isfile(treataslocal_path)):
                 logger.warning("treataslocal file %s not found when validating command %s from %s %s" % (treataslocal_path, execprog, key, progname_type))
-                user_input=raw_input("Would you like to quit? (yes/no)\n")
+                user_input=input("Would you like to quit? (yes/no)\n")
                 user_input=user_input.strip().lower()
                 #print "user_input (%s)" % user_input
                 if user_input == "yes":

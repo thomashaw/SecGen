@@ -1,16 +1,37 @@
-#!/usr/bin/env python
+#!/opt/labtainer/venv/bin/python3
 '''
 This software was created by United States Government employees at 
-The Center for the Information Systems Studies and Research (CISR) 
+The Center for Cybersecurity and Cyber Operations (C3O) 
 at the Naval Postgraduate School NPS.  Please note that within the 
 United States, copyright protection is not available for any works 
 created  by United States Government employees, pursuant to Title 17 
 United States Code Section 105.   This software is in the public 
 domain and is not subject to copyright. 
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
 '''
 import sys
 import os
 import shutil
+import tempfile
 '''
 Look at _tar directories for the given labs/[lab]/[image] and
 create or update tar files to reflect recent changes.  Uses
@@ -18,7 +39,7 @@ an 'external-manifest' file to identify tars from other labs
 that should be part of this one.
 '''
 external = 'external-manifest'
-tmp_loc = '/tmp/check_tar'
+tmp_loc = tempfile.TemporaryDirectory().name
 def expandManifest(full, tar_name):
     ''' 
     extract files from a tar named in an external manifest file
@@ -132,14 +153,14 @@ def CheckTars(container_dir, image_name, logger):
                                 logger.debug('copydir %s' % cfile)
                                 copydir(cfile, os.path.join(tmp_loc, cfile))
                             else:
-                                logger.debug('copytree %s' % cfile)
-                                shutil.copytree(cfile, os.path.join(tmp_loc, cfile))
+                                logger.debug('copyfile %s' % cfile)
+                                shutil.copyfile(cfile, os.path.join(tmp_loc, cfile))
                     os.chdir(tmp_loc)
                     full_tar = os.path.join(full, tar_name)
                     if f == 'home_tar':
-                        cmd = 'tar czf %s `ls -A -1` > %s' % (full_tar, manifest)
+                        cmd = 'tar czf %s --owner=:1000 --group=:1000 `ls -A -1` > %s' % (full_tar, manifest)
                     else:
-                        cmd = 'tar czf %s `ls -A -1`' % (full_tar)
+                        cmd = 'tar czf %s --owner=root --group=root `ls -A -1`' % (full_tar)
                     os.system(cmd)
                     logger.debug('did %s' % cmd)
             else:
@@ -160,7 +181,11 @@ def CheckTars(container_dir, image_name, logger):
                     for f in flist:
                         if f == external:
                             continue
-                        shutil.copytree(f , os.path.join(tmp_loc,f))
+                        fpath = os.path.join(tmp_loc,f)
+                        if not os.path.isfile(fpath):
+                            shutil.copytree(f , fpath)
+                        else:
+                            shutil.copyfile(f , fpath)
                     ''' something is newer than the tar, need to update tar '''
                     if os.path.isfile(os.path.join('./', external)):
                         expandManifest(full, tar_name)
@@ -180,19 +205,10 @@ def CheckTars(container_dir, image_name, logger):
                         cmd =  'tar tf %s > %s' % (tar_name, manifest) 
                         os.system(cmd)
                         logger.debug(cmd)
+            if os.path.isdir(tmp_loc):
+                logger.debug('remove tree at %s' % tmp_loc)
+                shutil.rmtree(tmp_loc)
         os.chdir(here)
-    noskip_file = os.path.join(container_dir,'_bin', 'noskip')
-    #print('look for %s' % noskip_file)
-    if os.path.isfile(noskip_file):
-        ''' files from home_tar that we want to collect from student -- normally home_tar files are not collected '''
-        #print('is a skip')
-        with open(noskip_file) as fh:
-            for line in fh:
-                line = line.strip()
-                #print('check for %s' % line)
-                if len(line) > 0:
-                    cmd = 'sed -i /%s$/d %s' % (line, manifest)
-                    os.system(cmd)
                         
                      
 def __main__():                    
