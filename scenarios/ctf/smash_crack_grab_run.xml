@@ -167,7 +167,7 @@
         <value>/</value>
       </input>
       <input into="account">
-        <value>nostromousr</value>
+        <value>{"username":"nostromousr"}</value>
       </input>
     </vulnerability>
 
