@@ -81,7 +81,7 @@
 
   <system>
     <system_name>server</system_name>
-    <base distro="Debian 10" type="desktop" name="KDE"/>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!-- generate a password to be cracked -->
     <input into_datastore="weak_password">
@@ -134,7 +134,7 @@
     <vulnerability module_path=".*/nostromo_code_exec">
       <input into="strings_to_leak">
         <generator type="flag_generator"/>
-        <value>Hint: There is an encrypted zip file in /</value>
+        <value>Hint: There is an encrypted zip file in /home/nostromousr/</value>
       </input>
       <input into="strings_to_pre_leak">
         <generator type="flag_generator"/>
@@ -165,6 +165,9 @@
       </input>
       <input into="storage_directory">
         <value>/</value>
+      </input>
+      <input into="account">
+        <value>nostromousr</value>
       </input>
     </vulnerability>
 
