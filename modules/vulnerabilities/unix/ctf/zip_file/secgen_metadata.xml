@@ -21,6 +21,7 @@
   <read_fact>leaked_filename</read_fact>
   <read_fact>account</read_fact>
   <read_fact>storage_directory</read_fact>
+  <read_fact>mode</read_fact>
 
   <default_input into="base64_file">
     <generator type="zip_file_generator">
@@ -40,6 +41,10 @@
 
   <default_input into="storage_directory">
     <value>/var/log</value>
+  </default_input>
+
+  <default_input into="mode">
+    <value>0600</value>
   </default_input>
 
   <hint>A zip file has been leaked with a flag.</hint>

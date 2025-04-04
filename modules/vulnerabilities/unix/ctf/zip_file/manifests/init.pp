@@ -3,6 +3,7 @@ class zip_file::init {
 
   $leaked_filename = $secgen_parameters['leaked_filename'][0]
   $base64_file = $secgen_parameters['base64_file'][0]
+  $mode = $secgen_parameters['mode'][0] # default is 0600
 
   if $secgen_parameters['account'] and $secgen_parameters['account'] != '' {
     $account = parsejson($secgen_parameters['account'][0])
@@ -19,5 +20,6 @@ class zip_file::init {
     base64_file       => $base64_file,
     owner             => $username,
     group             => $username,
+    mode              => $mode,
   }
 }
