@@ -22,6 +22,9 @@
   <read_fact>murderer_id</read_fact>
   <read_fact>murdered_on</read_fact>
   <read_fact>murdered_ids</read_fact>
+  <!-- Not used but enables the flags to be included in the output for scoring -->
+  <read_fact>murderer_flag</read_fact>
+  <read_fact>murdered_flags</read_fact>
 
   <default_input into="port">
     <value>80</value>

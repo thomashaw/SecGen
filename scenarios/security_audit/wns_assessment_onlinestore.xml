@@ -168,28 +168,7 @@
       </generator>
     </input>
 
-    <!-- Murder flags: 1x murderer, 2x murdered w/ timestamp -->
-    <input into="murderer_flag">
-      <generator type="concat_flag.*">
-        <input into="strings_to_join">
-          <datastore access_json="['name']">murderer</datastore>
-        </input>
-      </generator>
-    </input>
-    <input into="murdered_flags">
-      <generator type="concat_flag.*">
-        <input into="strings_to_join">
-          <datastore access="0">murdered_names</datastore>
-          <datastore access="0">murder_timestamps</datastore>
-        </input>
-      </generator>
-      <generator type="concat_flag.*">
-        <input into="strings_to_join">
-          <datastore access="1">murdered_names</datastore>
-          <datastore access="1">murder_timestamps</datastore>
-        </input>
-      </generator>
-    </input>
+
 
     <vulnerability module_path=".*/onlinestore.*">
       <input into="port">
@@ -212,6 +191,28 @@
       </input>
       <input into="murdered_ids">
         <datastore>murdered_ids</datastore>
+      </input>
+      <!-- Murder flags: 1x murderer, 2x murdered w/ timestamp -->
+      <input into="murderer_flag">
+        <generator type="concat_flag.*">
+          <input into="strings_to_join">
+            <datastore access_json="['name']">murderer</datastore>
+          </input>
+        </generator>
+      </input>
+      <input into="murdered_flags">
+        <generator type="concat_flag.*">
+          <input into="strings_to_join">
+            <datastore access="0">murdered_names</datastore>
+            <datastore access="0">murder_timestamps</datastore>
+          </input>
+        </generator>
+        <generator type="concat_flag.*">
+          <input into="strings_to_join">
+            <datastore access="1">murdered_names</datastore>
+            <datastore access="1">murder_timestamps</datastore>
+          </input>
+        </generator>
       </input>
     </vulnerability>
 
