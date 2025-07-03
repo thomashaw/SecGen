@@ -69,12 +69,6 @@ class kde_minimal::config {
 
       # autostart konsole
       if $autostart_konsole {
-        file { "/home/$username/.config/autostart/":
-          ensure => directory,
-          owner  => $username,
-          group  => $username,
-          require => File["/home/$username/.config/"],
-        } ~>
         file { "/home/$username/.config/autostart/org.kde.konsole.desktop":
           ensure => file,
           source => 'puppet:///modules/kde_minimal/org.kde.konsole.desktop',
