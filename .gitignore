@@ -20,3 +20,4 @@ lib/resources/images/scenario
 .vagrant
 rgloader
 .ruby-version
+vendor/**
