@@ -12,7 +12,7 @@ In this web security lab focused on Cross-Site Request Forgery (CSRF), you will 
 
 Throughout the lab, you will engage in hands-on tasks that mirror real-world scenarios. For instance, you'll create an external form using vi text editor, host it with WebWolf, and understand the parameters necessary for a POST request. In DVWA challenges, you'll manipulate HTML forms to exploit vulnerabilities at low, medium, and high security levels. The tasks also extend to combining CSRF with XSS to overcome anti-CSRF measures. By the end of the lab, you'll have a comprehensive understanding of CSRF attacks, CORS limitations, and practical skills in executing and defending against such attacks, enhancing your expertise in web application security.
     </description>
-    <lab_sheet_url>https://docs.google.com/document/d/1ABryiNKLDiIG6i7PQUztzzynjPo3fRSBP4OakxCPraY/edit?usp=sharing</lab_sheet_url>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/web_security/6-csrf/</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>

@@ -12,7 +12,7 @@ In this lab you will delve into concepts and practical exercises that will equip
 
 Throughout this lab, you will learn by doing, actively engaging in activities. As part of the hands-on experience, you will also work through scored flag-based tasks, such as completing challenges related to Insecure Direct Object References. By the end of the lab, you will have acquired a solid foundation in web security fundamentals, simulation of web server activities, and practical skills in using tools like ZAP for security testing and assessment. This sets the stage for deeper exploration and learning in subsequent topics, contributing to the development of your web security expertise.
     </description>
-    <lab_sheet_url>https://docs.google.com/document/d/1vLy56U53lqb8ZpQVLwxznCBsGv0KPM_uXJW1WD5DCiI/edit?usp=sharing</lab_sheet_url>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/web_security/1-intro-web-security/</lab_sheet_url>
 
     <type>ctf-lab</type>
     <type>lab-sheet</type>

@@ -12,7 +12,7 @@
 
     In this lab, you will embark on a simulated cybersecurity mission within a fictitious organization. Your objective is to browse the organization's website to gather information on employees, email addresses, and their potential interests. You will then employ the tactics of engagement by sending targeted phishing emails to these individuals, using techniques such as spoofing emails, creating malicious attachments (executable programs, LibreOffice documents with macros), and more. As your victims respond to your emails, they will reveal why they trust or distrust your messages, providing invaluable feedback. The ultimate goal is to persuade these users to open the malicious attachments, granting you remote access to their systems. Your mission culminates in accessing the coveted "flag" files hidden in each victim's home directory, which you will submit as proof of your success. This lab offers a unique opportunity to understand how cybersecurity threats exploit human psychology, providing a practical foundation to enhance cyber awareness and strengthen defenses against these deceptive tactics.
   </description>
-  <lab_sheet_url>https://docs.google.com/document/d/1Yb28GYRLD0Ihnb5oeFp-TGurhb8BZfm_qFbSSrGEknI/edit?usp=sharing</lab_sheet_url>
+  <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/cyber_security_landscape/3-phishing/</lab_sheet_url>
   <type>ctf-lab</type>
   <type>lab-sheet</type>
   <difficulty>easy</difficulty>

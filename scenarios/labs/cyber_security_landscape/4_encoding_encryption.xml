@@ -15,7 +15,7 @@
     In the home directory of your VM there are a series of encoding and encryption CTF challenges for you to complete, to put your knowledge into practice.
   </description>
 
-  <lab_sheet_url>https://docs.google.com/document/d/1wKm2c7yxhM-9GnAiS_Mgvk_8-H7FKEBeGeMc6H0KlwA/edit?usp=sharing</lab_sheet_url>
+  <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/cyber_security_landscape/4-encoding-encryption/</lab_sheet_url>
 
   <type>ctf-lab</type>
   <type>hackerbot-lab</type>

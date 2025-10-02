@@ -12,7 +12,7 @@ In this web security lab you will delve into the critical realm of SQL injection
 
 Throughout this lab, you will engage in a series of tasks across various platforms. Starting with WebGoat, you will log in and progress through SQL injection exercises, honing your skills in crafting attacks and understanding mitigation strategies. In DVWA challenges, you will undertake guided walk-throughs at low, medium, and high security levels to retrieve passwords, crack hashed passwords, and master blind SQL injection. Further, Security Shepherd tasks will enhance your skills in session management and SQL injection, reinforcing your ability to apply theoretical concepts in real-world scenarios. By the end, you will have not only learned about SQL injection but also independently completed challenges, solidifying your expertise in securing web applications against this pervasive security threat.
     </description>
-    <lab_sheet_url>https://docs.google.com/document/d/1G_b4f25ufopbDw6djpO1D-nhbJ7vFOCY-QZJtoTUSKg/edit?usp=sharing</lab_sheet_url>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/web_security/4-sqli/</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>

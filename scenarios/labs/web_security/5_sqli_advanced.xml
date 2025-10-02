@@ -12,7 +12,7 @@ In this web security lab you will delve into the intricacies of injection attack
 
 Throughout the lab, you will engage with various vulnerable environments, including Damn Vulnerable Web App (DVWA), OWASP WebGoat, and OWASP Security Shepherd. Practical tasks include exploiting SQL injection in DVWA with different security levels, automating SQL injection attacks using sqlmap, and tackling blind SQL injection scenarios. Additionally, you will apply your knowledge to WebGoat, a web application specifically designed for learning security concepts, and complete CTF challenges in Security Shepherd. By the end of the lab, you will have gained hands-on experience in identifying, exploiting, and mitigating OS command injection and SQL injection vulnerabilities, crucial skills for securing web applications in real-world scenarios.
     </description>
-    <lab_sheet_url>https://docs.google.com/document/d/1tj7qQ-1HbmxXaZNMOCPVECHrFAHpkRVcD_Q0FvMhIWQ/edit?usp=sharing</lab_sheet_url>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/web_security/5-sqli-advanced/</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>

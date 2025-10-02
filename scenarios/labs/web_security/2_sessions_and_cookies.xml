@@ -11,7 +11,7 @@ In this web security lab you will delve into sessions and cookies. The relevance
 
 Throughout the lab, you will learn to self-host PHP pages, use OWASP Zap to analyze and manipulate cookies, and comprehend the nuances of session cookies. The DVWA challenges offer a real-world application of your knowledge, requiring you to assess and exploit vulnerabilities at different security levels. For instance, you will investigate weaknesses in session ID generation, analyze source code for session IDs, and assess the security implications of various approaches. Additionally, CTF tasks in Security Shepherd will provide hands-on experiences in session management, poor data validation, and security misconfigurations. By completing these challenges, you will develop practical skills addressing complex security scenarios mirroring the challenges faced by penetration testers and ethical hackers in real-world scenarios.
     </description>
-    <lab_sheet_url>https://docs.google.com/document/d/1xcbf0bqtdMGgJAjeedw5MUbkRosMyQ_UZ0gN4IeCBFs/edit?usp=sharing</lab_sheet_url>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/web_security/2-sessions-and-cookies/</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>

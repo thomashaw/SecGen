@@ -10,7 +10,7 @@
 # Introduction
 Web and Network Security additional CTF challenges.
     </description>
-    <lab_sheet_url>https://docs.google.com/document/d/1DDjyBGtB9vaFD6S2s1jQn7_bpVn4UlK-njbmVX5_UiM/edit?usp=sharing</lab_sheet_url>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/web_security/7-additional-web/</lab_sheet_url>
 
     <type>lab-environment</type>
     <type>ctf-lab</type>
