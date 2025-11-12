@@ -75,12 +75,17 @@
       </input>
     </utility>
 
+    <utility module_path=".*/cyberchef"/>
+
     <utility module_path=".*/iceweasel">
       <input into="accounts">
         <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
       <input into="autostart">
-        <value>false</value>
+        <value>true</value>
+      </input>
+      <input into="start_page">
+        <value>file:///opt/cyberchef/CyberChef.html</value>
       </input>
     </utility>
 
