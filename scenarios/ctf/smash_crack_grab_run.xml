@@ -63,6 +63,7 @@
 
     <utility module_path=".*/kali_pwtools"/>
     <utility module_path=".*/armitage"/>
+    <utility module_path=".*/johntheripper"/>
 
     <network type="private_network">
       <input into="IP_address">
