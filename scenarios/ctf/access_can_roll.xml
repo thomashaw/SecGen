@@ -6,6 +6,7 @@
 
   <name>Access can roll</name>
   <author>Z. Cliffe Schreuders</author>
+  <author>Rosie Fletcher</author>
   <description>
 There are two problem solving access control challenges on the server. Look at the home directories and the .c files.
 
@@ -17,7 +18,7 @@ Your password on both systems is: tiaspbiqe2r
   </description>
 
   <type>ctf-lab</type>
-  <type>hackerbot-lab</type>
+  <!--<type>hackerbot-lab</type>-->
   <type>lab-sheet</type>
   <difficulty>intermediate</difficulty>
 
@@ -49,7 +50,7 @@ Your password on both systems is: tiaspbiqe2r
       <!-- 1 server -->
       <value>172.16.0.3</value>
       <!-- 2 hackerbot_server -->
-      <value>172.16.0.4</value>
+      <!--<value>172.16.0.4</value>-->
     </input>
 
     <!-- generate some usernames to use -->
@@ -176,7 +177,7 @@ int main()
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/gcc"/>
 
-    <utility module_path=".*/iceweasel">
+    <!-- <utility module_path=".*/iceweasel">
       <input into="accounts">
         <datastore>user_accounts_desktop</datastore>
       </input>
@@ -195,7 +196,7 @@ int main()
       <input into="accounts">
         <datastore access="0">user_accounts_desktop</datastore>
       </input>
-    </utility>
+    </utility> -->
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
@@ -271,6 +272,7 @@ int main()
     </utility>
 
     <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/gcc"/>
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
@@ -280,7 +282,7 @@ int main()
 
     <vulnerability module_path=".*/relative_path_suid_hardlinks"/>
     <vulnerability module_path=".*/two_shell_calls"/>
-    <vulnerability module_path=".*/ssh_leaked_keys"/>
+    <!-- <vulnerability module_path=".*/ssh_leaked_keys"/> -->
 
 
     <network type="private_network">
