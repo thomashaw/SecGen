@@ -2,14 +2,13 @@
 <vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
-
+  
   <name>Gitlist 0.4.0 RCE</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
   <description>
-    Gitlist before 0.5.0 allows remote attackers to execute arbitrary commands via shell metacharacters in the file
-    name in the URI of a request for a (1) blame, (2) file, or (3) stats page, as demonstrated by requests to
-    blame/master/, master/, and stats/master/.
+    Gitlist versions 0.6 and below are vulnerable to an exploit where the attacker is able to bypass/exploit the 
+    'escapeshellarg' using argument injection, resulting in remote code execution.
   </description>
 
   <type>webapp</type>
@@ -48,13 +47,13 @@
   </default_input>
 
   <!--optional vulnerability details-->
-  <cve>CVE-2014-4511</cve>
+  <cve>CVE-2018-1000533</cve>
 
-  <cvss_base_score>7.5</cvss_base_score>
-  <cvss_vector>AV:N/AC:L/Au:N/C:P/I:P/A:P</cvss_vector>
+  <cvss_base_score>9.8</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H</cvss_vector>
 
   <!--optional hints-->
-  <msf_module>exploit/linux/http/gitlist_exec</msf_module>
+  <msf_module>exploit/multi/http/gitlist_arg_injection</msf_module>
   <hint>Visit the webapp in a browser at: ip:80/gitlist </hint>
 
   <!-- can't live alongside other web sites, since they it accepts any virtual host name -->
