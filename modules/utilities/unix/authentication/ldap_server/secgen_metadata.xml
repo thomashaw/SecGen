@@ -27,17 +27,16 @@
     <generator type="strong_password_generator"/>
   </default_input>
 
-  <requires>
-    <type>update</type>
-  </requires>
-  <requires>
-    <module_path>.*apache.*compatible.*</module_path>
-  </requires>
-  <!-- Note: phpldapadmin automatically pulls in PHP 8.2 and dependencies on Bookworm -->
-
-  <!-- exclude any base except bookworm -->
   <conflict>
     <module_path>.*bases/(?!debian_bookworm).*</module_path>
   </conflict>
+
+  <requires>
+    <module_path>.*apache.*compatible.*</module_path>
+  </requires>
+
+  <requires>
+    <type>update</type>
+  </requires>
 
 </utility>
