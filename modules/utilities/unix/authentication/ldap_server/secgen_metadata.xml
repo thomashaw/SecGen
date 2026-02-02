@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>LDAP Server</name>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>Apache v2</module_license>
+  <description>Installs and configures OpenLDAP server (slapd) with phpLDAPadmin web interface and non-interactive setup</description>
+
+  <type>authentication_server</type>
+  <platform>linux</platform>
+
+  <read_fact>domain</read_fact>
+  <read_fact>organization</read_fact>
+  <read_fact>admin_password</read_fact>
+
+  <default_input into="domain">
+    <value>example.com</value>
+  </default_input>
+
+  <default_input into="organization">
+    <value>Example Organization</value>
+  </default_input>
+
+  <default_input into="admin_password">
+    <generator type="strong_password_generator"/>
+  </default_input>
+
+  <requires>
+    <type>update</type>
+  </requires>
+  <requires>
+    <module_path>.*apache.*compatible.*</module_path>
+  </requires>
+  <!-- Note: phpldapadmin automatically pulls in PHP 8.2 and dependencies on Bookworm -->
+
+  <!-- exclude any base except bookworm -->
+  <conflict>
+    <module_path>.*bases/(?!debian_bookworm).*</module_path>
+  </conflict>
+
+</utility>

@@ -69,6 +69,7 @@
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/hash_tools"/>
     <utility module_path=".*/pam_modules"/>
+    <utility module_path=".*/ldap_packages"/>
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
@@ -173,6 +174,7 @@
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/hash_tools"/>
     <utility module_path=".*/pam_modules"/>
+    <utility module_path=".*/ldap_packages"/>
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
@@ -218,6 +220,21 @@
 
     <utility module_path=".*/handy_cli_tools"/>
 
+    <!-- Apache required for phpLDAPadmin -->
+    <service module_path=".*/apache_stretch_compatible"/>
+
+    <!-- LDAP Server with phpLDAPadmin web interface -->
+    <utility module_path=".*/ldap_server">
+      <input into="domain">
+        <value>safetynet.local</value>
+      </input>
+      <input into="organization">
+        <value>SAFETYNET</value>
+      </input>
+      <input into="admin_password" into_datastore="ldap_admin_pass">
+        <value>tiaspbiqe2r</value>
+      </input>
+    </utility>
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
