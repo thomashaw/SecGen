@@ -1,8 +1,10 @@
-class ldap_server::install (
-  String $domain = 'example.com',
-  String $organization = 'Example Organization',
-  String $admin_password = 'temp123',
-) {
+class ldap_server::install {
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  
+  $domain = $secgen_parameters['domain'][0]
+  $organization = $secgen_parameters['organization'][0]
+  $admin_password = $secgen_parameters['admin_password'][0]
+
   # Pre-seed debconf values to make slapd installation non-interactive
   # This prevents prompts during package installation
   exec { 'preseed-slapd':
@@ -30,11 +32,16 @@ class ldap_server::install (
     ensure  => running,
     enable  => true,
   }
-
+  ->
   # LDAP command-line utilities for server management
   # Provides ldapsearch, ldapadd, ldapmodify, ldapdelete, etc.
-  ensure_packages(['ldap-utils'])
+  package { 'ldap-utils':
+    ensure => installed,
+  }
 
+  # Wait for slapd to be fully configured before installing phpldapadmin
+  Service['slapd']
+  ->
   # phpLDAPadmin - Web-based LDAP administration interface
   # Provides a GUI for managing LDAP directory via Apache
   # This will automatically pull in php, php-ldap, php-xml, and libapache2-mod-php
@@ -49,9 +56,23 @@ class ldap_server::install (
     path    => ['/bin', '/usr/bin', '/usr/sbin'],
   }
   ->
+  # Ensure Apache includes conf-enabled directory (SecGen Apache module may not include this)
+  exec { 'add-conf-enabled-to-apache':
+    command => '/bin/echo "IncludeOptional conf-enabled/*.conf" >> /etc/apache2/apache2.conf',
+    unless  => '/bin/grep -q "conf-enabled" /etc/apache2/apache2.conf',
+    path    => ['/bin', '/usr/bin', '/usr/sbin'],
+  }
+  ->
   # Enable phpldapadmin Apache configuration
   exec { 'enable-phpldapadmin-conf':
     command => '/usr/sbin/a2enconf phpldapadmin',
+    path    => ['/bin', '/usr/bin', '/usr/sbin'],
+  }
+  ->
+  # Fix Apache 2.4 compatibility - update config to use modern syntax
+  exec { 'fix-phpldapadmin-apache24-config':
+    command => '/bin/sed -i "s/Order allow,deny/Require all granted/g; s/Allow from all//g" /etc/apache2/conf-available/phpldapadmin.conf',
+    onlyif  => '/bin/grep -q "Order allow,deny" /etc/apache2/conf-available/phpldapadmin.conf',
     path    => ['/bin', '/usr/bin', '/usr/sbin'],
   }
   ->

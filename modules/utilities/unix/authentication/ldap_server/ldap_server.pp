@@ -1,1 +1,1 @@
-require ldap_server::init
+include ldap_server::install
