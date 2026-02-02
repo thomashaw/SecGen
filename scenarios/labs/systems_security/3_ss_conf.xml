@@ -220,9 +220,6 @@
 
     <utility module_path=".*/handy_cli_tools"/>
 
-    <!-- Apache required for phpLDAPadmin -->
-    <service module_path=".*/apache_stretch_compatible"/>
-
     <!-- LDAP Server with phpLDAPadmin web interface -->
     <utility module_path=".*/ldap_server">
       <input into="domain">
