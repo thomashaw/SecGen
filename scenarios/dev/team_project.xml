@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Fictional organisation security audit</name>
+  <author>Thomas Shaw</author>
+  <author>Z. Cliffe Schreuders</author>
+  <description>A set of VMs for a randomly generated fictional organisation, with a desktop system, webserver, and intranet server.
+    Note that the intranet server has a security remit, with instructions on performing a security audit of these systems. The desktop system can access the intranet to access the remit, but the attacker VM (for example, Kali) can be connected to the NIC only shared by the Web server to simulate the need to pivot attacks through the Web server, as they can't connect to the intranet system directly. The "marking guide" is in the form of the output scenario.xml in the project directory, which provides the details of the systems generated.
+  </description>
+
+  <type>blind-audit</type>
+  <difficulty>intermediate</difficulty>
+
+  <!-- TODO: update the oVirt plugin to work with multiple NICs and re-introduce pivoting -->
+
+  <!-- Web Server on NIC1 and NIC2 -->
+  <system>
+
+    <system_name>web_server</system_name>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <value>172.10.0.2</value>
+    </input>
+
+    <input into_datastore="spoiler_admin_pass">
+      <value>tiaspbiqe2r</value>
+    </input>
+
+    <vulnerability module_path="vulnerabilities/unix/http/vuln_parameterised_website">
+      <input into="organisation" into_datastore="organisation">
+        <encoder type="line_selector">
+          <input into="file_path">
+            <value>lib/resources/structured_content/organisations/json_organisations</value>
+          </input>
+        </encoder>
+      </input>
+      <input into="theme" into_datastore="theme">
+        <generator type="website_theme"/>
+      </input>
+    </vulnerability>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="next">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+</scenario>
