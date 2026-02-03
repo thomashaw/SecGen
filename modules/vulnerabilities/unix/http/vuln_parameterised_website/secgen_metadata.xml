@@ -36,6 +36,10 @@
   <read_fact>port</read_fact>
   <read_fact>theme</read_fact>
 
+  <read_fact>db_username</read_fact>
+  <read_fact>db_password</read_fact>
+
+
   <default_input into="port">
     <value>80</value>
   </default_input>
@@ -60,6 +64,15 @@
   <default_input into="theme">
     <generator type="website_theme"/>
   </default_input>
+
+  <default_input into="db_username">
+    <value>user</value>
+  </default_input>
+
+  <default_input into="db_password">
+    <value>password123</value>
+  </default_input>
+
 
   <conflict>
     <module_path>.*parameterised_website</module_path>
