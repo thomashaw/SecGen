@@ -1,7 +1,7 @@
 class ad_packages::install {
   # Active Directory Integration - Realm Management
   # Manages enrollment and integration with realms (Active Directory domains)
-  ensure_packages(['realm'])
+  ensure_packages(['realmd'])
 
   # System Security Services Daemon
   # Provides access to identity and authentication remote resource providers
