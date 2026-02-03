@@ -1,2 +1,3 @@
-include parameterised_website::apache
-include parameterised_website::install
+include vuln_parameterised_website::apache
+include vuln_parameterised_website::install
+include vuln_parameterised_website::db_setup

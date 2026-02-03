@@ -1,8 +1,8 @@
-class parameterised_website::apache {
+class vuln_parameterised_website::apache {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $port = $secgen_parameters['port'][0]
 
-  # essential packages for commando to function
+  # essential packages
   package { ['php', 'php-mysqli', 'php-gd', 'libapache2-mod-php','mysql-server']:
     ensure => installed,
   }
@@ -15,7 +15,7 @@ class parameterised_website::apache {
 
   apache::vhost { 'parameterised.website':
     port    => $port,
-    docroot => '/var/www/parameterised_website',
+    docroot => '/var/www/vuln_parameterised_website',
     notify => Tidy['pws remove default site'],
   }
 

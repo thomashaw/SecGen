@@ -1,4 +1,4 @@
-class parameterised_website::install {
+class vuln_parameterised_website::install {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 
   $theme = $secgen_parameters['theme'][0]
@@ -53,12 +53,12 @@ class parameterised_website::install {
   $additional_pages = $secgen_parameters['additional_pages']
   $additional_page_filenames = $secgen_parameters['additional_page_filenames']
 
-  $docroot = '/var/www/parameterised_website'
+  $docroot = '/var/www/vuln_parameterised_website'
 
   if $acceptable_use_policy {  # Use alternative intranet index.html template
-    $index_template = 'parameterised_website/intranet_index.html.erb'
+    $index_template = 'vuln_parameterised_website/intranet_index.html.erb'
   } else {
-    $index_template = 'parameterised_website/index.html.erb'
+    $index_template = 'vuln_parameterised_website/index.html.erb'
   }
 
   file { $docroot:
@@ -69,27 +69,27 @@ class parameterised_website::install {
   file { "$docroot/css":
     ensure => directory,
     recurse => true,
-    source => 'puppet:///modules/parameterised_website/css',
+    source => 'puppet:///modules/vuln_parameterised_website/css',
     require => File[$docroot],
   }
   file { "$docroot/js":
     ensure => directory,
     recurse => true,
-    source => 'puppet:///modules/parameterised_website/js',
+    source => 'puppet:///modules/vuln_parameterised_website/js',
     require => File[$docroot],
   }
 
   # Apply default CSS template
   file { "$docroot/css/default.css":
     ensure => file,
-    content => template('parameterised_website/default.css.erb'),
+    content => template('vuln_parameterised_website/default.css.erb'),
     require => File["$docroot/css"],
   }
 
   # Add randomly selected CSS theme
   file { "$docroot/css/$theme":
     ensure => file,
-    source => "puppet:///modules/parameterised_website/themes/$theme",
+    source => "puppet:///modules/vuln_parameterised_website/themes/$theme",
     require => File[$docroot],
   }
 
@@ -104,7 +104,7 @@ class parameterised_website::install {
     # Apply contact page template
     file { "$docroot/contact.html":
       ensure  => file,
-      content => template('parameterised_website/contact.html.erb'),
+      content => template('vuln_parameterised_website/contact.html.erb'),
     }
   }
 
@@ -140,17 +140,17 @@ class parameterised_website::install {
 
   if $images_to_leak {
     if $images_mode {
-      ::secgen_functions::leak_files { 'parameterised_website-image-leak-mode':
+      ::secgen_functions::leak_files { 'vuln-parameterised_website-image-leak-mode':
         storage_directory => $docroot,
         images_to_leak    => $images_to_leak,
         mode              => $images_mode,
-        leaked_from       => "parameterised_website",
+        leaked_from       => "vuln_parameterised_website",
       }
     } else {
-      ::secgen_functions::leak_files { 'parameterised_website-image-leak':
+      ::secgen_functions::leak_files { 'vuln-parameterised_website-image-leak':
         storage_directory => $docroot,
         images_to_leak    => $images_to_leak,
-        leaked_from       => "parameterised_website",
+        leaked_from       => "vuln_parameterised_website",
       }
     }
   }
@@ -163,7 +163,7 @@ class parameterised_website::install {
 
       file { "$docroot/$additional_page_filename":
         ensure  => file,
-        content => template('parameterised_website/page.html.erb'),
+        content => template('vuln_parameterised_website/page.html.erb'),
       }
     }
   }
@@ -172,7 +172,7 @@ class parameterised_website::install {
     # Apply template
     file{ "$docroot/acceptable_use_policy.html":
       ensure  => file,
-      content => template('parameterised_website/acceptable_use_page.html.erb')
+      content => template('vuln_parameterised_website/acceptable_use_page.html.erb')
     }
   }
 
@@ -183,7 +183,7 @@ class parameterised_website::install {
     # Apply template
     file{ "$docroot/security_audit_remit.html":
       ensure  => file,
-      content => template('parameterised_website/security_audit_remit_page.html.erb'),
+      content => template('vuln_parameterised_website/security_audit_remit_page.html.erb'),
 
     }
   }
