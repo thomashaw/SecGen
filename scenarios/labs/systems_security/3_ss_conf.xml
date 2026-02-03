@@ -120,6 +120,8 @@
 
     <vulnerability type="ftp"/>
 
+    <utility module_path=".*/apparmor"/>
+
     <service module_path="services/unix/http/parameterised_website">
       <input into="organisation" into_datastore="organisation">
         <encoder type="line_selector">

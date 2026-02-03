@@ -5,6 +5,10 @@ class ldap_server::install {
   $organization = $secgen_parameters['organization'][0]
   $admin_password = $secgen_parameters['admin_password'][0]
 
+  # Convert domain to LDAP DN format (e.g., "secgen.local" -> "dc=secgen,dc=local")
+  $domain_parts = split($domain, '\.')
+  $base_dn = $domain_parts.map |$part| { "dc=${part}" }.join(',')
+
   # Pre-seed debconf values to make slapd installation non-interactive
   # This prevents prompts during package installation
   exec { 'preseed-slapd':
@@ -47,6 +51,14 @@ class ldap_server::install {
   # This will automatically pull in php, php-ldap, php-xml, and libapache2-mod-php
   package { 'phpldapadmin':
     ensure => installed,
+  }
+
+  ->
+  # Configure phpLDAPadmin base DN to match LDAP domain
+  exec { 'configure-phpldapadmin-base-dn':
+    command => "/bin/sed -i \"s/\\$servers->setValue('server','base',array('dc=example,dc=com'));/\\$servers->setValue('server','base',array('${base_dn}'));/\" /etc/phpldapadmin/config.php",
+    onlyif  => "/bin/grep -q \"dc=example,dc=com\" /etc/phpldapadmin/config.php",
+    path    => ['/bin', '/usr/bin'],
   }
   ->
   # Enable PHP module in Apache (version-agnostic)
