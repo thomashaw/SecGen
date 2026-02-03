@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>Active Directory Integration Packages</name>
+  <author>Z. Cliffe Schreuders</author>
+  <module_license>Apache v2</module_license>
+  <description>Installs packages for Active Directory domain integration including realm, SSSD, and Samba utilities</description>
+
+  <type>authentication_configuration</type>
+  <platform>linux</platform>
+
+</utility>
