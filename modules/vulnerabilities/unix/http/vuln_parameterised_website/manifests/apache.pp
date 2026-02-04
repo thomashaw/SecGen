@@ -2,8 +2,7 @@ class vuln_parameterised_website::apache {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $port = $secgen_parameters['port'][0]
 
-  # essential packages
-  package { ['php', 'php-mysqli', 'php-gd', 'libapache2-mod-php','mysql-server']:
+  package { ['php', 'php-gd', 'libapache2-mod-php']:
     ensure => installed,
   }
 
