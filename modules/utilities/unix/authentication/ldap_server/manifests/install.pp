@@ -61,6 +61,14 @@ class ldap_server::install {
     path    => ['/bin', '/usr/bin'],
   }
   ->
+  # Configure phpLDAPadmin to start auto-incrementing UIDs at 10000
+  # This avoids conflicts with local system users (typically 1000-9999)
+  exec { 'configure-phpldapadmin-auto-uid':
+    command => "/bin/sed -i \"s/^#\\?\\s*\\$servers->setValue('auto_number','min',array('uidNumber'=>[0-9]\\+/\\$servers->setValue('auto_number','min',array('uidNumber'=>10000/\" /etc/phpldapadmin/config.php",
+    onlyif  => "/bin/grep -q \"auto_number.*uidNumber\" /etc/phpldapadmin/config.php",
+    path    => ['/bin', '/usr/bin'],
+  }
+  ->
   # Enable PHP module in Apache (version-agnostic)
   # Uses find to locate the installed PHP module and enables it
   exec { 'enable-php-module':
