@@ -54,22 +54,6 @@ class ldap_server::install {
   }
 
   ->
-  # Configure phpLDAPadmin base DN to match LDAP domain
-  exec { 'configure-phpldapadmin-base-dn':
-    command => "/bin/sed -i \"s/\\$servers->setValue('server','base',array('dc=example,dc=com'));/\\$servers->setValue('server','base',array('${base_dn}'));/\" /etc/phpldapadmin/config.php",
-    onlyif  => "/bin/grep -q \"dc=example,dc=com\" /etc/phpldapadmin/config.php",
-    path    => ['/bin', '/usr/bin'],
-  }
-  ->
-  # Configure phpLDAPadmin to start auto-incrementing UIDs at 10000 and GIDs at 5000
-  # This avoids conflicts with local system users (typically 1000-9999)
-  # Inserts the configuration line before the closing ?> tag
-  exec { 'configure-phpldapadmin-auto-uid':
-    command => "/bin/sed -i \"/^?>$/i \\$servers->setValue('auto_number','min',array('uidNumber'=>10000,'gidNumber'=>5000));\" /etc/phpldapadmin/config.php",
-    unless  => "/bin/grep -q \"auto_number.*uidNumber\" /etc/phpldapadmin/config.php",
-    path    => ['/bin', '/usr/bin'],
-  }
-  ->
   # Enable PHP module in Apache (version-agnostic)
   # Uses find to locate the installed PHP module and enables it
   exec { 'enable-php-module':
@@ -101,5 +85,26 @@ class ldap_server::install {
   exec { 'restart-apache2-for-phpldapadmin':
     command => '/usr/sbin/service apache2 restart',
     path    => ['/bin', '/usr/bin', '/usr/sbin'],
+  }
+  ->
+  
+  # Configure phpLDAPadmin base DN to match LDAP domain
+  exec { 'configure-phpldapadmin-base-dn':
+    command => "/bin/sed -i \"s/\\$servers->setValue('server','base',array('dc=example,dc=com'));/\\$servers->setValue('server','base',array('${base_dn}'));/\" /etc/phpldapadmin/config.php",
+    onlyif  => "/bin/grep -q \"dc=example,dc=com\" /etc/phpldapadmin/config.php",
+    path    => ['/bin', '/usr/bin'],
+  }
+  ->
+  # Configure phpLDAPadmin to start auto-incrementing UIDs at 10000 and GIDs at 5000
+  # This avoids conflicts with local system users (typically 1000-9999)
+  # Inserts the configuration line before the closing ?> tag (with flexible whitespace matching)
+  exec { 'configure-phpldapadmin-auto-uid':
+    command => "/bin/sed -i \"/^?>\\s*$/i \\\$servers->setValue('auto_number','min',array('uidNumber'=>10000,'gidNumber'=>5000));\" /etc/phpldapadmin/config.php && echo 'phpLDAPadmin auto-UID configured'",
+    onlyif  => [
+      "/bin/test -f /etc/phpldapadmin/config.php",
+      "/bin/grep -q '^?>' /etc/phpldapadmin/config.php"
+    ],
+    unless  => "/bin/grep -q \"uidNumber.*10000\" /etc/phpldapadmin/config.php",
+    path    => ['/bin', '/usr/bin'],
   }
 }
