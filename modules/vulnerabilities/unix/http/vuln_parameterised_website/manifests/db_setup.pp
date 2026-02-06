@@ -5,6 +5,11 @@ class vuln_parameterised_website::db_setup {
   $db_username = $secgen_parameters['db_username'][0]
   $db_password = $secgen_parameters['db_password'][0]
 
+  mysql_user{ "$db_username@localhost":
+    ensure        => present,
+    password_hash => mysql_password($db_password)
+  }
+
   # Table setup file, setting the template
   file { "/tmp/db.sql":
     owner  => root,
