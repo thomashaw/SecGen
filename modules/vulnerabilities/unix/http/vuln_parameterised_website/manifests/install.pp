@@ -55,7 +55,7 @@ class vuln_parameterised_website::install {
 
   $docroot = '/var/www/vuln_parameterised_website'
 
-  if $acceptable_use_policy {  # Use alternative intranet index.html template
+  if $acceptable_use_policy {  # Use alternative intranet index.php template
     $index_template = 'vuln_parameterised_website/intranet_index.php.erb'
   } else {
     $index_template = 'vuln_parameterised_website/index.php.erb'
@@ -186,6 +186,12 @@ class vuln_parameterised_website::install {
       content => template('vuln_parameterised_website/security_audit_remit_page.php.erb'),
 
     }
+  }
+
+
+  file { "$docroot/config.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/config.php.erb'),
   }
 
   # Login page
