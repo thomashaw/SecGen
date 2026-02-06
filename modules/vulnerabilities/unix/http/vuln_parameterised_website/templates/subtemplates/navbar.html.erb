@@ -15,7 +15,12 @@
           <% if @organisation and @organisation != '' -%>
            <li class="nav-item"><a class="nav-link" href="contact.php">Contact Us</a></li>
         <% end -%>
-          <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
+           <li class="nav-item"><a class="nav-link" href="guestbook.php">Guestbook</a></li>
+        <?php if (isset($_SESSION['logged_in']) && $_SESSION['logged_in']): ?>
+           <li><a href="logout.php">Logout (<?php echo htmlspecialchars($_SESSION['username']); ?>)</a></li>
+        <?php else: ?>
+          <li><a href="login.php">Login</a></li>
+        <?php endif; ?>
         </ul>
       </div><!--/.nav-collapse -->
     </div>

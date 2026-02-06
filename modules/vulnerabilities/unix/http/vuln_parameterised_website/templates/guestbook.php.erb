@@ -1,0 +1,67 @@
+<% $current_page = 'Guestbook' -%>
+<?php require_once 'config.php'; ?>
+<html>
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/header.html.erb']) %>
+<body>
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/navbar.html.erb']) %>
+<div id="main_container" class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="intro-text">
+        <h1 class="name">Guestbook</h1>
+        <hr class="star-light">
+        <h3>Leave us a message!</h3>
+      </div>
+    </div>
+
+    <!-- Guestbook form -->
+    <div class="col-lg-8 col-lg-offset-2">
+      <?php
+      if (isset($_SESSION['guestbook_success'])) {
+          echo '<div class="alert alert-success">' . $_SESSION['guestbook_success'] . '</div>';
+    unset($_SESSION['guestbook_success']);
+    }
+    ?>
+    <div class="guestbook-form">
+      <h3>Sign our guestbook</h3>
+      <form method="POST" action="guestbook_process.php">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Display guestbook entries -->
+  <div class="col-lg-10 col-lg-offset-1">
+    <h3>Recent Messages</h3>
+    <hr>
+    <?php
+      // INTENTIONALLY VULNERABLE - displays unsanitized user input (XSS)
+      $query = "SELECT * FROM guestbook ORDER BY timestamp DESC";
+      $result = $conn->query($query);
+
+    if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+    echo '<div class="guestbook-entry">';
+    echo '<p><strong>' . $row['name'] . '</strong> <small>(' . $row['timestamp'] . ')</small></p>';
+    echo '<p>' . $row['message'] . '</p>';
+    echo '<hr>';
+    echo '</div>';
+    }
+    } else {
+    echo '<p>No messages yet. Be the first to sign our guestbook!</p>';
+    }
+    ?>
+  </div>
+</div>
+</div>
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/scripts.html.erb']) %>
+</body>
+</html>

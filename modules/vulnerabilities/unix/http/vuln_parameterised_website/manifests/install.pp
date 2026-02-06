@@ -200,4 +200,21 @@ class vuln_parameterised_website::install {
     content => template('vuln_parameterised_website/login_process.php.erb'),
   }
 
+  file { "$docroot/logout.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/logout.php.erb'),
+  }
+
+  file { "$docroot/guestbook.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/guestbook.php.erb'),
+  }
+
+
+  file { "$docroot/guestbook_process.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/guestbook_process.php.erb'),
+  }
+
+
 }
