@@ -1,0 +1,29 @@
+<?php require_once 'config.php'; ?>
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // INTENTIONALLY VULNERABLE - SQL Injection
+    $query = "SELECT * FROM Users WHERE username = '$username' AND password = '$password'";
+    $result = $conn->query($query);
+
+if ($result && $result->num_rows > 0) {
+$user = $result->fetch_assoc();
+
+// Set session variables
+$_SESSION['logged_in'] = true;
+$_SESSION['username'] = $user['username'];
+$_SESSION['user_id'] = $user['ID'];
+$_SESSION['admin'] = $user['admin'];
+
+$_SESSION['success'] = 'Login successful!';
+header('Location: index.php');
+exit();
+} else {
+$_SESSION['error'] = 'Invalid username or password';
+header('Location: login.php');
+exit();
+}
+}
+?>

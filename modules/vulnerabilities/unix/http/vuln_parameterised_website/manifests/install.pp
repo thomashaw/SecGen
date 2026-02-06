@@ -188,4 +188,16 @@ class vuln_parameterised_website::install {
     }
   }
 
+  # Login page
+  file { "$docroot/login.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/login.php.erb'),
+  }
+
+  # Login function
+  file { "$docroot/login_process.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/login_process.php.erb'),
+  }
+
 }
