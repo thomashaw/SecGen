@@ -4,7 +4,7 @@
     <% @visible_tabs.each_with_index { |_, counter|  -%>
      <% if counter != 0 && counter != @visible_tabs.length -%>
         <li class="nav-item">
-          <a class="nav-link" data-toggle="tab" href="tab_<%= counter %>.html"><%= counter %></a></li>
+          <a class="nav-link" data-toggle="tab" href="tab_<%= counter %>.php"><%= counter %></a></li>
       <% end -%>
     <% } %>
   </ul>

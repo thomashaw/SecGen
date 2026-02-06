@@ -56,9 +56,9 @@ class vuln_parameterised_website::install {
   $docroot = '/var/www/vuln_parameterised_website'
 
   if $acceptable_use_policy {  # Use alternative intranet index.html template
-    $index_template = 'vuln_parameterised_website/intranet_index.html.erb'
+    $index_template = 'vuln_parameterised_website/intranet_index.php.erb'
   } else {
-    $index_template = 'vuln_parameterised_website/index.html.erb'
+    $index_template = 'vuln_parameterised_website/index.php.erb'
   }
 
   file { $docroot:
@@ -94,7 +94,7 @@ class vuln_parameterised_website::install {
   }
 
   # Apply index page template
-  file { "$docroot/index.html":
+  file { "$docroot/index.php":
     ensure  => file,
     content => template($index_template),
     require => File[$docroot],
@@ -102,9 +102,9 @@ class vuln_parameterised_website::install {
 
   if $organisation and $organisation != ''{
     # Apply contact page template
-    file { "$docroot/contact.html":
+    file { "$docroot/contact.php":
       ensure  => file,
-      content => template('vuln_parameterised_website/contact.html.erb'),
+      content => template('vuln_parameterised_website/contact.php.erb'),
     }
   }
 
@@ -114,7 +114,7 @@ class vuln_parameterised_website::install {
       if $counter != 0 {
         $n = $counter
 
-        file { "$docroot/tab_$n.html":
+        file { "$docroot/tab_$n.php":
           ensure  => file,
           content => $visible_tab,
         }
@@ -131,7 +131,7 @@ class vuln_parameterised_website::install {
         $n = $counter + $visible_tabs.length - 1  # minus one accounts for the information tab
       }
 
-      file { "$docroot/tab_$n.html":
+      file { "$docroot/tab_$n.php":
         ensure  => file,
         content => $hidden_tab,
       }
@@ -163,7 +163,7 @@ class vuln_parameterised_website::install {
 
       file { "$docroot/$additional_page_filename":
         ensure  => file,
-        content => template('vuln_parameterised_website/page.html.erb'),
+        content => template('vuln_parameterised_website/page.php.erb'),
       }
     }
   }
@@ -172,7 +172,7 @@ class vuln_parameterised_website::install {
     # Apply template
     file{ "$docroot/acceptable_use_policy.html":
       ensure  => file,
-      content => template('vuln_parameterised_website/acceptable_use_page.html.erb')
+      content => template('vuln_parameterised_website/acceptable_use_page.php.erb')
     }
   }
 
@@ -183,7 +183,7 @@ class vuln_parameterised_website::install {
     # Apply template
     file{ "$docroot/security_audit_remit.html":
       ensure  => file,
-      content => template('vuln_parameterised_website/security_audit_remit_page.html.erb'),
+      content => template('vuln_parameterised_website/security_audit_remit_page.php.erb'),
 
     }
   }

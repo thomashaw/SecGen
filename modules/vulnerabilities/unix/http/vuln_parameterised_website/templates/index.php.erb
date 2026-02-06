@@ -1,0 +1,16 @@
+<% $current_page = 'Homepage' %>
+<?php require_once 'config.php'; ?>
+
+<html>
+<% @strings_to_leak.each { |string_to_leak| -%>
+  <!-- <%= string_to_leak %> -->
+<%} -%>
+
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/header.php.erb']) %>
+<body>
+  <%= scope.function_template(['vuln_parameterised_website/subtemplates/navbar.php.erb']) %>
+  <%= scope.function_template(['vuln_parameterised_website/subtemplates/main_container.php.erb']) %>
+  <%= scope.function_template(['vuln_parameterised_website/subtemplates/scripts.php.erb']) %>
+  <%= scope.function_template(['vuln_parameterised_website/subtemplates/scripts.php.erb']) %>
+</body>
+</html>
