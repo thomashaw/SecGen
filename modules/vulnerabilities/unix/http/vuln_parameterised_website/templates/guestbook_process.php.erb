@@ -1,0 +1,17 @@
+<?php require_once 'config.php'; ?>
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $name = $_POST['name'];
+    $message = $_POST['message'];
+
+    // INTENTIONALLY VULNERABLE - SQL Injection
+    $query = "INSERT INTO guestbook (name, message) VALUES ('$name', '$message')";
+
+    if ($conn->query($query)) {
+$_SESSION['guestbook_success'] = 'Thank you for signing our guestbook!';
+}
+
+header('Location: guestbook.php');
+exit();
+}
+?>

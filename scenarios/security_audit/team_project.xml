@@ -34,7 +34,7 @@
       <generator type="password_generator"/>
     </input>
 
-    <service module_path="services/unix/http/parameterised_website">
+    <vulnerability module_path="vulnerabilities/unix/http/vuln_parameterised_website">
       <input into="organisation" into_datastore="organisation">
         <encoder type="line_selector">
           <input into="file_path">
@@ -45,7 +45,7 @@
       <input into="theme" into_datastore="theme">
         <generator type="website_theme"/>
       </input>
-    </service>
+    </vulnerability>
 
     <vulnerability privilege="user_rwx" access="remote" type="(?!.*webapp|ctf).*">
       <input into="organisation">
@@ -86,7 +86,7 @@
     <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!-- Web server hosting acceptable use policy and security audit remit -->
-    <service module_path="services/unix/http/parameterised_website">
+    <vulnerability module_path="vulnerabilities/unix/http/vuln_parameterised_website">
       <input into="host_acceptable_use_policy">
         <value>true</value>
       </input>
@@ -107,7 +107,7 @@
       <input into="theme">
         <datastore>theme</datastore>
       </input>
-    </service>
+    </vulnerability>
 
     <!-- Create accounts for the 3 employees -->
     <utility module_path=".*/parameterised_accounts">
