@@ -1,9 +1,22 @@
 class vuln_parameterised_website::db_setup {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 
-
   $db_username = $secgen_parameters['db_username'][0]
   $db_password = $secgen_parameters['db_password'][0]
+
+  $raw_org = $secgen_parameters['organisation'][0]
+  if $raw_org and $raw_org != '' {
+    $organisation = parsejson($raw_org)
+  }
+
+  if $organisation and $organisation != '' {
+    $manager_profile = $organisation['manager']
+    $employees = $organisation['employees']
+  } else {
+    $manager_profile = ''
+    $employees = []
+  }
+
 
   mysql_user{ "$db_username@localhost":
     ensure        => present,

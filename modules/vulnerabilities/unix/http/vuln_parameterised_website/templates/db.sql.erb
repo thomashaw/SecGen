@@ -27,7 +27,20 @@ CREATE TABLE Users (
 -- Dumping data for table `users`
 --
 
+<% if @raw_org && !@raw_org.empty? -%>
+INSERT INTO Users (`ID`, `name`, `address`, `mobile`, `email`, `username`, `password`, `admin`) VALUES
+  <% if @manager_profile -%>
+  (1, '<%= @manager_profile['name'] %>', '<%= @manager_profile['address'] || 'Address not provided' %>', '<%= @manager_profile['phone_number'] %>', '<%= @manager_profile['email_address'] %>', '<%= @manager_profile['username'] %>', '<%= @manager_profile['password'] %>', TRUE)<%= @employees && @employees.length > 0 ? ',' : ';' %>
+  <% end -%>
+  <% if @employees && @employees.length > 0 -%>
+  <% @employees.each_with_index do |employee, index| -%>
+  (<%= index + 2 %>, '<%= employee['name'] %>', '<%= employee['address'] || 'Address not provided' %>', '<%= employee['phone_number'] %>', '<%= employee['email_address'] %>', '<%= employee['username'] %>', '<%= employee['password'] %>', FALSE)<%= index < @employees.length - 1 ? ',' : ';' %>
+<% end -%>
+<% end -%>
+<% else -%>
 INSERT INTO Users (`ID`, `name`, `address`, `mobile`, `email`, `username`, `password`, `admin`) VALUES (1, 'admin', '123 test street', '07123456789', 'user@test.com', 'user', 'password123', TRUE);
+<% end -%>
+
 
 --
 -- Indexes for dumped tables
