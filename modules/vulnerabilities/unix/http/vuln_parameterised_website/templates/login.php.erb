@@ -1,0 +1,45 @@
+<% $current_page = 'Login' -%>
+<?php require_once 'config.php'; ?>
+<html>
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/header.php.erb']) %>
+<body>
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/navbar.php.erb']) %>
+<div id="main_container" class="container">
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="intro-text">
+        <h1 class="name"><%= @business_name %></h1>
+        <hr class="star-light">
+        <h3>Login</h3>
+      </div>
+    </div>
+    <div class="col-lg-6 col-lg-offset-3">
+      <div class="login-form">
+        <?php
+        if (isset($_SESSION['error'])) {
+            echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
+      unset($_SESSION['error']);
+      }
+      if (isset($_SESSION['success'])) {
+      echo '<div class="alert alert-success">' . $_SESSION['success'] . '</div>';
+      unset($_SESSION['success']);
+      }
+      ?>
+      <form method="POST" action="login_process.php">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+<%= scope.function_template(['vuln_parameterised_website/subtemplates/scripts.php.erb']) %>
+</body>
+</html>

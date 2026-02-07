@@ -1,0 +1,91 @@
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+--
+-- Database: `db`
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE Users (
+                                         `ID` int(6) NOT NULL,
+                                         `name` varchar(100) NOT NULL,
+                                         `address` varchar(200) NOT NULL,
+                                         `mobile` varchar(100) NOT NULL,
+                                         `email` varchar(150) NOT NULL,
+                                         `username` varchar(100) NOT NULL,
+                                         `password` varchar(100) NOT NULL,
+                                         `admin` BOOLEAN NOT NULL DEFAULT FALSE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `users`
+--
+
+<% if @raw_org && !@raw_org.empty? -%>
+INSERT INTO Users (`ID`, `name`, `address`, `mobile`, `email`, `username`, `password`, `admin`) VALUES
+  <% if @manager_profile -%>
+  (1, '<%= @manager_profile['name'] %>', '<%= @manager_profile['address'] || 'Address not provided' %>', '<%= @manager_profile['phone_number'] %>', '<%= @manager_profile['email_address'] %>', '<%= @manager_profile['username'] %>', '<%= @manager_profile['password'] %>', TRUE)<%= @employees && @employees.length > 0 ? ',' : ';' %>
+  <% end -%>
+  <% if @employees && @employees.length > 0 -%>
+  <% @employees.each_with_index do |employee, index| -%>
+  (<%= index + 2 %>, '<%= employee['name'] %>', '<%= employee['address'] || 'Address not provided' %>', '<%= employee['phone_number'] %>', '<%= employee['email_address'] %>', '<%= employee['username'] %>', '<%= employee['password'] %>', FALSE)<%= index < @employees.length - 1 ? ',' : ';' %>
+<% end -%>
+<% end -%>
+<% else -%>
+INSERT INTO Users (`ID`, `name`, `address`, `mobile`, `email`, `username`, `password`, `admin`) VALUES (1, 'admin', '123 test street', '07123456789', 'user@test.com', 'user', 'password123', TRUE);
+<% end -%>
+
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE Users ADD PRIMARY KEY (`ID`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE Users
+  MODIFY `ID` int(6) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+
+--
+-- Table structure for table `guestbook`
+--
+
+CREATE TABLE `guestbook` (
+                           `id` int(6) NOT NULL AUTO_INCREMENT,
+                           `name` varchar(100) NOT NULL,
+                           `message` text NOT NULL,
+                           `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Dumping data for table `guestbook`
+--
+
+INSERT INTO `guestbook` (`name`, `message`) VALUES
+                                              ('Alice', 'Great website! Looking forward to more content.'),
+                                              ('Bob', 'Thanks for creating this resource.'),
+                                              ('Charlie', 'Very helpful information here.');
+
