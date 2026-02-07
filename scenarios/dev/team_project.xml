@@ -30,16 +30,34 @@
       <value>tiaspbiqe2r</value>
     </input>
 
+    <input into_datastore="organisation">
+      <encoder type="line_selector">
+        <input into="file_path">
+          <value>lib/resources/structured_content/organisations/json_organisations</value>
+        </input>
+      </encoder>
+    </input>
+
     <vulnerability module_path="vulnerabilities/unix/http/vuln_parameterised_website">
-      <input into="organisation" into_datastore="organisation">
-        <encoder type="line_selector">
-          <input into="file_path">
-            <value>lib/resources/structured_content/organisations/json_organisations</value>
+      <input into="host_acceptable_use_policy">
+        <value>true</value>
+      </input>
+      <input into="security_audit">
+        <encoder type="markdown_to_html_encoder">
+          <input into="strings_to_encode">
+            <generator module_path=".*/security_audit_remit">
+              <input into="business_name">
+                <datastore access_json="['business_name']">organisation</datastore>
+              </input>
+            </generator>
           </input>
         </encoder>
       </input>
-      <input into="theme" into_datastore="theme">
-        <generator type="website_theme"/>
+      <input into="organisation">
+        <datastore>organisation</datastore>
+      </input>
+      <input into="theme">
+        <datastore>theme</datastore>
       </input>
     </vulnerability>
 
