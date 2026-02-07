@@ -12,11 +12,6 @@ class vuln_parameterised_website::apache {
     mpm_module => 'prefork',
   }
 
-  exec { 'a2enmod php5.6':
-    command  => "/usr/sbin/a2enmod php5.6",
-    require => Class['::apache']
-  }
-
 
   apache::vhost { 'parameterised.website':
     port    => $port,
