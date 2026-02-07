@@ -223,4 +223,16 @@ class vuln_parameterised_website::install {
   }
 
 
+
+  file { "$docroot/profile.php":
+    ensure  => file,
+    content => template('vuln_parameterised_website/profile.php.erb'),
+  }
+
+
+  file { "$docroot/change_password.php.erb":
+    ensure  => file,
+    content => template('vuln_parameterised_website/change_password.php.erb'),
+  }
+
 }
