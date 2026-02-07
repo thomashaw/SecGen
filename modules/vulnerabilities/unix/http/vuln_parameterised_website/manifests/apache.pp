@@ -2,7 +2,7 @@ class vuln_parameterised_website::apache {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $port = $secgen_parameters['port'][0]
 
-  package { ['php', 'php-gd', 'libapache2-mod-php']:
+  package { ['php', 'php-gd', 'libapache2-mod-php', 'php-mysql']:
     ensure => installed,
   }
 
@@ -11,6 +11,12 @@ class vuln_parameterised_website::apache {
     overwrite_ports => false,
     mpm_module => 'prefork',
   }
+
+  exec { 'a2enmod php5.6':
+    command  => "/usr/sbin/a2enmod php5.6",
+    require => Class['::apache']
+  }
+
 
   apache::vhost { 'parameterised.website':
     port    => $port,
