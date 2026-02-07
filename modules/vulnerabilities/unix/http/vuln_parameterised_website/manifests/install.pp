@@ -43,6 +43,10 @@ class vuln_parameterised_website::install {
 
   $white_text = $secgen_parameters['white_text']
 
+  $db_username = $secgen_parameters['db_username'][0]
+  $db_password = $secgen_parameters['db_password'][0]
+
+
   if $intro_paragraph != [] and $intro_paragraph != '' {
     $main_page_paragraph_content = $intro_paragraph
   } else {
