@@ -56,9 +56,6 @@
       <input into="organisation">
         <datastore>organisation</datastore>
       </input>
-      <input into="theme">
-        <datastore>theme</datastore>
-      </input>
     </vulnerability>
 
     <build type="cleanup">
