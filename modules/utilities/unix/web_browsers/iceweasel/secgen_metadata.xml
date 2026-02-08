@@ -31,6 +31,10 @@
     <value>true</value>
   </default_input>
 
+  <default_input into="disable_https_upgrade">
+    <value>false</value>
+  </default_input>
+
   <requires>
     <type>update</type>
   </requires>

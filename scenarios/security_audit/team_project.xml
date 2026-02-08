@@ -217,6 +217,9 @@
       <input into="start_page">
         <datastore access="1">IP_addresses</datastore>
       </input>
+      <input into="disable_https_upgrade">
+        <value>true</value>
+      </input>
     </utility>
 
     <utility module_path=".*/handy_cli_tools"/>
