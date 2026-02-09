@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Apache Spark Dev Scenario Fixes</name>
+  <author>Thomas Shaw</author>
+  <description>asdf</description>
+
+  <type>test</type>
+  <difficulty>intermediate</difficulty>
+
+  <!-- Web Server on NIC1 and NIC2 -->
+  <system>
+
+    <system_name>web_server</system_name>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <value>172.10.0.2</value>
+    </input>
+
+    <input into_datastore="spoiler_admin_pass">
+      <value>tiaspbiqe2r</value>
+    </input>
+
+    <vulnerability module_path=".*apache_spark_rce"/>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="next">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+</scenario>
