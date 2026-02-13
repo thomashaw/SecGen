@@ -17,20 +17,32 @@ class apache_druid_rce::install {
     managehome => true,
   }
 
-  # This generates a repo file so we can get packages from debian stretch
-  file { '/etc/apt/sources.list.d/stretch.list':
-    ensure => file,
-    source => "puppet:///modules/${modulename}/stretch.list"
+  file { '/usr/local/java':
+    ensure => 'directory'
   }
-  -> exec { 'update-packages':
-    command => 'apt update'
+  -> file { '/usr/local/java/jre-archive-files':
+    ensure  => directory,
+    source  => 'puppet:///modules/apache_druid_rce/jre-archive-files',
+    recurse => true,
   }
-  -> package { 'install-jdk8':
-    ensure => 'installed',
-    name   => 'openjdk-8-jdk',
+  -> exec { 'extract-java':
+    command => 'cat jre-archive-files/jre* > jre-8u351-linux-x64.tar.gz; tar -xvzf jre-8u351-linux-x64.tar.gz',
+    cwd     => '/usr/local/java',
+    creates => '/usr/local/java/jre1.8.0_351'
   }
-  # openjdk8 is required. Since we are buster, we need the repos within stretch for this
-  #ensure_packages(['openjdk-8-jdk'], { ensure => 'installed'})
+  -> tidy {'delete-jre-archive-parts':
+    path    => '/usr/local/java/jre-archive-files',
+    recurse => true,
+  }
+  tidy {'delete-jre-archive':
+    path => '/usr/local/java/jre-8u351-linux-x64.tar.gz'
+  }
+  exec { 'change-java-install-dir-permissions':
+    command => 'chmod -R 755 /usr/local/java',
+  }
+  -> exec { 'update-java-location':
+    command => 'sudo update-alternatives --install "/usr/bin/java" "java" "/usr/local/java/jre1.8.0_351/bin/java" 1',
+  }
 
   $releasename = "${modulename}.tar.gz"
   $currentsource = ["${releasename}.partaa",
