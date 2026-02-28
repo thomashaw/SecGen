@@ -113,7 +113,7 @@ Throughout this lab, you will engage in a series of tasks across various platfor
                         <value>shepherd</value>
                     </input>
                     <input into="password">
-                        <value>tiaspbiqe2r</value>
+                         <value>tiaspbiqe2r</value>
                     </input>
                     <input into="super_user">
                         <value>false</value>
