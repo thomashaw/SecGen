@@ -60,7 +60,8 @@
             <datastore>product_table_headings</datastore>
           </input>
           <input into="field_to_leak">
-            <generator type="flag_generator" />
+<!--            <generator type="flag_generator" />-->
+            <value>flag{db_flag}</value>
           </input>
         </generator>
       </input>
@@ -97,7 +98,8 @@
             <datastore>product_table_headings</datastore>
           </input>
           <input into="strings_to_leak">
-            <generator type="flag_generator" />
+<!--            <generator type="flag_generator" />-->
+            <value>flag{search_flag}</value>
           </input>
         </generator>
       </input>
@@ -108,7 +110,8 @@
             <datastore>product_table_headings</datastore>
           </input>
           <input into="strings_to_leak">
-            <generator type="flag_generator" />
+<!--            <generator type="flag_generator" />-->
+            <value>flag{idor_flag}</value>
           </input>
         </generator>
       </input>
@@ -131,7 +134,8 @@
             </encoder>
           </input>
           <input into="strings_to_leak">
-            <generator type="flag_generator" />
+            <value>flag{cookie_flag}</value>
+<!--            <generator type="flag_generator" />-->
           </input>
         </generator>
       </input>
