@@ -69,7 +69,9 @@ class XmlMarkerGenerator
             system.module_selections.each { |mod|
               mod.received_inputs.each { |key, values|
                 values.each { |value|
+                  puts "SCANNING: #{value.to_s[0..50]}"
                   value.to_s.scan(/flag{[^}]*}/) { |flag|
+                    puts "FOUND FLAG: #{flag}"
                     unless found_flags.include? flag
                       found_flags << flag
                       xml.challenge {
