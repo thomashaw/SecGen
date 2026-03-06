@@ -32,7 +32,13 @@ WARNING: This module needs some further testing, and may not work without input 
 <read_fact>theme</read_fact>
 <read_fact>user_table_name</read_fact>
 
-<default_input into="port">
+  <read_fact>db_password</read_fact>
+  <read_fact>admin_account</read_fact>
+  <read_fact>port</read_fact>
+
+
+
+  <default_input into="port">
 	<value>80</value>
 </default_input>
 
