@@ -253,6 +253,8 @@ end
 <%     if (selected_module.attributes['range'].first.nil? || selected_module.attributes['range'].first == "dhcp") and (!selected_module.received_inputs.include? 'IP_address' and !@options[:ip_ranges])-%>
 <%       if (@options.has_key? :ovirtnetwork) && provider == "ovirt"  %>
     <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp", :ovirt__network_name => '<%= get_ovirt_network_name(system.name, @options[:ovirtnetwork]) %>'
+<%       elsif provider == "proxmox"  %>
+    <%= system.name %>.vm.network :private_network, type: "dhcp", proxmox_bridge: "vmbr3", proxmox_vlan: 1
 <%       else %>
     <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp"
 <%       end %>
