@@ -5,7 +5,7 @@
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
     <system_name>testing</system_name>
-    <base platform="linux" distro="Debian 10" type="desktop"/>
+    <base platform="linux" distro="Kali"/>
 
     <input into_datastore="IP_addresses">
       <value>172.17.0.0</value>
@@ -39,17 +39,17 @@
     </utility>
 
 
-<!--    <network type="private_network">-->
-<!--      <input into="IP_address">-->
-<!--        <datastore access="0">IP_addresses</datastore>-->
-<!--      </input>-->
-<!--    </network>-->
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
 
-<!--    <network type="private_network">-->
-<!--      <input into="IP_address">-->
-<!--        <datastore access="1">IP_addresses</datastore>-->
-<!--      </input>-->
-<!--    </network>-->
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
 
     <network type="private_network" range="dhcp"/>
 
@@ -57,45 +57,45 @@
   </system>
 
 
-<!--  <system>-->
-<!--    <system_name>testing_two</system_name>-->
-<!--    <base platform="linux" distro="Debian 10" type="desktop"/>-->
+  <system>
+    <system_name>testing_two</system_name>
+    <base platform="linux" distro="Debian 10" type="desktop"/>
 
-<!--    <input into_datastore="user_accounts_desktop">-->
-<!--      &lt;!&ndash; main user, sudoer &ndash;&gt;-->
-<!--      <generator type="account">-->
-<!--        <input into="username">-->
-<!--          <generator type="random_sanitised_word">-->
-<!--            <input into="wordlist">-->
-<!--              <value>mythical_creatures</value>-->
-<!--            </input>-->
-<!--          </generator>-->
-<!--        </input>-->
-<!--        <input into="password">-->
-<!--          <value>tiaspbiqe2r</value>-->
-<!--        </input>-->
-<!--        <input into="super_user">-->
-<!--          <value>true</value>-->
-<!--        </input>-->
-<!--      </generator>-->
-<!--    </input>-->
+    <input into_datastore="user_accounts_desktop">
+      <!-- main user, sudoer -->
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>true</value>
+        </input>
+      </generator>
+    </input>
 
-<!--    <utility module_path=".*/parameterised_accounts">-->
-<!--      <input into="accounts">-->
-<!--        <datastore>user_accounts_desktop</datastore>-->
-<!--      </input>-->
-<!--    </utility>-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>user_accounts_desktop</datastore>
+      </input>
+    </utility>
 
 
-<!--    <network type="private_network">-->
-<!--      <input into="IP_address">-->
-<!--        <datastore access="1">IP_addresses</datastore>-->
-<!--      </input>-->
-<!--    </network>-->
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
 
-<!--    <network type="private_network" range="dhcp"/>-->
+    <network type="private_network" range="dhcp"/>
 
-<!--  </system>-->
+  </system>
 
 
 <!--  <system>-->

@@ -303,10 +303,11 @@ end
 # this includes networking and snapshots
 def proxmox_post_build(options, scenario, project_dir)
   Print.std 'Taking Proxmox post-build actions...'
-  if options[:proxmoxnetwork]
-    Print.info 'Assigning network(s) of VM(s)'
-    ProxmoxFunctions::assign_networks(project_dir, get_vm_names(scenario), options)
-  end
+
+  Print.info 'Removing provisioning NIC'
+  ProxmoxFunctions::teardown_provisioning_nic(project_dir, get_vm_names(scenario), options)
+
+
   if options[:snapshot]
     Print.info 'Creating a snapshot of VM(s)'
     sleep(1) # give oVirt/Virtualbox a chance to save any VM config changes before creating the snapshot
