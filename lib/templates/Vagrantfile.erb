@@ -254,7 +254,7 @@ end
 <%       if (@options.has_key? :ovirtnetwork) && provider == "ovirt"  %>
     <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp", :ovirt__network_name => '<%= get_ovirt_network_name(system.name, @options[:ovirtnetwork]) %>'
 <%       else %>
-    <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp", auto_config: false
+    <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp"
 <%       end %>
         <% # Below string is used within testing, do not delete. -%>
      # ip_address_for_<%= system.name %>=DHCP
