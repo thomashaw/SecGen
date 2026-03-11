@@ -115,6 +115,46 @@ def build_config(scenario, out_dir, options)
     system
   }
 
+  # TODO: Tidy up into a function
+  base_vlan = options[:proxmoxvlan] ? options[:proxmoxvlan].to_i : 1
+  options[:network_map] = {}
+  vlan_index = 0
+  ip_counters = Hash.new(1)
+
+  systems.each do |system|
+    system.module_selections.each do |mod|
+      next unless mod.module_type == 'network'
+
+      ip_range = if mod.received_inputs.include?('IP_address')
+                   mod.received_inputs['IP_address'].first
+                 else
+                   mod.attributes['range']&.first
+                 end
+
+      # Skip DHCP — no IP_address and range is dhcp (or nil)
+      next if ip_range.nil? || ip_range == 'dhcp'
+
+      unless options[:network_map].key?(ip_range)
+        options[:network_map][ip_range] = {
+          vlan:    base_vlan + (vlan_index * 100),
+          ips:     {}
+        }
+        vlan_index += 1
+      end
+
+      ip_counters[ip_range] += 1
+      last_octet = ip_counters[ip_range] % 254
+      split_ip = ip_range.split('.')
+      split_ip[3] = last_octet.to_s
+      resolved_ip = split_ip.join('.')
+
+      options[:network_map][ip_range][:ips][system.name] ||= []
+      options[:network_map][ip_range][:ips][system.name] << resolved_ip
+    end
+  end
+
+  Print.verbose "Network map: #{options[:network_map]}"
+
   Print.info "Creating project: #{out_dir}..."
   # creates Vagrantfile and other outputs and starts the vagrant installation
   creator = ProjectFilesCreator.new(systems, out_dir, scenario, options)

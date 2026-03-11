@@ -35,6 +35,8 @@ class ProjectFilesCreator
     @scenario_networks = Hash.new { |h, k| h[k] = 1 }
     @option_range_map = {}
 
+    @proxmox_vlan_offsets = Hash.new(0)
+
     # Packer builder type
     @builder_type = @options.has_key?(:esxi_url) ? :vmware_iso : :virtualbox_iso
   end
@@ -232,6 +234,28 @@ class ProjectFilesCreator
       Print.err e.backtrace.inspect
     end
   end
+
+def lookup_network_ip(network_module, system_name)
+  ip_range = if network_module.received_inputs.include?('IP_address')
+               network_module.received_inputs['IP_address'].first
+             else
+               network_module.attributes['range']&.first
+             end
+  return nil unless ip_range && @options[:network_map]&.key?(ip_range)
+
+  @options[:network_map][ip_range][:ips][system_name]&.first
+end
+
+def lookup_network_vlan(network_module)
+  ip_range = if network_module.received_inputs.include?('IP_address')
+               network_module.received_inputs['IP_address'].first
+             else
+               network_module.attributes['range']&.first
+             end
+  return 1 unless ip_range && @options[:network_map]&.key?(ip_range)
+
+  @options[:network_map][ip_range][:vlan]
+end
 
 # Resolves the network based on the scenario and ip_range.
 # In the case that both command-line --network-ranges and datastores are provided, we have already handled the replacement of the ranges in the datastore.
