@@ -4,8 +4,9 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
-    <system_name>testing</system_name>
-    <base platform="linux" distro="Kali"/>
+    <system_name>testing_win</system_name>
+    <base platform="windows" distro="7"/>
+<!--    <base platform="windows" distro="server2016"/>-->
 
     <input into_datastore="IP_addresses">
       <value>172.17.0.0</value>
@@ -13,7 +14,12 @@
       <value>10.124.124.0</value>
     </input>
 
-    <input into_datastore="user_accounts_desktop">
+    <input into_datastore="spoiler_admin_pass">
+      <value>tiaspbiqe2r</value>
+    </input>
+
+    <!-- accounts on the desktop, with the main user as a sudoer -->
+    <input into_datastore="user_accounts">
       <!-- main user, sudoer -->
       <generator type="account">
         <input into="username">
@@ -32,9 +38,10 @@
       </generator>
     </input>
 
+    <!--Create the users-->
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts">
-        <datastore>user_accounts_desktop</datastore>
+        <datastore>user_accounts</datastore>
       </input>
     </utility>
 
@@ -51,52 +58,21 @@
       </input>
     </network>
 
-    <network type="private_network" range="dhcp"/>
-
-
-  </system>
-
-
-  <system>
-    <system_name>testing_two</system_name>
-    <base platform="linux" distro="Debian 10" type="desktop"/>
-
-    <input into_datastore="user_accounts_desktop">
-      <!-- main user, sudoer -->
-      <generator type="account">
-        <input into="username">
-          <generator type="random_sanitised_word">
-            <input into="wordlist">
-              <value>mythical_creatures</value>
-            </input>
-          </generator>
-        </input>
-        <input into="password">
-          <value>tiaspbiqe2r</value>
-        </input>
-        <input into="super_user">
-          <value>true</value>
-        </input>
-      </generator>
-    </input>
-
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts_desktop</datastore>
-      </input>
-    </utility>
-
-
     <network type="private_network">
       <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
+        <datastore access="2">IP_addresses</datastore>
       </input>
     </network>
 
     <network type="private_network" range="dhcp"/>
 
-  </system>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
 
+  </system>
 
 <!--  <system>-->
 <!--    <system_name>testing_three</system_name>-->
