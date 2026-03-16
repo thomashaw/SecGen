@@ -226,7 +226,7 @@
 
     <!-- =====================================================================
          WEBSERVER — DMZ host
-         Runs nginx on port 80. Also has nmap, tcpdump + wireshark so students
+         Runs apache on port 80. Also has nmap, tcpdump + wireshark so students
          can run scans from the DMZ perspective (Challenges 3 and 6).
          ===================================================================== -->
 
@@ -240,7 +240,7 @@
             </input>
         </utility>
 
-        <service module_path=".*nginx"/>
+        <service module_path=".*/apache"/>
         <utility module_path=".*/nmap"/>
         <utility module_path=".*/wireshark"/>
 
