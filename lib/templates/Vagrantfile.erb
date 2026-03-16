@@ -202,10 +202,12 @@ end
 
 <%= selected_module.to_s_comment -%>
 <% if selected_module.module_type == 'network' and selected_module.received_inputs.include? 'IP_address' %>
-<%= '    # This module has a datastore entry for IP_address, using that instead of the default.' %>
-<% elsif selected_module.module_type == 'network' and @options.has_key? :ip_ranges -%>
-<%= '    # This module has a command line ip_range, using that instead of the default.'  %>
-<% end -%>
+<%= '    # This module has a specific IP_address input, using that verbatim.' %>
+<% elsif selected_module.module_type == 'network' and selected_module.received_inputs.include? 'range' %>
+<%= '    # This module has a range input, auto-assigning IP from that range.' %>
+<% elsif selected_module.module_type == 'network' and @options.has_key? :ip_ranges %>
+<%= '    # This module has a command line ip_range, using that instead of the default.' %>
+<% end %>
 <%
   case selected_module.module_type
   when 'base'
@@ -250,8 +252,8 @@ end
     <% end %>
 <%   when 'network' -%>
 <%     # DHCP networking -%>
-<%     if (selected_module.attributes['range'].first.nil? || selected_module.attributes['range'].first == "dhcp") and (!selected_module.received_inputs.include? 'IP_address' and !@options[:ip_ranges])-%>
-<%       if (@options.has_key? :ovirtnetwork) && provider == "ovirt"  %>
+      <% if (!selected_module.received_inputs.include?('IP_address')) and (selected_module.received_inputs['range']&.first.nil? || selected_module.received_inputs['range']&.first == 'dhcp') and !@options[:ip_ranges] %>
+        <%       if (@options.has_key? :ovirtnetwork) && provider == "ovirt"  %>
     <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp", :ovirt__network_name => '<%= get_ovirt_network_name(system.name, @options[:ovirtnetwork]) %>'
 <%       elsif provider == "proxmox"  %>
     <%= system.name %>.vm.network :private_network, type: "dhcp", proxmox_bridge: "vmbr3", proxmox_vlan: 1

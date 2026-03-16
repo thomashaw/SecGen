@@ -10,21 +10,15 @@ require 'zip/zip'
 require 'json'
 
 class ProjectFilesCreator
-# Creates project directory, uses .erb files to create a report and the vagrant file that will be used
-# to create the virtual machines
   @systems
   @currently_processing_system
   @scenario_networks
   @option_range_map
 
-# @param [Object] systems list of systems that have been defined and randomised
-# @param [Object] out_dir the directory that the project output should be stored into
-# @param [Object] scenario the file path used to as a basis
   def initialize(systems, out_dir, scenario, options)
     @systems = systems
     @out_dir = out_dir
 
-    # if within the SecGen directory structure, trim that from the path displayed in output
     match = scenario.match(/#{ROOT_DIR}\/(.*)/i)
     if match && match.captures.size == 1
       scenario = match.captures[0]
@@ -37,14 +31,10 @@ class ProjectFilesCreator
 
     @proxmox_vlan_offsets = Hash.new(0)
 
-    # Packer builder type
     @builder_type = @options.has_key?(:esxi_url) ? :vmware_iso : :virtualbox_iso
   end
 
-# Generate all relevant files for the project
   def write_files
-    # when writing to a project that already contains a project, move everything out the way,
-    # and keep the Vagrant config, so that existing VMs can be re-provisioned/updated
     if File.exists? "#{@out_dir}/Vagrantfile" or File.exists? "#{@out_dir}/puppet"
       dest_dir = "#{@out_dir}/MOVED_#{Time.new.strftime("%Y%m%d_%H%M%S")}"
       Print.warn "Project already built to this directory -- moving last build to: #{dest_dir}"
@@ -63,9 +53,8 @@ class ProjectFilesCreator
     FileUtils.mkpath "#{@out_dir}/puppet/" unless File.exists?("#{@out_dir}/puppet/")
     FileUtils.mkpath "#{@out_dir}/environments/production/" unless File.exists?("#{@out_dir}/environments/production/")
 
-    # for each system, create a puppet modules directory using librarian-puppet
     @systems.each do |system|
-      @currently_processing_system = system # for template access
+      @currently_processing_system = system
       path = "#{@out_dir}/puppet/#{system.name}"
       FileUtils.mkpath(path) unless File.exists?(path)
       pfile = "#{path}/Puppetfile"
@@ -78,7 +67,6 @@ class ProjectFilesCreator
         abort
       end
       system.module_selections.each do |selected_module|
-
         if selected_module.module_type == 'base'
           url = @builder_type == :vmware_iso ? selected_module.attributes['esxi_url'].first : selected_module.attributes['url'].first
 
@@ -92,7 +80,6 @@ class ProjectFilesCreator
 
               if File.file? packerfile_path
                 Print.info "Would you like to use the packerfile to create the packerfile from the given url (y/n)"
-                # TODO: remove user interaction, this should be set via a config option
                 (Print.info "Exiting as vagrant needs the basebox to continue"; abort) unless ['y','yes'].include?(STDIN.gets.chomp.downcase)
 
                 Print.std "Packerfile #{packerfile_path.split('/').last} found, building basebox #{url.split('/').last} via packer"
@@ -114,7 +101,6 @@ class ProjectFilesCreator
       end
     end
 
-    # Create environments/production/environment.conf - Required in Puppet 4+
     efile = "#{@out_dir}/environments/production/environment.conf"
     Print.std "Creating Puppet Environent file: #{efile}"
     FileUtils.touch(efile)
@@ -123,9 +109,7 @@ class ProjectFilesCreator
     Print.std "Creating Vagrant file: #{vfile}"
     template_based_file_write(VAGRANT_TEMPLATE_FILE, vfile)
 
-    # Create the scenario xml file
     xfile = "#{@out_dir}/scenario.xml"
-
     xml_report_generator = XmlScenarioGenerator.new(@systems, @scenario, @time)
     xml = xml_report_generator.output
     Print.std "Creating scenario definition file: #{xfile}"
@@ -134,15 +118,12 @@ class ProjectFilesCreator
     write_data_to_file(@systems.to_s, "#{@out_dir}/systems")
     write_data_to_file(@scenario.to_s, "#{@out_dir}/scenario")
 
-
-    # Create the marker xml file
     x2file = "#{@out_dir}/#{FLAGS_FILENAME}"
     xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time)
     xml = xml_marker_generator.output
     Print.std "Creating flags and hints file: #{x2file}"
     write_data_to_file(xml, x2file)
 
-    # Create the CyBOK xml file
     x3file = "#{@out_dir}/#{CYBOK_FILENAME}"
     xml_cybok_generator = XmlCybokGenerator.new(@systems, @scenario, @time)
     xml = xml_cybok_generator.output
@@ -178,14 +159,11 @@ class ProjectFilesCreator
       write_data_to_file(html, jfile)
     end
 
-    # Create the CTFd zip file for import
     ctfdfile = "#{@out_dir}/CTFd_importable.zip"
     Print.std "Creating CTFd configuration: #{ctfdfile}"
-
     ctfd_generator = CTFdGenerator.new(@systems, @scenario, @time)
     ctfd_files = ctfd_generator.ctfd_files
 
-    # zip up the CTFd export
     begin
       Zip::ZipFile.open(ctfdfile, Zip::ZipFile::CREATE) { |zipfile|
         zipfile.mkdir("db")
@@ -200,13 +178,11 @@ class ProjectFilesCreator
       abort
     end
 
-    # Copy the test superclass into the project/lib directory
     Print.std "Copying post-provision testing class"
     FileUtils.mkdir("#{@out_dir}/lib")
     FileUtils.cp("#{ROOT_DIR}/lib/objects/post_provision_test.rb", "#{@out_dir}/lib/post_provision_test.rb")
 
     Print.std "VM(s) can be built using 'vagrant up' in #{@out_dir}"
-
   end
 
   def write_data_to_file(data, path)
@@ -220,11 +196,8 @@ class ProjectFilesCreator
     end
   end
 
-# @param [Object] template erb path
-# @param [Object] filename file to write to
   def template_based_file_write(template, filename)
     template_out = ERB.new(File.read(template), 0, '<>-')
-
     begin
       File.open(filename, 'wb+') do |file|
         file.write(template_out.result(self.get_binding))
@@ -235,87 +208,78 @@ class ProjectFilesCreator
     end
   end
 
-def lookup_network_ip(network_module, system_name)
-  ip_range = if network_module.received_inputs.include?('IP_address')
-               network_module.received_inputs['IP_address'].first
-             else
-               network_module.attributes['range']&.first
-             end
-  return nil unless ip_range && @options[:network_map]&.key?(ip_range)
-
-  @options[:network_map][ip_range][:ips][system_name]&.first
-end
-
-def lookup_network_vlan(network_module)
-  ip_range = if network_module.received_inputs.include?('IP_address')
-               network_module.received_inputs['IP_address'].first
-             else
-               network_module.attributes['range']&.first
-             end
-  return 1 unless ip_range && @options[:network_map]&.key?(ip_range)
-
-  @options[:network_map][ip_range][:vlan]
-end
-
-# Resolves the network based on the scenario and ip_range.
-# In the case that both command-line --network-ranges and datastores are provided, we have already handled the replacement of the ranges in the datastore.
-# Because of this we prioritise datastore['IP_address'], then command line options (i.e. when no datastore is used, but the --network-ranges are passed), then the default network module's IP range.
-  def resolve_network(network_module)
-    current_network = network_module
-    scenario_ip_range = network_module.attributes['range'].first
-
-    # Prioritise datastore IP_address
-    if current_network.received_inputs.include? 'IP_address'
-      ip_address = current_network.received_inputs['IP_address'].first
-    elsif @options.has_key? :ip_ranges
-    # if we have options[:ip_ranges] we want to use those instead of the ip_range argument.
-    # Store the mappings of scenario_ip_ranges => @options[:ip_range]  in @option_range_map
-      # Have we seen this scenario_ip_range before? If so, use the value we've assigned
-      if @option_range_map.has_key? scenario_ip_range
-        ip_range = @option_range_map[scenario_ip_range]
-      else
-        # Remove options_ips that have already been used
-        options_ips = @options[:ip_ranges]
-        options_ips.delete_if { |ip| @option_range_map.has_value? ip }
-        @option_range_map[scenario_ip_range] = options_ips.first
-        ip_range = options_ips.first
-      end
-      ip_address = get_ip_from_range(ip_range)
+  # Returns the resolved IP for a network module and system.
+  # If IP_address is set, use it verbatim.
+  # Otherwise look up the auto-assigned IP from the network_map (keyed by range).
+  def lookup_network_ip(network_module, system_name)
+    if network_module.received_inputs.include?('IP_address')
+      network_module.received_inputs['IP_address'].first
     else
-      ip_address = get_ip_from_range(scenario_ip_range)
+      ip_range = network_module.received_inputs['range']&.first
+      return nil unless ip_range && @options[:network_map]&.key?(ip_range)
+      @options[:network_map][ip_range][:ips][system_name]&.first
     end
-    ip_address
+  end
+
+  # Returns the resolved VLAN for a network module.
+  # VLAN was calculated once in build_config as base_vlan + (vlan_index * 100)
+  # and stored in the network_map — just read it from there.
+  def lookup_network_vlan(network_module)
+    key = if network_module.received_inputs.include?('IP_address')
+            ip = network_module.received_inputs['IP_address'].first
+            ip.split('.')[0..2].join('.') + '.0'
+          else
+            network_module.received_inputs['range']&.first
+          end
+    return 1 unless key && @options[:network_map]&.key?(key)
+    @options[:network_map][key][:vlan]
+  end
+
+  # Resolves the IP address to use for a network module in the Vagrantfile.
+  # Priority: specific IP_address (verbatim) > range with --network-ranges override > range default
+  def resolve_network(network_module)
+    if network_module.received_inputs.include?('IP_address')
+      # Specific IP provided — use verbatim
+      network_module.received_inputs['IP_address'].first
+    else
+      ip_range = if @options.has_key?(:ip_ranges)
+                   scenario_ip_range = network_module.received_inputs['range']&.first
+                   if @option_range_map.has_key?(scenario_ip_range)
+                     @option_range_map[scenario_ip_range]
+                   else
+                     options_ips = @options[:ip_ranges].dup
+                     options_ips.delete_if { |ip| @option_range_map.has_value?(ip) }
+                     @option_range_map[scenario_ip_range] = options_ips.first
+                     options_ips.first
+                   end
+                 else
+                   network_module.received_inputs['range']&.first
+                 end
+      get_ip_from_range(ip_range)
+    end
   end
 
   def get_ip_from_range(ip_range)
-    # increment @scenario_networks{ip_range=>counter}
     @scenario_networks[ip_range] += 1
-
-    # Split the range up and replace the last octet with the counter value
     split_ip = ip_range.split('.')
     last_octet = @scenario_networks[ip_range]
     last_octet = last_octet % 254
-
-    # Replace the last octet in our split_ip array and return the IP
     split_ip[3] = last_octet.to_s
     split_ip.join('.')
   end
 
-  # Replace 'network' with 'snoop' where the system name contains snoop
   def get_ovirt_network_name(system_name, network_name)
     split_name = network_name.split('-')
     split_name[1] = 'snoop' if system_name.include? 'snoop'
     split_name.join('-')
   end
 
-# Determine how much memory the system requires for Vagrantfile
   def resolve_memory(system)
     if @options.has_key? :memory_per_vm
       memory = @options[:memory_per_vm]
     elsif @options.has_key? :total_memory
       memory = @options[:total_memory].to_i / @systems.length.to_i
     elsif (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass)
-      # all ovirt vms -- could be more specific: && (@base_type.include? 'desktop')
       memory = '3000'
     else
       memory = '1024'
@@ -329,8 +293,6 @@ end
     memory
   end
 
-# Returns binding for erb files (access to variables in this classes scope)
-# @return binding
   def get_binding
     binding
   end
