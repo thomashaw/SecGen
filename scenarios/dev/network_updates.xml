@@ -4,9 +4,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
-    <system_name>testing_win</system_name>
+    <system_name>testing_win7</system_name>
     <base platform="windows" distro="7"/>
-<!--    <base platform="windows" distro="server2016"/>-->
 
     <input into_datastore="IP_addresses">
       <value>172.17.0.0</value>
@@ -74,8 +73,48 @@
 
   </system>
 
+  <system>
+    <system_name>testing_win2016</system_name>
+        <base platform="windows" distro="server 2016"/>
+
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>user_accounts</datastore>
+      </input>
+    </utility>
+
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+
+    <network type="private_network" range="dhcp"/>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+
 <!--  <system>-->
-<!--    <system_name>testing_three</system_name>-->
+<!--    <system_name>testing_deb</system_name>-->
 <!--    <base platform="linux" distro="Debian 10" type="desktop"/>-->
 
 <!--    <input into_datastore="user_accounts_desktop">-->
@@ -116,7 +155,48 @@
 <!--        <datastore access="2">IP_addresses</datastore>-->
 <!--      </input>-->
 <!--    </network>-->
+<!--    <network type="private_network" range="dhcp"/>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+<!--    -->
 <!--  </system>-->
 
+<!--  <system>-->
+<!--    <system_name>testing_kali</system_name>-->
+<!--    <base platform="linux" distro="Kali"/>-->
+
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <datastore>user_accounts_desktop</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="0">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="1">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+<!--    -->
+<!--    <network type="private_network" range="dhcp"/>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+
+<!--  </system>-->
 
 </scenario>
