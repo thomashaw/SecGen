@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <name>Introducing Web security</name>
+    <name>Network Security Fundamentals</name>
     <author>Tom Shaw</author>
     <description>
         TODO
@@ -163,10 +163,9 @@
         </utility>
 
 
-        <utility module_path=".*handy_cli_tools"/>
-        <utility module_path=".*nmap"/>
-        <utility module_path=".*traceroute"/>
-        <utility module_path=".*tcpdump"/>
+        <utility module_path=".*/handy_cli_tools"/>
+        <utility module_path=".*/nmap"/>
+        <utility module_path=".*/wireshark"/>
 
         <!-- Workstation networking: static IP on internal LAN, default route via gateway -->
         <network type="private_network">
@@ -204,7 +203,7 @@
             </input>
         </utility>
 
-        <utility module_path=".*tcpdump"/>
+        <utility module_path=".*/wireshark"/>
 
         <!-- TODO: Add Challenges -->
 
@@ -227,7 +226,7 @@
 
     <!-- =====================================================================
          WEBSERVER — DMZ host
-         Runs nginx on port 80. Also has nmap, netcat, tcpdump so students
+         Runs nginx on port 80. Also has nmap, tcpdump + wireshark so students
          can run scans from the DMZ perspective (Challenges 3 and 6).
          ===================================================================== -->
 
@@ -242,10 +241,8 @@
         </utility>
 
         <service module_path=".*nginx"/>
-
-        <utility module_path=".*nmap"/>
-        <utility module_path=".*netcat"/>
-        <utility module_path=".*tcpdump"/>
+        <utility module_path=".*/nmap"/>
+        <utility module_path=".*/wireshark"/>
 
 
         <network type="private_network">
