@@ -3,11 +3,15 @@
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
-  <system>
-    <system_name>testing_win7_1</system_name>
-    <base platform="windows" distro="7"/>
 
-    <input into_datastore="IP_addresses">
+    <system>
+      <system_name>testing_deb</system_name>
+      <base platform="linux" distro="Debian 10" type="desktop"/>
+      <!--  <system>-->
+      <!--    <system_name>testing_win7_1</system_name>-->
+      <!--    <base platform="windows" distro="7"/>-->
+
+  <input into_datastore="IP_addresses">
       <value>172.17.0.0</value>
       <value>10.123.123.0</value>
       <value>10.124.124.0</value>
@@ -49,73 +53,8 @@
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
-    </network>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
-      </input>
-    </network>
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-    </network>
-
-    <network type="private_network" range="dhcp"/>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
-
-  </system>
-
-  <system>
-    <system_name>testing_win7_2</system_name>
-    <base platform="windows" distro="7"/>
-
-    <!--Create the users-->
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-    </utility>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
-
-  </system>
-
-
-
-  <system>
-    <system_name>testing_win2016_1</system_name>
-        <base platform="windows" distro="server 2016"/>
-
-    <!--Create the users-->
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-    </utility>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
+      <input into="vlan">
+        <value>1</value>
       </input>
     </network>
 
@@ -123,127 +62,31 @@
       <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
       </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
     </network>
 
     <network type="private_network">
-      <input into="IP_address">
-        <datastore access="2">IP_addresses</datastore>
+      <input into="range">
+        <value>10.10.0.0</value>
+      </input>
+      <input into="vlan">
+        <value>3</value>
       </input>
     </network>
 
-    <network type="private_network" range="dhcp"/>
 
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
-  </system>
-
-  <system>
-    <system_name>testing_win2016_2</system_name>
-    <base platform="windows" distro="server 2016"/>
-
-    <!--Create the users-->
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-    </utility>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-    </network>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
-  </system>
-
-
-
-  <system>
-    <system_name>testing_deb</system_name>
-    <base platform="linux" distro="Debian 10" type="desktop"/>
-
-    <input into_datastore="user_accounts_desktop">
-      <!-- main user, sudoer -->
-      <generator type="account">
-        <input into="username">
-          <generator type="random_sanitised_word">
-            <input into="wordlist">
-              <value>mythical_creatures</value>
-            </input>
-          </generator>
+      <network type="private_network">
+        <input into="range">
+          <value>172.17.0.0</value>
         </input>
-        <input into="password">
-          <value>tiaspbiqe2r</value>
+        <input into="vlan">
+          <value>1</value>
         </input>
-        <input into="super_user">
-          <value>true</value>
-        </input>
-      </generator>
-    </input>
+      </network>
 
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts_desktop</datastore>
-      </input>
-    </utility>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
-      </input>
-    </network>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-    </network>
-    <network type="private_network" range="dhcp"/>
-
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
-
-  </system>
-
-  <system>
-    <system_name>testing_kali</system_name>
-    <base platform="linux" distro="Kali"/>
-
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts_desktop</datastore>
-      </input>
-    </utility>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
-
-
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
-      </input>
-    </network>
-
-    <network type="private_network" range="dhcp"/>
+      <network type="public_network"/>
 
     <build type="cleanup">
       <input into="root_password">
@@ -254,3 +97,184 @@
   </system>
 
 </scenario>
+<!--  <system>-->
+<!--    <system_name>testing_win7_2</system_name>-->
+<!--    <base platform="windows" distro="7"/>-->
+
+<!--    &lt;!&ndash;Create the users&ndash;&gt;-->
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <datastore>user_accounts</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="0">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+
+<!--  </system>-->
+
+
+
+<!--  <system>-->
+<!--    <system_name>testing_win2016_1</system_name>-->
+<!--        <base platform="windows" distro="server 2016"/>-->
+
+<!--    &lt;!&ndash;Create the users&ndash;&gt;-->
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <datastore>user_accounts</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="0">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="1">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="2">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+<!--    <network type="private_network" range="dhcp"/>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+<!--  </system>-->
+
+<!--  <system>-->
+<!--    <system_name>testing_win2016_2</system_name>-->
+<!--    <base platform="windows" distro="server 2016"/>-->
+
+<!--    &lt;!&ndash;Create the users&ndash;&gt;-->
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <datastore>user_accounts</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="2">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+<!--  </system>-->
+
+
+
+<!--  <system>-->
+<!--    <system_name>testing_deb</system_name>-->
+<!--    <base platform="linux" distro="Debian 10" type="desktop"/>-->
+
+<!--    <input into_datastore="user_accounts_desktop">-->
+<!--      &lt;!&ndash; main user, sudoer &ndash;&gt;-->
+<!--      <generator type="account">-->
+<!--        <input into="username">-->
+<!--          <generator type="random_sanitised_word">-->
+<!--            <input into="wordlist">-->
+<!--              <value>mythical_creatures</value>-->
+<!--            </input>-->
+<!--          </generator>-->
+<!--        </input>-->
+<!--        <input into="password">-->
+<!--          <value>tiaspbiqe2r</value>-->
+<!--        </input>-->
+<!--        <input into="super_user">-->
+<!--          <value>true</value>-->
+<!--        </input>-->
+<!--      </generator>-->
+<!--    </input>-->
+
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <datastore>user_accounts_desktop</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="1">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="2">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+<!--    <network type="private_network" range="dhcp"/>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+
+<!--  </system>-->
+
+<!--  <system>-->
+<!--    <system_name>testing_kali</system_name>-->
+<!--    <base platform="linux" distro="Kali"/>-->
+
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <datastore>user_accounts_desktop</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="0">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+
+<!--    <network type="private_network">-->
+<!--      <input into="IP_address">-->
+<!--        <datastore access="1">IP_addresses</datastore>-->
+<!--      </input>-->
+<!--    </network>-->
+
+<!--    <network type="private_network" range="dhcp"/>-->
+
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
+
+<!--  </system>-->
+
+<!--</scenario>-->
