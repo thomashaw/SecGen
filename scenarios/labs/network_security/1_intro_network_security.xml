@@ -194,7 +194,7 @@
 
     <system>
         <system_name>server</system_name>
-        <base distro="Debian 12" type="server"/>
+        <base distro="Debian 12" type="desktop"/>
 
         <!-- TODO: REMOVE/MODIFY ME WHEN WE ADD CHALLENGES -->
         <utility module_path=".*/parameterised_accounts">
@@ -232,7 +232,7 @@
 
     <system>
         <system_name>webserver</system_name>
-        <base distro="Debian 12" type="server"/>
+        <base distro="Debian 12" type="desktop"/>
 
         <utility module_path=".*/parameterised_accounts">
             <input into="accounts">
