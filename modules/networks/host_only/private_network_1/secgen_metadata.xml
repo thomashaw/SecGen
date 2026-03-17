@@ -19,7 +19,7 @@
   </default_input>
 
   <default_input into="vlan">
-    <value>0</value>
+    <value>1</value>
   </default_input>
 
 

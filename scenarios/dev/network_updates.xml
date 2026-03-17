@@ -11,7 +11,7 @@
       <!--    <system_name>testing_win7_1</system_name>-->
       <!--    <base platform="windows" distro="7"/>-->
 
-  <input into_datastore="IP_addresses">
+    <input into_datastore="IP_addresses">
       <value>172.17.0.2</value>
       <value>10.123.123.3</value>
       <value>10.124.124.4</value>
@@ -26,7 +26,7 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="vlan">
-        <value>1</value>
+        <value>5</value>
       </input>
     </network>
 
@@ -54,7 +54,7 @@
           <value>172.17.0.0</value>
         </input>
         <input into="vlan">
-          <value>1</value>
+          <value>5</value>
         </input>
       </network>
 
@@ -68,33 +68,45 @@
 
   </system>
 
-</scenario>
-<!--  <system>-->
-<!--    <system_name>testing_win7_2</system_name>-->
-<!--    <base platform="windows" distro="7"/>-->
+  <system>
+    <system_name>testing_win7_2</system_name>
+    <base platform="windows" distro="7"/>
 
-<!--    &lt;!&ndash;Create the users&ndash;&gt;-->
+    <!--Create the users-->
 <!--    <utility module_path=".*/parameterised_accounts">-->
 <!--      <input into="accounts">-->
 <!--        <datastore>user_accounts</datastore>-->
 <!--      </input>-->
 <!--    </utility>-->
 
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
 
-<!--    <network type="private_network">-->
-<!--      <input into="IP_address">-->
-<!--        <datastore access="0">IP_addresses</datastore>-->
-<!--      </input>-->
-<!--    </network>-->
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.123.123.5</value>
+      </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
 
-<!--    <build type="cleanup">-->
-<!--      <input into="root_password">-->
-<!--        <datastore>spoiler_admin_pass</datastore>-->
-<!--      </input>-->
-<!--    </build>-->
 
-<!--  </system>-->
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.144.144.2</value>
+      </input>
+      <input into="vlan">
+        <value>6</value>
+      </input>
+    </network>
 
+  </system>
+
+</scenario>
 
 
 <!--  <system>-->

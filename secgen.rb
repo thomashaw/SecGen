@@ -123,6 +123,7 @@ def build_config(scenario, out_dir, options)
 
       ip = mod.received_inputs['IP_address'].first
       next if ip.nil?
+      Print.debug "First pass: #{mod.unique_id} IP_address=#{ip} received_inputs=#{mod.received_inputs.inspect}"
 
       vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
       vlan = base_vlan + (vlan_index * 100)
@@ -132,11 +133,19 @@ def build_config(scenario, out_dir, options)
         options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, used_octets: [] }
       end
 
+      # Check the IP being added is consistent with the subnet already registered for this VLAN
+      map_subnet = options[:network_map][vlan][:subnet]
+      if map_subnet != subnet
+        Print.err "Network misconfiguration: VLAN #{vlan} has conflicting subnets -- #{map_subnet} (previously registered) and #{subnet} (#{mod.unique_id})"
+        exit 1
+      end
+
       options[:network_map][vlan][:used_octets] << ip.split('.').last.to_i
       options[:network_map][vlan][:ips][mod.unique_id] = ip
 
     end
   end
+
 
   # Second pass — auto-assign IPs for range entries, skipping any claimed octets
   systems.each do |system|
@@ -149,10 +158,23 @@ def build_config(scenario, out_dir, options)
 
       vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
       vlan = base_vlan + (vlan_index * 100)
+
+      Print.debug "Second pass: #{mod.unique_id} range=#{ip_range} vlan_index=#{vlan_index} vlan=#{vlan}"
+
       subnet = ip_range.split('.')[0..2].join('.') + '.0'
 
       unless options[:network_map].key?(vlan)
         options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, next_octet: 1, used_octets: [] }
+      end
+
+      # Always use the subnet already stored in the map, not the locally derived one
+      # (they may differ if a different range was registered first for this VLAN)
+      map_subnet = options[:network_map][vlan][:subnet]
+
+      # If the subnet derived from ip_range doesn't match what's already in the map, that's a misconfiguration
+      if map_subnet != subnet
+        Print.err "Network misconfiguration: VLAN #{vlan} has conflicting subnets -- #{map_subnet} (previously registered) and #{subnet} (#{mod.unique_id})"
+        exit 1
       end
 
       next_octet = options[:network_map][vlan][:next_octet] || 1
@@ -164,7 +186,7 @@ def build_config(scenario, out_dir, options)
       options[:network_map][vlan][:next_octet] = next_octet
       options[:network_map][vlan][:used_octets] << next_octet
 
-      split_ip = subnet.split('.')
+      split_ip = map_subnet.split('.')
       split_ip[3] = next_octet.to_s
       resolved_ip = split_ip.join('.')
 
@@ -172,7 +194,39 @@ def build_config(scenario, out_dir, options)
     end
   end
 
-  Print.verbose "Network map: #{options[:network_map]}"
+  Print.debug "Network map subnets: #{options[:network_map].map { |vlan, network| "VLAN #{vlan} => #{network[:subnet]}" }.join(', ')}"
+
+
+  # Validate no duplicate IPs across the entire network map
+  all_assigned_ips = {}
+  all_assigned_subnets = {}
+  options[:network_map].each do |vlan, network|
+    # Check for duplicate subnets across different VLANs
+    subnet = network[:subnet]
+    if all_assigned_subnets.key?(subnet)
+      existing_vlan = all_assigned_subnets[subnet]
+      Print.err "Network misconfiguration: subnet #{subnet} is used on both VLAN #{existing_vlan} and VLAN #{vlan} -- the same subnet cannot span different VLANs"
+      exit 1
+    end
+    all_assigned_subnets[subnet] = vlan
+
+    # Check for duplicate IPs
+    network[:ips].each do |unique_id, ip|
+      if all_assigned_ips.key?(ip)
+        existing_vlan = all_assigned_ips[ip][:vlan]
+        existing_id = all_assigned_ips[ip][:unique_id]
+        if existing_vlan != vlan
+          Print.err "Network misconfiguration: IP #{ip} is assigned on both VLAN #{existing_vlan} and VLAN #{vlan} (#{existing_id} and #{unique_id}) -- the same IP cannot appear on different VLANs"
+        else
+          Print.err "Network misconfiguration: IP #{ip} is assigned twice on VLAN #{vlan} (#{existing_id} and #{unique_id}) -- check for duplicate network definitions"
+        end
+        exit 1
+      end
+      all_assigned_ips[ip] = { unique_id: unique_id, vlan: vlan }
+    end
+  end
+
+  Print.debug "Full network map: #{options[:network_map].inspect}"
 
   Print.info "Creating project: #{out_dir}..."
   creator = ProjectFilesCreator.new(systems, out_dir, scenario, options)
