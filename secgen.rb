@@ -177,6 +177,16 @@ def build_config(scenario, out_dir, options)
         exit 1
       end
 
+      if ip_range.include?('/')
+        Print.err "Network misconfiguration: range '#{ip_range}' for #{mod.unique_id} must not use CIDR notation -- use a plain subnet address ending in .0 (e.g. 172.17.0.0)."
+        exit 1
+      end
+
+      if ip_range.split('.').last.to_i != 0
+        Print.err "Network misconfiguration: range '#{ip_range}' for #{mod.unique_id} has a non-zero last octet -- ranges must end in .0 (e.g. 172.17.0.0). Did you mean to use IP_address instead?"
+        exit 1
+      end
+
       next_octet = options[:network_map][vlan][:next_octet] || 1
       begin
         next_octet += 1
@@ -191,6 +201,57 @@ def build_config(scenario, out_dir, options)
       resolved_ip = split_ip.join('.')
 
       options[:network_map][vlan][:ips][mod.unique_id] = resolved_ip
+    end
+  end
+
+  # Third pass — apply --network-ranges overrides to the completed network map.
+  # Each distinct subnet in the map (sorted by VLAN) is substituted with the
+  # corresponding CLI-provided range in order. Both IP_address and range entries
+  # are remapped since we're rewriting IPs directly in the map.
+  if options[:ip_ranges]
+    subnets_in_vlan_order = options[:network_map].keys.sort.map { |vlan| options[:network_map][vlan][:subnet] }.uniq
+
+    if options[:ip_ranges].size > subnets_in_vlan_order.size
+      Print.warn "More --network-ranges provided (#{options[:ip_ranges].size}) than subnets in scenario (#{subnets_in_vlan_order.size}) -- extras will be ignored"
+    end
+
+    subnet_override_map = {}
+    subnets_in_vlan_order.each_with_index do |subnet, i|
+      if options[:ip_ranges][i]
+        subnet_override_map[subnet] = options[:ip_ranges][i]
+      else
+        Print.warn "No --network-ranges override provided for subnet #{subnet} (VLAN #{options[:network_map].keys.sort[i]}) -- keeping original"
+      end
+    end
+
+    Print.info "Network range overrides (by VLAN):"
+    options[:network_map].keys.sort.each do |vlan|
+      original_subnet = options[:network_map][vlan][:subnet]
+      replacement = subnet_override_map[original_subnet] || original_subnet
+      Print.info "  VLAN #{vlan}: #{original_subnet} -> #{replacement}"
+    end
+
+    subnet_override_map.values.each do |range|
+      if range.include?('/')
+        Print.err "Network misconfiguration: --network-ranges value '#{range}' must not use CIDR notation -- use a plain subnet address ending in .0 (e.g. 192.168.1.0)."
+        exit 1
+      end
+      if range.split('.').last.to_i != 0
+        Print.err "Network misconfiguration: --network-ranges value '#{range}' has a non-zero last octet -- ranges must end in .0 (e.g. 192.168.1.0)."
+        exit 1
+      end
+    end
+
+    options[:network_map].each do |vlan, network|
+      original_subnet = network[:subnet]
+      next unless subnet_override_map.key?(original_subnet)
+      new_subnet = subnet_override_map[original_subnet]
+
+      network[:subnet] = new_subnet
+      network[:ips].transform_values! do |ip|
+        last_octet = ip.split('.').last
+        new_subnet.split('.')[0..2].join('.') + '.' + last_octet
+      end
     end
   end
 

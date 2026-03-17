@@ -31,11 +31,11 @@
     </network>
 
     <network type="private_network">
-      <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
+      <input into="range">
+        <value>172.17.0.0/24</value>
       </input>
       <input into="vlan">
-        <value>2</value>
+        <value>5</value>
       </input>
     </network>
 

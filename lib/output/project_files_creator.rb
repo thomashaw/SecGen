@@ -230,9 +230,14 @@ class ProjectFilesCreator
     network_map_key(network_module)
   end
 
+  def lookup_network_ip(network_module)
+    key = network_map_key(network_module)
+    @options[:network_map]&.key?(key) ? @options[:network_map][key][:ips][network_module.unique_id] : nil
+  end
+
   # Resolves the IP address to use for a network module in the Vagrantfile.
   # Priority: specific IP_address (verbatim) > range with --network-ranges override > range default
-  def resolve_network(network_module)
+    def resolve_network(network_module)
     if network_module.received_inputs.include?('IP_address')
       # Specific IP provided — use verbatim
       network_module.received_inputs['IP_address'].first
