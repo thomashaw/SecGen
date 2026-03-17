@@ -12,42 +12,14 @@
       <!--    <base platform="windows" distro="7"/>-->
 
   <input into_datastore="IP_addresses">
-      <value>172.17.0.0</value>
-      <value>10.123.123.0</value>
-      <value>10.124.124.0</value>
+      <value>172.17.0.2</value>
+      <value>10.123.123.3</value>
+      <value>10.124.124.4</value>
     </input>
 
     <input into_datastore="spoiler_admin_pass">
       <value>tiaspbiqe2r</value>
     </input>
-
-    <!-- accounts on the desktop, with the main user as a sudoer -->
-    <input into_datastore="user_accounts">
-      <!-- main user, sudoer -->
-      <generator type="account">
-        <input into="username">
-          <generator type="random_sanitised_word">
-            <input into="wordlist">
-              <value>mythical_creatures</value>
-            </input>
-          </generator>
-        </input>
-        <input into="password">
-          <value>tiaspbiqe2r</value>
-        </input>
-        <input into="super_user">
-          <value>true</value>
-        </input>
-      </generator>
-    </input>
-
-    <!--Create the users-->
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>user_accounts</datastore>
-      </input>
-    </utility>
-
 
     <network type="private_network">
       <input into="IP_address">
@@ -88,11 +60,11 @@
 
       <network type="public_network"/>
 
-    <build type="cleanup">
-      <input into="root_password">
-        <datastore>spoiler_admin_pass</datastore>
-      </input>
-    </build>
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <datastore>spoiler_admin_pass</datastore>-->
+<!--      </input>-->
+<!--    </build>-->
 
   </system>
 

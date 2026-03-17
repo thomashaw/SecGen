@@ -267,7 +267,7 @@ end
 <%      # Static oVirt/Proxmox networking -%>
 <%       if (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template !~ /win/i -%>
 <%         if provider == "proxmox" -%>
-            <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, ip: "<%= lookup_network_ip(selected_module, system.name) %>", proxmox_bridge: "vmbr1", proxmox_vlan: <%= lookup_network_vlan(selected_module) %>
+            <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, ip: "<%= lookup_network_ip(selected_module) %>", proxmox_bridge: "vmbr1", proxmox_vlan: <%= lookup_network_vlan(selected_module) %>
 <%         else # ovirt -%>
               # use some shell scripting to identify the name of the network interface (eth0/ens3/...), and set the IP address statically
               <%= system.name %>.vm.provision 'shell', inline: "echo -e \"auto lo\niface lo inet loopback\n\nauto <%= interface %>\niface <%= interface %> inet static\n\taddress <%= resolve_network(selected_module)%>\" > /etc/network/interfaces"
@@ -275,12 +275,12 @@ end
   <%         end -%>
 
 <%        # Below string is used within testing, do not delete. -%>
-          # ip_address_for_<%= system.name %>=<%= lookup_network_ip(selected_module, system.name)%>
+          # ip_address_for_<%= system.name %>=<%= lookup_network_ip(selected_module)%>
 
 <%       elsif (provider == "ovirt" || provider == "proxmox") && @base_template && @base_template =~ /win/i -%>
   <%         if provider == "proxmox" -%>
-    <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, ip: "<%= lookup_network_ip(selected_module, system.name) %>", proxmox_bridge: "vmbr1", proxmox_vlan: <%= lookup_network_vlan(selected_module) %>
-    # ip_address_for_<%= system.name %>=<%= lookup_network_ip(selected_module, system.name) %>
+    <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, ip: "<%= lookup_network_ip(selected_module) %>", proxmox_bridge: "vmbr1", proxmox_vlan: <%= lookup_network_vlan(selected_module) %>
+    # ip_address_for_<%= system.name %>=<%= lookup_network_ip(selected_module) %>
   <%         else # ovirt -%>
     <%           # re-activate windows now, and then rearm on reboot (after it's started after provisioning) -%>
     <%= system.name %>.vm.provision 'shell', inline: 'cscript //b c:\windows\system32\slmgr.vbs /ato'

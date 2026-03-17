@@ -208,31 +208,26 @@ class ProjectFilesCreator
     end
   end
 
-  # Returns the resolved IP for a network module and system.
-  # If IP_address is set, use it verbatim.
-  # Otherwise look up the auto-assigned IP from the network_map (keyed by range).
-  def lookup_network_ip(network_module, system_name)
+
+  def network_map_key(network_module)
+    vlan_index = network_module.received_inputs['vlan']&.first&.to_i || 1
+    base_vlan = @options[:proxmoxvlan].to_i rescue 0
+    base_vlan + (vlan_index * 100)
+  end
+
+  def lookup_network_ip(network_module)
     if network_module.received_inputs.include?('IP_address')
       network_module.received_inputs['IP_address'].first
     else
-      ip_range = network_module.received_inputs['range']&.first
-      return nil unless ip_range && @options[:network_map]&.key?(ip_range)
-      @options[:network_map][ip_range][:ips][system_name]&.first
+      key = network_map_key(network_module)
+      return nil unless @options[:network_map]&.key?(key)
+      @options[:network_map][key][:ips][network_module.unique_id]
     end
   end
 
-  # Returns the resolved VLAN for a network module.
-  # VLAN was calculated once in build_config as base_vlan + (vlan_index * 100)
-  # and stored in the network_map — just read it from there.
+
   def lookup_network_vlan(network_module)
-    key = if network_module.received_inputs.include?('IP_address')
-            ip = network_module.received_inputs['IP_address'].first
-            ip.split('.')[0..2].join('.') + '.0'
-          else
-            network_module.received_inputs['range']&.first
-          end
-    return 1 unless key && @options[:network_map]&.key?(key)
-    @options[:network_map][key][:vlan]
+    network_map_key(network_module)
   end
 
   # Resolves the IP address to use for a network module in the Vagrantfile.

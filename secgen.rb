@@ -115,44 +115,60 @@ def build_config(scenario, out_dir, options)
   base_vlan = options[:proxmoxvlan] ? options[:proxmoxvlan].to_i : 0
   options[:network_map] = {}
 
+  # First pass — register all specific IP_address entries
   systems.each do |system|
     system.module_selections.each do |mod|
       next unless mod.module_type == 'network'
+      next unless mod.received_inputs.include?('IP_address')
+
+      ip = mod.received_inputs['IP_address'].first
+      next if ip.nil?
 
       vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
       vlan = base_vlan + (vlan_index * 100)
+      subnet = ip.split('.')[0..2].join('.') + '.0'
 
-      if mod.received_inputs.include?('IP_address')
-        # Specific IP provided — use verbatim, no auto-assignment
-        ip = mod.received_inputs['IP_address'].first
-        next if ip.nil? || ip == 'dhcp'
-
-        # Use the IP's /24 subnet as the map key to group systems on the same network
-        subnet = ip.split('.')[0..2].join('.') + '.0'
-        unless options[:network_map].key?(subnet)
-          options[:network_map][subnet] = { vlan: vlan, ips: {} }
-        end
-        options[:network_map][subnet][:ips][system.name] ||= []
-        options[:network_map][subnet][:ips][system.name] << ip
-
-      else
-        # Range provided — auto-assign IPs by incrementing last octet
-        ip_range = mod.received_inputs['range']&.first
-        next if ip_range.nil? || ip_range == 'dhcp'
-
-        unless options[:network_map].key?(ip_range)
-          options[:network_map][ip_range] = { vlan: vlan, ips: {}, next_octet: 1 }
-        end
-
-        options[:network_map][ip_range][:next_octet] += 1
-        last_octet = options[:network_map][ip_range][:next_octet] % 254
-        split_ip = ip_range.split('.')
-        split_ip[3] = last_octet.to_s
-        resolved_ip = split_ip.join('.')
-
-        options[:network_map][ip_range][:ips][system.name] ||= []
-        options[:network_map][ip_range][:ips][system.name] << resolved_ip
+      unless options[:network_map].key?(vlan)
+        options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, used_octets: [] }
       end
+
+      options[:network_map][vlan][:used_octets] << ip.split('.').last.to_i
+      options[:network_map][vlan][:ips][mod.unique_id] = ip
+
+    end
+  end
+
+  # Second pass — auto-assign IPs for range entries, skipping any claimed octets
+  systems.each do |system|
+    system.module_selections.each do |mod|
+      next unless mod.module_type == 'network'
+      next if mod.received_inputs.include?('IP_address')
+
+      ip_range = mod.received_inputs['range']&.first
+      next if ip_range.nil? || ip_range == 'dhcp'
+
+      vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
+      vlan = base_vlan + (vlan_index * 100)
+      subnet = ip_range.split('.')[0..2].join('.') + '.0'
+
+      unless options[:network_map].key?(vlan)
+        options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, next_octet: 1, used_octets: [] }
+      end
+
+      next_octet = options[:network_map][vlan][:next_octet] || 1
+      begin
+        next_octet += 1
+        next_octet %= 254
+      end while options[:network_map][vlan][:used_octets].include?(next_octet)
+
+      options[:network_map][vlan][:next_octet] = next_octet
+      options[:network_map][vlan][:used_octets] << next_octet
+
+      split_ip = subnet.split('.')
+      split_ip[3] = next_octet.to_s
+      resolved_ip = split_ip.join('.')
+
+      options[:network_map][vlan][:ips][mod.unique_id] = resolved_ip
     end
   end
 
