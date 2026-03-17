@@ -154,7 +154,15 @@ def build_config(scenario, out_dir, options)
       next if mod.received_inputs.include?('IP_address')
 
       ip_range = mod.received_inputs['range']&.first
-      next if ip_range.nil? || ip_range == 'dhcp'
+      next if ip_range.nil?
+
+      if ip_range == 'dhcp'
+        if mod.attributes['type']&.first == 'private_network'
+          Print.err "Network error: #{mod.unique_id} has range=dhcp on a private_network -- did you mean to use a public_network module instead?"
+          exit 1
+        end
+        next
+      end
 
       vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
       vlan = base_vlan + (vlan_index * 100)
@@ -212,7 +220,8 @@ def build_config(scenario, out_dir, options)
     subnets_in_vlan_order = options[:network_map].keys.sort.map { |vlan| options[:network_map][vlan][:subnet] }.uniq
 
     if options[:ip_ranges].size > subnets_in_vlan_order.size
-      Print.warn "More --network-ranges provided (#{options[:ip_ranges].size}) than subnets in scenario (#{subnets_in_vlan_order.size}) -- extras will be ignored"
+      Print.err "Too many --network-ranges provided: #{options[:ip_ranges].size} given but scenario only has #{subnets_in_vlan_order.size} subnet(s). Remove the extra ranges and try again."
+      exit 1
     end
 
     subnet_override_map = {}
@@ -220,7 +229,8 @@ def build_config(scenario, out_dir, options)
       if options[:ip_ranges][i]
         subnet_override_map[subnet] = options[:ip_ranges][i]
       else
-        Print.warn "No --network-ranges override provided for subnet #{subnet} (VLAN #{options[:network_map].keys.sort[i]}) -- keeping original"
+        Print.err "Not enough --network-ranges provided: no override for subnet #{subnet} (VLAN #{options[:network_map].keys.sort[i]}). #{subnets_in_vlan_order.size} range(s) required, #{options[:ip_ranges].size} provided."
+        exit 1
       end
     end
 

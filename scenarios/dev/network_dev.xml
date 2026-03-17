@@ -1,61 +1,228 @@
 <?xml version="1.0"?>
+<!--
+  =============================================================================
+  SecGen Network Testing Scenario
+  =============================================================================
+  This file is designed to be used with the test table below.
+  Comment/uncomment sections as directed per test group.
 
+  BASELINE (tests 1-2, 6-8, 11-14, 18-19, 37-39):
+    Run as-is with no modifications and no #-#-network-ranges.
+
+  See test table for which sections to comment/uncomment per test group.
+  =============================================================================
+-->
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
-  <system>
-    <system_name>testing</system_name>
-    <base platform="linux" distro="Debian 10" type="desktop"/>
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <input into_datastore="IP_addresses">
-      <value>172.17.0.0</value>
-		<value>10.123.123.0</value>
-    </input>
+	<!-- =========================================================== -->
+	<!-- SYSTEM 1: testing_deb (Linux)                               -->
+	<!-- =========================================================== -->
+	<system>
+		<system_name>testing_deb</system_name>
+		<base platform="linux" distro="Debian 10" type="desktop"/>
 
-		<input into_datastore="user_accounts_desktop">
-			<!-- main user, sudoer -->
-			<generator type="account">
-				<input into="username">
-					<generator type="random_sanitised_word">
-						<input into="wordlist">
-							<value>mythical_creatures</value>
-						</input>
-					</generator>
-				</input>
-				<input into="password">
-					<value>tiaspbiqe2r</value>
-				</input>
-				<input into="super_user">
-					<value>true</value>
-				</input>
-			</generator>
+		<input into_datastore="IP_addresses">
+			<value>10.0.0.5</value>      <!-- [DS-0] used by network A -->
+			<value>10.1.0.10</value>     <!-- [DS-1] used by network B -->
 		</input>
 
-		<utility module_path=".*/parameterised_accounts">
-			<input into="accounts">
-				<datastore>user_accounts_desktop</datastore>
+		<input into_datastore="spoiler_admin_pass">
+			<value>tiaspbiqe2r</value>
+		</input>
+
+		<!-- [NET-A] Static IP from datastore, vlan 1 (default VLAN 100)
+             Tests: 1, 4, 11, 12, 14, 36, 37, 38, 39 -->
+		<network type="private_network">
+			<input into="IP_address">
+				<datastore access="0">IP_addresses</datastore>
+				<value>10.0.0.2</value>
 			</input>
-		</utility>
+			<!-- vlan defaults to 1 -->
+		</network>
+
+		<!-- [NET-B] Static IP from datastore, explicit vlan 2 (VLAN 200)
+             Tests: 2, 3, 5 -->
+		<network type="private_network">
+			<input into="IP_address">
+				<datastore access="1">IP_addresses</datastore>
+			</input>
+			<input into="vlan">
+				<value>2</value>
+			</input>
+		</network>
+
+		<!-- [NET-C] Range on vlan 1 (same as NET-A) — auto-assigns, skips .5
+             Tests: 6, 7, 8, 11, 12, 14, 36, 39 -->
+<!--		<network type="private_network">-->
+<!--			<input into="range">-->
+<!--				<value>10.0.0.0</value>-->
+<!--			</input>-->
+			<!-- vlan defaults to 1, same as NET-A -->
+<!--		</network>-->
+
+		<!-- [NET-D] Second range on vlan 1 — auto-assigns next available octet
+             Tests: 8, 14 -->
+		<network type="private_network">
+			<input into="range">
+				<value>10.0.0.0</value>
+			</input>
+<!--			 vlan defaults to 1 -->
+		</network>
+
+		<!-- [NET-E] Range on vlan 3 (VLAN 300) — independent subnet
+             Tests: 3, 9, 13, 20-26 -->
+<!--		<network type="private_network">-->
+<!--			<input into="range">-->
+<!--				<value>10.2.0.0</value>-->
+<!--			</input>-->
+<!--			<input into="vlan">-->
+<!--				<value>3</value>-->
+<!--			</input>-->
+<!--		</network>-->
+
+		<!-- [NET-F] DHCP public network — should always be DHCP
+             Tests: 15, 17, 25 -->
+		<network type="public_network"/>
+<!--		<network type="public_network">-->
+<!--			<input into="range">-->
+<!--				<value>dhcp</value>-->
+<!--			</input>-->
+<!--		</network>-->
+
+		<!-- =========================================================== -->
+		<!-- VALIDATION TEST NETWORKS — comment in one at a time         -->
+		<!-- =========================================================== -->
+
+		<!-- [NET-V1] UNCOMMENT FOR TEST 27: range with non-zero last octet -->
+<!--        <network type="private_network">-->
+<!--          <input into="range">-->
+<!--            <value>10.5.0.3</value>-->
+<!--          </input>-->
+<!--          <input into="vlan">-->
+<!--            <value>7</value>-->
+<!--          </input>-->
+<!--        </network>-->
 
 
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
+		<!-- [NET-V2] UNCOMMENT FOR TEST 28: range with CIDR notation -->
+<!--        <network type="private_network">-->
+<!--          <input into="range">-->
+<!--            <value>10.5.0.0/24</value>-->
+<!--          </input>-->
+<!--          <input into="vlan">-->
+<!--            <value>7</value>-->
+<!--          </input>-->
+<!--        </network>-->
+        <!-- -->
 
-  <network type="private_network">
-	  <input into="IP_address">
-		  <datastore access="1">IP_addresses</datastore>
-	  </input>
-  </network>
+		<!-- [NET-V3] UNCOMMENT FOR TEST 31: duplicate static IP same vlan
+               Also comment out NET-A and replace with these two:-->
+<!--        <network type="private_network">-->
+<!--          <input into="IP_address">-->
+<!--            <value>10.0.0.5</value>-->
+<!--          </input>-->
+<!--        </network>-->
+<!--        <network type="private_network">-->
+<!--          <input into="IP_address">-->
+<!--            <value>10.0.0.5</value>-->
+<!--          </input>-->
+<!--        </network>-->
 
-  <network type="private_network" range="dhcp"/>
+
+		<!-- [NET-V4] UNCOMMENT FOR TEST 32: same IP on different vlans
+             Also comment out NET-A and NET-B and replace with these two: -->
+<!--        <network type="private_network">-->
+<!--          <input into="IP_address">-->
+<!--            <value>10.0.0.5</value>-->
+<!--          </input>-->
+<!--          <input into="vlan">-->
+<!--            <value>1</value>-->
+<!--          </input>-->
+<!--        </network>-->
+<!--        <network type="private_network">-->
+<!--          <input into="IP_address">-->
+<!--            <value>10.0.0.5</value>-->
+<!--          </input>-->
+<!--          <input into="vlan">-->
+<!--            <value>2</value>-->
+<!--          </input>-->
+<!--        </network>-->
 
 
-  </system>
+		<!-- [NET-V5] UNCOMMENT FOR TEST 33: same subnet on different vlans
+             Also comment out NET-C and NET-E and replace with these two: -->
+<!--        <network type="private_network">-->
+<!--          <input into="range">-->
+<!--            <value>10.0.0.0</value>-->
+<!--          </input>-->
+<!--          <input into="vlan">-->
+<!--            <value>1</value>-->
+<!--          </input>-->
+<!--        </network>-->
+<!--        <network type="private_network">-->
+<!--          <input into="range">-->
+<!--            <value>10.0.0.0</value>-->
+<!--          </input>-->
+<!--          <input into="vlan">-->
+<!--            <value>2</value>-->
+<!--          </input>-->
+<!--        </network>-->
 
 
+	</system>
 
+	<!-- =========================================================== -->
+	<!-- SYSTEM 2: testing_win7_2 (Windows)                          -->
+	<!-- =========================================================== -->
+	<system>
+		<system_name>testing_win7_2</system_name>
+		<base platform="windows" distro="7"/>
+
+		<!-- [NET-G] Static IP, vlan 1 (same subnet as NET-A/NET-C — shared VLAN)
+             Tests: 37, 38, 39, 40 -->
+		<network type="private_network">
+			<input into="IP_address">
+				<value>10.0.0.5</value>
+			</input>
+			<!-- vlan defaults to 1 -->
+		</network>
+
+		<!-- [NET-H] Static IP, vlan 2 (same subnet as NET-B)
+             Tests: 3, 5 -->
+		<network type="private_network">
+			<input into="IP_address">
+				<value>10.1.0.30</value>
+			</input>
+			<input into="vlan">
+				<value>2</value>
+			</input>
+		</network>
+
+		<!-- [NET-I] Static IP, vlan 4 (VLAN 400) — independent
+             Tests: 20-26, 41, 42 -->
+		<network type="private_network">
+			<input into="IP_address">
+				<value>10.3.0.7</value>
+			</input>
+			<input into="vlan">
+				<value>4</value>
+			</input>
+		</network>
+
+		<!-- =========================================================== -->
+		<!-- VALIDATION TEST NETWORKS — comment in one at a time         -->
+		<!-- =========================================================== -->
+
+		<!-- [NET-V6] UNCOMMENT FOR TEST 38: duplicate static IP across systems, same vlan
+             Comment out NET-G and replace with: -->
+        <network type="private_network">
+          <input into="IP_address">
+            <value>10.0.0.5</value>
+          </input>
+        </network>
+
+	</system>
 
 </scenario>
