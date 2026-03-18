@@ -30,14 +30,14 @@
       </input>
     </network>
 
-    <network type="private_network">
-      <input into="range">
-        <value>172.17.0.0/24</value>
-      </input>
-      <input into="vlan">
-        <value>5</value>
-      </input>
-    </network>
+<!--    <network type="private_network">-->
+<!--      <input into="range">-->
+<!--        <value>172.17.0.0/24</value>-->
+<!--      </input>-->
+<!--      <input into="vlan">-->
+<!--        <value>5</value>-->
+<!--      </input>-->
+<!--    </network>-->
 
     <network type="private_network">
       <input into="range">
