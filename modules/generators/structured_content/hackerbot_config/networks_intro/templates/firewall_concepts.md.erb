@@ -1,0 +1,22 @@
+## Firewall concepts
+
+A firewall is a device or piece of software that monitors network traffic and enforces rules about what is allowed through. Firewalls are the primary mechanism for enforcing network segmentation.
+
+### Types of firewall
+
+* **Packet filtering** — the simplest type. Examines each packet individually based on header fields: source/destination IP, port number, and protocol. No awareness of connection state. Fast, but limited.
+* **Stateful packet inspection** — tracks the state of network connections. Knows whether a packet is part of an ongoing conversation or a new request. This is the type of firewalling you will work with in this lab using iptables.
+* **Application layer (proxy) firewalls** — operate at the application level and understand the content of traffic. A web application firewall (WAF) can inspect HTTP requests for SQL injection or XSS. Deepest inspection but most resource-intensive.
+
+### Host-based vs. network-based firewalls
+
+* **Network-based firewalls** sit at a boundary between network segments. All traffic between zones passes through this firewall.
+* **Host-based firewalls** run on individual hosts and control traffic to and from that specific machine. On Linux, `iptables` (or its successor `nftables`) provides this.
+
+In this lab, the **gateway** VM acts as a network-based firewall controlling traffic between zones.
+
+### Key firewalling principles
+
+* **Default deny** — block everything by default, only explicitly allow traffic that is needed.
+* **Least privilege** — only allow the minimum access required.
+* **Rule order matters** — iptables processes rules top to bottom and stops at the first match.

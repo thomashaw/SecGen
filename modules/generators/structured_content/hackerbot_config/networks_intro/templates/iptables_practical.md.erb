@@ -1,0 +1,57 @@
+## Understanding firewall rules and segmentation
+
+Now that you understand the theory, let's look at how firewalling works in practice. The **gateway** VM sits between the three network segments, routing traffic between them. It is configured with `iptables` rules that control which traffic is allowed to cross between zones.
+
+### Examining iptables rules
+
+==SSH into the gateway VM from your desktop:==
+
+```bash
+# On: desktop
+ssh gateway
+```
+
+==Examine the current firewall rules:==
+
+```bash
+# On: gateway (via SSH)
+sudo iptables -L -v -n
+```
+
+This shows all active firewall chains (INPUT, FORWARD, OUTPUT) along with packet counters, source/destination addresses, and ports.
+
+Take some time to read through these rules. For each rule, try to understand:
+
+* What traffic does it match? (source IP, destination IP, port, protocol)
+* Does it ACCEPT, DROP, or REJECT that traffic?
+* What is the security purpose of this rule?
+
+### Understanding chain policies and default deny
+
+Note the **default policy** on each chain — shown in parentheses at the top of each chain's output, e.g. `Chain FORWARD (policy DROP)`.
+
+A default policy of DROP means that any traffic not explicitly permitted by a rule is silently discarded. This is the principle of **default deny**.
+
+### Testing connectivity against the rules
+
+Go back to your **desktop** and test what you can and cannot reach.
+
+> **Tip:** If you are still SSH'd into the gateway, type `exit` to return to the desktop.
+
+==Try connecting to various services:==
+
+```bash
+# On: desktop
+# Test HTTP on the web_server
+curl http://<web_server-ip>
+
+# Test SSH to the server
+ssh <server-ip>
+
+# Test a specific port with netcat
+nc -zv <server-ip> 3306
+```
+
+Compare what succeeds and fails against the iptables rules you read on the gateway. Do the results match what you expected from reading the rules?
+
+Because the web_server is on a different subnet, traffic from your desktop to the web_server passes through the gateway's FORWARD chain. This means the gateway's forwarding rules directly determine what you can and cannot reach across zone boundaries.

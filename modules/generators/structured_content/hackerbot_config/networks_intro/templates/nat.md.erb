@@ -1,0 +1,55 @@
+## Network Address Translation (NAT)
+
+NAT allows hosts on a private internal network to communicate with external networks using a shared public IP address. It is used in virtually every network you will encounter.
+
+### Examining NAT rules
+
+==On the gateway VM, examine the NAT table:==
+
+```bash
+# On: gateway (via SSH from desktop)
+ssh gateway
+sudo iptables -t nat -L -v -n
+```
+
+You will see rules in the PREROUTING, POSTROUTING, and OUTPUT chains. Look for:
+
+* **MASQUERADE** or **SNAT** rules in POSTROUTING — these handle outbound NAT, replacing the source IP of internal hosts with the gateway's IP when traffic leaves the network
+* **DNAT** rules in PREROUTING — these handle inbound port forwarding, redirecting incoming traffic on specific ports to internal hosts
+
+### Observing NAT in action
+
+Because the internal LAN and DMZ are on separate subnets, traffic between them passes through the gateway — which may apply NAT. Let's observe this.
+
+==SSH into the web_server and start a packet capture listening for HTTP traffic:==
+
+```bash
+# On: desktop
+ssh web_server
+
+# On: web_server (via SSH)
+sudo tcpdump -i any -n port 80
+```
+
+==Open a second terminal on the desktop and make an HTTP request to the web_server:==
+
+```bash
+# On: desktop (second terminal)
+curl http://<web_server-ip>
+```
+
+Look at the tcpdump output on the web_server. What source IP address do you see in the incoming packets? Is it the desktop's real IP (on the 10.0.1.0/24 subnet), or the gateway's DMZ-facing IP (on the 10.0.2.0/24 subnet)?
+
+### Understanding port forwarding
+
+Examine the PREROUTING chain in the NAT table again. If there is a DNAT (port forwarding) rule, identify:
+
+* What port on the gateway does it listen on?
+* Which internal host and port does it forward traffic to?
+
+==Try connecting to the forwarded port on the gateway's IP address from your desktop and confirm it reaches the expected backend service.==
+
+```bash
+# On: desktop
+nc -v <gateway-ip> <forwarded-port>
+```
