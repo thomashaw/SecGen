@@ -38,12 +38,15 @@
          SHARED DATASTORE — IP addresses
          =================================================================
          Index  IP             Host / Interface
-         [0]    10.0.1.1       gateway — Internal LAN side  (VLAN 1)
+         [0]    10.0.1.1       gateway — Internal LAN side   (VLAN 1)
          [1]    10.0.1.10      desktop                       (VLAN 1)
          [2]    10.0.2.1       gateway — DMZ side            (VLAN 2)
-         [3]    10.0.2.10      web_server                     (VLAN 2)
+         [3]    10.0.2.10      web_server                    (VLAN 2)
          [4]    10.0.3.1       gateway — Server zone side    (VLAN 3)
          [5]    10.0.3.10      server                        (VLAN 3)
+         [6]    10.0.1.11      hackerbot_server              (VLAN 1)
+         [7]    10.0.2.11      hackerbot_server              (VLAN 2)
+         [8]    10.0.3.11      hackerbot_server              (VLAN 3)
          ================================================================= -->
 
 
@@ -154,33 +157,6 @@
                 <datastore>account</datastore>
             </input>
         </utility>
-
-        <!--        <utility module_path=".*iptables_netsec_gateway">-->
-        <!--            <input into="lan_network">-->
-        <!--                <value>10.0.1.0/24</value>-->
-        <!--            </input>-->
-        <!--            <input into="dmz_network">-->
-        <!--                <value>10.0.2.0/24</value>-->
-        <!--            </input>-->
-        <!--            <input into="server_network">-->
-        <!--                <value>10.0.3.0/24</value>-->
-        <!--            </input>-->
-        <!--            <input into="server_ip">-->
-        <!--                <datastore access="5">IP_addresses</datastore>-->
-        <!--            </input>-->
-        <!--            <input into="web_server_ip">-->
-        <!--                <datastore access="3">IP_addresses</datastore>-->
-        <!--            </input>-->
-        <!--            <input into="misconfigured_port">-->
-        <!--                <datastore access="0">challenge3_port</datastore>-->
-        <!--            </input>-->
-        <!--            <input into="dnat_external_port">-->
-        <!--                <datastore access="0">challenge5_external_port</datastore>-->
-        <!--            </input>-->
-        <!--            <input into="dnat_internal_port">-->
-        <!--                <datastore access="0">challenge5_internal_port</datastore>-->
-        <!--            </input>-->
-        <!--        </utility>-->
 
         <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
