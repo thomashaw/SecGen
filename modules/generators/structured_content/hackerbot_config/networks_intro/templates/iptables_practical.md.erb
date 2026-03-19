@@ -43,13 +43,13 @@ Go back to your **desktop** and test what you can and cannot reach.
 ```bash
 # On: desktop
 # Test HTTP on the web_server
-curl http://<web_server-ip>
+curl http://\<web_server-ip\>
 
 # Test SSH to the server
-ssh <server-ip>
+ssh \<server-ip\>
 
 # Test a specific port with netcat
-nc -zv <server-ip> 3306
+nc -zv \<server-ip\> 3306
 ```
 
 Compare what succeeds and fails against the iptables rules you read on the gateway. Do the results match what you expected from reading the rules?
