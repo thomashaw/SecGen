@@ -1,0 +1,85 @@
+## IP and MAC address fundamentals
+
+Every device on a network has at least two addresses that identify it: an **IP address** (Layer 3) and a **MAC address** (Layer 2). Understanding these is essential for everything that follows in this module.
+
+### IP addresses
+
+An IP address identifies a host on a network. IP addresses can be assigned statically (manually configured) or dynamically (via DHCP). Crucially for network security, **IP addresses can be changed** — a host is not permanently bound to a particular IP.
+
+==Let's prove this. On your desktop, first note your current IP address and confirm you can ping the gateway:==
+
+```bash
+# On: desktop
+ip addr show eth0
+ping -c 2 <gateway-internal-ip>
+```
+
+==Now temporarily add a second IP address to your interface:==
+
+```bash
+# On: desktop
+sudo ip addr add 10.0.1.200/24 dev eth0
+```
+
+==Verify the new address has been added:==
+
+```bash
+# On: desktop
+ip addr show eth0
+```
+
+You should see both your original IP and the new 10.0.1.200 address listed on the same interface.
+
+==Remove the additional address to return to your original configuration:==
+
+```bash
+# On: desktop
+sudo ip addr del 10.0.1.200/24 dev eth0
+```
+
+> **Security implication:** If IP addresses can be easily changed, any security mechanism that relies solely on IP address for identification can potentially be bypassed by an attacker who changes their IP. This is one reason why defence in depth is important.
+
+> **Tip:** If you accidentally remove your main IP address or misconfigure your network, you can reset your VM from Hacktivity to restore the original configuration.
+
+### MAC addresses
+
+A MAC (Media Access Control) address is a hardware-level address assigned to each network interface. It is used for communication within a single network segment (Layer 2).
+
+==View your desktop's MAC address:==
+
+```bash
+# On: desktop
+ip link show eth0
+```
+
+The MAC address is shown after `link/ether` and is in the format `xx:xx:xx:xx:xx:xx`. The first three octets typically identify the manufacturer (the OUI — Organisationally Unique Identifier), and the last three are unique to the device.
+
+Like IP addresses, MAC addresses can also be changed in software. This is known as **MAC spoofing**.
+
+==First, note your current MAC address. Then bring the interface down, change the MAC, and bring it back up:==
+
+```bash
+# On: desktop
+ip link show eth0
+sudo ip link set eth0 down
+sudo ip link set eth0 address 00:11:22:33:44:55
+sudo ip link set eth0 up
+```
+
+==Verify the MAC address has changed:==
+
+```bash
+# On: desktop
+ip link show eth0
+```
+
+==Restore your original MAC address (or reset the VM from Hacktivity):==
+
+```bash
+# On: desktop
+sudo ip link set eth0 down
+sudo ip link set eth0 address <your-original-mac>
+sudo ip link set eth0 up
+```
+
+> **Security implication:** MAC spoofing is trivially easy and has implications for any security control that relies on MAC addresses for identification or access control. We will revisit this in later labs when we cover ARP spoofing attacks.
