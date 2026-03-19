@@ -143,11 +143,11 @@
 		</quiz>
 
 		<tutorial>
-			<%= File.read self.templates_path + 'network_design.md.erb' %>
+<%= File.read self.templates_path + 'network_design.md.erb' %>
 
-			---
+---
 
-			<%= File.read self.templates_path + 'reconnaissance_routing.md.erb' %>
+<%= File.read self.templates_path + 'reconnaissance_routing.md.erb' %>
 		</tutorial>
 	</attack>
 
@@ -176,9 +176,7 @@
 			<message>:( Could not verify your desktop at <%= $new_desktop_ip %> or it cannot reach the gateway. Check your configuration.</message>
 		</else_condition>
 
-		<tutorial>
-			<%= File.read self.templates_path + 'ip_mac_fundamentals.md.erb' %>
-		</tutorial>
+		<tutorial><%= File.read self.templates_path + 'ip_mac_fundamentals.md.erb' %></tutorial>
 	</attack>
 
 	<attack>
@@ -224,11 +222,11 @@
 		</quiz>
 
 		<tutorial>
-			<%= File.read self.templates_path + 'firewall_concepts.md.erb' %>
+<%= File.read self.templates_path + 'firewall_concepts.md.erb' %>
 
-			---
+---
 
-			<%= File.read self.templates_path + 'iptables_practical.md.erb' %>
+<%= File.read self.templates_path + 'iptables_practical.md.erb' %>
 		</tutorial>
 	</attack>
 
@@ -278,9 +276,7 @@
 			<trigger_next_attack />
 		</quiz>
 
-		<tutorial>
-			<%= File.read self.templates_path + 'nat.md.erb' %>
-		</tutorial>
+		<tutorial><%= File.read self.templates_path + 'nat.md.erb' %></tutorial>
 	</attack>
 
 
@@ -308,15 +304,13 @@
 		</condition>
 		<condition>
 			<output_matches>FAIL</output_matches>
-			<message>:( Not all conditions are met. Check: webserver→server should be BLOCKED, desktop→server should be OPEN, desktop→webserver should be OPEN. Review your iptables rules on the gateway.</message>
+			<message>:( Not all conditions are met. Check: webserver -> server should be BLOCKED, desktop ->server should be OPEN, desktop ->webserver should be OPEN. Review your iptables rules on the gateway.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong with the verification. Make sure all VMs are reachable.</message>
 		</else_condition>
 
-		<tutorial>
-			<%= File.read self.templates_path + 'dmz_concepts.md.erb' %>
-		</tutorial>
+		<tutorial><%= File.read self.templates_path + 'dmz_concepts.md.erb' %></tutorial>
 	</attack>
 
 </hackerbot>
