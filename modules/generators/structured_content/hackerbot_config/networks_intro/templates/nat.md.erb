@@ -14,12 +14,12 @@ sudo iptables -t nat -L -v -n
 
 You will see rules in the PREROUTING, POSTROUTING, and OUTPUT chains. Look for:
 
-* **MASQUERADE** or **SNAT** rules in POSTROUTING — these handle outbound NAT, replacing the source IP of internal hosts with the gateway's IP when traffic leaves the network
-* **DNAT** rules in PREROUTING — these handle inbound port forwarding, redirecting incoming traffic on specific ports to internal hosts
+* **MASQUERADE** or **SNAT** rules in POSTROUTING - these handle outbound NAT, replacing the source IP of internal hosts with the gateway's IP when traffic leaves the network
+* **DNAT** rules in PREROUTING - these handle inbound port forwarding, redirecting incoming traffic on specific ports to internal hosts
 
 ### Observing NAT in action
 
-Because the internal LAN and DMZ are on separate subnets, traffic between them passes through the gateway — which may apply NAT. Let's observe this.
+Because the internal LAN and DMZ are on separate subnets, traffic between them passes through the gateway - which may apply NAT. Let's observe this.
 
 ==SSH into the web_server and start a packet capture listening for HTTP traffic:==
 

@@ -1,4 +1,5 @@
-<% require 'json'
+<%
+	require 'json'
 	require 'securerandom'
 	require 'fileutils'
 	require 'erb'
@@ -24,18 +25,18 @@
 	$gateway_lan_ip    = '10.0.1.1'
 	$desktop_ip        = '10.0.1.10'
 	$gateway_dmz_ip    = '10.0.2.1'
-	$webserver_ip      = '10.0.2.10'
+	$web_server_ip      = '10.0.2.10'
 	$gateway_server_ip = '10.0.3.1'
 	$server_ip         = '10.0.3.10'
 
 	# Randomised values for challenges
 	$new_desktop_ip = "10.0.1.#{rand(50..99)}"
-	$new_mac = "00:DE:AD:%02x:%02x:%02x" % [rand(256), rand(256), rand(256)]
+	$new_mac = sprintf("00:DE:AD:%02x:%02x:%02x", rand(256), rand(256), rand(256))
 
 	def get_binding
 		binding
-	end %>
-
+	end
+-%>
 <?xml version="1.0"?>
 
 <hackerbot
@@ -93,7 +94,7 @@
 	<tutorial_info>
 		<title>Network Security Fundamentals: Network Design, Segmentation, NAT and DMZ</title>
 		<tutorial><%= ERB.new(File.read self.templates_path + 'intro.md.erb').result(self.get_binding) %></tutorial>
-		<footer>
+		<footer><%= #File.read self.templates_path + 'integrity_limitations.md.erb' %>
 
 			<%= File.read self.templates_path + 'resources.md.erb' %>
 
@@ -108,9 +109,9 @@
 
 
 	<!-- =================================================================
-	     SECTION 1: Network Reconnaissance &amp; Routing
+	     SECTION 1: Network Reconnaissance & Routing
 	     Theory: network design, routing, IP forwarding, SSH hopping
-	     Challenges 1-2: Connect the network, retrieve webserver flag
+	     Challenges 1-2: Connect the network, retrieve web_server flag
 	     ================================================================= -->
 
 	<attack>
@@ -120,9 +121,9 @@
 		     1. SSH to gateway, check cat /proc/sys/net/ipv4/ip_forward returns 1
 		     2. SSH to desktop, check ip route shows default via 10.0.1.1
 		     3. SSH to server, check ip route shows default via 10.0.3.1
-		     4. SSH to webserver, check ip route shows default via 10.0.2.1
-		     5. From desktop, ping webserver and server
-		     6. From webserver, ping desktop
+		     4. SSH to web_server, check ip route shows default via 10.0.2.1
+		     5. From desktop, ping web_server and server
+		     6. From web_server, ping desktop
 		-->
 
 		<post_command>echo "CHECKING"; cat /proc/sys/net/ipv4/ip_forward</post_command>
@@ -136,9 +137,9 @@
 		</else_condition>
 
 		<quiz>
-			<question>Now that the network is connected, SSH into the webserver and retrieve the flag from the file in the home directory. What is the flag?</question>
+			<question>Now that the network is connected, SSH into the web_server and retrieve the flag from the file in the home directory. What is the flag?</question>
 			<answer><%= $flags.pop %></answer>
-			<correct_answer_response>:) Well done! The network is connected and you've proven it by reaching the webserver.</correct_answer_response>
+			<correct_answer_response>:) Well done! The network is connected and you've proven it by reaching the web_server.</correct_answer_response>
 			<trigger_next_attack />
 		</quiz>
 
@@ -202,22 +203,22 @@
 
 
 	<!-- =================================================================
-	     SECTION 3: Firewall Concepts &amp; iptables
+	     SECTION 3: Firewall Concepts & iptables
 	     Theory: firewall types, iptables chains, default deny
 	     Challenges 5-6: Find misconfiguration, fix firewall
 	     ================================================================= -->
 
 	<attack>
-		<prompt>The gateway's firewall has a misconfiguration - the webserver (DMZ) can access a service on the server (Server zone) that it should not be able to reach. Find the service and retrieve the flag. What is the flag?</prompt>
+		<prompt>The gateway's firewall has a misconfiguration - the web_server (DMZ) can access a service on the server (Server zone) that it should not be able to reach. Find the service and retrieve the flag. What is the flag?</prompt>
 
 		<!-- TODO: Hackerbot checks:
-		     This is a discovery flag - student needs to SSH to webserver,
+		     This is a discovery flag - student needs to SSH to web_server,
 		     scan the server, find the open port, connect with nc, and
 		     submit the flag text.
 		-->
 
 		<quiz>
-			<question>SSH into the webserver and scan the server to find a service that should not be accessible from the DMZ. Connect to it and retrieve the flag. What is the flag?</question>
+			<question>SSH into the web_server and scan the server to find a service that should not be accessible from the DMZ. Connect to it and retrieve the flag. What is the flag?</question>
 			<answer><%= $flags.pop %></answer>
 			<correct_answer_response>:) You found the misconfiguration! The DMZ should not be able to reach that service on the server.</correct_answer_response>
 			<trigger_next_attack />
@@ -233,22 +234,22 @@
 	</attack>
 
 	<attack>
-		<prompt>Now fix the misconfiguration. Add an iptables rule to the gateway that blocks the webserver from reaching that service on the server, while ensuring the desktop can still access it. Say 'ready' when done.</prompt>
+		<prompt>Now fix the misconfiguration. Add an iptables rule to the gateway that blocks the web_server from reaching that service on the server, while ensuring the desktop can still access it. Say 'ready' when done.</prompt>
 
 		<!-- TODO: Hackerbot checks:
-		     1. SSH to webserver, try nc to server on misconfigured port - should fail
+		     1. SSH to web_server, try nc to server on misconfigured port - should fail
 		     2. SSH to desktop, try nc to server on same port - should succeed
 		-->
 
-		<post_command>sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $webserver_ip %> 'timeout 3 nc -z <%= $server_ip %> MISCONFIGURED_PORT 2>&amp;1 &amp;&amp; echo STILL_OPEN || echo BLOCKED'</post_command>
+		<post_command>sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $web_server_ip %> 'timeout 3 nc -z <%= $server_ip %> MISCONFIGURED_PORT 2>&amp;1 &amp;&amp; echo STILL_OPEN || echo BLOCKED'</post_command>
 		<condition>
 			<output_matches>BLOCKED</output_matches>
-			<message>:) The misconfiguration is fixed - the webserver can no longer reach that service. <%= $flags.pop %></message>
+			<message>:) The misconfiguration is fixed - the web_server can no longer reach that service. <%= $flags.pop %></message>
 			<trigger_next_attack />
 		</condition>
 		<condition>
 			<output_matches>STILL_OPEN</output_matches>
-			<message>:( The webserver can still reach the service on the server. Check your iptables rule on the gateway.</message>
+			<message>:( The web_server can still reach the service on the server. Check your iptables rule on the gateway.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong with the check. Make sure the network is still connected.</message>
@@ -285,22 +286,22 @@
 
 
 	<!-- =================================================================
-	     SECTION 5: DMZ Concepts &amp; Segmentation Policy
+	     SECTION 5: DMZ Concepts & Segmentation Policy
 	     Theory: DMZ traffic flow principles
 	     Challenge 8: Enforce segmentation policy
 	     ================================================================= -->
 
 	<attack>
-		<prompt>Enforce a proper segmentation policy on the gateway using iptables: (1) the webserver must NOT be able to initiate any new TCP connections to the server, (2) the desktop must still reach both, (3) the server must still be able to send response traffic to the webserver for established connections. Say 'ready' when done.</prompt>
+		<prompt>Enforce a proper segmentation policy on the gateway using iptables: (1) the web_server must NOT be able to initiate any new TCP connections to the server, (2) the desktop must still reach both, (3) the server must still be able to send response traffic to the web_server for established connections. Say 'ready' when done.</prompt>
 
 		<!-- TODO: Hackerbot checks:
-		     1. SSH to webserver, try new TCP connection to server - should fail
+		     1. SSH to web_server, try new TCP connection to server - should fail
 		     2. SSH to desktop, try connection to server - should succeed
-		     3. SSH to desktop, try connection to webserver - should succeed
+		     3. SSH to desktop, try connection to web_server - should succeed
 		     4. Verify established connections still work (more complex check)
 		-->
 
-		<post_command>RESULT=""; WS_TO_SRV=$(sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $webserver_ip %> 'timeout 3 nc -z <%= $server_ip %> 22 2>&amp;1 &amp;&amp; echo OPEN || echo BLOCKED'); DT_TO_SRV=$(sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $new_desktop_ip %> 'timeout 3 nc -z <%= $server_ip %> 22 2>&amp;1 &amp;&amp; echo OPEN || echo BLOCKED'); DT_TO_WS=$(sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $new_desktop_ip %> 'timeout 3 nc -z <%= $webserver_ip %> 80 2>&amp;1 &amp;&amp; echo OPEN || echo BLOCKED'); if [ "$WS_TO_SRV" = "BLOCKED" ] &amp;&amp; [ "$DT_TO_SRV" = "OPEN" ] &amp;&amp; [ "$DT_TO_WS" = "OPEN" ]; then echo "ALL_PASS"; else echo "FAIL ws_to_srv=$WS_TO_SRV dt_to_srv=$DT_TO_SRV dt_to_ws=$DT_TO_WS"; fi</post_command>
+		<post_command>RESULT=""; WS_TO_SRV=$(sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $web_server_ip %> 'timeout 3 nc -z <%= $server_ip %> 22 2>&amp;1 &amp;&amp; echo OPEN || echo BLOCKED'); DT_TO_SRV=$(sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $new_desktop_ip %> 'timeout 3 nc -z <%= $server_ip %> 22 2>&amp;1 &amp;&amp; echo OPEN || echo BLOCKED'); DT_TO_WS=$(sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@<%= $new_desktop_ip %> 'timeout 3 nc -z <%= $web_server_ip %> 80 2>&amp;1 &amp;&amp; echo OPEN || echo BLOCKED'); if [ "$WS_TO_SRV" = "BLOCKED" ] &amp;&amp; [ "$DT_TO_SRV" = "OPEN" ] &amp;&amp; [ "$DT_TO_WS" = "OPEN" ]; then echo "ALL_PASS"; else echo "FAIL ws_to_srv=$WS_TO_SRV dt_to_srv=$DT_TO_SRV dt_to_ws=$DT_TO_WS"; fi</post_command>
 		<condition>
 			<output_matches>ALL_PASS</output_matches>
 			<message>:) Excellent! Your segmentation policy is correctly enforced. The DMZ cannot reach the server zone, but the desktop can reach both. <%= $flags.pop %></message>
@@ -308,7 +309,7 @@
 		</condition>
 		<condition>
 			<output_matches>FAIL</output_matches>
-			<message>:( Not all conditions are met. Check: webserver→server should be BLOCKED, desktop→server should be OPEN, desktop→webserver should be OPEN. Review your iptables rules on the gateway.</message>
+			<message>:( Not all conditions are met. Check: web_server→server should be BLOCKED, desktop→server should be OPEN, desktop→web_server should be OPEN. Review your iptables rules on the gateway.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong with the verification. Make sure all VMs are reachable.</message>
@@ -318,5 +319,6 @@
 			<%= File.read self.templates_path + 'dmz_concepts.md.erb' %>
 		</tutorial>
 	</attack>
+
 
 </hackerbot>

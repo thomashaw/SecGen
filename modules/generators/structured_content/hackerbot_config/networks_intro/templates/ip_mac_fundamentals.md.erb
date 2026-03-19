@@ -4,7 +4,7 @@ Every device on a network has at least two addresses that identify it: an **IP a
 
 ### IP addresses
 
-An IP address identifies a host on a network. IP addresses can be assigned statically (manually configured) or dynamically (via DHCP). Crucially for network security, **IP addresses can be changed** — a host is not permanently bound to a particular IP.
+An IP address identifies a host on a network. IP addresses can be assigned statically (manually configured) or dynamically (via DHCP). Crucially for network security, **IP addresses can be changed** - a host is not permanently bound to a particular IP.
 
 ==Let's prove this. On your desktop, first note your current IP address and confirm you can ping the gateway:==
 
@@ -52,7 +52,7 @@ A MAC (Media Access Control) address is a hardware-level address assigned to eac
 ip link show eth0
 ```
 
-The MAC address is shown after `link/ether` and is in the format `xx:xx:xx:xx:xx:xx`. The first three octets typically identify the manufacturer (the OUI — Organisationally Unique Identifier), and the last three are unique to the device.
+The MAC address is shown after `link/ether` and is in the format `xx:xx:xx:xx:xx:xx`. The first three octets typically identify the manufacturer (the OUI - Organisationally Unique Identifier), and the last three are unique to the device.
 
 Like IP addresses, MAC addresses can also be changed in software. This is known as **MAC spoofing**.
 
