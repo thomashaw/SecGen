@@ -8,12 +8,12 @@ A properly configured DMZ enforces the following traffic policy:
 
 | Direction | Policy | Rationale |
 |---|---|---|
-| External → DMZ | Allow specific services (e.g. HTTP/HTTPS) | Public needs to reach these services |
-| External → Internal | **Block** | Internal network must not be directly exposed |
-| Internal → DMZ | Allow | Staff need to manage DMZ services |
-| Internal → External | Allow (via NAT) | Users need internet access |
-| DMZ → Internal | **Block** | Critical - prevents pivot after compromise |
-| DMZ → External | Limited | Only what the service requires |
+| External -> DMZ | Allow specific services (e.g. HTTP/HTTPS) | Public needs to reach these services |
+| External -> Internal | **Block** | Internal network must not be directly exposed |
+| Internal -> DMZ | Allow | Staff need to manage DMZ services |
+| Internal -> External | Allow (via NAT) | Users need internet access |
+| DMZ -> Internal | **Block** | Critical - prevents pivot after compromise |
+| DMZ -> External | Limited | Only what the service requires |
 
 The most important rule here is that the **DMZ must not be able to initiate connections to the internal network**.
 
