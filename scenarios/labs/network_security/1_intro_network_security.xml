@@ -103,6 +103,19 @@
         <utility module_path=".*/nmap"/>
         <utility module_path=".*/wireshark"/>
 
+
+        <utility module_path=".*/iceweasel">
+            <input into="accounts">
+                <datastore>accounts</datastore>
+            </input>
+            <input into="autostart">
+                <value>true</value>
+            </input>
+            <input into="start_page">
+                <datastore access="6">IP_addresses</datastore>
+            </input>
+        </utility>
+
         <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
             <input into="IP_address">
