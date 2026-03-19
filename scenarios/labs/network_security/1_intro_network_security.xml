@@ -71,6 +71,12 @@
             <value>10.0.3.1</value>
             <!-- [5] server -->
             <value>10.0.3.10</value>
+            <!-- [6] hb_server — Internal LAN side -->
+            <value>10.0.1.11</value>
+            <!-- [7] hb_server — Internal LAN side -->
+            <value>10.0.2.11</value>
+            <!-- [8] hb_server — Internal LAN side -->
+            <value>10.0.3.11</value>
         </input>
 
         <input into_datastore="spoiler_admin_pass">
@@ -303,7 +309,7 @@
             <input into="hackerbot_configs" into_datastore="hackerbot_instructions">
                 <generator module_path=".*/networks_intro">
                     <input into="accounts">
-                        <datastore>accounts</datastore>
+                        <datastore>account</datastore>
                     </input>
                     <input into="root_password">
                         <datastore>spoiler_admin_pass</datastore>
@@ -312,9 +318,33 @@
             </input>
         </utility>
 
-        <network type="private_network" >
+        <!-- Internal LAN interface (VLAN 1) -->
+        <network type="private_network">
             <input into="IP_address">
-                <datastore access="1">IP_addresses</datastore>
+                <datastore access="6">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>1</value>
+            </input>
+        </network>
+
+        <!-- DMZ interface (VLAN 2) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="7">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>2</value>
+            </input>
+        </network>
+
+        <!-- Server zone interface (VLAN 3) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="8">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>3</value>
             </input>
         </network>
 
