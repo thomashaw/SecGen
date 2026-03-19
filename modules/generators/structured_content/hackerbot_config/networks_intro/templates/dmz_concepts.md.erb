@@ -1,6 +1,6 @@
 ## DMZ concepts
 
-A DMZ (Demilitarised Zone) is a network segment that sits between the internal network and the outside world. It hosts public-facing services — web servers, mail servers, public DNS — while keeping them isolated from the internal network. If a DMZ host is compromised, the attacker should not be able to pivot into the internal network.
+A DMZ (Demilitarised Zone) is a network segment that sits between the internal network and the outside world. It hosts public-facing services - web servers, mail servers, public DNS - while keeping them isolated from the internal network. If a DMZ host is compromised, the attacker should not be able to pivot into the internal network.
 
 ### Key DMZ traffic flow principles
 
@@ -12,7 +12,7 @@ A properly configured DMZ enforces the following traffic policy:
 | External → Internal | **Block** | Internal network must not be directly exposed |
 | Internal → DMZ | Allow | Staff need to manage DMZ services |
 | Internal → External | Allow (via NAT) | Users need internet access |
-| DMZ → Internal | **Block** | Critical — prevents pivot after compromise |
+| DMZ → Internal | **Block** | Critical - prevents pivot after compromise |
 | DMZ → External | Limited | Only what the service requires |
 
 The most important rule here is that the **DMZ must not be able to initiate connections to the internal network**.
