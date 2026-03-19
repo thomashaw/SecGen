@@ -35,7 +35,7 @@ sudo tcpdump -i any -n port 80
 
 ```bash
 # On: desktop (second terminal)
-curl http://<web_server-ip>
+curl http://\<web_server-ip\>
 ```
 
 Look at the tcpdump output on the web_server. What source IP address do you see in the incoming packets? Is it the desktop's real IP (on the 10.0.1.0/24 subnet), or the gateway's DMZ-facing IP (on the 10.0.2.0/24 subnet)?
@@ -51,5 +51,5 @@ Examine the PREROUTING chain in the NAT table again. If there is a DNAT (port fo
 
 ```bash
 # On: desktop
-nc -v <gateway-ip> <forwarded-port>
+nc -v \<gateway-ip\> \<forwarded-port\>
 ```
