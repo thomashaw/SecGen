@@ -86,14 +86,20 @@
             <value>tiaspbiqe2r</value>
         </input>
 
+        <input into_datastore="user_password">
+            <value>tiaspbiqe2r</value>
+        </input>
+
+
+
         <utility module_path=".*/parameterised_accounts">
             <input into="accounts" into_datastore="account">
                 <generator type="account">
-                    <input into="username">
+                    <input into="username" into_datastore="username">
                         <generator type="username_generator"/>
                     </input>
                     <input into="password">
-                        <value>tiaspbiqe2r</value>
+                        <datastore>user_password</datastore>
                     </input>
                     <input into="super_user">
                         <value>true</value>
@@ -210,8 +216,24 @@
         <base platform="linux" distro="Debian 12" type="desktop"/>
 
         <utility module_path=".*/parameterised_accounts">
-            <input into="accounts">
-                <datastore>account</datastore>
+            <input into="accounts" into_datastore="account">
+                <generator type="account">
+                    <input into="username">
+                        <datastore>username</datastore>
+                    </input>
+                    <input into="password">
+                        <datastore>user_password</datastore>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                    <input into="leaked_filenames">
+                        <value>flag.txt</value>
+                    </input>
+                    <input into="strings_to_leak">
+                        <generator type="flag_generator"/>
+                    </input>
+                </generator>
             </input>
         </utility>
 
@@ -255,8 +277,24 @@
         <base platform="linux" distro="Debian 12" type="desktop"/>
 
         <utility module_path=".*/parameterised_accounts">
-            <input into="accounts">
-                <datastore>account</datastore>
+            <input into="accounts" into_datastore="account">
+                <generator type="account">
+                    <input into="username">
+                        <datastore>username</datastore>
+                    </input>
+                    <input into="password">
+                        <datastore>user_password</datastore>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                    <input into="leaked_filenames">
+                        <value>flag.txt</value>
+                    </input>
+                    <input into="strings_to_leak">
+                        <generator type="flag_generator"/>
+                    </input>
+                </generator>
             </input>
         </utility>
 
