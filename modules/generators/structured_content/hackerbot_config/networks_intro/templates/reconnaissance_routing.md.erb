@@ -44,10 +44,10 @@ To reach other network segments, a host needs a **default gateway** - a router t
 The command to add a default route on Linux is:
 
 ```bash
-sudo ip route add default via \<gateway-ip\>
+sudo ip route add default via <%= $gateway_lan_ip %>
 ```
 
-Where \<gateway-ip\> is the gateway's IP address on the **same subnet** as the host you are configuring. For the desktop on the Internal LAN, this is the gateway's 10.0.1.x address. For the web_server on the DMZ, this is the gateway's 10.0.2.x address. For the server on the Server zone, this is the gateway's 10.0.3.x address.
+Where <%= $gateway_lan_ip %> is the gateway's IP address on the **same subnet** as the host you are configuring. For the desktop on the Internal LAN, this is the gateway's 10.0.1.x address. For the web_server on the DMZ, this is the gateway's 10.0.2.x address. For the server on the Server zone, this is the gateway's 10.0.3.x address.
 
 ### Understanding IP forwarding
 
@@ -78,8 +78,8 @@ However, the **gateway** has interfaces on all three segments. This means that o
 ssh gateway
 
 # On: gateway - SSH to the web_server or server from here
-ssh \<web_server-ip\>
-ssh \<server-ip\>
+ssh <%= $webserver_ip %>
+ssh <%= $server_ip %>\>
 ```
 
 You will need this technique to complete the first challenge.

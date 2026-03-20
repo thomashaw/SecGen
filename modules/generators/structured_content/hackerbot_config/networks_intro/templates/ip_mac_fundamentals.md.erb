@@ -11,7 +11,7 @@ An IP address identifies a host on a network. IP addresses can be assigned stati
 ```bash
 # On: desktop
 ip addr show eth0
-ping -c 2 \<gateway-internal-ip\>
+ping -c 2 <%= $gateway_lan_ip %>
 ```
 
 ==Now temporarily add a second IP address to your interface:==
