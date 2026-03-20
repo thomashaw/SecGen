@@ -90,8 +90,6 @@
             <value>tiaspbiqe2r</value>
         </input>
 
-
-
         <utility module_path=".*/parameterised_accounts">
             <input into="accounts" into_datastore="account">
                 <generator type="account">
@@ -112,7 +110,6 @@
         <utility module_path=".*/nmap"/>
         <utility module_path=".*/wireshark"/>
 
-
         <utility module_path=".*/iceweasel">
             <input into="accounts">
                 <datastore>account</datastore>
@@ -124,6 +121,21 @@
                 <datastore access="6">IP_addresses</datastore>
             </input>
         </utility>
+
+        <utility module_path=".*/pidgin">
+            <input into="server_ip">
+                <datastore access="6">IP_addresses</datastore>
+            </input>
+            <input into="accounts">
+                <datastore>account</datastore>
+            </input>
+        </utility>
+
+        <vulnerability module_path=".*/ssh_root_login">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </vulnerability>
 
         <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
@@ -163,6 +175,12 @@
                 <datastore>account</datastore>
             </input>
         </utility>
+
+        <vulnerability module_path=".*/ssh_root_login">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </vulnerability>
 
         <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
@@ -300,7 +318,7 @@
 
         <utility module_path=".*/wireshark"/>
 
-        <!-- TODO: Add flag-returning services for Challenges 3 and 5 -->
+        <!-- TODO: Add flag-returning services? -->
 
         <!-- Server zone interface (VLAN 3) -->
         <network type="private_network">
@@ -317,7 +335,6 @@
                 <datastore>spoiler_admin_pass</datastore>
             </input>
         </build>
-
     </system>
 
     <system>

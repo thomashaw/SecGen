@@ -30,7 +30,16 @@
 
 	 # Randomised values for challenges
 	 $new_desktop_ip = "10.0.1.#{rand(50..99)}"
-	 $new_mac = "00:DE:AD:%02x:%02x:%02x" % [rand(256), rand(256), rand(256)]
+
+	 # regenerate bytes that include "D" because they render as smiley faces :D-|<
+	 def printable_byte
+		 loop do
+			 b = rand(256)
+			 return b unless ("%02X" % b).include?("D")
+		 end
+	 end
+
+	 $new_mac = "00:AB:CD:%02X:%02X:%02X" % [printable_byte, printable_byte, printable_byte]
 
 	 def get_binding
 		 binding
