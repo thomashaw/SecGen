@@ -39,15 +39,39 @@ This should fail with "Network is unreachable" as your desktop has no route to 1
 
 To reach other network segments, a host needs a **default gateway**, which is a router that it sends all non-local traffic to. The **gateway** VM will operate as the router between all three segments in this scenario. For cross-segment communication to work, every host that needs to communicate across segments must have a default route configured, pointing at the gateway's IP on its local segment.
 
-
-Add a default route from your desktop VM to the gateway:
+To configure the default gateway persistently (so it survives a reboot), you need to edit the network configuration file. ==On the desktop, edit `/etc/network/interfaces`:==
 
 ```bash
 # On: desktop
-sudo ip route add default via <%= $gateway_lan_ip %>
+sudo nano /etc/network/interfaces
 ```
 
-When configuring the desktop on the Internal LAN, this is the gateway's 10.0.1.x address. For the web_server on the DMZ, this is the gateway's 10.0.2.x address. For the server on the Server zone, this is the gateway's 10.0.3.x address.
+Find the block for your network interface (e.g. `ens19`) and add a `gateway` line pointing at the gateway's IP on your local segment. For the desktop, it should look like:
+
+```
+auto ens19
+iface ens19 inet static
+    address 10.0.1.10/24
+    gateway <%= $gateway_lan_ip %>
+```
+
+Save the file, then restart the interface to apply the changes:
+
+```bash
+# On: desktop
+sudo ifdown ens19 && sudo ifup ens19
+```
+
+Verify the route has been added:
+
+```bash
+# On: desktop
+ip route
+```
+
+You should now see a `default via <%= $gateway_lan_ip %>` line in the output.
+
+When configuring the other VMs, use the gateway's IP on **their** local segment: for the web_server on the DMZ, this is the gateway's 10.0.2.x address. For the server on the Server zone, this is the gateway's 10.0.3.x address.
 
 
 ### Understanding IP forwarding
@@ -60,13 +84,34 @@ IP forwarding is controlled by a kernel parameter. You can check whether it is e
 cat /proc/sys/net/ipv4/ip_forward
 ```
 
-A value of `0` means forwarding is disabled. A value of `1` means it is enabled. To enable it:
+A value of `0` means forwarding is disabled. A value of `1` means it is enabled. To enable it persistently, ==edit `/etc/sysctl.conf` on the gateway:==
 
 ```bash
-sudo sysctl -w net.ipv4.ip_forward=1
+# On: gateway
+sudo nano /etc/sysctl.conf
 ```
 
-Without IP forwarding enabled on the gateway, no traffic will pass between any of the three segments, even if all the routes are correctly configured.
+Find the line `#net.ipv4.ip_forward=1` (it may be commented out with a `#`), uncomment it or add it if it's missing:
+
+```
+net.ipv4.ip_forward=1
+```
+
+Then apply the change:
+
+```bash
+# On: gateway
+sudo sysctl -p
+```
+
+Verify it is enabled:
+
+```bash
+# On: gateway
+cat /proc/sys/net/ipv4/ip_forward
+```
+
+This should now show `1`. Without IP forwarding enabled on the gateway, no traffic will pass between any of the three segments, even if all the routes are correctly configured.
 
 ### Reaching hosts on other segments via SSH
 
