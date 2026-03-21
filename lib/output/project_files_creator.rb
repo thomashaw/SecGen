@@ -154,13 +154,22 @@ class ProjectFilesCreator
     json = JSON.generate($datastore)
     write_data_to_file(json, jfile)
 
-    if $datastore.has_key? "IP_addresses"
-      system_names = @systems.map { |system| system.name }
-      system_ips = Hash[system_names.zip($datastore["IP_addresses"])]
+    if @options[:network_map]
+      system_ips = {}
+      @systems.each do |system|
+        ips = []
+        system.module_selections.each do |mod|
+          next unless mod.module_type == 'network'
+          @options[:network_map].each_value do |network|
+            ip = network[:ips][mod.unique_id]
+            ips << ip if ip
+          end
+        end
+        system_ips[system.name] = ips.size == 1 ? ips.first : ips unless ips.empty?
+      end
       jfile = "#{@out_dir}/#{IP_ADDRESSES_FILENAME}"
       Print.std "Saving IP addresses: #{jfile}"
-      json = JSON.generate(system_ips)
-      write_data_to_file(json, jfile)
+      write_data_to_file(JSON.generate(system_ips), jfile)
     end
 
     if $datastore.has_key? "spoiler_admin_pass"
