@@ -165,7 +165,7 @@ class ProjectFilesCreator
             ips << ip if ip
           end
         end
-        system_ips[system.name] = ips.size == 1 ? ips.first : ips unless ips.empty?
+        system_ips[system.name] = ips unless ips.empty?
       end
       jfile = "#{@out_dir}/#{IP_ADDRESSES_FILENAME}"
       Print.std "Saving IP addresses: #{jfile}"
