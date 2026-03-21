@@ -1,7 +1,5 @@
 ## Network reconnaissance
 
-Before you can secure a network, you need to understand what is on it.
-
 ### Identifying your own network configuration
 
 On your **desktop**, ==open a terminal and run:==
@@ -26,7 +24,7 @@ You will likely see something like this:
 10.0.1.0/24 dev ens19 proto kernel scope link src 10.0.1.10
 ```
 
-This tells you that your desktop knows how to reach hosts on the 10.0.1.0/24 subnet (the Internal LAN), but notice that there is **no default route**. This means your desktop currently has no idea how to reach any other network segment - including the DMZ (10.0.2.0/24). Any traffic destined for a host outside your local subnet will simply fail.
+This tells you that your desktop knows how to reach hosts on the 10.0.1.0/24 subnet (the Internal LAN), but notice that there is **no default route** set. This means your desktop currently has no idea how to reach any other network segment, including the web server in the DMZ (10.0.2.0/24). Any traffic sent to a host outside your local subnet will currently fail.
 
 ==Try to ping the web_server in the DMZ to confirm this:==
 
@@ -35,23 +33,26 @@ This tells you that your desktop knows how to reach hosts on the 10.0.1.0/24 sub
 ping -c 2 10.0.2.10
 ```
 
-This should fail with "Network is unreachable" - your desktop has no route to 10.0.2.0/24.
+This should fail with "Network is unreachable" as your desktop has no route to 10.0.2.0/24.
 
 ### Understanding routing and default gateways
 
-To reach other network segments, a host needs a **default gateway** - a router that it sends all non-local traffic to. In your environment, the **gateway** VM is the router between all three segments. For cross-segment communication to work, **every host** that needs to communicate across segments must have a default route configured, pointing at the gateway's IP on its local segment.
+To reach other network segments, a host needs a **default gateway**, which is a router that it sends all non-local traffic to. The **gateway** VM will operate as the router between all three segments in this scenario. For cross-segment communication to work, every host that needs to communicate across segments must have a default route configured, pointing at the gateway's IP on its local segment.
 
-The command to add a default route on Linux is:
+
+Add a default route from your desktop VM to the gateway:
 
 ```bash
+# On: desktop
 sudo ip route add default via <%= $gateway_lan_ip %>
 ```
 
-Where <%= $gateway_lan_ip %> is the gateway's IP address on the **same subnet** as the host you are configuring. For the desktop on the Internal LAN, this is the gateway's 10.0.1.x address. For the web_server on the DMZ, this is the gateway's 10.0.2.x address. For the server on the Server zone, this is the gateway's 10.0.3.x address.
+When configuring the desktop on the Internal LAN, this is the gateway's 10.0.1.x address. For the web_server on the DMZ, this is the gateway's 10.0.2.x address. For the server on the Server zone, this is the gateway's 10.0.3.x address.
+
 
 ### Understanding IP forwarding
 
-There is another piece of the puzzle. Even if every host has the correct routes set, the gateway itself needs to be configured to actually **forward** packets between its interfaces. By default, a Linux machine will not forward packets that arrive on one interface and are destined for another - it simply drops them.
+Even if every host has the correct routes set, the gateway itself needs to be configured to actually **forward** packets between its interfaces. By default, a Linux machine will not forward packets that arrive on one interface but that are for a host only accessible with another, it drops them instead.
 
 IP forwarding is controlled by a kernel parameter. You can check whether it is enabled with:
 
@@ -71,7 +72,7 @@ Without IP forwarding enabled on the gateway, no traffic will pass between any o
 
 Currently, your desktop can only reach hosts on the Internal LAN (10.0.1.0/24). The only other host on this segment is the **gateway**. The **server** (10.0.3.0/24) and **web_server** (10.0.2.0/24) are both on different subnets, so you cannot reach them directly.
 
-However, the **gateway** has interfaces on all three segments. This means that once you SSH into the gateway, you can SSH from there to the server or the web_server - even before IP forwarding or routes are configured. This technique of hopping through an intermediate host is common in network administration.
+However, the **gateway** has interfaces on all three segments. This means that once you SSH into the gateway, you can SSH from there to the server or the web_server even before IP forwarding or routes are configured. This technique of hopping through segments by chaining SSH connections together is common in network administration.
 
 ```bash
 # On: desktop - SSH to the gateway
@@ -82,10 +83,10 @@ ssh <%= $webserver_ip %>
 ssh <%= $server_ip %>
 ```
 
-You will need this technique to complete the first challenge.
+Explore the network to find a flag in your user's home directory on both the server and web_server VMs.
 
 ### Discovering hosts on the network
-§
+
 ==Run a ping sweep of the Internal LAN to discover what hosts are on your segment:==
 
 ```bash
@@ -93,4 +94,4 @@ You will need this technique to complete the first challenge.
 nmap -sn 10.0.1.0/24
 ```
 
-You should find the **gateway** on this segment (the desktop itself will also appear). Note the gateway's Internal LAN IP address - you will need it. The server and web_server are on separate segments and will not appear here until routing is configured.
+You should find the **gateway** on this segment (the desktop itself will also appear). Note the gateway's Internal LAN IP address for future use. The server and web_server are on separate segments and will not appear here until routes are added.
