@@ -118,6 +118,12 @@
     <!-- Example 5: DHCP — public_network defaults to dhcp, no inputs needed -->
     <network type="public_network"/>
 
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
   </system>
 
   <system>
@@ -151,6 +157,12 @@
         <value>6</value>
       </input>
     </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
 
   </system>
 
