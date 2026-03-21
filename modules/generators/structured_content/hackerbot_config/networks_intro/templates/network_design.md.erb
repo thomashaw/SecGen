@@ -1,27 +1,25 @@
 ## Network design principles
 
-Before diving into the practical exercises, it is important to understand *why* networks are designed the way they are. A well-designed network is not just about connectivity - it is about controlling and limiting the flow of traffic so that a security incident in one part of the network does not automatically compromise everything else.
+The following quote from Bruce Schneier speaks to two core principles of secure network design:
+
+"Defence in depth ensures that no single vulnerability can compromise security. Compartmentalisation ensures that a single vulnerability cannot compromise security entirely."
 
 ### Defence in depth
 
-A core principle in network security is **defence in depth** - the idea that you should not rely on a single security control to protect your systems. Instead, you layer multiple controls so that if one fails, others are still in place. In network terms, this means combining techniques such as network segmentation, firewalling, intrusion detection, host hardening, and access control rather than relying on any one of them alone.
+Defence in depth is the idea that onew single security mechanism is not enough to protect a system, as it is a single point of failure, and that using a combination of multiple controls is a better approach towards mitigate the potential damage caused if a compromise were to occur. In this lab we will look at two such controls, where you will configure a segmented network with a firewall.
 
 ### Network segmentation
 
-In a flat network - where every host is on the same subnet and can communicate directly with every other host - a single compromised machine can potentially reach everything. **Network segmentation** divides the network into separate zones, each with its own subnet, connected via routers or firewalls that enforce rules about what traffic can pass between them.
+Flat networks are those where all hosts are on the same subnet, which enables them to communicate with eachother directly. Network segmentation involves creating separate-yet-interconnected zones which have different rules and permissions depending on their purpose. In these more complex network designs, routing systems and firewalls can be used to determine where traffic should be permitted or restricted to travel.
 
 Common zones in a typical organisation include:
 
-* **Internal LAN** - workstations, printers, file servers. This is where most employees work day-to-day.
-* **Server/data zone** - databases, application servers, domain controllers. These hold sensitive data and should only be accessible to authorised hosts.
-* **DMZ (Demilitarised Zone)** - public-facing services such as web servers, mail servers, and external DNS. These are exposed to the internet and are therefore at higher risk of compromise.
+* **Internal LAN / Intranet**: workstations, printers, file servers. This is where most employees work day-to-day.
+* **Server/data zone**: databases, application servers, domain controllers. These hold sensitive data and should only be accessible to authorised hosts.
+* **Demilitarised Zone (DMZ)**: public-facing services such as web servers, mail servers, and external DNS. These are exposed to the internet and are therefore at higher risk of compromise.
 * **Management network** - network infrastructure devices (switches, routers, firewalls). Access should be tightly restricted.
-* **Guest/BYOD network** - untrusted devices that need internet access but should not be able to reach internal systems.
+* **Guest network** - untrusted devices that need internet access but should not be able to reach internal systems, for example a university guest WiFi.
 
-### Topology and trust
-
-When designing a network, you are essentially making decisions about **trust**. Hosts within the same zone generally trust each other more than hosts in different zones. The firewall rules at each boundary encode these trust relationships.
-
-A key question to ask about any network design is: *if an attacker compromises a host in this zone, what else can they reach?* Good segmentation limits the answer to that question. Poor segmentation - or a flat network with no segmentation at all - means the answer is "everything."
+When designing a network, you are essentially making decisions about **trust**. Hosts in the same zone generally trust each other more than hosts in other zones. It is important to consider what an attacker could reach from a compromised system and to plan towards minimising their ability to directly attack other potentially more important or valuable target systems.
 
 In this lab, your environment implements a three-zone design: an internal LAN (desktop), a server zone (server), and a DMZ (web_server), with a gateway controlling traffic between all three.
