@@ -105,7 +105,7 @@ A value of `0` means forwarding is disabled. A value of `1` means it is enabled.
 
 ```bash
 # On: gateway
-sudo nano /etc/sysctl.conf
+sudo vi /etc/sysctl.conf
 ```
 
 Find the line `#net.ipv4.ip_forward=1` (it may be commented out with a `#`), uncomment it or add it if it's missing:
@@ -140,11 +140,13 @@ This technique of hopping through segments by chaining SSH connections together 
 
 ```bash
 # On: desktop - SSH to the gateway
-ssh gateway
+ssh <%= $gateway_lan_ip %>
+```
 
+Explore the network to find a flag in your user's home directory on both the server and web_server VMs.
+
+```bash
 # On: gateway - SSH to the web_server or server from here
 ssh <%= $webserver_ip %>
 ssh <%= $server_ip %>
 ```
-
-Explore the network to find a flag in your user's home directory on both the server and web_server VMs.

@@ -25,7 +25,7 @@ Because the internal LAN and DMZ are on separate subnets, traffic between them p
 
 ```bash
 # On: desktop
-ssh web_server
+ssh <%= $web_server %>
 
 # On: web_server (via SSH)
 sudo tcpdump -i any -n port 80

@@ -18,7 +18,7 @@ You should see that the FORWARD chain has a policy of ACCEPT, meaning all traffi
 sudo iptables -P FORWARD DROP
 ```
 
-This is the principle of **default deny** — all forwarded traffic is now blocked unless explicitly allowed by a rule. You can verify this by looking at the policy shown in parentheses at the top of the chain output:
+This is the principle of **default deny*, where all forwarded traffic is now blocked unless explicitly allowed by a rule. You can verify this by looking at the policy shown in parentheses at the top of the chain output:
 ```bash
 # On: gateway
 sudo iptables -L FORWARD -v -n
@@ -32,7 +32,7 @@ You should see `Chain FORWARD (policy DROP)`.
 ping <%= $webserver_ip %>
 ```
 
-This should now fail — the gateway is dropping all forwarded traffic.
+This should now fail as the gateway is dropping all forwarded traffic.
 
 ==Add a rule to allow traffic from the desktop's subnet to the webserver's subnet:==
 ```bash

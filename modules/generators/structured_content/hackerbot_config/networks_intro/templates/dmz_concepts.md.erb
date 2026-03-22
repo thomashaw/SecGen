@@ -6,14 +6,14 @@ A DMZ (Demilitarised Zone) is a network segment that sits between the internal n
 
 A properly configured DMZ enforces the following traffic policy:
 
-| Direction | Policy | Rationale                                     |
-|---|---|-----------------------------------------------|
-| External -> DMZ | Allow specific services (e.g. HTTP/HTTPS) | Public needs to reach these services          |
-| External -> Internal | **Block** | Internal network must not be directly exposed |
-| Internal -> DMZ | Allow | Staff need to manage DMZ services             |
-| Internal -> External | Allow (via NAT) | Users need internet access                    |
-| DMZ -> Internal | **Block** | Critical to prevent pivoting after compromise |
-| DMZ -> External | Limited | Only what the service requires                |
+| Direction            | Policy | Rationale                                     |
+|----------------------|---|-----------------------------------------------|
+| External to DMZ       | Allow specific services (e.g. HTTP/HTTPS) | Public needs to reach these services          |
+| External to Internal | **Block** | Internal network must not be directly exposed |
+| Internal to DMZ      | Allow | Staff need to manage DMZ services             |
+| Internal to External | Allow (via NAT) | Users need internet access                    |
+| DMZ to Internal      | **Block** | Critical to prevent pivoting after compromise |
+| DMZ to External      | Limited | Only what the service requires                |
 
 
 The most important rule here is that the **DMZ must not be able to initiate connections to the internal network**.
