@@ -1,55 +1,106 @@
 ## Network Address Translation (NAT)
 
-NAT allows hosts on a private internal network to communicate with external networks using a shared public IP address. It is used in virtually every network you will encounter.
+NAT is one of the most widely deployed techniques in networking. Understanding it is essential for
+anyone working with firewalls, network design, or traffic analysis.
 
-### Examining NAT rules
+### Why NAT exists
 
-==On the gateway VM, examine the NAT table:==
+IPv4 addresses are a finite resource. When the internet was designed, no one anticipated that
+billions of devices would eventually need unique addresses. NAT was introduced as a practical
+solution: it allows many devices on a private network to share a single public-facing IP address.
 
+Without NAT, every device that wanted to communicate with the outside world would need its own
+globally routable IP address. With NAT, the gateway acts as a translator — it rewrites the source
+IP address on outgoing packets (replacing the private internal IP with its own public-facing IP),
+and keeps track of those translations so it can rewrite the destination address on incoming reply
+packets and deliver them back to the correct internal host.
+
+NAT also provides a degree of implicit security: hosts on the internal network are not directly
+reachable from the outside because they have no routable address. However, this should not be
+confused with a proper firewall — NAT alone is not a substitute for firewall rules.
+
+In this lab, NAT is used on the **gateway** to allow hosts on the internal LAN (10.0.1.0/24) to
+communicate across segments. You are going to configure it from scratch.
+
+### Setting up outbound NAT (MASQUERADE)
+
+The most common form of NAT in small networks is **MASQUERADE** — a dynamic form of source NAT
+where the gateway rewrites the source IP of outgoing packets to match whichever interface they
+leave on. This is ideal for lab environments because it works without needing to know a fixed
+public IP in advance.
+
+==SSH into the gateway and add a MASQUERADE rule to the POSTROUTING chain of the NAT table:==
 ```bash
-# On: gateway (via SSH from desktop)
+# On: desktop
 ssh gateway
-sudo iptables -t nat -L -v -n
+
+# On: gateway
+sudo iptables -t nat -A POSTROUTING -s 10.0.1.0/24 -o ens19 -j MASQUERADE
 ```
 
-You will see rules in the PREROUTING, POSTROUTING, and OUTPUT chains. Look for:
+This rule says: for any packet originating from the 10.0.1.0/24 subnet leaving via `ens19`,
+rewrite the source IP to match the gateway's address on that interface.
 
-* **MASQUERADE** or **SNAT** rules in POSTROUTING - these handle outbound NAT, replacing the source IP of internal hosts with the gateway's IP when traffic leaves the network
-* **DNAT** rules in PREROUTING - these handle inbound port forwarding, redirecting incoming traffic on specific ports to internal hosts
+==Verify the rule has been added:==
+```bash
+# On: gateway
+sudo iptables -t nat -L POSTROUTING -v -n
+```
+
+You should see your new MASQUERADE rule listed with the source network and output interface.
 
 ### Observing NAT in action
 
-Because the internal LAN and DMZ are on separate subnets, traffic between them passes through the gateway - which may apply NAT. Let's observe this.
+With the rule in place, let's verify it is working and observe what it actually does to traffic.
 
-==SSH into the web_server and start a packet capture listening for HTTP traffic:==
-
+==First, check the desktop can reach the webserver. Back on the desktop, unset any proxy
+environment variables that might interfere with `curl`, then make an HTTP request:==
 ```bash
 # On: desktop
-ssh <%= $web_server %>
-
-# On: web_server (via SSH)
-sudo tcpdump -i any -n port 80
-```
-
-==Open a second terminal on the desktop and make an HTTP request to the web_server:==
-
-```bash
-# On: desktop (second terminal)
+unset http_proxy HTTP_PROXY
 curl http://<%= $webserver_ip %>
 ```
 
-Look at the tcpdump output on the web_server. What source IP address do you see in the incoming packets? Is it the desktop's real IP (on the 10.0.1.0/24 subnet), or the gateway's DMZ-facing IP (on the 10.0.2.0/24 subnet)?
+If you get a response from the webserver, NAT is working — the gateway is translating your
+desktop's source IP as packets cross into the DMZ.
 
-### Understanding port forwarding
+==To see exactly what NAT is doing, SSH into the web_server and start a packet capture:==
+```bash
+# On: desktop (second terminal)
+ssh <%= $webserver_ip %>
 
-Examine the PREROUTING chain in the NAT table again. If there is a DNAT (port forwarding) rule, identify:
+# On: web_server
+sudo tcpdump -i any -n port 80
+```
 
-* What port on the gateway does it listen on?
-* Which internal host and port does it forward traffic to?
-
-==Try connecting to the forwarded port on the gateway's IP address from your desktop and confirm it reaches the expected backend service.==
-
+==Then, back on the desktop, make another HTTP request:==
 ```bash
 # On: desktop
-nc -v **gateway-ip-from-dnat-rule** **forwarded-port-from-dnat-rule**
+curl http://<%= $webserver_ip %>
 ```
+
+Look at the source IP address in the tcpdump output on the web_server. You should see that the
+incoming packets appear to originate from the **gateway's DMZ-facing IP** (<%= $gateway_dmz_ip %>),
+not from your desktop's real address on the 10.0.1.0/24 subnet. The gateway has rewritten the
+source before forwarding the packet into the DMZ.
+
+> **Think about it:** From the web_server's perspective, all requests from internal LAN hosts look
+> like they come from the gateway. What are the implications of this for logging and attribution?
+> If the web_server were compromised and an attacker examined its access logs, what would they
+> — and what would they *not* — be able to learn about the internal network?
+
+### Making NAT persistent
+
+The rule you added above is not persistent — it will be lost when the gateway reboots. To make it
+survive reboots, save the current iptables rules:
+```bash
+# On: gateway
+sudo iptables-save > /etc/iptables/rules.v4
+```
+
+This writes all current iptables rules (including your NAT and FORWARD rules from the previous
+section) to a file that will be loaded automatically on boot by the `iptables-persistent` package.
+
+> **Note:** Always save your rules after making changes you want to keep. If you need to start
+> fresh, you can flush all rules with `sudo iptables -F` and `sudo iptables -t nat -F`, but be
+> careful — this will remove your firewall rules too.
