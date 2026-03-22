@@ -1,25 +1,37 @@
 ## IP and MAC address fundamentals
-Every device on a network has at least two addresses that identify it: an **IP address** which is for Layer 3, aka the network layer, which is responsible for routing traffic between networks, and a **MAC address** for Layer 2, the data link layer, responsible for communication within a single network segment.
+
+Every device on a network has at least two addresses that identify it: an **IP address** (Layer 3) and a **MAC address** (Layer 2). Understanding these is essential for everything that follows in this module.
+
 ### IP addresses
-An IP address identifies a host on a network. IP addresses can be assigned statically (manually configured) or dynamically (via DHCP). IP addresses can be added to interfaces and changed and therefore a host is not permanently bound to a particular IP.
-==Let's demonstrate this. On your desktop, first note your current IP address and confirm you can ping the gateway:==
+
+An IP address identifies a host on a network. IP addresses can be assigned statically (manually configured) or dynamically (via DHCP). Crucially for network security, **IP addresses can be changed** - a host is not permanently bound to a particular IP.
+
+==Let's prove this. On your desktop, first note your current IP address and confirm you can ping the gateway:==
+
 ```bash
 # On: desktop
 ip addr show ens19
 ping <%= $gateway_lan_ip %>
 ```
+
 ==Now temporarily add a second IP address to your interface:==
+
 ```bash
 # On: desktop
 sudo ip addr add 10.0.1.200/24 dev ens19
 ```
+
 ==Verify the new address has been added:==
+
 ```bash
 # On: desktop
 ip addr show ens19
 ```
+
 You should see both your original IP and the new 10.0.1.200 address listed on the same interface.
+
 ==Remove the additional address to return to your original configuration:==
+
 ```bash
 # On: desktop
 sudo ip addr del 10.0.1.200/24 dev ens19
@@ -74,7 +86,7 @@ The MAC address is shown after `link/ether` and is in the format `xx:xx:xx:xx:xx
 
 Like IP addresses, MAC addresses can also be changed at the software layer. This is known as **MAC spoofing**.
 
-==First, **note your current MAC address**:==
+==First, note your current MAC address:==
 
 ```bash
 # On: desktop
