@@ -42,7 +42,7 @@ The above demonstrates adding and removing IPs temporarily using `ip addr`. Howe
 ==To change your IP persistently, edit `/etc/network/interfaces`:==
 ```bash
 # On: desktop
-sudo nano /etc/network/interfaces
+sudo vi /etc/network/interfaces
 ```
 
 Find the block for your interface and change the `address` line to the new IP. For example, to change from 10.0.1.10 to 10.0.1.50:
@@ -75,7 +75,7 @@ This method is safer than using `ip addr` commands directly, because it preserve
 ### MAC addresses
 A Media Access Control (MAC) address is a hardware-level address assigned to each network interface. It is used for communication within a single network segment at Layer 2.
 
-==View your desktop's MAC address:==
+==View and make note of your desktop's MAC address:==
 
 ```bash
 # On: desktop
@@ -84,37 +84,45 @@ ip link show ens19
 
 The MAC address is shown after `link/ether` and is in the format `xx:xx:xx:xx:xx:xx`. The first three octets typically identify the manufacturer (the OUI, or Organisationally Unique Identifier), and the last three are unique to the device.
 
-Like IP addresses, MAC addresses can also be changed at the software layer. This is known as **MAC spoofing**.
-
-==First, note your current MAC address:==
-
+==To change your MAC address persistently, edit `/etc/network/interfaces`:==
 ```bash
 # On: desktop
-ip link show ens19
+sudo nano /etc/network/interfaces
 ```
 
-==Now bring the interface down, change the MAC, and bring it back up==
+Add a `hwaddress` line to your interface block. For example, to change your MAC to `00:11:22:33:44:55`:
+```
+auto ens19
+iface ens19 inet static
+    address 10.0.1.10/24
+    gateway <%= $gateway_lan_ip %>
+    hwaddress ether 00:11:22:33:44:55
+```
 
+==Then restart the networking service to apply the change:==
 ```bash
-sudo ip link set ens19 down
-sudo ip link set ens19 address 00:11:22:33:44:55
-sudo ip link set ens19 up
+# On: desktop
+sudo service networking restart
 ```
 
 ==Verify the MAC address has changed:==
-
 ```bash
 # On: desktop
 ip link show ens19
 ```
 
-==Restore your original MAC address (or reset the VM from Hacktivity):==
+You should see `link/ether 00:11:22:33:44:55` in the output.
 
+==Restore your original MAC address by removing the `hwaddress` line from `/etc/network/interfaces` and restarting networking:==
 ```bash
 # On: desktop
-sudo ip link set ens19 down
-sudo ip link set ens19 address **your original mac**
-sudo ip link set ens19 up
+sudo nano /etc/network/interfaces
+```
+
+Remove the `hwaddress ether 00:11:22:33:44:55` line, save the file, then restart:
+```bash
+# On: desktop
+sudo service networking restart
 ```
 
 > **Security implication:** MAC spoofing is trivially easy and has implications for any security control that relies on MAC addresses for identification or access control. We will revisit this in later labs when we cover ARP spoofing attacks.
