@@ -44,40 +44,6 @@ class ProxmoxFunctions
 
     end
   end
-
-
-  def self.assign_networks(project_dir, vm_names, options)
-    unless options[:proxmoxnetwork]
-      Print.std " Proxmox not assigning network."
-      return
-    end
-
-    Print.std " Connecting to Proxmox"
-    # Connect to Proxmox API
-    connection = Proxmox::Connection.new options[:proxmoxurl]
-    connection.login username: options[:proxmoxuser], password: options[:proxmoxpass]
-    # get proxmox ids
-    Print.std " Getting ID: #{vm_names}"
-    vm_names.each do |vm_name|
-      id_path = "#{project_dir}/.vagrant/machines/#{vm_name}/proxmox/id"
-      Print.std id_path
-      begin
-        # Open the file for reading
-        file = File.open(id_path, 'r')
-        node, id = file.read.split('/')
-
-        Print.std " Setting network for #{node}/#{id} (network: #{options[:proxmoxnetwork]}, vlan: #{options[:proxmoxvlan].to_i})"
-        status = connection.network_qemu_vm(id, node, options[:proxmoxnetwork], options[:proxmoxvlan].to_i||1)
-      rescue => e
-        Print.err "Error: Failed to set network: #{e.message}"
-        exit(1)
-      ensure
-        file.close if file
-      end
-
-    end
-  end
-
   def self.teardown_provisioning_nic(project_dir, vm_names, options)
     Print.std " Connecting to Proxmox"
     connection = Proxmox::Connection.new options[:proxmoxurl]
