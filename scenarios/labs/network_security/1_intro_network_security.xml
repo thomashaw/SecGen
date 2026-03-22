@@ -234,7 +234,7 @@
         <base platform="linux" distro="Debian 12" type="desktop"/>
 
         <utility module_path=".*/parameterised_accounts">
-            <input into="accounts" into_datastore="account">
+            <input into="accounts">
                 <generator type="account">
                     <input into="username">
                         <datastore>username</datastore>
@@ -295,7 +295,7 @@
         <base platform="linux" distro="Debian 12" type="desktop"/>
 
         <utility module_path=".*/parameterised_accounts">
-            <input into="accounts" into_datastore="account">
+            <input into="accounts">
                 <generator type="account">
                     <input into="username">
                         <datastore>username</datastore>
