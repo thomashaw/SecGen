@@ -4,9 +4,9 @@ A firewall is a device or piece of software that monitors network traffic and en
 
 ### Types of firewall
 
-* **Packet filtering** is the simplest type. Examines each packet individually based on header fields including source/destination IP, port number, and protocol. No awareness of connection state. Fast, but limited.
-* **Stateful packet inspection** tracks the state of network connections. Knows whether a packet is part of an ongoing interaction or a new request. This is the type of firewalling you will work with in this lab using iptables.
-* **Application layer (proxy) firewalls** operate at the application level and understand the content of traffic. A web application firewall (WAF) can inspect HTTP requests for SQL injection or XSS. Deepest inspection but most resource-intensive.
+* **Packet filtering** is the simplest type, whichexamines each packet individually based on header fields, such as the source/destination IP, port number, and/or protocol. It has no awareness of connection state and is fast, but limited.
+* **Stateful packet inspection** tracks the state of network connections and can determine if a packet is part of an ongoing interaction or a new request. This is the type of firewalling you will work with in this lab using iptables.
+* **Application layer (proxy) firewalls** operate at the application level and actively inspect the content of traffic. For example, a web application firewall (WAF) can inspect HTTP requests for SQL injection or XSS. This is the deepest level of inspection, but is the most resource-intensive.
 
 ### Host-based vs. network-based firewalls
 

@@ -125,4 +125,4 @@ Remove the `hwaddress ether 00:11:22:33:44:55` line, save the file, then restart
 sudo service networking restart
 ```
 
-> **Security implication:** MAC spoofing is trivially easy and has implications for any security control that relies on MAC addresses for identification or access control. We will revisit this in later labs when we cover ARP spoofing attacks.
+> **Security implication:** Although MAC addresses are often described as "hardware addresses" and are burned into the network interface by the manufacturer, as you have just demonstrated, they can be easily overriden at the software layer. Any security control that relies on MAC addresses for identification or access control (such as MAC filtering on a wireless network) can therefore be bypassed by an attacker who simply spoofs a known-good address. We will revisit this in later labs when we cover ARP spoofing attacks.
