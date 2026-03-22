@@ -6,17 +6,8 @@ require_relative './print.rb'
 
 class ProxmoxFunctions
 
-  # @param [Hash] options -- command-line opts
-  # @return [Boolean] is this secgen process using oVirt as the vagrant provider?
   def self.provider_proxmox?(options)
     options[:proxmoxuser] and options[:proxmoxpass] and options[:proxmoxurl]
-  end
-
-  # Helper for removing VMs which Vagrant lost track of, i.e. exist but are reported as 'have not been created'.
-  # @param [String] destroy_output_log -- logfile from vagrant destroy process which contains loose VMs
-  # @param [String] options -- command-line opts, used for building oVirt connection
-  def self.remove_uncreated_vms(destroy_output_log, options, scenario)
-    # TODO?
   end
 
   def self.create_snapshot(project_dir, vm_names, options)
@@ -44,6 +35,7 @@ class ProxmoxFunctions
 
     end
   end
+
   def self.teardown_provisioning_nic(project_dir, vm_names, options)
     Print.std " Connecting to Proxmox"
     connection = Proxmox::Connection.new options[:proxmoxurl]
