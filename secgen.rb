@@ -277,7 +277,7 @@ def proxmox_post_build(options, scenario, project_dir)
     ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
   end
 
-  if options[:proxmox_start_vms]
+  if options[:proxmox_post_boot]
     ProxmoxFunctions::start_vms(project_dir, get_vm_names(scenario), options)
   end
 end
