@@ -19,6 +19,11 @@ sudo iptables -P FORWARD DROP
 ```
 
 This is the principle of *default deny*, where all forwarded traffic is now blocked unless explicitly allowed by a rule. You can verify this by looking at the policy shown in parentheses at the top of the chain output:
+
+> **Note:** iptables rules are not persistent by default and will be lost if the gateway reboots. To save your rules at any point, run `sudo iptables-save > /etc/iptables/rules.v4` on the gateway. It's worth doing this after each step as you go.
+
+> **Note:** Always save your rules after making changes you want to keep. If you need to start fresh, you can flush all rules with `sudo iptables -F` and `sudo iptables -t nat -F`, but be careful as this will remove all rules.
+
 ```bash
 # On: gateway
 sudo iptables -L FORWARD -v -n
