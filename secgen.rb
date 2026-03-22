@@ -634,6 +634,7 @@ opts.each do |opt, arg|
     options[:proxmoxnetwork] = arg
   when '--proxmox-vlan'
     Print.info "Proxmox Network VLAN : #{arg}"
+    options[:proxmoxvlan] = arg.to_i
   when '--proxmox-post-boot'
     Print.info "Proxmox start all VMs post provision"
     options[:proxmox_post_boot] = true
