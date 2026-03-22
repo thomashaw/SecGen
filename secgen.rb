@@ -276,6 +276,10 @@ def proxmox_post_build(options, scenario, project_dir)
     sleep(1) # give oVirt/Virtualbox a chance to save any VM config changes before creating the snapshot
     ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
   end
+
+  if options[:proxmox_start_vms]
+    ProxmoxFunctions::start_vms(project_dir, get_vm_names(scenario), options)
+  end
 end
 
 # Make forensic image helper methods
@@ -509,6 +513,7 @@ opts = GetoptLong.new(
     ['--proxmox-node', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-network', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-vlan', GetoptLong::REQUIRED_ARGUMENT],
+    ['--proxmox-post-boot', GetoptLong::NO_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxi-hostname', GetoptLong::REQUIRED_ARGUMENT],
@@ -629,7 +634,9 @@ opts.each do |opt, arg|
     options[:proxmoxnetwork] = arg
   when '--proxmox-vlan'
     Print.info "Proxmox Network VLAN : #{arg}"
-    options[:proxmoxvlan] = arg
+  when '--proxmox-post-boot'
+    Print.info "Proxmox start all VMs post provision"
+    options[:proxmox_post_boot] = true
   # ESXi options
   when '--esxiuser'
     Print.info "ESXi Username : #{arg}"

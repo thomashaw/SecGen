@@ -105,5 +105,27 @@ class ProxmoxFunctions
     end
   end
 
+  def self.start_vms(project_dir, vm_names, options)
+    Print.std " Connecting to Proxmox"
+    connection = Proxmox::Connection.new options[:proxmoxurl]
+    connection.login username: options[:proxmoxuser], password: options[:proxmoxpass]
+
+    vm_names.each do |vm_name|
+      id_path = "#{project_dir}/.vagrant/machines/#{vm_name}/proxmox/id"
+      Print.std id_path
+      begin
+        file = File.open(id_path, 'r')
+        node, vm_id = file.read.split('/')
+
+        Print.std " Starting #{vm_name} (#{node}/#{vm_id})"
+        connection.start_vm(vm_id)
+      rescue => e
+        Print.err "Error: Failed to start VM #{vm_name}: #{e.message}"
+      ensure
+        file.close if file
+      end
+    end
+  end
+
 
 end
