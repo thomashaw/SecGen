@@ -285,8 +285,7 @@ rescue Proxmox::ApiError::ConnectionError => e
 end
 
 if options[:snapshot]
-  Print.info 'Creating a    Print.err "You can retry manually with: ruby secgen.rb ... -p #{project_dir} proxmox-post-build"
- snapshot of VM(s)'
+  Print.info 'Creating a snapshot of VM(s)'
   sleep(1)
   ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
 end
