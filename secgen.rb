@@ -266,16 +266,33 @@ end
 # actions on the VMs after vagrant has built them
 # this includes networking and snapshots
 def proxmox_post_build(options, scenario, project_dir)
-  Print.std 'Taking Proxmox post-build actions...'
+Print.std 'Taking Proxmox post-build actions...'
 
-  Print.info 'Removing provisioning NIC'
+Print.info 'Removing provisioning NIC'
+retries = 3
+begin
   ProxmoxFunctions::teardown_provisioning_nic(project_dir, get_vm_names(scenario), options)
-
-  if options[:snapshot]
-    Print.info 'Creating a snapshot of VM(s)'
-    sleep(1) # give oVirt/Virtualbox a chance to save any VM config changes before creating the snapshot
-    ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
+rescue Proxmox::ApiError::ConnectionError => e
+  retries -= 1
+  if retries > 0
+    Print.err "Connection error during NIC teardown, retrying in 30s... (#{retries} attempts left)"
+    sleep(30)
+    retry
+  else
+    Print.err "Failed to remove provisioning NIC after retries: #{e.message}"
+    exit 1
   end
+end
+
+if options[:snapshot]
+  Print.info 'Creating a snapshot of VM(s)'
+  sleep(1)
+  ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
+end
+
+if options[:proxmox_post_boot]
+  ProxmoxFunctions::start_vms(project_dir, get_vm_names(scenario), options)
+end
 end
 
 # Make forensic image helper methods
@@ -509,6 +526,7 @@ opts = GetoptLong.new(
     ['--proxmox-node', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-network', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-vlan', GetoptLong::REQUIRED_ARGUMENT],
+    ['--proxmox-post-boot', GetoptLong::NO_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxi-hostname', GetoptLong::REQUIRED_ARGUMENT],
@@ -629,7 +647,10 @@ opts.each do |opt, arg|
     options[:proxmoxnetwork] = arg
   when '--proxmox-vlan'
     Print.info "Proxmox Network VLAN : #{arg}"
-    options[:proxmoxvlan] = arg
+    options[:proxmoxvlan] = arg.to_i
+  when '--proxmox-post-boot'
+    Print.info "Proxmox start all VMs post provision"
+    options[:proxmox_post_boot] = true
   # ESXi options
   when '--esxiuser'
     Print.info "ESXi Username : #{arg}"
