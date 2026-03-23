@@ -140,7 +140,7 @@ This technique of hopping through segments by chaining SSH connections together 
 
 ```bash
 # On: desktop - SSH to the gateway
-ssh <%= $gateway_lan_ip %>
+ssh <%= $gateway_lan_ip %>.
 ```
 
 Explore the network to find a flag in your user's home directory on both the server and web_server VMs.
@@ -150,3 +150,6 @@ Explore the network to find a flag in your user's home directory on both the ser
 ssh <%= $webserver_ip %>
 ssh <%= $server_ip %>
 ```
+
+
+> **Important:** Once you complete this challenge your desktop's IP address will change permanently. Make sure you use the new IP address for any SSH connections or network tests for the remainder of the lab.
