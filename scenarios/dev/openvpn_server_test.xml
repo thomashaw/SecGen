@@ -4,15 +4,14 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>openvpn_server module test</name>
+  <name>OpenVPN server and client test</name>
   <author>Tom Shaw</author>
-  <description>Test scenario for openvpn_server service module and openvpn_pki generator.</description>
+  <description>Test scenario for openvpn_server and openvpn_client modules. Gateway VM has OpenVPN server installed and configured but not started. Remote VM has client config pre-deployed.</description>
 
   <type>ctf-lab</type>
 
-
   <system>
-    <system_name>openvpn_test</system_name>
+    <system_name>gateway</system_name>
     <base platform="linux" distro="Debian 12" type="desktop"/>
 
     <input into_datastore="spoiler_admin_pass">
@@ -20,12 +19,13 @@
     </input>
 
     <input into_datastore="IP_addresses">
-      <!-- [0] gateway external IP -->
+      <!-- [0] gateway external -->
       <value>10.0.4.1</value>
-      <!-- [1] gateway LAN IP -->
+      <!-- [1] gateway internal -->
       <value>10.0.1.1</value>
+      <!-- [2] remote -->
+      <value>10.0.4.10</value>
     </input>
-
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
@@ -39,7 +39,7 @@
           <input into="server_ip">
             <datastore access="0">IP_addresses</datastore>
           </input>
-          <input into="port">
+          <input into="port" into_datastore="vpn_port">
             <generator module_path=".*/random_number">
               <input into="minimum">
                 <value>1194</value>
@@ -58,7 +58,6 @@
           <input into="push_routes">
             <value>10.0.1.0 255.255.255.0</value>
             <value>10.0.2.0 255.255.255.0</value>
-            <value>10.0.3.0 255.255.255.0</value>
           </input>
           <input into="num_clients">
             <value>1</value>
@@ -70,12 +69,63 @@
       </input>
     </service>
 
+    <!-- External interface (VLAN 4) -->
     <network type="private_network">
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="vlan">
+        <value>4</value>
+      </input>
+    </network>
+
+    <!-- Internal interface (VLAN 1) -->
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
         <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <system>
+    <system_name>remote</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <utility module_path=".*/openvpn_client">
+      <input into="openvpn_pki">
+        <datastore>openvpn_pki</datastore>
+      </input>
+      <input into="client_index">
+        <value>0</value>
+      </input>
+      <input into="start_on_boot">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <!-- External interface (VLAN 4) -->
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>4</value>
       </input>
     </network>
 
