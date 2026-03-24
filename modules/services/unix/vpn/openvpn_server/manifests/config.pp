@@ -66,18 +66,4 @@ class openvpn_server::config {
     content => template('openvpn_server/server.conf.erb'),
     require => File['/etc/openvpn/server'],
   }
-
-  if $start_on_boot == 'true' {
-    service { 'openvpn-server@server':
-      ensure  => running,
-      enable  => true,
-      require => File['/etc/openvpn/server/server.conf'],
-    }
-  } else {
-    service { 'openvpn-server@server':
-      ensure  => stopped,
-      enable  => false,
-      require => File['/etc/openvpn/server/server.conf'],
-    }
-  }
 }
