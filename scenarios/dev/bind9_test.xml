@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>bind9 dns test</name>
+  <author>Tom Shaw</author>
+  <description>Test scenario for bind9 dns server module. Tests authoritative DNS with A records, TXT flag record, and configurable zone transfer policy.</description>
+
+  <type>ctf-lab</type>
+
+  <system>
+    <system_name>dns_server</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <value>tiaspbiqe2r</value>
+    </input>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <service module_path=".*/bind9">
+      <input into="domain">
+        <value>netseclab.co.uk</value>
+      </input>
+      <input into="ns_hostname">
+        <value>server.netseclab.co.uk</value>
+      </input>
+      <input into="strings_to_leak" into_datastore="dns_txt_flag">
+        <generator type="flag_generator"/>
+      </input>
+      <input into="flag_hostname">
+        <value>flag</value>
+      </input>
+      <input into="a_records">
+        <value>gateway.netseclab.co.uk=10.0.1.1</value>
+        <value>desktop.netseclab.co.uk=10.0.1.10</value>
+        <value>web.netseclab.co.uk=10.0.2.10</value>
+        <value>server.netseclab.co.uk=10.0.3.10</value>
+        <value>secret.netseclab.co.uk=10.0.3.20</value>
+      </input>
+      <input into="allow_transfer">
+        <value>any</value>
+      </input>
+    </service>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.3.10</value>
+      </input>
+      <input into="vlan">
+        <value>3</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+</scenario>
