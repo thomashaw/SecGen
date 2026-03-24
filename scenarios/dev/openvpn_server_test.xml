@@ -10,20 +10,22 @@
 
   <type>ctf-lab</type>
 
-  <input into_datastore="spoiler_admin_pass">
-    <generator type="strong_password_generator"/>
-  </input>
-
-  <input into_datastore="IP_addresses">
-    <!-- [0] gateway external IP -->
-    <value>10.0.4.1</value>
-    <!-- [1] gateway LAN IP -->
-    <value>10.0.1.1</value>
-  </input>
 
   <system>
     <system_name>openvpn_test</system_name>
     <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+
+    <input into_datastore="IP_addresses">
+      <!-- [0] gateway external IP -->
+      <value>10.0.4.1</value>
+      <!-- [1] gateway LAN IP -->
+      <value>10.0.1.1</value>
+    </input>
+
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">
