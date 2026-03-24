@@ -18,6 +18,7 @@
   <read_fact>subnet_mask</read_fact>
   <read_fact>default_gateway</read_fact>
   <read_fact>dns_nameservers</read_fact>
+  <read_fact>routes</read_fact>
 
   <default_input into="range">
     <value>172.22.0.0</value>
