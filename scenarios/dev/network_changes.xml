@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Network module parameter test</name>
+  <author>Tom Shaw</author>
+  <description>Test scenario for default_gateway, dns_nameservers, and routes network parameters. Tests various combinations of present and missing inputs.</description>
+
+  <type>ctf-lab</type>
+
+
+  <!-- VM 1: Full set of parameters — gateway, DNS, and routes all present -->
+  <system>
+    <system_name>full_network</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <value>tiaspbiqe2r</value>
+    </input>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.1.10</value>
+      </input>
+      <input into="default_gateway">
+        <value>10.0.1.1</value>
+      </input>
+      <input into="dns_nameservers">
+        <value>10.0.3.10</value>
+      </input>
+      <input into="routes">
+        <value>10.0.2.0/24 via 10.0.1.1</value>
+        <value>10.0.3.0/24 via 10.0.1.1</value>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <!-- VM 2: Gateway and DNS only — no routes -->
+  <system>
+    <system_name>gateway_dns_only</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.2.10</value>
+      </input>
+      <input into="default_gateway">
+        <value>10.0.2.1</value>
+      </input>
+      <input into="dns_nameservers">
+        <value>10.0.3.10</value>
+      </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <!-- VM 3: Gateway only — no DNS, no routes -->
+  <system>
+    <system_name>gateway_only</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.3.10</value>
+      </input>
+      <input into="default_gateway">
+        <value>10.0.3.1</value>
+      </input>
+      <input into="vlan">
+        <value>3</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <!-- VM 4: No gateway, no DNS, no routes — bare minimum -->
+  <system>
+    <system_name>bare_network</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.4.10</value>
+      </input>
+      <input into="vlan">
+        <value>4</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <!-- VM 5: Multiple DNS nameservers — tests join behaviour -->
+  <system>
+    <system_name>multi_dns</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.5.10</value>
+      </input>
+      <input into="default_gateway">
+        <value>10.0.5.1</value>
+      </input>
+      <input into="dns_nameservers">
+        <value>10.0.3.10</value>
+        <value>8.8.8.8</value>
+      </input>
+      <input into="vlan">
+        <value>5</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+</scenario>
