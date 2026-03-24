@@ -273,7 +273,7 @@
         <!-- OpenVPN server — installed and configured, not started -->
         <!-- Generates CA, server cert/key, client cert/key             -->
         <!-- Outputs client config bundle to openvpn_client_config datastore -->
-        <utility module_path=".*/openvpn_server">
+        <service module_path=".*/openvpn_server">
             <input into="server_ip">
                 <datastore access="9">IP_addresses</datastore>
             </input>
@@ -286,7 +286,7 @@
             <input into="client_config" into_datastore="openvpn_client_config">
                 <value>generate</value>
             </input>
-        </utility>
+        </service>
 
         <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
