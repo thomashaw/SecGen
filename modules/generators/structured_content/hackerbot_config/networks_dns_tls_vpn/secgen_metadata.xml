@@ -3,10 +3,10 @@
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-  <name>Hackerbot config for introduction to network security lab</name>
+  <name>Hackerbot config for introduction to networking DNS, TLS, and VPN lab</name>
   <author>Tom Shaw</author>
   <module_license>GPLv3</module_license>
-  <description>Generates a config file for a hackerbot for an intro to network security lab. Topics covered: network segmentation and firewalls</description>
+  <description>Generates a config file for a hackerbot for an intro to network security lab. Topics covered: DNS, TLS, and VPNs</description>
 
   <type>hackerbot_config</type>
   <platform>linux</platform>
@@ -24,6 +24,7 @@
   </default_input>
 
   <default_input into="flags">
+    <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
