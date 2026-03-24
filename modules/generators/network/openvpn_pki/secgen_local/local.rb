@@ -99,16 +99,10 @@ class OpenvpnPki < StringGenerator
     { key: key, cert: cert }
   end
 
-  def generate_dh
-    OpenSSL::PKey::DH.new(2048)
-  end
-
   def generate
     ca = generate_ca
 
     server = generate_cert('secgen-server', ca[:key], ca[:cert], is_server: true)
-
-    dh = generate_dh
 
     clients = num_clients.to_i.times.map do |i|
       client = generate_cert("secgen-client-#{i}", ca[:key], ca[:cert], is_server: false)
@@ -122,7 +116,6 @@ class OpenvpnPki < StringGenerator
       'ca_cert'          => ca[:cert].to_pem,
       'server_cert'      => server[:cert].to_pem,
       'server_key'       => server[:key].to_pem,
-      'dh_params'        => dh.to_pem,
       'server_ip'        => server_ip,
       'port'             => port,
       'vpn_subnet'       => vpn_subnet,
