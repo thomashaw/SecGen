@@ -43,9 +43,20 @@ class NetworkFunctions
 
     # Second pass — auto-assign IPs for range entries, skipping any claimed octets
     systems.each do |system|
+      is_windows = system.module_selections.any? { |m| m.module_type == 'base' && m.attributes['platform']&.first&.downcase == 'windows' }
+
       system.module_selections.each do |mod|
         next unless mod.module_type == 'network'
         next if mod.received_inputs.include?('IP_address')
+
+        if is_windows && (mod.received_inputs['default_gateway']&.reject(&:empty?)&.any? ||
+          mod.received_inputs['dns_nameservers']&.reject(&:empty?)&.any? ||
+          mod.received_inputs['routes']&.reject(&:empty?)&.any?)
+
+          Print.err "Network misconfiguration: system '#{system.name}' is a Windows guest but has default_gateway, dns_nameservers, or routes configured -- these are only supported on Linux guests."
+          exit 1
+
+        end
 
         ip_range = mod.received_inputs['range']&.first
         next if ip_range.nil?
