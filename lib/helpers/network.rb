@@ -21,7 +21,7 @@ class NetworkFunctions
         subnet = ip.split('.')[0..2].join('.') + '.0'
 
         unless options[:network_map].key?(vlan)
-          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, used_octets: [] }
+          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, used_octets: [], gateway: {}, dns_nameservers: {}, routes: {} }
         end
 
         # Check the IP being added is consistent with the subnet already registered for this VLAN
@@ -33,6 +33,9 @@ class NetworkFunctions
 
         options[:network_map][vlan][:used_octets] << ip.split('.').last.to_i
         options[:network_map][vlan][:ips][mod.unique_id] = ip
+        options[:network_map][vlan][:gateway][mod.unique_id] = mod.received_inputs['default_gateway']&.first&.then { |v| v.empty? ? nil : v }
+        options[:network_map][vlan][:dns_nameservers][mod.unique_id] = mod.received_inputs['dns_nameservers']&.reject(&:empty?)&.join(' ')&.then { |v| v.empty? ? nil : v }
+        options[:network_map][vlan][:routes][mod.unique_id] = mod.received_inputs['routes']&.reject(&:empty?) || []
 
       end
     end
@@ -61,7 +64,7 @@ class NetworkFunctions
         subnet = ip_range.split('.')[0..2].join('.') + '.0'
 
         unless options[:network_map].key?(vlan)
-          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, next_octet: 1, used_octets: [] }
+          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, next_octet: 1, used_octets: [], gateway: {}, dns_nameservers: {}, routes: {} }
         end
 
         # Always use the subnet already stored in the map, not the locally derived one
@@ -92,6 +95,9 @@ class NetworkFunctions
 
         options[:network_map][vlan][:next_octet] = next_octet
         options[:network_map][vlan][:used_octets] << next_octet
+        options[:network_map][vlan][:gateway][mod.unique_id] = mod.received_inputs['default_gateway']&.first&.then { |v| v.empty? ? nil : v }
+        options[:network_map][vlan][:dns_nameservers][mod.unique_id] = mod.received_inputs['dns_nameservers']&.reject(&:empty?)&.join(' ')&.then { |v| v.empty? ? nil : v }
+        options[:network_map][vlan][:routes][mod.unique_id] = mod.received_inputs['routes']&.reject(&:empty?) || []
 
         split_ip = map_subnet.split('.')
         split_ip[3] = next_octet.to_s
