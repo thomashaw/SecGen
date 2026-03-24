@@ -1,13 +1,13 @@
 #!/usr/bin/ruby
-require_relative '../../../../../lib/objects/local_string_generator.rb'
+require_relative '../../../../../../lib/objects/local_string_generator.rb'
 
-class IptablesForwardDrop < StringGenerator
+class IptablesForwardAccept < StringGenerator
   attr_accessor :source
   attr_accessor :destination
 
   def initialize
     super
-    self.module_name = 'iptables FORWARD DROP Rule Generator'
+    self.module_name = 'iptables FORWARD ACCEPT Rule Generator'
     self.source = ''
     self.destination = ''
   end
@@ -28,8 +28,8 @@ class IptablesForwardDrop < StringGenerator
   end
 
   def generate
-    self.outputs << "-A FORWARD -s #{source} -d #{destination} -j DROP"
+    self.outputs << "-A FORWARD -s #{source} -d #{destination} -j ACCEPT"
   end
 end
 
-IptablesForwardDrop.new.run
+IptablesForwardAccept.new.run

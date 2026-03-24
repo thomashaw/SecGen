@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>network_route generator test</name>
+  <author>Tom Shaw</author>
+  <description>Test scenario for network_route generator module. Tests simple route, multiple routes, and route with dev specified.</description>
+
+  <type>ctf-lab</type>
+
+  <!-- VM 1: Single route, via from datastore -->
+  <system>
+    <system_name>single_route</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <value>tiaspbiqe2r</value>
+    </input>
+
+    <input into_datastore="IP_addresses">
+      <value>10.0.1.1</value>
+      <value>10.0.1.10</value>
+      <value>10.0.2.1</value>
+      <value>10.0.2.10</value>
+    </input>
+
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="default_gateway">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="routes">
+        <generator module_path=".*/network_route">
+          <input into="destination">
+            <value>10.0.2.0</value>
+          </input>
+          <input into="via">
+            <datastore access="0">IP_addresses</datastore>
+          </input>
+        </generator>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <!-- VM 2: Multiple routes, via from datastore -->
+  <system>
+    <system_name>multi_route</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="3">IP_addresses</datastore>
+      </input>
+      <input into="default_gateway">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+      <input into="routes">
+        <generator module_path=".*/network_route">
+          <input into="destination">
+            <value>10.0.1.0</value>
+          </input>
+          <input into="via">
+            <datastore access="2">IP_addresses</datastore>
+          </input>
+        </generator>
+        <generator module_path=".*/network_route">
+          <input into="destination">
+            <value>10.0.3.0</value>
+          </input>
+          <input into="via">
+            <datastore access="2">IP_addresses</datastore>
+          </input>
+        </generator>
+      </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+  <!-- VM 3: Route with dev specified -->
+  <system>
+    <system_name>route_with_dev</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.3.10</value>
+      </input>
+      <input into="default_gateway">
+        <value>10.0.3.1</value>
+      </input>
+      <input into="routes">
+        <generator module_path=".*/network_route">
+          <input into="destination">
+            <value>10.0.1.0</value>
+          </input>
+          <input into="via">
+            <value>10.0.3.1</value>
+          </input>
+          <input into="dev">
+            <value>eth0</value>
+          </input>
+        </generator>
+      </input>
+      <input into="vlan">
+        <value>3</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+
+  </system>
+
+</scenario>
