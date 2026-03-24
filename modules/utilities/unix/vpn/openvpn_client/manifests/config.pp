@@ -22,7 +22,7 @@ class openvpn_client::config {
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
-    content => template('openvpn_client_config/client.ovpn.erb'),
+    content => template('openvpn_client/client.ovpn.erb'),
     require => File['/etc/openvpn/client'],
   }
 }

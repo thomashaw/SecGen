@@ -1,4 +1,4 @@
-class openvpn_client_config::service {
+class openvpn_client::service {
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
   $start_on_boot = $secgen_params['start_on_boot'][0]
 

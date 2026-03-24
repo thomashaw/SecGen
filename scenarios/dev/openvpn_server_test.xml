@@ -15,7 +15,7 @@
     <base platform="linux" distro="Debian 12" type="desktop"/>
 
     <input into_datastore="spoiler_admin_pass">
-      <generator type="strong_password_generator"/>
+      <value>tiaspbiqe2r</value>
     </input>
 
     <input into_datastore="IP_addresses">
