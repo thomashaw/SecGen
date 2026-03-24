@@ -1,17 +1,19 @@
 class openvpn_server::config {
   $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
-  $openvpn_pki   = parsejson($secgen_params['openvpn_pki'][0])
+
   $start_on_boot = $secgen_params['start_on_boot'][0]
 
-  $ca_cert        = $openvpn_pki['ca_cert']
-  $server_cert    = $openvpn_pki['server_cert']
-  $server_key     = $openvpn_pki['server_key']
-  $dh_params      = $openvpn_pki['dh_params']
-  $server_ip      = $openvpn_pki['server_ip']
-  $port           = $openvpn_pki['port']
-  $vpn_subnet     = $openvpn_pki['vpn_subnet']
-  $vpn_subnet_mask = $openvpn_pki['vpn_subnet_mask']
-  $push_routes    = $openvpn_pki['push_routes']
+  $openvpn_conf   = parsejson($secgen_params['openvpn_pki'][0])
+
+  $ca_cert        = $openvpn_conf['ca_cert']
+  $server_cert    = $openvpn_conf['server_cert']
+  $server_key     = $openvpn_conf['server_key']
+  $dh_params      = $openvpn_conf['dh_params']
+  $server_ip      = $openvpn_conf['server_ip']
+  $port           = $openvpn_conf['port']
+  $vpn_subnet     = $openvpn_conf['vpn_subnet']
+  $vpn_subnet_mask = $openvpn_conf['vpn_subnet_mask']
+  $push_routes    = $openvpn_conf['push_routes']
 
   file { '/etc/openvpn/server':
     ensure => directory,
