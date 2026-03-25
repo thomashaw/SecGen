@@ -8,11 +8,13 @@ class bind9::config {
   $a_records      = $secgen_params['a_records']
   $allow_transfer = $secgen_params['allow_transfer'][0]
 
-  # Split a_records into hostname/ip pairs
-  $a_record_pairs = $a_records.map |$r| {
-    $parts = split($r, '=')
-    { 'hostname' => $parts[0], 'ip' => $parts[1] }
-  }
+  $a_record_pairs = inline_template('<%
+result = []
+@a_records.each do |r|
+  parts = r.split("=")
+  result << { "hostname" => parts[0], "ip" => parts[1] }
+end
+-%><%= result %>')
 
   file { '/etc/bind/named.conf.options':
     ensure  => present,
