@@ -59,7 +59,7 @@
         <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="vlan">
-        <value>3</value>
+        <value>1</value>
       </input>
     </network>
 
