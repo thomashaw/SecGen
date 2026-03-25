@@ -19,8 +19,8 @@
     </input>
 
     <input into_datastore="IP_addresses">
-      <value>10.0.3.10</value>
       <value>10.0.1.10</value>
+      <value>10.0.1.20</value>
     </input>
 
     <vulnerability module_path=".*/ssh_root_login">
@@ -44,9 +44,9 @@
       </input>
       <input into="a_records">
         <value>gateway.netseclab.co.uk=10.0.1.1</value>
-        <value>desktop.netseclab.co.uk=10.0.1.10</value>
+        <value>desktop.netseclab.co.uk=10.0.1.20</value>
         <value>web.netseclab.co.uk=10.0.2.10</value>
-        <value>server.netseclab.co.uk=10.0.3.10</value>
+        <value>server.netseclab.co.uk=10.0.1.10</value>
         <value>secret.netseclab.co.uk=10.0.3.20</value>
       </input>
       <input into="allow_transfer">
@@ -86,9 +86,6 @@
     <network type="private_network">
       <input into="IP_address">
         <datastore access="1">IP_addresses</datastore>
-      </input>
-      <input into="default_gateway">
-        <datastore access="0">IP_addresses</datastore>
       </input>
       <input into="dns_nameservers">
         <datastore access="0">IP_addresses</datastore>
