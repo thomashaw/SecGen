@@ -54,7 +54,7 @@
 
 	<!--Method for gaining shell access, can be overwritten per-attack-->
 	<!--<get_shell>bash</get_shell>-->
-	<get_shell>sshpass -p <%= $root_password %> ssh -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>
+	<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>
 
 	<messages>
 		<greeting>Hi. Welcome to the organisation! I am your line manager, Bossbot. Just thought I'd show you around and get you started. I am going to ask you to perform some tasks. If you complete them successfully I'll give you some flags.</greeting>
