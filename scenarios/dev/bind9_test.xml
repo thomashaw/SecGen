@@ -19,8 +19,8 @@
     </input>
 
     <input into_datastore="IP_addresses">
-      <value>10.0.3.10</value>
       <value>10.0.1.10</value>
+      <value>10.0.1.11</value>
     </input>
 
     <vulnerability module_path=".*/ssh_root_login">
