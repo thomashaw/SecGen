@@ -326,6 +326,11 @@
         <utility module_path=".*/wireshark"/>
 
         <!-- Server zone interface (VLAN 3) -->
+        <utility module_path=".*/hackerbot_client">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
+        </utility>
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="5">IP_addresses</datastore>

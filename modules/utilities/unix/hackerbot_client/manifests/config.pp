@@ -18,16 +18,4 @@ class hackerbot_client::config {
     content => "${public_key}\n",
     require => File['/root/.ssh'],
   }
-
-  file_line { 'permit_root_login':
-    path  => '/etc/ssh/sshd_config',
-    line  => 'PermitRootLogin prohibit-password',
-    match => '^#?PermitRootLogin',
-  }
-
-  service { 'ssh':
-    ensure    => running,
-    enable    => true,
-    subscribe => File_line['permit_root_login'],
-  }
 }
