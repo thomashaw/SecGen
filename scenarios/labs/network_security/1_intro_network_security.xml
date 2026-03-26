@@ -262,7 +262,11 @@
         <utility module_path=".*/nmap"/>
         <utility module_path=".*/wireshark"/>
 
-        <!-- TODO: Place a randomised flag in /home/<user>/flag.txt (Challenge 2) -->
+        <utility module_path=".*/hackerbot_client">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+        </utility>
 
         <!-- DMZ interface (VLAN 2) -->
         <network type="private_network">
