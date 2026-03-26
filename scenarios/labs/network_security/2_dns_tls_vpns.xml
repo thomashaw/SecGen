@@ -95,6 +95,9 @@
         <input into_datastore="spoiler_admin_pass">
             <generator type="strong_password_generator"/>
         </input>
+        <input into_datastore="hackerbot_key">
+          <generator type="ssh_key_pair"/>
+        </input>
 
         <input into_datastore="user_password">
             <value>tiaspbiqe2r</value>
@@ -141,11 +144,11 @@
             </input>
         </utility>
 
-        <vulnerability module_path=".*/ssh_root_login">
-            <input into="root_password">
-                <datastore>spoiler_admin_pass</datastore>
-            </input>
-        </vulnerability>
+        <utility module_path=".*/hackerbot_client">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
+        </utility>
 
         <!-- Internal LAN interface (VLAN 1) -->
         <!-- gateway pre-configured (Lab 1 end state); dns_nameservers omitted -->
@@ -198,11 +201,11 @@
             </input>
         </utility>
 
-        <vulnerability module_path=".*/ssh_root_login">
-            <input into="root_password">
-                <datastore>spoiler_admin_pass</datastore>
-            </input>
-        </vulnerability>
+        <utility module_path=".*/hackerbot_client">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
+        </utility>
 
         <!-- iptables baseline — Lab 1 end state + external->server block  -->
         <!-- Rules with dynamic IPs use generator modules so that datastore -->
@@ -365,11 +368,11 @@
             </input>
         </utility>
 
-        <vulnerability module_path=".*/ssh_root_login">
-            <input into="root_password">
-                <datastore>spoiler_admin_pass</datastore>
-            </input>
-        </vulnerability>
+        <utility module_path=".*/hackerbot_client">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
+        </utility>
 
         <!-- Apache with TLS — flag embedded in certificate CN/SAN -->
         <service module_path=".*/apache_tls">
@@ -442,11 +445,11 @@
             </input>
         </utility>
 
-        <vulnerability module_path=".*/ssh_root_login">
-            <input into="root_password">
-                <datastore>spoiler_admin_pass</datastore>
-            </input>
-        </vulnerability>
+        <utility module_path=".*/hackerbot_client">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
+        </utility>
 
         <!-- bind9 DNS — authoritative for netseclab.co.uk           -->
         <!-- Zone transfer intentionally unrestricted (Challenge 2)   -->
@@ -552,11 +555,11 @@
             </input>
         </utility>
 
-        <vulnerability module_path=".*/ssh_root_login">
-            <input into="root_password">
-                <datastore>spoiler_admin_pass</datastore>
-            </input>
-        </vulnerability>
+        <utility module_path=".*/hackerbot_client">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
+        </utility>
 
         <!-- OpenVPN client config pre-deployed; tunnel not started -->
         <utility module_path=".*/openvpn_client_config">
@@ -617,13 +620,13 @@
         <service type="httpd"/>
 
         <utility module_path=".*/hackerbot">
+          <input into="ssh_key_pair">
+            <datastore>hackerbot_key</datastore>
+          </input>
             <input into="hackerbot_configs" into_datastore="hackerbot_instructions">
                 <generator module_path=".*/networks_dns_tls_vpn">
                     <input into="accounts">
                         <datastore>account</datastore>
-                    </input>
-                    <input into="root_password">
-                        <datastore>spoiler_admin_pass</datastore>
                     </input>
                     <input into="IP_addresses">
                         <datastore>IP_addresses</datastore>
