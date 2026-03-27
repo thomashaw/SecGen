@@ -15,8 +15,7 @@
 	 $flags = self.flags
 
 	 $main_user = self.flags
-	 $ip_addresses = self.ip_addresses
-
+	 $ip_addresses = self.ip_addresses.first
 
 	 REQUIRED_FLAGS = 4
 	 while $flags.length < REQUIRED_FLAGS
