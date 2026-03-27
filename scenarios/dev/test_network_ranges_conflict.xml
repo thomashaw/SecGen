@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Network Range Resolution Test — Happy Path</name>
+  <author>Tom Shaw</author>
+  <description>
+    Tests two network range resolution cases:
+    VLAN 1: Two VMs with no explicit inputs — both should adopt the first VM's random range.
+    VLAN 2: One VM with explicit range, one VM with no explicit input — explicit range should win.
+  </description>
+
+  <type>ctf-lab</type>
+  <difficulty>intermediate</difficulty>
+
+  <!-- =================================================================
+       VLAN 1: Two VMs, no explicit inputs on either.
+       Expected: both end up on the same randomly generated subnet,
+       with sequential last octets (.2 and .3).
+       ================================================================= -->
+
+  <system>
+    <system_name>vlan1_vm1</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+      <!-- No IP_address, no range — should use random_ip_range default -->
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vlan1_vm2</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+      <!-- No IP_address, no range — should adopt vlan1_vm1's range -->
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <!-- =================================================================
+       VLAN 2: One VM with explicit range, one VM with no explicit input.
+       Expected: both end up on 172.16.5.0/24, with sequential last octets.
+       ================================================================= -->
+
+  <system>
+    <system_name>vlan2_vm1</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>2</value>
+      </input>
+      <input into="range">
+        <value>172.16.5.0</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vlan2_vm2</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>2</value>
+      </input>
+      <!-- No range — should adopt vlan2_vm1's explicit 172.16.5.0 -->
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+</scenario>
