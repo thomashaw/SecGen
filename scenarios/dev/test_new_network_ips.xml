@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Network IP Reference Test</name>
+  <author>Tom Shaw</author>
+  <description>
+    Tests the network_ip deferred reference mechanism.
+    Three VMs on two VLANs, no hardcoded IPs.
+    vm1 and vm2 are on VLAN 1, vm3 is on VLAN 2.
+    vm1 references vm2's IP via network_ip to verify cross-VM lookup works.
+    vm3 references vm1's IP on VLAN 1 to verify cross-VLAN lookup works.
+  </description>
+
+  <type>ctf-lab</type>
+  <difficulty>intermediate</difficulty>
+
+  <system>
+    <system_name>vm1</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm2</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- References vm1's IP on VLAN 1 — should resolve to vm1's auto-assigned IP -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <network_ip system="vm1" vlan="1"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm3</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- References vm1's IP on VLAN 1 from a different VLAN — cross-VLAN lookup -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <network_ip system="vm1" vlan="1"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+</scenario>

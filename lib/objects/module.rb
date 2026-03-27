@@ -31,6 +31,7 @@ class Module
 
   attr_accessor :default_inputs_selectors # hash of into => module_selector
   attr_accessor :default_inputs_literals # hash of into => literal values
+  attr_accessor :deferred_network_inputs
 
   # @param [Object] module_type: such as 'vulnerability', 'base', 'service', 'network'
   def initialize(module_type)
@@ -46,6 +47,7 @@ class Module
     self.default_inputs_selectors = {}
     self.default_inputs_literals = {}
     self.explicit_inputs = []
+    self.deferred_network_inputs = {}
 
     # self.attributes['module_type'] = module_type # add as an attribute for filtering
   end

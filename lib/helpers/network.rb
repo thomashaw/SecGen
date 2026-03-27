@@ -7,6 +7,19 @@ class NetworkFunctions
     base_vlan = options[:proxmoxvlan] ? options[:proxmoxvlan].to_i : 0
     options[:network_map] = {}
 
+    # Build unique_id -> system_name lookup
+    uid_to_system_name = {}
+    systems.each do |system|
+      system.module_selections.each do |mod|
+        uid_to_system_name[mod.unique_id] = system.name
+      end
+    end
+
+    Print.debug "uid_to_system_name: #{uid_to_system_name.inspect}"
+    systems.each do |system|
+      Print.debug "system: #{system.name} module_selections: #{system.module_selections.map(&:unique_id).inspect}"
+    end
+
     # First pass — register all specific IP_address entries
     systems.each do |system|
       system.module_selections.each do |mod|
@@ -21,7 +34,7 @@ class NetworkFunctions
         subnet = ip.split('.')[0..2].join('.') + '.0'
 
         unless options[:network_map].key?(vlan)
-          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, used_octets: [], gateway: {}, dns_nameservers: {}, routes: {} }
+          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, ips_by_system: {}, used_octets: [], gateway: {}, dns_nameservers: {}, routes: {} }
         end
 
         # Check the IP being added is consistent with the subnet already registered for this VLAN
@@ -33,6 +46,7 @@ class NetworkFunctions
 
         options[:network_map][vlan][:used_octets] << ip.split('.').last.to_i
         options[:network_map][vlan][:ips][mod.unique_id] = ip
+        options[:network_map][vlan][:ips_by_system][uid_to_system_name[mod.unique_id]] = ip
         options[:network_map][vlan][:gateway][mod.unique_id] = mod.received_inputs['default_gateway']&.first&.then { |v| v.empty? ? nil : v }
         options[:network_map][vlan][:dns_nameservers][mod.unique_id] = mod.received_inputs['dns_nameservers']&.reject(&:empty?)&.join(' ')&.then { |v| v.empty? ? nil : v }
         options[:network_map][vlan][:routes][mod.unique_id] = mod.received_inputs['routes']&.reject(&:empty?) || []
@@ -43,6 +57,8 @@ class NetworkFunctions
 
     # Second pass — auto-assign IPs for range entries, skipping any claimed octets
     systems.each do |system|
+      Print.debug "Second pass system name: #{system.name}"
+
       is_windows = system.module_selections.any? { |m| m.module_type == 'base' && m.attributes['platform']&.first&.downcase == 'windows' }
 
       system.module_selections.each do |mod|
@@ -75,7 +91,7 @@ class NetworkFunctions
         subnet = ip_range.split('.')[0..2].join('.') + '.0'
 
         unless options[:network_map].key?(vlan)
-          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, next_octet: 1, used_octets: [], gateway: {}, dns_nameservers: {}, routes: {} }
+          options[:network_map][vlan] = { vlan: vlan, subnet: subnet, ips: {}, ips_by_system: {}, next_octet: 1, used_octets: [], gateway: {}, dns_nameservers: {}, routes: {} }
         end
 
         # Always use the subnet already stored in the map, not the locally derived one
@@ -83,12 +99,13 @@ class NetworkFunctions
         map_subnet = options[:network_map][vlan][:subnet]
 
         if map_subnet != subnet
+          Print.debug "Subnet mismatch: map=#{map_subnet} derived=#{subnet} explicit_inputs=#{mod.explicit_inputs.inspect}"
           if mod.explicit_inputs.include?('range')
             # This module explicitly set a conflicting range — scenario authoring error
             Print.err "Network misconfiguration: VLAN #{vlan} has conflicting subnets -- #{map_subnet} (previously registered) and #{subnet} (#{mod.unique_id})"
             exit 1
           end
-          # Otherwise it came from the default generator — silently adopt the established subnet
+          # Otherwise came from default generator — silently adopt established subnet
         end
 
         if ip_range.include?('/')
@@ -109,6 +126,8 @@ class NetworkFunctions
 
         options[:network_map][vlan][:next_octet] = next_octet
         options[:network_map][vlan][:used_octets] << next_octet
+        options[:network_map][vlan][:ips][mod.unique_id] = nil # placeholder until resolved below
+        options[:network_map][vlan][:ips_by_system][system.name] = nil # placeholder until resolved below
         options[:network_map][vlan][:gateway][mod.unique_id] = mod.received_inputs['default_gateway']&.first&.then { |v| v.empty? ? nil : v }
         options[:network_map][vlan][:dns_nameservers][mod.unique_id] = mod.received_inputs['dns_nameservers']&.reject(&:empty?)&.join(' ')&.then { |v| v.empty? ? nil : v }
         options[:network_map][vlan][:routes][mod.unique_id] = mod.received_inputs['routes']&.reject(&:empty?) || []
@@ -118,14 +137,12 @@ class NetworkFunctions
         resolved_ip = split_ip.join('.')
 
         options[:network_map][vlan][:ips][mod.unique_id] = resolved_ip
+        options[:network_map][vlan][:ips_by_system][uid_to_system_name[mod.unique_id]] = resolved_ip
       end
     end
 
     # Third pass — apply --network-ranges overrides to the completed network map.
-    # Each distinct subnet in the map (sorted by VLAN) is substituted with the
-    # corresponding CLI-provided range in order. Both IP_address and range entries
-    # are remapped since we're rewriting IPs directly in the map.
-    if options[:ip_ranges] && !options[:proxmoxuser]  # TODO: re-enable proxmox later
+    if options[:ip_ranges] && !options[:proxmoxuser]
       subnets_in_vlan_order = options[:network_map].keys.sort.map { |vlan| options[:network_map][vlan][:subnet] }.uniq
 
       if options[:ip_ranges].size > subnets_in_vlan_order.size
@@ -171,6 +188,10 @@ class NetworkFunctions
           last_octet = ip.split('.').last
           new_subnet.split('.')[0..2].join('.') + '.' + last_octet
         end
+        network[:ips_by_system].transform_values! do |ip|
+          last_octet = ip.split('.').last
+          new_subnet.split('.')[0..2].join('.') + '.' + last_octet
+        end
       end
     end
 
@@ -203,6 +224,68 @@ class NetworkFunctions
           exit 1
         end
         all_assigned_ips[ip] = { unique_id: unique_id, vlan: vlan }
+      end
+    end
+
+
+    # Fourth pass — resolve deferred network_ip references
+    systems.each do |system|
+      system.module_selections.each do |mod|
+        next if mod.deferred_network_inputs.empty?
+        mod.deferred_network_inputs.each do |input_variable, ref|
+          vlan_tag = base_vlan + (ref[:vlan] * 100)
+          vlan_tag = ((vlan_tag - 1) % 4094) + 1
+
+          unless options[:network_map].key?(vlan_tag)
+            Print.err "network_ip resolution error: no network found for system '#{ref[:system]}' vlan #{ref[:vlan]} (tag #{vlan_tag}), referenced by #{mod.unique_id} into '#{input_variable}'"
+            exit 1
+          end
+
+          network = options[:network_map][vlan_tag]
+          matched_ip = network[:ips_by_system][ref[:system]]
+
+          if matched_ip.nil?
+            Print.err "network_ip resolution error: no IP found for system '#{ref[:system]}' on vlan #{ref[:vlan]}, referenced by #{mod.unique_id} into '#{input_variable}'"
+            exit 1
+          end
+
+          (mod.received_inputs[input_variable] ||= []).push(matched_ip)
+          Print.debug "Resolved network_ip: #{mod.unique_id} '#{input_variable}' = #{matched_ip} (#{ref[:system]} vlan #{ref[:vlan]})"
+        end
+      end
+    end
+
+
+    # Fifth pass — resolve deferred datastore network_ip references
+    if options[:deferred_datastore_network_ips]
+      options[:deferred_datastore_network_ips].each do |positional_id, ref|
+        vlan_tag = base_vlan + (ref[:vlan] * 100)
+        vlan_tag = ((vlan_tag - 1) % 4094) + 1
+
+        unless options[:network_map].key?(vlan_tag)
+          Print.err "network_ip datastore resolution error: no network found for system '#{ref[:system]}' vlan #{ref[:vlan]} (tag #{vlan_tag}), id #{positional_id} in datastore '#{ref[:datastore]}'"
+          exit 1
+        end
+
+        network = options[:network_map][vlan_tag]
+        matched_ip = network[:ips_by_system][ref[:system]]
+
+        if matched_ip.nil?
+          Print.err "network_ip datastore resolution error: no IP found for system '#{ref[:system]}' on vlan #{ref[:vlan]}, id #{positional_id} in datastore '#{ref[:datastore]}'"
+          exit 1
+        end
+
+        datastore_name = ref[:datastore]
+        if $datastore[datastore_name]
+          idx = $datastore[datastore_name].index(positional_id)
+          if idx
+            $datastore[datastore_name][idx] = matched_ip
+            Print.debug "Resolved datastore network_ip: #{datastore_name}[#{idx}] = #{matched_ip} (#{ref[:system]} vlan #{ref[:vlan]})"
+          else
+            Print.err "network_ip datastore resolution error: id #{positional_id} not found in datastore '#{datastore_name}'"
+            exit 1
+          end
+        end
       end
     end
 

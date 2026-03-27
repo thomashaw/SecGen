@@ -4,26 +4,23 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>Network Range Resolution Test — Conflict Error</name>
+  <name>Network IP Mixed Module Input Test</name>
   <author>Tom Shaw</author>
   <description>
-    Tests that two explicit conflicting ranges on the same VLAN produce an error.
-    Expected: SecGen exits with a misconfiguration error.
+    Tests network_ip combined with value into the same module input variable.
+    vm2's password input should contain both a static value and vm1's resolved IP.
   </description>
 
   <type>ctf-lab</type>
   <difficulty>intermediate</difficulty>
 
   <system>
-    <system_name>conflict_vm1</system_name>
+    <system_name>vm1</system_name>
     <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
 
     <network type="private_network">
       <input into="vlan">
         <value>1</value>
-      </input>
-      <input into="range">
-        <value>172.16.5.0</value>
       </input>
     </network>
 
@@ -35,15 +32,27 @@
   </system>
 
   <system>
-    <system_name>conflict_vm2</system_name>
+    <system_name>vm2</system_name>
     <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <!-- password gets both a static value AND vm1's IP -->
+          <input into="password">
+            <value>staticpassword</value>
+            <network_ip system="vm1" vlan="1"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
 
     <network type="private_network">
       <input into="vlan">
         <value>1</value>
-      </input>
-      <input into="range">
-        <value>192.168.10.0</value>
       </input>
     </network>
 

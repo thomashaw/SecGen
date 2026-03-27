@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Network IP Datastore Test</name>
+  <author>Tom Shaw</author>
+  <description>
+    Tests network_ip references in datastores, with mixed ordering of values
+    and network_ip references to verify positional ordering is preserved.
+    IP_addresses datastore should end up as:
+    [0] 10.0.0.1          (static value)
+    [1] vm1's VLAN 1 IP   (network_ip)
+    [2] 10.0.0.3          (static value)
+    [3] vm2's VLAN 1 IP   (network_ip)
+  </description>
+
+  <type>ctf-lab</type>
+  <difficulty>intermediate</difficulty>
+
+  <system>
+    <system_name>vm1</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- [0] static value -->
+      <value>10.0.0.1</value>
+      <!-- [1] vm1's IP — deferred network_ip -->
+      <network_ip system="vm1" vlan="1"/>
+      <!-- [2] another static value -->
+      <value>10.0.0.3</value>
+      <!-- [3] vm2's IP — deferred network_ip -->
+      <network_ip system="vm2" vlan="1"/>
+    </input>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm2</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- Access index 1 — should be vm1's IP -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <datastore access="1">IP_addresses</datastore>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+</scenario>
