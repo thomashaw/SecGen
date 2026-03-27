@@ -21,7 +21,7 @@
   <read_fact>routes</read_fact>
 
   <default_input into="range">
-    <value>172.22.0.0</value>
+    <generator type="random_ip_range"/>
   </default_input>
 
   <default_input into="vlan">
