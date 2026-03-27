@@ -132,6 +132,8 @@ class SystemReader < XMLReader
       systems << System.new(system_name, system_attributes, module_selectors, scenario_file, options)
     end
 
+    systems.each { |s| Print.debug "final check: name=#{s.name} object_id=#{s.object_id}" }
+
     return systems
   end
 end

@@ -28,9 +28,9 @@ class System
   # @param [Object] module_selectors these are modules that define filters for selecting the actual modules to use
   def initialize(name, attributes, module_selectors, scenario_file, options)
     self.name = name
+    Print.debug "System.initialize: name=#{name} object_id=#{self.object_id}"
     self.attributes = attributes
     self.module_selectors = module_selectors
-    self.explicit_inputs = explicit_inputs_from_selector
     self.module_selections = []
     self.num_actioned_module_conflicts = 0
     self.memory = "512"
