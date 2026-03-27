@@ -77,6 +77,7 @@ class SystemReader < XMLReader
           value = input_value.text
           Print.verbose "  -- literal value: #{variable} = #{value}"
           (module_selector.received_inputs[variable] ||= []).push(value)
+          module_selector.explicit_inputs << variable
         end
 
         # check if we are being passed a datastore as input
@@ -92,6 +93,7 @@ class SystemReader < XMLReader
           (module_selector.received_datastores[variable] ||= []).push('variablename'   => value,
                                                                       'access'         => access,
                                                                       'access_json'    => access_json)
+          module_selector.explicit_inputs << variable
         end
 
         module_node.xpath('@*').each do |attr|

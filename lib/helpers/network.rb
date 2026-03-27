@@ -82,10 +82,13 @@ class NetworkFunctions
         # (they may differ if a different range was registered first for this VLAN)
         map_subnet = options[:network_map][vlan][:subnet]
 
-        # If the subnet derived from ip_range doesn't match what's already in the map, that's a misconfiguration
         if map_subnet != subnet
-          Print.err "Network misconfiguration: VLAN #{vlan} has conflicting subnets -- #{map_subnet} (previously registered) and #{subnet} (#{mod.unique_id})"
-          exit 1
+          if mod.explicit_inputs.include?('range')
+            # This module explicitly set a conflicting range — scenario authoring error
+            Print.err "Network misconfiguration: VLAN #{vlan} has conflicting subnets -- #{map_subnet} (previously registered) and #{subnet} (#{mod.unique_id})"
+            exit 1
+          end
+          # Otherwise it came from the default generator — silently adopt the established subnet
         end
 
         if ip_range.include?('/')

@@ -1,6 +1,7 @@
 require_relative '../helpers/constants.rb'
 require 'digest/md5'
 require 'securerandom'
+require 'set'
 
 class Module
   #Vulnerability attributes hash
@@ -19,6 +20,7 @@ class Module
   attr_accessor :unique_id # the unique id for this module *instance*
   attr_accessor :received_inputs # any locally calculated inputs fed into this module instance
   attr_accessor :received_datastores # any datastores to be fed into this module instance
+  attr_accessor :explicit_inputs # keep a record of inputs passed in via the scenario
 
   attr_accessor :conflicts
   attr_accessor :requires
@@ -43,6 +45,7 @@ class Module
     self.received_datastores = {} # into_variable => [[variablename] and [access], ]
     self.default_inputs_selectors = {}
     self.default_inputs_literals = {}
+    self.explicit_inputs = []
 
     # self.attributes['module_type'] = module_type # add as an attribute for filtering
   end
