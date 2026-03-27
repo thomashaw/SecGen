@@ -94,6 +94,7 @@ class SystemReader < XMLReader
                                                                       'access'         => access,
                                                                       'access_json'    => access_json)
           module_selector.explicit_inputs << variable
+          Print.debug "system_reader: #{module_selector.unique_id} explicit_inputs=#{module_selector.explicit_inputs.inspect}"
         end
 
         module_node.xpath('@*').each do |attr|

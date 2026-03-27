@@ -30,6 +30,7 @@ class System
     self.name = name
     self.attributes = attributes
     self.module_selectors = module_selectors
+    self.explicit_inputs = explicit_inputs_from_selector
     self.module_selections = []
     self.num_actioned_module_conflicts = 0
     self.memory = "512"
@@ -61,7 +62,8 @@ class System
 
       # for each module specified in the scenario
       module_selectors.each do |module_filter|
-        selected_modules += select_modules(module_filter.module_type, module_filter.attributes, available_mods, selected_modules, module_filter.unique_id, module_filter.write_output_variable, module_filter.write_to_module_with_id, module_filter.received_inputs, module_filter.default_inputs_literals, module_filter.write_to_datastore, module_filter.received_datastores, module_filter.write_module_path_to_datastore)
+        Print.debug "resolve: #{module_filter.unique_id} explicit_inputs=#{module_filter.explicit_inputs.inspect}"
+        selected_modules += select_modules(module_filter.module_type, module_filter.attributes, available_mods, selected_modules, module_filter.unique_id, module_filter.write_output_variable, module_filter.write_to_module_with_id, module_filter.received_inputs, module_filter.default_inputs_literals, module_filter.write_to_datastore, module_filter.received_datastores, module_filter.write_module_path_to_datastore, module_filter.explicit_inputs)
       end
       selected_modules
 
@@ -152,7 +154,7 @@ class System
   # returns a list containing a module (plus any default input modules and dependencies recursively) of the module type with the required attributes
   # modules are selected from the list of available modules and will be checked against previously selected modules for conflicts
   # raises an exception when unable to resolve and the retry limit has not been reached
-  def select_modules(module_type, required_attributes, available_modules, previously_selected_modules, unique_id, write_outputs_to, write_to_module_with_id, received_inputs, default_inputs_literals, write_to_datastore, received_datastores, write_module_path_to_datastore)
+  def select_modules(module_type, required_attributes, available_modules, previously_selected_modules, unique_id, write_outputs_to, write_to_module_with_id, received_inputs, default_inputs_literals, write_to_datastore, received_datastores, write_module_path_to_datastore, explicit_inputs_from_selector = [])
     default_modules_to_add = []
 
     search_list = duplicate(available_modules)
@@ -205,6 +207,7 @@ class System
       selected.received_datastores = received_datastores
       selected.write_module_path_to_datastore = write_module_path_to_datastore
       selected.default_inputs_literals = selected.default_inputs_literals.merge(default_inputs_literals)
+      selected.explicit_inputs = explicit_inputs_from_selector
 
       # add module path to write_module_path_to_datastore
       if selected.write_module_path_to_datastore != nil && selected.write_module_path_to_datastore != ''
