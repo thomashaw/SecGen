@@ -52,7 +52,11 @@
             <value>test</value>
           </input>
           <input into="password">
-            <datastore access="1">IP_addresses</datastore>
+            <encoder type="base64">
+              <input into="strings_to_encode">
+                <network_ip system="vm1" vlan="1"/>
+              </input>
+            </encoder>
           </input>
         </generator>
       </input>
@@ -71,35 +75,35 @@
     </build>
   </system>
 
-  <system>
-    <system_name>vm3</system_name>
-    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+<!--  <system>-->
+<!--    <system_name>vm3</system_name>-->
+<!--    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>-->
 
-    <!-- access="3" = vm2's IP — plain value pass-through -->
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <generator type="account">
-          <input into="username">
-            <value>test</value>
-          </input>
-          <input into="password">
-            <datastore access="3">IP_addresses</datastore>
-          </input>
-        </generator>
-      </input>
-    </utility>
+<!--    &lt;!&ndash; access="3" = vm2's IP — plain value pass-through &ndash;&gt;-->
+<!--    <utility module_path=".*/parameterised_accounts">-->
+<!--      <input into="accounts">-->
+<!--        <generator type="account">-->
+<!--          <input into="username">-->
+<!--            <value>test</value>-->
+<!--          </input>-->
+<!--          <input into="password">-->
+<!--            <datastore access="3">IP_addresses</datastore>-->
+<!--          </input>-->
+<!--        </generator>-->
+<!--      </input>-->
+<!--    </utility>-->
 
-    <network type="private_network">
-      <input into="vlan">
-        <value>2</value>
-      </input>
-    </network>
+<!--    <network type="private_network">-->
+<!--      <input into="vlan">-->
+<!--        <value>2</value>-->
+<!--      </input>-->
+<!--    </network>-->
 
-    <build type="cleanup">
-      <input into="root_password">
-        <value>toor</value>
-      </input>
-    </build>
-  </system>
+<!--    <build type="cleanup">-->
+<!--      <input into="root_password">-->
+<!--        <value>toor</value>-->
+<!--      </input>-->
+<!--    </build>-->
+<!--  </system>-->
 
 </scenario>

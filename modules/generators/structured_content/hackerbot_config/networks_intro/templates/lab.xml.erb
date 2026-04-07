@@ -33,7 +33,7 @@
 
 	 $desktop_vlan		  = $desktop_ip.sub(/\.\d+$/, '.0')
 	 $server_vlan		 	  = $server_ip.sub(/\.\d+$/, '.0')
-	 $web_server_vlan		= $web_server_ip.sub(/\.\d+$/, '.0')
+	 $web_server_vlan		= $webserver_ip.sub(/\.\d+$/, '.0')
 
 	 # Randomised values for challenges
 	 $new_desktop_ip = $desktop_ip.sub(/\.\d+$/, ".#{rand(15..255)}")

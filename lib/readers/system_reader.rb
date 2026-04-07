@@ -110,7 +110,6 @@ class SystemReader < XMLReader
                                                                       'access'         => access,
                                                                       'access_json'    => access_json)
           module_selector.explicit_inputs << variable
-          Print.debug "system_reader: #{module_selector.unique_id} explicit_inputs=#{module_selector.explicit_inputs.inspect}"
         end
 
         module_node.xpath('input/network_ip').each do |network_ip_node|
@@ -119,7 +118,7 @@ class SystemReader < XMLReader
           vlan = network_ip_node.xpath('@vlan').to_s
           vlan = '1' if vlan.empty?
           Print.verbose "  -- network_ip: #{variable} = #{referenced_system} vlan #{vlan}"
-          module_selector.deferred_network_inputs[variable] = { system: referenced_system, vlan: vlan.to_i }
+          (module_selector.deferred_network_inputs[variable] ||= []) << { system: referenced_system, vlan: vlan.to_i }
         end
 
         module_node.xpath('@*').each do |attr|
@@ -156,8 +155,6 @@ class SystemReader < XMLReader
       end
       systems << System.new(system_name, system_attributes, module_selectors, scenario_file, options)
     end
-
-    systems.each { |s| Print.debug "final check: name=#{s.name} object_id=#{s.object_id}" }
 
     return systems
   end

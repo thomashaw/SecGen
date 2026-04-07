@@ -236,18 +236,18 @@ class NetworkFunctions
   def self.resolve_deferred_inputs(systems, options)
     base_vlan = options[:proxmoxvlan] ? options[:proxmoxvlan].to_i : 0
 
-    # Resolve deferred network_ip references into module_selectors received_inputs
-    systems.each do |system|
-      system.module_selectors.each do |mod|
-        next if mod.deferred_network_inputs.empty?
-        mod.deferred_network_inputs.each do |input_variable, refs|
-          refs.each do |ref|
-            vlan_tag = base_vlan + (ref[:vlan] * 100)
-            vlan_tag = ((vlan_tag - 1) % 4094) + 1
+      # Resolve deferred network_ip references into module_selectors received_inputs
+      systems.each do |system|
+        system.module_selectors.each do |mod|
+          mod.deferred_network_inputs.each do |input_variable, refs|
+            Print.debug "deferred_network_inputs: mod=#{mod.unique_id} input_variable=#{input_variable} refs=#{refs.inspect}"
+            refs.each do |ref|
+              Print.debug "ref: #{ref.inspect} ref[:vlan]=#{ref[:vlan].inspect}"
+              vlan_tag = base_vlan + (ref[:vlan] * 100)
 
-            unless options[:network_map].key?(vlan_tag)
-              Print.err "network_ip resolution error: no network found for system '#{ref[:system]}' vlan #{ref[:vlan]} (tag #{vlan_tag}), referenced by #{mod.unique_id} into '#{input_variable}'"
-              exit 1
+              unless options[:network_map].key?(vlan_tag)
+                Print.err "network_ip resolution error: no network found for system '#{ref[:system]}' vlan #{ref[:vlan]} (tag #{vlan_tag}), referenced by #{mod.unique_id} into '#{input_variable}'"
+                exit 1
             end
 
             network = options[:network_map][vlan_tag]
