@@ -10,19 +10,18 @@ class NetworkFunctions
     # Build unique_id -> system_name lookup
     uid_to_system_name = {}
     systems.each do |system|
-      system.module_selections.each do |mod|
+      system.network_module_selections.each do |mod|
         uid_to_system_name[mod.unique_id] = system.name
       end
     end
 
-    Print.debug "uid_to_system_name: #{uid_to_system_name.inspect}"
     systems.each do |system|
       Print.debug "system: #{system.name} module_selections: #{system.module_selections.map(&:unique_id).inspect}"
     end
 
     # First pass — register all specific IP_address entries
     systems.each do |system|
-      system.module_selections.each do |mod|
+      system.network_module_selections.each do |mod|
         next unless mod.module_type == 'network'
         next unless mod.received_inputs.include?('IP_address')
 
@@ -57,11 +56,9 @@ class NetworkFunctions
 
     # Second pass — auto-assign IPs for range entries, skipping any claimed octets
     systems.each do |system|
-      Print.debug "Second pass system name: #{system.name}"
+      is_windows = system.network_module_selections.any? { |m| m.module_type == 'base' && m.attributes['platform']&.first&.downcase == 'windows' }
 
-      is_windows = system.module_selections.any? { |m| m.module_type == 'base' && m.attributes['platform']&.first&.downcase == 'windows' }
-
-      system.module_selections.each do |mod|
+      system.network_module_selections.each do |mod|
         next unless mod.module_type == 'network'
         next if mod.received_inputs.include?('IP_address')
 
@@ -126,8 +123,6 @@ class NetworkFunctions
 
         options[:network_map][vlan][:next_octet] = next_octet
         options[:network_map][vlan][:used_octets] << next_octet
-        options[:network_map][vlan][:ips][mod.unique_id] = nil # placeholder until resolved below
-        options[:network_map][vlan][:ips_by_system][system.name] = nil # placeholder until resolved below
         options[:network_map][vlan][:gateway][mod.unique_id] = mod.received_inputs['default_gateway']&.first&.then { |v| v.empty? ? nil : v }
         options[:network_map][vlan][:dns_nameservers][mod.unique_id] = mod.received_inputs['dns_nameservers']&.reject(&:empty?)&.join(' ')&.then { |v| v.empty? ? nil : v }
         options[:network_map][vlan][:routes][mod.unique_id] = mod.received_inputs['routes']&.reject(&:empty?) || []
@@ -227,36 +222,50 @@ class NetworkFunctions
       end
     end
 
+    Print.debug "Full network map: #{options[:network_map].inspect}"
 
-    # Fourth pass — resolve deferred network_ip references
+  end
+
+  def self.compute_vlan(mod, base_vlan)
+    vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
+    vlan = base_vlan + (vlan_index * 100)
+    # Wrap into valid 802.1Q range (1–4094)
+    ((vlan - 1) % 4094) + 1
+  end
+
+  def self.resolve_deferred_inputs(systems, options)
+    base_vlan = options[:proxmoxvlan] ? options[:proxmoxvlan].to_i : 0
+
+    # Resolve deferred network_ip references into module_selectors received_inputs
     systems.each do |system|
-      system.module_selections.each do |mod|
+      system.module_selectors.each do |mod|
         next if mod.deferred_network_inputs.empty?
-        mod.deferred_network_inputs.each do |input_variable, ref|
-          vlan_tag = base_vlan + (ref[:vlan] * 100)
-          vlan_tag = ((vlan_tag - 1) % 4094) + 1
+        mod.deferred_network_inputs.each do |input_variable, refs|
+          refs.each do |ref|
+            vlan_tag = base_vlan + (ref[:vlan] * 100)
+            vlan_tag = ((vlan_tag - 1) % 4094) + 1
 
-          unless options[:network_map].key?(vlan_tag)
-            Print.err "network_ip resolution error: no network found for system '#{ref[:system]}' vlan #{ref[:vlan]} (tag #{vlan_tag}), referenced by #{mod.unique_id} into '#{input_variable}'"
-            exit 1
+            unless options[:network_map].key?(vlan_tag)
+              Print.err "network_ip resolution error: no network found for system '#{ref[:system]}' vlan #{ref[:vlan]} (tag #{vlan_tag}), referenced by #{mod.unique_id} into '#{input_variable}'"
+              exit 1
+            end
+
+            network = options[:network_map][vlan_tag]
+            matched_ip = network[:ips_by_system][ref[:system]]
+
+            if matched_ip.nil?
+              Print.err "network_ip resolution error: no IP found for system '#{ref[:system]}' on vlan #{ref[:vlan]}, referenced by #{mod.unique_id} into '#{input_variable}'"
+              exit 1
+            end
+
+            (mod.received_inputs[input_variable] ||= []).push(matched_ip)
+            Print.debug "Pre-resolved network_ip: #{mod.unique_id} '#{input_variable}' = #{matched_ip} (#{ref[:system]} vlan #{ref[:vlan]})"
           end
-
-          network = options[:network_map][vlan_tag]
-          matched_ip = network[:ips_by_system][ref[:system]]
-
-          if matched_ip.nil?
-            Print.err "network_ip resolution error: no IP found for system '#{ref[:system]}' on vlan #{ref[:vlan]}, referenced by #{mod.unique_id} into '#{input_variable}'"
-            exit 1
-          end
-
-          (mod.received_inputs[input_variable] ||= []).push(matched_ip)
-          Print.debug "Resolved network_ip: #{mod.unique_id} '#{input_variable}' = #{matched_ip} (#{ref[:system]} vlan #{ref[:vlan]})"
         end
       end
     end
 
-
-    # Fifth pass — resolve deferred datastore network_ip references
+    # Resolve deferred datastore network_ip references
     if options[:deferred_datastore_network_ips]
       options[:deferred_datastore_network_ips].each do |positional_id, ref|
         vlan_tag = base_vlan + (ref[:vlan] * 100)
@@ -280,7 +289,7 @@ class NetworkFunctions
           idx = $datastore[datastore_name].index(positional_id)
           if idx
             $datastore[datastore_name][idx] = matched_ip
-            Print.debug "Resolved datastore network_ip: #{datastore_name}[#{idx}] = #{matched_ip} (#{ref[:system]} vlan #{ref[:vlan]})"
+            Print.debug "Pre-resolved datastore network_ip: #{datastore_name}[#{idx}] = #{matched_ip} (#{ref[:system]} vlan #{ref[:vlan]})"
           else
             Print.err "network_ip datastore resolution error: id #{positional_id} not found in datastore '#{datastore_name}'"
             exit 1
@@ -288,16 +297,6 @@ class NetworkFunctions
         end
       end
     end
-
-    Print.debug "Full network map: #{options[:network_map].inspect}"
-
-  end
-
-  def self.compute_vlan(mod, base_vlan)
-    vlan_index = mod.received_inputs['vlan']&.first&.to_i || 1
-    vlan = base_vlan + (vlan_index * 100)
-    # Wrap into valid 802.1Q range (1–4094)
-    ((vlan - 1) % 4094) + 1
   end
 
 end

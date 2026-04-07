@@ -11,6 +11,7 @@ class System
   attr_accessor :attributes # (basebox selection)
   attr_accessor :module_selectors # (filters)
   attr_accessor :module_selections # (after resolution)
+  attr_accessor :network_module_selections
   attr_accessor :num_actioned_module_conflicts
   attr_accessor :memory  # (RAM allocation for the system)
   attr_accessor :options  # (command line options hash)
@@ -22,6 +23,7 @@ class System
   attr_accessor :original_module_selectors
   attr_accessor :original_available_modules
 
+
   # Initalizes System object
   # @param [Object] name of the system
   # @param [Object] attributes such as base box selection
@@ -32,6 +34,7 @@ class System
     self.attributes = attributes
     self.module_selectors = module_selectors
     self.module_selections = []
+    self.network_module_selections = []
     self.num_actioned_module_conflicts = 0
     self.memory = "512"
     self.options = options
@@ -97,6 +100,30 @@ class System
         exit 1
       end
     end
+  end
+
+  def resolve_network_modules(available_modules, options)
+    selected_modules = []
+    module_selectors.each do |module_filter|
+      next unless module_filter.module_type == 'network'
+      selected_modules += select_modules(
+        module_filter.module_type,
+        module_filter.attributes,
+        duplicate(available_modules),
+        selected_modules,
+        module_filter.unique_id,
+        module_filter.write_output_variable,
+        module_filter.write_to_module_with_id,
+        module_filter.received_inputs,
+        module_filter.default_inputs_literals,
+        module_filter.write_to_datastore,
+        module_filter.received_datastores,
+        module_filter.write_module_path_to_datastore,
+        module_filter.explicit_inputs,
+        module_filter.deferred_network_inputs
+      )
+    end
+    self.network_module_selections = selected_modules
   end
 
   def replace_datastore_ips(options)

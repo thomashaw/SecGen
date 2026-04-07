@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Network IP Datastore Comprehensive Test</name>
+  <author>Tom Shaw</author>
+  <description>
+    Tests network_ip in datastores with mixed ordering:
+    IP_addresses should be: [static, vm1_ip, static, vm2_ip]
+    vm2 reads vm1's IP via datastore access="1" into a generator (generator fix test)
+    vm3 reads vm2's IP via datastore access="3" as a plain value
+  </description>
+
+  <type>ctf-lab</type>
+  <difficulty>intermediate</difficulty>
+
+  <system>
+    <system_name>vm1</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <input into_datastore="IP_addresses">
+      <value>10.0.0.1</value>
+      <network_ip system="vm1" vlan="1"/>
+      <value>10.0.0.3</value>
+      <network_ip system="vm2" vlan="1"/>
+    </input>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm2</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- access="1" = vm1's IP — consumed by generator -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <datastore access="1">IP_addresses</datastore>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm3</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- access="3" = vm2's IP — plain value pass-through -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <datastore access="3">IP_addresses</datastore>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+</scenario>

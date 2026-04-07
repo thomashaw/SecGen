@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Comprehensive Network Test</name>
+  <author>Tom Shaw</author>
+  <description>
+    Tests multiple network cases in one scenario:
+    - vm1: static IP_address on VLAN 1
+    - vm2: no explicit inputs on VLAN 1 — should auto-assign around vm1's static IP
+    - vm3: explicit range on VLAN 2
+    - vm4: no explicit inputs on VLAN 2 — should adopt vm3's range
+    - gateway: multi-NIC on both VLANs with static IPs
+    - vm2 uses network_ip to reference vm1's VLAN 1 IP in a module input
+    - vm2 also uses network_ip + value in same input (ordering test)
+    - vm4 uses cross-VLAN network_ip to reference vm1's VLAN 1 IP
+    - vm4 uses network_ip consumed by a generator (generator fix test)
+  </description>
+
+  <type>ctf-lab</type>
+  <difficulty>intermediate</difficulty>
+
+  <!-- Static IPs for gateway and vm1 -->
+  <system>
+    <system_name>vm1</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- Case 5: explicit IP_address -->
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.1.10</value>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm2</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- Case 8: network_ip + value in same input, document order preserved -->
+    <!-- Case 7: network_ip in module input -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <value>staticprefix</value>
+            <network_ip system="vm1" vlan="1"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <!-- Case 6: no explicit inputs on VLAN 1 — should auto-assign around vm1's 10.0.1.10 -->
+    <network type="private_network">
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm3</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- Case 2: explicit range on VLAN 2 -->
+    <network type="private_network">
+      <input into="range">
+        <value>172.16.5.0</value>
+      </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>vm4</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- Case 10: network_ip consumed by generator — should have real IP not positional_id -->
+    <!-- Case 11: cross-VLAN network_ip lookup (vm4 is VLAN 2, referencing vm1 on VLAN 1) -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <!-- This goes into a generator — tests the pre-resolution fix -->
+          <input into="password">
+            <network_ip system="vm1" vlan="1"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <!-- Case 3: no explicit inputs on VLAN 2 — should adopt vm3's 172.16.5.0 range -->
+    <network type="private_network">
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+  <!-- Case 12: multi-NIC VM on both VLANs -->
+  <system>
+    <system_name>gateway</system_name>
+    <base platform="linux" distro="Debian" type="desktop" name="KDE"/>
+
+    <!-- Static IP on VLAN 1 -->
+    <network type="private_network">
+      <input into="IP_address">
+        <value>10.0.1.1</value>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <!-- Static IP on VLAN 2 -->
+    <network type="private_network">
+      <input into="IP_address">
+        <value>172.16.5.1</value>
+      </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </build>
+  </system>
+
+</scenario>
