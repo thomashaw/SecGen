@@ -31,7 +31,7 @@
 
   <!-- Full URI embedded in SAN — supply from san_uri_generator -->
   <default_input into="san_uri">
-    <value></value>
+    <value>localhost</value>
   </default_input>
 
   <default_input into="key_size">
@@ -43,7 +43,5 @@
   </default_input>
 
   <output_type>cert_pem</output_type>
-  <output_type>key_pem</output_type>
-  <output_type>cn</output_type>
 
 </generator>
