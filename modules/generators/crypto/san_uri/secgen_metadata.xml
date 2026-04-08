@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+
+  <name>SAN URI Generator</name>
+  <author>Tom Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Generates a random hex path and constructs a full URI suitable for embedding in a TLS certificate Subject Alternative Name extension. Outputs the complete URI string.</description>
+
+  <type>san_uri</type>
+  <platform>unix</platform>
+
+  <read_fact>domain</read_fact>
+  <read_fact>protocol</read_fact>
+  <read_fact>port</read_fact>
+
+  <default_input into="domain">
+    <value>localhost</value>
+  </default_input>
+
+  <default_input into="protocol">
+    <value>http</value>
+  </default_input>
+
+  <output_type>san_uri</output_type>
+
+</generator>

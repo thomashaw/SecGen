@@ -1,30 +1,49 @@
 <?xml version="1.0"?>
 
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-  <name>Self Signed Certificate</name>
-  <author>Thomas Shaw</author>
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+
+  <name>Self-Signed TLS Certificate Generator</name>
+  <author>Tom Shaw</author>
   <module_license>MIT</module_license>
-  <description>Generates a pair of RSA 2048 ssh keys.</description>
+  <description>Generates a self-signed RSA certificate and private key. strings_to_leak[0] is used as the CN (typically the domain); the san_uri input embeds a full URI in the SAN extension pointing to the flag endpoint.</description>
 
-  <type>gpg_key_pair</type>
-  <platform>linux</platform>
-
-
+  <type>self_signed_cert</type>
+  <platform>unix</platform>
 
   <read_fact>domain</read_fact>
   <read_fact>strings_to_leak</read_fact>
-  <read_fact></read_fact>
+  <read_fact>san_uri</read_fact>
+  <read_fact>key_size</read_fact>
+  <read_fact>days</read_fact>
 
   <default_input into="domain">
-
+    <value>localhost</value>
   </default_input>
 
-  <output_type>ssh_key_pair</output_type>
+  <!-- strings_to_leak[0] -> CN (use domain for realistic cert)        -->
+  <!-- strings_to_leak[1] -> flag served at the san_uri path by Apache -->
+  <default_input into="strings_to_leak">
+    <generator type="flag_generator"/>
+    <generator type="flag_generator"/>
+  </default_input>
 
-  <CyBOK KA="C" topic="Public-Key Cryptography">
-    <keyword>public-key encryption</keyword>
-  </CyBOK>
+  <!-- Full URI embedded in SAN — supply from san_uri_generator -->
+  <default_input into="san_uri">
+    <value></value>
+  </default_input>
+
+  <default_input into="key_size">
+    <value>2048</value>
+  </default_input>
+
+  <default_input into="days">
+    <value>365</value>
+  </default_input>
+
+  <output_type>cert_pem</output_type>
+  <output_type>key_pem</output_type>
+  <output_type>cn</output_type>
 
 </generator>
