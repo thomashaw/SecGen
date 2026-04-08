@@ -1,0 +1,743 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+    <n>Secure Communications: VPNs, SSL/TLS and DNS Security</n>
+    <author>Tom Shaw</author>
+    <description>
+        Secure communications lab covering DNS security, SSL/TLS, and VPNs. Students configure DNS
+        resolution and discover a zone transfer misconfiguration, inspect TLS certificates, and
+        establish an OpenVPN tunnel from an external client into the internal network. Builds on
+        the network topology from the Network Security Fundamentals lab.
+    </description>
+    <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/network_security/2-secure-comms/</lab_sheet_url>
+
+    <type>ctf-lab</type>
+    <type>lab-sheet</type>
+    <difficulty>intermediate</difficulty>
+
+    <CyBOK KA="NS" topic="Secure Communications">
+        <keyword>DNS SECURITY</keyword>
+        <keyword>ZONE TRANSFER</keyword>
+        <keyword>DNS OVER TLS</keyword>
+        <keyword>TLS CERTIFICATES</keyword>
+        <keyword>HTTPS</keyword>
+        <keyword>HSTS</keyword>
+        <keyword>VPN</keyword>
+        <keyword>OPENVPN</keyword>
+        <keyword>CERTIFICATE AUTHORITY</keyword>
+    </CyBOK>
+
+    <CyBOK KA="NS" topic="Network Defence">
+        <keyword>ENCRYPTED TUNNELS</keyword>
+        <keyword>CERTIFICATE-BASED AUTHENTICATION</keyword>
+        <keyword>FIREWALL CONFIGURATION</keyword>
+    </CyBOK>
+
+
+    <!-- =================================================================
+         SHARED DATASTORE — IP addresses
+         =================================================================
+         Index  Host / Interface
+         [0]    gateway — Internal LAN side      (VLAN 1)
+         [1]    desktop                          (VLAN 1)
+         [2]    gateway — DMZ side               (VLAN 2)
+         [3]    web_server                       (VLAN 2)
+         [4]    gateway — Server zone side       (VLAN 3)
+         [5]    server                           (VLAN 3)
+         [6]    hackerbot_server — LAN side      (VLAN 1)
+         [7]    hackerbot_server — DMZ side      (VLAN 2)
+         [8]    hackerbot_server — Server side   (VLAN 3)
+         [9]    gateway — External side          (VLAN 4)
+         [10]   remote                           (VLAN 4)
+         [11]   hackerbot_server — External side (VLAN 4)
+         ================================================================= -->
+
+
+    <!-- =================================================================
+         DESKTOP — student starting point
+         Segment: Internal LAN — VLAN 1
+         ================================================================= -->
+
+    <system>
+        <system_name>desktop</system_name>
+        <base platform="linux" distro="Debian 12" type="desktop" name="KDE"/>
+
+        <!-- Shared IP datastore — populated from network map at build time -->
+        <input into_datastore="IP_addresses">
+            <!-- [0] gateway — Internal LAN side -->
+            <network_ip system="gateway_server" vlan="1"/>
+            <!-- [1] desktop -->
+            <network_ip system="desktop" vlan="1"/>
+            <!-- [2] gateway — DMZ side -->
+            <network_ip system="gateway_server" vlan="2"/>
+            <!-- [3] web_server -->
+            <network_ip system="web_server" vlan="2"/>
+            <!-- [4] gateway — Server zone side -->
+            <network_ip system="gateway_server" vlan="3"/>
+            <!-- [5] server -->
+            <network_ip system="server" vlan="3"/>
+            <!-- [6] hackerbot_server — Internal LAN side -->
+            <network_ip system="hackerbot_server" vlan="1"/>
+            <!-- [7] hackerbot_server — DMZ side -->
+            <network_ip system="hackerbot_server" vlan="2"/>
+            <!-- [8] hackerbot_server — Server zone side -->
+            <network_ip system="hackerbot_server" vlan="3"/>
+            <!-- [9] gateway — External side -->
+            <network_ip system="gateway_server" vlan="4"/>
+            <!-- [10] remote -->
+            <network_ip system="remote" vlan="4"/>
+            <!-- [11] hackerbot_server — External side -->
+            <network_ip system="hackerbot_server" vlan="4"/>
+        </input>
+
+        <input into_datastore="spoiler_admin_pass">
+            <generator type="strong_password_generator"/>
+        </input>
+        <input into_datastore="hackerbot_key">
+            <generator type="ssh_key_pair"/>
+        </input>
+        <input into_datastore="user_password">
+            <value>tiaspbiqe2r</value>
+        </input>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts" into_datastore="account">
+                <generator type="account">
+                    <input into="username" into_datastore="username">
+                        <generator type="username_generator"/>
+                    </input>
+                    <input into="password">
+                        <datastore>user_password</datastore>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                </generator>
+            </input>
+        </utility>
+
+        <utility module_path=".*/handy_cli_tools"/>
+        <utility module_path=".*/nmap"/>
+        <utility module_path=".*/wireshark"/>
+
+        <utility module_path=".*/iceweasel">
+            <input into="accounts">
+                <datastore>account</datastore>
+            </input>
+            <input into="autostart">
+                <value>true</value>
+            </input>
+            <input into="start_page">
+                <datastore access="6">IP_addresses</datastore>
+            </input>
+        </utility>
+
+        <utility module_path=".*/pidgin">
+            <input into="server_ip">
+                <datastore access="6">IP_addresses</datastore>
+            </input>
+            <input into="accounts">
+                <datastore>account</datastore>
+            </input>
+        </utility>
+
+        <utility module_path=".*/hackerbot_client">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+        </utility>
+
+        <!-- Internal LAN interface (VLAN 1) -->
+        <!-- dns_nameservers intentionally omitted — student task in Section 1 -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="1">IP_addresses</datastore>
+            </input>
+            <input into="default_gateway">
+                <datastore access="0">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>1</value>
+            </input>
+        </network>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+    </system>
+
+
+    <!-- =================================================================
+         GATEWAY — multi-homed router/firewall
+         Segments: Internal LAN (VLAN 1), DMZ (VLAN 2),
+                   Server zone (VLAN 3), External (VLAN 4)
+         ================================================================= -->
+
+    <system>
+        <system_name>gateway_server</system_name>
+        <base platform="linux" distro="Debian 12" type="desktop"/>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <datastore>account</datastore>
+            </input>
+        </utility>
+
+        <utility module_path=".*/hackerbot_client">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+        </utility>
+
+        <!-- iptables — Lab 1 end state + external->server block -->
+        <utility module_path=".*/iptables_rules">
+            <input into="ip_forwarding">
+                <value>true</value>
+            </input>
+            <input into="rules">
+
+                <!-- FORWARD chain: default policy DROP -->
+                <generator module_path=".*/iptables_policy">
+                    <input into="chain">
+                        <value>FORWARD</value>
+                    </input>
+                    <input into="policy">
+                        <value>DROP</value>
+                    </input>
+                </generator>
+
+                <!-- Allow LAN -> DMZ (desktop subnet -> web_server subnet) -->
+                <generator module_path=".*/iptables_forward_accept">
+                    <input into="source">
+                        <generator module_path=".*/subnet_from_ip">
+                            <input into="ip_address">
+                                <datastore access="1">IP_addresses</datastore>
+                            </input>
+                        </generator>
+                    </input>
+                    <input into="destination">
+                        <generator module_path=".*/subnet_from_ip">
+                            <input into="ip_address">
+                                <datastore access="3">IP_addresses</datastore>
+                            </input>
+                        </generator>
+                    </input>
+                </generator>
+
+                <!-- Allow LAN -> Server zone (desktop subnet -> server subnet) -->
+                <generator module_path=".*/iptables_forward_accept">
+                    <input into="source">
+                        <generator module_path=".*/subnet_from_ip">
+                            <input into="ip_address">
+                                <datastore access="1">IP_addresses</datastore>
+                            </input>
+                        </generator>
+                    </input>
+                    <input into="destination">
+                        <generator module_path=".*/subnet_from_ip">
+                            <input into="ip_address">
+                                <datastore access="5">IP_addresses</datastore>
+                            </input>
+                        </generator>
+                    </input>
+                </generator>
+
+                <!-- Allow established/related return traffic -->
+                <generator module_path=".*/iptables_forward_established"/>
+
+                <!-- Block external subnet from directly reaching server IP -->
+                <!-- Forces students to use the VPN tunnel for Challenge 5  -->
+                <generator module_path=".*/iptables_forward_drop">
+                    <input into="source">
+                        <generator module_path=".*/subnet_from_ip">
+                            <input into="ip_address">
+                                <datastore access="10">IP_addresses</datastore>
+                            </input>
+                        </generator>
+                    </input>
+                    <input into="destination">
+                        <datastore access="5">IP_addresses</datastore>
+                    </input>
+                </generator>
+
+                <!-- NAT: MASQUERADE LAN outbound via DMZ-facing interface -->
+                <generator module_path=".*/iptables_masquerade">
+                    <input into="source">
+                        <generator module_path=".*/subnet_from_ip">
+                            <input into="ip_address">
+                                <datastore access="1">IP_addresses</datastore>
+                            </input>
+                        </generator>
+                    </input>
+                    <input into="out_interface">
+                        <value>ens20</value>
+                    </input>
+                </generator>
+
+            </input>
+        </utility>
+
+        <!-- OpenVPN server — generates PKI, outputs client config bundle -->
+        <service module_path=".*/openvpn_server">
+            <input into="server_ip">
+                <datastore access="9">IP_addresses</datastore>
+            </input>
+            <input into="vpn_subnet">
+                <value>10.8.0.0</value>
+            </input>
+            <input into="vpn_subnet_mask">
+                <value>255.255.255.0</value>
+            </input>
+            <input into="client_config" into_datastore="openvpn_client_config">
+                <value>generate</value>
+            </input>
+        </service>
+
+        <!-- Internal LAN interface (VLAN 1) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="0">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>1</value>
+            </input>
+        </network>
+
+        <!-- DMZ interface (VLAN 2) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="2">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>2</value>
+            </input>
+        </network>
+
+        <!-- Server zone interface (VLAN 3) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="4">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>3</value>
+            </input>
+        </network>
+
+        <!-- External interface (VLAN 4) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="9">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>4</value>
+            </input>
+        </network>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+    </system>
+
+
+    <!-- =================================================================
+         WEB_SERVER — DMZ host
+         Segment: DMZ — VLAN 2
+         ================================================================= -->
+
+    <system>
+        <system_name>web_server</system_name>
+        <base platform="linux" distro="Debian 12" type="desktop"/>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <generator type="account">
+                    <input into="username">
+                        <datastore>username</datastore>
+                    </input>
+                    <input into="password">
+                        <datastore>user_password</datastore>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                </generator>
+            </input>
+        </utility>
+
+        <utility module_path=".*/hackerbot_client">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+        </utility>
+
+        <!-- Apache with TLS — flag embedded in certificate CN/SAN -->
+        <service module_path=".*/apache_tls">
+            <input into="domain">
+                <value>web.netseclab.co.uk</value>
+            </input>
+            <input into="flag" into_datastore="tls_cert_flag">
+                <generator type="flag_generator"/>
+            </input>
+        </service>
+
+        <utility module_path=".*/nmap"/>
+        <utility module_path=".*/wireshark"/>
+
+        <!-- DMZ interface (VLAN 2) — DNS via server -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="3">IP_addresses</datastore>
+            </input>
+            <input into="default_gateway">
+                <datastore access="2">IP_addresses</datastore>
+            </input>
+            <input into="dns_nameservers">
+                <datastore access="5">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>2</value>
+            </input>
+        </network>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+    </system>
+
+
+    <!-- =================================================================
+         SERVER — internal server
+         Segment: Server zone — VLAN 3
+         ================================================================= -->
+
+    <system>
+        <system_name>server</system_name>
+        <base platform="linux" distro="Debian 12" type="desktop"/>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <generator type="account">
+                    <input into="username">
+                        <datastore>username</datastore>
+                    </input>
+                    <input into="password">
+                        <datastore>user_password</datastore>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                </generator>
+            </input>
+        </utility>
+
+        <utility module_path=".*/hackerbot_client">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+        </utility>
+
+        <!-- bind9 DNS — authoritative for netseclab.co.uk              -->
+        <!-- Zone transfer intentionally unrestricted (Challenge 2)      -->
+        <!-- TXT flag at fixed hostname "flag" (Challenge 1)             -->
+        <!-- secret.netseclab.co.uk only discoverable via AXFR           -->
+        <service module_path=".*/bind9_dns_server">
+            <input into="domain">
+                <value>netseclab.co.uk</value>
+            </input>
+            <input into="dns_flag" into_datastore="dns_txt_flag">
+                <generator type="flag_generator"/>
+            </input>
+            <input into="flag_hostname">
+                <value>flag</value>
+            </input>
+            <input into="dns_records">
+                <!-- gateway — Internal LAN -->
+                <generator module_path=".*/dns_record">
+                    <input into="hostname">
+                        <value>gateway.netseclab.co.uk</value>
+                    </input>
+                    <input into="type">
+                        <value>a</value>
+                    </input>
+                    <input into="value">
+                        <datastore access="0">IP_addresses</datastore>
+                    </input>
+                </generator>
+                <!-- desktop -->
+                <generator module_path=".*/dns_record">
+                    <input into="hostname">
+                        <value>desktop.netseclab.co.uk</value>
+                    </input>
+                    <input into="type">
+                        <value>a</value>
+                    </input>
+                    <input into="value">
+                        <datastore access="1">IP_addresses</datastore>
+                    </input>
+                </generator>
+                <!-- web_server -->
+                <generator module_path=".*/dns_record">
+                    <input into="hostname">
+                        <value>web.netseclab.co.uk</value>
+                    </input>
+                    <input into="type">
+                        <value>a</value>
+                    </input>
+                    <input into="value">
+                        <datastore access="3">IP_addresses</datastore>
+                    </input>
+                </generator>
+                <!-- server -->
+                <generator module_path=".*/dns_record">
+                    <input into="hostname">
+                        <value>server.netseclab.co.uk</value>
+                    </input>
+                    <input into="type">
+                        <value>a</value>
+                    </input>
+                    <input into="value">
+                        <datastore access="5">IP_addresses</datastore>
+                    </input>
+                </generator>
+                <!-- secret — fake host, only discoverable via zone transfer -->
+                <generator module_path=".*/dns_record">
+                    <input into="hostname">
+                        <value>secret.netseclab.co.uk</value>
+                    </input>
+                    <input into="type">
+                        <value>a</value>
+                    </input>
+                    <input into="value">
+                        <value>10.0.3.20</value>
+                    </input>
+                </generator>
+            </input>
+            <input into="allow_transfer">
+                <!-- Intentionally unrestricted — student fixes this in Challenge 2 -->
+                <value>any</value>
+            </input>
+        </service>
+
+        <!-- nc_message: flag service on randomised port (Challenge 5)  -->
+        <!-- Access restricted by gateway iptables to VPN subnet only   -->
+        <utility module_path=".*/nc_message">
+            <input into="strings_to_leak" into_datastore="vpn_flag">
+                <generator type="flag_generator"/>
+            </input>
+            <input into="port" into_datastore="vpn_flag_port">
+                <generator module_path=".*/random_number">
+                    <input into="minimum">
+                        <value>1024</value>
+                    </input>
+                    <input into="maximum">
+                        <value>2024</value>
+                    </input>
+                </generator>
+            </input>
+        </utility>
+
+        <utility module_path=".*/wireshark"/>
+
+        <!-- Server zone interface (VLAN 3) — self for DNS -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="5">IP_addresses</datastore>
+            </input>
+            <input into="default_gateway">
+                <datastore access="4">IP_addresses</datastore>
+            </input>
+            <input into="dns_nameservers">
+                <!-- Server is its own DNS server -->
+                <value>127.0.0.1</value>
+            </input>
+            <input into="vlan">
+                <value>3</value>
+            </input>
+        </network>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+    </system>
+
+
+    <!-- =================================================================
+         REMOTE — external client VM
+         Segment: External — VLAN 4
+         ================================================================= -->
+
+    <system>
+        <system_name>remote</system_name>
+        <base platform="linux" distro="Debian 12" type="desktop" name="KDE"/>
+
+        <utility module_path=".*/parameterised_accounts">
+            <input into="accounts">
+                <generator type="account">
+                    <input into="username">
+                        <datastore>username</datastore>
+                    </input>
+                    <input into="password">
+                        <datastore>user_password</datastore>
+                    </input>
+                    <input into="super_user">
+                        <value>true</value>
+                    </input>
+                </generator>
+            </input>
+        </utility>
+
+        <utility module_path=".*/hackerbot_client">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+        </utility>
+
+        <!-- OpenVPN client config pre-deployed; tunnel not started -->
+        <utility module_path=".*/openvpn_client_config">
+            <input into="client_config">
+                <datastore>openvpn_client_config</datastore>
+            </input>
+        </utility>
+
+        <utility module_path=".*/handy_cli_tools"/>
+        <utility module_path=".*/nmap"/>
+        <utility module_path=".*/wireshark"/>
+
+        <utility module_path=".*/iceweasel">
+            <input into="accounts">
+                <datastore>account</datastore>
+            </input>
+            <input into="autostart">
+                <value>false</value>
+            </input>
+        </utility>
+
+        <!-- External interface (VLAN 4) — no gateway, no DNS -->
+        <!-- Student configures DNS after VPN is established   -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="10">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>4</value>
+            </input>
+        </network>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+    </system>
+
+
+    <!-- =================================================================
+         HACKERBOT SERVER
+         Segments: All four VLANs so it can SSH to any VM for checks
+         ================================================================= -->
+
+    <system>
+        <system_name>hackerbot_server</system_name>
+        <base distro="Kali" name="MSF"/>
+
+        <service type="ircd"/>
+
+        <utility module_path=".*/metasploit_framework"/>
+        <utility module_path=".*/nmap"/>
+        <utility module_path=".*/handy_cli_tools"/>
+
+        <service type="httpd"/>
+
+        <utility module_path=".*/hackerbot">
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
+            <input into="hackerbot_configs" into_datastore="hackerbot_instructions">
+                <generator module_path=".*/networks_dns_tls_vpn">
+                    <input into="accounts">
+                        <datastore>account</datastore>
+                    </input>
+                    <input into="IP_addresses">
+                        <datastore>IP_addresses</datastore>
+                    </input>
+                    <input into="dns_txt_flag">
+                        <datastore>dns_txt_flag</datastore>
+                    </input>
+                    <input into="tls_cert_flag">
+                        <datastore>tls_cert_flag</datastore>
+                    </input>
+                    <input into="vpn_flag">
+                        <datastore>vpn_flag</datastore>
+                    </input>
+                    <input into="vpn_flag_port">
+                        <datastore>vpn_flag_port</datastore>
+                    </input>
+                </generator>
+            </input>
+        </utility>
+
+        <!-- Internal LAN interface (VLAN 1) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="6">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>1</value>
+            </input>
+        </network>
+
+        <!-- DMZ interface (VLAN 2) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="7">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>2</value>
+            </input>
+        </network>
+
+        <!-- Server zone interface (VLAN 3) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="8">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>3</value>
+            </input>
+        </network>
+
+        <!-- External interface (VLAN 4) -->
+        <network type="private_network">
+            <input into="IP_address">
+                <datastore access="11">IP_addresses</datastore>
+            </input>
+            <input into="vlan">
+                <value>4</value>
+            </input>
+        </network>
+
+        <build type="cleanup">
+            <input into="root_password">
+                <datastore>spoiler_admin_pass</datastore>
+            </input>
+        </build>
+
+    </system>
+
+</scenario>

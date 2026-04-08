@@ -5,14 +5,24 @@ class bind9::config {
   $serial         = $secgen_params['serial'][0]
   $flag           = $secgen_params['strings_to_leak'][0]
   $flag_hostname  = $secgen_params['flag_hostname'][0]
-  $a_records      = $secgen_params['a_records']
+  $dns_records    = $secgen_params['dns_records']
   $allow_transfer = $secgen_params['allow_transfer'][0]
 
-  $a_record_pairs = inline_template('<%
+  # Parse dns_records entries in the format "hostname|type|value" or
+  # "hostname|type|value|priority" (MX only).
+  # Also accepts legacy "hostname=ip" format (treated as A records).
+  $dns_record_pairs = inline_template('<%
 result = []
-@a_records.each do |r|
-  parts = r.split("=")
-  result << { "hostname" => parts[0], "ip" => parts[1] }
+(@dns_records || []).each do |r|
+  if r.include?("|")
+    parts = r.split("|")
+    entry = { "hostname" => parts[0], "type" => parts[1].upcase, "value" => parts[2] }
+    entry["priority"] = parts[3] if parts[3]
+    result << entry
+  elsif r.include?("=")
+    parts = r.split("=")
+    result << { "hostname" => parts[0], "type" => "A", "value" => parts[1] }
+  end
 end
 -%><%= result %>')
 

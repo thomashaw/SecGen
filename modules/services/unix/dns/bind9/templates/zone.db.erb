@@ -8,8 +8,21 @@ $TTL 604800
 
 @       IN  NS  <%= @ns_hostname %>.
 
-<% @a_record_pairs.each do |record| -%>
-  <%= record['hostname'] %>  IN  A  <%= record['ip'] %>
+<% (@dns_record_pairs || []).each do |record| -%>
+<%   type = record['type'] -%>
+<%   if type == 'A' || type == 'AAAA' -%>
+<%= record['hostname'] %>  IN  <%= type %>  <%= record['value'] %>
+<%   elsif type == 'CNAME' -%>
+<%= record['hostname'] %>  IN  CNAME  <%= record['value'] %>.
+<%   elsif type == 'TXT' -%>
+<%= record['hostname'] %>  IN  TXT  "<%= record['value'] %>"
+<%   elsif type == 'NS' -%>
+<%= record['hostname'] %>  IN  NS  <%= record['value'] %>.
+<%   elsif type == 'PTR' -%>
+<%= record['hostname'] %>  IN  PTR  <%= record['value'] %>.
+<%   elsif type == 'MX' -%>
+<%= record['hostname'] %>  IN  MX  <%= record['priority'] || '10' %>  <%= record['value'] %>.
+<%   end -%>
 <% end -%>
 
 <%= @flag_hostname %>  IN  TXT  "<%= @flag %>"
