@@ -105,8 +105,8 @@
 
         <!-- Generate the SAN URI once — shared by self_signed_cert and apache_tls -->
         <!-- The URI embeds a random hex path pointing to the TLS flag endpoint    -->
-        <input into_datastore="tls_san_uri">
-            <generator module_path=".*/san_uri">
+        <input into_datastore="san_uri">
+            <generator module_path=".*/san_uri_generator">
                 <input into="domain">
                     <value>web.netseclab.co.uk</value>
                 </input>
@@ -133,8 +133,8 @@
                     <value>web.netseclab.co.uk</value>
                     <datastore>tls_cert_flag</datastore>
                 </input>
-                <input into="san_uri">
-                    <datastore>tls_san_uri</datastore>
+                <input into="uri">
+                    <datastore>san_uri</datastore>
                 </input>
             </generator>
         </input>
@@ -356,15 +356,15 @@
         <!-- cert_bundle contains cert_pem and key_pem from self_signed_cert  -->
         <!-- san_uri tells Apache which hex path to serve the flag at         -->
         <!-- strings_to_leak[1] (tls_cert_flag) is written to that path      -->
-        <service module_path=".*/apache_tls">
+        <service module_path=".*/apache_stretch_compatible/apache">
             <input into="domain">
                 <value>web.netseclab.co.uk</value>
             </input>
             <input into="cert_bundle">
                 <datastore>tls_cert_bundle</datastore>
             </input>
-            <input into="san_uri">
-                <datastore>tls_san_uri</datastore>
+            <input into="uri">
+                <datastore>san_uri</datastore>
             </input>
             <input into="strings_to_leak">
                 <datastore>tls_cert_flag</datastore>
@@ -605,8 +605,8 @@
                     <input into="tls_cert_flag">
                         <datastore>tls_cert_flag</datastore>
                     </input>
-                    <input into="tls_san_uri">
-                        <datastore>tls_san_uri</datastore>
+                    <input into="uri">
+                        <datastore>san_uri</datastore>
                     </input>
                     <input into="vpn_flag">
                         <datastore>vpn_flag</datastore>
