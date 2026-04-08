@@ -4,7 +4,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-    <n>Secure Communications: VPNs, SSL/TLS and DNS Security</n>
+    <name>Secure Communications: VPNs, SSL/TLS and DNS Security</name>
     <author>Tom Shaw</author>
     <description>
         Secure communications lab covering DNS security, SSL/TLS, and VPNs. Students configure DNS

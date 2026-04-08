@@ -96,11 +96,47 @@
             <generator type="strong_password_generator"/>
         </input>
         <input into_datastore="hackerbot_key">
-          <generator type="ssh_key_pair"/>
+            <generator type="ssh_key_pair"/>
         </input>
 
         <input into_datastore="user_password">
             <value>tiaspbiqe2r</value>
+        </input>
+
+        <!-- Generate the SAN URI once — shared by self_signed_cert and apache_tls -->
+        <!-- The URI embeds a random hex path pointing to the TLS flag endpoint    -->
+        <input into_datastore="tls_san_uri">
+            <generator module_path=".*/san_uri_generator">
+                <input into="domain">
+                    <value>web.netseclab.co.uk</value>
+                </input>
+                <input into="protocol">
+                    <value>http</value>
+                </input>
+            </generator>
+        </input>
+
+        <!-- Generate the TLS cert flag — served by Apache at the hex path -->
+        <input into_datastore="tls_cert_flag">
+            <generator type="flag_generator"/>
+        </input>
+
+        <!-- Generate the cert bundle — consumed by apache_tls on web_server -->
+        <input into_datastore="tls_cert_bundle">
+            <generator module_path=".*/self_signed_cert">
+                <input into="domain">
+                    <value>web.netseclab.co.uk</value>
+                </input>
+                <!-- strings_to_leak[0] -> CN (realistic domain name) -->
+                <!-- strings_to_leak[1] -> flag served at the hex path -->
+                <input into="strings_to_leak">
+                    <value>web.netseclab.co.uk</value>
+                    <datastore>tls_cert_flag</datastore>
+                </input>
+                <input into="san_uri">
+                    <datastore>tls_san_uri</datastore>
+                </input>
+            </generator>
         </input>
 
         <utility module_path=".*/parameterised_accounts">
@@ -145,14 +181,13 @@
         </utility>
 
         <utility module_path=".*/hackerbot_client">
-          <input into="ssh_key_pair">
-            <datastore>hackerbot_key</datastore>
-          </input>
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
         </utility>
 
         <!-- Internal LAN interface (VLAN 1) -->
-        <!-- gateway pre-configured (Lab 1 end state); dns_nameservers omitted -->
-        <!-- intentionally — student configures this in Section 1               -->
+        <!-- DNS intentionally omitted — student configures in Section 1 -->
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="1">IP_addresses</datastore>
@@ -202,80 +237,43 @@
         </utility>
 
         <utility module_path=".*/hackerbot_client">
-          <input into="ssh_key_pair">
-            <datastore>hackerbot_key</datastore>
-          </input>
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
         </utility>
 
-        <!-- iptables baseline — Lab 1 end state + external->server block  -->
-        <!-- Rules with dynamic IPs use generator modules so that datastore -->
-        <!-- values can be substituted in at generation time                -->
         <utility module_path=".*/iptables_rules">
             <input into="ip_forwarding">
                 <value>true</value>
             </input>
             <input into="rules">
-
-                <!-- FORWARD chain: default policy DROP -->
                 <generator module_path=".*/iptables_policy">
-                    <input into="chain">
-                        <value>FORWARD</value>
-                    </input>
-                    <input into="policy">
-                        <value>DROP</value>
-                    </input>
+                    <input into="chain"><value>FORWARD</value></input>
+                    <input into="policy"><value>DROP</value></input>
                 </generator>
-
-                <!-- Allow LAN -> DMZ -->
                 <generator module_path=".*/iptables_forward_accept">
-                    <input into="source">
-                        <value>10.0.1.0/24</value>
-                    </input>
-                    <input into="destination">
-                        <value>10.0.2.0/24</value>
-                    </input>
+                    <input into="source"><value>10.0.1.0/24</value></input>
+                    <input into="destination"><value>10.0.2.0/24</value></input>
                 </generator>
-
-                <!-- Allow LAN -> Server zone -->
                 <generator module_path=".*/iptables_forward_accept">
-                    <input into="source">
-                        <value>10.0.1.0/24</value>
-                    </input>
-                    <input into="destination">
-                        <value>10.0.3.0/24</value>
-                    </input>
+                    <input into="source"><value>10.0.1.0/24</value></input>
+                    <input into="destination"><value>10.0.3.0/24</value></input>
                 </generator>
-
-                <!-- Allow established/related return traffic -->
                 <generator module_path=".*/iptables_forward_established"/>
-
-                <!-- Block external subnet from directly reaching server IP -->
-                <!-- Forces students to use the VPN tunnel for Challenge 5  -->
+                <!-- Block external subnet from directly reaching server — forces VPN for Challenge 5 -->
                 <generator module_path=".*/iptables_forward_drop">
-                    <input into="source">
-                        <value>10.0.4.0/24</value>
-                    </input>
+                    <input into="source"><value>10.0.4.0/24</value></input>
                     <input into="destination">
                         <datastore access="5">IP_addresses</datastore>
                     </input>
                 </generator>
-
-                <!-- NAT: MASQUERADE LAN outbound via DMZ-facing interface -->
                 <generator module_path=".*/iptables_masquerade">
-                    <input into="source">
-                        <value>10.0.1.0/24</value>
-                    </input>
-                    <input into="out_interface">
-                        <value>ens20</value>
-                    </input>
+                    <input into="source"><value>10.0.1.0/24</value></input>
+                    <input into="out_interface"><value>ens20</value></input>
                 </generator>
-
             </input>
         </utility>
 
-        <!-- OpenVPN server — installed and configured, not started -->
-        <!-- Generates CA, server cert/key, client cert/key             -->
-        <!-- Outputs client config bundle to openvpn_client_config datastore -->
         <service module_path=".*/openvpn_server">
             <input into="server_ip">
                 <datastore access="9">IP_addresses</datastore>
@@ -291,44 +289,21 @@
             </input>
         </service>
 
-        <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="0">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>1</value>
-            </input>
+            <input into="IP_address"><datastore access="0">IP_addresses</datastore></input>
+            <input into="vlan"><value>1</value></input>
         </network>
-
-        <!-- DMZ interface (VLAN 2) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="2">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>2</value>
-            </input>
+            <input into="IP_address"><datastore access="2">IP_addresses</datastore></input>
+            <input into="vlan"><value>2</value></input>
         </network>
-
-        <!-- Server zone interface (VLAN 3) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="4">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>3</value>
-            </input>
+            <input into="IP_address"><datastore access="4">IP_addresses</datastore></input>
+            <input into="vlan"><value>3</value></input>
         </network>
-
-        <!-- External interface (VLAN 4) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="9">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>4</value>
-            </input>
+            <input into="IP_address"><datastore access="9">IP_addresses</datastore></input>
+            <input into="vlan"><value>4</value></input>
         </network>
 
         <build type="cleanup">
@@ -344,8 +319,11 @@
          WEB_SERVER — DMZ host
          Segment: DMZ (10.0.2.0/24) — VLAN 2
          Runs: Apache on port 80 and 443 (HTTPS, self-signed cert)
-         Flag embedded in TLS certificate CN/SAN (Challenge 3)
-         No HSTS header — student configures this in Week 11 MitM lab
+         Challenge 3:
+           - Student inspects cert with openssl s_client
+           - Finds URI in SAN extension
+           - Follows URI with curl to retrieve flag from hex path endpoint
+         No HSTS header — added by student in Week 11 MitM lab
          ================================================================= -->
 
     <system>
@@ -369,25 +347,33 @@
         </utility>
 
         <utility module_path=".*/hackerbot_client">
-          <input into="ssh_key_pair">
-            <datastore>hackerbot_key</datastore>
-          </input>
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
         </utility>
 
-        <!-- Apache with TLS — flag embedded in certificate CN/SAN -->
+        <!-- Apache with TLS                                                   -->
+        <!-- cert_bundle contains cert_pem and key_pem from self_signed_cert  -->
+        <!-- san_uri tells Apache which hex path to serve the flag at         -->
+        <!-- strings_to_leak[1] (tls_cert_flag) is written to that path      -->
         <service module_path=".*/apache_tls">
             <input into="domain">
                 <value>web.netseclab.co.uk</value>
             </input>
-            <input into="flag" into_datastore="tls_cert_flag">
-                <generator type="flag_generator"/>
+            <input into="cert_bundle">
+                <datastore>tls_cert_bundle</datastore>
+            </input>
+            <input into="san_uri">
+                <datastore>tls_san_uri</datastore>
+            </input>
+            <input into="strings_to_leak">
+                <datastore>tls_cert_flag</datastore>
             </input>
         </service>
 
         <utility module_path=".*/nmap"/>
         <utility module_path=".*/wireshark"/>
 
-        <!-- DMZ interface (VLAN 2) — gateway pre-configured, DNS via server -->
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="3">IP_addresses</datastore>
@@ -413,7 +399,7 @@
 
 
     <!-- =================================================================
-         SERVER — internal server
+         SERVER — internal server zone host
          Segment: Server zone (10.0.3.0/24) — VLAN 3
          Runs:
            - bind9: authoritative for netseclab.co.uk
@@ -421,8 +407,8 @@
                TXT flag record at flag.netseclab.co.uk (Challenge 1)
                secret.netseclab.co.uk A record (visible via AXFR only)
            - nc_message: flag service on randomised port (Challenge 5)
-               Firewall on gateway blocks direct access from 10.0.4.0/24;
-               only reachable via VPN tunnel subnet 10.8.0.0/24
+               Gateway blocks direct access from 10.0.4.0/24
+               Only reachable via VPN tunnel subnet 10.8.0.0/24
          ================================================================= -->
 
     <system>
@@ -446,15 +432,11 @@
         </utility>
 
         <utility module_path=".*/hackerbot_client">
-          <input into="ssh_key_pair">
-            <datastore>hackerbot_key</datastore>
-          </input>
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
         </utility>
 
-        <!-- bind9 DNS — authoritative for netseclab.co.uk           -->
-        <!-- Zone transfer intentionally unrestricted (Challenge 2)   -->
-        <!-- TXT flag at fixed hostname "flag" (Challenge 1)          -->
-        <!-- secret.netseclab.co.uk only discoverable via AXFR        -->
         <service module_path=".*/bind9_dns_server">
             <input into="domain">
                 <value>netseclab.co.uk</value>
@@ -463,45 +445,36 @@
                 <generator type="flag_generator"/>
             </input>
             <input into="flag_hostname">
-                <!-- Fixed hostname so students can find it: dig TXT flag.netseclab.co.uk -->
                 <value>flag</value>
             </input>
             <input into="a_records">
-                <!-- All internal hosts registered in the zone -->
                 <value>gateway.netseclab.co.uk=10.0.1.1</value>
                 <value>desktop.netseclab.co.uk=10.0.1.10</value>
                 <value>web.netseclab.co.uk=10.0.2.10</value>
                 <value>server.netseclab.co.uk=10.0.3.10</value>
-                <!-- secret record — only discoverable via zone transfer -->
+                <!-- Only discoverable via zone transfer -->
                 <value>secret.netseclab.co.uk=10.0.3.20</value>
             </input>
             <input into="allow_transfer">
-                <!-- Intentionally unrestricted — student fixes this in Challenge 2 -->
                 <value>any</value>
             </input>
         </service>
 
-        <!-- nc_message: flag service on randomised port (Challenge 5) -->
-        <!-- Access restricted by gateway iptables rule to VPN subnet  -->
+        <!-- VPN flag service — randomised port, blocked from external subnet -->
         <utility module_path=".*/nc_message">
             <input into="strings_to_leak" into_datastore="vpn_flag">
                 <generator type="flag_generator"/>
             </input>
             <input into="port" into_datastore="vpn_flag_port">
                 <generator module_path=".*/random_number">
-                    <input into="minimum">
-                        <value>1024</value>
-                    </input>
-                    <input into="maximum">
-                        <value>2024</value>
-                    </input>
+                    <input into="minimum"><value>1024</value></input>
+                    <input into="maximum"><value>2024</value></input>
                 </generator>
             </input>
         </utility>
 
         <utility module_path=".*/wireshark"/>
 
-        <!-- Server zone interface (VLAN 3) — gateway pre-configured, self for DNS -->
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="5">IP_addresses</datastore>
@@ -510,7 +483,6 @@
                 <datastore access="4">IP_addresses</datastore>
             </input>
             <input into="dns_nameservers">
-                <!-- Server is the DNS server — resolves via loopback -->
                 <value>127.0.0.1</value>
             </input>
             <input into="vlan">
@@ -530,9 +502,8 @@
     <!-- =================================================================
          REMOTE — external client VM
          Segment: External (10.0.4.0/24) — VLAN 4
-         No gateway configured — remote has no route into internal network
-         OpenVPN client installed, config pre-deployed, tunnel not started
-         KDE desktop enabled (system_name does not match .*server pattern)
+         No gateway — no route into internal network until VPN is up
+         OpenVPN client config pre-deployed, tunnel not started
          ================================================================= -->
 
     <system>
@@ -556,12 +527,11 @@
         </utility>
 
         <utility module_path=".*/hackerbot_client">
-          <input into="ssh_key_pair">
-            <datastore>hackerbot_key</datastore>
-          </input>
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
         </utility>
 
-        <!-- OpenVPN client config pre-deployed; tunnel not started -->
         <utility module_path=".*/openvpn_client_config">
             <input into="client_config">
                 <datastore>openvpn_client_config</datastore>
@@ -581,8 +551,7 @@
             </input>
         </utility>
 
-        <!-- External interface (VLAN 4) — no gateway, no DNS -->
-        <!-- Student configures DNS after VPN is established   -->
+        <!-- No gateway, no DNS — student configures after VPN is up -->
         <network type="private_network">
             <input into="IP_address">
                 <datastore access="10">IP_addresses</datastore>
@@ -604,7 +573,6 @@
     <!-- =================================================================
          HACKERBOT SERVER
          Segments: All four VLANs so it can SSH to any VM for checks
-         Passes all flag datastores and IP addresses into the generator
          ================================================================= -->
 
     <system>
@@ -620,9 +588,9 @@
         <service type="httpd"/>
 
         <utility module_path=".*/hackerbot">
-          <input into="ssh_key_pair">
-            <datastore>hackerbot_key</datastore>
-          </input>
+            <input into="ssh_key_pair">
+                <datastore>hackerbot_key</datastore>
+            </input>
             <input into="hackerbot_configs" into_datastore="hackerbot_instructions">
                 <generator module_path=".*/networks_dns_tls_vpn">
                     <input into="accounts">
@@ -637,6 +605,9 @@
                     <input into="tls_cert_flag">
                         <datastore>tls_cert_flag</datastore>
                     </input>
+                    <input into="tls_san_uri">
+                        <datastore>tls_san_uri</datastore>
+                    </input>
                     <input into="vpn_flag">
                         <datastore>vpn_flag</datastore>
                     </input>
@@ -647,44 +618,21 @@
             </input>
         </utility>
 
-        <!-- Internal LAN interface (VLAN 1) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="6">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>1</value>
-            </input>
+            <input into="IP_address"><datastore access="6">IP_addresses</datastore></input>
+            <input into="vlan"><value>1</value></input>
         </network>
-
-        <!-- DMZ interface (VLAN 2) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="7">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>2</value>
-            </input>
+            <input into="IP_address"><datastore access="7">IP_addresses</datastore></input>
+            <input into="vlan"><value>2</value></input>
         </network>
-
-        <!-- Server zone interface (VLAN 3) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="8">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>3</value>
-            </input>
+            <input into="IP_address"><datastore access="8">IP_addresses</datastore></input>
+            <input into="vlan"><value>3</value></input>
         </network>
-
-        <!-- External interface (VLAN 4) -->
         <network type="private_network">
-            <input into="IP_address">
-                <datastore access="11">IP_addresses</datastore>
-            </input>
-            <input into="vlan">
-                <value>4</value>
-            </input>
+            <input into="IP_address"><datastore access="11">IP_addresses</datastore></input>
+            <input into="vlan"><value>4</value></input>
         </network>
 
         <build type="cleanup">

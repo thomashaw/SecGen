@@ -3,7 +3,7 @@
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
-  <n>dns_record</n>
+  <name>dns_record</name>
   <author>Tom Shaw</author>
   <module_license>GPLv3</module_license>
   <description>Generates a DNS record string in the format "hostname|type|value" (or "hostname|type|value|priority" for MX records). Supported types: a, aaaa, cname, txt, ns, ptr, mx.</description>

@@ -3,7 +3,7 @@
 <service xmlns="http://www.github/cliffe/SecGen/service"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
-  <n>bind9</n>
+  <name>bind9</name>
   <author>Tom Shaw</author>
   <module_license>MIT</module_license>
   <description>Installs bind9 and configures it as an authoritative DNS server for a specified domain. Supports A, AAAA, CNAME, TXT, NS, PTR, and MX records via the dns_records input. Zone transfer policy is configurable — unrestricted by default for intentional misconfiguration scenarios.</description>
