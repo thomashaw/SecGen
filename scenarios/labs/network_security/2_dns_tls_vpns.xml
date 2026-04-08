@@ -106,7 +106,7 @@
         <!-- Generate the SAN URI once — shared by self_signed_cert and apache_tls -->
         <!-- The URI embeds a random hex path pointing to the TLS flag endpoint    -->
         <input into_datastore="tls_san_uri">
-            <generator module_path=".*/san_uri_generator">
+            <generator module_path=".*/san_uri">
                 <input into="domain">
                     <value>web.netseclab.co.uk</value>
                 </input>
