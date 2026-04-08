@@ -106,7 +106,7 @@
         <!-- Generate the SAN URI once — shared by self_signed_cert and apache_tls -->
         <!-- The URI embeds a random hex path pointing to the TLS flag endpoint    -->
         <input into_datastore="san_uri">
-            <generator module_path=".*/san_uri_generator">
+            <generator module_path=".*/san_uri">
                 <input into="domain">
                     <value>web.netseclab.co.uk</value>
                 </input>
@@ -133,7 +133,7 @@
                     <value>web.netseclab.co.uk</value>
                     <datastore>tls_cert_flag</datastore>
                 </input>
-                <input into="uri">
+                <input into="san_uri">
                     <datastore>san_uri</datastore>
                 </input>
             </generator>
@@ -363,7 +363,7 @@
             <input into="cert_bundle">
                 <datastore>tls_cert_bundle</datastore>
             </input>
-            <input into="uri">
+            <input into="san_uri">
                 <datastore>san_uri</datastore>
             </input>
             <input into="strings_to_leak">
@@ -437,7 +437,7 @@
             </input>
         </utility>
 
-        <service module_path=".*/bind9_dns_server">
+        <service module_path=".*/bind9">
             <input into="domain">
                 <value>netseclab.co.uk</value>
             </input>
