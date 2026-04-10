@@ -7,7 +7,7 @@
   <name>Self-Signed TLS Certificate Generator</name>
   <author>Tom Shaw</author>
   <module_license>MIT</module_license>
-  <description>Generates a self-signed RSA certificate and private key. strings_to_leak[0] is used as the CN (typically the domain); the san_uri input embeds a full URI in the SAN extension pointing to the flag endpoint.</description>
+  <description>Generates a self-signed RSA certificate and private key. strings_to_leak[0] is used as the CN (typically the domain); the uri input embeds a full URI in the SAN extension pointing to the flag endpoint.</description>
 
   <type>self_signed_cert</type>
   <platform>unix</platform>
@@ -23,7 +23,7 @@
   </default_input>
 
   <!-- strings_to_leak[0] -> CN (use domain for realistic cert)        -->
-  <!-- strings_to_leak[1] -> flag served at the san_uri path by Apache -->
+  <!-- strings_to_leak[1] -> flag served at the san uri path by Apache -->
   <default_input into="strings_to_leak">
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>

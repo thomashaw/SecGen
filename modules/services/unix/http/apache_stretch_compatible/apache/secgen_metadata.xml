@@ -21,11 +21,7 @@
     <value>localhost</value>
   </default_input>
   <default_input into="uri">
-    <generator module_path=".*/san_uri">
-      <input into="domain">
-        <value>localhost</value>
-      </input>
-    </generator>
+    <value>localhost</value>
   </default_input>
   <default_input into="strings_to_leak">
     <generator type="flag_generator"/>

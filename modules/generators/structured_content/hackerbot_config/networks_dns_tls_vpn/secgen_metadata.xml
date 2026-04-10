@@ -1,19 +1,23 @@
 <?xml version="1.0"?>
-
 <generator xmlns="http://www.github/cliffe/SecGen/generator"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-               xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+
   <name>Hackerbot config for introduction to networking DNS, TLS, and VPN lab</name>
   <author>Tom Shaw</author>
   <module_license>GPLv3</module_license>
-  <description>Generates a config file for a hackerbot for an intro to network security lab. Topics covered: DNS, TLS, and VPNs</description>
+  <description>Generates a config file for a hackerbot for a secure communications lab covering DNS security, TLS certificate inspection, and VPNs.</description>
 
   <type>hackerbot_config</type>
   <platform>linux</platform>
 
   <read_fact>accounts</read_fact>
-  <read_fact>flags</read_fact>
-  <read_fact>root_password</read_fact>
+  <read_fact>IP_addresses</read_fact>
+  <read_fact>dns_txt_flag</read_fact>
+  <read_fact>tls_cert_flag</read_fact>
+  <read_fact>uri</read_fact>
+  <read_fact>vpn_flag</read_fact>
+  <read_fact>vpn_flag_port</read_fact>
 
   <default_input into="accounts">
     <generator type="account">
@@ -23,16 +27,27 @@
     </generator>
   </default_input>
 
-  <default_input into="flags">
-    <generator type="flag_generator"/>
-    <generator type="flag_generator"/>
-    <generator type="flag_generator"/>
-    <generator type="flag_generator"/>
+  <default_input into="dns_txt_flag">
     <generator type="flag_generator"/>
   </default_input>
 
-  <default_input into="root_password">
-    <generator type="strong_password_generator"/>
+  <default_input into="tls_cert_flag">
+    <generator type="flag_generator"/>
+  </default_input>
+
+  <default_input into="vpn_flag">
+    <generator type="flag_generator"/>
+  </default_input>
+
+  <default_input into="vpn_flag_port">
+    <generator module_path=".*/random_number">
+      <input into="minimum">
+        <value>1024</value>
+      </input>
+      <input into="maximum">
+        <value>2024</value>
+      </input>
+    </generator>
   </default_input>
 
   <output_type>hackerbot</output_type>

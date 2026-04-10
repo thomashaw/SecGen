@@ -250,20 +250,42 @@
       </input>
     </utility>
 
-    <service module_path=".*/openvpn_server">
-      <input into="server_ip">
-        <datastore access="9">IP_addresses</datastore>
-      </input>
-      <input into="vpn_subnet">
-        <value>10.8.0.0</value>
-      </input>
-      <input into="vpn_subnet_mask">
-        <value>255.255.255.0</value>
-      </input>
-      <input into="client_config" into_datastore="openvpn_client_config">
-        <value>generate</value>
-      </input>
-    </service>
+      <service module_path=".*/openvpn_server">
+        <input into="openvpn_pki" into_datastore="openvpn_pki">
+          <generator module_path=".*/openvpn_pki">
+            <input into="server_ip">
+              <datastore access="0">IP_addresses</datastore>
+            </input>
+            <input into="port" into_datastore="vpn_port">
+              <generator module_path=".*/random_number">
+                <input into="minimum">
+                  <value>1194</value>
+                </input>
+                <input into="maximum">
+                  <value>1294</value>
+                </input>
+              </generator>
+            </input>
+            <input into="vpn_subnet">
+              <value>10.8.0.0</value>
+            </input>
+            <input into="vpn_subnet_mask">
+              <value>255.255.255.0</value>
+            </input>
+            <input into="push_routes">
+              <value>10.0.1.0 255.255.255.0</value>
+              <value>10.0.2.0 255.255.255.0</value>
+            </input>
+            <input into="num_clients">
+              <value>1</value>
+            </input>
+          </generator>
+        </input>
+        <input into="start_on_boot">
+          <value>false</value>
+        </input>
+      </service>
+
 
     <network type="private_network">
       <input into="IP_address"><datastore access="0">IP_addresses</datastore></input>
@@ -496,11 +518,11 @@
       </input>
     </utility>
 
-    <utility module_path=".*/openvpn_client_config">
-      <input into="client_config">
-        <datastore>openvpn_client_config</datastore>
-      </input>
-    </utility>
+<!--    <utility module_path=".*/openvpn_client_config">-->
+<!--      <input into="client_config">-->
+<!--        <datastore>openvpn_client_config</datastore>-->
+<!--      </input>-->
+<!--    </utility>-->
 
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/nmap"/>
@@ -569,7 +591,7 @@
                         <datastore>tls_cert_flag</datastore>
                     </input>
                     <input into="uri">
-                        <datastore>san_uri</datastore>
+                        <datastore>uri</datastore>
                     </input>
                     <input into="vpn_flag">
                         <datastore>vpn_flag</datastore>
