@@ -4,14 +4,14 @@ require 'openssl'
 
 class SelfSignedCertGenerator < StringEncoder
 
-  attr_accessor :domain, :strings_to_leak, :san_uri, :key_size, :days
+  attr_accessor :domain, :strings_to_leak, :uri, :key_size, :days
 
   def initialize
     super
     self.module_name     = 'Self-Signed TLS Certificate Generator'
     self.domain          = 'localhost'
     self.strings_to_leak = []
-    self.san_uri         = ''
+    self.uri         = ''
     self.key_size        = 2048
     self.days            = 365
   end
@@ -37,7 +37,7 @@ class SelfSignedCertGenerator < StringEncoder
     ef.issuer_certificate  = cert
 
     san_entries = ["DNS:#{self.domain}"]
-    san_entries << "URI:#{self.san_uri}" if self.san_uri && !self.san_uri.empty?
+    san_entries << "URI:#{self.uri}" if self.uri && !self.uri.empty?
 
     cert.add_extension(ef.create_extension('subjectAltName', san_entries.join(','), false))
     cert.add_extension(ef.create_extension('basicConstraints', 'CA:FALSE', false))
@@ -54,8 +54,8 @@ class SelfSignedCertGenerator < StringEncoder
       self.domain = arg
     when '--strings_to_leak'
       self.strings_to_leak << arg
-    when '--san_uri'
-      self.san_uri = arg
+    when '--uri'
+      self.uri = arg
     when '--key_size'
       self.key_size = arg.to_i
     when '--days'
@@ -67,14 +67,14 @@ class SelfSignedCertGenerator < StringEncoder
     super + [
       ['--domain',          GetoptLong::REQUIRED_ARGUMENT],
       ['--strings_to_leak', GetoptLong::REQUIRED_ARGUMENT],
-      ['--san_uri',         GetoptLong::REQUIRED_ARGUMENT],
+      ['--uri',         GetoptLong::REQUIRED_ARGUMENT],
       ['--key_size',        GetoptLong::REQUIRED_ARGUMENT],
       ['--days',            GetoptLong::REQUIRED_ARGUMENT],
     ]
   end
 
   def encoding_print_string
-    "domain: #{self.domain}, cn: #{self.strings_to_leak[0]}, san_uri: #{self.san_uri}"
+    "domain: #{self.domain}, cn: #{self.strings_to_leak[0]}, uri: #{self.uri}"
   end
 
 end

@@ -14,7 +14,7 @@
 
   <read_fact>domain</read_fact>
   <read_fact>strings_to_leak</read_fact>
-  <read_fact>san_uri</read_fact>
+  <read_fact>uri</read_fact>
   <read_fact>key_size</read_fact>
   <read_fact>days</read_fact>
 
@@ -29,8 +29,8 @@
     <generator type="flag_generator"/>
   </default_input>
 
-  <!-- Full URI embedded in SAN — supply from san_uri_generator -->
-  <default_input into="san_uri">
+  <!-- Full URI embedded in SAN -->
+  <default_input into="uri">
     <value>localhost</value>
   </default_input>
 
