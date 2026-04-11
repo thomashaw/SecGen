@@ -56,9 +56,4 @@ end
     notify  => Service['bind9'],
   }
 
-  service { 'bind9':
-    ensure  => running,
-    enable  => true,
-    require => Package['bind9'],
-  }
 }

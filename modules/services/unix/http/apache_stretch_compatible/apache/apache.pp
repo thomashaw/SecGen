@@ -1,6 +1,6 @@
 $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 
-$domain          = $secgen_parameters['domain'][0]
+$secgen_domain          = $secgen_parameters['domain'][0]
 $strings_to_leak = $secgen_parameters['strings_to_leak']
 $uri             = $secgen_parameters['uri'][0]
 
@@ -70,7 +70,7 @@ if $cert_pem and $key_pem {
 
 # HTTP vhost — port 80
 apache::vhost { "${domain}-http":
-  servername => $domain,
+  servername => $secgen_domain,
   port       => '80',
   docroot    => $docroot,
 }
@@ -79,7 +79,7 @@ apache::vhost { "${domain}-http":
 # No HSTS header — student adds this in Week 11 MitM lab
 if $cert_pem and $key_pem {
   apache::vhost { "${domain}-https":
-    servername => $domain,
+    servername => $secgen_domain,
     port       => '443',
     docroot    => $docroot,
     ssl        => true,
