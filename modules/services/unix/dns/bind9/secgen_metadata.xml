@@ -14,8 +14,6 @@
   <read_fact>domain</read_fact>
   <read_fact>ns_hostname</read_fact>
   <read_fact>serial</read_fact>
-  <read_fact>strings_to_leak</read_fact>
-  <read_fact>flag_hostname</read_fact>
   <read_fact>dns_records</read_fact>
   <read_fact>allow_transfer</read_fact>
 
@@ -25,10 +23,6 @@
 
   <default_input into="allow_transfer">
     <value>none</value>
-  </default_input>
-
-  <default_input into="flag_hostname">
-    <value>flag</value>
   </default_input>
 
   <requires>

@@ -4,7 +4,7 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
   attr_accessor :IP_addresses
   attr_accessor :dns_fix_flag
   attr_accessor :vpn_connect_flag
-  attr_accessor :uri
+  attr_accessor :domain
   attr_accessor :vpn_flag_port
   def initialize
     super
@@ -17,7 +17,7 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
     self.IP_addresses = []
     self.dns_fix_flag = ''
     self.vpn_connect_flag = ''
-    self.uri = ''
+    self.domain = ''
     self.vpn_flag_port = ''
   end
   def get_options_array
@@ -25,7 +25,7 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
       ['--IP_addresses',   GetoptLong::REQUIRED_ARGUMENT],
       ['--dns_fix_flag',   GetoptLong::REQUIRED_ARGUMENT],
       ['--vpn_connect_flag', GetoptLong::REQUIRED_ARGUMENT],
-      ['--uri',            GetoptLong::REQUIRED_ARGUMENT],
+      ['--domain',            GetoptLong::REQUIRED_ARGUMENT],
       ['--vpn_flag_port',  GetoptLong::REQUIRED_ARGUMENT],
     ]
   end
@@ -38,15 +38,15 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
       self.dns_fix_flag << arg
     when '--vpn_connect_flag'
       self.vpn_connect_flag << arg
-    when '--uri'
-      self.uri << arg
+    when '--domain'
+      self.domain << arg
     when '--vpn_flag_port'
       self.vpn_flag_port << arg
     end
   end
   def encoding_print_string
     "IP_addresses: #{self.IP_addresses}, dns_fix_flag: #{self.dns_fix_flag}, " \
-      "vpn_connect_flag: #{self.vpn_connect_flag}, uri: #{self.uri}, " \
+      "vpn_connect_flag: #{self.vpn_connect_flag}, domain: #{self.domain}, " \
       "vpn_flag_port: #{self.vpn_flag_port}"
   end
 end

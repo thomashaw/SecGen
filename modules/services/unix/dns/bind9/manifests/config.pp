@@ -3,8 +3,6 @@ class bind9::config {
   $domain         = $secgen_params['domain'][0]
   $ns_hostname    = $secgen_params['ns_hostname'][0]
   $serial         = $secgen_params['serial'][0]
-  $flag           = $secgen_params['strings_to_leak'][0]
-  $flag_hostname  = $secgen_params['flag_hostname'][0]
   $dns_records    = $secgen_params['dns_records']
   $allow_transfer = $secgen_params['allow_transfer'][0]
 

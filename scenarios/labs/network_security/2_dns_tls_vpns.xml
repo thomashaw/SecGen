@@ -132,7 +132,7 @@
                 <datastore>tls_cert_flag</datastore>
               </input>
               <input into="uri">
-                <datastore>uri</datastore>
+                <datastore>web_domain</datastore>
                </input>
             </generator>
         </input>
@@ -364,7 +364,7 @@
         <datastore>tls_cert_bundle</datastore>
       </input>
       <input into="uri">
-        <datastore>uri</datastore>
+        <datastore>web_domain</datastore>
       </input>
       <input into="strings_to_leak">
         <datastore>tls_cert_flag</datastore>
@@ -443,9 +443,6 @@
             <value>server</value>
           </input>
         </generator>
-      </input>
-      <input into="flag_hostname">
-        <value>flag</value>
       </input>
       <input into="dns_records">
         <generator module_path=".*/dns_record">
@@ -645,8 +642,8 @@
                     <input into="IP_addresses">
                         <datastore>IP_addresses</datastore>
                     </input>
-                    <input into="uri">
-                        <datastore>uri</datastore>
+                    <input into="domain">
+                        <datastore>web_domain</datastore>
                     </input>
                     <input into="vpn_flag_port">
                         <datastore>vpn_flag_port</datastore>
