@@ -150,10 +150,6 @@ This is the problem that **DNS over TLS (DoT)** and **DNS over HTTPS (DoH)** add
 ==action: Close the tcpdump session (Ctrl+C) when you are done observing.==
 
 
-The internal DNS server holds a TXT record at a special hostname in the <%= $domain %> domain. Use dig to find it and retrieve the flag.
-
-**Don't forget to save and submit any flags you find!**
-
 
 ### DNS zone transfers
 
@@ -163,14 +159,14 @@ The security problem arises when a DNS server is misconfigured to allow zone tra
 
 This type of information disclosure significantly assists reconnaissance. An attacker who knows the names of all internal servers has a much clearer picture of what to target than one who has only a list of IP addresses, or who has to probe the network blind.
 
-Try requesting a zone transfer from the internal DNS server:
+The internal DNS server holds a TXT record at a special hostname in the <%= $domain %> domain. Try requesting a zone transfer from the internal DNS server:
 
 ```
 # On: desktop
 dig axfr <%= $domain %> @<%= $server_ip %>
 ```
 
-If the server is misconfigured, you will receive the entire contents of the `<%= $domain %>` zone. Look carefully at what is revealed - you may find hostnames that have never been mentioned anywhere in this labsheet.
+If the server is misconfigured, you will receive the entire contents of the `<%= $domain %>` zone. Look carefully at the response, as it may include hostnames that have never been mentioned anywhere in this labsheet.
 
 To fix the issue, SSH into the server and edit the BIND zone configuration:
 
