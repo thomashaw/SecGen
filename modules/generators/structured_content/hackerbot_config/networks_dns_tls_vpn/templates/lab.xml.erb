@@ -9,7 +9,7 @@
 	 $main_user = $first_account['username'].to_s
 	 $user_password = $first_account['password'].to_s
 
-	 # IP addresses from datastore — must match scenario.xml index comments
+	 # IP addresses from datastore - must match scenario.xml index comments
 	 $gateway_lan_ip    = self.IP_addresses[0]
 	 $desktop_ip        = self.IP_addresses[1]
 	 $gateway_dmz_ip    = self.IP_addresses[2]
@@ -91,7 +91,7 @@
 
 
 	<!-- =================================================================
-       CHALLENGE 1 — Zone transfer fix (config check)
+       CHALLENGE 1 - Zone transfer fix (config check)
        Hackerbot verifies AXFR is blocked and normal resolution still works
        Reveals dns_fix_flag on success
        ================================================================= -->
@@ -117,12 +117,18 @@
 		<else_condition>
 			<message>:( Could not verify the DNS configuration. Make sure bind9 is running on <%= $server_ip %>.</message>
 		</else_condition>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'dns_security.md.erb').result(self.get_binding) %></tutorial>
+		<tutorial>
+<%= ERB.new(File.read self.templates_path + 'dns_security.md.erb').result(self.get_binding) %>
+
+---
+
+<%= ERB.new(File.read self.templates_path + 'tls_certificates.md.erb').result(self.get_binding) %>
+		</tutorial>
 	</attack>
 
 
 	<!-- =================================================================
-       CHALLENGE 2 — VPN connectivity (config check)
+       CHALLENGE 2 - VPN connectivity (config check)
        Hackerbot verifies tun0 is up on gateway and remote can ping desktop
        Reveals vpn_connect_flag on success
        ================================================================= -->

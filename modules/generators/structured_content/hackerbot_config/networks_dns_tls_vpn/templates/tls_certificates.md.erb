@@ -1,12 +1,12 @@
-## Section 2: SSL/TLS and HTTPS
+## TLS and HTTPS
 
 ### What is TLS?
 
 Transport Layer Security (TLS) is the cryptographic protocol that underpins HTTPS. When you connect to a server over HTTPS, TLS provides three things:
 
-- **Confidentiality** — the content of your communication is encrypted and cannot be read by anyone intercepting the traffic
-- **Integrity** — any tampering with data in transit will be detected
-- **Authentication** — you can verify that you are talking to the intended server, and not an impostor
+- **Confidentiality** - the content of your communication is encrypted and cannot be read by anyone intercepting the traffic
+- **Integrity** - any tampering with data in transit will be detected
+- **Authentication** - you can verify that you are talking to the intended server, and not an impostor
 
 TLS uses a combination of asymmetric and symmetric cryptography. During the TLS handshake, the client and server use asymmetric cryptography (public/private key pairs) to authenticate and negotiate a shared session key. All subsequent communication is encrypted with that session key using fast symmetric encryption.
 
@@ -26,18 +26,18 @@ A TLS certificate binds a public key to an identity (a domain name). It is signe
 
 Certificates contain several important fields:
 
-- **Subject** — the identity the certificate is issued to (e.g. `CN=web.<%= $domain %>`)
-- **Subject Alternative Name (SAN)** — additional hostnames, IPs, or URIs the certificate is valid for
-- **Issuer** — the CA that signed the certificate
-- **Validity period** — the Not Before and Not After dates
-- **Public key** — the server's public key
-- **Fingerprint** — a hash of the certificate, useful for verifying you are seeing the expected certificate
+- **Subject** - the identity the certificate is issued to (e.g. `CN=web.<%= $domain %>`)
+- **Subject Alternative Name (SAN)** - additional hostnames, IPs, or URIs the certificate is valid for
+- **Issuer** - the CA that signed the certificate
+- **Validity period** - the Not Before and Not After dates
+- **Public key** - the server's public key
+- **Fingerprint** - a hash of the certificate, useful for verifying you are seeing the expected certificate
 
-A **self-signed certificate** is one where the issuer and subject are the same — the certificate has been signed with its own private key rather than by a trusted CA. Browsers and other clients will warn about self-signed certificates because there is no trusted third party vouching for the server's identity. In internal lab environments, self-signed certificates are common.
+A **self-signed certificate** is one where the issuer and subject are the same - the certificate has been signed with its own private key rather than by a trusted CA. Browsers and other clients will warn about self-signed certificates because there is no trusted third party vouching for the server's identity. In internal lab environments, self-signed certificates are common.
 
 #### Certificate Transparency
 
-Certificate Transparency (CT) is a public framework that requires all publicly trusted CAs to log every certificate they issue to publicly auditable, append-only logs. This makes it impossible for a CA to issue a certificate for a domain without it being publicly visible. Domain owners can monitor CT logs to detect whether an unauthorised certificate has been issued for their domain — for example, as part of a phishing campaign using a lookalike domain. Tools such as `crt.sh` allow anyone to search CT logs for all certificates ever issued for a given domain.
+Certificate Transparency (CT) is a public framework that requires all publicly trusted CAs to log every certificate they issue to publicly auditable, append-only logs. This makes it impossible for a CA to issue a certificate for a domain without it being publicly visible. Domain owners can monitor CT logs to detect whether an unauthorised certificate has been issued for their domain - for example, as part of a phishing campaign using a lookalike domain. Tools such as `crt.sh` allow anyone to search CT logs for all certificates ever issued for a given domain.
 
 ### Observing HTTP vs HTTPS
 
@@ -62,7 +62,7 @@ In your first terminal, make an HTTP request to the web server:
 curl http://<%= $webserver_ip %>
 ```
 
-Look at the tcpdump output. You should be able to read the HTTP request and the response content in plaintext — the headers, request path, and page content are all visible.
+Look at the tcpdump output. You should be able to read the HTTP request and the response content in plaintext - the headers, request path, and page content are all visible.
 
 ==action: Stop the capture (Ctrl+C) and start a new one on port 443:==
 
@@ -91,7 +91,7 @@ You can inspect the certificate that a server presents during the TLS handshake 
 openssl s_client -connect <%= $webserver_ip %>:443 -showcerts
 ```
 
-This prints a lot of output. The most important parts are the certificate block between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`, and the `Verify return code` line — for a self-signed certificate you will see an error here, which is expected.
+This prints a lot of output. The most important parts are the certificate block between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`, and the `Verify return code` line - for a self-signed certificate you will see an error here, which is expected.
 
 To see a more readable summary of the certificate fields, pipe the output through `openssl x509`:
 
@@ -102,10 +102,10 @@ openssl s_client -connect <%= $webserver_ip %>:443 2>/dev/null | openssl x509 -n
 
 Look through the output and identify:
 
-- The **Subject** — what identity does this certificate claim?
-- The **Subject Alternative Name** — what hostnames or URIs is it valid for?
-- The **Issuer** — who signed this certificate?
-- The **Validity** period — when does it expire?
+- The **Subject** - what identity does this certificate claim?
+- The **Subject Alternative Name** - what hostnames or URIs is it valid for?
+- The **Issuer** - who signed this certificate?
+- The **Validity** period - when does it expire?
 
 To get just the SHA-256 fingerprint:
 
@@ -120,7 +120,7 @@ Use what you have learned to complete the bot's challenge. You can skip the bot 
 
 Hackerbot: *"Inspect the TLS certificate presented by web.<%= $domain %> and find the flag hidden in one of its fields. Say 'ready' when you have the flag."*
 
-==hint: Look carefully at the Subject Alternative Name extension — it can contain URIs as well as hostnames. If you find a URI, try fetching it.==
+==hint: Look carefully at the Subject Alternative Name extension - it can contain URIs as well as hostnames. If you find a URI, try fetching it.==
 
 ==action: Do any necessary preparation, then when you are ready say 'ready' to Hackerbot.==
 
@@ -128,7 +128,7 @@ Hackerbot: *"Inspect the TLS certificate presented by web.<%= $domain %> and fin
 
 ### HTTP Strict Transport Security (HSTS)
 
-Even when a server supports HTTPS, users may still connect over plain HTTP — by typing `http://` explicitly, following an old link, or being silently downgraded by an attacker on the network. HTTP Strict Transport Security (HSTS) is a response header that instructs clients to always use HTTPS for a domain, refusing plain HTTP connections entirely:
+Even when a server supports HTTPS, users may still connect over plain HTTP - by typing `http://` explicitly, following an old link, or being silently downgraded by an attacker on the network. HTTP Strict Transport Security (HSTS) is a response header that instructs clients to always use HTTPS for a domain, refusing plain HTTP connections entirely:
 
 ```
 Strict-Transport-Security: max-age=31536000
@@ -143,4 +143,4 @@ Check whether the web server currently sends an HSTS header:
 curl -kI https://<%= $webserver_ip %>
 ```
 
-The `-I` flag fetches only the response headers. You will find that `Strict-Transport-Security` is not present — the web server is not yet enforcing HTTPS-only connections. We will revisit this in a later lab when we look at man-in-the-middle attacks, where SSL stripping is demonstrated in practice and HSTS is one of the defences you will apply.
+The `-I` flag fetches only the response headers. You will find that `Strict-Transport-Security` is not present - the web server is not yet enforcing HTTPS-only connections. We will revisit this in a later lab when we look at man-in-the-middle attacks, where SSL stripping is demonstrated in practice and HSTS is one of the defences you will apply.

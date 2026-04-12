@@ -1,25 +1,25 @@
-## Section 3: VPNs
+## VPNs
 
 ### What is a VPN?
 
-A Virtual Private Network (VPN) creates an encrypted tunnel between two endpoints over an untrusted network. Traffic inside the tunnel is encrypted so that anyone intercepting it on the external network sees only opaque VPN packets — not the content, destinations, or metadata of the connections inside.
+A Virtual Private Network (VPN) creates an encrypted tunnel between two endpoints over an untrusted network. Traffic inside the tunnel is encrypted so that anyone intercepting it on the external network sees only opaque VPN packets - not the content, destinations, or metadata of the connections inside.
 
 VPNs are used in two main configurations:
 
-- **Remote access VPN** — a single client connects to a corporate gateway, gaining access to internal resources as if they were on the local network. This is the configuration you will set up in this lab.
-- **Site-to-site VPN** — two gateways connect their respective networks together, allowing hosts on both sides to communicate as if they share the same network.
+- **Remote access VPN** - a single client connects to a corporate gateway, gaining access to internal resources as if they were on the local network. This is the configuration you will set up in this lab.
+- **Site-to-site VPN** - two gateways connect their respective networks together, allowing hosts on both sides to communicate as if they share the same network.
 
 #### Why use a VPN if TLS already encrypts traffic?
 
-TLS encrypts the *content* of individual connections, but the destination IP address is still visible to anyone monitoring the network. An attacker watching your traffic can see which servers you are connecting to, how often, and how much data is being transferred — even if they cannot read what is inside those connections.
+TLS encrypts the *content* of individual connections, but the destination IP address is still visible to anyone monitoring the network. An attacker watching your traffic can see which servers you are connecting to, how often, and how much data is being transferred - even if they cannot read what is inside those connections.
 
-A VPN wraps all traffic — including TLS-encrypted traffic — inside an additional encryption layer. From the perspective of anyone on the external network, all they see is encrypted VPN packets flowing between the client and the VPN gateway. The actual destinations, ports, and contents of connections inside the tunnel are hidden entirely.
+A VPN wraps all traffic - including TLS-encrypted traffic - inside an additional encryption layer. From the perspective of anyone on the external network, all they see is encrypted VPN packets flowing between the client and the VPN gateway. The actual destinations, ports, and contents of connections inside the tunnel are hidden entirely.
 
 #### OpenVPN
 
 OpenVPN is an open-source VPN implementation that uses TLS for its control channel and strong symmetric encryption for its data channel. It supports certificate-based authentication, where both the client and server present certificates signed by a shared Certificate Authority, ensuring that only authorised clients can connect.
 
-In this lab, the gateway (<%= $gateway_ext_ip %>) is configured as an OpenVPN server using certificate-based authentication. A client certificate and key pair have already been generated and placed on the remote VM. The VPN tunnel subnet is `10.8.0.0/24` — when the tunnel is up, the remote client will be assigned an address in this range.
+In this lab, the gateway (<%= $gateway_ext_ip %>) is configured as an OpenVPN server using certificate-based authentication. A client certificate and key pair have already been generated and placed on the remote VM. The VPN tunnel subnet is `10.8.0.0/24` - when the tunnel is up, the remote client will be assigned an address in this range.
 
 ### Demonstrating the problem: remote access without a VPN
 
@@ -36,7 +36,7 @@ curl http://<%= $webserver_ip %>
 
 All of these should fail. The remote VM is on the external segment (<%= $remote_ip %>/24) and has no route into the internal network. The gateway's firewall also blocks direct access from the external segment to internal systems.
 
-This is the situation a remote worker faces — they can reach the gateway's external interface, but cannot access any internal resources.
+This is the situation a remote worker faces - they can reach the gateway's external interface, but cannot access any internal resources.
 
 ### Understanding the OpenVPN client configuration
 
@@ -49,17 +49,17 @@ cat /etc/openvpn/client/client.ovpn
 
 The key directives in this file are:
 
-- `client` — this is a client configuration
-- `remote <%= $gateway_ext_ip %>` — the address of the OpenVPN server to connect to
-- `ca`, `cert`, `key` — paths to the CA certificate, client certificate, and client private key
-- `dev tun` — use a TUN (tunnel) device, which operates at the IP layer
-- `proto udp` — use UDP as the transport protocol
+- `client` - this is a client configuration
+- `remote <%= $gateway_ext_ip %>` - the address of the OpenVPN server to connect to
+- `ca`, `cert`, `key` - paths to the CA certificate, client certificate, and client private key
+- `dev tun` - use a TUN (tunnel) device, which operates at the IP layer
+- `proto udp` - use UDP as the transport protocol
 
 The presence of a client certificate and key means the server will verify your identity during the handshake. Only clients with a certificate signed by the correct CA can establish a tunnel.
 
 ### Starting the OpenVPN server on the gateway
 
-The OpenVPN server on the gateway is installed but not set to start automatically — you will start it manually as part of this exercise.
+The OpenVPN server on the gateway is installed but not set to start automatically - you will start it manually as part of this exercise.
 
 SSH into the gateway from the desktop:
 
@@ -93,7 +93,7 @@ Log in to the remote VM via the VM console and start the OpenVPN client:
 sudo openvpn --config /etc/openvpn/client/client.ovpn
 ```
 
-You should see log output showing the TLS handshake and tunnel negotiation. Look for a line containing `Initialization Sequence Completed` — this indicates the tunnel is up.
+You should see log output showing the TLS handshake and tunnel negotiation. Look for a line containing `Initialization Sequence Completed` - this indicates the tunnel is up.
 
 Open a second terminal on the remote VM and verify the tunnel interface has appeared:
 
@@ -112,7 +112,7 @@ Now try to reach internal hosts:
 ping <%= $desktop_ip %>
 ```
 
-This will probably still fail. The tunnel is up, but recall from the previous lab that the gateway has a default FORWARD policy of DROP. There is no rule yet allowing traffic arriving from the VPN tunnel interface to be forwarded onward. This is the same problem you solved before — a new network path requires a new firewall rule.
+This will probably still fail. The tunnel is up, but recall from the previous lab that the gateway has a default FORWARD policy of DROP. There is no rule yet allowing traffic arriving from the VPN tunnel interface to be forwarded onward. This is the same problem you solved before - a new network path requires a new firewall rule.
 
 ### Opening firewall rules for VPN traffic
 
@@ -154,7 +154,7 @@ Hackerbot: *"Establish a VPN tunnel from the remote VM to the gateway and config
 
 ### Accessing internal resources through the VPN
 
-With the tunnel established, the remote VM is effectively on the internal network. It can reach services that are only accessible from inside — including services that are explicitly blocked from the external segment.
+With the tunnel established, the remote VM is effectively on the internal network. It can reach services that are only accessible from inside - including services that are explicitly blocked from the external segment.
 
 You can also use hostnames from the remote VM if DNS is configured. Check whether it is already set up:
 
@@ -163,7 +163,7 @@ You can also use hostnames from the remote VM if DNS is configured. Check whethe
 cat /etc/resolv.conf
 ```
 
-If `<%= $server_ip %>` is not listed as a nameserver, add it the same way you did on the desktop — by editing `/etc/network/interfaces` and adding `dns-nameservers <%= $server_ip %>` to the interface block, then restarting the interface.
+If `<%= $server_ip %>` is not listed as a nameserver, add it the same way you did on the desktop - by editing `/etc/network/interfaces` and adding `dns-nameservers <%= $server_ip %>` to the interface block, then restarting the interface.
 
 Once DNS is working, try:
 
@@ -179,7 +179,7 @@ Both should succeed through the tunnel.
 
 Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 5`.
 
-Hackerbot: *"There is a service running on server.<%= $domain %> that is only reachable from inside the VPN tunnel — direct access from the external network is blocked by the firewall. Find it and retrieve the flag. Say 'ready' when you have the flag."*
+Hackerbot: *"There is a service running on server.<%= $domain %> that is only reachable from inside the VPN tunnel - direct access from the external network is blocked by the firewall. Find it and retrieve the flag. Say 'ready' when you have the flag."*
 
 ==hint: Try scanning server.<%= $domain %> for open ports from the remote VM with the VPN tunnel active. Once you find the port, connect to it with netcat: `nc server.<%= $domain %> <port>`.==
 
@@ -205,7 +205,7 @@ With the VPN tunnel **active** on the remote VM, make an HTTPS request to the we
 curl -k https://<%= $webserver_ip %>
 ```
 
-Look at the capture. All you will see is encrypted UDP packets between `<%= $remote_ip %>` and `<%= $gateway_ext_ip %>`. The actual destination `<%= $webserver_ip %>` is not visible anywhere — to an observer on the external network, the remote machine appears to be communicating only with the VPN gateway.
+Look at the capture. All you will see is encrypted UDP packets between `<%= $remote_ip %>` and `<%= $gateway_ext_ip %>`. The actual destination `<%= $webserver_ip %>` is not visible anywhere - to an observer on the external network, the remote machine appears to be communicating only with the VPN gateway.
 
 ---
 
@@ -215,7 +215,7 @@ In this lab you have configured and explored three complementary mechanisms for 
 
 In the **DNS section**, you configured hostname resolution using a local authoritative DNS server, observed that standard DNS traffic is plaintext and exposes every hostname you query to anyone on the network path, and discovered and remediated a zone transfer misconfiguration that would allow an attacker to enumerate the entire internal infrastructure in a single request.
 
-In the **SSL/TLS section**, you compared unencrypted HTTP and encrypted HTTPS on the wire, and inspected a TLS certificate in detail to understand what information it contains, what trust it provides, and how certificate fields can carry information beyond what is immediately obvious. You also saw how HSTS protects against downgrade attacks — a technique we will revisit in the next lab.
+In the **SSL/TLS section**, you compared unencrypted HTTP and encrypted HTTPS on the wire, and inspected a TLS certificate in detail to understand what information it contains, what trust it provides, and how certificate fields can carry information beyond what is immediately obvious. You also saw how HSTS protects against downgrade attacks - a technique we will revisit in the next lab.
 
 In the **VPN section**, you demonstrated the limitations of remote access without a VPN, established an OpenVPN tunnel using certificate-based authentication, extended the gateway firewall policy from the previous lab to accommodate VPN traffic, and observed that a VPN conceals not just the content but also the destinations and metadata of connections from anyone monitoring the external network.
 
