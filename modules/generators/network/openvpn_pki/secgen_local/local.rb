@@ -11,6 +11,15 @@ class OpenvpnPki < StringGenerator
   attr_accessor :push_routes
   attr_accessor :num_clients
 
+  DH_PARAMS = "-----BEGIN DH PARAMETERS-----\n" \
+    "MIIBCAKCAQEAkqpMBK/OWvDaAXttYVegfVO0SjSr+CLTPFNs4EyDfNMaVHL8otYu\n" \
+    "WzenpQYRtRFgxub2BwIOOPuJa64nk+IA+aTTXILQiG4cG0vTwVUUrh86Tmrt2xsD\n" \
+    "YY0o6pvV5e82tGPGa4lhh7s8C+C6RDvMN1fH6CMHS2QFBaNm/Mfh5DHwCMJ0Lyrh\n" \
+    "gwJit2T1Oz0vRSBqQCcPFj72dPdqKZEC1I9zOcEyAJCamj5L+JQe+QerWfxhOMkH\n" \
+    "uBCa3ua/wraZExJp6OfoazSsq8Ajt6ka9128cdTUnSe9GJIx0WSpYGb3w0qfoWEL\n" \
+    "kcXPz97MdvEga1dx92ybPJv7pJiWNqhLAwIBAg==\n" \
+    "-----END DH PARAMETERS-----\n"
+
   def initialize
     super
     self.module_name = 'OpenVPN PKI Generator'
@@ -116,6 +125,7 @@ class OpenvpnPki < StringGenerator
       'ca_cert'          => ca[:cert].to_pem,
       'server_cert'      => server[:cert].to_pem,
       'server_key'       => server[:key].to_pem,
+      'dh_params'        => DH_PARAMS,
       'server_ip'        => server_ip,
       'port'             => port,
       'vpn_subnet'       => vpn_subnet,

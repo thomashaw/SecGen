@@ -576,11 +576,17 @@
       </input>
     </utility>
 
-<!--    <utility module_path=".*/openvpn_client_config">-->
-<!--      <input into="client_config">-->
-<!--        <datastore>openvpn_client_config</datastore>-->
-<!--      </input>-->
-<!--    </utility>-->
+    <utility module_path=".*/openvpn_client">
+      <input into="openvpn_pki">
+        <datastore>openvpn_pki</datastore>
+      </input>
+      <input into="client_index">
+        <value>0</value>
+      </input>
+      <input into="start_on_boot">
+        <value>false</value>
+      </input>
+    </utility>
 
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/nmap"/>
