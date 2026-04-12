@@ -649,7 +649,7 @@
                         <datastore>IP_addresses</datastore>
                     </input>
                     <input into="domain">
-                        <datastore>web_domain</datastore>
+                        <datastore>domain</datastore>
                     </input>
                     <input into="vpn_flag_port">
                         <datastore>vpn_flag_port</datastore>
