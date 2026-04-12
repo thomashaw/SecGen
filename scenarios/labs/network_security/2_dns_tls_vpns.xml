@@ -101,24 +101,34 @@
             <value>tiaspbiqe2r</value>
         </input>
 
-        <!-- URI generated once — shared by self_signed_cert (SAN) and apache (hosted path) -->
-        <input into_datastore="uri">
-            <value>web.netseclab.co.uk</value>
+        <input into_datastore="domain">
+          <value>hacktivity-netsec.co.uk</value>
         </input>
 
-    <!-- Flag served by Apache at the hex path embedded in the URI -->
+      <input into_datastore="web_domain">
+        <generator type="fqdn">
+          <input into="domain">
+            <datastore>domain</datastore>
+          </input>
+          <input into="subdomains">
+            <value>web</value>
+          </input>
+        </generator>
+      </input>
+
+      <!-- Flag served by Apache at the hex path embedded in the URI -->
     <input into_datastore="tls_cert_flag">
       <generator type="flag_generator"/>
     </input>
 
-        <!-- Cert bundle — CN is the domain, URI embedded in SAN -->
+      <!-- Cert bundle — CN is the domain, URI embedded in SAN -->
         <input into_datastore="tls_cert_bundle">
             <generator module_path=".*/self_signed_cert">
               <input into="domain">
-                <value>web.netseclab.co.uk</value>
+                <datastore>web_domain</datastore>
               </input>
               <input into="strings_to_leak">
-                <value>web.netseclab.co.uk</value>
+                <datastore>web_domain</datastore>
                 <datastore>tls_cert_flag</datastore>
               </input>
               <input into="uri">
@@ -348,7 +358,7 @@
 
     <service module_path=".*/apache_stretch_compatible/apache">
       <input into="domain">
-        <value>web.netseclab.co.uk</value>
+        <datastore>web_domain</datastore>
       </input>
       <input into="cert_bundle">
         <datastore>tls_cert_bundle</datastore>
@@ -422,25 +432,77 @@
 
     <service module_path=".*/bind9">
       <input into="domain">
-        <value>netseclab.co.uk</value>
+        <datastore>domain</datastore>
       </input>
       <input into="ns_hostname">
-        <value>server.netseclab.co.uk</value>
-      </input>
-      <input into="strings_to_leak" into_datastore="dns_txt_flag">
-        <generator type="flag_generator"/>
+        <generator type="fqdn">
+          <input into="domain">
+            <datastore>domain</datastore>
+          </input>
+          <input into="subdomains">
+            <value>server</value>
+          </input>
+        </generator>
       </input>
       <input into="flag_hostname">
         <value>flag</value>
       </input>
-      <!-- dns_records: hostname|type|value format -->
-      <!-- secret record only discoverable via zone transfer (AXFR) -->
       <input into="dns_records">
-        <value>gateway|A|10.0.1.1</value>
-        <value>desktop|A|10.0.1.10</value>
-        <value>web|A|10.0.2.10</value>
-        <value>server|A|10.0.3.10</value>
-        <value>secret|A|10.0.3.20</value>
+        <generator module_path=".*/dns_record">
+          <input into="hostname">
+            <value>gateway</value>
+          </input>
+          <input into="type">
+            <value>a</value>
+          </input>
+          <input into="value">
+            <datastore access="0">IP_addresses</datastore>
+          </input>
+        </generator>
+        <generator module_path=".*/dns_record">
+          <input into="hostname">
+            <value>desktop</value>
+          </input>
+          <input into="type">
+            <value>a</value>
+          </input>
+          <input into="value">
+            <datastore access="1">IP_addresses</datastore>
+          </input>
+        </generator>
+        <generator module_path=".*/dns_record">
+          <input into="hostname">
+            <value>web</value>
+          </input>
+          <input into="type">
+            <value>a</value>
+          </input>
+          <input into="value">
+            <datastore access="3">IP_addresses</datastore>
+          </input>
+        </generator>
+        <generator module_path=".*/dns_record">
+          <input into="hostname">
+            <value>server</value>
+          </input>
+          <input into="type">
+            <value>a</value>
+          </input>
+          <input into="value">
+            <datastore access="5">IP_addresses</datastore>
+          </input>
+        </generator>
+        <generator module_path=".*/dns_record">
+          <input into="hostname">
+            <value>secret</value>
+          </input>
+          <input into="type">
+            <value>txt</value>
+          </input>
+          <input into="value" into_datastore="dns_axfr_flag">
+            <generator type="flag_generator"/>
+          </input>
+        </generator>
       </input>
       <input into="allow_transfer">
         <value>any</value>
@@ -449,7 +511,7 @@
 
     <!-- VPN flag — randomised port, blocked from external subnet by gateway -->
     <utility module_path=".*/nc_message">
-      <input into="strings_to_leak" into_datastore="vpn_flag">
+      <input into="strings_to_leak">
         <generator type="flag_generator"/>
       </input>
       <input into="port" into_datastore="vpn_flag_port">
@@ -491,7 +553,6 @@
        Segment: External (10.0.4.0/24) — VLAN 4
        No gateway until VPN is up
        ================================================================= -->
-
   <system>
     <system_name>remote</system_name>
     <base platform="linux" distro="Debian 12" type="desktop" name="KDE"/>
@@ -584,17 +645,8 @@
                     <input into="IP_addresses">
                         <datastore>IP_addresses</datastore>
                     </input>
-                    <input into="dns_txt_flag">
-                        <datastore>dns_txt_flag</datastore>
-                    </input>
-                    <input into="tls_cert_flag">
-                        <datastore>tls_cert_flag</datastore>
-                    </input>
                     <input into="uri">
                         <datastore>uri</datastore>
-                    </input>
-                    <input into="vpn_flag">
-                        <datastore>vpn_flag</datastore>
                     </input>
                     <input into="vpn_flag_port">
                         <datastore>vpn_flag_port</datastore>
@@ -603,24 +655,40 @@
             </input>
         </utility>
 
-        <network type="private_network">
-            <input into="IP_address"><datastore access="6">IP_addresses</datastore></input>
-            <input into="vlan"><value>1</value></input>
-        </network>
-        <network type="private_network">
-            <input into="IP_address"><datastore access="7">IP_addresses</datastore></input>
-            <input into="vlan"><value>2</value></input>
-        </network>
-        <network type="private_network">
-            <input into="IP_address"><datastore access="8">IP_addresses</datastore></input>
-            <input into="vlan"><value>3</value></input>
-        </network>
-        <network type="private_network">
-            <input into="IP_address"><datastore access="11">IP_addresses</datastore></input>
-            <input into="vlan"><value>4</value></input>
-        </network>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="6">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="7">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>2</value>
+      </input>
+    </network>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="8">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>3</value>
+      </input>
+    </network>
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="11">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>4</value>
+      </input>
+    </network>
 
-        <build type="cleanup">
+    <build type="cleanup">
             <input into="root_password">
                 <datastore>spoiler_admin_pass</datastore>
             </input>

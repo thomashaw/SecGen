@@ -13,10 +13,9 @@
 
   <read_fact>accounts</read_fact>
   <read_fact>IP_addresses</read_fact>
-  <read_fact>dns_txt_flag</read_fact>
-  <read_fact>tls_cert_flag</read_fact>
   <read_fact>uri</read_fact>
-  <read_fact>vpn_flag</read_fact>
+  <read_fact>dns_fix_flag</read_fact>
+  <read_fact>vpn_connect_flag</read_fact>
   <read_fact>vpn_flag_port</read_fact>
 
   <default_input into="accounts">
@@ -27,15 +26,10 @@
     </generator>
   </default_input>
 
-  <default_input into="dns_txt_flag">
+  <default_input into="dns_fix_flag">
     <generator type="flag_generator"/>
   </default_input>
-
-  <default_input into="tls_cert_flag">
-    <generator type="flag_generator"/>
-  </default_input>
-
-  <default_input into="vpn_flag">
+  <default_input into="vpn_connect_flag">
     <generator type="flag_generator"/>
   </default_input>
 

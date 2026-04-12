@@ -7,6 +7,7 @@
 
 	 $first_account = JSON.parse(self.accounts.first)
 	 $main_user = $first_account['username'].to_s
+	 $user_password = $first_account['password'].to_s
 
 	 # IP addresses from datastore — must match scenario.xml index comments
 	 $gateway_lan_ip    = self.IP_addresses[0]
@@ -18,11 +19,11 @@
 	 $gateway_ext_ip    = self.IP_addresses[9]
 	 $remote_ip         = self.IP_addresses[10]
 
-	 $dns_txt_flag  = self.dns_txt_flag
-	 $tls_cert_flag = self.tls_cert_flag
-	 $uri           = self.uri
-	 $vpn_flag      = self.vpn_flag
-	 $vpn_flag_port = self.vpn_flag_port
+	 $domain				   = self.domain
+	 $dns_fix_flag     = self.dns_fix_flag
+	 $vpn_connect_flag = self.vpn_connect_flag
+	 $vpn_flag_port    = self.vpn_flag_port
+	 $uri              = self.uri
 
 	 def get_binding
 		 binding
@@ -91,134 +92,61 @@
 
 
 	<!-- =================================================================
-       CHALLENGE 1 — DNS TXT flag (discovery)
-       Student queries dig TXT flag.netseclab.co.uk
+       CHALLENGE 1 — Zone transfer fix (config check)
+       Hackerbot verifies AXFR is blocked and normal resolution still works
+       Reveals dns_fix_flag on success
        ================================================================= -->
 
 	<attack>
-		<prompt>The internal DNS server at <%= $server_ip %> is authoritative for netseclab.co.uk. First, configure your desktop to use this DNS server by editing /etc/resolv.conf or /etc/network/interfaces. Then use dig to find the TXT record at flag.netseclab.co.uk and submit the flag. Say 'ready' when you have the flag.</prompt>
-		<post_command>dig TXT flag.netseclab.co.uk @<%= $server_ip %> +short 2>/dev/null; echo DNSCHECK-$?-</post_command>
+		<pre_shell>axfr_count=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> 'dig axfr <%= $domain %> @<%= $server_ip %> 2>/dev/null | grep -c "IN"'); dig_result=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> 'dig A web.<%= $domain %> @<%= $server_ip %> +short 2>/dev/null | grep -c "."'); echo AXFRCHECK-${axfr_count}-${dig_result}-</pre_shell>
+		<get_shell>false</get_shell>
 		<suppress_command_output_feedback />
+		<prompt>The DNS server at <%= $server_ip %> is currently misconfigured to allow zone transfers from any host. Edit /etc/bind/named.conf.local on the server to restrict zone transfers, then reload bind9. Normal DNS resolution must still work. Say 'ready' when done.</prompt>
 		<condition>
-			<output_matches>DNSCHECK-0-</output_matches>
-			<message>:) DNS is working. Now find and submit the flag value from that TXT record.</message>
+			<output_matches>AXFRCHECK-0-[1-9]-</output_matches>
+			<message>:) Zone transfers are now restricted and normal DNS resolution still works. <%= $dns_fix_flag %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>DNSCHECK-[1-9]-</output_matches>
-			<message>:( Could not query the DNS server at <%= $server_ip %>. Make sure your desktop can reach the server zone and try: dig TXT flag.netseclab.co.uk @<%= $server_ip %></message>
+			<output_matches>AXFRCHECK-[1-9]-[1-9]-</output_matches>
+			<message>:( Zone transfers are still permitted. Edit /etc/bind/named.conf.local on <%= $server_ip %> and add 'allow-transfer { none; };' inside the zone block, then run: sudo rndc reload</message>
+		</condition>
+		<condition>
+			<output_matches>AXFRCHECK-0-0-</output_matches>
+			<message>:( Zone transfers are restricted but normal DNS resolution is broken. Check your named.conf.local and make sure the zone file is still correct, then run: sudo rndc reload</message>
 		</condition>
 		<else_condition>
-			<message>:( Something went wrong. Make sure bind9 is running on <%= $server_ip %> and your routing is correct.</message>
+			<message>:( Could not verify the DNS configuration. Make sure bind9 is running on <%= $server_ip %>.</message>
 		</else_condition>
 		<tutorial><%= ERB.new(File.read self.templates_path + 'dns_security.md.erb').result(self.get_binding) %></tutorial>
 	</attack>
 
 
 	<!-- =================================================================
-       CHALLENGE 2 — Zone transfer fix (config check)
-       Student restricts allow-transfer in named.conf.local
-       Two conditions required — Nori parser needs array not hash
+       CHALLENGE 2 — VPN connectivity (config check)
+       Hackerbot verifies tun0 is up on gateway and remote can ping desktop
+       Reveals vpn_connect_flag on success
        ================================================================= -->
 
 	<attack>
-		<pre_shell>axfr_result=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> 'dig axfr netseclab.co.uk @<%= $server_ip %> 2>/dev/null | grep -c "IN" || echo 0'); dig_result=$(dig A web.netseclab.co.uk @<%= $server_ip %> +short 2>/dev/null; echo $?); echo AXFRCHECK-$axfr_result-$dig_result-</pre_shell>
-		<get_shell>false</get_shell>
+		<pre_shell>tun_check=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $gateway_ext_ip %> 'ip link show tun0 > /dev/null; echo $?'); ping_check=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $remote_ip %> 'ping -c 1 -W 3 <%= $desktop_ip %> > /dev/null; echo $?'); echo VPNCHECK-${tun_check}-${ping_check}-</pre_shell>		<get_shell>false</get_shell>
 		<suppress_command_output_feedback />
-		<prompt>The DNS server currently allows unrestricted zone transfers. Edit /etc/bind/named.conf.local on <%= $server_ip %> to add 'allow-transfer { none; };' and reload bind9. Normal DNS resolution should still work. Say 'ready' when done.</prompt>
-		<condition>
-			<output_matches>AXFRCHECK-0-</output_matches>
-			<message>:) Zone transfers are now restricted and normal DNS resolution still works. <%= $dns_txt_flag %></message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<condition>
-			<output_matches>AXFRCHECK-[1-9]-</output_matches>
-			<message>:( Zone transfers are still permitted. Edit /etc/bind/named.conf.local and set 'allow-transfer { none; };' inside the zone block, then run: rndc reload</message>
-		</condition>
-		<else_condition>
-			<message>:( Could not verify the zone transfer configuration. Make sure bind9 is running on <%= $server_ip %>.</message>
-		</else_condition>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'dns_security.md.erb').result(self.get_binding) %></tutorial>
-	</attack>
-
-
-	<!-- =================================================================
-       CHALLENGE 3 — TLS certificate inspection (discovery)
-       Student inspects cert, finds URI in SAN, follows it for flag
-       ================================================================= -->
-
-	<attack>
-		<prompt>The web server at <%= $webserver_ip %> is running HTTPS. Use openssl to inspect its TLS certificate: openssl s_client -connect <%= $webserver_ip %>:443 2>/dev/null | openssl x509 -noout -text. Look carefully at the Subject Alternative Name extension — you will find a URI there. Follow that URI with curl to retrieve the flag. Say 'ready' when you have it.</prompt>
-		<post_command>curl -sk <%= $uri %> 2>/dev/null; echo TLSCHECK-$?-</post_command>
-		<suppress_command_output_feedback />
-		<condition>
-			<output_matches>TLSCHECK-0-</output_matches>
-			<message>:) The URI in the certificate is reachable. Find and submit the flag at that endpoint.</message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<condition>
-			<output_matches>TLSCHECK-[1-9]-</output_matches>
-			<message>:( Could not reach the URI from the certificate. Make sure you have DNS configured and can reach <%= $webserver_ip %>. The URI is in the SAN extension of the certificate.</message>
-		</condition>
-		<else_condition>
-			<message>:( Something went wrong. Try: openssl s_client -connect <%= $webserver_ip %>:443 2>/dev/null | openssl x509 -noout -text</message>
-		</else_condition>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'tls_certificates.md.erb').result(self.get_binding) %></tutorial>
-	</attack>
-
-
-	<!-- =================================================================
-       CHALLENGE 4 — VPN connectivity (config check)
-       Student starts OpenVPN server on gateway, client on remote,
-       adds FORWARD rules for tun0
-       ================================================================= -->
-
-	<attack>
-		<pre_shell>tun_check=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $gateway_ext_ip %> 'ip link show tun0 > /dev/null 2>/dev/null; echo $?'); ping_check=$(ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $remote_ip %> 'ping -c 1 -W 3 <%= $desktop_ip %> > /dev/null 2>/dev/null; echo $?'); echo VPNCHECK-$tun_check-$ping_check-</pre_shell>
-		<get_shell>false</get_shell>
-		<suppress_command_output_feedback />
-		<prompt>Start the OpenVPN server on the gateway (sudo openvpn --config /etc/openvpn/server/server.conf --daemon), then start the client tunnel on the remote VM (sudo openvpn --config /etc/openvpn/client/client.ovpn --daemon). Add FORWARD rules on the gateway to allow tun0 traffic into the internal network. Say 'ready' when the remote VM can ping the desktop at <%= $desktop_ip %>.</prompt>
+		<prompt>Start the OpenVPN server on the gateway (sudo openvpn --config /etc/openvpn/server/server.conf --daemon), then start the client on the remote VM (sudo openvpn --config /etc/openvpn/client/client.ovpn --daemon). Add FORWARD rules on the gateway to allow tun0 traffic into the internal network. Say 'ready' when the remote VM can ping the desktop at <%= $desktop_ip %>.</prompt>
 		<condition>
 			<output_matches>VPNCHECK-0-0-</output_matches>
-			<message>:) The VPN tunnel is up and the remote VM can reach the internal network. <%= $tls_cert_flag %></message>
+			<message>:) The VPN tunnel is up and the remote VM can reach the internal network. <%= $vpn_connect_flag %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
 			<output_matches>VPNCHECK-0-[1-9]-</output_matches>
-			<message>:( The tun0 interface exists on the gateway but the remote cannot reach the desktop. Check the FORWARD rules for tun0 on the gateway and make sure the VPN client is connected.</message>
+			<message>:( The tun0 interface exists on the gateway but the remote VM cannot reach the desktop. Check the FORWARD rules for tun0 on the gateway: sudo iptables -A FORWARD -i tun0 -j ACCEPT; sudo iptables -A FORWARD -o tun0 -j ACCEPT</message>
 		</condition>
 		<condition>
 			<output_matches>VPNCHECK-[1-9]-[1-9]-</output_matches>
 			<message>:( The tun0 interface does not exist on the gateway. Start the OpenVPN server: sudo openvpn --config /etc/openvpn/server/server.conf --daemon</message>
 		</condition>
 		<else_condition>
-			<message>:( Could not verify VPN status. Make sure the gateway and remote VMs are reachable.</message>
-		</else_condition>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'vpn.md.erb').result(self.get_binding) %></tutorial>
-	</attack>
-
-
-	<!-- =================================================================
-       CHALLENGE 5 — Internal flag via VPN (discovery)
-       Flag service on server, only reachable via VPN tunnel subnet
-       Student scans from remote (with VPN up), finds port, netcats
-       ================================================================= -->
-
-	<attack>
-		<prompt>A service is running on server.netseclab.co.uk (<%= $server_ip %>) on a non-standard port, but it is only reachable from the VPN tunnel subnet (10.8.0.0/24) — direct access from the external network is blocked. With your VPN tunnel active on the remote VM, scan for the open port and connect to it with netcat to retrieve the flag. Say 'ready' when you have it.</prompt>
-		<post_command>nc -w 3 <%= $server_ip %> <%= $vpn_flag_port %> 2>/dev/null; echo VPNFLAGCHECK-$?-</post_command>
-		<suppress_command_output_feedback />
-		<condition>
-			<output_matches>VPNFLAGCHECK-0-</output_matches>
-			<message>:) The flag service is reachable via the VPN. Find and submit the flag. <%= $vpn_flag %></message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<condition>
-			<output_matches>VPNFLAGCHECK-[1-9]-</output_matches>
-			<message>:( Cannot reach the flag service on <%= $server_ip %>:<%= $vpn_flag_port %>. Make sure your VPN tunnel is active on the remote VM and try scanning: nmap -p 1024-2024 <%= $server_ip %></message>
-		</condition>
-		<else_condition>
-			<message>:( Something went wrong. Make sure the VPN is up and you are running the scan from the remote VM.</message>
+			<message>:( Could not verify VPN status. Make sure the gateway and remote VMs are reachable from the hackerbot server.</message>
 		</else_condition>
 		<tutorial><%= ERB.new(File.read self.templates_path + 'vpn.md.erb').result(self.get_binding) %></tutorial>
 	</attack>
