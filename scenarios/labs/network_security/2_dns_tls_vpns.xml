@@ -158,6 +158,7 @@
         </utility>
 
         <utility module_path=".*/handy_cli_tools"/>
+        <utility module_path=".*/handy_networking_tools"/>
         <utility module_path=".*/nmap"/>
         <utility module_path=".*/wireshark"/>
 
@@ -300,8 +301,10 @@
         </input>
       </service>
 
+      <utility module_path=".*/handy_networking_tools"/>
 
-    <network type="private_network">
+
+      <network type="private_network">
       <input into="IP_address"><datastore access="0">IP_addresses</datastore></input>
       <input into="vlan"><value>1</value></input>
     </network>
@@ -375,6 +378,7 @@
       </input>
     </service>
 
+    <utility module_path=".*/handy_networking_tools"/>
     <utility module_path=".*/nmap"/>
     <utility module_path=".*/wireshark"/>
 
@@ -524,6 +528,7 @@
     </utility>
 
     <utility module_path=".*/wireshark"/>
+    <utility module_path=".*/handy_networking_tools"/>
 
     <network type="private_network">
       <input into="IP_address">
@@ -593,6 +598,7 @@
     </utility>
 
     <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/handy_networking_tools"/>
     <utility module_path=".*/nmap"/>
     <utility module_path=".*/wireshark"/>
 
@@ -661,6 +667,8 @@
                 </generator>
             </input>
         </utility>
+
+    <utility module_path=".*/handy_networking_tools"/>
 
     <network type="private_network">
       <input into="IP_address">
