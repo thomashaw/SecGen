@@ -97,7 +97,11 @@
             <input into="accounts" into_datastore="account">
                 <generator type="account">
                     <input into="username" into_datastore="username">
-                        <generator type="username_generator"/>
+                        <generator type="random_sanitised_word">
+                            <input into="wordlist">
+                                <value>mythical_creatures</value>
+                            </input>
+                        </generator>
                     </input>
                     <input into="password">
                         <datastore>user_password</datastore>
