@@ -14,4 +14,13 @@
   <requires>
     <type>update</type>
   </requires>
+
+  <requires>
+    <module_path>.*/wireshark</module_path>
+  </requires>
+
+  <requires>
+    <module_path>.*/nmap</module_path>
+  </requires>
+
 </utility>

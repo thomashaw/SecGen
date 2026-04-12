@@ -159,8 +159,6 @@
 
         <utility module_path=".*/handy_cli_tools"/>
         <utility module_path=".*/handy_networking_tools"/>
-        <utility module_path=".*/nmap"/>
-        <utility module_path=".*/wireshark"/>
 
         <utility module_path=".*/iceweasel">
             <input into="accounts">
@@ -379,8 +377,6 @@
     </service>
 
     <utility module_path=".*/handy_networking_tools"/>
-    <utility module_path=".*/nmap"/>
-    <utility module_path=".*/wireshark"/>
 
     <network type="private_network">
       <input into="IP_address">
@@ -599,8 +595,6 @@
 
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/handy_networking_tools"/>
-    <utility module_path=".*/nmap"/>
-    <utility module_path=".*/wireshark"/>
 
     <utility module_path=".*/iceweasel">
       <input into="accounts">
@@ -641,7 +635,6 @@
     <service type="ircd"/>
 
     <utility module_path=".*/metasploit_framework"/>
-    <utility module_path=".*/nmap"/>
     <utility module_path=".*/handy_cli_tools"/>
 
     <service type="httpd"/>
