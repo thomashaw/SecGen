@@ -1,1 +1,229 @@
-## dns security
+## Section 1: DNS Security
+
+### What is DNS?
+
+Every time you type a hostname into a browser or terminal — such as `web.<%= $domain %>` or `google.com` — your computer needs to translate that name into an IP address before it can make a connection. This translation is performed by the Domain Name System (DNS).
+
+DNS works as a hierarchy of servers. When your computer needs to resolve a hostname, it sends a query to a configured DNS resolver. The resolver either has the answer cached, or it works through the DNS hierarchy — querying authoritative name servers — until it finds the answer and returns it to your machine.
+
+In this lab, the server VM (<%= $server_ip %>) runs an authoritative DNS server for the `<%= $domain %>` domain. It holds records for all the internal hostnames in your environment.
+
+#### DNS record types
+
+DNS zones contain multiple record types, each serving a different purpose:
+
+| Record type | Purpose | Example |
+|---|---|---|
+| A | Maps a hostname to an IPv4 address | `web.<%= $domain %> -> <%= $webserver_ip %>` |
+| PTR | Reverse lookup — maps an IP to a hostname | `<%= $webserver_ip %> -> web.<%= $domain %>` |
+| MX | Mail server for a domain | `<%= $domain %> -> mail.<%= $domain %>` |
+| TXT | Arbitrary text data — used for verification, SPF, and similar | `"v=spf1 mx -all"` |
+| NS | Authoritative name servers for a zone | `<%= $domain %> -> server.<%= $domain %>` |
+| SOA | Start of Authority — metadata about the zone | serial number, refresh interval, etc. |
+| CNAME | Canonical name — an alias for another hostname | `www.<%= $domain %> -> web.<%= $domain %>` |
+
+### Configuring DNS resolution on the desktop
+
+At the moment, your desktop can only communicate with other hosts using IP addresses — it has no DNS resolver configured. Let's fix that.
+
+DNS resolver configuration on Linux is stored in `/etc/resolv.conf`. This file tells the system which DNS server to query. However, on Debian-based systems this file can be overwritten when interfaces are restarted. A more robust approach is to configure the DNS server in `/etc/network/interfaces` alongside the interface's IP settings, so it is always restored correctly.
+
+Check your current DNS configuration:
+
+```
+# On: desktop
+cat /etc/resolv.conf
+```
+
+You may see a placeholder or an empty file. Try to resolve a hostname to confirm it is not working:
+
+```
+# On: desktop
+ping web.<%= $domain %>
+```
+
+This will fail — your desktop does not know which DNS server to ask.
+
+Edit `/etc/network/interfaces` to add the DNS server:
+
+```
+# On: desktop
+sudo vi /etc/network/interfaces
+```
+
+Find the block for your network interface and add a `dns-nameservers` line pointing at the internal DNS server:
+
+```
+auto ens19
+iface ens19 inet static
+    address <%= $desktop_ip %>/24
+    gateway <%= $gateway_lan_ip %>
+    dns-nameservers <%= $server_ip %>
+```
+
+==action: Press "i" to enter insert mode to update the file as above, then Esc, `:wq` to write changes and quit==
+
+Restart the interface to apply the change:
+
+```
+# On: desktop
+sudo ifdown ens19 && sudo ifup ens19
+```
+
+Verify that `/etc/resolv.conf` has been updated:
+
+```
+# On: desktop
+cat /etc/resolv.conf
+```
+
+You should now see `nameserver <%= $server_ip %>` in the file. Test that hostname resolution is working:
+
+```
+# On: desktop
+ping web.<%= $domain %>
+ping server.<%= $domain %>
+```
+
+Both should resolve and respond. From here on, you can use hostnames instead of IP addresses throughout the lab.
+
+### Querying DNS records with dig
+
+`dig` (Domain Information Groper) is a command-line tool for querying DNS servers. It gives you precise control over what you query and shows the full response.
+
+Query an A record:
+
+```
+# On: desktop
+dig web.<%= $domain %>
+```
+
+The response includes an answer section showing the IP address, along with metadata such as the query type, TTL (time to live, in seconds), and which server answered the request.
+
+You can query specific record types by passing the type after the hostname:
+
+```
+# On: desktop
+dig MX <%= $domain %>
+dig NS <%= $domain %>
+dig TXT <%= $domain %>
+```
+
+You can also direct a query at a specific DNS server rather than using your configured resolver, using the `@` syntax:
+
+```
+# On: desktop
+dig @<%= $server_ip %> web.<%= $domain %>
+```
+
+### Observing plaintext DNS
+
+One important property of standard DNS is that queries and responses are sent in plaintext over UDP port 53. This means anyone on the network path between your machine and the DNS server can read every query you make — and see every hostname you are looking up, even before any actual connection is made.
+
+To demonstrate this, open a second terminal on the desktop, SSH into the gateway, and start a packet capture:
+
+```
+# On: desktop (second terminal)
+ssh <%= $gateway_lan_ip %>
+```
+
+```
+# On: gateway
+sudo tcpdump -i any -n port 53
+```
+
+Back in your first terminal, make a few DNS queries:
+
+```
+# On: desktop
+dig web.<%= $domain %>
+dig server.<%= $domain %>
+dig TXT <%= $domain %>
+```
+
+Look at the tcpdump output. You can read the hostnames being queried and the responses in plaintext. Anyone in a position to intercept traffic on this network — a compromised router, a malicious insider, or an attacker with access to a network tap — can see exactly which services you are communicating with before any data is exchanged.
+
+This is the problem that **DNS over TLS (DoT)** and **DNS over HTTPS (DoH)** address, by encrypting DNS queries so they cannot be read in transit. **DNSSEC** addresses a related but different problem — it provides cryptographic verification that DNS responses have not been tampered with in transit, but does not encrypt the queries themselves.
+
+==action: Close the tcpdump session (Ctrl+C) when you are done observing.==
+
+### Hackerbot Challenge 1 {#challenge1}
+
+Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 1`.
+
+Hackerbot: *"The internal DNS server holds a TXT record at a special hostname in the <%= $domain %> domain. Use dig to find it and retrieve the flag. Say 'ready' when you have the flag."*
+
+==action: Do any necessary preparation, then when you are ready say 'ready' to Hackerbot.==
+
+**Don't forget to save and submit any flags you find!**
+
+### DNS zone transfers
+
+A DNS zone transfer is a mechanism that allows one DNS server to replicate an entire zone's records to another server. This is used in organisations with multiple DNS servers to keep them synchronised — a primary server holds the authoritative records, and secondary servers periodically request a full copy via a zone transfer. The protocol used for this is called AXFR.
+
+The security problem arises when a DNS server is misconfigured to allow zone transfers from any host, rather than only from authorised secondary servers. An attacker who performs a zone transfer receives every record in the zone in a single response — all A records, MX records, TXT records, CNAME records, and so on. This provides a complete map of the organisation's internal infrastructure: every hostname, every IP address, every service that has a DNS entry.
+
+This type of information disclosure significantly assists reconnaissance. An attacker who knows the names of all internal servers has a much clearer picture of what to target than one who has only a list of IP addresses, or who has to probe the network blind.
+
+Try requesting a zone transfer from the internal DNS server:
+
+```
+# On: desktop
+dig axfr <%= $domain %> @<%= $server_ip %>
+```
+
+If the server is misconfigured, you will receive the entire contents of the `<%= $domain %>` zone. Look carefully at what is revealed — you may find hostnames that have never been mentioned anywhere in this labsheet.
+
+### Hackerbot Challenge 2 {#challenge2}
+
+Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 2`.
+
+Hackerbot: *"The internal DNS server is misconfigured to allow zone transfers from any host. Fix this by editing the BIND configuration on the server to disable zone transfers. Say 'ready' when done."*
+
+SSH into the server and edit the BIND zone configuration:
+
+```
+# On: desktop
+ssh <%= $server_ip %>
+```
+
+```
+# On: server
+sudo vi /etc/bind/named.conf.local
+```
+
+Find the zone block for `<%= $domain %>` and add an `allow-transfer` directive:
+
+```
+zone "<%= $domain %>" {
+    type master;
+    file "/etc/bind/db.<%= $domain %>";
+    allow-transfer { none; };
+};
+```
+
+Reload BIND to apply the change:
+
+```
+# On: server
+sudo rndc reload
+```
+
+Verify the fix from the desktop — the zone transfer should now be refused:
+
+```
+# On: desktop
+dig axfr <%= $domain %> @<%= $server_ip %>
+```
+
+You should see a `Transfer failed` message. Confirm that normal DNS resolution still works:
+
+```
+# On: desktop
+dig web.<%= $domain %>
+ping server.<%= $domain %>
+```
+
+==action: When you are satisfied the fix is in place, say 'ready' to Hackerbot.==
+
+**Don't forget to save and submit any flags you find!**
