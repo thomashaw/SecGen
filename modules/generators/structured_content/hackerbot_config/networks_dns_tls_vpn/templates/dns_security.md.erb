@@ -147,15 +147,11 @@ This is the problem that **DNS over TLS (DoT)** and **DNS over HTTPS (DoH)** add
 
 ==action: Close the tcpdump session (Ctrl+C) when you are done observing.==
 
-### Hackerbot Challenge
 
-Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 1`.
-
-Hackerbot: *"The internal DNS server holds a TXT record at a special hostname in the <%= $domain %> domain. Use dig to find it and retrieve the flag. Say 'ready' when you have the flag."*
-
-==action: Do any necessary preparation, then when you are ready say 'ready' to Hackerbot.==
+The internal DNS server holds a TXT record at a special hostname in the <%= $domain %> domain. Use dig to find it and retrieve the flag.
 
 **Don't forget to save and submit any flags you find!**
+
 
 ### DNS zone transfers
 
@@ -174,13 +170,7 @@ dig axfr <%= $domain %> @<%= $server_ip %>
 
 If the server is misconfigured, you will receive the entire contents of the `<%= $domain %>` zone. Look carefully at what is revealed - you may find hostnames that have never been mentioned anywhere in this labsheet.
 
-### Hackerbot Challenge
-
-Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 2`.
-
-Hackerbot: *"The internal DNS server is misconfigured to allow zone transfers from any host. Fix this by editing the BIND configuration on the server to disable zone transfers. Say 'ready' when done."*
-
-SSH into the server and edit the BIND zone configuration:
+To fix the issue, SSH into the server and edit the BIND zone configuration:
 
 ```
 # On: desktop
@@ -225,5 +215,3 @@ ping server.<%= $domain %>
 ```
 
 ==action: When you are satisfied the fix is in place, say 'ready' to Hackerbot.==
-
-**Don't forget to save and submit any flags you find!**

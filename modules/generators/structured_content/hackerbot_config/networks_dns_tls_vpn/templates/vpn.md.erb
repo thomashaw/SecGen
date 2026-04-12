@@ -142,16 +142,6 @@ curl -k https://<%= $webserver_ip %>
 
 Both should now succeed. The remote VM has access to internal resources through the encrypted tunnel.
 
-### Hackerbot Challenge
-
-Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 4`.
-
-Hackerbot: *"Establish a VPN tunnel from the remote VM to the gateway and configure the gateway firewall to allow VPN traffic. The tunnel must be up and the remote VM must be able to reach internal hosts. Say 'ready' when done."*
-
-==action: Do any necessary preparation, then when you are ready say 'ready' to Hackerbot.==
-
-**Don't forget to save and submit any flags you find!**
-
 ### Accessing internal resources through the VPN
 
 With the tunnel established, the remote VM is effectively on the internal network. It can reach services that are only accessible from inside - including services that are explicitly blocked from the external segment.
@@ -175,19 +165,7 @@ curl -k https://web.<%= $domain %>
 
 Both should succeed through the tunnel.
 
-### Hackerbot Challenge 5
-
-Use what you have learned to complete the bot's challenge. You can skip the bot to here by saying `goto 5`.
-
-Hackerbot: *"There is a service running on server.<%= $domain %> that is only reachable from inside the VPN tunnel - direct access from the external network is blocked by the firewall. Find it and retrieve the flag. Say 'ready' when you have the flag."*
-
-==hint: Try scanning server.<%= $domain %> for open ports from the remote VM with the VPN tunnel active. Once you find the port, connect to it with netcat: `nc server.<%= $domain %> <port>`.==
-
-==action: Do any necessary preparation, then when you are ready say 'ready' to Hackerbot.==
-
-**Don't forget to save and submit any flags you find!**
-
-### Observing the VPN in action (optional)
+### Observing the VPN in action
 
 To see concretely what the VPN conceals, compare what is visible on the gateway's external interface with and without the tunnel active.
 
@@ -208,15 +186,3 @@ curl -k https://<%= $webserver_ip %>
 Look at the capture. All you will see is encrypted UDP packets between `<%= $remote_ip %>` and `<%= $gateway_ext_ip %>`. The actual destination `<%= $webserver_ip %>` is not visible anywhere - to an observer on the external network, the remote machine appears to be communicating only with the VPN gateway.
 
 ---
-
-## Conclusion
-
-In this lab you have configured and explored three complementary mechanisms for securing network communications.
-
-In the **DNS section**, you configured hostname resolution using a local authoritative DNS server, observed that standard DNS traffic is plaintext and exposes every hostname you query to anyone on the network path, and discovered and remediated a zone transfer misconfiguration that would allow an attacker to enumerate the entire internal infrastructure in a single request.
-
-In the **SSL/TLS section**, you compared unencrypted HTTP and encrypted HTTPS on the wire, and inspected a TLS certificate in detail to understand what information it contains, what trust it provides, and how certificate fields can carry information beyond what is immediately obvious. You also saw how HSTS protects against downgrade attacks - a technique we will revisit in the next lab.
-
-In the **VPN section**, you demonstrated the limitations of remote access without a VPN, established an OpenVPN tunnel using certificate-based authentication, extended the gateway firewall policy from the previous lab to accommodate VPN traffic, and observed that a VPN conceals not just the content but also the destinations and metadata of connections from anyone monitoring the external network.
-
-These three mechanisms address different layers of the same underlying problem: how do you communicate securely over a network you do not fully trust?
