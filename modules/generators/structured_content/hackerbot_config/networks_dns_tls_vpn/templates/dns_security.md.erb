@@ -61,7 +61,7 @@ iface ens19 inet static
     dns-nameservers <%= $server_ip %>
 ```
 
-==action: Press "i" to enter insert mode to update the file as above, then Esc, `:wq` to write changes and quit==
+==Press "i" to enter insert mode to update the file as above, then Esc, `:wq` to write changes and quit==
 
 Restart networking to apply the change:
 
@@ -122,19 +122,16 @@ dig @<%= $server_ip %> web.<%= $domain %>
 
 One important property of standard DNS is that queries and responses are sent in plaintext over UDP port 53. This means anyone on the network path between your machine and the DNS server can read every query you make - and see every hostname you are looking up, even before any actual connection is made.
 
-To demonstrate this, open a second terminal on the desktop, SSH into the gateway, and start a packet capture:
+To demonstrate this, open Wireshark on the desktop.
 
 ```
-# On: desktop (second terminal)
-ssh <%= $gateway_lan_ip %>
+# On: desktop
+sudo wireshark
 ```
 
-```
-# On: gateway
-sudo tcpdump -i any -n port 53
-```
+Select the `ens19` interface and start a capture. In the display filter bar at the top, type `dns` and press Enter to show only DNS traffic.
 
-Back in your first terminal, make a few DNS queries:
+Back in your terminal, make a few DNS queries:
 
 ```
 # On: desktop
@@ -143,19 +140,19 @@ dig server.<%= $domain %>
 dig TXT <%= $domain %>
 ```
 
-Look at the tcpdump output. You can read the hostnames being queried and the responses in plaintext. Anyone in a position to intercept traffic on this network - a compromised router, a malicious insider, or an attacker with access to a network tap - can see exactly which services you are communicating with before any data is exchanged.
+Look at the Wireshark output. You can see each query and response in plaintext. The hostname being looked up, the query type, and the answer are all clearly visible in separate columns. Anyone in a position to intercept traffic on this network can see exactly which services you are communicating with before any data is exchanged.
 
-This is the problem that **DNS over TLS (DoT)** and **DNS over HTTPS (DoH)** address, by encrypting DNS queries so they cannot be read in transit. **DNSSEC** addresses a related but different problem - it provides cryptographic verification that DNS responses have not been tampered with in transit, but does not encrypt the queries themselves.
+This is the problem that **DNS over TLS (DoT)** and **DNS over HTTPS (DoH)** address, by encrypting DNS queries so they cannot be read in transit. **DNSSEC** is another security mechanism which addresses a related but different problem by providing cryptographic verification that DNS responses have not been tampered with in transit, but DNSSEC does not encrypt the queries themselves.
 
-==action: Close the tcpdump session (Ctrl+C) when you are done observing.==
+==Stop the Wireshark capture when you are done observing.==
 
 
 
 ### DNS zone transfers
 
-A DNS zone transfer is a mechanism that allows one DNS server to replicate an entire zone's records to another server. This is used in organisations with multiple DNS servers to keep them synchronised - a primary server holds the authoritative records, and secondary servers periodically request a full copy via a zone transfer. The protocol used for this is called AXFR.
+A DNS zone transfer is a mechanism that allows one DNS server to replicate an entire zone's records to another server. This is used in organisations with multiple DNS servers to keep them synchronised, where a primary server holds the authoritative records, and secondary servers periodically request a full copy via zone transfers. The protocol used for this is called AXFR.
 
-The security problem arises when a DNS server is misconfigured to allow zone transfers from any host, rather than only from authorised secondary servers. An attacker who performs a zone transfer receives every record in the zone in a single response - all A records, MX records, TXT records, CNAME records, and so on. This provides a complete map of the organisation's internal infrastructure: every hostname, every IP address, every service that has a DNS entry.
+The security problem arises when a DNS server is misconfigured to allow zone transfers from any host, rather than only from authorised secondary servers. An attacker who performs a zone transfer receives every record in the zone in a single response, i.e. all A records, MX records, TXT records, CNAME records, etc. This provides a complete map of the organisation's internal infrastructure: every hostname, IP address, and service that has a DNS entry.
 
 This type of information disclosure significantly assists reconnaissance. An attacker who knows the names of all internal servers has a much clearer picture of what to target than one who has only a list of IP addresses, or who has to probe the network blind.
 
@@ -166,7 +163,7 @@ The internal DNS server holds a TXT record at a special hostname in the <%= $dom
 dig axfr <%= $domain %> @<%= $server_ip %>
 ```
 
-If the server is misconfigured, you will receive the entire contents of the `<%= $domain %>` zone. Look carefully at the response, as it may include hostnames that have never been mentioned anywhere in this labsheet.
+If the server is misconfigured, you will receive the entire contents of the `<%= $domain %>` zone. Look carefully at the response, as it may include hosts that have never been mentioned anywhere in this labsheet.
 
 To fix the issue, SSH into the server and edit the BIND zone configuration:
 
@@ -197,7 +194,7 @@ Reload BIND to apply the change:
 sudo rndc reload
 ```
 
-Verify the fix from the desktop - the zone transfer should now be refused:
+Verify the fix from the desktop. The zone transfer should now be refused:
 
 ```
 # On: desktop
@@ -212,4 +209,4 @@ dig web.<%= $domain %>
 ping server.<%= $domain %>
 ```
 
-==action: When you are satisfied the fix is in place, say 'ready' to Hackerbot.==
+==When you are satisfied the fix is in place, say 'ready' to Hackerbot.==

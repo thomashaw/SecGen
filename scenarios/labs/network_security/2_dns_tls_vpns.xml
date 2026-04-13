@@ -225,6 +225,9 @@
             <input into="root_password">
                 <datastore>spoiler_admin_pass</datastore>
             </input>
+            <input into="remove_proxy_env_vars">
+              <value>true</value>
+            </input>
         </build>
 
     </system>
@@ -343,6 +346,9 @@
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
       </input>
+      <input into="remove_proxy_env_vars">
+        <value>true</value>
+      </input>
     </build>
 
   </system>
@@ -416,6 +422,9 @@
     <build type="cleanup">
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
+      </input>
+      <input into="remove_proxy_env_vars">
+        <value>true</value>
       </input>
     </build>
 
@@ -565,6 +574,9 @@
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
       </input>
+      <input into="remove_proxy_env_vars">
+        <value>true</value>
+      </input>
     </build>
 
   </system>
@@ -638,6 +650,9 @@
     <build type="cleanup">
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
+      </input>
+      <input into="remove_proxy_env_vars">
+        <value>true</value>
       </input>
     </build>
 
@@ -717,10 +732,13 @@
     </network>
 
     <build type="cleanup">
-            <input into="root_password">
-                <datastore>spoiler_admin_pass</datastore>
-            </input>
-        </build>
+        <input into="root_password">
+            <datastore>spoiler_admin_pass</datastore>
+        </input>
+        <input into="remove_proxy_env_vars">
+          <value>true</value>
+        </input>
+    </build>
 
     </system>
 

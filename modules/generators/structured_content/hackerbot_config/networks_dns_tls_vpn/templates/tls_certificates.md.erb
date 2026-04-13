@@ -33,43 +33,32 @@ Certificates contain several important fields:
 - **Public key** - the server's public key
 - **Fingerprint** - a hash of the certificate, useful for verifying you are seeing the expected certificate
 
-A **self-signed certificate** is one where the issuer and subject are the same - the certificate has been signed with its own private key rather than by a trusted CA. Browsers and other clients will warn about self-signed certificates because there is no trusted third party vouching for the server's identity. In internal lab environments, self-signed certificates are common.
-
-#### Certificate Transparency
-
-Certificate Transparency (CT) is a public framework that requires all publicly trusted CAs to log every certificate they issue to publicly auditable, append-only logs. This makes it impossible for a CA to issue a certificate for a domain without it being publicly visible. Domain owners can monitor CT logs to detect whether an unauthorised certificate has been issued for their domain - for example, as part of a phishing campaign using a lookalike domain. Tools such as `crt.sh` allow anyone to search CT logs for all certificates ever issued for a given domain.
+A **self-signed certificate** is one where the issuer and subject are the same, i.e. the certificate has been signed with its own private key rather than by a trusted CA. Browsers and other clients will warn about self-signed certificates because there is no trusted third party vouching for the server's identity.
 
 ### Observing HTTP vs HTTPS
 
-First, let's observe the difference between unencrypted HTTP and encrypted HTTPS traffic on the wire.
+First we should compare unencrypted HTTP and encrypted HTTPS traffic on the wire to see the difference.
 
-Open a second terminal on the desktop, SSH into the gateway, and start a packet capture on port 80:
-
-```
-# On: desktop (second terminal)
-ssh <%= $gateway_lan_ip %>
-```
-
-```
-# On: gateway
-sudo tcpdump -i any -n port 80 -A
-```
-
-In your first terminal, make an HTTP request to the web server:
+Open Wireshark on the desktop. Select the `ens19` interface and start a capture.
 
 ```
 # On: desktop
+sudo wireshark
+```
+
+
+In your terminal, make an HTTP request to the web server:
+
+
+```
+# On: desktop
+export http_proxy=
 curl http://<%= $webserver_ip %>
 ```
 
-Look at the tcpdump output. You should be able to read the HTTP request and the response content in plaintext - the headers, request path, and page content are all visible.
+In the Wireshark display filter bar, type `http` and press Enter. You should be able to see the HTTP request and response in plaintext, where the request method, path, and response body are all clearly visible. Right-click a packet and select **Follow -> TCP Stream** to see the full conversation including headers and page content.
 
-==action: Stop the capture (Ctrl+C) and start a new one on port 443:==
-
-```
-# On: gateway
-sudo tcpdump -i any -n port 443 -A
-```
+==action: Clear the display filter, then type `tls` and press Enter.==
 
 Make an HTTPS request. The `-k` flag tells curl to accept the self-signed certificate without rejecting it:
 
@@ -78,9 +67,10 @@ Make an HTTPS request. The `-k` flag tells curl to accept the self-signed certif
 curl -k https://<%= $webserver_ip %>
 ```
 
-Look at the tcpdump output now. You can see that a TLS connection was made to port 443, but the content is encrypted and unreadable. The actual HTTP request and response are hidden inside the TLS tunnel.
+Look at the Wireshark output now. You can see the TLS handshake packets and encrypted application data, but the content is unreadable. Unlike the HTTP capture, you cannot see the request path, headers, or response body - everything inside the TLS tunnel is opaque.
 
-==action: Close the tcpdump session when you are done.==
+==action: Stop the wireshark capture when you are done.==
+
 
 ### Inspecting a TLS certificate
 
@@ -114,7 +104,7 @@ To get just the SHA-256 fingerprint:
 openssl s_client -connect <%= $webserver_ip %>:443 2>/dev/null | openssl x509 -noout -fingerprint -sha256
 ```
 
-==action: Inspect the TLS certificate presented by web.<%= $domain %> and find the flag hidden in one of its fields.==
+==Inspect the TLS certificate presented by web.<%= $domain %> and find the flag hidden in one of its fields.==
 
 ==hint: Look carefully at the Subject Alternative Name extension - it can contain URIs as well as hostnames. If you find a URI, try fetching it.==
 
