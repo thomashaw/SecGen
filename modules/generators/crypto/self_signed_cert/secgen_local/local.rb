@@ -11,7 +11,7 @@ class SelfSignedCertGenerator < StringEncoder
     self.module_name     = 'Self-Signed TLS Certificate Generator'
     self.domain          = 'localhost'
     self.strings_to_leak = []
-    self.uri         = ''
+    self.uri             = ''
     self.key_size        = 2048
     self.days            = 365
   end
@@ -37,7 +37,8 @@ class SelfSignedCertGenerator < StringEncoder
     ef.issuer_certificate  = cert
 
     san_entries = ["DNS:#{self.domain}"]
-    san_entries << "URI:#{self.uri}" if self.uri && !self.uri.empty?
+    normalised_uri = self.uri.end_with?('/') ? self.uri : "#{self.uri}/"
+    san_entries << "URI:#{normalised_uri}" if self.uri && !self.uri.empty?
 
     cert.add_extension(ef.create_extension('subjectAltName', san_entries.join(','), false))
     cert.add_extension(ef.create_extension('basicConstraints', 'CA:FALSE', false))

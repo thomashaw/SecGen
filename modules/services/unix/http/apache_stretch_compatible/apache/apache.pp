@@ -18,8 +18,13 @@ if $raw_cert_bundle and $raw_cert_bundle != '' {
 # Extract path from URI by splitting on '/'
 # e.g. http://web.netseclab.co.uk/a3f9bc72de1408f5/ -> a3f9bc72de1408f5
 if $uri and $uri != '' {
-  $uri_parts    = split($uri, '/')
-  $uri_path     = $uri_parts[3]
+    if $uri =~ /\/$/ {
+      $normalised_uri = $uri
+    } else {
+      $normalised_uri = "${uri}/"
+    }
+    $uri_parts = split($normalised_uri, '/')
+    $uri_path  = $uri_parts[3]
 } else {
   $uri_path = undef
 }

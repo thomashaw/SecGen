@@ -121,6 +121,21 @@
       <generator type="flag_generator"/>
     </input>
 
+      <input into_datastore="tls_cert_uri">
+        <generator type="string_concat">
+          <input into="strings_to_join">
+            <value>https://web.hacktivity-netsec.co.uk/</value>
+            <generator type="hex_generator"/>
+            <!--        TODO: Fix ordering bug, same thing we did with networks (i.e. unique_id placeholders) -->
+<!--            <value>https://</value>-->
+<!--            <datastore>web_domain</datastore>-->
+<!--            <value>/</value>-->
+<!--            <generator type="hex_generator"/>-->
+<!--            <value>/</value>-->
+          </input>
+        </generator>
+      </input>
+
       <!-- Cert bundle — CN is the domain, URI embedded in SAN -->
         <input into_datastore="tls_cert_bundle">
             <generator module_path=".*/self_signed_cert">
@@ -132,7 +147,7 @@
                 <datastore>tls_cert_flag</datastore>
               </input>
               <input into="uri">
-                <datastore>web_domain</datastore>
+                <datastore>tls_cert_uri</datastore>
                </input>
             </generator>
         </input>
@@ -369,7 +384,7 @@
         <datastore>tls_cert_bundle</datastore>
       </input>
       <input into="uri">
-        <datastore>web_domain</datastore>
+        <datastore>tls_cert_uri</datastore>
       </input>
       <input into="strings_to_leak">
         <datastore>tls_cert_flag</datastore>
