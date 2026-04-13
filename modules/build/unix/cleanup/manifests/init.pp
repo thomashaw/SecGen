@@ -67,7 +67,7 @@ class cleanup::init {
   }
 
   if $remove_proxy_env_vars {
-    file { 'remove-proxy-env-vars':
+    file { '/etc/environment':
       ensure => file,
       content => "",
     }
