@@ -11,6 +11,12 @@
   <type>network_tools</type>
   <platform>linux</platform>
 
+  <read_fact>disable_ntp</read_fact>
+
+  <default_input into="disable_ntp">
+    <value>false</value>
+  </default_input>
+
   <requires>
     <type>update</type>
   </requires>

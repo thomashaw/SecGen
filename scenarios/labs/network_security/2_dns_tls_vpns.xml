@@ -173,7 +173,12 @@
         </utility>
 
         <utility module_path=".*/handy_cli_tools"/>
-        <utility module_path=".*/handy_networking_tools"/>
+        <utility module_path=".*/handy_networking_tools">
+          <!--    Disable NTP to minimise noise in pcap       -->
+          <input into="disable_ntp">
+            <value>true</value>
+          </input>
+        </utility>
 
         <utility module_path=".*/iceweasel">
             <input into="accounts">
