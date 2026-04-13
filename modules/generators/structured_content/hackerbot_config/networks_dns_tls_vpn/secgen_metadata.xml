@@ -16,7 +16,6 @@
   <read_fact>uri</read_fact>
   <read_fact>dns_fix_flag</read_fact>
   <read_fact>vpn_connect_flag</read_fact>
-  <read_fact>vpn_flag_port</read_fact>
 
   <default_input into="accounts">
     <generator type="account">
@@ -31,17 +30,6 @@
   </default_input>
   <default_input into="vpn_connect_flag">
     <generator type="flag_generator"/>
-  </default_input>
-
-  <default_input into="vpn_flag_port">
-    <generator module_path=".*/random_number">
-      <input into="minimum">
-        <value>1024</value>
-      </input>
-      <input into="maximum">
-        <value>2024</value>
-      </input>
-    </generator>
   </default_input>
 
   <output_type>hackerbot</output_type>

@@ -5,7 +5,6 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
   attr_accessor :dns_fix_flag
   attr_accessor :vpn_connect_flag
   attr_accessor :domain
-  attr_accessor :vpn_flag_port
   def initialize
     super
     self.module_name = 'Hackerbot Config Generator Networks DNS TLS VPN'
@@ -18,7 +17,6 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
     self.dns_fix_flag = ''
     self.vpn_connect_flag = ''
     self.domain = ''
-    self.vpn_flag_port = ''
   end
   def get_options_array
     super + [
@@ -26,7 +24,6 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
       ['--dns_fix_flag',   GetoptLong::REQUIRED_ARGUMENT],
       ['--vpn_connect_flag', GetoptLong::REQUIRED_ARGUMENT],
       ['--domain',            GetoptLong::REQUIRED_ARGUMENT],
-      ['--vpn_flag_port',  GetoptLong::REQUIRED_ARGUMENT],
     ]
   end
   def process_options(opt, arg)
@@ -40,14 +37,11 @@ class NetworksDnsTlsVpn < HackerbotConfigGenerator
       self.vpn_connect_flag << arg
     when '--domain'
       self.domain << arg
-    when '--vpn_flag_port'
-      self.vpn_flag_port << arg
     end
   end
   def encoding_print_string
     "IP_addresses: #{self.IP_addresses}, dns_fix_flag: #{self.dns_fix_flag}, " \
-      "vpn_connect_flag: #{self.vpn_connect_flag}, domain: #{self.domain}, " \
-      "vpn_flag_port: #{self.vpn_flag_port}"
+      "vpn_connect_flag: #{self.vpn_connect_flag}, domain: #{self.domain}, "
   end
 end
 NetworksDnsTlsVpn.new.run

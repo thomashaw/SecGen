@@ -434,7 +434,7 @@
   <!-- =================================================================
        SERVER — server zone host
        Segment: Server zone (10.0.3.0/24) — VLAN 3
-       Runs bind9 (authoritative, misconfigured zone transfer) + nc_message
+       Runs bind9 (authoritative, misconfigured zone transfer)
        ================================================================= -->
 
   <system>
@@ -538,19 +538,6 @@
         <value>any</value>
       </input>
     </service>
-
-    <!-- VPN flag — randomised port, blocked from external subnet by gateway -->
-    <utility module_path=".*/nc_message">
-      <input into="strings_to_leak">
-        <generator type="flag_generator"/>
-      </input>
-      <input into="port" into_datastore="vpn_flag_port">
-        <generator module_path=".*/random_number">
-          <input into="minimum"><value>1024</value></input>
-          <input into="maximum"><value>2024</value></input>
-        </generator>
-      </input>
-    </utility>
 
     <utility module_path=".*/wireshark"/>
     <utility module_path=".*/handy_networking_tools"/>
@@ -688,9 +675,6 @@
                     </input>
                     <input into="domain">
                         <datastore>domain</datastore>
-                    </input>
-                    <input into="vpn_flag_port">
-                        <datastore>vpn_flag_port</datastore>
                     </input>
                 </generator>
             </input>
