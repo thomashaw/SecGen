@@ -13,13 +13,13 @@ VPNs are used in two main configurations:
 
 TLS encrypts the *content* of individual connections, but the destination IP address is still visible to anyone monitoring the network. An attacker watching your traffic can see which servers you are connecting to, how often, and how much data is being transferred - even if they cannot read what is inside those connections.
 
-A VPN wraps all traffic - including TLS-encrypted traffic - inside an additional encryption layer. From the perspective of anyone on the external network, all they see is encrypted VPN packets flowing between the client and the VPN gateway. The actual destinations, ports, and contents of connections inside the tunnel are hidden entirely.
+A VPN wraps all traffic, including TLS-encrypted traffic, inside an additional encryption layer. From the perspective of anyone on the external network, all they see is encrypted VPN packets flowing between the client and the VPN gateway. The actual destinations, ports, and contents of connections inside the tunnel are hidden entirely.
 
 #### OpenVPN
 
 OpenVPN is an open-source VPN implementation that uses TLS for its control channel and strong symmetric encryption for its data channel. It supports certificate-based authentication, where both the client and server present certificates signed by a shared Certificate Authority, ensuring that only authorised clients can connect.
 
-In this lab, the gateway (<%= $gateway_ext_ip %>) is configured as an OpenVPN server using certificate-based authentication. A client certificate and key pair have already been generated and placed on the remote VM. The VPN tunnel subnet is `10.8.0.0/24` - when the tunnel is up, the remote client will be assigned an address in this range.
+In this lab, the gateway (<%= $gateway_ext_ip %>) is configured as an OpenVPN server using certificate-based authentication. A client certificate and key pair have already been generated and placed on the remote VM. The VPN tunnel subnet is `10.8.0.0/24`. When the tunnel is up, the remote client will be assigned an address in this range.
 
 ### Demonstrating the problem: remote access without a VPN
 
@@ -127,7 +127,7 @@ ssh <%= $gateway_lan_ip %>
 # On: gateway
 sudo iptables -A FORWARD -i tun0 -j ACCEPT
 sudo iptables -A FORWARD -o tun0 -j ACCEPT
-sudo iptables-save > /etc/iptables/rules.v4
+sudo bash -c 'iptables-save > /etc/iptables/rules.v4'
 ```
 
 The first rule allows traffic arriving on `tun0` to be forwarded to other interfaces. The second allows return traffic to be forwarded back through the tunnel. Together they permit bidirectional traffic flow through the VPN.
@@ -153,7 +153,7 @@ You can also use hostnames from the remote VM if DNS is configured. Check whethe
 cat /etc/resolv.conf
 ```
 
-If `<%= $server_ip %>` is not listed as a nameserver, add it the same way you did on the desktop - by editing `/etc/network/interfaces` and adding `dns-nameservers <%= $server_ip %>` to the interface block, then restarting the interface.
+If `<%= $server_ip %>` is not listed as a nameserver, add it the same way you did on the desktop (i.e. by editing `/etc/network/interfaces` and adding `dns-nameservers <%= $server_ip %>` to the interface block, then restarting the interface).
 
 Once DNS is working, try:
 

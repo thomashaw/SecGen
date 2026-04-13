@@ -290,7 +290,7 @@
         <input into="openvpn_pki" into_datastore="openvpn_pki">
           <generator module_path=".*/openvpn_pki">
             <input into="server_ip">
-              <datastore access="0">IP_addresses</datastore>
+              <datastore access="9">IP_addresses</datastore>
             </input>
             <input into="port" into_datastore="vpn_port">
               <generator module_path=".*/random_number">
