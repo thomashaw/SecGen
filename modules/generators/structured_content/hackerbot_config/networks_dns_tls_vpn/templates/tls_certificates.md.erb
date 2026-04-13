@@ -109,22 +109,3 @@ openssl s_client -connect <%= $webserver_ip %>:443 2>/dev/null | openssl x509 -n
 ==hint: Look carefully at the Subject Alternative Name extension - it can contain URIs as well as hostnames. If you find a URI, try fetching it.==
 
 **Don't forget to save and submit any flags you find!**
-
-### HTTP Strict Transport Security (HSTS)
-
-Even when a server supports HTTPS, users may still connect over plain HTTP - by typing `http://` explicitly, following an old link, or being silently downgraded by an attacker on the network. HTTP Strict Transport Security (HSTS) is a response header that instructs clients to always use HTTPS for a domain, refusing plain HTTP connections entirely:
-
-```
-Strict-Transport-Security: max-age=31536000
-```
-
-When a client sees this header, it records that domain as requiring HTTPS for the duration specified by `max-age` (in seconds) and refuses to make plain HTTP connections for that period. This protects against **SSL stripping** attacks, where an attacker positioned between the client and server intercepts a plain HTTP connection and prevents it from being upgraded to HTTPS.
-
-Check whether the web server currently sends an HSTS header:
-
-```
-# On: desktop
-curl -kI https://<%= $webserver_ip %>
-```
-
-The `-I` flag fetches only the response headers. You will find that `Strict-Transport-Security` is not present - the web server is not yet enforcing HTTPS-only connections. We will revisit this in a later lab when we look at man-in-the-middle attacks, where SSL stripping is demonstrated in practice and HSTS is one of the defences you will apply.
