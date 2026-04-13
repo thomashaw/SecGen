@@ -165,24 +165,22 @@ curl -k https://web.<%= $domain %>
 
 Both should succeed through the tunnel.
 
-### Observing the VPN in action
-
-To see concretely what the VPN conceals, compare what is visible on the gateway's external interface with and without the tunnel active.
-
-On the gateway, start a packet capture on the external-facing interface:
+Open Wireshark on the remote VM.
 
 ```
-# On: gateway
-sudo tcpdump -i any -n 'host <%= $remote_ip %>'
+# On: remote
+sudo wireshark
 ```
 
-With the VPN tunnel **active** on the remote VM, make an HTTPS request to the web server:
+Select the `ens19` interface and start a capture.
+
+With the VPN tunnel **active**, make an HTTPS request to the web server:
 
 ```
 # On: remote
 curl -k https://<%= $webserver_ip %>
 ```
 
-Look at the capture. All you will see is encrypted UDP packets between `<%= $remote_ip %>` and `<%= $gateway_ext_ip %>`. The actual destination `<%= $webserver_ip %>` is not visible anywhere - to an observer on the external network, the remote machine appears to be communicating only with the VPN gateway.
+Look at the Wireshark output. Filter by `udp` so that all you see is encrypted UDP packets flowing between the remote VM and the gateway at <%= $gateway_ext_ip %>. The actual destination <%= $webserver_ip %> is not visible anywhere.
 
----
+Now stop the capture and try the same request **without** the VPN active (kill the OpenVPN process first with `sudo killall openvpn`). If you restart the capture, you will see the TCP connection attempt going directly to <%= $webserver_ip %> with the destination fully visible.
