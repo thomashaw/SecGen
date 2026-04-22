@@ -14,6 +14,13 @@
   <platform>unix</platform>
   <difficulty>medium</difficulty>
 
+  <goals>
+    <access_account>
+      <account_name>distccd</account_name>
+    </access_account>
+  </goals>
+
+
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
 

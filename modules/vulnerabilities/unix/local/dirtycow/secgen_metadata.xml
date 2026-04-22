@@ -17,6 +17,12 @@
   <platform>linux</platform>
   <difficulty>medium</difficulty>
 
+  <goals>
+    <access_account>
+      <account_name>root</account_name>
+    </access_account>
+  </goals>
+
 
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>

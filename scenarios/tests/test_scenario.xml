@@ -3,24 +3,77 @@
 <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test Scenario: hidden file</name>
+  <author>Thomas Shaw</author>
+  <description>
+  </description>
+
+  <type>ctf</type>
+  <difficulty>easy</difficulty>
+
   <system>
-    <system_name>testing</system_name>
-    <base platform="linux" distro="Debian 7.8" type="server"/>
+    <system_name>hackme_desktop</system_name>
+    <base distro="Debian 10" type="desktop"/>
 
     <input into_datastore="IP_addresses">
-      <value>172.17.0.0</value>
+      <!-- 0 hackme_desktop -->
+      <value>172.16.0.3</value>
+      <!-- 1 auto_grading_server -->
+      <value>172.16.0.4</value>
     </input>
 
-    <vulnerability module_path=".*wordpress_3x.*">
-      <input into="https">
-        <value>true</value>
-      </input>
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </vulnerability>
+    <input into_datastore="aaa_config">
+      <generator type="aaa_config">
+        <input into="server_ip">
+          <datastore access="0">IP_addresses</datastore>
+        </input>
+        <input into="client_ips">
+          <datastore access="0">IP_addresses</datastore>
+        </input>
+        <input into="elasticsearch_port">
+          <value>9200</value>
+        </input>
+        <input into="logstash_port">
+          <value>5044</value>
+        </input>
+        <input into="kibana_port">
+          <value>5601</value>
+        </input>
+        <input into="aa_configs">
+          <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
+          <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
+            <input into="host">
+              <datastore access="1">IP_addresses</datastore>
+            </input>
+            <input into="message_header">
+              <value>Well done!</value>
+            </input>
+            <input into="message_subtext">
+              <value>Here is some subtext from the scenario.</value>
+            </input>
+            <input into="sender">
+              <value>root</value>
+            </input>
+            <input into="password">
+              <value>test</value>
+            </input>
+            <input into="recipient">
+              <value>challenger</value>
+            </input>
+          </generator>
+        </input>
+      </generator>
+    </input>
 
-  <network type="private_network">
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
+
+    <network type="private_network">
       <input into="IP_address">
         <datastore access="0">IP_addresses</datastore>
       </input>

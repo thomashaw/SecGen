@@ -179,6 +179,23 @@ class ModuleReader < XMLReader
         new_module.requires.push(require)
       end
 
+      # for each goal in the module
+      doc.xpath("/#{module_type}/goals").each do |goals_doc|
+        goals = []
+        goals_doc.elements.each {|node|
+          goal_type = node.name
+          goal_hash = {'goal_type' => goal_type,}
+          node.children.each {|subnode|
+            unless subnode.text?
+              goal_hash.merge!({subnode.name => subnode.content.strip})
+            end
+          }
+          goals << goal_hash
+        }
+        new_module.goals = goals
+      end
+
+
       # for each CyBOK in the module -- we just store the xml node for later
       doc.xpath("/#{module_type}/CyBOK").each do |cybok_doc|
         new_module.cybok_coverage.push(cybok_doc.clone)

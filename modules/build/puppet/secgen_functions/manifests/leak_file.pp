@@ -1,19 +1,35 @@
-define secgen_functions::leak_file($leaked_filename, $storage_directory, $strings_to_leak, $owner = 'root', $group = 'root', $mode = '0660', $leaked_from = '' ) {
-  if ($leaked_filename != ''){
-    $path_to_leak = "$storage_directory/$leaked_filename"
+define secgen_functions::leak_file (
+  $file_path_to_leak = '',
+  $leaked_filename   = '',
+  $storage_directory = '',
+  $strings_to_leak   = [],
+  $owner             = 'root',
+  $group             = 'root',
+  $mode              = '0660',
+  $leaked_from       = ''
+) {
 
-    # create the directory tree, incase the file name has extra layers of directories
-    if $::osfamily == 'windows' {
-      exec { "win_$leaked_from-$path_to_leak-mkdir":
-        command => "cmd.exe /c md $storage_directory",
-        path => "C:\\Windows\\System32",
-        returns => [1]
-      } ->
-      exec { "win_$leaked_from-$path_to_leak-takeown":
-        command => "cmd.exe /c takeown /F $storage_directory /U $owner",
-        path => "C:\\Windows\\System32",
-        returns => [1]
-      }
+  if ($file_path_to_leak != '' and ($leaked_filename != '' or $storage_directory != '')) {
+    fail("ERROR: Either a file_path_to_leak OR (a leaked_filename and a storage directory), not both.")
+  }
+
+  if ($leaked_filename != '') {
+    $path_to_leak = "$storage_directory/$leaked_filename"
+  } else {
+    $path_to_leak = $file_path_to_leak
+  }
+  # create the directory tree, incase the file name has extra layers of directories
+  if $::osfamily == 'windows' {
+    exec { "win_$leaked_from-$path_to_leak-mkdir":
+      command => "cmd.exe /c md $storage_directory",
+      path    => "C:\\Windows\\System32",
+      returns => [1]
+    } ->
+    exec { "win_$leaked_from-$path_to_leak-takeown":
+      command => "cmd.exe /c takeown /F $storage_directory /U $owner",
+      path    => "C:\\Windows\\System32",
+      returns => [1]
+    }
     # assuming everything not windows has mkdir and chown
     } else {
       exec { "$leaked_from-$path_to_leak-mkdir":

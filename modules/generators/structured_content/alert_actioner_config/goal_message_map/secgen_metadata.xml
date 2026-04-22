@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>AlertActioner goal-message mapper</name>
+  <author>Thomas Shaw</author>
+  <module_license>GPLv3</module_license>
+  <description>Generates a json config mapping between a unique module ID and MessageAction</description>
+
+  <type>goal_message_map</type>
+  <platform>linux</platform>
+
+  <read_fact>unique_id</read_fact>
+  <read_fact>host</read_fact>
+  <read_fact>sender</read_fact>
+  <read_fact>password</read_fact>
+  <read_fact>recipient</read_fact>
+  <read_fact>message_header</read_fact>
+  <read_fact>message_subtext</read_fact>
+
+  <output_type>json</output_type>
+
+</generator>

@@ -89,13 +89,16 @@ elsif system.memory.to_i >= 4096
 end -%>
 <%=     if @options.has_key? :cpu_cores
 "        ovirt.cpu_cores = #{@options[:cpu_cores]}\n"
-end -%>
-  ovirt.console = 'spice'
-  # ovirt.filtered_api = true
-  ovirt.insecure = true
-  ovirt.debug = true
-end
-# oVirt provider end
+        end -%>
+<%=      if  system.name.include? 'grading'  # TODO: Update this later, eugh...
+"        ovirt.cpu_cores = 2\n"
+         end -%>
+        ovirt.console = 'spice'
+        # ovirt.filtered_api = true
+        ovirt.insecure = true
+        ovirt.debug = true
+    end
+    # oVirt provider end
 
 <%
     when "proxmox"

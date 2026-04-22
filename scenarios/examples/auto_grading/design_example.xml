@@ -1,0 +1,502 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Example Scenario</name>
+  <author>Thomas Shaw</author>
+  <description>The full example scenario that was described within the design paper.</description>
+
+  <type>dynamic</type>
+  <type>immersive</type>
+  <type>ctf</type>
+  <difficulty>medium</difficulty>
+
+
+  <!-- 3 VMs on same network: -->
+  <!--     0: Attack VM -->
+  <!--     1: Victim 1  -->
+  <!--     2: Victim 2 (Off until goal trigger) -->
+
+  <!-- 4 user account level challenges: -->
+  <!-- Distcc                    [x] -->
+  <!-- Readable shadow file      [x] -->
+  <!-- Hidden file               [x] -->
+  <!-- Password Cracking         [x]
+       (user account, via readable shadow) -->
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <value>172.16.0.2</value>
+      <!-- 1 victim_1 -->
+      <value>172.16.0.3</value>
+      <!-- 2 victim_2 -->
+      <value>172.16.0.4</value>
+      <!-- 3 auto_grading_server -->
+      <value>172.16.0.4</value>
+    </input>
+
+    <input into_datastore="accounts">
+      <!-- Default account -->
+      <generator type="account">
+        <input into="username">
+          <value>challenger</value>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+      </generator>
+      <!-- Crackable account -->
+      <generator type="account">
+        <input into="username">
+          <value>crackme</value>
+        </input>
+        <input into="password" into_datastore="server_crackme_password">
+          <generator type="weak_password_generator"/>
+        </input>
+      </generator>
+    </input>
+
+    <input into_datastore="aaa_config">
+      <generator type="aaa_config">
+        <input into="server_ip">
+          <datastore access="2">IP_addresses</datastore>
+        </input>
+        <input into="client_ips">
+          <datastore access="1">IP_addresses</datastore>
+        </input>
+        <input into="elasticsearch_port">
+          <value>9200</value>
+        </input>
+        <input into="logstash_port">
+          <value>5044</value>
+        </input>
+        <input into="kibana_port">
+          <value>5601</value>
+        </input>
+        <input into="aa_configs">
+          <generator type="alert_actioner_config" module_path=".*goal_flag_hacktivity.*"/>
+          <generator type="alert_actioner_config" module_path=".*goal_message_host.*">
+            <input into="host">
+              <datastore access="1">IP_addresses</datastore>
+            </input>
+            <input into="sender">
+              <value>challenger</value>
+            </input>
+            <input into="password">
+              <datastore access="0" access_json="['password']">accounts</datastore>
+            </input>
+            <input into="recipient">
+              <value>challenger</value>
+            </input>
+            <input into="mapping_type">
+              <value>message_host</value>
+            </input>
+            <input into="mappings">
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC FLAG TODO -->
+                </input>
+                <input into="host">
+                  <datastore access="0">IP_addresses</datastore>
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+                <input into="sender">
+                  <value>root</value>
+                </input>
+                <input into="recipient">
+                  <value>root</value>
+                </input>
+                <input into="password">
+                  <value>toor</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability1</value>     <!-- DistCC MESSAGE TODO -->
+                </input>
+                <input into="host">
+                  <datastore access="0">IP_addresses</datastore>
+                </input>
+                <input into="message_header">
+                  <value>Excellent job!</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done exploiting the distcc vulnerability.</value>
+                </input>
+                <input into="sender">
+                  <value>root</value>
+                </input>
+                <input into="recipient">
+                  <value>root</value>
+                </input>
+                <input into="password">
+                  <value>toor</value>
+                </input>
+              </generator>
+
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability2</value>     <!-- Readable shadow file -->
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability2</value>     <!-- Readable shadow file -->
+                </input>
+                <input into="message_header">
+                  <value>Great job! You found something useful.</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done identifying that the shadow file is readable. You've got the password hashes! Try
+                    cracking the hash for the 'crackme' user.
+                  </value>
+                </input>
+              </generator>
+
+
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability3</value>      <!-- Hidden file -->
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2vulnerability3</value>      <!-- Hidden file -->
+                </input>
+                <input into="message_header">
+                  <value>Sensitive information!.</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done finding the hidden file containing sensitive information!</value>
+                </input>
+              </generator>
+
+
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2goal1
+                  </value>                      <!-- Password cracking FLAG TODO *testing* -->
+                </input>
+                <input into="message_header">
+                  <value>🚩🚩🚩 FLAG CAPTURED 🚩🚩🚩</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Well done! A flag has been granted in Hacktivity and your points have been registered.</value>
+                </input>
+              </generator>
+              <generator type="goal_message_map">
+                <input into="unique_id">
+                  <value>scenariosystem2goal1
+                  </value>                      <!-- Password cracking MESSAGE TODO *testing* -->
+                </input>
+                <input into="message_header">
+                  <value>Fantastic work!</value>
+                </input>
+                <input into="message_subtext">
+                  <value>Great job accessing the crackme account!</value>
+                </input>
+              </generator>
+            </input>
+          </generator>
+        </input>
+      </generator>
+    </input>
+
+    <utility module_path=".*/kali_top10"/>
+
+    <vulnerability module_path=".*/ssh_root_login">
+      <input into="root_password">
+        <value>toor</value>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>victim_1</system_name>
+    <base distro="Debian 10" type="desktop"/>
+
+    <goals>
+      <access_account>
+        <account_name>crackme</account_name>
+      </access_account>
+    </goals>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/hidden_file">
+      <input into="file_path_to_leak">
+        <value>/home/challenger/.top_secret_file</value>
+      </input>
+      <input into="strings_to_leak" into_datastore="sensitive_code">
+        <value>no warnings;
+          `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
+        </value>
+        <generator type="personal_sensitive"/>
+        <encoder type="csv">
+          <input into="strings_to_encode" into_datastore="clients">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+        <encoder type="csv">
+          <input into="strings_to_encode">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+      </input>
+    </vulnerability>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>victim_1</system_name>
+    <base distro="Debian 10" type="desktop"/>
+
+    <goals>
+      <access_account>
+        <account_name>crackme</account_name>
+      </access_account>
+    </goals>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec"/>
+    <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
+    <vulnerability module_path=".*/hidden_file">
+      <input into="file_path_to_leak">
+        <value>/home/challenger/.top_secret_file</value>
+      </input>
+      <input into="strings_to_leak" into_datastore="sensitive_code">
+        <value>no warnings;
+          `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
+        </value>
+        <generator type="personal_sensitive"/>
+        <encoder type="csv">
+          <input into="strings_to_encode" into_datastore="clients">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+        <encoder type="csv">
+          <input into="strings_to_encode">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+      </input>
+    </vulnerability>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>victim_2</system_name>
+    <base distro="Debian 10" type="desktop"/>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*analysis_alert_action_client">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec"/>
+    <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
+    <vulnerability module_path=".*/hidden_file">
+      <input into="file_path_to_leak">
+        <value>/home/challenger/.top_secret_file</value>
+      </input>
+      <input into="strings_to_leak" into_datastore="sensitive_code">
+        <value>no warnings;
+          `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
+        </value>
+        <generator type="personal_sensitive"/>
+        <encoder type="csv">
+          <input into="strings_to_encode" into_datastore="clients">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+        <encoder type="csv">
+          <input into="strings_to_encode">
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+            <generator type="person"/>
+          </input>
+        </encoder>
+      </input>
+    </vulnerability>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password_generator"/>
+      </input>
+    </build>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>auto_grading_server</system_name>
+    <base distro="Debian 10"/>
+
+    <utility module_path=".*handy_cli_tools.*"/>
+    <service module_path=".*analysis_alert_action_server">
+      <input into="aaa_config">
+        <datastore access="0">aaa_config</datastore>
+      </input>
+    </service>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="3">IP_addresses</datastore>
+      </input>
+    </network>
+
+    <build type="cleanup">
+      <input into="root_password">
+        <generator type="strong_password"/>
+      </input>
+    </build>
+  </system>
+
+</scenario>

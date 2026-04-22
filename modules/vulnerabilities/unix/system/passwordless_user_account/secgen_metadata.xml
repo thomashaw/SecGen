@@ -16,6 +16,13 @@
   <challenge_type>pwn</challenge_type>
   <challenge_subtype>others</challenge_subtype>
 
+  <goals>
+    <!--TODO: fix me when string interpolation is implemented -->
+    <access_account>
+      <account_name>#{accounts[0]['username']}</account_name>
+    </access_account>
+  </goals>
+
   <read_fact>strings_to_leak</read_fact>
   <read_fact>accounts</read_fact>
 

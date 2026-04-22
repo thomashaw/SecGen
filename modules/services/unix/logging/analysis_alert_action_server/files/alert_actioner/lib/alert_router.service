@@ -1,0 +1,21 @@
+[Unit]
+Description=Alert Router (SecGen: Auto Grading)
+Requires=postgresql.service
+Requires=elastalert.service
+Requires=dynamic_ip.service
+After=dynamic_ip.service
+After=postgresql.service
+After=elastalert.service
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/usr/bin/ruby /opt/alert_actioner/alert_router.rb start
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+WorkingDirectory=/opt/alert_actioner/
+Restart=always
+User=aaa_admin
+Group=aaa_admin
+
+[Install]
+WantedBy=multi-user.target

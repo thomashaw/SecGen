@@ -54,6 +54,7 @@ SQLITE_DIR = "#{ROOT_DIR}/lib/resources/sqlite"
 
 # Path to build puppet modules
 LOCAL_PUPPET_DIR = "#{MODULES_DIR}build/puppet"
+VCSREPO_PUPPET_DIR = "#{MODULES_DIR}build/puppet/stdlib"
 SECGEN_FUNCTIONS_PUPPET_DIR = "#{MODULES_DIR}build/puppet/secgen_functions"
 
 # Filename for flags, etc
@@ -84,6 +85,9 @@ CLEANUP_DIR = "#{ROOT_DIR}/modules/build/puppet/"
 VAGRANT_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/Vagrantfile.erb"
 
 PUPPET_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/Puppetfile.erb"
+
+AUDITBEAT_RULES_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/auditbeat_goal_rules.erb"
+ELASTALERT_RULES_TEMPLATE_FILE = "#{ROOT_DIR}/lib/templates/elastalert_goal_rules.erb"
 
 ## INTEGER CONSTANTS ##
 RETRIES_LIMIT = 10

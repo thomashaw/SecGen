@@ -18,7 +18,17 @@
   <challenge_subtype>others</challenge_subtype>
   <difficulty>medium</difficulty>
 
-  <read_fact>accounts</read_fact>
+  <goals>
+    <read_file>
+      <file_path>/home/#{['accounts'][0]['username']}/#{['accounts'][0]['leaked_filenames'][0]}</file_path>
+    </read_file>
+    <read_file>
+      <file_path>/etc/shadow</file_path>
+    </read_file>
+  </goals>
+
+  <read_fact>username</read_fact>
+  <read_fact>flag_path</read_fact>
 
   <default_input into="accounts">
     <generator type="account">
@@ -45,11 +55,6 @@
 
   <requires>
     <module_path>utilities/unix/system/.*/accounts</module_path>
-  </requires>
-
-  <!-- Need a way on to the box. -->
-  <requires>
-    <privilege>user_rwx</privilege>
   </requires>
 
   <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">

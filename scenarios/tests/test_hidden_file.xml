@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test Scenario: hidden file</name>
+  <author>Thomas Shaw</author>
+  <description>
+  </description>
+
+  <type>ctf</type>
+  <difficulty>easy</difficulty>
+
+  <system>
+    <system_name>hf_test_fnsd</system_name>
+    <base distro="Debian 10" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 hf_test_fnsd -->
+      <value>172.16.0.2</value>
+      <!-- 0 hf_test_fnacc -->
+      <value>172.16.0.3</value>
+    </input>
+
+    <vulnerability module_path=".*/hidden_file">
+      <input into="storage_directory">
+
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+  <system>
+    <system_name>hf_test_fnacc</system_name>
+    <base distro="Debian 10" type="desktop"/>
+
+    <vulnerability module_path=".*/hidden_file">
+      <input into="file_path_to_leak">
+        <generator type="file_path">
+          <input into="file_name">
+            <value>.test_acc</value>
+          </input>
+          <input into="account">
+
+          </input>
+        </generator>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="message_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+</scenario>

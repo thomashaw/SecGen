@@ -121,6 +121,7 @@ def build_config(scenario, out_dir, options)
   NetworkFunctions.resolve_deferred_inputs(systems, options)
 
   Print.info 'Resolving systems: randomising scenario...'
+  # update systems with module selections
   systems.map! {|system|
     system.module_selections = system.resolve_module_selection(all_available_modules, options)
     system
@@ -476,7 +477,7 @@ end
 
 Print.std '~' * 47
 Print.std 'SecGen - Creates virtualised security scenarios'
-Print.std '            Licensed GPLv3 2014-24'
+Print.std '            Licensed GPLv3 2014-26'
 Print.std '~'*47
 Print.debug "\nPlease take a minute to tell us how you are using SecGen:"
 Print.debug "https://tinyurl.com/SecGenFeedback\n"
