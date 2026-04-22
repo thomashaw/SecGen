@@ -16,12 +16,12 @@ Facter.add(:java_default_home) do
   confine kernel: ['Linux', 'OpenBSD']
   java_default_home = nil
   setcode do
-    java_bin = Facter::Core::Execution.which('java').to_s.strip
+    java_bin = Facter::Util::Resolution.which('java').to_s.strip
     if java_bin.empty?
       nil
     else
       java_path = File.realpath(java_bin)
-      java_default_home = if java_path.include?('/jre/')
+      java_default_home = if %r{/jre/}.match?(java_path)
                             File.dirname(File.dirname(File.dirname(java_path)))
                           else
                             File.dirname(File.dirname(java_path))

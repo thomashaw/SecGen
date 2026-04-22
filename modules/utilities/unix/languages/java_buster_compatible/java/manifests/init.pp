@@ -36,17 +36,17 @@
 #    environment variable.
 #
 class java (
-  String                                                    $distribution           = 'jdk',
-  Pattern[/present|installed|latest|^[.+_0-9a-zA-Z:~-]+$/]  $version                = 'present',
-  Optional[String]                                          $package                = undef,
-  Optional[Array]                                           $package_options        = undef,
-  Optional[String]                                          $java_alternative       = undef,
-  Optional[String]                                          $java_alternative_path  = undef,
-  Optional[String]                                          $java_home              = undef
+  String $distribution                                              = 'jdk',
+  Pattern[/present|installed|latest|^[.+_0-9a-zA-Z:~-]+$/] $version = 'present',
+  Optional[String] $package                                         = undef,
+  Optional[Array] $package_options                                  = undef,
+  Optional[String] $java_alternative                                = undef,
+  Optional[String] $java_alternative_path                           = undef,
+  Optional[String] $java_home                                       = undef
 ) {
-  contain java::params
+  include ::java::params
 
-  $default_package_name = $distribution in $java::params::java ? {
+  $default_package_name = has_key($java::params::java, $distribution) ? {
     false   => undef,
     default => $java::params::java[$distribution]['package'],
   }
@@ -62,7 +62,7 @@ class java (
   ## Else undef
   $use_java_alternative = $java_alternative ? {
     undef                   => $use_java_package_name ? {
-      $default_package_name => $distribution in $java::params::java ? {
+      $default_package_name => has_key($java::params::java, $distribution) ? {
         default => $java::params::java[$distribution]['alternative'],
         false => undef,
       },
@@ -74,7 +74,7 @@ class java (
   ## Same logic as $java_alternative above.
   $use_java_alternative_path = $java_alternative_path ? {
     undef                   => $use_java_package_name ? {
-      $default_package_name => $distribution in $java::params::java ? {
+      $default_package_name => has_key($java::params::java, $distribution) ? {
         default               => $java::params::java[$distribution]['alternative_path'],
         false                 => undef,
       },
@@ -85,7 +85,7 @@ class java (
 
   $use_java_home = $java_home ? {
     undef                   => $use_java_package_name ? {
-      $default_package_name => $distribution in $java::params::java ? {
+      $default_package_name => has_key($java::params::java, $distribution) ? {
         default             => $java::params::java[$distribution]['java_home'],
         false               => undef,
       },
@@ -100,7 +100,7 @@ class java (
       $use_java_package_name == undef or $use_java_alternative == undef or
       $use_java_alternative_path == undef or $use_java_home == undef
     ) and (
-      !($distribution in $java::params::java)
+      ! has_key($java::params::java, $distribution)
   )) {
     fail("Java distribution ${distribution} is not supported. Missing default values.")
   }
@@ -108,15 +108,6 @@ class java (
   $jre_flag = $use_java_package_name ? {
     /headless/ => '--jre-headless',
     default    => '--jre'
-  }
-
-  # If the OS is SLES >= 15.3, enable the legacy repo to install net-tools-deprecated package
-  if ($facts['os']['family'] in ['SLES', 'SUSE']) and (versioncmp($facts['os']['release']['full'], '15.3') >= 0) {
-    exec { 'Enable legacy repos':
-      path    => '/bin:/usr/bin/:/sbin:/usr/sbin',
-      command => "SUSEConnect --product sle-module-legacy/${facts['os']['release']['full']}/x86_64",
-      unless  => "SUSEConnect --status-text | grep sle-module-legacy/${facts['os']['release']['full']}/x86_64",
-    }
   }
 
   if $facts['os']['family'] == 'Debian' {
@@ -127,10 +118,12 @@ class java (
     }
   }
 
-  package { 'java':
+  anchor { 'java::begin:': }
+  -> package { 'java':
     ensure          => $version,
     install_options => $package_options,
     name            => $use_java_package_name,
   }
   -> class { 'java::config': }
+  -> anchor { 'java::end': }
 }

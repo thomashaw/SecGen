@@ -54,21 +54,21 @@
 #   The name for the optional symlink in the installation directory.
 #
 define java::download (
-  Enum['present']                                 $ensure         = 'present',
-  String[1]                                       $version        = '8',
-  Optional[String]                                $version_major  = undef,
-  Optional[String]                                $version_minor  = undef,
-  String[1]                                       $java_se        = 'jdk',
-  Optional[String]                                $proxy_server   = undef,
-  Optional[Enum['none', 'http', 'https', 'ftp']]  $proxy_type     = undef,
-  Optional[String]                                $url            = undef,
-  Boolean                                         $jce            = false,
-  Optional[String]                                $jce_url        = undef,
-  Optional[String]                                $basedir        = undef,
-  Boolean                                         $manage_basedir = false,
-  Optional[String]                                $package_type   = undef,
-  Boolean                                         $manage_symlink = false,
-  Optional[String]                                $symlink_name   = undef,
+  $ensure         = 'present',
+  $version        = '8',
+  $version_major  = undef,
+  $version_minor  = undef,
+  $java_se        = 'jdk',
+  $proxy_server   = undef,
+  $proxy_type     = undef,
+  $url            = undef,
+  $jce            = false,
+  $jce_url        = undef,
+  $basedir        = undef,
+  $manage_basedir = false,
+  $package_type   = undef,
+  $manage_symlink = false,
+  $symlink_name   = undef,
 ) {
   # archive module is used to download the java package
   include archive
@@ -207,19 +207,19 @@ define java::download (
   # package name to use in destination directory for the installer
   case $_package_type {
     'bin' : {
-      $package_name = "${java_se}-${version}-${release_major}-${release_minor}-${os}-${arch}.bin"
+      $package_name = "${java_se}-${release_major}-${os}-${arch}.bin"
     }
     'rpmbin' : {
-      $package_name = "${java_se}-${version}-${release_major}-${release_minor}-${os}-${arch}-rpm.bin"
+      $package_name = "${java_se}-${release_major}-${os}-${arch}-rpm.bin"
     }
     'rpm' : {
-      $package_name = "${java_se}-${version}-${release_major}-${release_minor}-${os}-${arch}.rpm"
+      $package_name = "${java_se}-${release_major}-${os}-${arch}.rpm"
     }
     'tar.gz' : {
-      $package_name = "${java_se}-${version}-${release_major}-${release_minor}-${os}-${arch}.tar.gz"
+      $package_name = "${java_se}-${release_major}-${os}-${arch}.tar.gz"
     }
     default : {
-      $package_name = "${java_se}-${version}-${release_major}-${release_minor}-${os}-${arch}.rpm"
+      $package_name = "${java_se}-${release_major}-${os}-${arch}.rpm"
     }
   }
 
@@ -237,19 +237,19 @@ define java::download (
 
   case $_package_type {
     'bin' : {
-      $install_command = ['sh', $destination]
+      $install_command = "sh ${destination}"
     }
     'rpmbin' : {
-      $install_command = ['sh', $destination, '-x;', 'rpm', '--force', '-iv', 'sun*.rpm;', 'rpm', '--force', '-iv', "${java_se}*.rpm"]
+      $install_command = "sh ${destination} -x; rpm --force -iv sun*.rpm; rpm --force -iv ${java_se}*.rpm"
     }
     'rpm' : {
-      $install_command = ['rpm', '--force', '-iv', $destination]
+      $install_command = "rpm --force -iv ${destination}"
     }
     'tar.gz' : {
-      $install_command = ['tar', '-zxf', $destination, '-C', $_basedir]
+      $install_command = "tar -zxf ${destination} -C ${_basedir}"
     }
     default : {
-      $install_command = ['rpm', '-iv', $destination]
+      $install_command = "rpm -iv ${destination}"
     }
   }
 

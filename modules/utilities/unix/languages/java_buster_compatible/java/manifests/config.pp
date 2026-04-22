@@ -3,13 +3,10 @@ class java::config ( ) {
   case $facts['os']['family'] {
     'Debian': {
       if $java::use_java_alternative != undef and $java::use_java_alternative_path != undef {
-        $command_debian = ['update-java-alternatives', '--set', $java::use_java_alternative, $java::jre_flag]
-        $unless_debian = [['test', '/etc/alternatives/java', '-ef', $java::use_java_alternative_path]]
-
         exec { 'update-java-alternatives':
           path    => '/usr/bin:/usr/sbin:/bin:/sbin',
-          command => $command_debian,
-          unless  => $unless_debian,
+          command => "update-java-alternatives --set ${java::use_java_alternative} ${java::jre_flag}",
+          unless  => "test /etc/alternatives/java -ef '${java::use_java_alternative_path}'",
         }
       }
       if $java::use_java_home != undef {
@@ -25,23 +22,18 @@ class java::config ( ) {
         # The standard packages install alternatives, custom packages do not
         # For the stanard packages java::params needs these added.
         if $java::use_java_package_name != $java::default_package_name {
-          $command_redhat = ['alternatives', '--install', '/usr/bin/java', 'java', $java::use_java_alternative_path, '20000']
-          $unless_redhat = "alternatives --display java | grep -q ${shell_escape($java::use_java_alternative_path)}"
-
           exec { 'create-java-alternatives':
             path    => '/usr/bin:/usr/sbin:/bin:/sbin',
-            command => $command_redhat,
-            unless  => $unless_redhat,
+            command => "alternatives --install /usr/bin/java java ${$java::use_java_alternative_path} 20000" ,
+            unless  => "alternatives --display java | grep -q ${$java::use_java_alternative_path}",
             before  => Exec['update-java-alternatives'],
           }
         }
-        $command_default = ['alternatives', '--set', 'java', $java::use_java_alternative_path]
-        $unless_default = [['test', '/etc/alternatives/java', '-ef', $java::use_java_alternative_path]]
 
         exec { 'update-java-alternatives':
           path    => '/usr/bin:/usr/sbin',
-          command => $command_default,
-          unless  => $unless_default,
+          command => "alternatives --set java ${$java::use_java_alternative_path}" ,
+          unless  => "test /etc/alternatives/java -ef '${java::use_java_alternative_path}'",
         }
       }
       if $java::use_java_home != undef {

@@ -1,26 +1,27 @@
 {
   "name": "puppetlabs-java",
-  "version": "11.2.0",
+  "version": "8.2.0",
   "author": "puppetlabs",
   "summary": "Installs the correct Java package on various platforms.",
   "license": "Apache-2.0",
   "source": "git://github.com/puppetlabs/puppetlabs-java",
   "project_page": "https://github.com/puppetlabs/puppetlabs-java",
-  "issues_url": "https://github.com/puppetlabs/puppetlabs-java/issues",
+  "issues_url": "https://tickets.puppet.com/CreateIssueDetails!init.jspa?pid=10707&issuetype=1&team=Modules&customfield_14200=14302&labels=triage&customfield_10005=2147&summary=Issue+found+with+module%3A+puppetlabs-java",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.13.1 < 10.0.0"
+      "version_requirement": ">= 4.13.1 < 9.0.0"
     },
     {
       "name": "puppet/archive",
-      "version_requirement": ">= 1.1.0 < 9.0.0"
+      "version_requirement": ">= 1.1.0 < 7.0.0"
     }
   ],
   "operatingsystem_support": [
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
+        "6",
         "7",
         "8",
         "9"
@@ -36,15 +37,22 @@
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
+        "6",
         "7"
+      ]
+    },
+    {
+      "operatingsystem": "Scientific",
+      "operatingsystemrelease": [
+        "6"
       ]
     },
     {
       "operatingsystem": "Debian",
       "operatingsystemrelease": [
+        "9",
         "10",
-        "11",
-        "12"
+        "11"
       ]
     },
     {
@@ -52,8 +60,7 @@
       "operatingsystemrelease": [
         "18.04",
         "20.04",
-        "22.04",
-        "24.04"
+        "22.04"
       ]
     },
     {
@@ -79,10 +86,10 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 7.0.0 < 9.0.0"
+      "version_requirement": ">= 6.0.0 < 8.0.0"
     }
   ],
   "template-url": "https://github.com/puppetlabs/pdk-templates.git#main",
-  "template-ref": "tags/3.2.0.4-0-g5d17ec1",
-  "pdk-version": "3.2.0"
+  "template-ref": "heads/main-0-g806810b",
+  "pdk-version": "2.4.0"
 }
