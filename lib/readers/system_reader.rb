@@ -121,7 +121,26 @@ class SystemReader < XMLReader
         end
 
       end
-      systems << System.new(system_name, system_attributes, module_selectors, scenario_file, options)
+
+      # Create new system object before reading goals as we need the hostname
+      system = System.new(system_name, system_attributes, module_selectors, scenario_file, options)
+
+      # Parse goals
+      system_node.xpath("goals").each do |goals_doc|
+        goals_doc.elements.each {|node|
+          goal_type = node.name
+          goal_hash = {'goal_type' => goal_type, }
+          node.children.each {|subnode|
+            unless subnode.text?
+              goal_hash.merge!({subnode.name => subnode.content.strip})
+            end
+          }
+          goal_hash.merge!({'hostname' => system.get_hostname}) unless goal_hash.has_key? 'hostname'
+          system.goals << goal_hash
+        }
+      end
+
+      systems << system
     end
 
     return systems

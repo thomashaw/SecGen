@@ -15,6 +15,7 @@ class System
   attr_accessor :memory  # (RAM allocation for the system)
   attr_accessor :options  # (command line options hash)
   attr_accessor :scenario_path  # (path to scenario file associated with this system)
+  attr_accessor :goals # scenario-level goals []
 
   # Attributes for resetting retry loop
   attr_accessor :available_mods
@@ -35,6 +36,7 @@ class System
     self.memory = "512"
     self.options = options
     self.scenario_path = scenario_file
+    self.goals = []
     set_hostname
   end
 
@@ -270,8 +272,8 @@ class System
                 # parse the datastore
                 parsed_datastore_element = JSON.parse(datastore_retrieved.first)
 
-                # Sanitise with whitelist of used characters: ' [ ]
-                access_json = datastore_access_json.gsub(/[^A-Za-z0-9\[\]'_]/, '')
+                # Sanitise with whitelist
+                access_json = JSONFunctions.sanitise_eval_string(datastore_access_json)
 
                 # get data from access_json string
                 begin

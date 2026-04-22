@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
   <name>Nmap Setuid</name>
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
@@ -13,6 +13,12 @@
   <access>local</access>
   <platform>linux</platform>
   <difficulty>medium</difficulty>
+
+  <goals>
+    <access_account>
+      <account_name>root</account_name>
+    </access_account>
+  </goals>
 
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>

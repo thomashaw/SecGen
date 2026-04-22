@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<generator xmlns="http://www.github/cliffe/SecGen/generator"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.github/cliffe/SecGen/generator">
+  <name>File Path Generator</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Combine a file name and a storage directory to create a full path</description>
+
+  <type>string_generator</type>
+  <type>file_path_generator</type>
+  <type>file_path</type>
+  <type>local_calculation</type>
+  <platform>linux</platform>
+
+  <read_fact>file_name</read_fact>
+  <read_fact>storage_directory</read_fact>
+
+  <default_input into="file_name">
+    <generator type="filename_generator"/>
+  </default_input>
+  <default_input into="storage_directory">
+    <value>/</value>
+  </default_input>
+
+  <output_type>file_path</output_type>
+</generator>

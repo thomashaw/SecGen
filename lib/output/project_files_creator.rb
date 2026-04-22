@@ -1,23 +1,25 @@
 require 'erb'
 require_relative '../helpers/constants.rb'
+require_relative '../helpers/rules.rb'
 require_relative 'xml_scenario_generator.rb'
 require_relative 'xml_marker_generator.rb'
+require_relative 'xml_alertaction_config_generator.rb'
 require_relative 'ctfd_generator.rb'
 require 'fileutils'
 require 'librarian'
 require 'zip/zip'
 
 class ProjectFilesCreator
-# Creates project directory, uses .erb files to create a report and the vagrant file that will be used
-# to create the virtual machines
+  # Creates project directory, uses .erb files to create a report and the vagrant file that will be used
+  # to create the virtual machines
   @systems
   @currently_processing_system
   @scenario_networks
   @option_range_map
 
-# @param [Object] systems list of systems that have been defined and randomised
-# @param [Object] out_dir the directory that the project output should be stored into
-# @param [Object] scenario the file path used to as a basis
+  # @param [Object] systems list of systems that have been defined and randomised
+  # @param [Object] out_dir the directory that the project output should be stored into
+  # @param [Object] scenario the file path used to as a basis
   def initialize(systems, out_dir, scenario, options)
     @systems = systems
     @out_dir = out_dir
@@ -32,25 +34,27 @@ class ProjectFilesCreator
     @options = options
     @scenario_networks = Hash.new { |h, k| h[k] = 1 }
     @option_range_map = {}
-
+    @number_of_goals = -1
+    @extra_flags = []
     # Packer builder type
     @builder_type = @options.has_key?(:esxi_url) ? :vmware_iso : :virtualbox_iso
+    resolve_interp_strings
   end
 
-# Generate all relevant files for the project
+  # Generate all relevant files for the project
   def write_files
     # when writing to a project that already contains a project, move everything out the way,
     # and keep the Vagrant config, so that existing VMs can be re-provisioned/updated
     if File.exists? "#{@out_dir}/Vagrantfile" or File.exists? "#{@out_dir}/puppet"
       dest_dir = "#{@out_dir}/MOVED_#{Time.new.strftime("%Y%m%d_%H%M%S")}"
       Print.warn "Project already built to this directory -- moving last build to: #{dest_dir}"
-      Dir.glob( "#{@out_dir}/**/*" ).select { |f| File.file?( f ) }.each do |f|
+      Dir.glob("#{@out_dir}/**/*").select { |f| File.file?(f) }.each do |f|
         dest = "#{dest_dir}/#{f}"
-        FileUtils.mkdir_p( File.dirname( dest ) )
+        FileUtils.mkdir_p(File.dirname(dest))
         if f =~ /\.vagrant/
-          FileUtils.cp( f, dest )
+          FileUtils.cp(f, dest)
         else
-          FileUtils.mv( f, dest )
+          FileUtils.mv(f, dest)
         end
       end
     end
@@ -89,7 +93,7 @@ class ProjectFilesCreator
               if File.file? packerfile_path
                 Print.info "Would you like to use the packerfile to create the packerfile from the given url (y/n)"
                 # TODO: remove user interaction, this should be set via a config option
-                (Print.info "Exiting as vagrant needs the basebox to continue"; abort) unless ['y','yes'].include?(STDIN.gets.chomp.downcase)
+                (Print.info "Exiting as vagrant needs the basebox to continue"; abort) unless ['y', 'yes'].include?(STDIN.gets.chomp.downcase)
 
                 Print.std "Packerfile #{packerfile_path.split('/').last} found, building basebox #{url.split('/').last} via packer"
                 template_based_file_write(packerfile_path, packerfile_path.split(/.erb$/).first)
@@ -108,6 +112,87 @@ class ProjectFilesCreator
           end
         end
       end
+      # Create client side auto-grading config files (auditbeat)
+      if system.has_module('auditbeat')
+        auditbeat_rules_file = "#{path}/modules/auditbeat/files/rules/auditbeat_rules_file.conf"
+        @rules = []
+        system.module_selections.each do |module_selection|
+          if module_selection.goals != []
+            @rules << Rules.generate_auditbeat_rules(module_selection.goals)
+          end
+        end
+
+        if system.goals != []
+          @rules << Rules.generate_auditbeat_rules(system.goals)
+        end
+
+        @rules = @rules.flatten.uniq
+        Print.std "Creating client side auditing rules: #{auditbeat_rules_file}"
+        if @rules.size > 0
+          template_based_file_write(AUDITBEAT_RULES_TEMPLATE_FILE, auditbeat_rules_file)
+        end
+      end
+
+      # Create server-side auto-grading config files (elastalert)
+      if system.has_module('elastalert')
+        @systems.each do |sys|
+          @hostname = sys.get_hostname
+
+          if sys.goals != []
+            sys.goals.each_with_index do |goal, i|
+              @name = sys.name
+              @goal = goal
+              @counter = i
+              rule_name = Rules.get_ea_rulename(@hostname, @name, @goal, @counter)
+              elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
+              Print.std "Creating server side alerting rules (system): #{elastalert_rules_file}"
+              template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
+            end
+          end
+
+          sys.module_selections.each do |module_selection|
+            if module_selection.goals != {}
+              module_selection.goals.each_with_index do |goal, i|
+                @name = module_selection.module_path_end
+                @goal = goal
+                @counter = i
+                rule_name = Rules.get_ea_rulename(@hostname, @name, @goal, @counter)
+                elastalert_rules_file = "#{path}/modules/elastalert/files/rules/#{rule_name}.yaml"
+                Print.std "Creating server side alerting rules: #{elastalert_rules_file}"
+                template_based_file_write(ELASTALERT_RULES_TEMPLATE_FILE, elastalert_rules_file)
+              end
+            end
+          end
+        end
+      end
+
+      # TODO: Refactor to include in the loop above if possible
+      if system.has_module('analysis_alert_action_server')
+        Print.info 'AlertActioner: Copying shared libs...'
+        aa_lib_dir = "#{path}/modules/analysis_alert_action_server/files/alert_actioner/lib"
+        FileUtils.mkdir_p(aa_lib_dir)
+        FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/print.rb", "#{aa_lib_dir}/print.rb")
+        FileUtils.cp_r("#{ROOT_DIR}/lib/readers/xml_reader.rb", "#{aa_lib_dir}/xml_reader.rb")
+        FileUtils.cp_r("#{ROOT_DIR}/lib/schemas/alertactioner_config_schema.xsd", "#{aa_lib_dir}/alertactioner_config_schema.xsd")
+        FileUtils.cp_r("#{ROOT_DIR}/lib/helpers/ovirt.rb", "#{aa_lib_dir}/ovirt.rb")
+
+        Print.info 'AlertActioner: Generating AA configs...'
+        aa_conf_dir = "#{path}/modules/analysis_alert_action_server/files/alert_actioner/config/"
+        FileUtils.mkdir_p(aa_conf_dir)
+        # Get the config json object from the alert_actioner
+        aa_confs = JSON.parse(system.get_module('analysis_alert_action_server').received_inputs['aaa_config'][0])['aa_configs']
+        xml_aa_conf_file = "#{aa_conf_dir}#{@out_dir.split('/')[-1]}.xml"
+
+        # Calculate the number of goals in the scenario and generate flags to insert into the alert action and hints XML generators
+        n_goals = get_total_number_of_goals
+        (1..n_goals).each { |_| @extra_flags << "flag{#{SecureRandom.hex}}" }
+
+        xml_aa_conf_generator = XmlAlertActionConfigGenerator.new(@systems, @scenario, @time, aa_confs, @options, @extra_flags)
+        xml = xml_aa_conf_generator.output
+        Print.std "AlertActioner: Creating alert_actioner configuration file: #{xml_aa_conf_file}"
+        write_data_to_file(xml, xml_aa_conf_file)
+      end
+
     end
 
     # Create environments/production/environment.conf - Required in Puppet 4+
@@ -130,7 +215,7 @@ class ProjectFilesCreator
     # Create the marker xml file
     x2file = "#{@out_dir}/#{FLAGS_FILENAME}"
 
-    xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time)
+    xml_marker_generator = XmlMarkerGenerator.new(@systems, @scenario, @time, @extra_flags)
     xml = xml_marker_generator.output
     Print.std "Creating flags and hints file: #{x2file}"
     write_data_to_file(xml, x2file)
@@ -184,8 +269,22 @@ class ProjectFilesCreator
     end
   end
 
-# @param [Object] template erb path
-# @param [Object] filename file to write to
+
+  # Goal string interpolation for the whole system
+  # prior to calling the rule generator multiple times
+  def resolve_interp_strings
+    @systems.each do |system|
+      system.module_selections.each do |module_selection|
+        module_selection.resolve_received_inputs
+      end
+      system.module_selections.each do |module_selection|
+        module_selection.resolve_goals(system.get_hostname)
+      end
+    end
+  end
+
+  # @param [Object] template erb path
+  # @param [Object] filename file to write to
   def template_based_file_write(template, filename)
     template_out = ERB.new(File.read(template), 0, '<>-')
 
@@ -199,9 +298,9 @@ class ProjectFilesCreator
     end
   end
 
-# Resolves the network based on the scenario and ip_range.
-# In the case that both command-line --network-ranges and datastores are provided, we have already handled the replacement of the ranges in the datastore.
-# Because of this we prioritise datastore['IP_address'], then command line options (i.e. when no datastore is used, but the --network-ranges are passed), then the default network module's IP range.
+  # Resolves the network based on the scenario and ip_range.
+  # In the case that both command-line --network-ranges and datastores are provided, we have already handled the replacement of the ranges in the datastore.
+  # Because of this we prioritise datastore['IP_address'], then command line options (i.e. when no datastore is used, but the --network-ranges are passed), then the default network module's IP range.
   def resolve_network(network_module)
     current_network = network_module
     scenario_ip_range = network_module.attributes['range'].first
@@ -210,8 +309,8 @@ class ProjectFilesCreator
     if current_network.received_inputs.include? 'IP_address'
       ip_address = current_network.received_inputs['IP_address'].first
     elsif @options.has_key? :ip_ranges
-    # if we have options[:ip_ranges] we want to use those instead of the ip_range argument.
-    # Store the mappings of scenario_ip_ranges => @options[:ip_range]  in @option_range_map
+      # if we have options[:ip_ranges] we want to use those instead of the ip_range argument.
+      # Store the mappings of scenario_ip_ranges => @options[:ip_range]  in @option_range_map
       # Have we seen this scenario_ip_range before? If so, use the value we've assigned
       if @option_range_map.has_key? scenario_ip_range
         ip_range = @option_range_map[scenario_ip_range]
@@ -250,7 +349,7 @@ class ProjectFilesCreator
     split_name.join('-')
   end
 
-# Determine how much memory the system requires for Vagrantfile
+  # Determine how much memory the system requires for Vagrantfile
   def resolve_memory(system)
     if @options.has_key? :memory_per_vm
       memory = @options[:memory_per_vm]
@@ -270,8 +369,29 @@ class ProjectFilesCreator
     memory
   end
 
-# Returns binding for erb files (access to variables in this classes scope)
-# @return binding
+  def get_total_number_of_goals
+    if @number_of_goals == -1
+      n = 0
+      @systems.each do |system|
+        # calculate number of system goals
+        if system.goals != []
+          n = n + system.goals.size
+        end
+        # calculate number of module goals on this system
+        system.module_selections.each do |module_selection|
+          if module_selection.goals != []
+            n = n + module_selection.goals.size
+          end
+        end
+      end
+      @number_of_goals = n
+      Print.info("Number of goals " + @number_of_goals.to_s)
+    end
+    @number_of_goals
+  end
+
+  # Returns binding for erb files (access to variables in this classes scope)
+  # @return binding
   def get_binding
     binding
   end

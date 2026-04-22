@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+  <system>
+    <system_name>ts_test_grader</system_name>
+    <base platform="linux" distro="Debian 10" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <value>172.16.0.2</value>
+    </input>
+
+    <vulnerability module_path=".*readable_shadow.*"/>
+
+    <utility module_path=".*parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>test</value>
+          </input>
+          <input into="password">
+            <value>test</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat2</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat3</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat4</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat5</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat6</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat7</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat8</value>
+              </input>
+            </generator>
+            <generator type="concat_flag.*">
+              <input into="strings_to_join">
+                <value>test_flag_concat9</value>
+              </input>
+            </generator>
+          </input>
+          <input into="leaked_filenames">
+            <value>flag</value>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+    </network>
+  </system>
+
+</scenario>

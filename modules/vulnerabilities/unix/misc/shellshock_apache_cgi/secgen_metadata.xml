@@ -16,6 +16,13 @@
 
   <!--optional vulnerability details-->
   <difficulty>high</difficulty>
+
+  <goals>
+    <access_account>
+      <account_name>root</account_name>
+    </access_account>
+  </goals>
+
   <cve>CVE-2014-6271</cve>
   <cvss_base_score>10</cvss_base_score>
   <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
@@ -27,7 +34,8 @@
 
   <msf_module>exploit/multi/apache_mod_cgi_bash_env_exec</msf_module>
   <hint>On remote exploitation of the apache server you will have a user_rwx shell as www-data. It is then possible to
-    escalate using a different exploit that targets the same vulnerability locally.</hint>
+    escalate using a different exploit that targets the same vulnerability locally.
+  </hint>
 
   <requires>
     <module_path>vulnerabilities/unix/bash/shellshock</module_path>

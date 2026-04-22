@@ -1,18 +1,27 @@
 class elastalert::config ($elasticsearch_ip,
                           $elasticsearch_port,
-                          $installdir = '/opt/elastalert/',
+                          $installdir = '/opt/elastalert',
                           $source='http://github.com/Yelp/elastalert',
-                          $rules_dir = '/opt/elastalert/rules') {
+                          $rules_dir = "$installdir/rules",
+                          $example_rules_dir = "$installdir/example_rules") {
   file { '/opt/elastalert/config.yaml':
     ensure => file,
     content => template('elastalert/config.yaml.erb'),
     require => File[$installdir],
   }
 
+  # Move the rules
   file { $rules_dir:
     ensure => directory,
     recurse => true,
     source => 'puppet:///modules/elastalert/rules/',
+    require => File[$installdir],
+  }
+
+  file { $example_rules_dir:
+    ensure => directory,
+    recurse => true,
+    source => 'puppet:///modules/elastalert/example_rules/',
     require => File[$installdir],
   }
 
