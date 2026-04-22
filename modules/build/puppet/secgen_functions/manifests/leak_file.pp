@@ -71,7 +71,7 @@ define secgen_functions::leak_file (
               mode     => $mode,
               content  => template('secgen_functions/overshare.erb')
             }
-          }
         }
-  }
+
+    }
 }

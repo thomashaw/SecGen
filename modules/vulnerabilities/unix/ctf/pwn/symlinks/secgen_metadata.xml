@@ -27,7 +27,7 @@
     </read_file>
   </goals>
 
-  <read_fact>username</read_fact>
+  <read_fact>accounts</read_fact>
   <read_fact>flag_path</read_fact>
 
   <default_input into="accounts">
