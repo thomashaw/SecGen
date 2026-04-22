@@ -9,7 +9,8 @@
 4. [Usage - Configuration options and additional functionality](#usage)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 6. [Limitations - OS compatibility, etc.](#limitations)
-7. [Development - Guide for contributing to the module](#development)
+7. [License](#license)
+8. [Development - Guide for contributing to the module](#development)
 
 ## Overview
 
@@ -107,6 +108,56 @@ java::adopt { 'jdk8' :
 }
 ```
 
+## Adoptium Temurin
+
+Adoptium Temurin is the successor of AdoptOpenJDK and is supported using the defined type `java::adoptium`. It depends on [puppet/archive](https://github.com/voxpupuli/puppet-archive).
+
+The `java::adoptium` defined type expects a major, minor, patch and build version to download the specific release. It doesn't support jre downloads as the other distributions.
+
+```puppet
+java::adoptium { 'jdk16' :
+  ensure  => 'present',
+  version_major => '16',
+  version_minor => '0',
+  version_patch => '2',
+  version_build => '7',
+}
+java::adoptium { 'jdk17' :
+  ensure  => 'present',
+  version_major => '17',
+  version_minor => '0',
+  version_patch => '1',
+  version_build => '12',
+}
+```
+
+To install Adoptium to a non-default basedir (defaults: /usr/lib/jvm for Debian; /usr/java for RedHat):
+
+```puppet
+java::adoptium { 'jdk7' :
+  ensure  => 'present',
+  version_major => '17',
+  version_minor => '0',
+  version_patch => '1',
+  version_build => '12',
+  basedir => '/custom/java',
+}
+```
+
+To ensure that a custom basedir is a directory before Adoptium is installed (note: manage separately for custom ownership or perms):
+
+```puppet
+java::adoptium { 'jdk8' :
+  ensure  => 'present',
+  version_major => '17',
+  version_minor => '0',
+  version_patch => '1',
+  version_build => '12',
+  manage_basedir => true,
+  basedir => '/custom/java',
+}
+```
+
 ## SAP Java (sapjvm / sapmachine)
 
 SAP also offers JVM distributions. They are mostly required for their SAP products. In earlier versions it is called "sapjvm", in newer versions they call it "sapmachine".
@@ -189,26 +240,28 @@ This module is officially [supported](https://forge.puppetlabs.com/supported) fo
 
 OpenJDK is supported on:
 
-* Red Hat Enterprise Linux (RHEL) 5, 6, 7
-* CentOS 5, 6, 7
-* Oracle Linux 6, 7
-* Scientific Linux 6
-* Debian 8, 9
-* Ubuntu 14.04, 16.04, 18.04, 20.04
+* Red Hat Enterprise Linux (RHEL) 7, 8, 9
+* CentOS 7, 8
+* Oracle Linux 7
+* Debian 10, 11
+* Ubuntu 18.04, 20.04, 22.04
 * Solaris 11
-* SLES 11, 12
-
-Sun Java is supported on:
-
-* Debian 6
+* SLES 12, 15
 
 Oracle Java is supported on:
 
-* CentOS 6
 * CentOS 7
+* CentOS 8
 * Red Hat Enterprise Linux (RHEL) 7
 
 AdoptOpenJDK Java is supported on:
+
+* CentOS
+* Red Hat Enterprise Linux (RHEL)
+* Amazon Linux
+* Debian
+
+Adoptium Temurin Java is supported on:
 
 * CentOS
 * Red Hat Enterprise Linux (RHEL)
@@ -225,7 +278,6 @@ SAP Java 7 and 8 (=sapjvm) are supported (by SAP) on:
 
 For SAP Java > 8 (=sapmachine) please refer to the OpenJDK list as it is based on OpenJDK and has no special requirements.
 
-
 ### Known issues
 
 Where Oracle change the format of the URLs to different installer packages, the curl to fetch the package may fail with a HTTP/404 error. In this case, passing a full known good URL using the `url` parameter will allow the module to still be able to install specific versions of the JRE/JDK. Note the `version_major` and `version_minor` parameters must be passed and must match the version downloaded using the known URL in the `url` parameter. 
@@ -236,6 +288,10 @@ OpenBSD packages install Java JRE/JDK in a unique directory structure, not linki
 the binaries to a standard directory. Because of that, the path to this location
 is hardcoded in the `java_version` fact. Whenever you upgrade Java to a newer
 version, you have to update the path in this fact.
+
+## License
+
+This codebase is licensed under the Apache2.0 licensing, however due to the nature of the codebase the open source dependencies may also use a combination of [AGPL](https://opensource.org/license/agpl-v3/), [BSD-2](https://opensource.org/license/bsd-2-clause/), [BSD-3](https://opensource.org/license/bsd-3-clause/), [GPL2.0](https://opensource.org/license/gpl-2-0/), [LGPL](https://opensource.org/license/lgpl-3-0/), [MIT](https://opensource.org/license/mit/) and [MPL](https://opensource.org/license/mpl-2-0/) Licensing.
 
 ## Development
 
