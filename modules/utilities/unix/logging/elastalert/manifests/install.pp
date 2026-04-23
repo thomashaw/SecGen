@@ -2,7 +2,6 @@ class elastalert::install ($elasticsearch_ip, $elasticsearch_port,$installdir = 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   ensure_packages(['python3-pip','build-essential','libssl-dev','libffi-dev','python-dev', 'supervisor' ])
-   ensure_packages(['PyYAML>=5.1','elastalert','urllib3>=1.26.7'], { provider => 'pip3', require => [Package['python3-pip']] })
 
 ###
   exec { 'run pip3 update':
@@ -32,15 +31,5 @@ class elastalert::install ($elasticsearch_ip, $elasticsearch_port,$installdir = 
     creates => "${installdir}/elastalert",
     require => File[$installdir],
   }
-
-  # PICKED: Clone elastalert from Github
-  vcsrepo { 'elastalert':
-    ensure   => present,
-    provider => git,
-    path     => $installdir,
-    source   => $source,
-    require  => File[$installdir],
-  }
-
 
 }

