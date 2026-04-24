@@ -32,6 +32,7 @@
 
         <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         <xs:element name="platform" type="platformOptions" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="min_memory" type="xs:string" minOccurs="0" maxOccurs="1"/>
 
         <!--optional details-->
         <xs:element name="reference" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

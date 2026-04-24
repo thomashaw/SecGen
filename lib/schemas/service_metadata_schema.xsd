@@ -30,6 +30,7 @@
 
         <xs:element name="type" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
         <xs:element name="platform" type="platformOptions" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="min_memory" type="xs:string" minOccurs="0" maxOccurs="1"/>
 
         <!--I/O: a generator writes it's output to one fact & can also take inputs-->
         <xs:element name="read_fact" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

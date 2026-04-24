@@ -421,25 +421,25 @@ class ProjectFilesCreator
   end
 
 # Determine how much memory the system requires for Vagrantfile
-  def resolve_memory(system)
-    if @options.has_key? :memory_per_vm
-      memory = @options[:memory_per_vm]
-    elsif @options.has_key? :total_memory
-      memory = @options[:total_memory].to_i / @systems.length.to_i
-    elsif (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass)
-      # all ovirt vms -- could be more specific: && (@base_type.include? 'desktop')
-      memory = '3000'
-    else
-      memory = '1024'
-    end
-
-    system.module_selections.each do |mod|
-      if mod.module_path_name.include? "elasticsearch"
-        memory = '8192'
-      end
-    end
-    memory
+def resolve_memory(system)
+  if @options.has_key? :memory_per_vm
+    memory = @options[:memory_per_vm].to_i
+  elsif @options.has_key? :total_memory
+    memory = @options[:total_memory].to_i / @systems.length.to_i
+  else
+    memory = 4096
   end
+
+  # Override with highest min_memory requirement across all modules on this system
+  system.module_selections.each do |mod|
+    min_mem = mod.attributes['min_memory']&.first&.to_i
+    if min_mem && min_mem > memory
+      memory = min_mem
+    end
+  end
+
+  memory.to_s
+end
 
   def get_total_number_of_goals
     if @number_of_goals == -1
