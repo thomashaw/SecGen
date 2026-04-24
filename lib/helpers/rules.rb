@@ -65,7 +65,7 @@ class Rules
   def self.generate_elastalert_rule_rf(hostname, source_name, goal, counter)
     "name: #{get_ea_rulename(hostname, source_name, goal, counter)}\n" +
         "type: any\n" +
-        "index: auditbeat-*\n" +
+        "index: secgen-*\n" +
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +
@@ -90,7 +90,7 @@ class Rules
   def self.generate_elastalert_rule_acc(hostname, source_name, goal, counter)
     "name: #{get_ea_rulename(hostname, source_name, goal, counter)}\n" +
         "type: any\n" +
-        "index: auditbeat-*\n" +
+        "index: secgen-*\n" +
         "filter:\n" +
         "  - query:\n" +
         "      query_string:\n" +

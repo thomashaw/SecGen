@@ -15,5 +15,14 @@ output {
     hosts => "<%= @elasticsearch_ip-%>:<%= @elasticsearch_port-%>"
     manage_template => false
     index => "%{[@metadata][beat]}-%{+YYYY.MM.dd}"
+    pipeline => "add_ingest_timestamp"
+  }
+
+  if [event][action] in ["opened-file", "user_login", "started-session", "acquired-credentials"] and [auditd][result] == "success" {
+    elasticsearch {
+    hosts => "172.16.0.4:9200"
+    manage_template => false
+    index => "secgen-events-%{+YYYY.MM.dd}"
+    pipeline => "add_ingest_timestamp"
   }
 }
