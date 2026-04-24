@@ -307,7 +307,7 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <generator type="strong_password_generator"/>
+        <value>tiaspbiqe2r</value>
       </input>
     </build>
 
@@ -338,7 +338,7 @@
 
     <build type="cleanup">
       <input into="root_password">
-        <value>test_srv</value>
+        <value>tiaspbiqe2r</value>
       </input>
     </build>
   </system>
