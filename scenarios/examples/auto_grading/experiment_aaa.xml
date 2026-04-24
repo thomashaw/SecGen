@@ -309,6 +309,9 @@
       <input into="root_password">
         <value>tiaspbiqe2r</value>
       </input>
+      <input into="remove_proxy_env_vars">
+        <value>true</value>
+      </input>
     </build>
 
     <network type="private_network">
@@ -339,6 +342,9 @@
     <build type="cleanup">
       <input into="root_password">
         <value>tiaspbiqe2r</value>
+      </input>
+      <input into="remove_proxy_env_vars">
+        <value>true</value>
       </input>
     </build>
   </system>
