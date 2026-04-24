@@ -3,7 +3,10 @@ Description=Elastalert
 After=elasticsearch.service
 
 [Service]
-EnvironmentFile=/etc/environment
+Environment="HTTP_PROXY="
+Environment="HTTPS_PROXY="
+Environment="http_proxy="
+Environment="https_proxy="
 Type=simple
 WorkingDirectory=/opt/elastalert
 ExecStart=/usr/bin/python3 -m elastalert.elastalert --verbose --config /opt/elastalert/config.yaml

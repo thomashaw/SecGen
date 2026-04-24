@@ -2,7 +2,10 @@
 Description=Elastalert index creation
 
 [Service]
-EnvironmentFile=/etc/environment
+Environment="HTTP_PROXY="
+Environment="HTTPS_PROXY="
+Environment="http_proxy="
+Environment="https_proxy="
 ExecStart=/usr/bin/ruby /usr/local/bin/elastalert-index.rb
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
