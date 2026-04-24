@@ -6,15 +6,21 @@ class analysis_alert_action_server::install (
 
   package {  'pg':
     provider => 'gem',
+    ensure   => '1.5.9',
     require => [Package['ruby-dev'], Package['postgresql'], Package['postgresql-contrib'], Package['libpq-dev']]
   }
 
-  # TODO: Needed for VDI actioners (later)
-  # package {  'ovirt-engine-sdk':
-  #   ensure => '4.3.0',
-  #   provider => 'gem',
-  #   require => Package['ruby-dev']
-  # }
+   package { 'nokogiri':
+     provider => 'gem',
+     ensure   => '1.13.10',
+     require  => [Package['ruby-dev']]
+   }
+
+    package { 'process_helper':
+      provider => 'gem',
+      ensure   => present,
+      require  => [Package['ruby-dev']]
+    }
 
   file { $install_path:
     ensure  => directory,
