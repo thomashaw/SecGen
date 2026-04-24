@@ -2,3 +2,5 @@ http.host: <%= @elasticsearch_ip %>
 path.data: "<%= @data_path %>"
 path.config: "<%= @config_path %>"
 path.logs: "<%= @log_path %>"
+pipeline.batch.size: 1
+pipeline.batch.delay: 50
