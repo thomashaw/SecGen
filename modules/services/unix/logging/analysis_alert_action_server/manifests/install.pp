@@ -12,7 +12,7 @@ class analysis_alert_action_server::install (
 
    package { 'nokogiri':
      provider => 'gem',
-     ensure   => '1.13.10',
+     ensure   => '1.12.5',
      require  => [Package['ruby-dev']]
    }
 
