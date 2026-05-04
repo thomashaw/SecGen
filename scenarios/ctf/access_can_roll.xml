@@ -46,9 +46,9 @@ Your password on both systems is: tiaspbiqe2r
 
     <input into_datastore="IP_addresses">
       <!-- 0 desktop -->
-      <value>172.16.0.2</value>
+      <network_ip system="shared_desktop"/>
       <!-- 1 server -->
-      <value>172.16.0.3</value>
+      <network_ip system="server"/>
     </input>
 
     <!-- generate some usernames to use -->
@@ -181,11 +181,7 @@ int main()
       </input>
     </vulnerability>
 
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="0">IP_addresses</datastore>
-      </input>
-    </network>
+    <network type="private_network"/>
     <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
     </input>
@@ -262,11 +258,7 @@ int main()
     <!-- <vulnerability module_path=".*/ssh_leaked_keys"/> -->
 
 
-    <network type="private_network">
-      <input into="IP_address">
-        <datastore access="1">IP_addresses</datastore>
-      </input>
-    </network>
+    <network type="private_network"/>
     <build type="cleanup">
       <input into="root_password">
         <datastore>spoiler_admin_pass</datastore>
