@@ -49,8 +49,6 @@ Your password on both systems is: tiaspbiqe2r
       <value>172.16.0.2</value>
       <!-- 1 server -->
       <value>172.16.0.3</value>
-      <!-- 2 hackerbot_server -->
-      <!--<value>172.16.0.4</value>-->
     </input>
 
     <!-- generate some usernames to use -->
@@ -176,27 +174,6 @@ int main()
     </utility>
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/gcc"/>
-
-    <!-- <utility module_path=".*/iceweasel">
-      <input into="accounts">
-        <datastore>user_accounts_desktop</datastore>
-      </input>
-      <input into="autostart">
-        <value>true</value>
-      </input>
-      <input into="start_page">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-    </utility>
-
-    <utility module_path=".*/pidgin">
-      <input into="server_ip">
-        <datastore access="2">IP_addresses</datastore>
-      </input>
-      <input into="accounts">
-        <datastore access="0">user_accounts_desktop</datastore>
-      </input>
-    </utility> -->
 
     <vulnerability module_path=".*/ssh_root_login">
       <input into="root_password">

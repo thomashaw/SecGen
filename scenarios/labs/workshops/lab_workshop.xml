@@ -27,7 +27,6 @@
       <value>172.16.0.2</value>
       <value>172.16.0.3</value>
       <value>172.16.0.4</value>
-      <value>172.16.0.5</value>
     </input>
 
     <input into_datastore="organisation">
@@ -138,9 +137,6 @@
     </utility>
 
     <utility module_path=".*/kde_minimal">
-      <!--<input into="autologin_user">-->
-        <!--<datastore access="0" access_json="['username']">accounts</datastore>-->
-      <!--</input>-->
       <input into="accounts">
         <datastore>accounts</datastore>
       </input>

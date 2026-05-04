@@ -23,7 +23,6 @@
       <value>172.16.0.5</value>
       <value>172.16.0.6</value>
       <value>172.16.0.7</value>
-      <value>172.16.0.8</value>
     </input>
 
     <!-- accounts on the desktop, with the main user as a sudoer -->
