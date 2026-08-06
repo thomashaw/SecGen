@@ -28,6 +28,7 @@ def run_alert_actions(db_conn, alert_name)
   @alert_actioners.each do |alert_actioner|
     if alert_actioner.alert_name == alert_name
       if alert_actioner.last_actioned == nil
+        Print.info("BENCHMARK action_dispatched: #{Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%6NZ')}", logger)
         alert_actioner.action_alert
         alert_actioner.status = 'actioned'
       else
@@ -165,6 +166,7 @@ end
 
 def raise_alert_event(raise_alert_event_opts)
   Print.info("!!! Raising alert event !!!", logger)
+  Print.info("BENCHMARK raise_alert_event_received: #{Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%6NZ')}", logger)
   alert_name = raise_alert_event_opts[:raised_alert]
   Print.info("    alert_name: " + alert_name, logger)
 

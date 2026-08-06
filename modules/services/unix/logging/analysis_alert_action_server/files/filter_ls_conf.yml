@@ -1,0 +1,32 @@
+  input {
+    beats {
+    port => 5044
+    }
+  }
+    
+    filter {
+    ruby {
+    code => "event.set('logstash_receive_time', Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%6NZ'))"
+    }
+    ruby {
+    path => "/etc/logstash/combined_path.rb"
+    }
+    ruby {
+    code => "event.set('logstash_normalised_time', Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%6NZ'))"
+    }
+    ruby {
+    path => "/etc/logstash/filter_detection.rb"
+    }
+  }
+    
+    output {
+    if [filter_detection_time] {
+    file {
+    path => "/var/log/logstash/filter_detections.log"
+    codec => line {
+    format => "%{@timestamp}|%{logstash_receive_time}|%{logstash_normalised_time}|%{filter_detection_time}|%{combined_path}|%{filter_alert_name}"
+    }
+    }
+    }
+    null { }
+  }
