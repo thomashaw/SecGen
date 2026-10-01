@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Break Escape SAFETYNET: Mission 7 — The Architect's Gambit</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>
+    Virtual machines for the Break Escape SAFETYNET mission 7 narrative experience. The
+    target (scada_attack_host) is leaking pieces of a login through two separate misconfigured
+    services: an over-shared network file share reveals part of the puzzle, and an
+    unusual open port hands out the rest to anyone who connects. Piece together the
+    recovered credentials, log in as a regular user, and collect a flag from their
+    home directory. From there, a permissive sudo rule lets an ordinary command break
+    out into a root shell - work out which allowed command can be abused to complete
+    the takeover.
+  </description>
+
+  <type>ctf-lab</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
+  <difficulty>medium</difficulty>
+
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+    <keyword>SECURE SHELL (SSH)</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+  </CyBOK>
+  <CyBOK KA="F" topic="Artifact Analysis">
+    <keyword>Encoding and alternative data formats</keyword>
+  </CyBOK>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <!-- escalate to user and to root via sudo -->
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+    <keyword>Attacks against SUDO</keyword>
+  </CyBOK>
+
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
+
+
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <network_ip system="attack_vm"/>
+      <!-- 1 scada_attack_host -->
+      <network_ip system="scada_attack_host"/>
+    </input>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+    </utility>
+    
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kali_top10"/>
+    <utility module_path=".*/kali_web"/>
+
+    <network type="private_network"/>
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>scada_attack_host</system_name>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
+
+    <!-- strong password -->
+    <input into_datastore="username">
+      <generator type="random_sanitised_word">
+        <input into="wordlist">
+          <value>mythical_creatures</value>
+        </input>
+      </generator>
+    </input>
+    <!-- strong password -->
+    <input into_datastore="password">
+      <generator type="strong_password_generator"/>
+    </input>
+
+    <!-- FLAG ORDER (Break Escape m07): 1 nfs_overshare, 2 nc_message, 3 parameterised_accounts, 4 sudo_root_awk -->
+    <vulnerability module_path=".*/nfs_overshare">
+      <input into="strings_to_leak">
+        <value>User</value>
+        <datastore>username</datastore>
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <utility module_path=".*/nc_message">
+      <input into="strings_to_leak">
+        <value>Password</value>
+        <datastore>password</datastore>
+        <generator type="flag_generator" />
+      </input>
+      <input into="port">
+        <generator module_path=".*/random_number">
+          <input into="minimum">
+            <value>1024</value>
+          </input>
+          <input into="maximum">
+            <value>2024</value>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <!--Create the user - can ssh in using the discovered username and password -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <datastore>username</datastore>
+          </input>
+          <input into="password">
+            <datastore>password</datastore>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+          <input into="leaked_filenames">
+            <value>flag</value>
+          </input>
+          <input into="strings_to_leak">
+            <generator type="flag_generator"/>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/sudo_root_awk">
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network"/>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>

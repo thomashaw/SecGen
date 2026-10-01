@@ -145,6 +145,39 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
       </generator>
     </input>
 
+    <vulnerability module_path=".*/bludit_upload_images_exec">
+      <!-- Flag order is document order: the recon (pre_leak) input is written first so it numbers
+           before the RCE flag. Within-module order needs a build to confirm. -->
+      <!-- flag1: RECON - sloppy QDC handover note exposing the Bludit admin credentials -->
+      <input into="strings_to_pre_leak">
+        <value>QDC RESEARCH PORTAL -- HANDOVER NOTE
+From: IT Support (temp cover, night shift)
+To: Next on-call
+
+Sorry, rushed this. Portal login still on defaults from the migration,
+nobody's rotated it. Ticket open for months, keeps getting deprioritised.
+
+Creds:</value>
+        <datastore access_json="['manager']['username']">organisation</datastore>
+        <datastore>password</datastore>
+        <generator type="flag_generator"/>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+      <!-- flag2: WEB EXPLOITATION - authenticated image-upload RCE -->
+      <input into="organisation">
+        <datastore>organisation</datastore>
+      </input>
+      <input into="known_username">
+        <datastore access_json="['manager']['username']">organisation</datastore>
+      </input>
+      <input into="known_password">
+        <datastore>password</datastore>
+      </input>
+    </vulnerability>
+
+
     <!--Create the user-->
     <utility module_path=".*/parameterised_accounts">
       <input into="accounts">
@@ -202,36 +235,6 @@ anymore. Sofia is eleven. Miguel is eight. I don't know how to stop."
         </generator>
       </input>
     </utility>
-
-    <vulnerability module_path=".*/bludit_upload_images_exec">
-      <!-- flag2: WEB EXPLOITATION - authenticated image-upload RCE -->
-      <input into="strings_to_leak">
-        <generator type="flag_generator"/>
-      </input>
-      <input into="organisation">
-        <datastore>organisation</datastore>
-      </input>
-      <input into="known_username">
-        <datastore access_json="['manager']['username']">organisation</datastore>
-      </input>
-      <input into="known_password">
-        <datastore>password</datastore>
-      </input>
-      <!-- flag1: RECON - sloppy QDC handover note exposing the Bludit admin credentials -->
-      <input into="strings_to_pre_leak">
-        <value>QDC RESEARCH PORTAL -- HANDOVER NOTE
-From: IT Support (temp cover, night shift)
-To: Next on-call
-
-Sorry, rushed this. Portal login still on defaults from the migration,
-nobody's rotated it. Ticket open for months, keeps getting deprioritised.
-
-Creds:</value>
-        <datastore access_json="['manager']['username']">organisation</datastore>
-        <datastore>password</datastore>
-        <generator type="flag_generator"/>
-      </input>
-    </vulnerability>
 
     <vulnerability module_path=".*/sudo_root_less">
       <!-- flag4: ROOT - The Architect's authorisation, most important narrative payload -->

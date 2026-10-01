@@ -9,14 +9,14 @@
   <description>
 # Break Escape SAFETYNET Mission 8: The Mole
 
-Virtual machines for the Break Escape SAFETYNET mission 8 narrative experience. After the Mission 7 leak that got two SAFETYNET field agents killed, an internal investigation traces the breach to SAFETYNET's own headquarters. The agency's internal source-code server — an unpatched GitList instance nobody ever hardened — is hosting far more than source: the mole committed working credentials into a repository, corresponded with ENTROPY from the box, and left the access logs that place them on the Mission 7 plan. Operatives must exploit SAFETYNET's own repository server to prove the mole's identity: Agent 0x47 "Nightshade", a placed insider of ENTROPY's Insider Threat Initiative.
+Virtual machines for the Break Escape SAFETYNET mission 8 narrative experience. After the Portland deployment leak that got two SAFETYNET field agents killed, an internal investigation traces the breach to SAFETYNET's own headquarters. The agency's internal source-code server — an unpatched GitList instance nobody ever hardened — is hosting far more than source: the mole committed working credentials into a repository, corresponded with ENTROPY from the box, and left the access logs that place them on the Portland deployment plan. Operatives must exploit SAFETYNET's own repository server to prove the mole's identity: Agent 0x47 "Nightshade", a placed insider of ENTROPY's Insider Threat Initiative.
 
 ## Included Systems
 
 **safetynet_gitlist_server** (172.16.0.2)
 - Debian 12 desktop system
 - Hosts SAFETYNET's internal GitList repository browser, vulnerable to an argument-injection remote-code-execution flaw that requires no authentication (GitList 0.4.0, CVE-2018-1000533)
-- Contains the mole's operations account, credentials committed into repository history, encrypted ENTROPY correspondence staged in a home directory, and a root-level cache of The Architect's authorisation confirming the Mission 7 database exfiltration
+- Contains the mole's operations account, credentials committed into repository history, encrypted ENTROPY correspondence staged in a home directory, and a root-level cache of The Architect's authorisation confirming the Portland deployment database exfiltration
 - Intelligence: the exposed repository (recon), the stashed credentials, the ENTROPY correspondence, and The Architect's signed authorisation with a casualty acknowledgement
 
 **attack_vm** (172.16.0.3)
@@ -147,6 +147,33 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
       </generator>
     </input>
 
+    <!-- GitList 0.4.0 argument-injection RCE (CVE-2018-1000533): no credentials
+         required. Exposes the repository (recon) and the credentials the mole
+         committed into history. -->
+    <vulnerability module_path=".*/gitlist_040">
+      <!-- Flag order is document order: the recon (pre_leak) input is written first so it numbers
+           before the credentials flag. Within-module order needs a build to confirm. -->
+      <!-- flag1: REPOSITORY EXPOSURE (recon) - the exploit reads config outside the
+           web root, exposing SAFETYNET's own repo setup and the ops-account username -->
+      <input into="strings_to_pre_leak">
+        <value>SAFETYNET INTERNAL SOURCE -- ops-config committed in error
+Repo: internal/mission-tooling  (GitList browser exposed, no auth required)
+Note in commit message: "temp creds for the planning sync job, will rotate"  -- never rotated
+Service account (ops):</value>
+        <datastore access_json="['manager']['username']">organisation</datastore>
+        <generator type="flag_generator"/>
+      </input>
+      <!-- flag2: STASHED CREDENTIALS - the mole's password, committed and never scrubbed -->
+      <input into="strings_to_leak">
+        <value>Password</value>
+        <datastore>password</datastore>
+        <generator type="flag_generator"/>
+      </input>
+      <input into="organisation">
+        <datastore>organisation</datastore>
+      </input>
+    </vulnerability>
+
     <!-- Create the mole's operations account; SSH login with the recovered
          credentials lands here, where the ENTROPY correspondence is staged. -->
     <utility module_path=".*/parameterised_accounts">
@@ -196,31 +223,6 @@ Awaiting next tasking.
       </input>
     </utility>
 
-    <!-- GitList 0.4.0 argument-injection RCE (CVE-2018-1000533): no credentials
-         required. Exposes the repository (recon) and the credentials the mole
-         committed into history. -->
-    <vulnerability module_path=".*/gitlist_040">
-      <!-- flag2: STASHED CREDENTIALS - the mole's password, committed and never scrubbed -->
-      <input into="strings_to_leak">
-        <value>Password</value>
-        <datastore>password</datastore>
-        <generator type="flag_generator"/>
-      </input>
-      <input into="organisation">
-        <datastore>organisation</datastore>
-      </input>
-      <!-- flag1: REPOSITORY EXPOSURE (recon) - the exploit reads config outside the
-           web root, exposing SAFETYNET's own repo setup and the ops-account username -->
-      <input into="strings_to_pre_leak">
-        <value>SAFETYNET INTERNAL SOURCE -- ops-config committed in error
-Repo: internal/mission-tooling  (GitList browser exposed, no auth required)
-Note in commit message: "temp creds for the planning sync job, will rotate"  -- never rotated
-Service account (ops):</value>
-        <datastore access_json="['manager']['username']">organisation</datastore>
-        <generator type="flag_generator"/>
-      </input>
-    </vulnerability>
-
     <!-- Sudo misconfiguration: the ops account may run a package tool as root,
          which is trivially turned into a root shell. Root holds the access logs
          and The Architect's authorisation. -->
@@ -234,10 +236,10 @@ Classification: ENTROPY EYES ONLY -- INSIDER THREAT INITIATIVE
 
 Subject: SAFETYNET Global Threat Database (complete vulnerability catalogue)
 Source: internal placement, codename NIGHTSHADE (Agent 0x47), recruited during
-        SAFETYNET training, dormant ~15 years, activated for Mission 7.
+        SAFETYNET training, dormant ~15 years, activated for the Portland deployment.
 Handler: The Architect (direct)
 
-DISPOSITION: The four Mission 7 operations were cover. The objective was the
+DISPOSITION: The four Portland deployment operations were cover. The objective was the
 database. During the response window, the complete catalogue -- every zero-day,
 unpatched critical, infrastructure weakness and supply-chain vector SAFETYNET
 has ever recorded -- was exfiltrated through a channel Nightshade held open.
@@ -259,9 +261,6 @@ AUTHORISATION: Proceed. Deliver the catalogue to Tomb Gamma.
             <generator type="flag_generator"/>
           </input>
         </encoder>
-      </input>
-      <input into="strings_to_pre_leak">
-        <generator type="flag_generator"/>
       </input>
     </vulnerability>
 
