@@ -9,14 +9,14 @@
   <description>
 # Break Escape SAFETYNET Mission 5: Insider Trading
 
-Virtual machines for the Break Escape SAFETYNET mission 5 narrative experience. Quantum Dynamics Corporation (QDC) is developing "Project Heisenberg" — quantum-safe key material intended to protect the rollout of the National Emergency-Services Dispatch Network (999 call routing). QDC's Cryptography Lead, David Torres, has been exfiltrating that material to ENTROPY's Insider Threat Initiative cell. ENTROPY is not selling the capability on — it intends to acquire and hold it directly. Operatives must penetrate QDC's research server to trace the leak, recover the exfiltrated package, and expose the chain of command that authorised it.
+Virtual machines for the Break Escape SAFETYNET mission 5 narrative experience. Quantum Dynamics Corporation (QDC) is developing "Project Heisenberg" — quantum-safe key material intended to protect the rollout of the National Emergency-Services Dispatch Network (999 call routing). Someone inside QDC has been exfiltrating that material to ENTROPY's Insider Threat Initiative cell. ENTROPY is not selling the capability on — it intends to acquire and hold it directly. Operatives must penetrate QDC's research server to trace the leak, recover the exfiltrated package, and expose the chain of command that authorised it.
 
 ## Included Systems
 
 **qdc_research_server** (172.16.0.2)
 - Debian 12 desktop system
 - Hosts QDC's Bludit-based research portal, with a mismanaged admin account and a vulnerable authenticated image-upload path
-- Contains a manager account used as Torres's exfiltration staging point, and a root-level cache of the operation's authorisation paperwork
+- Contains a manager account used as the insider's exfiltration staging point, and a root-level cache of the operation's authorisation paperwork
 - Intelligence: leaked admin credentials, a manager-level data package manifest, and The Architect's signed deployment authorisation with a casualty projection
 
 **attack_vm** (172.16.0.3)
