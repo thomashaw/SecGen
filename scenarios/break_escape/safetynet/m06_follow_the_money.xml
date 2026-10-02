@@ -48,7 +48,7 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
 - Authorisation (credential reuse, access-control misconfiguration)
 - Penetration Testing (software tools, active penetration)
   </description>
-  <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/safetynet/ssh-access-and-bruteforce/</lab_sheet_url>
+  <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/safetynet/offline-password-cracking/</lab_sheet_url>
   <type>ctf-lab</type>
   <type>lab-sheet</type>
   <difficulty>medium</difficulty>
