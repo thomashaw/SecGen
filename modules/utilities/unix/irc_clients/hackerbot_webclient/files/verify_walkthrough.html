@@ -39,7 +39,7 @@
     <label>YOURUSER <input data-ph="YOURUSER" placeholder="whoami"></label>
     <label>SECONDUSER <input data-ph="SECONDUSER" placeholder="ls /home"></label>
     <label>BACKUPIP <input data-ph="BACKUPIP" placeholder="backup_server IP"></label>
-    <span class="ver">DEV page · 2026-10-06 16:24 · 360e83ef3</span>
+    <span class="ver">DEV page · 2026-10-06 16:26 · c26cbb43a</span>
   </div>
 </header>
 <main>
@@ -523,10 +523,12 @@ the desktop, answer with that → expect the flag.</label></p></li>
 <td>B1</td>
 <td><code>~</code> not expanded in
 <code>--compare-dest=</code>/<code>--link-dest=</code></td>
-<td>✅ compare-dest (VM); link-dest: <em>todo</em></td>
-<td>full=1000, <code>~</code> diff=1001 (full copy), <code>$HOME</code>
-diff=1. rsync:
-<code>--compare-dest arg does not exist: ~/b1/full</code></td>
+<td>✅ both (VM)</td>
+<td>compare-dest: full=1000, <code>~</code> diff=1001 (full copy),
+<code>$HOME</code> diff=1. rsync:
+<code>--compare-dest arg does not exist: ~/b1/full</code>. link-dest:
+<code>~</code> snapshot 0 hard links, du 8M (= full); <code>$HOME</code>
+snapshot ~1000 hard links, du 1.4M (dirs can't be hard-linked)</td>
 </tr>
 <tr>
 <td>B2</td>
