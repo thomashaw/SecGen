@@ -9,14 +9,6 @@ class reversing_tools::install {
     source => 'puppet:///modules/reversing_tools/upx',
     mode   => '0755',
   }
-  file { '/usr/local/share/doc/upx':
-    ensure => directory,
-  }
-  file { '/usr/local/share/doc/upx/LICENSE':
-    ensure  => file,
-    source  => 'puppet:///modules/reversing_tools/upx-LICENSE',
-    require => File['/usr/local/share/doc/upx'],
-  }
 
   # java
   ensure_packages(['procyon-decompiler'])
