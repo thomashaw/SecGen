@@ -18,7 +18,7 @@ Per-change test loop (after every item):
 ```bash
 S=.claude/skills/secgen-hackerbot/scripts/hb_check.rb
 ruby $S modules/generators/structured_content/hackerbot_config/backups \
-  --scenario scenarios/labs/response_and_investigation/3_backups_and_recovery.xml --out /tmp/hbout   # 0 errors
+  --scenario scenarios/labs/response_and_investigation/3_backups_and_recovery.xml --accounts 2 --out /tmp/hbout   # 0 errors
 ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tmp/hbfs             # good + bad trees
 ```
 
@@ -59,9 +59,8 @@ ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tm
       restore order. Refer back to it at each bot task.
 - [ ] Labsheet: "if you get stuck: `goto N` re-applies that stage's changes" (once F2/stage items land).
 - [ ] Scenario `<description>`: sync tips with labsheet, fix "it's contents".
-- [ ] P4: scenario creates a 3rd, unused account (accounts[2]) so `ls /home` shows two "other" users while the
-      sheet says "a second user". Either drop it from the scenario (and fix the stale "two accounts" comment) or
-      have the sheet say the target is the one Hackerbot names / the one with `trade_secrets/`. (Decision pending.)
+- [x] P4: removed the unused 3rd account (accounts[2]) from the scenario; comment now documents [0]/[1].
+      `ls /home` should now show YOURUSER + SECONDUSER only. 🖥 confirm on next rebuild.
 
 ### Copy + SSH/SCP section
 - [ ] Labsheet B6: make lines 127/140/160 use one directory (`ssh_etc_backup/`), and state the scp rule

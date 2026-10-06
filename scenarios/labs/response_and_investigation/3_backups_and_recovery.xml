@@ -89,7 +89,8 @@
       <network_ip system="hackerbot_server"/>
     </input>
 
-    <!--generate two accounts, YOU and someone else-->
+    <!--generate two accounts: [0] YOU (sudo, autologin), [1] the user whose files Hackerbot has you back up-->
+    <!--(the hackerbot backups generator reads accounts[0] and accounts[1] only)-->
     <input into_datastore="accounts">
       <generator type="account">
         <input into="username">
@@ -152,27 +153,6 @@
             [80383.925811] usb 3-1: USB disconnect, device number 4
           </value>
           <generator type="person" />
-        </input>
-      </generator>
-      <generator type="account">
-        <input into="username">
-          <generator type="random_sanitised_word">
-            <input into="wordlist">
-              <value>mythical_creatures</value>
-            </input>
-          </generator>
-        </input>
-        <input into="password">
-          <value>test</value>
-        </input>
-        <input into="super_user">
-          <value>false</value>
-        </input>
-        <input into="leaked_filenames">
-          <value></value>
-        </input>
-        <input into="strings_to_leak">
-          <value></value>
         </input>
       </generator>
     </input>
