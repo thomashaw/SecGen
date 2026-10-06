@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # DEV ONLY: render VERIFY_WALKTHROUGH.md into the hackerbot web client so it is served at
 #   http://hackerbot:8080/verify_walkthrough.html
+# and copy the automated tester next to it (http://hackerbot:8080/backups_lab_test.py).
 # Run after editing the walkthrough, then rebuild the VMs. Remove (with the page and its
 # puppet file resource in hackerbot_webclient/manifests/config.pp) before merging.
 set -euo pipefail
@@ -24,3 +25,7 @@ awk -v body="$body" -v version="$version" '
 ' "$tpl" > "$out"
 
 echo "wrote $out"
+
+# The automated tester is served alongside: http://hackerbot:8080/backups_lab_test.py
+cp "$here/backups_lab_test.py" "$(dirname "$out")/backups_lab_test.py"
+echo "wrote $(dirname "$out")/backups_lab_test.py"

@@ -9,6 +9,21 @@ in the **Results** table at the bottom; anything that surprises you changes the 
 > values; each code block has a **Copy** button. Rebuild the page after editing this file:
 > `backups_lab_rework/build_verify_page.sh` (needs `pandoc`), then rebuild the VMs.
 
+## Automated run (does everything below, and plays every bot challenge)
+
+On a **freshly built** lab, in a terminal on the **desktop**, as your normal (first) user:
+
+```bash
+curl -sO http://hackerbot:8080/backups_lab_test.py && python3 backups_lab_test.py
+```
+
+(No `curl`? `wget -q http://hackerbot:8080/backups_lab_test.py && python3 backups_lab_test.py`)
+
+It takes roughly 30–45 minutes and writes **`~/backups_lab_report.txt`** (send this back) and
+`~/backups_lab_full_log.txt` (every command + full output). `python3 backups_lab_test.py --irc-check` only
+talks to the bot and prints what it discovered — a quick 10-second smoke test. It modifies both VMs (that's
+the point), so only use disposable builds; it needs a fresh build for valid bot results.
+
 Placeholders used below — substitute your build's values:
 
 | Placeholder | Meaning | How to find it |

@@ -45,4 +45,15 @@ class hackerbot_webclient::config {
     mode    => '0644',
     require => File['/opt/hackerbot_webclient'],
   }
+
+  # DEV ONLY (backups lab rework): automated tester, fetched onto the desktop with
+  # curl -sO http://hackerbot:8080/backups_lab_test.py. Remove before merging.
+  file { '/opt/hackerbot_webclient/backups_lab_test.py':
+    ensure  => file,
+    source  => 'puppet:///modules/hackerbot_webclient/backups_lab_test.py',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/opt/hackerbot_webclient'],
+  }
 }
