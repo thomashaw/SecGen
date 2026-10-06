@@ -82,7 +82,8 @@ ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tm
 
 ### Differential backups section
 - [ ] Labsheet B1: replace `~` with `$HOME` in all `--compare-dest=` (lines 292, 318); add a one-line
-      "why `~` doesn't work after `=`" note + the rsync warning text from B1.
+      "why `~` doesn't work after `=`" note + the rsync warning text from B1
+      (confirmed on VM: `--compare-dest arg does not exist: ~/b1/full`; `~` gave a full copy, `$HOME` gave 1 file).
 - [ ] Labsheet P2: the `--compare-dest` dir must have the *same layout* as the destination
       (`.../full-backup/` holds `SECONDUSER/…`), and it fails silently otherwise.
 
