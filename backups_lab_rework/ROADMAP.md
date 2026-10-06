@@ -117,7 +117,8 @@ ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tm
 ### Snapshot section
 - [ ] Labsheet B1: `$HOME` in `--link-dest` (lines 463, 479); snapshot_2 should link against
       snapshot_1 (the previous snapshot), not the full backup; add a `find -links +1` / `du` check so
-      students *see* the hard links.
+      students *see* the hard links (confirmed on VM: `~` → 0 links, 8M = full copy; `$HOME` → ~1000 links,
+      1.4M — mention that directories can't be hard-linked, which is why it isn't ~0).
 
 ### Attack 9 (changes D)
 - [ ] F2: stage-D state. 🖥
