@@ -2,7 +2,21 @@ class reversing_tools::install {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
   ensure_packages(['gdb', 'git', 'ltrace', 'strace', 'valgrind', 'pax-utils', 'binwalk', 'vbindiff', 'ssdeep', 'gcc-multilib','yara'])
-  # ensure_packages(['upx-ucl'])
+
+  # UPX: upx-ucl is not in the Debian 12 repos, so install the static UPX 4.2.4 release binary
+  file { '/usr/local/bin/upx':
+    ensure => file,
+    source => 'puppet:///modules/reversing_tools/upx',
+    mode   => '0755',
+  }
+  file { '/usr/local/share/doc/upx':
+    ensure => directory,
+  }
+  file { '/usr/local/share/doc/upx/LICENSE':
+    ensure  => file,
+    source  => 'puppet:///modules/reversing_tools/upx-LICENSE',
+    require => File['/usr/local/share/doc/upx'],
+  }
 
   # java
   ensure_packages(['procyon-decompiler'])
