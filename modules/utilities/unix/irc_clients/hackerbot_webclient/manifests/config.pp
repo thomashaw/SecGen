@@ -34,4 +34,15 @@ class hackerbot_webclient::config {
     mode    => '0644',
     require => File['/opt/hackerbot_webclient'],
   }
+
+  # DEV ONLY (backups lab rework): serves backups_lab_rework/VERIFY_WALKTHROUGH.md at
+  # http://hackerbot:8080/verify_walkthrough.html. Remove this resource and the file before merging.
+  file { '/opt/hackerbot_webclient/verify_walkthrough.html':
+    ensure  => file,
+    source  => 'puppet:///modules/hackerbot_webclient/verify_walkthrough.html',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/opt/hackerbot_webclient'],
+  }
 }

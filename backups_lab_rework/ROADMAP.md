@@ -7,6 +7,8 @@ Files in play:
 - Labsheet: `backups_lab.md` (repo root of this branch; a copy of the remote labsheet repo's file)
 - Test helper: `backups_lab_rework/hb_sim.rb` runs on your **laptop**, not on any VM (needs only Ruby +
   `nokogiri`, same as `hb_check.rb`). It reads a rendered `bot.xml` and replays the bot's condition matching.
+- DEV verify page: `backups_lab_rework/build_verify_page.sh` renders `VERIFY_WALKTHROUGH.md` (pandoc) into the
+  hackerbot web client → `http://hackerbot:8080/verify_walkthrough.html`. Re-run it after editing the walkthrough.
 
 Issue IDs (B1–B8, P1–P3) refer to `VERIFY_WALKTHROUGH.md`. **Phase 0 gates everything**: drop or
 reshape any item whose issue doesn't reproduce.
@@ -151,6 +153,9 @@ ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tm
       on 8, failed restore + reset on 12. 🖥
 - [ ] Update labsheet hints/notes to match final bot messages; renumber nothing (F4).
 - [ ] Decide fate of `backups_lab_rework/` (delete, or move `hb_sim.rb` into the hackerbot skill's `scripts/`).
+- [ ] **Remove the DEV verify page before merge**: the `verify_walkthrough.html` file resource in
+      `modules/utilities/unix/irc_clients/hackerbot_webclient/manifests/config.pp` and
+      `modules/utilities/unix/irc_clients/hackerbot_webclient/files/verify_walkthrough.html`.
 
 ---
 

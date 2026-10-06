@@ -4,6 +4,11 @@ Goal: confirm, by hand, each issue raised in the review, so we only fix what is 
 Each check has an ID that the roadmap (`ROADMAP.md`) refers to. Tick the box and jot what you saw
 in the **Results** table at the bottom; anything that surprises you changes the fix.
 
+> **On the VMs (dev builds only):** this page is served at **http://hackerbot:8080/verify_walkthrough.html**
+> (open it in Firefox on the desktop). Fill in the boxes at the top and every command is rewritten with your
+> values; each code block has a **Copy** button. Rebuild the page after editing this file:
+> `backups_lab_rework/build_verify_page.sh` (needs `pandoc`), then rebuild the VMs.
+
 Placeholders used below — substitute your build's values:
 
 | Placeholder | Meaning | How to find it |
@@ -45,7 +50,7 @@ normal play-through of the bot if you do section 4.
 
 These use `backups_lab_rework/hb_sim.rb`, which replays `<condition>` matching exactly as
 `hackerbot.rb#check_output_conditions` does (unanchored `=~ /re/m`, in order, first match wins).
-Run it **on your laptop** from this branch's checkout (`.claude/worktrees/backups-lab-rework`); nothing
+Run it **on your laptop** from the repo root (branch `backups-lab-rework`); nothing
 goes on the VMs. It needs Ruby + `nokogiri` (already required by `hb_check.rb`).
 
 ```bash
@@ -142,20 +147,25 @@ and makes a **full copy**. Affects labsheet lines 292, 318, 380, 396 (`--compare
 - [ ] Reproduce the effect on a differential:
 
   ```bash
-  mkdir -p ~/b1
+  sudo rm -rf ~/b1 && mkdir -p ~/b1        # start clean: leftover diff_* dirs from an earlier run skew the counts
   sudo rsync -a /etc ~/b1/full/
+  sudo find ~/b1/full/etc -type f | wc -l  # sanity: ~1000; if this errors, stop and fix first
   sudo bash -c 'echo b1 > /etc/b1test'
 
-  sudo rsync -av /etc --compare-dest=~/b1/full/ ~/b1/diff_tilde/ 2>&1 | tail -4
+  sudo rsync -av /etc --compare-dest=~/b1/full/ ~/b1/diff_tilde/ 2>&1 | grep -v '^etc/'
   sudo find ~/b1/diff_tilde -type f | wc -l
 
-  sudo rsync -av /etc --compare-dest=$HOME/b1/full/ ~/b1/diff_home/ 2>&1 | tail -4
+  sudo rsync -av /etc --compare-dest=$HOME/b1/full/ ~/b1/diff_home/ 2>&1 | grep -v '^etc/'
   sudo find ~/b1/diff_home -type f | wc -l
   ```
 
-  Bug is real if: `diff_tilde` has hundreds of files (all of /etc) and rsync printed a warning about the
+  (`grep -v '^etc/'` hides the per-file list so any warning line stays on screen.)
+
+  Bug is real if: `diff_tilde` has ~1000 files (all of /etc) and rsync printed a warning about the
   compare-dest path (note the exact wording; it can go in the labsheet), while `diff_home` has **1** file
-  (`etc/b1test`).
+  (`etc/b1test`). If **both** are ~1000 even from a clean start, my explanation is wrong — run
+  `sudo rsync -avin /etc --compare-dest=$HOME/b1/full/ ~/b1/x/ | head` (`-i` itemises *why* each file
+  would be sent, `-n` = dry run) and send me the output.
 
 - [ ] Same for `--link-dest` (snapshot section):
 
