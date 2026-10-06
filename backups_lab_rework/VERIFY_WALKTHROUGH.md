@@ -397,7 +397,7 @@ replace). Some checks below need you to deliberately do it *wrong* first; use `g
 
 | ID | What | Confirmed? | Notes / exact messages |
 |---|---|---|---|
-| B1 | `~` not expanded in `--compare-dest=`/`--link-dest=` | | |
+| B1 | `~` not expanded in `--compare-dest=`/`--link-dest=` | ✅ compare-dest (VM); link-dest: _todo_ | full=1000, `~` diff=1001 (full copy), `$HOME` diff=1. rsync: `--compare-dest arg does not exist: ~/b1/full` |
 | B2 | `--fake-super` wrong side; restores root-owned | | |
 | B3 | stderr digits → false pass (attack 8) / wrong msg (12) | ✅ (sim) | |
 | B4 | `0[1-9]?{2}` = "contains 0" | ✅ (sim) | |
