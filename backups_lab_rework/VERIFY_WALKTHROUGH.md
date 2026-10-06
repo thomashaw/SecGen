@@ -45,6 +45,8 @@ normal play-through of the bot if you do section 4.
 
 These use `backups_lab_rework/hb_sim.rb`, which replays `<condition>` matching exactly as
 `hackerbot.rb#check_output_conditions` does (unanchored `=~ /re/m`, in order, first match wins).
+Run it **on your laptop** from this branch's checkout (`.claude/worktrees/backups-lab-rework`); nothing
+goes on the VMs. It needs Ruby + `nokogiri` (already required by `hb_check.rb`).
 
 ```bash
 # from the repo root of this branch
@@ -209,6 +211,14 @@ side of a remote-shell connection, use the --remote-option (-M) option"):
   then **does not chown**; it writes the ownership into xattrs instead → restored files owned by root.
 - Correct: back up **and** restore with `-M--fake-super` (or `--rsync-path="rsync --fake-super"`) and
   no local `--fake-super`.
+
+> **What `-M` is.** An rsync-over-SSH transfer runs *two* rsync processes: yours, and one that rsync starts
+> on the other machine via ssh. Normal options configure both where it makes sense, but `--fake-super`
+> deliberately applies only to the process it's given to. `-M OPTION` (long form `--remote-option=OPTION`)
+> passes `OPTION` to the **remote** rsync only. So `-M--fake-super` means "the backup_server's rsync, which runs
+> as YOURUSER and can't chown, should record owner/group/mode in `user.rsync.%stat` xattrs when receiving,
+> and read them back when sending". The local side runs as root via `sudo`, so it can chown for real and
+> needs no `--fake-super`. Equivalent older spelling: `--rsync-path="rsync --fake-super"`.
 
 Prepare a file owned by SECONDUSER with a distinctive mode, on the **desktop**:
 

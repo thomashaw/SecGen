@@ -4,7 +4,9 @@ Files in play:
 
 - Bot: `modules/generators/structured_content/hackerbot_config/backups/templates/lab.xml.erb` (+ `secgen_local/local.rb`)
 - Scenario: `scenarios/labs/response_and_investigation/3_backups_and_recovery.xml`
-- Labsheet: `backups_lab.md` (repo root; currently only *staged* on `master`, so not on this branch — see Open decisions)
+- Labsheet: `backups_lab.md` (repo root of this branch; a copy of the remote labsheet repo's file)
+- Test helper: `backups_lab_rework/hb_sim.rb` runs on your **laptop**, not on any VM (needs only Ruby +
+  `nokogiri`, same as `hb_check.rb`). It reads a rendered `bot.xml` and replays the bot's condition matching.
 
 Issue IDs (B1–B8, P1–P3) refer to `VERIFY_WALKTHROUGH.md`. **Phase 0 gates everything**: drop or
 reshape any item whose issue doesn't reproduce.
@@ -161,6 +163,5 @@ ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tm
    e.g. `/etc/ssh/` or a planted directory.
 3. **Stash location** for attack 11: hackerbot_server (recommended — students have sudo on desktop and
    their own account on backup_server).
-4. **Labsheet location**: `backups_lab.md` is staged on `master` only. Commit it there first (then I'll
-   rebase this branch), or I edit it in your main checkout when we reach labsheet items? Also: is it
-   mirrored to `HacktivityLabSheets/_labs/…` and needs syncing there?
+4. ~~**Labsheet location**~~ — resolved: `backups_lab.md` is a copy of the remote labsheet repo's file,
+   committed on this branch and edited here. Thomas syncs it back to the labsheet repo at the end.
