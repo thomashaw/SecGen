@@ -408,5 +408,5 @@ replace). Some checks below need you to deliberately do it *wrong* first; use `g
 | P1 | `sudo` + no `user@` = root | ✅ (VM) | `sudo ssh BACKUPIP` prompts `root@…'s password:`; students can't log in. (rsync form: confirm which command "worked") |
 | P2 | mismatched compare-dest is silent full copy | | |
 | P3 | non-sudo rsync of SECONDUSER home | | |
-| P4 | `ls /home` shows 2 other users (scenario's unused 3rd account); sheet says "a second user" | ✅ (code) | record what `ls /home` lists |
+| P4 | `ls /home` shows 2 other users (scenario's unused 3rd account); sheet says "a second user" | ✅ (code) — **fixed**: 3rd account removed from scenario | after rebuild, `ls /home` should list only YOURUSER + SECONDUSER |
 | — | ownership after attack 12 restore | | |
