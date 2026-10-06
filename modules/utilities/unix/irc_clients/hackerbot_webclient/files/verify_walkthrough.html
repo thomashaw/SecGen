@@ -39,7 +39,7 @@
     <label>YOURUSER <input data-ph="YOURUSER" placeholder="whoami"></label>
     <label>SECONDUSER <input data-ph="SECONDUSER" placeholder="ls /home"></label>
     <label>BACKUPIP <input data-ph="BACKUPIP" placeholder="backup_server IP"></label>
-    <span class="ver">DEV page · 2026-10-06 17:18 · 63aa993b0</span>
+    <span class="ver">DEV page · 2026-10-06 17:37 · 2f0a099bf</span>
   </div>
 </header>
 <main>
@@ -60,6 +60,21 @@ command is rewritten with your values; each code block has a
 <code>backups_lab_rework/build_verify_page.sh</code> (needs
 <code>pandoc</code>), then rebuild the VMs.</p>
 </blockquote>
+<h2
+id="automated-run-does-everything-below-and-plays-every-bot-challenge">Automated
+run (does everything below, and plays every bot challenge)</h2>
+<p>On a <strong>freshly built</strong> lab, in a terminal on the
+<strong>desktop</strong>, as your normal (first) user:</p>
+<pre class="bash"><code>curl -sO http://hackerbot:8080/backups_lab_test.py &amp;&amp; python3 backups_lab_test.py</code></pre>
+<p>(No <code>curl</code>?
+<code>wget -q http://hackerbot:8080/backups_lab_test.py &amp;&amp; python3 backups_lab_test.py</code>)</p>
+<p>It takes roughly 30–45 minutes and writes
+<strong><code>~/backups_lab_report.txt</code></strong> (send this back)
+and <code>~/backups_lab_full_log.txt</code> (every command + full
+output). <code>python3 backups_lab_test.py --irc-check</code> only talks
+to the bot and prints what it discovered — a quick 10-second smoke test.
+It modifies both VMs (that's the point), so only use disposable builds;
+it needs a fresh build for valid bot results.</p>
 <p>Placeholders used below — substitute your build's values:</p>
 <table>
 <thead>
