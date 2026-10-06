@@ -59,6 +59,9 @@ ruby backups_lab_rework/hb_sim.rb --xml /tmp/hbout/bot.xml --attack N --root /tm
       restore order. Refer back to it at each bot task.
 - [ ] Labsheet: "if you get stuck: `goto N` re-applies that stage's changes" (once F2/stage items land).
 - [ ] Scenario `<description>`: sync tips with labsheet, fix "it's contents".
+- [ ] P4: scenario creates a 3rd, unused account (accounts[2]) so `ls /home` shows two "other" users while the
+      sheet says "a second user". Either drop it from the scenario (and fix the stale "two accounts" comment) or
+      have the sheet say the target is the one Hackerbot names / the one with `trade_secrets/`. (Decision pending.)
 
 ### Copy + SSH/SCP section
 - [ ] Labsheet B6: make lines 127/140/160 use one directory (`ssh_etc_backup/`), and state the scp rule

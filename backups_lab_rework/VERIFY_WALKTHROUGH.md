@@ -405,7 +405,8 @@ replace). Some checks below need you to deliberately do it *wrong* first; use `g
 | B6 | path/wording mismatches (attack 6 prompt, attack 2 msg, labsheet ssh_backup) | | |
 | B7 | attack 13 accepts diff2 notes; epoch has no notes | | |
 | B8 | scp dest-existence semantics; `/bin` size | | |
-| P1 | `sudo` + no `user@` = root | | |
+| P1 | `sudo` + no `user@` = root | ✅ (VM) | `sudo ssh BACKUPIP` prompts `root@…'s password:`; students can't log in. (rsync form: confirm which command "worked") |
 | P2 | mismatched compare-dest is silent full copy | | |
 | P3 | non-sudo rsync of SECONDUSER home | | |
+| P4 | `ls /home` shows 2 other users (scenario's unused 3rd account); sheet says "a second user" | ✅ (code) | record what `ls /home` lists |
 | — | ownership after attack 12 restore | | |
