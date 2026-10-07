@@ -192,6 +192,8 @@ When you are ready for the bot to run the attack, ==action: say 'ready'== to Hac
 
 > Tip: Why `/usr/bin` and not `/bin`? On current Debian (and most modern Linux distributions), `/bin` is just a symbolic link to `/usr/bin` -- run `ls -ld /bin` to see. `/usr/bin` is where the programs actually live, so that's the directory worth backing up.
 
+> Note: Expect scp to end with `scp: local "/usr/bin/X11" is not a regular file` ... `failed to upload directory /usr/bin ...`. Everything else *was* copied. `/usr/bin/X11` is an old compatibility symbolic link that points back at `/usr/bin` itself (`ls -l /usr/bin/X11` shows `X11 -> .`), so following it would go round in circles forever; scp won't follow a symbolic link to a directory, so it skips it and reports the failure. This is one of scp's limits: it only copies regular files and directories. Rsync, which you'll use next, copies symbolic links *as* symbolic links.
+
 Don't forget to ==action: save and submit any flags!==
 
 ## Rsync, deltas and epoch backups {#rsync-deltas-and-epoch-backups}
