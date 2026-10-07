@@ -4,6 +4,8 @@
   require 'digest/sha1'
   require 'fileutils'
   require 'erb'
+  require 'shellwords'
+  require 'base64'
 
   if self.accounts.empty?
     abort('Sorry, you need to provide an account')
@@ -41,6 +43,169 @@
     Print.err "Warning: Not enough flags provided to hackerbot_config generator, some flags won't be tracked/marked!"
   end
 
+  # ---------------------------------------------------------------------------------------------
+  # Where things live
+  # ---------------------------------------------------------------------------------------------
+  $H = "/home/#{$main_user}"           # YOURUSER's home on the backup_server (backups go here)
+  $S = "/home/#{$second_user}"         # SECONDUSER's home on the desktop (what is backed up)
+  $bin_dir = "remote-bin-backup-#{SecureRandom.hex(2)}"
+  $full  = "#{$H}/remote-rsync-full-backup"
+  $diff1 = "#{$H}/remote-rsync-differential1"
+  $diff2 = "#{$H}/remote-rsync-differential2"
+  $incr1 = "#{$H}/remote-rsync-incremental1"
+  $incr2 = "#{$H}/remote-rsync-incremental2"
+
+  # ---------------------------------------------------------------------------------------------
+  # The four "SECONDUSER makes changes" steps (attacks 3, 5, 7, 9). Contents and mtimes are fixed at
+  # build time, so applying a step is idempotent: "goto N" + "ready" puts SECONDUSER's files back
+  # exactly as they were at that step (size+mtime identical, so --compare-dest behaves the same).
+  # Each step owns one marker file the checks look for; notes and logs/log2 change every step.
+  # ---------------------------------------------------------------------------------------------
+  $first_notes = SecureRandom.hex(2)
+  $hidden_flag = $flags.pop
+  $rand_diff2 = SecureRandom.hex(2)
+  $rand2 = SecureRandom.hex(2)
+  $rand3 = SecureRandom.hex(2)
+  $steps = [3, 5, 7, 9]
+  $step_file = { 3 => 'personal_secrets/flag', 5 => 'personal_secrets/really_not_a_flag',
+                 7 => "personal_secrets/#{$rand2}", 9 => 'personal_secrets/nothing_much' }
+  $step_content = { 3 => $hidden_flag, 5 => $rand_diff2, 7 => $rand2, 9 => $rand3 }
+  $notes = { 3 => ["Note to self: drink more water #{$first_notes}"],
+             5 => ["Note to self: drink more water #{$first_notes}", 'Dont forget the milk'],
+             7 => ["Buy eggs #{$rand2}"],
+             9 => ["Buy batteries #{$rand3}"] }
+  $log2 = { 3 => ['Beep boop beep'],
+            5 => ['Beep boop beep', 'Beep boop beep'],
+            7 => ['Beep boop beep', 'Beep boop beep', 'Beep boop beep beep'],
+            9 => ['Beep boop beep', 'Beep boop beep', 'Beep boop beep beep', 'Beep boop beep beep'] }
+  t0 = Time.now.to_i - (Time.now.to_i % 3600)
+  $mtime = { 3 => t0 + 600, 5 => t0 + 1200, 7 => t0 + 1800, 9 => t0 + 2400 }
+  $step_label = { 3 => 'changes-from-step-3', 5 => 'changes-from-step-5', 7 => 'changes-from-step-7',
+                  9 => 'changes-from-step-9' }
+
+  # ---------------------------------------------------------------------------------------------
+  # Helpers. Every attack runs one pre_shell on the hackerbot_server (get_shell false); scripts are
+  # shipped to the target base64-encoded (no quoting/XML escaping problems) and run with bash.
+  # ---------------------------------------------------------------------------------------------
+  $ssh = 'ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no -oBatchMode=yes'
+  $desktop = 'root@{{chat_ip_address}}'
+  $backup = "root@#{$server_ip}"
+  $stash = "/root/.hb_backups_lab/originals-#{$second_user}.tgz"
+
+  def q(s)
+    Shellwords.escape(s)
+  end
+
+  def on_host(host, script)
+    "echo #{Base64.strict_encode64(script)} | base64 -d | #{$ssh} #{host} bash -s 2>&1"
+  end
+
+  def xml(s)
+    s.encode(xml: :text)
+  end
+
+  # A bash function that checks one backup (or the restored home dir) and prints one line per item:
+  #   OK <label> | MISSING <label> | UNEXPECTED <label> | NODIR <path>, then RESULT PASS|RESULT FAIL.
+  # stderr is discarded, so random names in paths can never leak into what the conditions match.
+  def check_fn(fname, root, items, tag: '', structure: true)
+    r = "#{root}/#{$second_user}"
+    out = ["#{fname}() {", '  f=0']
+    if structure
+      # SECONDUSER's files sitting directly in the backup dir = "copied the contents, not the directory"
+      top = ($files.map { |p| "[ -e #{q(root + '/' + p)} ]" } + ["[ -d #{q(root + '/personal_secrets')} ]"]).join(' || ')
+      out << "  if #{top}; then echo '#{tag}UNEXPECTED contents-at-top'; echo '#{tag}RESULT FAIL'; return 1; fi"
+      out << "  if [ ! -d #{q(r)} ]; then echo '#{tag}NODIR #{r}'; echo '#{tag}RESULT FAIL'; return 1; fi"
+    end
+    out << "  if [ -d #{q(r + '/' + $second_user)} ]; then echo '#{tag}UNEXPECTED nested'; f=1; fi"
+    items.each do |kind, label, arg, extra|
+      case kind
+      when :all_present
+        t = arg.map { |p| "[ -e #{q(r + '/' + p)} ]" }.join(' && ')
+        out << "  if #{t}; then echo '#{tag}OK #{label}'; else echo '#{tag}MISSING #{label}'; f=1; fi"
+      when :none_present
+        t = arg.map { |p| "[ -e #{q(r + '/' + p)} ]" }.join(' || ')
+        out << "  if #{t}; then echo '#{tag}UNEXPECTED #{label}'; f=1; else echo '#{tag}OK #{label} (not included)'; fi"
+      when :equals
+        want = extra.map { |l| q(l) }.join(' ')
+        out << "  if [ \"$(cat #{q(r + '/' + arg)} 2>/dev/null)\" = \"$(printf '%s\\n' #{want})\" ]; then echo '#{tag}OK #{label}'; else echo '#{tag}MISSING #{label}'; f=1; fi"
+      when :owned
+        out << "  if [ -z \"$(find #{q(r)} ! -user #{$second_user} -print -quit 2>/dev/null)\" ]; then echo '#{tag}OK #{label}'; else echo '#{tag}MISSING #{label}'; f=1; fi"
+      end
+    end
+    out << "  if [ $f = 0 ]; then echo '#{tag}RESULT PASS'; return 0; fi; echo '#{tag}RESULT FAIL'; return 1"
+    out << '}'
+    out.join("\n")
+  end
+
+  # Expected contents of each backup, in terms of the step marker files
+  def backup_items(present_steps, absent_steps)
+    items = [[:none_present, 'original-files', $files]]
+    present_steps.each { |s| items << [:all_present, $step_label[s], [$step_file[s]]] }
+    absent_steps.each { |s| items << [:none_present, $step_label[s], [$step_file[s]]] }
+    items
+  end
+  $full_items  = [[:all_present, 'original-files', $files]]
+  $diff1_items = backup_items([3], [])
+  $diff2_items = backup_items([3, 5], [7])
+  $incr1_items = backup_items([7], [3, 5, 9])
+  $incr2_items = backup_items([9], [3, 5, 7])
+
+  def check_script(root, items)
+    check_fn('chk', root, items) + "\nchk\nexit 0\n"
+  end
+
+  # Script that puts SECONDUSER's step files into the state of the given step
+  def stage_script(step)
+    s = ["S=#{q($S)}", 'mkdir -p "$S/logs" "$S/personal_secrets"']
+    $steps.each do |k|
+      f = "\"$S\"/#{q($step_file[k])}"
+      if k <= step
+        s << "printf '%s\\n' #{q($step_content[k])} > #{f}; chown #{$second_user}:#{$second_user} #{f}; touch -d @#{$mtime[k]} #{f}"
+      else
+        s << "rm -f #{f}"
+      end
+    end
+    s << "printf '%s\\n' #{$notes[step].map { |l| q(l) }.join(' ')} > \"$S/notes\""
+    s << "printf '%s\\n' #{$log2[step].map { |l| q(l) }.join(' ')} > \"$S/logs/log2\""
+    s << "chown #{$second_user}:#{$second_user} \"$S/notes\" \"$S/logs/log2\""
+    s << "touch -d @#{$mtime[step]} \"$S/notes\" \"$S/logs/log2\""
+    s << "echo STAGE-#{step}-APPLIED"
+    s.join("\n") + "\n"
+  end
+
+  # pre_shell for a change step: on first use, stash SECONDUSER's original files on the hackerbot_server
+  # (students can't reach it); every time, put the originals back, then apply the step's state.
+  def stage_pre_shell(step)
+    d = "#{$ssh} #{$desktop}"
+    "mkdir -p #{File.dirname($stash)}; O=#{$stash}; " \
+    "if [ ! -s $O ]; then #{d} 'test -d #{$S}/trade_secrets && tar -C /home -czf - #{$second_user}' > $O.tmp 2>/dev/null; " \
+    "if [ -s $O.tmp ]; then mv $O.tmp $O; else rm -f $O.tmp; fi; fi; " \
+    "if [ -s $O ]; then #{d} 'tar -C /home -xzf - && echo ORIGINALS-RESTORED' < $O 2>&1; else echo ORIGINALS-UNAVAILABLE; fi; " +
+    on_host($desktop, stage_script(step))
+  end
+
+  # attack 11: only delete once every backup needed for the restore checks out
+  $gate_script = [
+    check_fn('chk_full', $full, $full_items, tag: '[full backup] '),
+    check_fn('chk_diff2', $diff2, $diff2_items, tag: '[differential2] '),
+    check_fn('chk_incr1', $incr1, $incr1_items, tag: '[incremental1] '),
+    check_fn('chk_incr2', $incr2, $incr2_items, tag: '[incremental2] '),
+    'g=0; chk_full || g=1; chk_diff2 || g=1; chk_incr1 || g=1; chk_incr2 || g=1',
+    'if [ $g = 0 ]; then echo GATE-PASS; else echo GATE-FAIL; fi',
+    'exit 0'
+  ].join("\n") + "\n"
+  $wipe_script = "rm -rf #{q($S)}/*; echo WIPED\n"
+
+  $restore_items = [[:all_present, 'original-files', $files]] +
+                   $steps.map { |k| [:all_present, $step_label[k], [$step_file[k]]] } +
+                   [[:equals, 'notes-latest-version', 'notes', $notes[9]], [:owned, 'ownership']]
+
+  $notes_script = "n=\"$(cat #{q($S + '/notes')} 2>/dev/null)\"\n" +
+                  $steps.map { |k| "if [ \"$n\" = \"$(printf '%s\\n' #{$notes[k].map { |l| q(l) }.join(' ')})\" ]; then echo NOTES-STEP-#{k}; exit 0; fi" }.join("\n") +
+                  "\nif [ -z \"$n\" ]; then echo NOTES-MISSING; else echo NOTES-OTHER; fi\n"
+
+  $retry_hint = "If your files are in a mess, say 'goto 11' then 'ready' and I'll delete them again so you can start the restore from scratch."
+
   def get_binding
     binding
   end
@@ -63,7 +228,7 @@
 	<messages>
     <show_attack_numbers />
 
-		<greeting>Hey, today I'm your boss of sorts... Work with me and I'll pay you in flags :) These tasks do require the steps to be completed in order.</greeting>
+		<greeting>Hey, today I'm your boss of sorts... Work with me and I'll pay you in flags :) These tasks need to be done in order. If a backup goes wrong because <%= $second_user %>'s files have moved on, say 'goto' a change step (3, 5, 7 or 9) then 'ready', and I'll put their files back exactly as they were at that step.</greeting>
 
 		<!--Must provide alternatives for each message-->
 		<say_ready>When you are ready, simply say 'ready'.</say_ready>
@@ -78,7 +243,7 @@
 		<last_attack>That was the last one. Game over?</last_attack>
 		<first_attack>You are back to the beginning!</first_attack>
 		<first_attack>This is where it all began.</first_attack>
-		<getting_shell>Ok. Gaining shell access, and running post command...</getting_shell>
+		<getting_shell>Ok. Let me take a look...</getting_shell>
 		<getting_shell>Here we go...</getting_shell>
 		<got_shell>I am in to your system.</got_shell>
 		<got_shell>I have shell.</got_shell>
@@ -113,271 +278,340 @@ Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (<%= 
 
 	</tutorial_info>
 
+	<!-- ============================== 1: scp /usr/bin ============================== -->
 	<attack>
-<% $file = SecureRandom.hex(2) -%>
-    <!--shell on the backup server-->
-		<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> /bin/bash</get_shell>
+		<prompt>Use scp to copy the desktop's /usr/bin/ directory (where the programs actually live: /bin is just a symlink to it) to the backup_server, so that <%= $server_ip %>:<%= $H %>/<%= $bin_dir %>/ contains the backed up bin/ directory.</prompt>
 
-		<prompt>Use scp to copy the desktop /bin/ directory to the backup_server: <%= $server_ip %>:/home/<%= $main_user %>/remote-bin-backup-<%= $file %>/, which should then include the backed up bin/ directory.</prompt>
-
-		<post_command>ls /home/<%= $main_user %>/remote-bin-backup-<%= $file %>/bin/ls /home/<%= $main_user %>/remote-bin-backup-<%= $file %>/bin/mkdir > /dev/null; echo $?</post_command>
+		<pre_shell><%= xml(on_host($backup, "R=#{q($H + '/' + $bin_dir)}\nif [ ! -d \"$R\" ]; then echo 'NODIR #{$H}/#{$bin_dir}'\nelif [ -e \"$R/bin/ls\" ] && [ -e \"$R/bin/mkdir\" ]; then echo 'OK bin/ls bin/mkdir'; echo 'RESULT PASS'\nelif [ -e \"$R/ls\" ]; then echo 'UNEXPECTED contents-without-bin'; echo 'RESULT FAIL'\nelse echo 'MISSING bin/ls'; echo 'RESULT FAIL'; fi\n")) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>No such file or directory</output_matches>
-			<message>:( You didn't copy to the remote /home/<%= $main_user %>/remote-bin-backup-<%= $file %>/bin/... Remember that the trailing / changes whether you are copying directories or their contents...</message>
-		</condition>
-		<condition>
-			<output_matches>0</output_matches>
+			<output_matches>RESULT PASS</output_matches>
 			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
+		<condition>
+			<output_matches>NODIR</output_matches>
+			<message>:( There's no <%= $H %>/<%= $bin_dir %> on the backup_server yet. With scp, if the destination doesn't exist, scp creates it *as* the copy (so you'd get the files with no bin/ directory) -- so create the directory first (ssh to the backup_server and mkdir it), then scp into it.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED contents-without-bin</output_matches>
+			<message>:( You copied the *contents* of bin straight into <%= $bin_dir %>/, not a bin/ directory inside it. That's what scp does when the destination doesn't exist yet. Delete <%= $bin_dir %> on the backup_server, mkdir it, then scp -r the directory into it.</message>
+		</condition>
 		<else_condition>
-			<message>:( Something was not right...</message>
+			<message>:( <%= $bin_dir %> exists, but there's no bin/ls in it. Have a look at what you copied there (ssh to the backup_server and ls it).</message>
 		</else_condition>
-
-		<tutorial><%= ERB.new(File.read self.templates_path + 'cp_ssh.md.erb').result(self.get_binding) %></tutorial>
 	</attack>
 
+	<!-- ============================== 2: full backup ============================== -->
 	<attack>
-    <!--shell on the backup server-->
-		<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> /bin/bash</get_shell>
-
 		<!-- topic: Rsync-->
-		<prompt>It's your job to set up remote backups for <%= $second_user %> (a user on your system). Use rsync to create a full (epoch) remote backup of /home/<%= $second_user %> from your desktop system to the backup_server: <%= $server_ip %>:/home/<%= $main_user %>/remote-rsync-full-backup/<%= $second_user %>.</prompt>
+		<prompt>It's your job to set up remote backups for <%= $second_user %> (a user on your system). Use rsync to create a full (epoch) remote backup of /home/<%= $second_user %> from your desktop system to the backup_server, so it ends up in <%= $server_ip %>:<%= $full %>/<%= $second_user %> -- keeping <%= $second_user %>'s file ownership (-M--fake-super, see the lab sheet).</prompt>
 
-		<post_command>ls /home/<%= $main_user %>/remote-rsync-full-backup/<%= $second_user %>/<%= $files.sample %> > /dev/null; echo $?</post_command>
+		<pre_shell><%= xml(on_host($backup, check_script($full, $full_items))) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>0</output_matches>
+			<output_matches>RESULT PASS</output_matches>
 			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>No such file or directory</output_matches>
-			<message>:( You didn't copy to remote ssh /home/<%= $main_user %>/remote-rsync-full-backup/<%= $second_user %>/ Remember that the trailing / changes whether you are copying directories or their contents...</message>
+			<output_matches>UNEXPECTED contents-at-top</output_matches>
+			<message>:( You copied the *contents* of /home/<%= $second_user %> straight into remote-rsync-full-backup/, instead of a <%= $second_user %>/ directory inside it. With rsync, /home/<%= $second_user %> (no trailing slash) copies the directory; /home/<%= $second_user %>/ copies only what's in it. Delete it on the backup_server and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED nested</output_matches>
+			<message>:( Your backup is nested one level too deep: remote-rsync-full-backup/<%= $second_user %>/<%= $second_user %>/. Give rsync the *parent* directory (.../remote-rsync-full-backup/) as the destination -- it creates <%= $second_user %>/ inside it. Delete it on the backup_server and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>NODIR</output_matches>
+			<message>:( I can't find <%= $full %>/<%= $second_user %> on the backup_server. Check the destination path. (If rsync said 'mkdir ... failed: No such file or directory', the parent directory didn't exist: rsync only creates the last directory of the destination.)</message>
+		</condition>
+		<condition>
+			<output_matches>MISSING original-files</output_matches>
+			<message>:( Some of <%= $second_user %>'s files aren't in your backup. Did you run rsync with sudo? Some of their files are private to them, so without sudo rsync can't read everything (look for 'Permission denied' in rsync's output).</message>
 		</condition>
 		<else_condition>
-			<message>:( Doesn't look like you have backed up all of <%= $second_user %>'s files to /home/<%= $main_user %>/remote-rsync-backup/<%= $second_user %>. Try SSHing to the server and look at what you have backed up there.</message>
+			<message>:( Doesn't look like you have backed up all of <%= $second_user %>'s files to <%= $full %>/<%= $second_user %>. Try SSHing to the backup_server and look at what you have backed up there.</message>
 		</else_condition>
 
 		<tutorial><%= ERB.new(File.read self.templates_path + 'rsync.md.erb').result(self.get_binding) %></tutorial>
 	</attack>
 
+	<!-- ============================== 3: changes (step 3) ============================== -->
 	<attack>
-<% $first_notes = SecureRandom.hex(2) -%>
-<% $hidden_flag = $flags.pop -%>
-    <!--shell on the desktop-->
-		<!-- topic: Rsync-->
-		<prompt>The <%= $second_user %> user is about to create some files...</prompt>
+		<prompt>Step 3: the <%= $second_user %> user is about to make some changes to their files. Say 'ready' to let them.</prompt>
 
-		<post_command>sudo -u <%= $second_user %> bash -c 'echo "Note to self: drink more water <%= $first_notes %>" > /home/<%= $second_user %>/notes; echo "Beep boop beep" > /home/<%= $second_user %>/logs/log2; echo <%= $hidden_flag %> > /home/<%= $second_user %>/personal_secrets/flag; echo $?'</post_command>
+		<pre_shell><%= xml(stage_pre_shell(3)) %></pre_shell>
+		<get_shell>false</get_shell>
+		<suppress_command_output_feedback />
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( Oh no. Access errors. <%= $second_user %> failed to write the files... The user needs to be able to write to their files!</message>
+			<output_matches>STAGE-3-APPLIED</output_matches>
+			<message>Ok, <%= $second_user %> has made their changes... (Hint: Keep an eye out for a flag...) Now take the differential backup, before saying 'ready' again. (You can always say 'goto 3' then 'ready' to put their files back to exactly this point.)</message>
+			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>0</output_matches>
-			<message>Ok, good... (Hint: Keep an eye out for a flag...)</message>
-			<trigger_next_attack>true</trigger_next_attack>
+			<output_matches>Permission denied|Operation not permitted|Read-only|No route|Connection refused|timed out</output_matches>
+			<message>:( Oh no. I couldn't make <%= $second_user %>'s changes on your desktop. Is it running, and are <%= $second_user %>'s files writable?</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong...</message>
 		</else_condition>
 	</attack>
 
-<!--TODO: needs testing: fixed $files.sample?-->
+	<!-- ============================== 4: differential1 ============================== -->
 	<attack>
-    <!--shell on the backup server-->
-		<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> /bin/bash</get_shell>
-
 		<!-- topic: Rsync differential-->
-		<prompt>Create a differential backup of <%= $second_user %>'s home directory to the backup_server: <%= $server_ip %>:/home/<%= $main_user %>/remote-rsync-differential1/<%=$second_user %>/.</prompt>
+		<prompt>Create a differential backup of <%= $second_user %>'s home directory on the backup_server, so it ends up in <%= $server_ip %>:<%= $diff1 %>/<%= $second_user %>/ (just the changes since the full backup).</prompt>
 
-		<!--grep retval=0 when match is found, 1/2 otherwise-->
-
-		<post_command>grep '<%= $hidden_flag %>' /home/<%= $main_user %>/remote-rsync-differential1/<%= $second_user %>/personal_secrets/flag > /dev/null; status1=$?; ls /home/<%= $main_user %>/remote-rsync-differential1/<%= $second_user %>/<%= $files.sample %> > /dev/null; status2=$?; echo $status1$status2</post_command>
+		<pre_shell><%= xml(on_host($backup, check_script($diff1, $diff1_items))) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>0[1-9]</output_matches>
-			<message>:) Well done! <%= $flags.pop %> </message>
+			<output_matches>RESULT PASS</output_matches>
+			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>[1-9][1-9]</output_matches>
-			<message>:( You didn't backup to the specified remote directory.</message>
+			<output_matches>UNEXPECTED contents-at-top</output_matches>
+			<message>:( You copied the *contents* of /home/<%= $second_user %> straight into remote-rsync-differential1/, instead of a <%= $second_user %>/ directory inside it (mind the trailing slash on the source). Delete it on the backup_server and try again.</message>
 		</condition>
 		<condition>
-			<output_matches>00</output_matches>
-			<message>:( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.</message>
+			<output_matches>UNEXPECTED nested</output_matches>
+			<message>:( Your backup is nested one level too deep (<%= $second_user %>/<%= $second_user %>/). Use .../remote-rsync-differential1/ as the destination. Delete it and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>NODIR</output_matches>
+			<message>:( I can't find <%= $diff1 %>/<%= $second_user %> on the backup_server. Check the destination path.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED original-files</output_matches>
+			<message>:( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* <%= $second_user %>/ (<%= $full %>/), as an absolute path ($HOME works, ~ does not). Delete remote-rsync-differential1 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-3</output_matches>
+			<message>:( Your differential doesn't contain the changes <%= $second_user %> made at step 3. Did you back up before saying 'ready' at step 3? Say 'goto 3' then 'ready' to make those changes, then back up again.</message>
+		</condition>
+		<else_condition>
+			<message>:( Something's not right with that differential backup -- have a look at what's in it on the backup_server.</message>
+		</else_condition>
+	</attack>
+
+	<!-- ============================== 5: changes (step 5) ============================== -->
+	<attack>
+		<prompt>Step 5: the <%= $second_user %> user is about to make some more changes. Say 'ready' to let them.</prompt>
+
+		<pre_shell><%= xml(stage_pre_shell(5)) %></pre_shell>
+		<get_shell>false</get_shell>
+		<suppress_command_output_feedback />
+		<condition>
+			<output_matches>STAGE-5-APPLIED</output_matches>
+			<message>Ok, <%= $second_user %> has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 5' then 'ready' puts their files back to exactly this point.)</message>
+			<trigger_next_attack>true</trigger_next_attack>
+		</condition>
+		<condition>
+			<output_matches>Permission denied|Operation not permitted|Read-only|No route|Connection refused|timed out</output_matches>
+			<message>:( Oh no. I couldn't make <%= $second_user %>'s changes on your desktop. Is it running, and are <%= $second_user %>'s files writable?</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong...</message>
 		</else_condition>
 	</attack>
 
+	<!-- ============================== 6: differential2 ============================== -->
 	<attack>
-<% $rand_diff2 = SecureRandom.hex(2) -%>
-    <!--shell on the desktop-->
 		<!-- topic: Rsync differential-->
-		<prompt>The <%= $second_user %> user is about to create some more files...</prompt>
+		<prompt>Create another differential backup of <%= $second_user %>'s home directory, so it ends up in <%= $server_ip %>:<%= $diff2 %>/<%= $second_user %>/ (all changes since the full backup).</prompt>
 
-		<post_command>sudo -u <%= $second_user %> bash -c 'echo "Dont forget the milk" >> /home/<%= $second_user %>/notes; echo "Beep boop beep" >> /home/<%= $second_user %>/logs/log2; echo <%= $rand_diff2 %> > /home/<%= $second_user %>/personal_secrets/really_not_a_flag; echo $?'</post_command>
+		<pre_shell><%= xml(on_host($backup, check_script($diff2, $diff2_items))) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( Oh no. Access errors. <%= $second_user %> failed to write the files... The user needs to be able to write to their files!</message>
-		</condition>
-		<condition>
-			<output_matches>0</output_matches>
-			<message>Ok, good... No flag this time, carry on...</message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<else_condition>
-			<message>:( Something went wrong...</message>
-		</else_condition>
-	</attack>
-
-	<attack>
-    <!--shell on the backup server-->
-		<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> /bin/bash</get_shell>
-
-		<!-- topic: Rsync differential-->
-		<prompt>Create another differential backup of <%= $second_user %>'s home directory to the backup_server: <%= $server_ip %>:/home/<%= $main_user %>/remote-rsync-differential2/.</prompt>
-
-    <!--check for the first set of changes (status1), the original files (shouldn't be there)(status2), then the new files(status3)-->
-		<post_command>grep '<%= $hidden_flag %>' /home/<%= $main_user %>/remote-rsync-differential2/<%= $second_user %>/personal_secrets/flag > /dev/null; status1=$?; ls /home/<%= $main_user %>/remote-rsync-differential2/<%= $second_user %>/<%= $files.sample %> > /dev/null; status2=$?; grep <%= $rand_diff2 %> /home/<%= $main_user %>/remote-rsync-differential2/<%= $second_user %>/personal_secrets/really_not_a_flag > /dev/null; status3=$?; echo $status1$status2$status3</post_command>
-		<condition>
-			<output_matches>0[1-9]0</output_matches>
-			<message>:) Well done! <%= $flags.pop %> </message>
+			<output_matches>RESULT PASS</output_matches>
+			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>[1-9][1-9][1-9]</output_matches>
-			<message>:( You didn't backup to the specified remote directory.</message>
+			<output_matches>UNEXPECTED contents-at-top</output_matches>
+			<message>:( You copied the *contents* of /home/<%= $second_user %> straight into remote-rsync-differential2/, instead of a <%= $second_user %>/ directory inside it (mind the trailing slash on the source). Delete it on the backup_server and try again.</message>
 		</condition>
 		<condition>
-			<output_matches>[1-9][1-9]0</output_matches>
-			<message>:( Your differential backup should also include the first set of changes (all changes since the full backup).</message>
+			<output_matches>UNEXPECTED nested</output_matches>
+			<message>:( Your backup is nested one level too deep (<%= $second_user %>/<%= $second_user %>/). Use .../remote-rsync-differential2/ as the destination. Delete it and try again.</message>
 		</condition>
 		<condition>
-			<output_matches>000</output_matches>
-			<message>:( You backed up to the correct location, but it wasn't a differential backup... You probably need to ssh in and delete that last backup and try again.</message>
+			<output_matches>NODIR</output_matches>
+			<message>:( I can't find <%= $diff2 %>/<%= $second_user %> on the backup_server. Check the destination path.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED original-files</output_matches>
+			<message>:( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at <%= $full %>/ (the directory that contains <%= $second_user %>/), as an absolute path. Delete remote-rsync-differential2 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-3</output_matches>
+			<message>:( A differential backup holds *all* the changes since the full backup -- including step 3's. Compare against the full backup only (not differential1). Delete remote-rsync-differential2 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-5</output_matches>
+			<message>:( Your backup doesn't contain the changes from step 5. Did you back up before saying 'ready' at step 5? Say 'goto 5' then 'ready', then back up again.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED changes-from-step-7</output_matches>
+			<message>:( Your backup contains step 7's changes -- it was taken too late. Say 'goto 5' then 'ready' to put <%= $second_user %>'s files back to step 5, delete remote-rsync-differential2, back up again, then carry on from step 7.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong... Your backup should include all the changes since the full backup (including the first set of changes), but not the original files.</message>
 		</else_condition>
 	</attack>
 
+	<!-- ============================== 7: changes (step 7) ============================== -->
 	<attack>
-<% $rand2 = SecureRandom.hex(2) -%>
-    <!--shell on the desktop-->
-		<!-- topic: Rsync-->
-		<prompt>The <%= $second_user %> user is about to create even more files...</prompt>
+		<prompt>Step 7: the <%= $second_user %> user is about to make even more changes. Say 'ready' to let them.</prompt>
 
-		<post_command>sudo -u <%= $second_user %> bash -c 'echo "Buy eggs <%= $rand2 %>" > /home/<%= $second_user %>/notes; echo "Beep boop beep beep" >> /home/<%= $second_user %>/logs/log2; echo <%= $rand2 %> > /home/<%= $second_user %>/personal_secrets/<%= $rand2 %>; echo $?'</post_command>
+		<pre_shell><%= xml(stage_pre_shell(7)) %></pre_shell>
+		<get_shell>false</get_shell>
+		<suppress_command_output_feedback />
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( Oh no. Access errors. <%= $second_user %> failed to write the files... The user needs to be able to write to their files!</message>
+			<output_matches>STAGE-7-APPLIED</output_matches>
+			<message>Ok, <%= $second_user %> has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.)</message>
+			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>0</output_matches>
-			<message>Ok, good... No flag this time, carry on...</message>
-			<trigger_next_attack>true</trigger_next_attack>
+			<output_matches>Permission denied|Operation not permitted|Read-only|No route|Connection refused|timed out</output_matches>
+			<message>:( Oh no. I couldn't make <%= $second_user %>'s changes on your desktop. Is it running, and are <%= $second_user %>'s files writable?</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong...</message>
 		</else_condition>
 	</attack>
 
+	<!-- ============================== 8: incremental1 ============================== -->
 	<attack>
-    <!--shell on the backup server-->
-		<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> /bin/bash</get_shell>
-
 		<!-- topic: Rsync incremental-->
-		<prompt>Create an incremental backup of <%= $second_user %>'s home directory to the backup_server: <%= $server_ip %>:/home/<%= $main_user %>/remote-rsync-incremental1/<%= $second_user %>/. Base it on the epoch and also differential2.</prompt>
+		<prompt>Create an incremental backup of <%= $second_user %>'s home directory, so it ends up in <%= $server_ip %>:<%= $incr1 %>/<%= $second_user %>/ -- only the changes since your last backup, so base it on the full backup and differential2.</prompt>
 
-    <!--check for the first set of changes (shouldn't be there)(status1), the original files (shouldn't be there)(status2), then files1(shouldn't be there)(status3), then the new files(should be there)(status4)-->
-		<post_command>grep '<%= $hidden_flag %>' /home/<%= $main_user %>/remote-rsync-incremental1/<%= $second_user %>/personal_secrets/flag > /dev/null; status1=$?; ls /home/<%= $main_user %>/remote-rsync-incremental1/<%= $second_user %>/<%= $files.sample %> > /dev/null; status2=$?; grep <%= $rand_diff2 %> /home/<%= $main_user %>/remote-rsync-incremental1/<%= $second_user %>/personal_secrets/really_not_a_flag > /dev/null; status3=$?; grep <%= $rand2 %> /home/<%= $main_user %>/remote-rsync-incremental1/<%= $second_user %>/personal_secrets/<%= $rand2 %> > /dev/null; status4=$?; echo $status1$status2$status3$status4</post_command>
+		<pre_shell><%= xml(on_host($backup, check_script($incr1, $incr1_items))) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>[1-9][1-9][1-9]0</output_matches>
-			<message>:) Well done! <%= $flags.pop %> </message>
+			<output_matches>RESULT PASS</output_matches>
+			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>[1-9][1-9][1-9][1-9]</output_matches>
-			<message>:( You didn't backup to the specified remote directory.</message>
+			<output_matches>UNEXPECTED contents-at-top</output_matches>
+			<message>:( You copied the *contents* of /home/<%= $second_user %> straight into remote-rsync-incremental1/, instead of a <%= $second_user %>/ directory inside it (mind the trailing slash on the source). Delete it on the backup_server and try again.</message>
 		</condition>
 		<condition>
-			<output_matches>0[1-9]?{2}</output_matches>
-			<message>:( You backed up to the correct location, but it wasn't an incremental backup... You probably need to ssh in and delete that last backup and try again.</message>
+			<output_matches>UNEXPECTED nested</output_matches>
+			<message>:( Your backup is nested one level too deep (<%= $second_user %>/<%= $second_user %>/). Use .../remote-rsync-incremental1/ as the destination. Delete it and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>NODIR</output_matches>
+			<message>:( I can't find <%= $incr1 %>/<%= $second_user %> on the backup_server. Check the destination path.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED original-files</output_matches>
+			<message>:( Your incremental backup also contains files that haven't changed since the full backup: one --compare-dest needs to point at <%= $full %>/ (absolute path). Delete remote-rsync-incremental1 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED changes-from-step-(3|5)</output_matches>
+			<message>:( Your incremental backup contains changes that are already in differential2. An incremental only holds what changed since the *last* backup, so add a second --compare-dest=<%= $diff2 %>/ (as well as the full backup). Delete remote-rsync-incremental1 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED changes-from-step-9</output_matches>
+			<message>:( Your backup contains step 9's changes -- it was taken too late. Say 'goto 7' then 'ready' to put <%= $second_user %>'s files back to step 7, delete remote-rsync-incremental1, back up again, then carry on from step 9.</message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-7</output_matches>
+			<message>:( Your backup doesn't contain the changes from step 7. Did you back up before saying 'ready' at step 7? Say 'goto 7' then 'ready', then back up again.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong... Your backup should include just the changes since the last backup.</message>
 		</else_condition>
 	</attack>
 
+	<!-- ============================== 9: changes (step 9) ============================== -->
 	<attack>
-<% $rand3 = SecureRandom.hex(2) -%>
-    <!--shell on the desktop-->
-		<!-- topic: Rsync-->
-		<prompt>Again, the <%= $second_user %> user is about to create even more files...</prompt>
+		<prompt>Step 9: again, the <%= $second_user %> user is about to make even more changes. Say 'ready' to let them.</prompt>
 
-		<post_command>sudo -u <%= $second_user %> bash -c 'echo "Buy batteries <%= $rand3 %>" > /home/<%= $second_user %>/notes; echo "Beep boop beep beep" >> /home/<%= $second_user %>/logs/log2; echo <%= $rand3 %> > /home/<%= $second_user %>/personal_secrets/nothing_much; echo $?'</post_command>
+		<pre_shell><%= xml(stage_pre_shell(9)) %></pre_shell>
+		<get_shell>false</get_shell>
+		<suppress_command_output_feedback />
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( Oh no. Access errors. <%= $second_user %> failed to write the files... The user needs to be able to write to their files!</message>
+			<output_matches>STAGE-9-APPLIED</output_matches>
+			<message>Ok, <%= $second_user %> has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 9' then 'ready' puts their files back to exactly this point.)</message>
+			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>0</output_matches>
-			<message>Ok, good... No flag this time, carry on...</message>
-			<trigger_next_attack>true</trigger_next_attack>
+			<output_matches>Permission denied|Operation not permitted|Read-only|No route|Connection refused|timed out</output_matches>
+			<message>:( Oh no. I couldn't make <%= $second_user %>'s changes on your desktop. Is it running, and are <%= $second_user %>'s files writable?</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong...</message>
 		</else_condition>
 	</attack>
 
+	<!-- ============================== 10: incremental2 + quiz ============================== -->
 	<attack>
-    <!--shell on the backup server-->
-		<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@<%= $server_ip %> /bin/bash</get_shell>
-
 		<!-- topic: Rsync incremental-->
-		<prompt>Create another incremental backup of <%= $second_user %>'s home directory to the backup_server: <%= $server_ip %>:/home/<%= $main_user %>/remote-rsync-incremental2/<%= $second_user %>/.</prompt>
+		<prompt>Create another incremental backup of <%= $second_user %>'s home directory, so it ends up in <%= $server_ip %>:<%= $incr2 %>/<%= $second_user %>/ -- only the changes since your last backup, so base it on the full backup, differential2 and incremental1.</prompt>
 
-    <!--check for the first set of changes (shouldn't be there)(status1), the original files (shouldn't be there)(status2), then diff1(shouldn't be there)(status3), then the diff2(shouldn't be there)(status4), then inf1 (shouldn't be there), inf2 (should be there)-->
-		<post_command>grep '<%= $hidden_flag %>' /home/<%= $main_user %>/remote-rsync-incremental2/<%= $second_user %>/personal_secrets/flag > /dev/null; status1=$?; ls /home/<%= $main_user %>/remote-rsync-incremental2/<%= $second_user %>/<%= $files.sample %> > /dev/null; status2=$?; grep <%= $rand_diff2 %> /home/<%= $main_user %>/remote-rsync-incremental2/<%= $second_user %>/personal_secrets/really_not_a_flag > /dev/null; status3=$?; grep <%= $rand2 %> /home/<%= $main_user %>/remote-rsync-incremental2/<%= $second_user %>/personal_secrets/<%= $rand2 %> > /dev/null; status4=$?; grep <%= $rand3 %> /home/<%= $main_user %>/remote-rsync-incremental2/<%= $second_user %>/personal_secrets/nothing_much > /dev/null; status5=$?; echo $status1$status2$status3$status4$status5</post_command>
+		<pre_shell><%= xml(on_host($backup, check_script($incr2, $incr2_items))) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>[1-9][1-9][1-9][1-9]0</output_matches>
-			<message>:) Well done! <%= $flags.pop %> </message>
+			<output_matches>RESULT PASS</output_matches>
+			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_quiz />
 		</condition>
 		<condition>
-			<output_matches>[1-9][1-9][1-9][1-9][1-9]</output_matches>
-			<message>:( You didn't backup to the specified remote directory.</message>
+			<output_matches>UNEXPECTED contents-at-top</output_matches>
+			<message>:( You copied the *contents* of /home/<%= $second_user %> straight into remote-rsync-incremental2/, instead of a <%= $second_user %>/ directory inside it (mind the trailing slash on the source). Delete it on the backup_server and try again.</message>
 		</condition>
 		<condition>
-			<output_matches>0[1-9]?{2}</output_matches>
-			<message>:( You backed up to the correct location, but it wasn't an incremental backup... You probably need to ssh in and delete that last backup and try again.</message>
+			<output_matches>UNEXPECTED nested</output_matches>
+			<message>:( Your backup is nested one level too deep (<%= $second_user %>/<%= $second_user %>/). Use .../remote-rsync-incremental2/ as the destination. Delete it and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>NODIR</output_matches>
+			<message>:( I can't find <%= $incr2 %>/<%= $second_user %> on the backup_server. Check the destination path.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED original-files</output_matches>
+			<message>:( Your incremental backup also contains files that haven't changed since the full backup: one --compare-dest needs to point at <%= $full %>/ (absolute path). Delete remote-rsync-incremental2 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED changes-from-step-7</output_matches>
+			<message>:( Your incremental backup contains changes that are already in incremental1. Add --compare-dest=<%= $incr1 %>/ too (as well as the full backup and differential2). Delete remote-rsync-incremental2 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>UNEXPECTED changes-from-step-(3|5)</output_matches>
+			<message>:( Your incremental backup contains changes that are already in differential2. Base it on the full backup, differential2 *and* incremental1 (three --compare-dest options). Delete remote-rsync-incremental2 and try again.</message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-9</output_matches>
+			<message>:( Your backup doesn't contain step 9's changes. Either you backed up before saying 'ready' at step 9 ('goto 9', 'ready', then back up again), or your incremental1 already contains them because it was redone after step 9 -- check on the backup_server. If so: 'goto 7', 'ready', redo incremental1, then 'goto 9', 'ready', and redo incremental2.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something went wrong... Your backup should include just the changes since the last backup.</message>
 		</else_condition>
 		<quiz>
-			<question>Access the backups via SSH. What's the contents of <%= $second_user %>/personal_secrets/nothing_much?</question>
-			<answer>^<%= $rand3 %>$</answer>
+			<question>Access the backups on the backup_server via SSH: what did <%= $second_user %>'s notes file say in incremental1?</question>
+			<answer>(Buy eggs )?<%= $rand2 %></answer>
 			<correct_answer_response>:) <%= $flags.pop %></correct_answer_response>
 			<trigger_next_attack />
 		</quiz>
 	</attack>
 
+	<!-- ============================== 11: the attack (gated) ============================== -->
 	<attack>
-    <!--shell on the desktop-->
 		<!-- topic: Rsync-->
-		<prompt>I am going to attack you now!</prompt>
+		<prompt>I am going to attack you now! (Don't worry: I'll check your full, differential2, incremental1 and incremental2 backups first.)</prompt>
 
-		<post_command>rm -r /home/<%= $second_user %>/*; echo $?</post_command>
+		<pre_shell><%= xml("G=$(#{on_host($backup, $gate_script)}); echo \"$G\"; case \"$G\" in *GATE-PASS*) #{on_host($desktop, $wipe_script)};; *) echo HOLD-OFF;; esac") %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( Oh no. Access errors. <%= $second_user %>. You need to let this happen!</message>
+			<output_matches>HOLD-OFF</output_matches>
+			<message>:( Not yet! I only attack systems whose backups would survive it, and some of yours wouldn't -- see the FAIL lines above. Fix those backups (the earlier steps' hints apply: 'goto' a change step to rewind <%= $second_user %>'s files if you need to), then say 'ready' again.</message>
 		</condition>
 		<condition>
-			<output_matches>0</output_matches>
+			<output_matches>WIPED</output_matches>
 			<message>I just deleted all <%= $second_user %>'s files! They don't call me Hackerbot for nothin'!</message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
@@ -386,56 +620,77 @@ Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (<%= 
 		</else_condition>
 	</attack>
 
-
+	<!-- ============================== 12: restore ============================== -->
 	<attack>
-    <!--shell on the desktop server-->
-
 		<!-- topic: Rsync incremental-->
-		<prompt>Use all the backups (including differential and incremental) to restore all of <%= $second_user %>'s files on the desktop system</prompt>
+		<prompt>Use all the backups you need (including differential and incremental) to restore all of <%= $second_user %>'s files on the desktop system, with their original ownership.</prompt>
 
-    <!--check for the first set of changes (shouldn't be there)(status1), the original files (shouldn't be there)(status2), then diff1(shouldn't be there)(status3), then the diff2(shouldn't be there)(status4), then inf1 (shouldn't be there), inf2 (should be there)-->
-		<post_command>grep '<%= $hidden_flag %>' /home/<%= $second_user %>/personal_secrets/flag > /dev/null; status1=$?; ls /home/<%= $second_user %>/<%= $files.sample %> > /dev/null; status2=$?; grep <%= $rand_diff2 %> /home/<%= $second_user %>/personal_secrets/really_not_a_flag > /dev/null; status3=$?; grep <%= $rand2 %> /home/<%= $second_user %>/personal_secrets/<%= $rand2 %> > /dev/null; status4=$?; grep <%= $rand3 %> /home/<%= $second_user %>/personal_secrets/nothing_much > /dev/null; status5=$?; grep <%= $rand3 %> /home/<%= $second_user %>/notes > /dev/null; status6=$?; echo $status1$status2$status3$status4$status5$status6</post_command>
+		<pre_shell><%= xml(on_host($desktop, check_fn('chk', '/home', $restore_items, structure: false) + "\nchk\nexit 0\n")) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>000000</output_matches>
-			<message>:) Well done! <%= $flags.pop %> </message>
+			<output_matches>RESULT PASS</output_matches>
+			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>00000</output_matches>
-			<message>:( Close... You restored something, but not everything... Check the order you did your restore commands in.</message>
+			<output_matches>UNEXPECTED nested</output_matches>
+			<message>:( You restored into /home/<%= $second_user %>/<%= $second_user %>/. Put a trailing slash on the source (.../<%= $second_user %>/) so rsync copies the *contents* into /home/<%= $second_user %>/. <%= $retry_hint %></message>
 		</condition>
 		<condition>
-			<output_matches>0</output_matches>
-			<message>:( You restored something, but not everything...</message>
+			<output_matches>MISSING original-files</output_matches>
+			<message>:( <%= $second_user %>'s original files aren't back yet: start by restoring the full backup. <%= $retry_hint %></message>
 		</condition>
 		<condition>
-			<output_matches>[1-9]{6}</output_matches>
-			<message>:( You didn't restore anything.</message>
+			<output_matches>MISSING changes-from-step-(3|5)</output_matches>
+			<message>:( You restored something, but not everything: the changes from steps 3 and 5 are in differential2. <%= $retry_hint %></message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-7</output_matches>
+			<message>:( You restored something, but not everything: the changes from step 7 are in incremental1. <%= $retry_hint %></message>
+		</condition>
+		<condition>
+			<output_matches>MISSING changes-from-step-9</output_matches>
+			<message>:( You restored something, but not everything: the changes from step 9 are in incremental2. <%= $retry_hint %></message>
+		</condition>
+		<condition>
+			<output_matches>MISSING notes-latest-version</output_matches>
+			<message>:( Close... You restored something, but not everything... Check the order you did your restore commands in: notes isn't the latest version. <%= $retry_hint %></message>
+		</condition>
+		<condition>
+			<output_matches>MISSING ownership</output_matches>
+			<message>:( All the files are back, but some aren't owned by <%= $second_user %> any more (so they can't edit their own files). Back up and restore with -M--fake-super so ownership survives the round trip (see the lab sheet) -- or, as a quick fix this time, sudo chown -R <%= $second_user %>: /home/<%= $second_user %></message>
 		</condition>
 		<else_condition>
-			<message>:( Something went wrong... Restore everything...</message>
+			<message>:( Something went wrong... Restore everything... <%= $retry_hint %></message>
 		</else_condition>
 	</attack>
 
-
+	<!-- ============================== 13: earliest notes ============================== -->
 	<attack>
-    <!--shell on the desktop server-->
-
 		<!-- topic: Rsync incremental-->
-		<prompt>Restore <%= $second_user %>'s notes file to it's earliest state</prompt>
+		<prompt>Restore <%= $second_user %>'s notes file to the first version of it that was backed up.</prompt>
 
-		<post_command>grep '<%= $first_notes %>' /home/<%= $second_user %>/notes > /dev/null; status1=$?; echo $status1</post_command>
+		<pre_shell><%= xml(on_host($desktop, $notes_script)) %></pre_shell>
+		<get_shell>false</get_shell>
 		<condition>
-			<output_matches>0</output_matches>
-			<message>:) Well done! <%= $flags.pop %> </message>
+			<output_matches>NOTES-STEP-3</output_matches>
+			<message>:) Well done! <%= $flags.pop %></message>
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>[0-9]</output_matches>
-			<message>:( That's not the earliest state...</message>
+			<output_matches>NOTES-STEP-5</output_matches>
+			<message>:( Close: that's the version from differential2 (step 5). notes wasn't in the full backup -- which backup captured it first?</message>
+		</condition>
+		<condition>
+			<output_matches>NOTES-STEP-(7|9)</output_matches>
+			<message>:( That's a later version of notes. It wasn't in the full backup -- which backup captured it first?</message>
+		</condition>
+		<condition>
+			<output_matches>NOTES-MISSING</output_matches>
+			<message>:( /home/<%= $second_user %>/notes is missing or empty.</message>
 		</condition>
 		<else_condition>
-			<message>:( Something went wrong...</message>
+			<message>:( That's not a version of notes I recognise. Restore it from one of your backups.</message>
 		</else_condition>
 	</attack>
 

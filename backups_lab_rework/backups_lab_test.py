@@ -31,7 +31,7 @@ import sys
 import tempfile
 import time
 
-VERSION = '2026-10-06.1'
+VERSION = '2026-10-07.2'
 HOME = os.path.expanduser('~')
 REPORT = os.path.join(HOME, 'backups_lab_report.txt')
 FULL_LOG = os.path.join(HOME, 'backups_lab_full_log.txt')
@@ -242,7 +242,7 @@ irc = None
 
 
 def bot_key_lines(lines):
-    keep = re.compile(r'^:\)|^:\(|^Ok, good|^I just deleted|^Oh no|^Took too long|^Correct|^Incorrect|'
+    keep = re.compile(r'^:\)|^:\(|^Ok,|^I just deleted|^Oh no|^Took too long|^Correct|^Incorrect|'
                       r'^\*\* #|^Looks like|^Access the backups|flag\{')
     out = [l for l in lines if keep.search(l)]
     starts = [i for i, l in enumerate(lines) if l.startswith('FYI:')]
@@ -281,51 +281,53 @@ def bot_ready(rid, n, what):
 def verdict(lines):
     """The bot's condition message (the :) / :( / Ok line) for compact reporting."""
     for l in lines:
-        if re.match(r'^(:\)|:\(|Ok, good|I just deleted|Oh no)', l):
+        if re.match(r'^(:\)|:\(|Ok,|I just deleted|Oh no)', l):
             return FLAG_RE.sub('flag{..}', l)[:200]
     return '(no verdict line) ' + ' | '.join(lines)[:200]
 
 
 # --------------------------------------------------------------------------------------------
-# guarded /etc restores: the labsheet restores all of /etc with --fake-super as root. Snapshot
-# every mode/owner first, run the restore, report what changed, then put modes/owners back -
-# all inside ONE root shell, so a broken /etc/sudoers can't lock us out mid-test.
+# /etc restores are tested against a scratch copy of /etc, never the live one (see below).
 # --------------------------------------------------------------------------------------------
-def etc_guarded(rid, label, restore_cmds, expect_files):
-    body = '\n'.join(restore_cmds)
+def etc_restore_check(rid, label, restore_cmds, expect_files):
+    """Run the labsheet's /etc restore commands, but into a scratch copy of /etc (DEST) instead of the live
+    /etc, then compare types/modes/owners and symlink counts with the real /etc. Afterwards copy just the
+    files the sheet deleted back into the live /etc, so the rest of the labsheet carries on as for a student.
+    (Run 1 restored live /etc and turned ~840 symlinks into files - this way nothing can break the VM.)"""
+    T = '/tmp/etc_restore_test'
+    body = '\n'.join(c.replace('{DEST}', T + '/') for c in restore_cmds)
     files = ' '.join(expect_files)
     script = f'''
-snap() {{ find /etc -xdev ! -type l -printf '%m %U %G %p\\n' 2>/dev/null | sort -k4; }}
-snap > /root/.labtest_before
+rm -rf {T}; cp -a /etc {T}
 {body}
-snap > /root/.labtest_after
-echo "=== CHANGED (before/after) ==="
-diff /root/.labtest_before /root/.labtest_after | grep '^[<>]' | head -60
-echo "=== CHANGED_COUNT $(diff /root/.labtest_before /root/.labtest_after | grep -c '^>')"
-echo "=== SUDOERS"; stat -c '%a %U:%G %n' /etc/sudoers /etc/sudoers.d/* 2>&1
-echo "=== RESTORED FILES"; for f in {files}; do stat -c '%a %U:%G %n' "$f" 2>&1; done
-echo "=== SUDO CHECK (would sudo still work for a student?)"; visudo -c 2>&1 | tail -3
-while read -r m u g p; do [ -e "$p" ] && chown -h "$u:$g" "$p" && chmod "$m" "$p"; done < /root/.labtest_before
-echo "=== AFTER REPAIR, still differing: $(snap | diff /root/.labtest_before - | grep -c '^>')"
+( cd /etc && find . -xdev -printf '%y %m %U %G %p\\n' | sort ) > /root/.lt_a
+( cd {T} && find . -xdev -printf '%y %m %U %G %p\\n' | sort ) > /root/.lt_b
+echo "=== DIFF"
+diff /root/.lt_a /root/.lt_b | grep '^[<>]'
+echo "=== SYMLINKS etc=$(find /etc -xdev -type l | wc -l) restored=$(find {T} -xdev -type l | wc -l)"
+echo "=== SUDOERS"; stat -c '%a %U:%G %n' {T}/sudoers {T}/sudoers.d/* 2>&1
+for f in {files}; do b=${{f#/etc/}}; if [ -e {T}/$b ]; then echo "RESTORED $f $(stat -c '%a %U:%G' {T}/$b)"; cp -a {T}/$b $f; else echo "NOT-RESTORED $f"; fi; done
 '''
-    rc, out = sh(f'sudo bash -c {shlex.quote(script)}', label=f'[guarded root shell] {label}: ' + ' ; '.join(restore_cmds))
-    m = re.search(r'=== CHANGED_COUNT (\d+)', out)
-    changed = int(m.group(1)) if m else -1
-    missing = [f for f in expect_files if re.search(re.escape(f) + r'.*No such file|cannot stat.*' + re.escape(f), out)]
-    sudo_bad = 'parse error' in out or re.search(r'bad permissions|should be', out)
-    status = 'PROBLEM' if (changed > 0 or missing or sudo_bad) else 'OK'
-    changed_lines = re.search(r'=== CHANGED \(before/after\) ===\n(.*?)\n=== CHANGED_COUNT', out, re.S)
-    sample = ''
-    if changed_lines and changed_lines.group(1).strip():
-        sample = ' e.g. ' + '; '.join(changed_lines.group(1).strip().splitlines()[:4])
-    result(rid, status, f'{label}: {changed} /etc entries changed mode/owner by the restore'
-                        f'{" (sudoers affected!)" if sudo_bad else ""}{sample}; missing after restore: {missing or "none"}')
+    rc, out = sh(f'sudo bash -c {shlex.quote(script)}', quiet=True)
+    details.append(f'$ [restore into scratch copy of /etc] {label}: ' + ' ; '.join(c.replace("{DEST}", "/etc/") for c in restore_cmds) + f'   -> rc={rc}')
+    expected = {f[len('/etc/'):] for f in expect_files}
+    diff = re.search(r'=== DIFF\n(.*?)=== SYMLINKS', out, re.S)
+    lines = [l for l in (diff.group(1).splitlines() if diff else [])
+             if not any(l.endswith(' ./' + e) for e in expected)]
+    changed = [l for l in lines if l.startswith('>')]
+    sym = re.search(r'=== SYMLINKS etc=(\d+) restored=(\d+)', out)
+    sudo_bad = [l for l in out.splitlines() if re.match(r'(?!440)\d+ \S+ \S+/sudoers', l)]
+    missing = re.findall(r'NOT-RESTORED (\S+)', out)
+    restored = re.findall(r'RESTORED (\S+ \S+ \S+)', out)
+    details.append(trim('\n'.join(changed[:20]) or '(no unexpected type/mode/owner changes)'))
+    status = 'OK' if not changed and not missing and not sudo_bad and sym and sym.group(1) == sym.group(2) else 'PROBLEM'
+    result(rid, status, f'{label}: {len(changed)} other /etc entries differ after the restore'
+                        f'{" e.g. " + "; ".join(changed[:3]) if changed else ""}; symlinks /etc={sym.group(1) if sym else "?"} '
+                        f'restored={sym.group(2) if sym else "?"}; sudoers modes bad: {sudo_bad or "none"}; '
+                        f'restored: {restored}; missing: {missing or "none"}')
     return out
 
 
-# --------------------------------------------------------------------------------------------
-# setup
-# --------------------------------------------------------------------------------------------
 def install_sudo(password):
     rc, out = sh('sudo -n true', quiet=True)
     if rc == 0:
@@ -353,7 +355,7 @@ def discover():
         if m:
             prompts[int(m.group(1))] = m.group(2)
     p1, p2 = prompts.get(1, ''), prompts.get(2, '')
-    m1 = re.search(r'backup_server: ([\d.]+):/home/([^/]+)/(remote-bin-backup-[0-9a-f]+)/', p1)
+    m1 = re.search(r'([\d.]+):/home/([^/]+)/(remote-bin-backup-[0-9a-f]+)/', p1)
     m2 = re.search(r'remote backups for (\S+) \(a user', p2)
     if not (m1 and m2):
         sys.exit(f'Could not parse the bot prompts (got {len(prompts)} attacks). Is the bot running? Lines: {lines[:5]}')
@@ -389,8 +391,8 @@ def setup_ssh(password):
 
 def clean_start():
     section('SETUP: remove artefacts of earlier runs')
-    remote('rm -rf ~/ssh_etc_backup ~/ssh_backup ~/remote-* ~/b2_* ~/b8_* ~/p2_* ~/incr1_saved', quiet=True)
-    sh('sudo rm -rf ~/backups ~/b1 /tmp/b2src /tmp/b2_r* /tmp/b8 /tmp/p3; '
+    remote('rm -rf ~/ssh_etc_backup ~/ssh_backup ~/scp_backup ~/remote-* ~/b2_* ~/b8_* ~/p2_* ~/incr1_saved ~/incr2_aside', quiet=True)
+    sh('sudo rm -rf ~/backups ~/b1 /tmp/b2src /tmp/b2_r* /tmp/b8 /tmp/p3 /tmp/etc_restore_test; '
        'sudo rm -f /etc/hi /etc/hello /etc/test1 /etc/test2 /etc/test3 /etc/test4 /etc/b1test', quiet=True)
     rc, _ = sh(f'sudo test -d /home/{C.S}/trade_secrets && sudo test ! -e /home/{C.S}/notes', quiet=True)
     return rc == 0
@@ -404,349 +406,322 @@ def run_all(args):
     H = f'/home/{U}'
     FULL, D1, D2 = f'{H}/remote-rsync-full-backup', f'{H}/remote-rsync-differential1', f'{H}/remote-rsync-differential2'
     I1, I2 = f'{H}/remote-rsync-incremental1', f'{H}/remote-rsync-incremental2'
+    M = '-M--fake-super'
+
+    def bk(dest, *compare, src=f'/home/{S}', label=None):
+        """A SECONDUSER backup the way the new labsheet teaches it."""
+        cd = ''.join(f' --compare-dest={c}/' for c in compare)
+        return sh(f'sudo rsync -avzh {M} {src}{cd} {U}@{IP}:{dest}/', label=label)
+
+    def said(lines, text):
+        return text in ' '.join(lines)
 
     # ---------------------------------------------------------------- Getting started
-    section('LABSHEET: Getting started (lines 22-67)')
+    section('LABSHEET: Getting started')
     rc, out = sh('ls /home')
     users = set(out.split())
-    result('P4', 'OK' if users == {U, S} else 'CONFIRMED',
-           f'ls /home -> {sorted(users)} (want exactly YOURUSER={U} and SECONDUSER={S})')
-    rc, out = sh('uptime')
+    result('N4', 'OK' if users <= {U, S, 'vagrant'} else 'PROBLEM',
+           f'ls /home -> {sorted(users)} (sheet now says: you, vagrant (ignore), and SECONDUSER={S})')
+    sh('uptime')
 
     # ---------------------------------------------------------------- Copy
-    section('LABSHEET: Copy (lines 93-116)')
+    section('LABSHEET: Copy')
     sh('mkdir ~/backups/')
     sh('cp /etc/passwd ~/backups/')
     _, a = sh('ls -la ~/backups/passwd')
     _, b = sh('ls -la /etc/passwd')
-    result('L-copy', 'INFO', f'cp loses ownership as the sheet says: backup "{a.split()[2:4] if a.split() else a}" vs original "{b.split()[2:4] if b.split() else b}"')
+    result('L-copy', 'INFO', f'cp loses ownership as the sheet says: backup {a.split()[2:4]} vs original {b.split()[2:4]}')
 
-    # ---------------------------------------------------------------- SCP
-    section('LABSHEET: SSH/SCP (lines 118-167) + B6 (two dir names) + B8')
-    t = time.time()
-    rc1, out1 = sh(f'sudo scp -pr /etc/ {U}@{IP}:{H}/ssh_etc_backup')
-    d1 = time.time() - t
-    sh("sudo bash -c 'echo > /etc/hi'")
-    rc2, out2 = sh(f'sudo scp -pr /etc/ {U}@{IP}:{H}/ssh_backup/')
-    _, lay = remote('for d in ssh_etc_backup ssh_backup; do printf "%s: " $d; '
-                    'if [ -d $d/etc ]; then echo "has etc/ subdir"; elif [ -e $d/passwd ]; then echo "holds /etc CONTENTS directly"; '
-                    'else echo "missing/other"; fi; done')
-    remote('ls -la ssh_backup/ | head -5')
-    result('B6-sheet', 'CONFIRMED' if ('ssh_etc_backup: holds' in lay) != ('ssh_backup: holds' in lay) or rc2 != 0 else 'NOT-REPRODUCED',
-           f'1st scp -> ssh_etc_backup (rc={rc1}, {d1:.0f}s), 2nd "repeat" -> ssh_backup/ (rc={rc2}); layouts: {lay.strip()!r}')
-    _, sec = remote('ls -l ssh_etc_backup/shadow ssh_etc_backup/etc/shadow 2>/dev/null')
-    result('L-scp-shadow', 'INFO', f'sudo scp of /etc puts shadow on the backup_server as: {sec.strip()[:160]!r}')
+    # ---------------------------------------------------------------- SCP (new section)
+    section('LABSHEET: SSH/SCP (rewritten: /etc/ssh into a pre-created scp_backup/)')
+    rc0, _ = sh(f'ssh {U}@{IP} mkdir -p scp_backup')
+    rc1, out1 = sh(f'sudo scp -pr /etc/ssh {U}@{IP}:{H}/scp_backup/')
+    sh('sudo bash -c \'echo "# backup test" >> /etc/ssh/ssh_config\'')
+    rc2, out2 = sh(f'sudo scp -pr /etc/ssh {U}@{IP}:{H}/scp_backup/')
+    _, lay = remote('ls -la scp_backup/ssh/ | head -6; test -f scp_backup/ssh/ssh_config && tail -1 scp_backup/ssh/ssh_config')
+    ok = rc0 == 0 and rc1 == 0 and rc2 == 0 and '# backup test' in lay
+    result('N2/B6', 'OK' if ok else 'PROBLEM',
+           f'mkdir rc={rc0}, 1st scp rc={rc1}, 2nd scp rc={rc2}, scp_backup/ssh has the change: {"# backup test" in lay}'
+           f'{"; errors: " + warnings_in(out1 + out2)[0][:120] if warnings_in(out1 + out2) else ""}')
 
-    # B8: scp semantics + /bin size
-    _, sz = sh('readlink -f /bin; ls /bin | wc -l; du -shL /bin/ 2>/dev/null | cut -f1')
+    # B8 semantics, unchanged from run 1 (the sheet now teaches this rule)
     sh('mkdir -p /tmp/b8/d && echo x > /tmp/b8/d/f', quiet=True)
-    remote('mkdir -p b8_exists b8_exists_s', quiet=True)
-    for src, dst in [('/tmp/b8/d', 'b8_new'), ('/tmp/b8/d', 'b8_new_slash/'), ('/tmp/b8/d/', 'b8_new_srcslash'),
-                     ('/tmp/b8/d', 'b8_exists/'), ('/tmp/b8/d/', 'b8_exists_s/')]:
-        sh(f'scp -r {src} {IP}:{H}/{dst}')
-    _, tree = remote('find b8_* | sort')
+    remote('mkdir -p b8_exists', quiet=True)
+    sh(f'scp -r /tmp/b8/d {IP}:{H}/b8_new', quiet=True)
+    sh(f'scp -r /tmp/b8/d {IP}:{H}/b8_exists/', quiet=True)
+    _, tree = remote('find b8_* | sort', quiet=True)
     t = set(tree.split())
-    conf = 'b8_new/f' in t and 'b8_exists/d/f' in t
-    result('B8', 'CONFIRMED' if conf else 'NOT-REPRODUCED',
-           f'scp -r dir -> missing dest gives dest=copy, existing dest gives dest/dir; tree={sorted(t)}; /bin: {" ".join(sz.split())}')
+    result('B8', 'OK' if 'b8_new/f' in t and 'b8_exists/d/f' in t else 'PROBLEM', f'scp rule as taught in the sheet: {sorted(t)}')
     remote('rm -rf b8_*', quiet=True)
 
     # ---------------------------------------------------------------- Attack 1
-    section('BOT: Attack 1 (scp /bin)')
+    section('BOT: Attack 1 (scp /usr/bin)')
     bot_goto(1)
     lines, _ = bot_ready('A1', 1, 'nothing copied yet')
-    result('A1-none', 'INFO', 'nothing copied -> ' + verdict(lines))
-    remote(f'mkdir -p {C.BIN_DIR} && cp /bin/ls /bin/mkdir {C.BIN_DIR}/', quiet=True)
-    lines, _ = bot_ready('A1', 1, 'contents copied without bin/ (what scp -r /bin/ to a missing dir does)')
-    result('A1-nobin', 'INFO', 'contents without bin/ -> ' + verdict(lines))
-    remote(f'rm -rf {C.BIN_DIR} && mkdir -p {C.BIN_DIR}', quiet=True)
+    result('A1-none', 'OK' if said(lines, "There's no") else 'PROBLEM', 'nothing copied -> ' + verdict(lines))
     t = time.time()
-    rc, _ = sh(f'scp -rq /bin {IP}:{H}/{C.BIN_DIR}/', label=f'scp -rq /bin {IP}:{H}/{C.BIN_DIR}/   (after ssh mkdir)')
+    sh(f'scp -rq /usr/bin {IP}:{H}/{C.BIN_DIR}', label=f'(mistake: dest dir not created first) scp -rq /usr/bin {IP}:{H}/{C.BIN_DIR}')
+    lines, _ = bot_ready('A1', 1, 'scp to a not-yet-existing dir (contents, no bin/)')
+    result('A1-nobin', 'OK' if said(lines, 'contents* of bin') else 'PROBLEM', 'contents without bin/ -> ' + verdict(lines))
+    remote(f'rm -rf {C.BIN_DIR}', quiet=True)
+    sh(f'ssh {U}@{IP} mkdir -p {C.BIN_DIR}')
+    sh(f'scp -rq /usr/bin {IP}:{H}/{C.BIN_DIR}/')
     dur = time.time() - t
-    _, du = remote(f'du -sh {C.BIN_DIR} | cut -f1; ls {C.BIN_DIR}')
-    lines, fl = bot_ready('A1', 1, 'correct: mkdir remote dir then scp -r /bin')
-    result('A1', 'OK' if fl else 'PROBLEM', f'correct solution (copy took {dur:.0f}s, {du.split()[0] if du.split() else "?"}) -> ' + verdict(lines))
+    lines, fl = bot_ready('A1', 1, 'correct: mkdir then scp -r /usr/bin into it')
+    result('A1', 'OK' if fl else 'PROBLEM', f'correct solution ({dur:.0f}s for both copies) -> ' + verdict(lines))
 
-    # ---------------------------------------------------------------- rsync local
-    section('LABSHEET: Rsync, deltas and epoch backups (lines 181-207)')
-    sh('sudo rsync -av /etc ~/backups/rsync_backup/', label='sudo rsync -av /etc ~/backups/rsync_backup/')
+    # ---------------------------------------------------------------- rsync local + remote + -M
+    section('LABSHEET: Rsync local, remote, -M--fake-super')
+    sh('sudo rsync -av /etc ~/backups/rsync_backup/', quiet=True)
     sh("sudo bash -c 'echo hello > /etc/hello'")
     rc, out = sh('sudo rsync -av /etc ~/backups/rsync_backup/')
-    tr = transferred(out)
-    result('L-rsync-local', 'OK' if tr == ['etc/hello'] else 'INFO', f'2nd local rsync transferred {tr[:6]} (sheet says: only the new file)')
-
-    # ---------------------------------------------------------------- rsync remote + fake-super
-    section('LABSHEET: Rsync remote copies via SSH, --fake-super (lines 209-262) + B2 evidence')
-    rc, out = sh(f'sudo rsync -avzh --fake-super /etc {U}@{IP}:{H}/remote-rsync-backup/')
-    sent = re.search(r'sent ([\d.,]+\w?) bytes', out)
-    _, du = sh('sudo du -sh /etc')
-    result('L-rsync-z', 'INFO', f'rsync -z sent {sent.group(1) if sent else "?"} vs du /etc {du.split()[0] if du.split() else "?"}')
+    result('L-rsync-local', 'OK' if transferred(out) == ['etc/hello'] else 'INFO', f'2nd local rsync transferred {transferred(out)[:6]}')
+    sh(f'sudo rsync -avzh {M} /etc {U}@{IP}:{H}/remote-rsync-backup/')
+    _, srv = remote("stat -c '%a %U:%G' remote-rsync-backup/etc/shadow; python3 -c 'import os;print(os.listxattr(\"remote-rsync-backup/etc/shadow\"))'")
+    result('B2-server', 'OK' if 'user.rsync.%stat' in srv else 'PROBLEM',
+           f'server copy of etc/shadow now records the real owner in an xattr: {" ".join(srv.split())}')
     sh('sudo rm /etc/hello')
-    sh(f'sudo rsync -avzh --fake-super /etc {U}@{IP}:{H}/remote-rsync-backup/')
-    rc, _ = remote('test -f remote-rsync-backup/etc/hello')
-    result('L-nodelete', 'OK' if rc == 0 else 'PROBLEM', 'without --delete the server keeps etc/hello' + ('' if rc == 0 else ' - NOT kept!'))
-    sh(f'sudo rsync -avz --fake-super {U}@{IP}:{H}/remote-rsync-backup/etc/hello /etc/')
-    _, own = sh('sudo stat -c "%a %U:%G" /etc/hello; sudo getfattr -d /etc/hello 2>/dev/null || '
-                'sudo python3 -c \'import os;print({k:os.getxattr("/etc/hello",k) for k in os.listxattr("/etc/hello")})\'')
-    result('L-restore-hello', 'INFO', f'/etc/hello restored with local --fake-super: {" ".join(own.split())[:200]}')
+    sh(f'sudo rsync -avzh {M} /etc {U}@{IP}:{H}/remote-rsync-backup/', quiet=True)
+    sh(f'sudo rsync -avz {M} {U}@{IP}:{H}/remote-rsync-backup/etc/hello /etc/')
+    _, own = sh('stat -c "%a %U:%G" /etc/hello; ls -l /etc/hello', label='sheet: check that the ownership survived')
+    _, own_srv = remote('ls -l remote-rsync-backup/etc/hello')
+    result('L-restore-hello', 'OK' if own.split()[1:2] == ['root:root'] else 'PROBLEM',
+           f'/etc/hello restored with -M: {own.split()[0:2]}; server copy: {" ".join(own_srv.split()[0:4])}')
     sh('sudo rm /etc/hello')
-    sh(f'sudo rsync -avzh --fake-super --delete /etc {U}@{IP}:{H}/remote-rsync-backup/')
+    sh(f'sudo rsync -avzh {M} --delete /etc {U}@{IP}:{H}/remote-rsync-backup/')
     rc, _ = remote('test ! -e remote-rsync-backup/etc/hello')
-    result('L-delete', 'OK' if rc == 0 else 'PROBLEM', '--delete removed etc/hello from the server' + ('' if rc == 0 else ' - it did NOT'))
-    _, srv = remote("stat -c '%a %U:%G' remote-rsync-backup/etc/shadow; python3 -c 'import os;p=\"remote-rsync-backup/etc/shadow\";print(os.listxattr(p))'")
-    result('B2-sheet', 'CONFIRMED' if U in srv and 'user.rsync' not in srv else 'NOT-REPRODUCED',
-           f'server copy of etc/shadow after the sheet\'s `sudo rsync --fake-super`: {" ".join(srv.split())} (root ownership lost if owned by {U} and no user.rsync.%stat xattr)')
+    result('L-delete', 'OK' if rc == 0 else 'PROBLEM', '--delete removed etc/hello from the server')
 
     # ---------------------------------------------------------------- Attack 2
-    section('BOT: Attack 2 (full backup) + P3')
-    rc, out = sh(f'rsync -av /home/{S} /tmp/p3/', label=f'(P3) rsync -av /home/{S} /tmp/p3/   (no sudo)')
-    _, mode = sh(f'stat -c "%a %U" /home/{S}', quiet=True)
-    result('P3', 'INFO', f'home dir {mode.strip()}; non-sudo rsync rc={rc}, {len(warnings_in(out))} warning/error lines e.g. {warnings_in(out)[:2]}')
+    section('BOT: Attack 2 (full backup)')
+    rc, out = sh(f'rsync -av /home/{S} /tmp/p3/', label='(P3) no sudo')
+    result('P3', 'INFO', f'non-sudo rsync rc={rc}: {warnings_in(out)[:1]} (sheet now explains why sudo)')
     sh('rm -rf /tmp/p3', quiet=True)
     bot_goto(2)
-    rc, out = sh(f'sudo rsync -avzh --fake-super /home/{S} {U}@{IP}:{FULL}/{S}',
-                 label=f'(mistake: dest names {S} too, dir not yet created) sudo rsync -avzh --fake-super /home/{S} {U}@{IP}:{FULL}/{S}')
-    result('A2-mkdir', 'INFO', f'rsync into a not-yet-existing nested dest: rc={rc} {warnings_in(out)[:1]}')
-    remote(f'mkdir -p {FULL}/{S}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} {U}@{IP}:{FULL}/{S}', label=f'(mistake: nested, dest dir exists) same command again')
-    lines, _ = bot_ready('A2', 2, f'nested {S}/{S}')
-    result('A2-nested', 'INFO', 'nested SECONDUSER/SECONDUSER -> ' + verdict(lines))
+    rc, out = sh(f'sudo rsync -avzh {M} /home/{S} {U}@{IP}:{FULL}/{S}', label='(mistake: names SECONDUSER in the dest, parent missing)')
+    result('N6', 'INFO', f'rc={rc} {warnings_in(out)[:1]} (sheet now explains this error)')
+    lines, _ = bot_ready('A2', 2, 'no backup yet')
+    result('A2-nodir', 'OK' if said(lines, "can't find") else 'PROBLEM', 'no backup -> ' + verdict(lines))
+    bk(FULL, src=f'/home/{S}/', label='(mistake: trailing slash on source) contents into remote-rsync-full-backup/')
+    lines, _ = bot_ready('A2', 2, 'contents at top')
+    result('A2-top', 'OK' if said(lines, 'contents* of') else 'PROBLEM', 'contents at top -> ' + verdict(lines))
+    remote(f'rm -rf {FULL} && mkdir -p {FULL}/{S}', quiet=True)
+    bk(f'{FULL}/{S}', label='(mistake: nested) dest .../remote-rsync-full-backup/SECONDUSER/')
+    lines, _ = bot_ready('A2', 2, 'nested')
+    result('A2-nested', 'OK' if said(lines, 'nested') else 'PROBLEM', 'nested -> ' + verdict(lines))
     remote(f'rm -rf {FULL}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} {U}@{IP}:{FULL}/')
+    bk(FULL)
     lines, fl = bot_ready('A2', 2, 'correct full backup')
     result('A2', 'OK' if fl else 'PROBLEM', 'correct full backup -> ' + verdict(lines))
 
     # ---------------------------------------------------------------- Differential (/etc)
-    section('LABSHEET: Differential backups (lines 280-340) + B1 + guarded /etc restore')
+    section('LABSHEET: Differential backups (/etc) + B1 fix + restore into a scratch copy')
     sh("sudo bash -c 'echo \"hello there\" > /etc/hello'")
-    rc, out = sh('sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ ~/backups/rsync_backup_week1/')
+    rc, out = sh('sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ ~/backups/rsync_backup_week1/')
     n_local = lcount('~/backups/rsync_backup_week1')
-    sh(f'sudo rsync -avzh --fake-super /etc --compare-dest={H}/remote-rsync-backup/ {U}@{IP}:{H}/remote-rsync-backup-week1/')
+    sh(f'sudo rsync -avzh {M} /etc --compare-dest={H}/remote-rsync-backup/ {U}@{IP}:{H}/remote-rsync-backup-week1/')
     n_remote = rcount('remote-rsync-backup-week1')
-    result('B1-sheet', 'CONFIRMED' if n_local > 50 else 'NOT-REPRODUCED',
-           f'week1 differential: local (--compare-dest=~/...) has {n_local} files, remote (absolute path) has {n_remote}; '
-           f'rsync said: {warnings_in(out)[:1]}')
-    sh('ls -la ~/backups/rsync_backup_week1/etc | head -8')
+    result('B1', 'OK' if n_local <= 5 else 'PROBLEM', f'week1 differential with $HOME: local {n_local} files, remote {n_remote} files')
     sh("sudo bash -c 'echo \"hello there!\" > /etc/hi'")
-    sh('sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ ~/backups/rsync_backup_week2/')
-    sh(f'sudo rsync -avzh --fake-super /etc --compare-dest={H}/remote-rsync-backup/ {U}@{IP}:{H}/remote-rsync-backup-week2/')
-    note(f'week2: local {lcount("~/backups/rsync_backup_week2")} files, remote {rcount("remote-rsync-backup-week2")} files (sheet: "your two new files")')
+    sh('sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ ~/backups/rsync_backup_week2/')
+    sh(f'sudo rsync -avzh {M} /etc --compare-dest={H}/remote-rsync-backup/ {U}@{IP}:{H}/remote-rsync-backup-week2/')
+    note(f'week2: local {lcount("~/backups/rsync_backup_week2")} / remote {rcount("remote-rsync-backup-week2")} files')
     sh('sudo rm /etc/wgetrc /etc/hello')
-    etc_guarded('L-etc-restore-diff', 'sheet lines 335/337 remote restore (full, then week2)',
-                [f'rsync -avz --fake-super {U}@{IP}:{H}/remote-rsync-backup/etc/ /etc/',
-                 f'rsync -avz --fake-super {U}@{IP}:{H}/remote-rsync-backup-week2/etc/ /etc/'],
-                ['/etc/wgetrc', '/etc/hello', '/etc/hi'])
+    etc_restore_check('N1-diff', 'remote restore full -> week2 (sheet commands, -M)',
+                      [f'rsync -avz {M} {U}@{IP}:{H}/remote-rsync-backup/etc/ {{DEST}}',
+                       f'rsync -avz {M} {U}@{IP}:{H}/remote-rsync-backup-week2/etc/ {{DEST}}'],
+                      ['/etc/wgetrc', '/etc/hello'])
     sh('sudo rm /etc/wgetrc /etc/hello')
-    etc_guarded('L-etc-restore-local', 'sheet line 340 "try restoring from the local copy"',
-                [f'rsync -av {H}/backups/rsync_backup/etc/ /etc/', f'rsync -av {H}/backups/rsync_backup_week2/etc/ /etc/'],
-                ['/etc/wgetrc', '/etc/hello'])
+    etc_restore_check('N1-local', 'local restore (sheet: "try restoring from the local copy")',
+                      [f'rsync -av {H}/backups/rsync_backup/etc/ {{DEST}}', f'rsync -av {H}/backups/rsync_backup_week2/etc/ {{DEST}}'],
+                      ['/etc/wgetrc', '/etc/hello'])
 
     # ---------------------------------------------------------------- Attack 3, 4
-    section('BOT: Attacks 3-4 (changes A, differential1) + P2')
+    section('BOT: Attacks 3-4 (step 3 changes, differential1)')
     bot_goto(3)
-    lines, _ = bot_ready('A3', 3, 'bot creates notes/log2/flag')
-    result('A3', 'OK' if lines and 'Ok, good' in ' '.join(lines) else 'PROBLEM', verdict(lines))
+    lines, _ = bot_ready('A3', 3, 'step 3 changes')
+    result('A3', 'OK' if said(lines, 'has made their changes') else 'PROBLEM', verdict(lines))
     _, hf = sh(f'sudo cat /home/{S}/personal_secrets/flag')
     for f in FLAG_RE.findall(hf):
         flags_seen.append(('attack 3 hidden file', f))
+    _, own = sh(f'sudo stat -c "%U %n" /home/{S}/notes /home/{S}/personal_secrets/flag')
+    note(f'step-3 files owned by: {" ".join(own.split())}')
     bot_goto(4)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} {U}@{IP}:{D1}/', label=f'(mistake: no --compare-dest) sudo rsync -avzh --fake-super /home/{S} {U}@{IP}:{D1}/')
-    lines, _ = bot_ready('A4', 4, 'full copy, no --compare-dest')
-    result('A4-full', 'INFO', 'no --compare-dest -> ' + verdict(lines))
+    bk(D1, label='(mistake: no --compare-dest)')
+    lines, _ = bot_ready('A4', 4, 'full copy')
+    result('A4-full', 'OK' if said(lines, '--compare-dest') else 'PROBLEM', 'no --compare-dest -> ' + verdict(lines))
     remote(f'rm -rf {D1}', quiet=True)
-    rc, out = sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/{S}/ {U}@{IP}:{D1}/',
-                 label=f'(P2 mistake: layout mismatch) ... --compare-dest={FULL}/{S}/ ...')
-    n = rcount(D1)
-    lines, _ = bot_ready('A4', 4, 'compare-dest layout mismatch')
-    result('P2', 'CONFIRMED' if n > 3 else 'NOT-REPRODUCED',
-           f'mismatched --compare-dest copied {n} files, rsync warnings: {warnings_in(out)[:1] or "none"}; bot -> {verdict(lines)}')
+    bk(D1, f'{FULL}/{S}', label='(P2 mistake: compare-dest one level too deep)')
+    lines, _ = bot_ready('A4', 4, 'compare-dest too deep')
+    result('P2', 'OK' if said(lines, '--compare-dest') else 'PROBLEM', 'mismatched --compare-dest -> ' + verdict(lines))
     remote(f'rm -rf {D1}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ {U}@{IP}:{D1}/')
-    remote(f'cd {D1} && find . -type f')
+    bk(D1, FULL)
     lines, fl = bot_ready('A4', 4, 'correct differential1')
     result('A4', 'OK' if fl else 'PROBLEM', 'correct differential1 -> ' + verdict(lines))
 
     # ---------------------------------------------------------------- Incremental (/etc)
-    section('LABSHEET: Incremental backups (lines 364-408) + guarded /etc restore')
+    section('LABSHEET: Incremental backups (/etc) + restore into a scratch copy')
     sh("sudo bash -c 'echo \"Another test change\" > /etc/test1'")
     sh("sudo bash -c 'echo \"Another test change\" > /etc/hello'")
-    sh('sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ --compare-dest=~/backups/rsync_backup_week2/ ~/backups/rsync_backup_monday/')
-    sh(f'sudo rsync -avzh --fake-super /etc --compare-dest={H}/remote-rsync-backup/ --compare-dest={H}/remote-rsync-backup-week2/ {U}@{IP}:{H}/remote-rsync-backup-monday/')
+    sh('sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ --compare-dest=$HOME/backups/rsync_backup_week2/ ~/backups/rsync_backup_monday/')
+    sh(f'sudo rsync -avzh {M} /etc --compare-dest={H}/remote-rsync-backup/ --compare-dest={H}/remote-rsync-backup-week2/ {U}@{IP}:{H}/remote-rsync-backup-monday/')
     sh("sudo bash -c 'echo \"Another test change\" > /etc/test2'")
-    sh('sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ --compare-dest=~/backups/rsync_backup_week2/ --compare-dest=~/backups/rsync_backup_monday/ ~/backups/rsync_backup_tuesday/')
-    sh(f'sudo rsync -avzh --fake-super /etc --compare-dest={H}/remote-rsync-backup/ --compare-dest={H}/remote-rsync-backup-week2/ --compare-dest={H}/remote-rsync-backup-monday/ {U}@{IP}:{H}/remote-rsync-backup-tuesday/')
-    note(f'monday: local {lcount("~/backups/rsync_backup_monday")} / remote {rcount("remote-rsync-backup-monday")} files; '
+    sh('sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ --compare-dest=$HOME/backups/rsync_backup_week2/ --compare-dest=$HOME/backups/rsync_backup_monday/ ~/backups/rsync_backup_tuesday/')
+    sh(f'sudo rsync -avzh {M} /etc --compare-dest={H}/remote-rsync-backup/ --compare-dest={H}/remote-rsync-backup-week2/ --compare-dest={H}/remote-rsync-backup-monday/ {U}@{IP}:{H}/remote-rsync-backup-tuesday/')
+    note(f'monday: local {lcount("~/backups/rsync_backup_monday")} / remote {rcount("remote-rsync-backup-monday")}; '
          f'tuesday: local {lcount("~/backups/rsync_backup_tuesday")} / remote {rcount("remote-rsync-backup-tuesday")} files')
     sh('sudo rm /etc/wgetrc /etc/hello /etc/test1 /etc/test2')
-    etc_guarded('L-etc-restore-incr', 'line 408 restore full -> week2 -> monday -> tuesday (remote)',
-                [f'rsync -avz --fake-super {U}@{IP}:{H}/remote-rsync-backup{s}/etc/ /etc/' for s in ['', '-week2', '-monday', '-tuesday']],
-                ['/etc/wgetrc', '/etc/hello', '/etc/test1', '/etc/test2'])
+    etc_restore_check('N1-incr', 'restore full -> week2 -> monday -> tuesday (remote, -M)',
+                      [f'rsync -avz {M} {U}@{IP}:{H}/remote-rsync-backup{s}/etc/ {{DEST}}' for s in ['', '-week2', '-monday', '-tuesday']],
+                      ['/etc/wgetrc', '/etc/hello', '/etc/test1', '/etc/test2'])
 
     # ---------------------------------------------------------------- Attack 5, 6
-    section('BOT: Attacks 5-6 (changes B, differential2) + B6 (prompt path)')
+    section('BOT: Attacks 5-6 (step 5 changes, differential2)')
     bot_goto(5)
-    lines, _ = bot_ready('A5', 5, 'bot appends/creates more files')
-    result('A5', 'OK' if 'Ok, good' in ' '.join(lines) else 'PROBLEM', verdict(lines))
+    lines, _ = bot_ready('A5', 5, 'step 5 changes')
+    result('A5', 'OK' if said(lines, 'has made more changes') else 'PROBLEM', verdict(lines))
     bot_goto(6)
-    sh(f'sudo rsync -avzh --fake-super /home/{S}/ --compare-dest={FULL}/{S}/ {U}@{IP}:{D2}/',
-       label=f'(follows prompt literally: .../differential2/.) sudo rsync -avzh --fake-super /home/{S}/ --compare-dest={FULL}/{S}/ {U}@{IP}:{D2}/')
-    lines, fl = bot_ready('A6', 6, 'prompt path taken literally (contents into differential2/)')
-    result('B6', 'CONFIRMED' if not fl else 'NOT-REPRODUCED', 'attack 6 prompt says .../remote-rsync-differential2/. ; doing that -> ' + verdict(lines))
+    bk(D2, FULL, src=f'/home/{S}/', label='(mistake: trailing slash on source)')
+    lines, _ = bot_ready('A6', 6, 'contents at top')
+    result('A6-top', 'OK' if said(lines, 'contents* of') else 'PROBLEM', 'contents at top -> ' + verdict(lines))
     remote(f'rm -rf {D2}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ --compare-dest={D1}/ {U}@{IP}:{D2}/',
-       label='(mistake: incremental instead of differential) --compare-dest=full + differential1')
+    bk(D2, FULL, D1, label='(mistake: incremental instead of differential)')
     lines, _ = bot_ready('A6', 6, 'incremental instead of differential')
-    result('A6-incr', 'INFO', 'compared against diff1 too -> ' + verdict(lines))
+    result('A6-incr', 'OK' if said(lines, "step 3's") else 'PROBLEM', 'compared against diff1 too -> ' + verdict(lines))
     remote(f'rm -rf {D2}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ {U}@{IP}:{D2}/')
-    remote(f'cd {D2} && find . -type f')
+    bk(D2, FULL)
     lines, fl = bot_ready('A6', 6, 'correct differential2')
     result('A6', 'OK' if fl else 'PROBLEM', 'correct differential2 -> ' + verdict(lines))
 
     # ---------------------------------------------------------------- Attack 7, 8
-    section('BOT: Attacks 7-8 (changes C, incremental1) + B4')
+    section('BOT: Attacks 7-8 (step 7 changes, incremental1) + B4 fix')
     bot_goto(7)
-    lines, _ = bot_ready('A7', 7, 'bot changes files')
-    result('A7', 'OK' if 'Ok, good' in ' '.join(lines) else 'PROBLEM', verdict(lines))
+    lines, _ = bot_ready('A7', 7, 'step 7 changes')
+    result('A7', 'OK' if said(lines, 'has made more changes') else 'PROBLEM', verdict(lines))
     bot_goto(8)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ {U}@{IP}:{I1}/',
-       label='(mistake: forgot differential2 --compare-dest) only --compare-dest=full')
-    lines, _ = bot_ready('A8', 8, 'forgot --compare-dest for differential2')
-    result('B4', 'CONFIRMED' if "wasn't an incremental" in ' '.join(lines) else 'NOT-REPRODUCED',
-           'forgot diff2 compare-dest -> ' + verdict(lines) + ' (a specific hint would name the missing --compare-dest)')
+    bk(I1, FULL, label='(mistake: forgot differential2 --compare-dest)')
+    lines, _ = bot_ready('A8', 8, 'forgot diff2 compare-dest')
+    result('B4', 'OK' if said(lines, 'second --compare-dest') else 'PROBLEM', 'forgot diff2 --compare-dest -> ' + verdict(lines))
     remote(f'rm -rf {I1}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ --compare-dest={D2}/ {U}@{IP}:{I1}/')
-    remote(f'cd {I1} && find . -type f')
+    bk(I1, FULL, D2)
     lines, fl = bot_ready('A8', 8, 'correct incremental1')
     result('A8', 'OK' if fl else 'PROBLEM', 'correct incremental1 -> ' + verdict(lines))
 
     # ---------------------------------------------------------------- Snapshots (/etc)
-    section('LABSHEET: Rsync snapshot backups (lines 454-484) + B1 link-dest')
-    sh('sudo rsync -av --delete --link-dest=~/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_1')
+    section('LABSHEET: Snapshots (/etc) with $HOME and linking to the previous snapshot')
+    sh('sudo rsync -av --delete --link-dest=$HOME/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_1', quiet=True)
+    _, l1 = sh('sudo find ~/backups/rsync_backup_snapshot_1 -type f -links +1 | wc -l; sudo du -sh ~/backups/rsync_backup ~/backups/rsync_backup_snapshot_1')
     sh("sudo bash -c 'echo \"Another test change\" > /etc/test3'")
     sh("sudo bash -c 'echo \"Another test change\" > /etc/test4'")
-    sh('sudo rsync -av --delete --link-dest=~/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_2')
-    sh('sudo rm /etc/test3')
-    sh('sudo rsync -av --delete --link-dest=~/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_3')
-    _, links = sh('for s in snapshot_1 snapshot_2 snapshot_3; do echo "$s $(sudo find ~/backups/rsync_backup_$s -type f -links +1 | wc -l)"; done; '
-                  'sudo du -sh ~/backups/rsync_backup ~/backups/rsync_backup_snapshot_1 ~/backups/rsync_backup_snapshot_2 ~/backups/rsync_backup_snapshot_3')
-    sh('sudo cp -a ~/backups/rsync_backup_snapshot_2/etc/test3 /etc/ && cat /etc/test3', label='recover test3 from snapshot_2')
-    m = re.search(r'snapshot_1 (\d+)', links)
-    result('B1-linkdest-sheet', 'CONFIRMED' if m and int(m.group(1)) == 0 else 'NOT-REPRODUCED',
-           'hard-linked files per snapshot / du: ' + ' '.join(links.split()))
+    sh('sudo rsync -av --delete --link-dest=$HOME/backups/rsync_backup_snapshot_1/ /etc ~/backups/rsync_backup_snapshot_2', quiet=True)
+    _, l2 = sh('sudo find ~/backups/rsync_backup_snapshot_2 -type f -links +1 | wc -l')
+    n1 = int(l1.split()[0]) if l1.split() and l1.split()[0].isdigit() else 0
+    result('B1-linkdest', 'OK' if n1 > 100 else 'PROBLEM', f'snapshot_1 hard links: {n1}; snapshot_2 hard links: {l2.strip()}; du: {" ".join(l1.split()[1:])}')
 
-    # ---------------------------------------------------------------- Attack 9, 10 (+ B5, quiz)
-    section('BOT: Attacks 9-10 (changes D, incremental2) + B5 + quiz')
+    # ---------------------------------------------------------------- Attack 9, 10 (+ rewind, quiz)
+    section('BOT: Attacks 9-10 (step 9, incremental2) + B5 + REWIND with goto 7 + quiz')
     bot_goto(9)
-    lines, _ = bot_ready('A9', 9, 'bot changes files')
-    result('A9', 'OK' if 'Ok, good' in ' '.join(lines) else 'PROBLEM', verdict(lines))
+    lines, _ = bot_ready('A9', 9, 'step 9 changes')
+    result('A9', 'OK' if said(lines, 'has made more changes') else 'PROBLEM', verdict(lines))
     bot_goto(10)
-    remote(f'cp -a {I1} {H}/incr1_saved', label='[backup_server] set aside the good incremental1')
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ --compare-dest={D2}/ {U}@{IP}:{I1}/',
-       label='(B5 mistake: redo incremental1 AFTER attack 9) same incr1 command again')
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ --compare-dest={D2}/ --compare-dest={I1}/ {U}@{IP}:{I2}/')
-    n = rcount(I2)
-    lines, _ = bot_ready('A10', 10, 'incremental1 retaken late')
-    result('B5', 'CONFIRMED' if 'specified remote directory' in ' '.join(lines) else 'NOT-REPRODUCED',
-           f'incr2 dir exists ({n} files) but bot says -> ' + verdict(lines))
-    remote(f'rm -rf {I1} {I2} && mv {H}/incr1_saved {I1}', quiet=True)
-    sh(f'sudo rsync -avzh --fake-super /home/{S} --compare-dest={FULL}/ --compare-dest={D2}/ --compare-dest={I1}/ {U}@{IP}:{I2}/')
-    remote(f'cd {I2} && find . -type f')
+    remote(f'rm -rf {I1}', label='(B5 mistake) delete incremental1 and redo it now, after step 9')
+    bk(I1, FULL, D2)
+    bk(I2, FULL, D2, I1)
+    lines, _ = bot_ready('A10', 10, 'incremental1 redone late -> empty incremental2')
+    result('B5', 'OK' if said(lines, 'redone after step 9') else 'PROBLEM', 'late incr1 -> ' + verdict(lines))
+    # the rewind workflow the bot suggests
+    remote(f'rm -rf {I1} {I2}', quiet=True)
+    bot_goto(7)
+    lines, _ = bot_ready('A7', 7, 'REWIND to step 7')
+    _, st = sh(f'sudo ls /home/{S}/personal_secrets/; sudo cat /home/{S}/notes')
+    result('REWIND-7', 'OK' if said(lines, 'has made more changes') and 'nothing_much' not in st else 'PROBLEM',
+           f'goto 7 + ready -> {verdict(lines)}; files now: {" ".join(st.split())[:160]}')
+    bk(I1, FULL, D2)
+    bot_goto(8)
+    lines, fl = bot_ready('A8', 8, 'incremental1 after rewind')
+    result('REWIND-8', 'OK' if said(lines, 'Well done') else 'PROBLEM', 'incr1 retaken after the rewind -> ' + verdict(lines))
+    bot_goto(9)
+    bot_ready('A9', 9, 'step 9 again')
+    bot_goto(10)
+    bk(I2, FULL, D2, I1)
     lines, fl = bot_ready('A10', 10, 'correct incremental2')
     result('A10', 'OK' if fl else 'PROBLEM', 'correct incremental2 -> ' + verdict(lines))
-    _, ans = sh(f'sudo cat /home/{S}/personal_secrets/nothing_much', label='(quiz answered from the DESKTOP, not the backups)')
-    _, ans_b = remote(f'cat {I2}/{S}/personal_secrets/nothing_much')
+    _, desk = sh(f'sudo cat /home/{S}/notes', label='(quiz) desktop notes - should NOT be the answer')
+    lines, _ = irc.tell(f'answer {desk.strip()}', until=ANSWER_DONE_RE, timeout=40)
+    wrong_ok = any(l.startswith('Incorrect') for l in lines)
+    _, ans = remote(f'cat {I1}/{S}/notes', label='(quiz) incremental1 notes on the backup_server')
     lines, _ = irc.tell(f'answer {ans.strip()}', until=ANSWER_DONE_RE, timeout=40)
     for f in FLAG_RE.findall('\n'.join(lines)):
         flags_seen.append(('attack 10 quiz', f))
-    details.append('BOT quiz answer: ' + ' | '.join(FLAG_RE.sub('flag{..}', l) for l in lines)[:300])
-    result('Q10', 'CONFIRMED' if any(l.startswith('Correct') for l in lines) else 'NOT-REPRODUCED',
-           f'quiz answered with `sudo cat` on the desktop ({ans.strip()!r}; backup has {ans_b.strip()!r}) -> '
-           f'{"Correct" if any(l.startswith("Correct") for l in lines) else lines[:2]}')
+    right_ok = any(l.startswith('Correct') for l in lines)
+    result('Q10', 'OK' if wrong_ok and right_ok else 'PROBLEM',
+           f'desktop notes answer rejected: {wrong_ok}; incremental1 notes ({ans.strip()!r}) accepted: {right_ok}')
 
-    # ---------------------------------------------------------------- Attack 11, 12
-    section('BOT: Attacks 11-12 (deletion, restore) + B3 (attack 12) + ownership after restore')
+    # ---------------------------------------------------------------- Attack 11 (gate) and 12 (restore, reset, ownership)
+    section('BOT: Attack 11 (safety gate) + 12 (restore, ownership, goto-11 reset)')
     bot_goto(11)
-    lines, _ = bot_ready('A11', 11, 'bot deletes the files')
-    result('A11', 'OK' if 'I just deleted' in ' '.join(lines) else 'PROBLEM', verdict(lines))
-    sh(f'sudo ls -la /home/{S}')
+    remote(f'mv {I2} {H}/incr2_aside', label='(gate test) hide incremental2')
+    lines, _ = bot_ready('A11', 11, 'incremental2 missing')
+    _, still = sh(f'sudo test -d /home/{S}/trade_secrets && echo files-still-there || echo files-GONE')
+    result('A11-gate', 'OK' if said(lines, 'Not yet') and 'still-there' in still else 'PROBLEM',
+           f'with incremental2 missing -> {verdict(lines)} ({still.strip()})')
+    remote(f'mv {H}/incr2_aside {I2}', quiet=True)
+    lines, _ = bot_ready('A11', 11, 'backups good')
+    result('A11', 'OK' if said(lines, 'I just deleted') else 'PROBLEM', verdict(lines))
     bot_goto(12)
-    lines, _ = bot_ready('A12', 12, 'nothing restored yet')
-    result('A12-none', 'CONFIRMED' if 'restored something' in ' '.join(lines) else 'INFO',
-           'nothing restored -> ' + verdict(lines) + ' (B3 risk: random hex in a path can turn "didn\'t restore anything" into "restored something")')
-    order_wrong = [FULL, D2, I2, I1]
-    for src in order_wrong:
-        sh(f'sudo rsync -avz --fake-super {U}@{IP}:{src}/{S}/ /home/{S}/', label=f'(wrong order: incr2 before incr1) restore from {src.split("/")[-1]}')
-    lines, _ = bot_ready('A12', 12, 'restored in the wrong order')
-    result('A12-order', 'OK' if 'Close' in ' '.join(lines) else 'INFO', 'wrong order -> ' + verdict(lines))
-    sh(f'sudo rsync -avz --fake-super {U}@{IP}:{I2}/{S}/ /home/{S}/', label='re-apply incremental2 last')
-    lines, fl = bot_ready('A12', 12, 'correct order')
-    result('A12', 'OK' if fl else 'PROBLEM', 'restore full -> diff2 -> incr1 -> incr2 -> ' + verdict(lines))
-    _, ls = sh(f'sudo ls -lnR /home/{S} | head -25')
-    _, owners = sh(f'sudo find /home/{S} -mindepth 1 -printf "%u\\n" | sort | uniq -c', label='owners of restored files')
-    rc, _ = sh(f'sudo -u {S} touch /home/{S}/notes', label=f'can {S} still write their own notes file?')
-    result('B2-restore', 'CONFIRMED' if rc != 0 or S not in owners else 'NOT-REPRODUCED',
-           f'after the labsheet-style restore, owners: {" ".join(owners.split())}; {S} can write notes: {"yes" if rc == 0 else "NO"}')
+    lines, _ = bot_ready('A12', 12, 'nothing restored')
+    result('A12-none', 'OK' if said(lines, 'full backup') else 'PROBLEM', 'nothing restored -> ' + verdict(lines) + ' (B3/N3 fixed?)')
+
+    def restore(srcs, mflag=M, what=''):
+        for s in srcs:
+            sh(f'sudo rsync -av {mflag} {U}@{IP}:{s}/{S}/ /home/{S}/', label=f'{what} restore from {s.split("/")[-1]}')
+
+    restore([FULL, D2, I2, I1], what='(wrong order)')
+    lines, _ = bot_ready('A12', 12, 'wrong order')
+    result('A12-order', 'OK' if said(lines, 'Close') else 'PROBLEM', 'wrong order -> ' + verdict(lines))
+    bot_goto(11)
+    lines, _ = bot_ready('A11', 11, 'RESET via goto 11')
+    _, left = sh(f'sudo ls /home/{S}')
+    result('RESET-11', 'OK' if said(lines, 'I just deleted') and not left.strip() else 'PROBLEM',
+           f'goto 11 + ready -> {verdict(lines)}; /home/{S} now: {left.split()[:6]}')
+    bot_goto(12)
+    restore([FULL, D2, I1, I2], mflag='', what='(no -M)')
+    lines, _ = bot_ready('A12', 12, 'restored without -M')
+    _, owners = sh(f'sudo find /home/{S} -mindepth 1 -printf "%u\\n" | sort | uniq -c')
+    result('A12-owner', 'OK' if said(lines, 'owned by') else 'PROBLEM',
+           f'restore without -M (owners: {" ".join(owners.split())}) -> ' + verdict(lines))
+    bot_goto(11)
+    bot_ready('A11', 11, 'reset again')
+    bot_goto(12)
+    restore([FULL, D2, I1, I2], what='(correct, -M)')
+    lines, fl = bot_ready('A12', 12, 'correct restore with -M')
+    _, owners = sh(f'sudo find /home/{S} -mindepth 1 -printf "%u\\n" | sort | uniq -c')
+    rc, _ = sh(f'sudo -u {S} touch /home/{S}/notes', label=f'can {S} write their own notes?')
+    result('A12', 'OK' if fl and rc == 0 else 'PROBLEM',
+           f'correct -M restore -> {verdict(lines)}; owners: {" ".join(owners.split())}; {S} can write: {rc == 0}')
 
     # ---------------------------------------------------------------- Attack 13
-    section('BOT: Attack 13 (earliest notes) + B7')
+    section('BOT: Attack 13 (first backed-up version of notes)')
     bot_goto(13)
-    _, n_full = remote(f'test -e {FULL}/{S}/notes && echo present || echo absent')
-    _, n1 = remote(f'cat {D1}/{S}/notes')
-    _, n2 = remote(f'cat {D2}/{S}/notes')
-    sh(f'sudo rsync -avz --fake-super {U}@{IP}:{D2}/{S}/notes /home/{S}/notes', label='restore notes from differential2 (NOT the earliest)')
-    lines, fl = bot_ready('A13', 13, 'notes from differential2')
-    result('B7', 'CONFIRMED' if fl else 'NOT-REPRODUCED',
-           f'notes in full backup: {n_full.strip()}; diff1 has {len(n1.strip().splitlines())} line(s), diff2 has '
-           f'{len(n2.strip().splitlines())}; restoring the diff2 version -> ' + verdict(lines))
-    if not fl:
-        sh(f'sudo rsync -avz --fake-super {U}@{IP}:{D1}/{S}/notes /home/{S}/notes', label='restore notes from differential1')
-        lines, fl = bot_ready('A13', 13, 'notes from differential1')
-    result('A13', 'OK' if fl else 'PROBLEM', 'attack 13 solved -> ' + verdict(lines))
-
-    # ---------------------------------------------------------------- B2 detailed
-    section('EXTRA: B2 --fake-super vs -M--fake-super (walkthrough section 3)')
-    sh(f'sudo install -d -o {S} -g {S} -m 750 /tmp/b2src && sudo -u {S} bash -c "echo hi > /tmp/b2src/f && chmod 640 /tmp/b2src/f"', quiet=True)
-    _, orig = sh('sudo stat -c "%a %u:%g" /tmp/b2src/f')
-    sh(f'sudo rsync -av --fake-super /tmp/b2src {U}@{IP}:{H}/b2_labsheet/')
-    sh(f'sudo rsync -av -M--fake-super /tmp/b2src {U}@{IP}:{H}/b2_remote/')
-    xa = "python3 -c 'import os,sys;p=sys.argv[1];print({k:os.getxattr(p,k).decode(errors=\"replace\") for k in os.listxattr(p)})'"
-    _, sA = remote(f'stat -c "%a %u:%g" b2_labsheet/b2src/f; {xa} b2_labsheet/b2src/f')
-    _, sB = remote(f'stat -c "%a %u:%g" b2_remote/b2src/f; {xa} b2_remote/b2src/f')
-    restores = {
-        'R1 labsheet restore of labsheet backup': f'sudo rsync -av --fake-super {U}@{IP}:{H}/b2_labsheet/b2src/ /tmp/b2_r1/',
-        'R2 labsheet restore of -M backup': f'sudo rsync -av --fake-super {U}@{IP}:{H}/b2_remote/b2src/ /tmp/b2_r2/',
-        'R3 -M restore of -M backup': f'sudo rsync -av -M--fake-super {U}@{IP}:{H}/b2_remote/b2src/ /tmp/b2_r3/',
-        'R4 plain restore of labsheet backup': f'sudo rsync -av {U}@{IP}:{H}/b2_labsheet/b2src/ /tmp/b2_r4/',
-    }
-    rr = {}
-    for k, cmd in restores.items():
-        sh(cmd)
-        n = k.split()[0].lower()
-        _, st = sh(f'sudo stat -c "%a %u:%g" /tmp/b2_{n}/f')
-        rr[k] = st.strip()
-    want = orig.strip()
-    result('B2', 'CONFIRMED' if rr['R3 -M restore of -M backup'] == want and rr['R1 labsheet restore of labsheet backup'] != want else 'INFO',
-           f'original {want}; server A(labsheet)={" ".join(sA.split())}; server B(-M)={" ".join(sB.split())}; restores: ' +
-           '; '.join(f'{k}={v}' for k, v in rr.items()))
-    sh('sudo rm -rf /tmp/b2src /tmp/b2_r*', quiet=True)
-    remote('rm -rf b2_*', quiet=True)
+    sh(f'sudo rsync -av {M} {U}@{IP}:{D2}/{S}/notes /home/{S}/notes', label='(mistake) notes from differential2')
+    lines, _ = bot_ready('A13', 13, 'notes from differential2')
+    result('B7', 'OK' if said(lines, 'differential2') else 'PROBLEM', 'differential2 version -> ' + verdict(lines))
+    sh(f'sudo rsync -av {M} {U}@{IP}:{D1}/{S}/notes /home/{S}/notes')
+    lines, fl = bot_ready('A13', 13, 'notes from differential1')
+    result('A13', 'OK' if fl else 'PROBLEM', 'differential1 version -> ' + verdict(lines))
 
     # ---------------------------------------------------------------- P1
     section('EXTRA: P1 sudo + no user@')
-    _, user = sh(f'sudo ssh -G {IP} | grep "^user "')
-    rc_ssh, out_ssh = sh(f'sudo ssh -o BatchMode=yes {IP} true')
+    _, user = sh(f'sudo ssh -G {IP} 2>/dev/null | grep "^user "')
     rc_rs, out_rs = sh(f'sudo rsync -av --dry-run -e "ssh -o BatchMode=yes" /etc/hostname {IP}:')
-    result('P1', 'CONFIRMED' if 'root' in user and rc_ssh != 0 and rc_rs != 0 else 'PROBLEM',
-           f'sudo ssh BACKUPIP logs in as "{user.strip()}" -> rc={rc_ssh}; sudo rsync ... BACKUPIP: rc={rc_rs} '
-           f'({(warnings_in(out_rs) or [out_rs.strip()])[0][:100]})')
+    result('P1', 'INFO', f'sudo ssh BACKUPIP connects as "{user.strip()}"; sudo rsync ... BACKUPIP: rc={rc_rs} (sheet now warns about this)')
 
     # ---------------------------------------------------------------- flags
     section('FLAGS')
     for where, f in flags_seen:
         note(f'{where}: {f}')
     uniq = {f for _, f in flags_seen}
-    result('FLAGS', 'OK' if len(uniq) == 10 else 'PROBLEM', f'{len(uniq)} distinct flags collected (generator mints 10: 9 in chat + 1 hidden file)')
+    result('FLAGS', 'OK' if len(uniq) == 10 else 'PROBLEM', f'{len(uniq)} distinct flags collected (10 expected: 9 in chat + 1 hidden file)')
 
 
 # --------------------------------------------------------------------------------------------
