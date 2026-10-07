@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Backups Lab Verification</title>
+<title><!--TITLE--></title>
 <style>
   :root { --bg:#fff; --fg:#1d1f23; --muted:#5d6470; --line:#d9dde3; --code-bg:#f3f5f8; --accent:#1d5fbf; --bar:#f8f9fb; --ok:#1d7a3e; }
   @media (prefers-color-scheme: dark) {
@@ -99,8 +99,8 @@
   // Task-list checkboxes: pandoc renders them disabled; make them clickable and remember them.
   document.querySelectorAll('main li > input[type=checkbox]').forEach(function (cb, n) {
     cb.disabled = false;
-    cb.checked = load('cb' + n) === '1';
-    cb.addEventListener('change', function () { save('cb' + n, cb.checked ? '1' : '0'); });
+    cb.checked = load(location.pathname + ':cb' + n) === '1';
+    cb.addEventListener('change', function () { save(location.pathname + ':cb' + n, cb.checked ? '1' : '0'); });
   });
 })();
 </script>
