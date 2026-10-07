@@ -39,7 +39,7 @@
     <label>YOURUSER <input data-ph="YOURUSER" placeholder="whoami"></label>
     <label>SECONDUSER <input data-ph="SECONDUSER" placeholder="ls /home"></label>
     <label>BACKUPIP <input data-ph="BACKUPIP" placeholder="backup_server IP"></label>
-    <span class="ver">DEV page · 2026-10-06 17:37 · 2f0a099bf</span>
+    <span class="ver">DEV page · 2026-10-07 14:44 · d6cf1cca8</span>
   </div>
 </header>
 <main>
@@ -548,80 +548,108 @@ snapshot ~1000 hard links, du 1.4M (dirs can't be hard-linked)</td>
 <tr>
 <td>B2</td>
 <td><code>--fake-super</code> wrong side; restores root-owned</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>orig <code>640 1002:1002</code>; server copy (sheet)
+<code>640 1001:1001</code>, no xattr; server copy (<code>-M</code>) has
+<code>user.rsync.%stat 100640 0,0 1002:1002</code>. R1
+<code>640 0:0</code>, R2 <code>640 0:0</code>, <strong>R3
+<code>640 1002:1002</code> (exact)</strong>, R4
+<code>640 1001:1001</code></td>
 </tr>
 <tr>
 <td>B3</td>
 <td>stderr digits → false pass (attack 8) / wrong msg (12)</td>
-<td>✅ (sim)</td>
-<td></td>
+<td>✅ sim + run 1</td>
+<td>attack 12 with nothing restored said "restored something"
+(<code>&lt;rand2&gt;</code>=<code>064f</code>); ~23% of builds</td>
 </tr>
 <tr>
 <td>B4</td>
 <td><code>0[1-9]?{2}</code> = "contains 0"</td>
-<td>✅ (sim)</td>
-<td></td>
+<td>✅ sim + run 1</td>
+<td>forgot diff2 compare-dest → generic "wasn't an incremental
+backup"</td>
 </tr>
 <tr>
 <td>B5</td>
 <td>"wrong directory" when dir exists</td>
-<td>✅ (sim)</td>
-<td></td>
+<td>✅ sim + run 1</td>
+<td>incr2 existed (0 files) → "You didn't backup to the specified remote
+directory."</td>
 </tr>
 <tr>
 <td>B6</td>
 <td>path/wording mismatches (attack 6 prompt, attack 2 msg, labsheet
 ssh_backup)</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>attack 6 literal prompt → "didn't backup to the specified remote
+directory"; sheet's 2nd scp fails outright (N2)</td>
 </tr>
 <tr>
 <td>B7</td>
 <td>attack 13 accepts diff2 notes; epoch has no notes</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>full: no notes; diff1 1 line, diff2 2 lines; diff2 version →
+flag</td>
 </tr>
 <tr>
 <td>B8</td>
 <td>scp dest-existence semantics; <code>/bin</code> size</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>missing dest → dest is the copy; existing dest → dest/d; src
+trailing slash irrelevant; missing dest + trailing <code>/</code> →
+error. <code>/bin</code> 153M, scp 8s</td>
 </tr>
 <tr>
 <td>P1</td>
 <td><code>sudo</code> + no <code>user@</code> = root</td>
-<td>✅ (VM)</td>
-<td><code>sudo ssh BACKUPIP</code> prompts
-<code>root@…'s password:</code>; students can't log in. (rsync form:
-confirm which command "worked")</td>
+<td>✅ (VM) + run 1</td>
+<td><code>sudo ssh BACKUPIP</code> → <code>root@</code>;
+<code>sudo rsync … BACKUPIP:</code> →
+<code>root@…: Permission denied (publickey,password)</code></td>
 </tr>
 <tr>
 <td>P2</td>
 <td>mismatched compare-dest is silent full copy</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>26 files copied, no warning; bot → "wasn't an differential
+backup"</td>
 </tr>
 <tr>
 <td>P3</td>
 <td>non-sudo rsync of SECONDUSER home</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>home 755 but <code>.ssh</code>/<code>.vim</code> 0700 → rc=23, 13
+Permission denied lines</td>
 </tr>
 <tr>
 <td>P4</td>
 <td><code>ls /home</code> shows 2 other users (scenario's unused 3rd
 account); sheet says "a second user"</td>
-<td>✅ (code) — <strong>fixed</strong>: 3rd account removed from
-scenario</td>
-<td>after rebuild, <code>ls /home</code> should list only YOURUSER +
-SECONDUSER</td>
+<td><strong>fixed</strong> (3rd account removed); run 1</td>
+<td>still lists <code>vagrant</code> (base box) → N4</td>
 </tr>
 <tr>
 <td>—</td>
 <td>ownership after attack 12 restore</td>
-<td></td>
-<td></td>
+<td>✅ run 1</td>
+<td>15 root-owned, 22 SECONDUSER-owned; SECONDUSER
+<strong>can't</strong> write <code>notes</code></td>
+</tr>
+<tr>
+<td>N1</td>
+<td>whole-/etc restore with <code>--fake-super</code> (sheet 335/337,
+408)</td>
+<td>✅ run 1</td>
+<td>~850 entries changed: symlinks → regular files (mode 777),
+<code>sudoers.d/*</code> "bad permissions, should be mode 0440"</td>
+</tr>
+<tr>
+<td>N2</td>
+<td>scp section</td>
+<td>✅ run 1</td>
+<td>1st scp rc=1 (~20 errors: symlinks/dangling); 2nd scp
+<code>realpath …/ssh_backup/: No such file</code></td>
 </tr>
 </tbody>
 </table>

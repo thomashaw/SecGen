@@ -413,15 +413,17 @@ replace). Some checks below need you to deliberately do it *wrong* first; use `g
 | ID | What | Confirmed? | Notes / exact messages |
 |---|---|---|---|
 | B1 | `~` not expanded in `--compare-dest=`/`--link-dest=` | ✅ both (VM) | compare-dest: full=1000, `~` diff=1001 (full copy), `$HOME` diff=1. rsync: `--compare-dest arg does not exist: ~/b1/full`. link-dest: `~` snapshot 0 hard links, du 8M (= full); `$HOME` snapshot ~1000 hard links, du 1.4M (dirs can't be hard-linked) |
-| B2 | `--fake-super` wrong side; restores root-owned | | |
-| B3 | stderr digits → false pass (attack 8) / wrong msg (12) | ✅ (sim) | |
-| B4 | `0[1-9]?{2}` = "contains 0" | ✅ (sim) | |
-| B5 | "wrong directory" when dir exists | ✅ (sim) | |
-| B6 | path/wording mismatches (attack 6 prompt, attack 2 msg, labsheet ssh_backup) | | |
-| B7 | attack 13 accepts diff2 notes; epoch has no notes | | |
-| B8 | scp dest-existence semantics; `/bin` size | | |
-| P1 | `sudo` + no `user@` = root | ✅ (VM) | `sudo ssh BACKUPIP` prompts `root@…'s password:`; students can't log in. (rsync form: confirm which command "worked") |
-| P2 | mismatched compare-dest is silent full copy | | |
-| P3 | non-sudo rsync of SECONDUSER home | | |
-| P4 | `ls /home` shows 2 other users (scenario's unused 3rd account); sheet says "a second user" | ✅ (code) — **fixed**: 3rd account removed from scenario | after rebuild, `ls /home` should list only YOURUSER + SECONDUSER |
-| — | ownership after attack 12 restore | | |
+| B2 | `--fake-super` wrong side; restores root-owned | ✅ run 1 | orig `640 1002:1002`; server copy (sheet) `640 1001:1001`, no xattr; server copy (`-M`) has `user.rsync.%stat 100640 0,0 1002:1002`. R1 `640 0:0`, R2 `640 0:0`, **R3 `640 1002:1002` (exact)**, R4 `640 1001:1001` |
+| B3 | stderr digits → false pass (attack 8) / wrong msg (12) | ✅ sim + run 1 | attack 12 with nothing restored said "restored something" (`<rand2>`=`064f`); ~23% of builds |
+| B4 | `0[1-9]?{2}` = "contains 0" | ✅ sim + run 1 | forgot diff2 compare-dest → generic "wasn't an incremental backup" |
+| B5 | "wrong directory" when dir exists | ✅ sim + run 1 | incr2 existed (0 files) → "You didn't backup to the specified remote directory." |
+| B6 | path/wording mismatches (attack 6 prompt, attack 2 msg, labsheet ssh_backup) | ✅ run 1 | attack 6 literal prompt → "didn't backup to the specified remote directory"; sheet's 2nd scp fails outright (N2) |
+| B7 | attack 13 accepts diff2 notes; epoch has no notes | ✅ run 1 | full: no notes; diff1 1 line, diff2 2 lines; diff2 version → flag |
+| B8 | scp dest-existence semantics; `/bin` size | ✅ run 1 | missing dest → dest is the copy; existing dest → dest/d; src trailing slash irrelevant; missing dest + trailing `/` → error. `/bin` 153M, scp 8s |
+| P1 | `sudo` + no `user@` = root | ✅ (VM) + run 1 | `sudo ssh BACKUPIP` → `root@`; `sudo rsync … BACKUPIP:` → `root@…: Permission denied (publickey,password)` |
+| P2 | mismatched compare-dest is silent full copy | ✅ run 1 | 26 files copied, no warning; bot → "wasn't an differential backup" |
+| P3 | non-sudo rsync of SECONDUSER home | ✅ run 1 | home 755 but `.ssh`/`.vim` 0700 → rc=23, 13 Permission denied lines |
+| P4 | `ls /home` shows 2 other users (scenario's unused 3rd account); sheet says "a second user" | **fixed** (3rd account removed); run 1 | still lists `vagrant` (base box) → N4 |
+| — | ownership after attack 12 restore | ✅ run 1 | 15 root-owned, 22 SECONDUSER-owned; SECONDUSER **can't** write `notes` |
+| N1 | whole-/etc restore with `--fake-super` (sheet 335/337, 408) | ✅ run 1 | ~850 entries changed: symlinks → regular files (mode 777), `sudoers.d/*` "bad permissions, should be mode 0440" |
+| N2 | scp section | ✅ run 1 | 1st scp rc=1 (~20 errors: symlinks/dangling); 2nd scp `realpath …/ssh_backup/: No such file` |
