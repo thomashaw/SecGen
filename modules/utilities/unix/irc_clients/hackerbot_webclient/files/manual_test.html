@@ -39,7 +39,7 @@
     <label>YOURUSER <input data-ph="YOURUSER" placeholder="whoami"></label>
     <label>SECONDUSER <input data-ph="SECONDUSER" placeholder="ls /home"></label>
     <label>BACKUPIP <input data-ph="BACKUPIP" placeholder="backup_server IP"></label>
-    <span class="ver">DEV page · 2026-10-07 21:06 · dbac1c37b</span>
+    <span class="ver">DEV page · 2026-10-07 21:53 · 6de156409</span>
   </div>
 </header>
 <main>
@@ -72,7 +72,41 @@ do this):</p>
 sudo bash -c &#39;[ -f /root/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N &quot;&quot; -f /root/.ssh/id_ed25519&#39;
 sudo ssh-copy-id -i /root/.ssh/id_ed25519.pub $U@$IP</code></pre>
 <p>In the Hackerbot chat say <code>hello</code>, then
-<code>goto 2</code>.</p>
+<code>goto 1</code>.</p>
+<h2 id="t1-scp-usrbin-task-1">T1. scp /usr/bin (task 1)</h2>
+<p>Set <code>D</code> to the directory name in Hackerbot's task 1 prompt
+(<code>remote-bin-backup-</code> + 4 hex characters):</p>
+<pre class="bash"><code>D=remote-bin-backup-XXXX</code></pre>
+<ul class="task-list">
+<li><p><label><input type="checkbox" /><strong>T1a — destination doesn't
+exist, with a trailing slash</strong> (OpenSSH 9 refuses)</label></p>
+<pre class="bash"><code>scp -r /usr/bin/ $U@$IP:$B/$D/</code></pre>
+<p>scp fails: <code>realpath …: No such file</code> /
+<code>path canonicalization failed</code>. Say <code>ready</code>.
+<strong>Expect:</strong> "There's no …/remote-bin-backup-… on the
+backup_server yet. Create that directory first … (If scp said 'realpath
+... No such file' or 'path canonicalization failed', that's why …)"</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />hint clear?</label></li>
+</ul></li>
+<li><p><label><input type="checkbox" /><strong>T1b — destination doesn't
+exist, no trailing slash</strong> (scp creates it <em>as</em> the
+copy)</label></p>
+<pre class="bash"><code>scp -rq /usr/bin $U@$IP:$B/$D</code></pre>
+<p>Say <code>ready</code>. <strong>Expect:</strong> "You copied the
+<em>contents</em> of bin straight into remote-bin-backup-…/, not a bin/
+directory inside it…"</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />hint clear?</label></li>
+</ul>
+<pre class="bash"><code>ssh $U@$IP rm -rf $D</code></pre></li>
+<li><p><label><input type="checkbox" /><strong>T1c — correct</strong>:
+create the directory, then copy into it</label></p>
+<pre class="bash"><code>ssh $U@$IP mkdir $D
+scp -rq /usr/bin $U@$IP:$B/$D/</code></pre>
+<p>Say <code>ready</code>. <strong>Expect:</strong> flag, and the bot
+moves on to task 2.</p></li>
+</ul>
 <h2 id="1-full-backup-task-2">1. Full backup (task 2)</h2>
 <ul class="task-list">
 <li><p><label><input type="checkbox" /><strong>1a — trailing slash on
