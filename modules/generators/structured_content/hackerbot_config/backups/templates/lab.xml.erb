@@ -96,8 +96,13 @@
     Shellwords.escape(s)
   end
 
+  # ssh client warnings (e.g. OpenSSH 10's "** WARNING: connection is not using a post-quantum key exchange"
+  # when talking to an older sshd) would otherwise show up in the student's FYI output; our scripts never
+  # print lines starting with "** ", and real connection errors don't either, so they still reach the conditions.
+  $nowarn = "| grep -v '^\\*\\* '"
+
   def on_host(host, script)
-    "echo #{Base64.strict_encode64(script)} | base64 -d | #{$ssh} #{host} bash -s 2>&1"
+    "echo #{Base64.strict_encode64(script)} | base64 -d | #{$ssh} #{host} bash -s 2>&1 #{$nowarn}"
   end
 
   def xml(s)
@@ -180,7 +185,7 @@
     "mkdir -p #{File.dirname($stash)}; O=#{$stash}; " \
     "if [ ! -s $O ]; then #{d} 'test -d #{$S}/trade_secrets && tar -C /home -czf - #{$second_user}' > $O.tmp 2>/dev/null; " \
     "if [ -s $O.tmp ]; then mv $O.tmp $O; else rm -f $O.tmp; fi; fi; " \
-    "if [ -s $O ]; then #{d} 'tar -C /home -xzf - && echo ORIGINALS-RESTORED' < $O 2>&1; else echo ORIGINALS-UNAVAILABLE; fi; " +
+    "if [ -s $O ]; then #{d} 'tar -C /home -xzf - && echo ORIGINALS-RESTORED' < $O 2>&1 #{$nowarn}; else echo ORIGINALS-UNAVAILABLE; fi; " +
     on_host($desktop, stage_script(step))
   end
 

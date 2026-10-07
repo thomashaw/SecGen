@@ -220,8 +220,10 @@ what to back up/restore instead of live `/etc`). How it was done, where it diffe
 
 ## Phase 3 — Wrap-up
 - [x] `hb_check` 0 errors / 0 warnings; F3 regression cases pass.
-- [ ] Full deployed play-through: happy path, plus at least: nested dir on 2, full copy on 4, late incr1
-      on 8, failed restore + reset on 12. 🖥
+- [x] Full deployed play-through: happy path, plus at least: nested dir on 2, full copy on 4, late incr1
+      on 8, failed restore + reset on 12. 🖥 — **run 2** (`reports/run2_2026-10-07.txt`): 50 rows, 0 PROBLEM,
+      10/10 flags, 16 min; rewind (goto 7), gate refusal, goto-11 reset and the ownership hint all behaved.
+      Only follow-up: OpenSSH 10 "post-quantum" warnings in FYI output → now filtered (not yet re-run).
 - [x] Update labsheet hints/notes to match final bot messages; renumber nothing (F4).
 - [ ] Decide fate of `backups_lab_rework/` (delete, or move `hb_sim.rb` into the hackerbot skill's `scripts/`).
 - [ ] **Remove the DEV verify page + tester before merge**: the `verify_walkthrough.html` and
@@ -244,8 +246,10 @@ what to back up/restore instead of live `/etc`). How it was done, where it diffe
    original files; used by every change step (rewind) — see Implementation status.
 4. ~~**Labsheet location**~~ — resolved: `backups_lab.md` is a copy of the remote labsheet repo's file,
    committed on this branch and edited here. Thomas syncs it back to the labsheet repo at the end.
-5. **Whole-/etc restores (N1)** — *pending*. The sheet now uses `-M--fake-super` here too (which should round-trip
-   symlinks: run 2's `N1-*` rows check that against a scratch copy of /etc). Options: (a) keep backing up /etc but
+5. **Whole-/etc restores (N1)** — *pending*. The sheet now uses `-M--fake-super` here too, and **run 2 shows that is
+   clean**: all three restores (remote diff, local, remote incremental) into a scratch copy of /etc matched the real
+   /etc exactly — 838/838 symlinks, 0 mode/owner differences, sudoers 0440. So the remaining risk is only a student
+   restoring with plain `--fake-super` (no `-M`) out of habit. Options: (a) keep backing up /etc but
    restore into a scratch dir and copy back only the lost files, (b) keep restoring live /etc with `-M--fake-super`
    (only if run 2 is clean), or (c) **recommended:** practise on a copy, `sudo mkdir -p /srv/practice && sudo cp -a
    /etc /srv/practice/`, and use `/srv/practice/etc` wherever the sheet says `/etc` (backups still contain an `etc/`
