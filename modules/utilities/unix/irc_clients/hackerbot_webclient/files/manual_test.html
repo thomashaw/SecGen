@@ -39,7 +39,7 @@
     <label>YOURUSER <input data-ph="YOURUSER" placeholder="whoami"></label>
     <label>SECONDUSER <input data-ph="SECONDUSER" placeholder="ls /home"></label>
     <label>BACKUPIP <input data-ph="BACKUPIP" placeholder="backup_server IP"></label>
-    <span class="ver">DEV page · 2026-10-07 21:53 · 6de156409</span>
+    <span class="ver">DEV page · 2026-10-07 21:55 · 8d9ce36f2</span>
   </div>
 </header>
 <main>
@@ -54,8 +54,8 @@ Hackerbot, check the reply against <strong>Expect</strong>, then tick
 <strong>hint clear?</strong> if a student could act on it.</p>
 <p>Use a <strong>fresh build</strong>. Run everything on the
 <strong>desktop</strong>, in one terminal (the variables below stay
-set). Fill in the boxes at the top of the page first — the commands use
-your values.</p>
+set). The setup block works out your username and the second user
+itself, and asks you for the backup_server's IP.</p>
 <blockquote>
 <p>Every bot reply should start with <code>FYI:</code> lines (what it
 checked: <code>OK …</code>, <code>MISSING …</code>,
@@ -63,20 +63,28 @@ checked: <code>OK …</code>, <code>MISSING …</code>,
 make the verdict obvious.</p>
 </blockquote>
 <h2 id="0-setup">0. Setup</h2>
-<pre class="bash"><code>U=YOURUSER; S=SECONDUSER; IP=BACKUPIP; M=-M--fake-super
+<pre class="bash"><code>U=$(whoami)
+S=$(ls /home | grep -vx &quot;$U&quot; | grep -vx vagrant)
+read -p &quot;backup_server IP (it&#39;s in Hackerbot&#39;s task 1 prompt): &quot; IP
+M=-M--fake-super
 B=/home/$U          # where backups live on the backup_server
-look() { ssh $U@$IP &quot;cd $B &amp;&amp; find remote-rsync-* -maxdepth 3 | sort&quot;; }   # what&#39;s on the server</code></pre>
+look() { ssh $U@$IP &quot;cd $B &amp;&amp; find remote-rsync-* -maxdepth 3 | sort&quot;; }   # what&#39;s on the server
+echo &quot;U=$U  S=$S  IP=$IP&quot;</code></pre>
+<p>Check the last line shows your username, <strong>one</strong> second
+user, and the IP.</p>
 <p>Optional — stop typing passwords (only for this test; students won't
-do this):</p>
-<pre class="bash"><code>ssh-copy-id $U@$IP
+do this). It asks for your password on the backup_server twice (once for
+your key, once for root's):</p>
+<pre class="bash"><code>[ -f ~/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N &quot;&quot; -f ~/.ssh/id_ed25519
+ssh-copy-id $U@$IP
 sudo bash -c &#39;[ -f /root/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N &quot;&quot; -f /root/.ssh/id_ed25519&#39;
 sudo ssh-copy-id -i /root/.ssh/id_ed25519.pub $U@$IP</code></pre>
 <p>In the Hackerbot chat say <code>hello</code>, then
 <code>goto 1</code>.</p>
 <h2 id="t1-scp-usrbin-task-1">T1. scp /usr/bin (task 1)</h2>
-<p>Set <code>D</code> to the directory name in Hackerbot's task 1 prompt
+<p>Enter the directory name from Hackerbot's task 1 prompt
 (<code>remote-bin-backup-</code> + 4 hex characters):</p>
-<pre class="bash"><code>D=remote-bin-backup-XXXX</code></pre>
+<pre class="bash"><code>read -p &quot;directory from task 1 (remote-bin-backup-....): &quot; D</code></pre>
 <ul class="task-list">
 <li><p><label><input type="checkbox" /><strong>T1a — destination doesn't
 exist, with a trailing slash</strong> (OpenSSH 9 refuses)</label></p>
