@@ -22,8 +22,9 @@
   <conflict>
     <name>.*Debian.*Buster.*</name>
   </conflict>
+  <!-- kali-rolling installs Kali's ghidra package; the 2018.3 Licensed Tools base predates it -->
   <conflict>
-    <name>.*Kali.*</name>
+    <name>Kali with Licensed Tools.*</name>
   </conflict>
 
   <requires>
