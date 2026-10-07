@@ -101,7 +101,17 @@ file { '/usr/local/bin/upx':        # /usr/local/bin always exists; no parent-di
   mode   => '0755',
 }
 ```
-Large archives: copy into `/opt` or `/tmp`, then `exec` tar/unzip with `creates =>` the extracted path. Keep licence files in `files/` for compliance; you don't have to deploy them.
+Large archives: copy into `/opt` or `/tmp`, then `exec` tar/unzip with `creates =>` the extracted path.
+
+Upstream `.deb` (e.g. `reversing_tools` radare2): copy it with a `file`, then `package { 'x': provider => dpkg, source => '/opt/x.deb', require => File[...] }`. dpkg does **not** resolve dependencies - check the `.deb`'s `Depends:` and the highest `GLIBC_x.y` its binaries need against the oldest target base before bundling. Don't dpkg-install a package the distro also ships under the same name if another module may `apt install` it (use apt on that distro instead).
+
+Adding a tool that only exists on newer bases to a module older scenarios still use: guard it rather than branching per-release forever:
+```puppet
+if $operatingsystem == 'Kali' or ($operatingsystem == 'Debian' and versioncmp($operatingsystemmajrelease, '12') >= 0) {
+  ensure_packages(['python3-pwntools'])
+}
+```
+Before changing a shared module, `grep -rl '<module_name>' scenarios` and note which bases those scenarios use. Keep licence files in `files/` for compliance; you don't have to deploy them.
 
 **Downloads / git** [14 wget/curl, 5 git clone] - always idempotent and bounded:
 ```puppet
