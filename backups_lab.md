@@ -184,11 +184,11 @@ ls -la scp_backup/ssh/
 
 You can skip the bot to here, by saying **goto 1**.
 
-> Hackerbot: Use scp to copy the desktop's /usr/bin/ directory (where the programs actually live: /bin is just a symlink to it) to the backup_server, so that BACKUPSERVERIP:/home/YOURUSERNAME/remote-bin-backup-*(a short suffix Hackerbot gives you in the chat)*/ contains the backed up bin/ directory.
+> Hackerbot: Use scp to copy the desktop's /usr/bin/ directory to the backup_server, so that BACKUPSERVERIP:/home/YOURUSERNAME/remote-bin-backup-*(a short suffix Hackerbot gives you in the chat)*/ contains the backed up bin/ directory.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
-> Note: Hackerbot will tell you the exact directory name (including the random suffix) in the chat when it runs this attack. Remember the scp rule above: create the `remote-bin-backup-...` directory first, then copy `/usr/bin` into it. (On current Debian, `/bin` is a symbolic link to `/usr/bin` -- run `ls -ld /bin` to see.)
+> Note: Hackerbot will tell you the exact directory name (including the random suffix) in the chat when it runs this attack. Remember the scp rule above: create the `remote-bin-backup-...` directory first, then copy `/usr/bin` into it. If scp says `realpath ...: No such file` or `path canonicalization failed`, the destination directory doesn't exist yet.
 
 Don't forget to ==action: save and submit any flags!==
 

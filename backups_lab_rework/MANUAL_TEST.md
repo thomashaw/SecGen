@@ -27,7 +27,49 @@ sudo bash -c '[ -f /root/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N "" -f 
 sudo ssh-copy-id -i /root/.ssh/id_ed25519.pub $U@$IP
 ```
 
-In the Hackerbot chat say `hello`, then `goto 2`.
+In the Hackerbot chat say `hello`, then `goto 1`.
+
+## T1. scp /usr/bin (task 1)
+
+Set `D` to the directory name in Hackerbot's task 1 prompt (`remote-bin-backup-` + 4 hex characters):
+
+```bash
+D=remote-bin-backup-XXXX
+```
+
+- [ ] **T1a — destination doesn't exist, with a trailing slash** (OpenSSH 9 refuses)
+
+  ```bash
+  scp -r /usr/bin/ $U@$IP:$B/$D/
+  ```
+
+  scp fails: `realpath …: No such file` / `path canonicalization failed`. Say `ready`. **Expect:** "There's no
+  …/remote-bin-backup-… on the backup_server yet. Create that directory first … (If scp said 'realpath ... No such
+  file' or 'path canonicalization failed', that's why …)"
+  - [ ] hint clear?
+
+- [ ] **T1b — destination doesn't exist, no trailing slash** (scp creates it *as* the copy)
+
+  ```bash
+  scp -rq /usr/bin $U@$IP:$B/$D
+  ```
+
+  Say `ready`. **Expect:** "You copied the *contents* of bin straight into remote-bin-backup-…/, not a bin/
+  directory inside it…"
+  - [ ] hint clear?
+
+  ```bash
+  ssh $U@$IP rm -rf $D
+  ```
+
+- [ ] **T1c — correct**: create the directory, then copy into it
+
+  ```bash
+  ssh $U@$IP mkdir $D
+  scp -rq /usr/bin $U@$IP:$B/$D/
+  ```
+
+  Say `ready`. **Expect:** flag, and the bot moves on to task 2.
 
 ## 1. Full backup (task 2)
 
