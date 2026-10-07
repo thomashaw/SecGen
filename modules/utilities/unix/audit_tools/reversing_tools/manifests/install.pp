@@ -33,7 +33,8 @@ class reversing_tools::install {
       }
     }
 
-    # GEF (2026.01, needs gdb >= 10 with python >= 3.10): loaded for every user via the system gdbinit shipped by the gdb package
+    # GEF (2026.01, needs gdb >= 10 with python >= 3.10): run with `gef`; plain `gdb` is left unchanged for existing lab sheets.
+    # /usr/local/bin precedes /usr/bin, so this also takes priority over Kali's own gef package if present.
     file { '/opt/gef':
       ensure => directory,
     }
@@ -43,9 +44,10 @@ class reversing_tools::install {
       mode    => '0644',
       require => File['/opt/gef'],
     }
-    file_line { 'gdbinit load gef':
-      path    => '/etc/gdb/gdbinit',
-      line    => 'source /opt/gef/gef.py',
+    file { '/usr/local/bin/gef':
+      ensure  => file,
+      content => "#!/bin/sh\nexec gdb -q -x /opt/gef/gef.py \"\$@\"\n",
+      mode    => '0755',
       require => [Package['gdb'], File['/opt/gef/gef.py']],
     }
   }
