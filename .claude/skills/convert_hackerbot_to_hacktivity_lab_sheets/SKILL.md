@@ -171,7 +171,7 @@ in full and follow it. The most common conversions in Hackerbot sheets:
   flag==`. Hacktivity needs a type: `==action: ...==`. Count them first with
   `grep -o '==[^=]*==' templates/*.md.erb | grep -cvE '==(action|tip|hint|warning|VM|question|edit):'`
   so none are missed — expect a few dozen per sheet.
-- `==Lab book question: ...==` / `==Log Book question: ...==` → `> Question: ...`
+- `==Lab book question: ...==` / `==Log Book question: ...==` → `> Log Book Question: ...` (also for "make a note of this in your Log Book" and "Log Book Task" lines)
 - The synthesised "save and submit any flags" and per-attack challenge text →
   `> Flag: ...`
 - **The synthesised blocks carry untyped highlights of their own** — `==say
