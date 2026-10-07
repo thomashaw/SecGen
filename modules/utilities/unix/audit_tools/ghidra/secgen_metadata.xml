@@ -22,7 +22,7 @@
   <conflict>
     <name>.*Debian.*Buster.*</name>
   </conflict>
-  <!-- kali-rolling uses the bundled release with openjdk-21; the 2018.3 Licensed Tools base has no JDK 17+ -->
+  <!-- kali-rolling installs Kali's ghidra package pinned to openjdk-21; the 2018.3 Licensed Tools base predates it -->
   <conflict>
     <name>Kali with Licensed Tools.*</name>
   </conflict>
