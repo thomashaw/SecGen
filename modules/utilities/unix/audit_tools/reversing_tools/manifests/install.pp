@@ -52,8 +52,10 @@ class reversing_tools::install {
     }
   }
 
-  # java
-  ensure_packages(['procyon-decompiler'])
+  # java (procyon was removed from kali-rolling in 2026-04)
+  unless $operatingsystem == 'Kali' {
+    ensure_packages(['procyon-decompiler'])
+  }
 
   # ensure ncat is installed for testing purposes
   ensure_packages("nmap")

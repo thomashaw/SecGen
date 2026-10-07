@@ -84,7 +84,7 @@ Source: `modules/build/puppet/secgen_functions/` (the copy in `modules/code_exam
 
 **From the distro** (preferred when the package exists on every target base):
 - `ensure_packages(['gdb', 'ltrace'])` [65] - safe to repeat across classes/defines; use it rather than `package {}` [173] for anything another class might also declare.
-- Packages disappear between releases (e.g. `upx-ucl` is not in Debian 12, `ncat` split from `nmap` in Debian 10+). Branch on release:
+- Packages disappear between releases (e.g. `upx-ucl` is not in Debian 12, `ncat` split from `nmap` in Debian 10+). Kali rolling tracks Debian testing and drops packages without notice (`procyon-decompiler` removed 2026-04; `md5deep` transitional gone - install `hashdeep`, which ships the `md5deep` binary). When a module gains a Kali system, check every package at `https://pkg.kali.org/pkg/<source>`. Branch on release:
   ```puppet
   case $operatingsystemrelease {
     /^(1[0-9]).*/: { ensure_packages('ncat') }   # buster+
