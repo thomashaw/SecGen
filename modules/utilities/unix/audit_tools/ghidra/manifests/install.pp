@@ -3,40 +3,47 @@ class ghidra::install{
   ensure_packages('zip')
 
   if $operatingsystem == 'Kali' {
-    # Kali packages Ghidra itself (with its JDK dependency, /usr/bin/ghidra and a menu entry), so use that
-    # rather than the bundled release, whose JDK pin doesn't track kali-rolling
-    ensure_packages(['ghidra'])
-  } else {
-    if ($operatingsystem == 'Debian') {
-      case $operatingsystemrelease {
-        /^(12).*/: { # do 12.x bookworm stuff
-          ensure_packages(['openjdk-17-jre', 'openjdk-17-jdk'])
-        }
-        /^(9|10).*/: { # do 9.x stretch stuff
-          ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
-        }
-        /^7.*/: { # do 7.x wheezy stuff
-          # Will error -- TODO needs repo
-          ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
-        }
-        default: {
-        }
+    # Use the bundled release on Kali too: Kali's own ghidra package (12.1.3+ds, Java 25) crashes in JavaHelp
+    # ("view is invalid") when opening help. Pin the release to JDK 21, as kali-rolling defaults to a newer Java.
+    ensure_packages(['openjdk-21-jre', 'openjdk-21-jdk'])
+  } elsif ($operatingsystem == 'Debian') {
+    case $operatingsystemrelease {
+      /^(12).*/: { # do 12.x bookworm stuff
+        ensure_packages(['openjdk-17-jre', 'openjdk-17-jdk'])
+      }
+      /^(9|10).*/: { # do 9.x stretch stuff
+        ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
+      }
+      /^7.*/: { # do 7.x wheezy stuff
+        # Will error -- TODO needs repo
+        ensure_packages(['openjdk-11-jre', 'openjdk-11-jdk'])
+      }
+      default: {
       }
     }
+  }
 
-    file { '/opt/ghidra':
-      ensure => directory,
-      recurse => true,
-      source => 'puppet:///modules/ghidra/release',
-      mode   => '0777',
-      owner => 'root',
-      group => 'root',
-    } ->
-    file { '/usr/share/applications/ghidra.desktop':
-      source => 'puppet:///modules/ghidra/ghidra.desktop',
-      mode   => '0644',
-      owner => 'root',
-      group => 'root',
+  file { '/opt/ghidra':
+    ensure => directory,
+    recurse => true,
+    source => 'puppet:///modules/ghidra/release',
+    mode   => '0777',
+    owner => 'root',
+    group => 'root',
+  } ->
+  file { '/usr/share/applications/ghidra.desktop':
+    source => 'puppet:///modules/ghidra/ghidra.desktop',
+    mode   => '0644',
+    owner => 'root',
+    group => 'root',
+  }
+
+  if $operatingsystem == 'Kali' {
+    file_line { 'ghidra java home override':
+      path    => '/opt/ghidra/support/launch.properties',
+      match   => '^JAVA_HOME_OVERRIDE=',
+      line    => 'JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-21-openjdk-amd64',
+      require => [File['/opt/ghidra'], Package['openjdk-21-jdk']],
     }
   }
 
