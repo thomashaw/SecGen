@@ -190,6 +190,8 @@ When you are ready for the bot to run the attack, ==action: say 'ready'== to Hac
 
 > Note: Hackerbot will tell you the exact directory name (including the random suffix) in the chat when it runs this attack. Remember the scp rule above: create the `remote-bin-backup-...` directory first, then copy `/usr/bin` into it. If scp says `realpath ...: No such file` or `path canonicalization failed`, the destination directory doesn't exist yet.
 
+> Tip: Why `/usr/bin` and not `/bin`? On current Debian (and most modern Linux distributions), `/bin` is just a symbolic link to `/usr/bin` -- run `ls -ld /bin` to see. `/usr/bin` is where the programs actually live, so that's the directory worth backing up.
+
 Don't forget to ==action: save and submit any flags!==
 
 ## Rsync, deltas and epoch backups {#rsync-deltas-and-epoch-backups}

@@ -5,8 +5,8 @@ A guided play-through of Hackerbot tasks 2–13 that makes the mistakes students
 whether each **hint actually gets a student unstuck**. Each step: run the command(s), say what's shown to
 Hackerbot, check the reply against **Expect**, then tick **hint clear?** if a student could act on it.
 
-Use a **fresh build**. Run everything on the **desktop**, in one terminal (the variables below stay set). Fill
-in the boxes at the top of the page first — the commands use your values.
+Use a **fresh build**. Run everything on the **desktop**, in one terminal (the variables below stay set). The
+setup block works out your username and the second user itself, and asks you for the backup_server's IP.
 
 > Every bot reply should start with `FYI:` lines (what it checked: `OK …`, `MISSING …`, `UNEXPECTED …`) and then a
 > one-line verdict. The FYI should make the verdict obvious.
@@ -14,14 +14,22 @@ in the boxes at the top of the page first — the commands use your values.
 ## 0. Setup
 
 ```bash
-U=YOURUSER; S=SECONDUSER; IP=BACKUPIP; M=-M--fake-super
+U=$(whoami)
+S=$(ls /home | grep -vx "$U" | grep -vx vagrant)
+read -p "backup_server IP (it's in Hackerbot's task 1 prompt): " IP
+M=-M--fake-super
 B=/home/$U          # where backups live on the backup_server
 look() { ssh $U@$IP "cd $B && find remote-rsync-* -maxdepth 3 | sort"; }   # what's on the server
+echo "U=$U  S=$S  IP=$IP"
 ```
 
-Optional — stop typing passwords (only for this test; students won't do this):
+Check the last line shows your username, **one** second user, and the IP.
+
+Optional — stop typing passwords (only for this test; students won't do this). It asks for your password on the
+backup_server twice (once for your key, once for root's):
 
 ```bash
+[ -f ~/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N "" -f ~/.ssh/id_ed25519
 ssh-copy-id $U@$IP
 sudo bash -c '[ -f /root/.ssh/id_ed25519 ] || ssh-keygen -q -t ed25519 -N "" -f /root/.ssh/id_ed25519'
 sudo ssh-copy-id -i /root/.ssh/id_ed25519.pub $U@$IP
@@ -31,10 +39,10 @@ In the Hackerbot chat say `hello`, then `goto 1`.
 
 ## T1. scp /usr/bin (task 1)
 
-Set `D` to the directory name in Hackerbot's task 1 prompt (`remote-bin-backup-` + 4 hex characters):
+Enter the directory name from Hackerbot's task 1 prompt (`remote-bin-backup-` + 4 hex characters):
 
 ```bash
-D=remote-bin-backup-XXXX
+read -p "directory from task 1 (remote-bin-backup-....): " D
 ```
 
 - [ ] **T1a — destination doesn't exist, with a trailing slash** (OpenSSH 9 refuses)
