@@ -1,0 +1,992 @@
+Backups lab automated test report  (script 2026-10-06.1)
+started 2026-10-07 12:32, took 8 min
+desktop=tom-bak-3-3-backups-and-recovery-desktop YOURUSER=nuckelavee SECONDUSER=timingila BACKUPIP=10.56.0.3
+versions: rsync  version 3.2.7  protocol version 32 | OpenSSH_9.2p1 Debian-2+deb12u10, OpenSSL 3.0.20 7 Apr 2026 | rsync  version 3.1.3  protocol version 31 | 10.13 | Python 3.7.3
+Note: key-based SSH was set up for automation, so no password prompts appear in the transcripts.
+
+SUMMARY  (CONFIRMED = issue reproduced; OK = works as intended; PROBLEM = unexpected; INFO = observation)
+CONFIRMED       P4                   ls /home -> ['nuckelavee', 'timingila', 'vagrant'] (want exactly YOURUSER=nuckelavee and SECONDUSER=timingila)
+INFO            L-copy               cp loses ownership as the sheet says: backup "['nuckelavee', 'nuckelavee']" vs original "['root', 'root']"
+CONFIRMED       B6-sheet             1st scp -> ssh_etc_backup (rc=1, 6s), 2nd "repeat" -> ssh_backup/ (rc=1); layouts: 'ssh_etc_backup: holds /etc CONTENTS directly\nssh_backup: missing/other'
+INFO            L-scp-shadow         sudo scp of /etc puts shadow on the backup_server as: '-rw-r----- 1 nuckelavee nuckelavee 1565 Oct  7 12:08 ssh_etc_backup/shadow'
+CONFIRMED       B8                   scp -r dir -> missing dest gives dest=copy, existing dest gives dest/dir; tree=['b8_exists', 'b8_exists/d', 'b8_exists/d/f', 'b8_exists_s', 'b8_exists_s/d', 'b8_exists_s/d/f', 'b8_new', 'b8_new/f', 'b8_new_srcslash', 'b8_new_srcslash/f']; /bin: /usr/bin 1824 153M
+INFO            A1-none              nothing copied -> :( You didn't copy to the remote /home/nuckelavee/remote-bin-backup-4c82/bin/... Remember that the trailing / changes whether you are copying directories or their contents...
+INFO            A1-nobin             contents without bin/ -> :( You didn't copy to the remote /home/nuckelavee/remote-bin-backup-4c82/bin/... Remember that the trailing / changes whether you are copying directories or their contents...
+OK              A1                   correct solution (copy took 8s, 236M) -> :) Well done! flag{..}
+OK              L-rsync-local        2nd local rsync transferred ['etc/hello'] (sheet says: only the new file)
+INFO            L-rsync-z            rsync -z sent 1.17M vs du /etc 8.0M
+OK              L-nodelete           without --delete the server keeps etc/hello
+INFO            L-restore-hello      /etc/hello restored with local --fake-super: 644 root:root {'user.rsync.%stat': b'100644 0,0 1001:1001'}
+OK              L-delete             --delete removed etc/hello from the server
+CONFIRMED       B2-sheet             server copy of etc/shadow after the sheet's `sudo rsync --fake-super`: 640 nuckelavee:nuckelavee [] (root ownership lost if owned by nuckelavee and no user.rsync.%stat xattr)
+INFO            P3                   home dir 755 timingila; non-sudo rsync rc=23, 13 warning/error lines e.g. ['rsync: [sender] opendir "/home/timingila/.ssh" failed: Permission denied (13)', 'rsync: [sender] opendir "/home/timingila/.vim" failed: Permission denied (13)']
+INFO            A2-mkdir             rsync into a not-yet-existing nested dest: rc=11 ['rsync: mkdir "/home/nuckelavee/remote-rsync-full-backup/timingila" failed: No such file or directory (2)']
+INFO            A2-nested            nested SECONDUSER/SECONDUSER -> :( You didn't copy to remote ssh /home/nuckelavee/remote-rsync-full-backup/timingila/ Remember that the trailing / changes whether you are copying directories or their contents...
+OK              A2                   correct full backup -> :) Well done! flag{..}
+CONFIRMED       B1-sheet             week1 differential: local (--compare-dest=~/...) has 1004 files, remote (absolute path) has 1; rsync said: ['--compare-dest arg does not exist: ~/backups/rsync_backup']
+PROBLEM         L-etc-restore-diff   sheet lines 335/337 remote restore (full, then week2): 849 /etc entries changed mode/owner by the restore (sudoers affected!) e.g. > 777 0 0 /etc/alsa/conf.d/10-rate-lav.conf; > 777 0 0 /etc/alsa/conf.d/10-samplerate.conf; > 777 0 0 /etc/alsa/conf.d/10-speexrate.conf; > 777 0 0 /etc/alsa/conf.d/50-arcam-av-ctl.conf; missing after restore: none
+PROBLEM         L-etc-restore-local  sheet line 340 "try restoring from the local copy": 2 /etc entries changed mode/owner by the restore e.g. < 777 0 0 /etc/alsa/conf.d/10-rate-lav.conf; < 777 0 0 /etc/alsa/conf.d/10-samplerate.conf; < 777 0 0 /etc/alsa/conf.d/10-speexrate.conf; < 777 0 0 /etc/alsa/conf.d/50-arcam-av-ctl.conf; missing after restore: none
+OK              A3                   Ok, good... (Hint: Keep an eye out for a flag...)
+INFO            A4-full              no --compare-dest -> :( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.
+CONFIRMED       P2                   mismatched --compare-dest copied 26 files, rsync warnings: none; bot -> :( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.
+OK              A4                   correct differential1 -> :) Well done! flag{..} 
+PROBLEM         L-etc-restore-incr   line 408 restore full -> week2 -> monday -> tuesday (remote): 906 /etc entries changed mode/owner by the restore (sudoers affected!) e.g. < 777 0 0 /etc/X11/cursors/breeze_cursors.theme; > 644 0 0 /etc/X11/cursors/breeze_cursors.theme; > 777 0 0 /etc/alsa/conf.d/10-rate-lav.conf; > 777 0 0 /etc/alsa/conf.d/10-samplerate.conf; missing after restore: none
+OK              A5                   Ok, good... No flag this time, carry on...
+CONFIRMED       B6                   attack 6 prompt says .../remote-rsync-differential2/. ; doing that -> :( You didn't backup to the specified remote directory.
+INFO            A6-incr              compared against diff1 too -> :( Your differential backup should also include the first set of changes (all changes since the full backup).
+OK              A6                   correct differential2 -> :) Well done! flag{..} 
+OK              A7                   Ok, good... No flag this time, carry on...
+CONFIRMED       B4                   forgot diff2 compare-dest -> :( You backed up to the correct location, but it wasn't an incremental backup... You probably need to ssh in and delete that last backup and try again. (a specific hint would name the missing --compare-dest)
+OK              A8                   correct incremental1 -> :) Well done! flag{..} 
+CONFIRMED       B1-linkdest-sheet    hard-linked files per snapshot / du: snapshot_1 0 snapshot_2 0 snapshot_3 0 8.0M /home/nuckelavee/backups/rsync_backup 11M /home/nuckelavee/backups/rsync_backup_snapshot_1 11M /home/nuckelavee/backups/rsync_backup_snapshot_2 11M /home/nuckelavee/backups/rsync_backup_snapshot_3
+OK              A9                   Ok, good... No flag this time, carry on...
+CONFIRMED       B5                   incr2 dir exists (0 files) but bot says -> :( You didn't backup to the specified remote directory.
+OK              A10                  correct incremental2 -> :) Well done! flag{..} 
+CONFIRMED       Q10                  quiz answered with `sudo cat` on the desktop ('9001'; backup has '9001') -> Correct
+OK              A11                  I just deleted all timingila's files! They don't call me Hackerbot for nothin'!
+CONFIRMED       A12-none             nothing restored -> :( You restored something, but not everything... (B3 risk: random hex in a path can turn "didn't restore anything" into "restored something")
+OK              A12-order            wrong order -> :( Close... You restored something, but not everything... Check the order you did your restore commands in.
+OK              A12                  restore full -> diff2 -> incr1 -> incr2 -> :) Well done! flag{..} 
+CONFIRMED       B2-restore           after the labsheet-style restore, owners: 15 root 22 timingila; timingila can write notes: NO
+CONFIRMED       B7                   notes in full backup: absent; diff1 has 1 line(s), diff2 has 2; restoring the diff2 version -> :) Well done! flag{..} 
+OK              A13                  attack 13 solved -> :) Well done! flag{..} 
+CONFIRMED       B2                   original 640 1002:1002; server A(labsheet)=640 1001:1001 {}; server B(-M)=640 1001:1001 {'user.rsync.%stat': '100640 0,0 1002:1002'}; restores: R1 labsheet restore of labsheet backup=640 0:0; R2 labsheet restore of -M backup=640 0:0; R3 -M restore of -M backup=640 1002:1002; R4 plain restore of labsheet backup=640 1001:1001
+CONFIRMED       P1                   sudo ssh BACKUPIP logs in as "Pseudo-terminal will not be allocated because stdin is not a terminal.
+user root" -> rc=255; sudo rsync ... BACKUPIP: rc=255 (root@10.56.0.3: Permission denied (publickey,password).)
+OK              FLAGS                10 distinct flags collected (generator mints 10: 9 in chat + 1 hidden file)
+
+
+DETAILS
+
+====================================================================================================
+SETUP: passwordless SSH to the backup_server (for automation only)
+====================================================================================================
+Key-based SSH as YOURUSER and as root@desktop -> YOURUSER@backup_server is set up; labsheet commands run verbatim.
+
+====================================================================================================
+SETUP: remove artefacts of earlier runs
+====================================================================================================
+
+====================================================================================================
+LABSHEET: Getting started (lines 22-67)
+====================================================================================================
+$ ls /home   -> rc=0 (0s)
+    | nuckelavee
+    | timingila
+    | vagrant
+[CONFIRMED] P4: ls /home -> ['nuckelavee', 'timingila', 'vagrant'] (want exactly YOURUSER=nuckelavee and SECONDUSER=timingila)
+$ uptime   -> rc=0 (0s)
+    |  12:32:28 up 20 min,  3 users,  load average: 0.33, 0.13, 0.11
+
+====================================================================================================
+LABSHEET: Copy (lines 93-116)
+====================================================================================================
+$ mkdir ~/backups/   -> rc=0 (0s)
+$ cp /etc/passwd ~/backups/   -> rc=0 (0s)
+$ ls -la ~/backups/passwd   -> rc=0 (0s)
+    | -rw-r--r-- 1 nuckelavee nuckelavee 2466 Oct  7 12:32 /home/nuckelavee/backups/passwd
+$ ls -la /etc/passwd   -> rc=0 (0s)
+    | -rw-r--r-- 1 root root 2466 Oct  7 12:08 /etc/passwd
+[INFO] L-copy: cp loses ownership as the sheet says: backup "['nuckelavee', 'nuckelavee']" vs original "['root', 'root']"
+
+====================================================================================================
+LABSHEET: SSH/SCP (lines 118-167) + B6 (two dir names) + B8
+====================================================================================================
+$ sudo scp -pr /etc/ nuckelavee@10.56.0.3:/home/nuckelavee/ssh_etc_backup   -> rc=1 (6s)
+    | scp: local "/etc/systemd/system/irqbalance.service" is not a regular file
+    | scp: upload "/etc/systemd/system/irqbalance.service" to "/home/nuckelavee/ssh_etc_backup/systemd/system/irqbalance.service" failed
+    | scp: open local "/etc/systemd/system/default.target.wants/haveged.service": No such file or directory
+    | scp: upload "/etc/systemd/system/default.target.wants/haveged.service" to "/home/nuckelavee/ssh_etc_backup/systemd/system/default.target.wants/haveged.service" failed
+    | scp: open local "/etc/systemd/system/multi-user.target.wants/irqbalance.service": No such file or directory
+    | scp: upload "/etc/systemd/system/multi-user.target.wants/irqbalance.service" to "/home/nuckelavee/ssh_etc_backup/systemd/system/multi-user.target.wants/irqbalance.service" failed
+    |   ... (17 lines omitted, see full log) ...
+    | scp: upload "/etc/pulse/client.conf.d/01-enable-autospawn.conf" to "/home/nuckelavee/ssh_etc_backup/pulse/client.conf.d/01-enable-autospawn.conf" failed
+    | scp: local "/etc/xdg/systemd/user" is not a regular file
+    | scp: upload "/etc/xdg/systemd/user" to "/home/nuckelavee/ssh_etc_backup/xdg/systemd/user" failed
+    | scp: local "/etc/runit/runsvdir/default/ssh" is not a regular file
+    | scp: upload "/etc/runit/runsvdir/default/ssh" to "/home/nuckelavee/ssh_etc_backup/runit/runsvdir/default/ssh" failed
+    | scp: failed to upload directory /etc to /home/nuckelavee/ssh_etc_backup
+$ sudo bash -c 'echo > /etc/hi'   -> rc=0 (0s)
+$ sudo scp -pr /etc/ nuckelavee@10.56.0.3:/home/nuckelavee/ssh_backup/   -> rc=1 (0s)
+    | scp: realpath /home/nuckelavee/ssh_backup/: No such file
+    | scp: upload "/home/nuckelavee/ssh_backup/": path canonicalization failed
+    | scp: failed to upload directory /etc to /home/nuckelavee/ssh_backup/
+$ [backup_server] for d in ssh_etc_backup ssh_backup; do printf "%s: " $d; if [ -d $d/etc ]; then echo "has etc/ subdir"; elif [ -e $d/passwd ]; then echo "holds /etc CONTENTS directly"; else echo "missing/other"; fi; done   -> rc=0 (0s)
+    | ssh_etc_backup: holds /etc CONTENTS directly
+    | ssh_backup: missing/other
+$ [backup_server] ls -la ssh_backup/ | head -5   -> rc=0 (0s)
+    | ls: cannot access 'ssh_backup/': No such file or directory
+[CONFIRMED] B6-sheet: 1st scp -> ssh_etc_backup (rc=1, 6s), 2nd "repeat" -> ssh_backup/ (rc=1); layouts: 'ssh_etc_backup: holds /etc CONTENTS directly\nssh_backup: missing/other'
+$ [backup_server] ls -l ssh_etc_backup/shadow ssh_etc_backup/etc/shadow 2>/dev/null   -> rc=2 (0s)
+    | -rw-r----- 1 nuckelavee nuckelavee 1565 Oct  7 12:08 ssh_etc_backup/shadow
+[INFO] L-scp-shadow: sudo scp of /etc puts shadow on the backup_server as: '-rw-r----- 1 nuckelavee nuckelavee 1565 Oct  7 12:08 ssh_etc_backup/shadow'
+$ readlink -f /bin; ls /bin | wc -l; du -shL /bin/ 2>/dev/null | cut -f1   -> rc=0 (0s)
+    | /usr/bin
+    | 1824
+    | 153M
+$ scp -r /tmp/b8/d 10.56.0.3:/home/nuckelavee/b8_new   -> rc=0 (0s)
+$ scp -r /tmp/b8/d 10.56.0.3:/home/nuckelavee/b8_new_slash/   -> rc=1 (0s)
+    | scp: realpath /home/nuckelavee/b8_new_slash/: No such file
+    | scp: upload "/home/nuckelavee/b8_new_slash/": path canonicalization failed
+    | scp: failed to upload directory /tmp/b8/d to /home/nuckelavee/b8_new_slash/
+$ scp -r /tmp/b8/d/ 10.56.0.3:/home/nuckelavee/b8_new_srcslash   -> rc=0 (0s)
+$ scp -r /tmp/b8/d 10.56.0.3:/home/nuckelavee/b8_exists/   -> rc=0 (0s)
+$ scp -r /tmp/b8/d/ 10.56.0.3:/home/nuckelavee/b8_exists_s/   -> rc=0 (0s)
+$ [backup_server] find b8_* | sort   -> rc=0 (0s)
+    | b8_exists
+    | b8_exists/d
+    | b8_exists/d/f
+    | b8_exists_s
+    | b8_exists_s/d
+    | b8_exists_s/d/f
+    | b8_new
+    | b8_new/f
+    | b8_new_srcslash
+    | b8_new_srcslash/f
+[CONFIRMED] B8: scp -r dir -> missing dest gives dest=copy, existing dest gives dest/dir; tree=['b8_exists', 'b8_exists/d', 'b8_exists/d/f', 'b8_exists_s', 'b8_exists_s/d', 'b8_exists_s/d/f', 'b8_new', 'b8_new/f', 'b8_new_srcslash', 'b8_new_srcslash/f']; /bin: /usr/bin 1824 153M
+
+====================================================================================================
+BOT: Attack 1 (scp /bin)
+====================================================================================================
+BOT #1 ready (nothing copied yet) [10s]:
+    > FYI: ls: cannot access '/home/nuckelavee/remote-bin-backup-4c82/bin/ls': No such file or directory / ls: cannot access '/home/nuckelavee/remote-bin-backup-4c82/bin/mkdir': No such file or directory / 2
+    > :( You didn't copy to the remote /home/nuckelavee/remote-bin-backup-4c82/bin/... Remember that the trailing / changes whether you are copying directories or their contents...
+[INFO] A1-none: nothing copied -> :( You didn't copy to the remote /home/nuckelavee/remote-bin-backup-4c82/bin/... Remember that the trailing / changes whether you are copying directories or their contents...
+BOT #1 ready (contents copied without bin/ (what scp -r /bin/ to a missing dir does)) [10s]:
+    > FYI: 2 / ls: cannot access '/home/nuckelavee/remote-bin-backup-4c82/bin/ls': No such file or directory / ls: cannot access '/home/nuckelavee/remote-bin-backup-4c82/bin/mkdir': No such file or directory
+    > :( You didn't copy to the remote /home/nuckelavee/remote-bin-backup-4c82/bin/... Remember that the trailing / changes whether you are copying directories or their contents...
+[INFO] A1-nobin: contents without bin/ -> :( You didn't copy to the remote /home/nuckelavee/remote-bin-backup-4c82/bin/... Remember that the trailing / changes whether you are copying directories or their contents...
+$ scp -rq /bin 10.56.0.3:/home/nuckelavee/remote-bin-backup-4c82/   (after ssh mkdir)   -> rc=1 (8s)
+    | scp: local "/bin/X11" is not a regular file
+    | scp: upload "/bin/X11" to "/home/nuckelavee/remote-bin-backup-4c82/bin/X11" failed
+    | scp: failed to upload directory /bin to /home/nuckelavee/remote-bin-backup-4c82/
+$ [backup_server] du -sh remote-bin-backup-4c82 | cut -f1; ls remote-bin-backup-4c82   -> rc=0 (0s)
+    | 236M
+    | bin
+BOT #1 ready (correct: mkdir remote dir then scp -r /bin) [11s]:
+    > FYI: 0
+    > :) Well done! flag{historism chunked}
+    > ** #2 **
+[OK] A1: correct solution (copy took 8s, 236M) -> :) Well done! flag{..}
+
+====================================================================================================
+LABSHEET: Rsync, deltas and epoch backups (lines 181-207)
+====================================================================================================
+$ sudo rsync -av /etc ~/backups/rsync_backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/backups/rsync_backup
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    | etc/adduser.conf.update-old
+    |   ... (2169 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,537,217 bytes  received 23,087 bytes  7,120,608.00 bytes/sec
+    | total size is 3,427,838  speedup is 0.96
+$ sudo bash -c 'echo hello > /etc/hello'   -> rc=0 (0s)
+$ sudo rsync -av /etc ~/backups/rsync_backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | etc/
+    | etc/hello
+    | 
+    | sent 93,323 bytes  received 381 bytes  187,408.00 bytes/sec
+    | total size is 3,427,844  speedup is 36.58
+[OK] L-rsync-local: 2nd local rsync transferred ['etc/hello'] (sheet says: only the new file)
+
+====================================================================================================
+LABSHEET: Rsync remote copies via SSH, --fake-super (lines 209-262) + B2 evidence
+====================================================================================================
+$ sudo rsync -avzh --fake-super /etc nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-backup
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    | etc/adduser.conf.update-old
+    |   ... (2170 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 1.17M bytes  received 23.11K bytes  2.38M bytes/sec
+    | total size is 3.43M  speedup is 2.88
+$ sudo du -sh /etc   -> rc=0 (0s)
+    | 8.0M	/etc
+[INFO] L-rsync-z: rsync -z sent 1.17M vs du /etc 8.0M
+$ sudo rm /etc/hello   -> rc=0 (0s)
+$ sudo rsync -avzh --fake-super /etc nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | 
+    | sent 92.59K bytes  received 363 bytes  185.91K bytes/sec
+    | total size is 3.43M  speedup is 36.88
+$ [backup_server] test -f remote-rsync-backup/etc/hello   -> rc=0 (0s)
+[OK] L-nodelete: without --delete the server keeps etc/hello
+$ sudo rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup/etc/hello /etc/   -> rc=0 (0s)
+    | receiving incremental file list
+    | hello
+    | 
+    | sent 43 bytes  received 117 bytes  320.00 bytes/sec
+    | total size is 6  speedup is 0.04
+$ sudo stat -c "%a %U:%G" /etc/hello; sudo getfattr -d /etc/hello 2>/dev/null || sudo python3 -c 'import os;print({k:os.getxattr("/etc/hello",k) for k in os.listxattr("/etc/hello")})'   -> rc=0 (0s)
+    | 644 root:root
+    | {'user.rsync.%stat': b'100644 0,0 1001:1001'}
+[INFO] L-restore-hello: /etc/hello restored with local --fake-super: 644 root:root {'user.rsync.%stat': b'100644 0,0 1001:1001'}
+$ sudo rm /etc/hello   -> rc=0 (0s)
+$ sudo rsync -avzh --fake-super --delete /etc nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | deleting etc/hello
+    | etc/
+    | 
+    | sent 92.60K bytes  received 379 bytes  185.96K bytes/sec
+    | total size is 3.43M  speedup is 36.87
+$ [backup_server] test ! -e remote-rsync-backup/etc/hello   -> rc=0 (0s)
+[OK] L-delete: --delete removed etc/hello from the server
+$ [backup_server] stat -c '%a %U:%G' remote-rsync-backup/etc/shadow; python3 -c 'import os;p="remote-rsync-backup/etc/shadow";print(os.listxattr(p))'   -> rc=0 (0s)
+    | 640 nuckelavee:nuckelavee
+    | []
+[CONFIRMED] B2-sheet: server copy of etc/shadow after the sheet's `sudo rsync --fake-super`: 640 nuckelavee:nuckelavee [] (root ownership lost if owned by nuckelavee and no user.rsync.%stat xattr)
+
+====================================================================================================
+BOT: Attack 2 (full backup) + P3
+====================================================================================================
+$ (P3) rsync -av /home/timingila /tmp/p3/   (no sudo)   -> rc=23 (0s)
+    | sending incremental file list
+    | rsync: [sender] opendir "/home/timingila/.ssh" failed: Permission denied (13)
+    | rsync: [sender] opendir "/home/timingila/.vim" failed: Permission denied (13)
+    | created directory /tmp/p3
+    | timingila/
+    | timingila/.bash_logout
+    |   ... (27 lines omitted, see full log) ...
+    | rsync: [sender] send_files failed to open "/home/timingila/trade_secrets/code.pl": Permission denied (13)
+    | rsync: [sender] send_files failed to open "/home/timingila/trade_secrets/credit_card": Permission denied (13)
+    | 
+    | sent 22,452 bytes  received 507 bytes  45,918.00 bytes/sec
+    | total size is 23,510  speedup is 1.02
+    | rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1347) [sender=3.2.7]
+[INFO] P3: home dir 755 timingila; non-sudo rsync rc=23, 13 warning/error lines e.g. ['rsync: [sender] opendir "/home/timingila/.ssh" failed: Permission denied (13)', 'rsync: [sender] opendir "/home/timingila/.vim" failed: Permission denied (13)']
+$ (mistake: dest names timingila too, dir not yet created) sudo rsync -avzh --fake-super /home/timingila nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-full-backup/timingila   -> rc=11 (0s)
+    | sending incremental file list
+    | rsync: mkdir "/home/nuckelavee/remote-rsync-full-backup/timingila" failed: No such file or directory (2)
+    | rsync error: error in file IO (code 11) at main.c(682) [Receiver=3.1.3]
+[INFO] A2-mkdir: rsync into a not-yet-existing nested dest: rc=11 ['rsync: mkdir "/home/nuckelavee/remote-rsync-full-backup/timingila" failed: No such file or directory (2)']
+$ (mistake: nested, dest dir exists) same command again   -> rc=0 (0s)
+    | sending incremental file list
+    | timingila/
+    | timingila/.bash_logout
+    | timingila/.bashrc
+    | timingila/.face
+    | timingila/.face.icon -> .face
+    |   ... (24 lines omitted, see full log) ...
+    | timingila/trade_secrets/
+    | timingila/trade_secrets/code.pl
+    | timingila/trade_secrets/credit_card
+    | 
+    | sent 12.00K bytes  received 496 bytes  24.99K bytes/sec
+    | total size is 23.51K  speedup is 1.88
+BOT #2 ready (nested timingila/timingila) [10s]:
+    > FYI: ls: cannot access '/home/nuckelavee/remote-rsync-full-backup/timingila/logs/log1': No such file or directory / 2
+    > :( You didn't copy to remote ssh /home/nuckelavee/remote-rsync-full-backup/timingila/ Remember that the trailing / changes whether you are copying directories or their contents...
+[INFO] A2-nested: nested SECONDUSER/SECONDUSER -> :( You didn't copy to remote ssh /home/nuckelavee/remote-rsync-full-backup/timingila/ Remember that the trailing / changes whether you are copying directories or their contents...
+$ sudo rsync -avzh --fake-super /home/timingila nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-full-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-full-backup
+    | timingila/
+    | timingila/.bash_logout
+    | timingila/.bashrc
+    | timingila/.face
+    |   ... (25 lines omitted, see full log) ...
+    | timingila/trade_secrets/
+    | timingila/trade_secrets/code.pl
+    | timingila/trade_secrets/credit_card
+    | 
+    | sent 12.00K bytes  received 560 bytes  25.12K bytes/sec
+    | total size is 23.51K  speedup is 1.87
+BOT #2 ready (correct full backup) [13s]:
+    > FYI: 0
+    > :) Well done! flag{d61e721d59bc0bc28401ea9bdf4f8126}
+    > ** #3 **
+[OK] A2: correct full backup -> :) Well done! flag{..}
+
+====================================================================================================
+LABSHEET: Differential backups (lines 280-340) + B1 + guarded /etc restore
+====================================================================================================
+$ sudo bash -c 'echo "hello there" > /etc/hello'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ ~/backups/rsync_backup_week1/   -> rc=0 (0s)
+    | sending incremental file list
+    | --compare-dest arg does not exist: ~/backups/rsync_backup
+    | created directory /home/nuckelavee/backups/rsync_backup_week1
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    |   ... (2171 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,537,297 bytes  received 23,124 bytes  7,120,842.00 bytes/sec
+    | total size is 3,427,850  speedup is 0.96
+$ sudo rsync -avzh --fake-super /etc --compare-dest=/home/nuckelavee/remote-rsync-backup/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-week1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-backup-week1
+    | etc/
+    | etc/hello
+    | 
+    | sent 92.67K bytes  received 446 bytes  186.24K bytes/sec
+    | total size is 3.43M  speedup is 36.81
+[CONFIRMED] B1-sheet: week1 differential: local (--compare-dest=~/...) has 1004 files, remote (absolute path) has 1; rsync said: ['--compare-dest arg does not exist: ~/backups/rsync_backup']
+$ ls -la ~/backups/rsync_backup_week1/etc | head -8   -> rc=0 (0s)
+    | total 1228
+    | drwxr-xr-x 141 root root   12288 Oct  7 12:33 .
+    | drwxr-xr-x   3 root root    4096 Oct  7 12:33 ..
+    | -rw-------   1 root root       0 Jan 15  2018 .pwd.lock
+    | drwxr-xr-x   2 root root    4096 Jul 15 15:06 ImageMagick-6
+    | drwxr-xr-x   4 root root    4096 Jul  4  2024 ModemManager
+    | drwxr-xr-x   7 root root    4096 Jul 15 15:07 NetworkManager
+    | drwxr-xr-x   2 root root    4096 Jul 15 15:07 PackageKit
+$ sudo bash -c 'echo "hello there!" > /etc/hi'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ ~/backups/rsync_backup_week2/   -> rc=0 (0s)
+    | sending incremental file list
+    | --compare-dest arg does not exist: ~/backups/rsync_backup
+    | created directory /home/nuckelavee/backups/rsync_backup_week2
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    |   ... (2171 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,537,313 bytes  received 23,104 bytes  7,120,834.00 bytes/sec
+    | total size is 3,427,862  speedup is 0.96
+$ sudo rsync -avzh --fake-super /etc --compare-dest=/home/nuckelavee/remote-rsync-backup/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-week2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-backup-week2
+    | etc/
+    | etc/hello
+    | etc/hi
+    | 
+    | sent 92.73K bytes  received 472 bytes  62.13K bytes/sec
+    | total size is 3.43M  speedup is 36.78
+week2: local 1004 files, remote 2 files (sheet: "your two new files")
+$ sudo rm /etc/wgetrc /etc/hello   -> rc=0 (0s)
+$ [guarded root shell] sheet lines 335/337 remote restore (full, then week2): rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup/etc/ /etc/ ; rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-week2/etc/ /etc/   -> rc=0 (7s)
+    | receiving incremental file list
+    | ./
+    | hi
+    | localtime -> /usr/share/zoneinfo/Europe/London
+    | mtab -> ../proc/self/mounts
+    | os-release -> ../usr/lib/os-release
+    |   ... (1251 lines omitted, see full log) ...
+    | 644 root:root /etc/hi
+    | === SUDO CHECK (would sudo still work for a student?)
+    | /etc/sudoers.d/README: bad permissions, should be mode 0440
+    | /etc/sudoers.d/kdesu-sudoers: bad permissions, should be mode 0440
+    | /etc/sudoers.d/zz-backups-labtest: bad permissions, should be mode 0440
+    | === AFTER REPAIR, still differing: 840
+[PROBLEM] L-etc-restore-diff: sheet lines 335/337 remote restore (full, then week2): 849 /etc entries changed mode/owner by the restore (sudoers affected!) e.g. > 777 0 0 /etc/alsa/conf.d/10-rate-lav.conf; > 777 0 0 /etc/alsa/conf.d/10-samplerate.conf; > 777 0 0 /etc/alsa/conf.d/10-speexrate.conf; > 777 0 0 /etc/alsa/conf.d/50-arcam-av-ctl.conf; missing after restore: none
+$ sudo rm /etc/wgetrc /etc/hello   -> rc=0 (0s)
+$ [guarded root shell] sheet line 340 "try restoring from the local copy": rsync -av /home/nuckelavee/backups/rsync_backup/etc/ /etc/ ; rsync -av /home/nuckelavee/backups/rsync_backup_week2/etc/ /etc/   -> rc=0 (6s)
+    | sending incremental file list
+    | ./
+    | hello
+    | hi
+    | localtime -> /usr/share/zoneinfo/Europe/London
+    | mtab -> ../proc/self/mounts
+    |   ... (918 lines omitted, see full log) ...
+    | === SUDO CHECK (would sudo still work for a student?)
+    | /etc/sudoers.d/README: parsed OK
+    | /etc/sudoers.d/kdesu-sudoers: parsed OK
+    | /etc/sudoers.d/zz-backups-labtest: parsed OK
+    | chmod: changing permissions of '/etc/mtab': Operation not permitted
+    | === AFTER REPAIR, still differing: 57
+[PROBLEM] L-etc-restore-local: sheet line 340 "try restoring from the local copy": 2 /etc entries changed mode/owner by the restore e.g. < 777 0 0 /etc/alsa/conf.d/10-rate-lav.conf; < 777 0 0 /etc/alsa/conf.d/10-samplerate.conf; < 777 0 0 /etc/alsa/conf.d/10-speexrate.conf; < 777 0 0 /etc/alsa/conf.d/50-arcam-av-ctl.conf; missing after restore: none
+
+====================================================================================================
+BOT: Attacks 3-4 (changes A, differential1) + P2
+====================================================================================================
+BOT #3 ready (bot creates notes/log2/flag) [11s]:
+    > FYI: 0
+    > Ok, good... (Hint: Keep an eye out for a flag...)
+    > ** #4 **
+[OK] A3: Ok, good... (Hint: Keep an eye out for a flag...)
+$ sudo cat /home/timingila/personal_secrets/flag   -> rc=0 (0s)
+    | flag{1VyNA6THvkos2Y089MA}
+$ (mistake: no --compare-dest) sudo rsync -avzh --fake-super /home/timingila nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-differential1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-differential1
+    | timingila/
+    | timingila/.bash_logout
+    | timingila/.bashrc
+    | timingila/.face
+    |   ... (28 lines omitted, see full log) ...
+    | timingila/trade_secrets/
+    | timingila/trade_secrets/code.pl
+    | timingila/trade_secrets/credit_card
+    | 
+    | sent 12.28K bytes  received 619 bytes  8.60K bytes/sec
+    | total size is 23.59K  speedup is 1.83
+BOT #4 ready (full copy, no --compare-dest) [12s]:
+    > FYI: 00
+    > :( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.
+[INFO] A4-full: no --compare-dest -> :( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.
+$ (P2 mistake: layout mismatch) ... --compare-dest=/home/nuckelavee/remote-rsync-full-backup/timingila/ ...   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-differential1
+    | timingila/
+    | timingila/.bash_logout
+    | timingila/.bashrc
+    | timingila/.face
+    |   ... (28 lines omitted, see full log) ...
+    | timingila/trade_secrets/
+    | timingila/trade_secrets/code.pl
+    | timingila/trade_secrets/credit_card
+    | 
+    | sent 12.28K bytes  received 619 bytes  8.60K bytes/sec
+    | total size is 23.59K  speedup is 1.83
+BOT #4 ready (compare-dest layout mismatch) [10s]:
+    > FYI: 00
+    > :( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.
+[CONFIRMED] P2: mismatched --compare-dest copied 26 files, rsync warnings: none; bot -> :( You backed up to the correct location, but it wasn't an differential backup... You probably need to ssh in and delete that last backup and try again.
+$ sudo rsync -avzh --fake-super /home/timingila --compare-dest=/home/nuckelavee/remote-rsync-full-backup/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-differential1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-differential1
+    | timingila/
+    | timingila/notes
+    | timingila/logs/
+    | timingila/logs/log2
+    | timingila/personal_secrets/
+    | timingila/personal_secrets/flag
+    | 
+    | sent 1.36K bytes  received 164 bytes  3.06K bytes/sec
+    | total size is 23.59K  speedup is 15.43
+$ [backup_server] cd /home/nuckelavee/remote-rsync-differential1 && find . -type f   -> rc=0 (0s)
+    | ./timingila/notes
+    | ./timingila/logs/log2
+    | ./timingila/personal_secrets/flag
+BOT #4 ready (correct differential1) [15s]:
+    > FYI: ls: cannot access '/home/nuckelavee/remote-rsync-differential1/timingila/personal_secrets/address_book': No such file or directory / 02
+    > :) Well done! flag{semiconservative recoup} 
+    > ** #5 **
+[OK] A4: correct differential1 -> :) Well done! flag{..} 
+
+====================================================================================================
+LABSHEET: Incremental backups (lines 364-408) + guarded /etc restore
+====================================================================================================
+$ sudo bash -c 'echo "Another test change" > /etc/test1'   -> rc=0 (0s)
+$ sudo bash -c 'echo "Another test change" > /etc/hello'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ --compare-dest=~/backups/rsync_backup_week2/ ~/backups/rsync_backup_monday/   -> rc=0 (0s)
+    | sending incremental file list
+    | --compare-dest arg does not exist: ~/backups/rsync_backup
+    | --compare-dest arg does not exist: ~/backups/rsync_backup_week2
+    | created directory /home/nuckelavee/backups/rsync_backup_monday
+    | etc/
+    | etc/.pwd.lock
+    |   ... (2173 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,537,438 bytes  received 23,100 bytes  7,121,076.00 bytes/sec
+    | total size is 3,427,890  speedup is 0.96
+$ sudo rsync -avzh --fake-super /etc --compare-dest=/home/nuckelavee/remote-rsync-backup/ --compare-dest=/home/nuckelavee/remote-rsync-backup-week2/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-monday/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-backup-monday
+    | etc/
+    | etc/hello
+    | etc/test1
+    | 
+    | sent 92.98K bytes  received 473 bytes  186.90K bytes/sec
+    | total size is 3.43M  speedup is 36.68
+$ sudo bash -c 'echo "Another test change" > /etc/test2'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=~/backups/rsync_backup/ --compare-dest=~/backups/rsync_backup_week2/ --compare-dest=~/backups/rsync_backup_monday/ ~/backups/rsync_backup_tuesday/   -> rc=0 (0s)
+    | sending incremental file list
+    | --compare-dest arg does not exist: ~/backups/rsync_backup
+    | --compare-dest arg does not exist: ~/backups/rsync_backup_week2
+    | --compare-dest arg does not exist: ~/backups/rsync_backup_monday
+    | created directory /home/nuckelavee/backups/rsync_backup_tuesday
+    | etc/
+    |   ... (2175 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,537,531 bytes  received 23,148 bytes  7,121,358.00 bytes/sec
+    | total size is 3,427,910  speedup is 0.96
+$ sudo rsync -avzh --fake-super /etc --compare-dest=/home/nuckelavee/remote-rsync-backup/ --compare-dest=/home/nuckelavee/remote-rsync-backup-week2/ --compare-dest=/home/nuckelavee/remote-rsync-backup-monday/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-tuesday/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-backup-tuesday
+    | etc/test2
+    | 
+    | sent 92.95K bytes  received 445 bytes  62.26K bytes/sec
+    | total size is 3.43M  speedup is 36.70
+monday: local 1005 / remote 2 files; tuesday: local 1006 / remote 1 files
+$ sudo rm /etc/wgetrc /etc/hello /etc/test1 /etc/test2   -> rc=0 (0s)
+$ [guarded root shell] line 408 restore full -> week2 -> monday -> tuesday (remote): rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup/etc/ /etc/ ; rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-week2/etc/ /etc/ ; rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-monday/etc/ /etc/ ; rsync -avz --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-backup-tuesday/etc/ /etc/   -> rc=0 (7s)
+    | receiving incremental file list
+    | ./
+    | hi
+    | localtime -> /usr/share/zoneinfo/Europe/London
+    | mtab -> ../proc/self/mounts
+    | os-release -> ../usr/lib/os-release
+    |   ... (930 lines omitted, see full log) ...
+    | 644 root:root /etc/test2
+    | === SUDO CHECK (would sudo still work for a student?)
+    | /etc/sudoers.d/README: bad permissions, should be mode 0440
+    | /etc/sudoers.d/kdesu-sudoers: bad permissions, should be mode 0440
+    | /etc/sudoers.d/zz-backups-labtest: bad permissions, should be mode 0440
+    | === AFTER REPAIR, still differing: 842
+[PROBLEM] L-etc-restore-incr: line 408 restore full -> week2 -> monday -> tuesday (remote): 906 /etc entries changed mode/owner by the restore (sudoers affected!) e.g. < 777 0 0 /etc/X11/cursors/breeze_cursors.theme; > 644 0 0 /etc/X11/cursors/breeze_cursors.theme; > 777 0 0 /etc/alsa/conf.d/10-rate-lav.conf; > 777 0 0 /etc/alsa/conf.d/10-samplerate.conf; missing after restore: none
+
+====================================================================================================
+BOT: Attacks 5-6 (changes B, differential2) + B6 (prompt path)
+====================================================================================================
+BOT #5 ready (bot appends/creates more files) [13s]:
+    > FYI: 0
+    > Ok, good... No flag this time, carry on...
+    > ** #6 **
+[OK] A5: Ok, good... No flag this time, carry on...
+$ (follows prompt literally: .../differential2/.) sudo rsync -avzh --fake-super /home/timingila/ --compare-dest=/home/nuckelavee/remote-rsync-full-backup/timingila/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-differential2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-differential2
+    | ./
+    | notes
+    | logs/
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/flag
+    | personal_secrets/really_not_a_flag
+    | 
+    | sent 1.46K bytes  received 182 bytes  1.09K bytes/sec
+    | total size is 23.63K  speedup is 14.43
+BOT #6 ready (prompt path taken literally (contents into differential2/)) [16s]:
+    > FYI: grep: /home/nuckelavee/remote-rsync-differential2/timingila/personal_secrets/flag: No such file or directory / ls: cannot access '/home/nuckelavee/remote-rsync-differential2/timingila/trade_secrets/credit_card': No such file or directory / grep: /home/nuckelavee/remote-rsync-differential2/timin
+    > :( You didn't backup to the specified remote directory.
+[CONFIRMED] B6: attack 6 prompt says .../remote-rsync-differential2/. ; doing that -> :( You didn't backup to the specified remote directory.
+$ (mistake: incremental instead of differential) --compare-dest=full + differential1   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-differential2
+    | timingila/notes
+    | timingila/logs/log2
+    | timingila/personal_secrets/
+    | timingila/personal_secrets/really_not_a_flag
+    | 
+    | sent 1.41K bytes  received 172 bytes  1.05K bytes/sec
+    | total size is 23.63K  speedup is 14.96
+BOT #6 ready (incremental instead of differential) [14s]:
+    > FYI: grep: /home/nuckelavee/remote-rsync-differential2/timingila/personal_secrets/flag: No such file or directory / ls: cannot access '/home/nuckelavee/remote-rsync-differential2/timingila/trade_secrets/credit_card': No such file or directory / 220
+    > :( Your differential backup should also include the first set of changes (all changes since the full backup).
+[INFO] A6-incr: compared against diff1 too -> :( Your differential backup should also include the first set of changes (all changes since the full backup).
+$ sudo rsync -avzh --fake-super /home/timingila --compare-dest=/home/nuckelavee/remote-rsync-full-backup/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-differential2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-differential2
+    | timingila/
+    | timingila/notes
+    | timingila/logs/
+    | timingila/logs/log2
+    | timingila/personal_secrets/
+    | timingila/personal_secrets/flag
+    | timingila/personal_secrets/really_not_a_flag
+    | 
+    | sent 1.48K bytes  received 183 bytes  1.11K bytes/sec
+    | total size is 23.63K  speedup is 14.22
+$ [backup_server] cd /home/nuckelavee/remote-rsync-differential2 && find . -type f   -> rc=0 (0s)
+    | ./timingila/notes
+    | ./timingila/logs/log2
+    | ./timingila/personal_secrets/really_not_a_flag
+    | ./timingila/personal_secrets/flag
+BOT #6 ready (correct differential2) [16s]:
+    > FYI: ls: cannot access '/home/nuckelavee/remote-rsync-differential2/timingila/trade_secrets/credit_card': No such file or directory / 020
+    > :) Well done! flag{34706d80} 
+    > ** #7 **
+[OK] A6: correct differential2 -> :) Well done! flag{..} 
+
+====================================================================================================
+BOT: Attacks 7-8 (changes C, incremental1) + B4
+====================================================================================================
+BOT #7 ready (bot changes files) [16s]:
+    > FYI: 0
+    > Ok, good... No flag this time, carry on...
+    > ** #8 **
+[OK] A7: Ok, good... No flag this time, carry on...
+$ (mistake: forgot differential2 --compare-dest) only --compare-dest=full   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-incremental1
+    | timingila/
+    | timingila/notes
+    | timingila/logs/
+    | timingila/logs/log2
+    |   ... (1 lines omitted, see full log) ...
+    | timingila/personal_secrets/064f
+    | timingila/personal_secrets/flag
+    | timingila/personal_secrets/really_not_a_flag
+    | 
+    | sent 1.51K bytes  received 201 bytes  3.43K bytes/sec
+    | total size is 23.61K  speedup is 13.76
+BOT #8 ready (forgot --compare-dest for differential2) [12s]:
+    > FYI: ls: cannot access '/home/nuckelavee/remote-rsync-incremental1/timingila/personal_secrets/address_book': No such file or directory / 0200
+    > :( You backed up to the correct location, but it wasn't an incremental backup... You probably need to ssh in and delete that last backup and try again.
+[CONFIRMED] B4: forgot diff2 compare-dest -> :( You backed up to the correct location, but it wasn't an incremental backup... You probably need to ssh in and delete that last backup and try again. (a specific hint would name the missing --compare-dest)
+$ sudo rsync -avzh --fake-super /home/timingila --compare-dest=/home/nuckelavee/remote-rsync-full-backup/ --compare-dest=/home/nuckelavee/remote-rsync-differential2/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-incremental1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-incremental1
+    | timingila/notes
+    | timingila/logs/log2
+    | timingila/personal_secrets/
+    | timingila/personal_secrets/064f
+    | 
+    | sent 1.40K bytes  received 171 bytes  3.14K bytes/sec
+    | total size is 23.61K  speedup is 15.03
+$ [backup_server] cd /home/nuckelavee/remote-rsync-incremental1 && find . -type f   -> rc=0 (0s)
+    | ./timingila/notes
+    | ./timingila/logs/log2
+    | ./timingila/personal_secrets/064f
+BOT #8 ready (correct incremental1) [20s]:
+    > FYI: grep: /home/nuckelavee/remote-rsync-incremental1/timingila/personal_secrets/flag: No such file or directory / ls: cannot access '/home/nuckelavee/remote-rsync-incremental1/timingila/personal_secrets/address_book': No such file or directory / grep: /home/nuckelavee/remote-rsync-incremental1/timi
+    > :) Well done! flag{butcherly hydrolyzations} 
+    > ** #9 **
+[OK] A8: correct incremental1 -> :) Well done! flag{..} 
+
+====================================================================================================
+LABSHEET: Rsync snapshot backups (lines 454-484) + B1 link-dest
+====================================================================================================
+$ sudo rsync -av --delete --link-dest=~/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_1   -> rc=0 (0s)
+    | sending incremental file list
+    | --link-dest arg does not exist: ~/backups/rsync_backup
+    | created directory /home/nuckelavee/backups/rsync_backup_snapshot_1
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    |   ... (2173 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,570,197 bytes  received 36,607 bytes  7,213,608.00 bytes/sec
+    | total size is 3,427,910  speedup is 0.95
+$ sudo bash -c 'echo "Another test change" > /etc/test3'   -> rc=0 (0s)
+$ sudo bash -c 'echo "Another test change" > /etc/test4'   -> rc=0 (0s)
+$ sudo rsync -av --delete --link-dest=~/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_2   -> rc=0 (0s)
+    | sending incremental file list
+    | --link-dest arg does not exist: ~/backups/rsync_backup
+    | created directory /home/nuckelavee/backups/rsync_backup_snapshot_2
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    |   ... (2175 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,570,365 bytes  received 36,645 bytes  7,214,020.00 bytes/sec
+    | total size is 3,427,950  speedup is 0.95
+$ sudo rm /etc/test3   -> rc=0 (0s)
+$ sudo rsync -av --delete --link-dest=~/backups/rsync_backup/ /etc ~/backups/rsync_backup_snapshot_3   -> rc=0 (0s)
+    | sending incremental file list
+    | --link-dest arg does not exist: ~/backups/rsync_backup
+    | created directory /home/nuckelavee/backups/rsync_backup_snapshot_3
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    |   ... (2174 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 3,570,281 bytes  received 36,638 bytes  2,404,612.67 bytes/sec
+    | total size is 3,427,930  speedup is 0.95
+$ for s in snapshot_1 snapshot_2 snapshot_3; do echo "$s $(sudo find ~/backups/rsync_backup_$s -type f -links +1 | wc -l)"; done; sudo du -sh ~/backups/rsync_backup ~/backups/rsync_backup_snapshot_1 ~/backups/rsync_backup_snapshot_2 ~/backups/rsync_backup_snapshot_3   -> rc=0 (0s)
+    | snapshot_1 0
+    | snapshot_2 0
+    | snapshot_3 0
+    | 8.0M	/home/nuckelavee/backups/rsync_backup
+    | 11M	/home/nuckelavee/backups/rsync_backup_snapshot_1
+    | 11M	/home/nuckelavee/backups/rsync_backup_snapshot_2
+    | 11M	/home/nuckelavee/backups/rsync_backup_snapshot_3
+$ recover test3 from snapshot_2   -> rc=0 (0s)
+    | Another test change
+[CONFIRMED] B1-linkdest-sheet: hard-linked files per snapshot / du: snapshot_1 0 snapshot_2 0 snapshot_3 0 8.0M /home/nuckelavee/backups/rsync_backup 11M /home/nuckelavee/backups/rsync_backup_snapshot_1 11M /home/nuckelavee/backups/rsync_backup_snapshot_2 11M /home/nuckelavee/backups/rsync_backup_snapshot_3
+
+====================================================================================================
+BOT: Attacks 9-10 (changes D, incremental2) + B5 + quiz
+====================================================================================================
+BOT #9 ready (bot changes files) [13s]:
+    > FYI: 0
+    > Ok, good... No flag this time, carry on...
+    > ** #10 **
+[OK] A9: Ok, good... No flag this time, carry on...
+$ [backup_server] set aside the good incremental1   -> rc=0 (0s)
+$ (B5 mistake: redo incremental1 AFTER attack 9) same incr1 command again   -> rc=0 (0s)
+    | sending incremental file list
+    | timingila/notes
+    | timingila/logs/log2
+    | timingila/personal_secrets/
+    | timingila/personal_secrets/nothing_much
+    | 
+    | sent 1.43K bytes  received 104 bytes  3.07K bytes/sec
+    | total size is 23.64K  speedup is 15.39
+$ sudo rsync -avzh --fake-super /home/timingila --compare-dest=/home/nuckelavee/remote-rsync-full-backup/ --compare-dest=/home/nuckelavee/remote-rsync-differential2/ --compare-dest=/home/nuckelavee/remote-rsync-incremental1/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-incremental2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-incremental2
+    | 
+    | sent 1.26K bytes  received 89 bytes  2.70K bytes/sec
+    | total size is 23.64K  speedup is 17.54
+BOT #10 ready (incremental1 retaken late) [20s]:
+    > FYI: grep: /home/nuckelavee/remote-rsync-incremental2/timingila/personal_secrets/flag: No such file or directory / ls: cannot access '/home/nuckelavee/remote-rsync-incremental2/timingila/personal_secrets/credit_card': No such file or directory / grep: /home/nuckelavee/remote-rsync-incremental2/timin
+    > :( You didn't backup to the specified remote directory.
+[CONFIRMED] B5: incr2 dir exists (0 files) but bot says -> :( You didn't backup to the specified remote directory.
+$ sudo rsync -avzh --fake-super /home/timingila --compare-dest=/home/nuckelavee/remote-rsync-full-backup/ --compare-dest=/home/nuckelavee/remote-rsync-differential2/ --compare-dest=/home/nuckelavee/remote-rsync-incremental1/ nuckelavee@10.56.0.3:/home/nuckelavee/remote-rsync-incremental2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/remote-rsync-incremental2
+    | timingila/notes
+    | timingila/logs/log2
+    | timingila/personal_secrets/
+    | timingila/personal_secrets/nothing_much
+    | 
+    | sent 1.43K bytes  received 167 bytes  3.19K bytes/sec
+    | total size is 23.64K  speedup is 14.80
+$ [backup_server] cd /home/nuckelavee/remote-rsync-incremental2 && find . -type f   -> rc=0 (0s)
+    | ./timingila/notes
+    | ./timingila/logs/log2
+    | ./timingila/personal_secrets/nothing_much
+BOT #10 ready (correct incremental2) [24s]:
+    > FYI: grep: /home/nuckelavee/remote-rsync-incremental2/timingila/personal_secrets/flag: No such file or directory / ls: cannot access '/home/nuckelavee/remote-rsync-incremental2/timingila/personal_secrets/credit_card': No such file or directory / grep: /home/nuckelavee/remote-rsync-incremental2/timin
+    > :) Well done! flag{c10b5390} 
+    > Access the backups via SSH. What's the contents of timingila/personal_secrets/nothing_much?
+[OK] A10: correct incremental2 -> :) Well done! flag{..} 
+$ (quiz answered from the DESKTOP, not the backups)   -> rc=0 (0s)
+    | 9001
+$ [backup_server] cat /home/nuckelavee/remote-rsync-incremental2/timingila/personal_secrets/nothing_much   -> rc=0 (0s)
+    | 9001
+BOT quiz answer: Correct | :) flag{..} | ** #11 ** | I am going to attack you now! | 'Ready'?
+[CONFIRMED] Q10: quiz answered with `sudo cat` on the desktop ('9001'; backup has '9001') -> Correct
+
+====================================================================================================
+BOT: Attacks 11-12 (deletion, restore) + B3 (attack 12) + ownership after restore
+====================================================================================================
+BOT #11 ready (bot deletes the files) [15s]:
+    > FYI: 0
+    > I just deleted all timingila's files! They don't call me Hackerbot for nothin'!
+    > ** #12 **
+[OK] A11: I just deleted all timingila's files! They don't call me Hackerbot for nothin'!
+$ sudo ls -la /home/timingila   -> rc=0 (0s)
+    | total 40
+    | drwxr-xr-x 5 timingila timingila 4096 Oct  7 11:38 .
+    | drwxr-xr-x 5 root      root      4096 Oct  7 11:03 ..
+    | -rw-r--r-- 1 timingila timingila  220 May 15  2017 .bash_logout
+    | -rw-r--r-- 1 timingila timingila 3526 May 15  2017 .bashrc
+    | drwxr-xr-x 3 timingila timingila 4096 Oct  7 11:04 .config
+    | -rw-r--r-- 1 timingila timingila 5290 Jul 12  2023 .face
+    | lrwxrwxrwx 1 timingila timingila    5 Jul 12  2023 .face.icon -> .face
+    | -rw-r--r-- 1 timingila timingila  807 Apr 18  2019 .profile
+    | drwx------ 2 timingila timingila 4096 Oct  7 11:03 .ssh
+    | drwx------ 2 timingila timingila 4096 Oct  7 11:03 .vim
+BOT #12 ready (nothing restored yet) [22s]:
+    > FYI: grep: /home/timingila/personal_secrets/flag: No such file or directory / ls: cannot access '/home/timingila/logs/log1': No such file or directory / grep: /home/timingila/personal_secrets/really_not_a_flag: No such file or directory / grep: /home/timingila/personal_secrets/064f: No such file or 
+    > :( You restored something, but not everything...
+[CONFIRMED] A12-none: nothing restored -> :( You restored something, but not everything... (B3 risk: random hex in a path can turn "didn't restore anything" into "restored something")
+$ (wrong order: incr2 before incr1) restore from remote-rsync-full-backup   -> rc=0 (0s)
+    | receiving incremental file list
+    | ./
+    | .face.icon -> .face
+    | .config/
+    | .config/autostart/
+    | .ssh/
+    |   ... (6 lines omitted, see full log) ...
+    | trade_secrets/
+    | trade_secrets/code.pl
+    | trade_secrets/credit_card
+    | 
+    | sent 211 bytes  received 2,180 bytes  4,782.00 bytes/sec
+    | total size is 23,510  speedup is 9.83
+$ (wrong order: incr2 before incr1) restore from remote-rsync-differential2   -> rc=0 (0s)
+    | receiving incremental file list
+    | ./
+    | notes
+    | logs/
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/flag
+    | personal_secrets/really_not_a_flag
+    | 
+    | sent 120 bytes  received 672 bytes  1,584.00 bytes/sec
+    | total size is 118  speedup is 0.15
+$ (wrong order: incr2 before incr1) restore from remote-rsync-incremental2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/nothing_much
+    | 
+    | sent 107 bytes  received 540 bytes  1,294.00 bytes/sec
+    | total size is 94  speedup is 0.15
+$ (wrong order: incr2 before incr1) restore from remote-rsync-incremental1   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/064f
+    | 
+    | sent 111 bytes  received 530 bytes  427.33 bytes/sec
+    | total size is 69  speedup is 0.11
+BOT #12 ready (restored in the wrong order) [10s]:
+    > FYI: 000001
+    > :( Close... You restored something, but not everything... Check the order you did your restore commands in.
+[OK] A12-order: wrong order -> :( Close... You restored something, but not everything... Check the order you did your restore commands in.
+$ re-apply incremental2 last   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | 
+    | sent 92 bytes  received 499 bytes  1,182.00 bytes/sec
+    | total size is 94  speedup is 0.16
+BOT #12 ready (correct order) [13s]:
+    > FYI: 000000
+    > :) Well done! flag{91d1b3e4adba93fefab5ff971f5cfc30} 
+    > ** #13 **
+[OK] A12: restore full -> diff2 -> incr1 -> incr2 -> :) Well done! flag{..} 
+$ sudo ls -lnR /home/timingila | head -25   -> rc=0 (0s)
+    | /home/timingila:
+    | total 16
+    | drwxr-xr-x 2 0 0 4096 Oct  7 11:34 logs
+    | -rw-r--r-- 1 0 0   19 Oct  7 11:37 notes
+    | drwxr-xr-x 2 0 0 4096 Oct  7 11:37 personal_secrets
+    | drwxr-xr-x 2 0 0 4096 Oct  7 11:03 trade_secrets
+    |   ... (13 lines omitted, see full log) ...
+    | -rw-r--r-- 1 0 0   5 Oct  7 11:35 really_not_a_flag
+    | 
+    | /home/timingila/trade_secrets:
+    | total 8
+    | -rw------- 1 0 0 333 Oct  7 11:03 code.pl
+    | -rw------- 1 0 0 119 Oct  7 11:03 credit_card
+$ owners of restored files   -> rc=0 (0s)
+    |      15 root
+    |      22 timingila
+$ can timingila still write their own notes file?   -> rc=1 (0s)
+    | touch: cannot touch '/home/timingila/notes': Permission denied
+[CONFIRMED] B2-restore: after the labsheet-style restore, owners: 15 root 22 timingila; timingila can write notes: NO
+
+====================================================================================================
+BOT: Attack 13 (earliest notes) + B7
+====================================================================================================
+$ [backup_server] test -e /home/nuckelavee/remote-rsync-full-backup/timingila/notes && echo present || echo absent   -> rc=0 (0s)
+    | absent
+$ [backup_server] cat /home/nuckelavee/remote-rsync-differential1/timingila/notes   -> rc=0 (0s)
+    | Note to self: drink more water f40b
+$ [backup_server] cat /home/nuckelavee/remote-rsync-differential2/timingila/notes   -> rc=0 (0s)
+    | Note to self: drink more water f40b
+    | Dont forget the milk
+$ restore notes from differential2 (NOT the earliest)   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | 
+    | sent 49 bytes  received 169 bytes  145.33 bytes/sec
+    | total size is 57  speedup is 0.26
+BOT #13 ready (notes from differential2) [12s]:
+    > FYI: 0
+    > :) Well done! flag{beetmistermarchendegeneratingmiscomprehendedtonsured} 
+[CONFIRMED] B7: notes in full backup: absent; diff1 has 1 line(s), diff2 has 2; restoring the diff2 version -> :) Well done! flag{..} 
+[OK] A13: attack 13 solved -> :) Well done! flag{..} 
+
+====================================================================================================
+EXTRA: B2 --fake-super vs -M--fake-super (walkthrough section 3)
+====================================================================================================
+$ sudo stat -c "%a %u:%g" /tmp/b2src/f   -> rc=0 (0s)
+    | 640 1002:1002
+$ sudo rsync -av --fake-super /tmp/b2src nuckelavee@10.56.0.3:/home/nuckelavee/b2_labsheet/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/b2_labsheet
+    | b2src/
+    | b2src/f
+    | 
+    | sent 145 bytes  received 90 bytes  470.00 bytes/sec
+    | total size is 3  speedup is 0.01
+$ sudo rsync -av -M--fake-super /tmp/b2src nuckelavee@10.56.0.3:/home/nuckelavee/b2_remote/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/nuckelavee/b2_remote
+    | b2src/
+    | b2src/f
+    | 
+    | sent 145 bytes  received 88 bytes  155.33 bytes/sec
+    | total size is 3  speedup is 0.01
+$ [backup_server] stat -c "%a %u:%g" b2_labsheet/b2src/f; python3 -c 'import os,sys;p=sys.argv[1];print({k:os.getxattr(p,k).decode(errors="replace") for k in os.listxattr(p)})' b2_labsheet/b2src/f   -> rc=0 (0s)
+    | 640 1001:1001
+    | {}
+$ [backup_server] stat -c "%a %u:%g" b2_remote/b2src/f; python3 -c 'import os,sys;p=sys.argv[1];print({k:os.getxattr(p,k).decode(errors="replace") for k in os.listxattr(p)})' b2_remote/b2src/f   -> rc=0 (0s)
+    | 640 1001:1001
+    | {'user.rsync.%stat': '100640 0,0 1002:1002'}
+$ sudo rsync -av --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/b2_labsheet/b2src/ /tmp/b2_r1/   -> rc=0 (0s)
+    | receiving incremental file list
+    | created directory /tmp/b2_r1
+    | ./
+    | f
+    | 
+    | sent 46 bytes  received 133 bytes  358.00 bytes/sec
+    | total size is 3  speedup is 0.02
+$ sudo stat -c "%a %u:%g" /tmp/b2_r1/f   -> rc=0 (0s)
+    | 640 0:0
+$ sudo rsync -av --fake-super nuckelavee@10.56.0.3:/home/nuckelavee/b2_remote/b2src/ /tmp/b2_r2/   -> rc=0 (0s)
+    | receiving incremental file list
+    | created directory /tmp/b2_r2
+    | ./
+    | f
+    | 
+    | sent 46 bytes  received 133 bytes  119.33 bytes/sec
+    | total size is 3  speedup is 0.02
+$ sudo stat -c "%a %u:%g" /tmp/b2_r2/f   -> rc=0 (0s)
+    | 640 0:0
+$ sudo rsync -av -M--fake-super nuckelavee@10.56.0.3:/home/nuckelavee/b2_remote/b2src/ /tmp/b2_r3/   -> rc=0 (0s)
+    | receiving incremental file list
+    | created directory /tmp/b2_r3
+    | ./
+    | f
+    | 
+    | sent 46 bytes  received 131 bytes  354.00 bytes/sec
+    | total size is 3  speedup is 0.02
+$ sudo stat -c "%a %u:%g" /tmp/b2_r3/f   -> rc=0 (0s)
+    | 640 1002:1002
+$ sudo rsync -av nuckelavee@10.56.0.3:/home/nuckelavee/b2_labsheet/b2src/ /tmp/b2_r4/   -> rc=0 (0s)
+    | receiving incremental file list
+    | created directory /tmp/b2_r4
+    | ./
+    | f
+    | 
+    | sent 46 bytes  received 133 bytes  358.00 bytes/sec
+    | total size is 3  speedup is 0.02
+$ sudo stat -c "%a %u:%g" /tmp/b2_r4/f   -> rc=0 (0s)
+    | 640 1001:1001
+[CONFIRMED] B2: original 640 1002:1002; server A(labsheet)=640 1001:1001 {}; server B(-M)=640 1001:1001 {'user.rsync.%stat': '100640 0,0 1002:1002'}; restores: R1 labsheet restore of labsheet backup=640 0:0; R2 labsheet restore of -M backup=640 0:0; R3 -M restore of -M backup=640 1002:1002; R4 plain restore of labsheet backup=640 1001:1001
+
+====================================================================================================
+EXTRA: P1 sudo + no user@
+====================================================================================================
+$ sudo ssh -G 10.56.0.3 | grep "^user "   -> rc=0 (0s)
+    | Pseudo-terminal will not be allocated because stdin is not a terminal.
+    | user root
+$ sudo ssh -o BatchMode=yes 10.56.0.3 true   -> rc=255 (0s)
+    | root@10.56.0.3: Permission denied (publickey,password).
+$ sudo rsync -av --dry-run -e "ssh -o BatchMode=yes" /etc/hostname 10.56.0.3:   -> rc=255 (0s)
+    | root@10.56.0.3: Permission denied (publickey,password).
+    | rsync: connection unexpectedly closed (0 bytes received so far) [sender]
+    | rsync error: unexplained error (code 255) at io.c(232) [sender=3.2.7]
+[CONFIRMED] P1: sudo ssh BACKUPIP logs in as "Pseudo-terminal will not be allocated because stdin is not a terminal.
+user root" -> rc=255; sudo rsync ... BACKUPIP: rc=255 (root@10.56.0.3: Permission denied (publickey,password).)
+
+====================================================================================================
+FLAGS
+====================================================================================================
+attack 1: correct: mkdir remote dir then scp -r /bin: flag{historism chunked}
+attack 2: correct full backup: flag{d61e721d59bc0bc28401ea9bdf4f8126}
+attack 3 hidden file: flag{1VyNA6THvkos2Y089MA}
+attack 4: correct differential1: flag{semiconservative recoup}
+attack 6: correct differential2: flag{34706d80}
+attack 8: correct incremental1: flag{butcherly hydrolyzations}
+attack 10: correct incremental2: flag{c10b5390}
+attack 10 quiz: flag{pettedroadabilitiesconjunctivenessimbuedswingeing}
+attack 12: correct order: flag{91d1b3e4adba93fefab5ff971f5cfc30}
+attack 13: notes from differential2: flag{beetmistermarchendegeneratingmiscomprehendedtonsured}
+[OK] FLAGS: 10 distinct flags collected (generator mints 10: 9 in chat + 1 hidden file)
+
