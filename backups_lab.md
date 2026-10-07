@@ -262,6 +262,48 @@ sudo rsync -avz -M--fake-super ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/
 
 \==action: Check that the ownership survived==: `ls -l /etc/hello` should show it is owned by root, even though on the backup_server (`ssh ==edit: BACKUPSERVERIP== ls -l remote-rsync-backup/etc/hello`) the copy is owned by you.
 
+#### See the difference: `--fake-super` vs `-M--fake-super` {#see-the-difference-fake-super-vs-m-fake-super}
+
+\==action: Create a test file== owned by root and the `adm` group, readable only by them:
+
+```bash
+sudo bash -c 'echo "fake-super demo" > /etc/fsdemo; chgrp adm /etc/fsdemo; chmod 640 /etc/fsdemo'
+ls -l /etc/fsdemo
+```
+
+\==action: Back it up twice==: once giving `--fake-super` to *your* (local) rsync, and once giving it to the backup_server's rsync with `-M`:
+
+```bash
+sudo rsync -av --fake-super /etc/fsdemo ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-local/
+sudo rsync -av -M--fake-super /etc/fsdemo ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-remote/
+```
+
+\==action: Look at the two copies on the backup_server==:
+
+```bash
+ssh ==edit: BACKUPSERVERIP== ls -l fsdemo-local/fsdemo fsdemo-remote/fsdemo
+```
+
+They look identical: both owned by you. The difference is hidden in the extended attributes of the second one. \==action: Restore both== (into /tmp, so nothing important is touched) and compare them with the original:
+
+```bash
+sudo rsync -av -M--fake-super ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-local/fsdemo /tmp/fsdemo-from-local
+sudo rsync -av -M--fake-super ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-remote/fsdemo /tmp/fsdemo-from-remote
+ls -l /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote
+```
+
+The copy backed up with `-M--fake-super` comes back as `root adm`, exactly like the original. The one backed up with plain `--fake-super` comes back owned by *you*: the backup_server never recorded who really owned it, so that information is gone for good.
+
+> Log Book Question: Why did `--fake-super` on its own make no difference when backing up? (Hint: which computer was writing the backup copy, and which rsync process had the option?)
+
+> Warning: **Never restore with `--fake-super` on its own (without `-M`).** That turns it on for your local rsync, which is running as root: instead of setting the real owners, it stores them in extended attributes, and it stores symbolic links as plain files. When we tested restoring all of /etc that way, it turned over 800 symbolic links in /etc into ordinary files and changed the permissions of the sudo configuration -- enough to break the VM.
+
+\==action: Clean up== the demo files:
+
+```bash
+sudo rm /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote
+```
+
 \==action: Delete the file locally, and sync the changes== *including deletions* to the server so that it is also deleted there:
 
 ```bash
@@ -379,10 +421,12 @@ From here on, Hackerbot alternates between having ==edit: SECONDUSER== change th
 | 8 | *(you)* incremental -> `remote-rsync-incremental1/` | C only (compare with full + differential2) |
 | 9 | SECONDUSER makes changes (D) | |
 | 10 | *(you)* incremental -> `remote-rsync-incremental2/` | D only (compare with full + differential2 + incremental1) |
-| 11 | Hackerbot checks your backups, then deletes SECONDUSER's files | |
+| 11 | Hackerbot checks all five backups above, then deletes SECONDUSER's files | |
 | 12 | *(you)* restore: full -> differential2 -> incremental1 -> incremental2 | |
 
 If you take a backup at the wrong moment, Hackerbot will tell you which changes are missing or shouldn't be there. Say `goto 3`, `goto 5`, `goto 7` or `goto 9` and then `ready` to put SECONDUSER's files back exactly as they were at that step, delete the bad backup, and take it again.
+
+Every backup builds on the ones before it, so **you can't skip any of them**: if you jump ahead (say, straight to the incremental at step 8 without differential2), Hackerbot tells you which earlier backup is missing and which `goto` gets you back to the right point to take it.
 
 #### Hackerbot Attack #3 {#hackerbot-attack-3}
 
@@ -573,7 +617,7 @@ You can skip the bot to here, by saying **goto 11**.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
-> Warning: Hackerbot will delete all of the second user's files! It checks your backups first, and won't attack until the backups you need for the restore are all correct -- if it refuses, its FYI output shows which backup is wrong.
+> Warning: Hackerbot will delete all of the second user's files! It checks your backups first, and won't attack until all five (full, differential1, differential2, incremental1 and incremental2) are correct -- the restore needs four of them, and the final task needs differential1. If it refuses, its FYI output shows which backup is wrong and why.
 
 Don't forget to ==action: save and submit any flags!==
 

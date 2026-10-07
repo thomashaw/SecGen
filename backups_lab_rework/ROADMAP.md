@@ -85,6 +85,19 @@ what to back up/restore instead of live `/etc`). How it was done, where it diffe
 - Tester v2 (`backups_lab_test.py` 2026-10-07.2) follows the new sheet and also exercises rewind (`goto 7`), the
   gate refusing, the `goto 11` reset, the ownership hint, and tests the sheet's /etc restores into a **scratch copy**.
 
+### Follow-ups after run 2 (2026-10-08)
+
+- **No dead ends when skipping ahead:** backups 4/6/8/10 first check the backups they're based on exist
+  (`NEEDS full-backup|differential2|incremental1`) and say which `goto` gets back to the right point.
+- **differential1 must not be late** (it's the only copy of notes' first version, needed by attack 13): attack 4
+  flags step-5 changes, and attack 11's gate now checks all five backups, including differential1.
+- **Unreachable VMs** (ssh exit ≠ 0) print `UNREACHABLE`, so the bot says "I couldn't connect to …" instead of a
+  misleading "bad backup" (attack 11 no longer says your backups wouldn't survive when the server is just down).
+- Remaining generic `else` messages replaced (point at the FYI MISSING/UNEXPECTED lines and the dir checked).
+- Sheet: `--fake-super` vs `-M--fake-super` demo + log book question + "never restore with plain --fake-super".
+- `regress.rb`: 48/48 (adds skip-ahead, late differential1, gate-without-differential1, unreachable VM via a fake
+  failing ssh). Tester v3 (`2026-10-08.3`) adds the demo, two skip-ahead checks and the differential1 gate check.
+
 ## Phase 1 — Foundation (no student-visible change yet)
 
 - [x] **F1. Readable check output.** One ERB helper (e.g. `check_items`) that, for a list of
@@ -134,7 +147,7 @@ what to back up/restore instead of live `/etc`). How it was done, where it diffe
 ### Rsync, deltas, remote copies, `--fake-super`
 - [x] Labsheet B2: fix the `--fake-super` explanation + commands (lines 214, 234, 240, 243, 253, 295,
       321, 335, 337, 383, 399) per Open decision 1.
-- [ ] **N1: stop restoring live `/etc` wholesale** (lines 335/337 and 408). Proposal (Open decision 5): keep the
+- [x] **N1: resolved — keep /etc, restore with `-M--fake-super`** (run 2: exact), plus a sheet demo of `--fake-super` vs `-M--fake-super` and a "never restore with plain --fake-super" warning. Original note: (lines 335/337 and 408). Proposal (Open decision 5): keep the
       /etc *backups* as they are, but have students restore into a scratch dir and copy back only what was lost,
       e.g. `sudo rsync -a -M--fake-super USER@BACKUP:…/remote-rsync-backup/etc/ ~/restore-test/etc/` then
       `sudo cp -a ~/restore-test/etc/wgetrc /etc/` — teaches the same restore order without risking the VM.
@@ -246,7 +259,7 @@ what to back up/restore instead of live `/etc`). How it was done, where it diffe
    original files; used by every change step (rewind) — see Implementation status.
 4. ~~**Labsheet location**~~ — resolved: `backups_lab.md` is a copy of the remote labsheet repo's file,
    committed on this branch and edited here. Thomas syncs it back to the labsheet repo at the end.
-5. **Whole-/etc restores (N1)** — *pending*. The sheet now uses `-M--fake-super` here too, and **run 2 shows that is
+5. ~~**Whole-/etc restores (N1)**~~ — resolved (2026-10-08): keep /etc with `-M--fake-super` (option b) + demo + warning. The sheet now uses `-M--fake-super` here too, and **run 2 shows that is
    clean**: all three restores (remote diff, local, remote incremental) into a scratch copy of /etc matched the real
    /etc exactly — 838/838 symlinks, 0 mode/owner differences, sudoers 0440. So the remaining risk is only a student
    restoring with plain `--fake-super` (no `-M`) out of habit. Options: (a) keep backing up /etc but
