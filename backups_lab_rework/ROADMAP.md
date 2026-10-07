@@ -239,7 +239,7 @@ what to back up/restore instead of live `/etc`). How it was done, where it diffe
       Only follow-up: OpenSSH 10 "post-quantum" warnings in FYI output → now filtered (not yet re-run).
 - [x] Update labsheet hints/notes to match final bot messages; renumber nothing (F4).
 - [ ] Decide fate of `backups_lab_rework/` (delete, or move `hb_sim.rb` into the hackerbot skill's `scripts/`).
-- [ ] **Remove the DEV verify page + tester before merge**: the `verify_walkthrough.html` and
+- [ ] **Remove the DEV verify page, manual test page + tester before merge**: the `verify_walkthrough.html`, `manual_test.html` and
       `backups_lab_test.py` file resources in
       `modules/utilities/unix/irc_clients/hackerbot_webclient/manifests/config.pp`, and both files in
       `modules/utilities/unix/irc_clients/hackerbot_webclient/files/`.
