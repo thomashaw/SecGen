@@ -3,9 +3,15 @@ class ghidra::install{
   ensure_packages('zip')
 
   if $operatingsystem == 'Kali' {
-    # Kali packages Ghidra itself (with its JDK dependency, /usr/bin/ghidra and a menu entry), so use that
-    # rather than the bundled release, whose JDK pin doesn't track kali-rolling
-    ensure_packages(['ghidra'])
+    # Kali's ghidra package (12.1.3+ds) crashes in JavaHelp ("view is invalid") on kali-rolling's default Java 25.
+    # Pin it to JDK 21 (min supported; the launcher requires a full JDK, not just a JRE).
+    ensure_packages(['ghidra', 'openjdk-21-jdk'])
+    file_line { 'ghidra java home override':
+      path    => '/usr/share/ghidra/support/launch.properties',
+      match   => '^JAVA_HOME_OVERRIDE=',
+      line    => 'JAVA_HOME_OVERRIDE=/usr/lib/jvm/java-21-openjdk-amd64',
+      require => Package['ghidra', 'openjdk-21-jdk'],
+    }
   } else {
     if ($operatingsystem == 'Debian') {
       case $operatingsystemrelease {
