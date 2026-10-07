@@ -7,6 +7,7 @@ require 'nokogiri'
 
 require_relative 'lib/helpers/constants.rb'
 require_relative 'lib/helpers/print.rb'
+require_relative 'lib/helpers/secgen_log.rb'
 require_relative 'lib/helpers/gem_exec.rb'
 require_relative 'lib/helpers/ovirt.rb'
 require_relative 'lib/helpers/proxmox.rb'
@@ -39,6 +40,8 @@ def usage
    --no-destroy-on-failure: Don't delete VMs that fail to build (except when retrying).
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
+   --no-log: Don't write a log file (by default output is logged to log/ and copied to the project's logs/ dir)
+   --log-file [path]: Write the log to this file instead of log/<timestamp>_<command>.log
 
    VIRTUALBOX OPTIONS:
    --gui-output, -g: Show the running VM (not headless)
@@ -474,13 +477,6 @@ end
 # end of method declarations
 # start of program execution
 
-Print.std '~' * 47
-Print.std 'SecGen - Creates virtualised security scenarios'
-Print.std '            Licensed GPLv3 2014-24'
-Print.std '~'*47
-Print.debug "\nPlease take a minute to tell us how you are using SecGen:"
-Print.debug "https://tinyurl.com/SecGenFeedback\n"
-
 beginning_time = Time.now
 
 # Add read-options from config file (needs handling before options parsed by GetoptLong)
@@ -495,6 +491,25 @@ if ARGV.include? '--read-options'
   conf_data = File.read(conf_path).split(' ')
   ARGV.unshift(*conf_data)
 end
+
+# Log all output (including vagrant and generator output) to log/, unless --no-log
+# (needs handling before options parsed by GetoptLong, so the whole run is captured)
+unless ARGV.include?('--no-log') || ARGV.empty? || (ARGV & %w(--help -h list-scenarios list-projects delete-all-projects)).any?
+  if ARGV.include? '--log-file'
+    log_path = ARGV[ARGV.find_index('--log-file') + 1]
+  else
+    command = (ARGV & %w(run r build-project p build-vms v create-forensic-image esxi-post-build ovirt-post-build proxmox-post-build)).first || 'secgen'
+    log_path = "#{ROOT_DIR}/log/#{Time.new.strftime('%Y%m%d_%H%M%S')}_#{command}.log"
+  end
+  SecGenLog.start(File.expand_path(log_path), ARGV)
+end
+
+Print.std '~' * 47
+Print.std 'SecGen - Creates virtualised security scenarios'
+Print.std '            Licensed GPLv3 2014-24'
+Print.std '~'*47
+Print.debug "\nPlease take a minute to tell us how you are using SecGen:"
+Print.debug "https://tinyurl.com/SecGenFeedback\n"
 
 # Get command line arguments
 opts = GetoptLong.new(
@@ -520,6 +535,8 @@ opts = GetoptLong.new(
     ['--no-destroy-on-failure', GetoptLong::NO_ARGUMENT],
     ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
+    ['--no-log', GetoptLong::NO_ARGUMENT],
+    ['--log-file', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtpass', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirt-url', GetoptLong::REQUIRED_ARGUMENT],
@@ -708,6 +725,8 @@ opts.each do |opt, arg|
   when '--retries'
     Print.info "Number of retries to build vms : #{arg}"
     options[:retries] = arg
+  when '--no-log', '--log-file'
+    # handled before option parsing
   else
     Print.err "Argument not valid: #{arg}"
     usage
@@ -726,12 +745,15 @@ end
 case ARGV[0]
 when 'run', 'r'
   project_dir = default_project_dir unless project_dir
+  SecGenLog.project_dir = project_dir
   run(scenario, project_dir, options)
 when 'build-project', 'p'
   project_dir = default_project_dir unless project_dir
+  SecGenLog.project_dir = project_dir
   build_config(scenario, project_dir, options)
 when 'build-vms', 'v'
   if project_dir
+    SecGenLog.project_dir = project_dir
     build_vms(scenario, project_dir, options)
   else
     Print.err 'Please specify project directory to read'
@@ -743,10 +765,12 @@ when 'create-forensic-image'
   image_type = options.has_key?(:forensic_image_type) ? options[:forensic_image_type] : 'raw';
 
   if project_dir
+    SecGenLog.project_dir = project_dir
     build_vms(scenario, project_dir, options)
     make_forensic_image(project_dir, nil, image_type)
   else
     project_dir = default_project_dir unless project_dir
+    SecGenLog.project_dir = project_dir
     build_config(scenario, project_dir, options)
     build_vms(scenario, project_dir, options)
     make_forensic_image(project_dir, nil, image_type)
