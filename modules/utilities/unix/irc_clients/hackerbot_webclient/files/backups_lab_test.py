@@ -31,7 +31,7 @@ import sys
 import tempfile
 import time
 
-VERSION = '2026-10-07.2'
+VERSION = '2026-10-08.3'
 HOME = os.path.expanduser('~')
 REPORT = os.path.join(HOME, 'backups_lab_report.txt')
 FULL_LOG = os.path.join(HOME, 'backups_lab_full_log.txt')
@@ -391,9 +391,9 @@ def setup_ssh(password):
 
 def clean_start():
     section('SETUP: remove artefacts of earlier runs')
-    remote('rm -rf ~/ssh_etc_backup ~/ssh_backup ~/scp_backup ~/remote-* ~/b2_* ~/b8_* ~/p2_* ~/incr1_saved ~/incr2_aside', quiet=True)
-    sh('sudo rm -rf ~/backups ~/b1 /tmp/b2src /tmp/b2_r* /tmp/b8 /tmp/p3 /tmp/etc_restore_test; '
-       'sudo rm -f /etc/hi /etc/hello /etc/test1 /etc/test2 /etc/test3 /etc/test4 /etc/b1test', quiet=True)
+    remote('rm -rf ~/ssh_etc_backup ~/ssh_backup ~/scp_backup ~/remote-* ~/b2_* ~/b8_* ~/p2_* ~/incr1_saved ~/incr2_aside ~/full_aside ~/diff1_aside ~/diff2_aside ~/fsdemo-*', quiet=True)
+    sh('sudo rm -rf ~/backups ~/b1 /tmp/b2src /tmp/b2_r* /tmp/b8 /tmp/p3 /tmp/etc_restore_test /tmp/fsdemo-from-*; '
+       'sudo rm -f /etc/hi /etc/hello /etc/test1 /etc/test2 /etc/test3 /etc/test4 /etc/b1test /etc/fsdemo', quiet=True)
     rc, _ = sh(f'sudo test -d /home/{C.S}/trade_secrets && sudo test ! -e /home/{C.S}/notes', quiet=True)
     return rc == 0
 
@@ -487,6 +487,21 @@ def run_all(args):
     _, own_srv = remote('ls -l remote-rsync-backup/etc/hello')
     result('L-restore-hello', 'OK' if own.split()[1:2] == ['root:root'] else 'PROBLEM',
            f'/etc/hello restored with -M: {own.split()[0:2]}; server copy: {" ".join(own_srv.split()[0:4])}')
+    # the sheet's --fake-super vs -M--fake-super demo
+    sh("sudo bash -c 'echo \"fake-super demo\" > /etc/fsdemo; chgrp adm /etc/fsdemo; chmod 640 /etc/fsdemo'")
+    sh(f'sudo rsync -av --fake-super /etc/fsdemo {U}@{IP}:{H}/fsdemo-local/')
+    sh(f'sudo rsync -av {M} /etc/fsdemo {U}@{IP}:{H}/fsdemo-remote/')
+    _, srv = remote('ls -l fsdemo-local/fsdemo fsdemo-remote/fsdemo')
+    sh(f'sudo rsync -av {M} {U}@{IP}:{H}/fsdemo-local/fsdemo /tmp/fsdemo-from-local')
+    sh(f'sudo rsync -av {M} {U}@{IP}:{H}/fsdemo-remote/fsdemo /tmp/fsdemo-from-remote')
+    _, st = sh('stat -c "%a %U:%G %n" /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote')
+    rows = {l.split()[2]: ' '.join(l.split()[:2]) for l in st.splitlines() if len(l.split()) == 3}
+    ok = (rows.get('/tmp/fsdemo-from-remote') == rows.get('/etc/fsdemo') == '640 root:adm'
+          and rows.get('/tmp/fsdemo-from-local', '').endswith(f'{U}:{U}'))
+    result('DEMO-M', 'OK' if ok else 'PROBLEM',
+           f'sheet demo: original {rows.get("/etc/fsdemo")}, via --fake-super {rows.get("/tmp/fsdemo-from-local")}, '
+           f'via -M--fake-super {rows.get("/tmp/fsdemo-from-remote")}; server copies: {" | ".join(" ".join(l.split()[2:4]) for l in srv.splitlines())}')
+    sh('sudo rm /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote')
     sh('sudo rm /etc/hello')
     sh(f'sudo rsync -avzh {M} --delete /etc {U}@{IP}:{H}/remote-rsync-backup/')
     rc, _ = remote('test ! -e remote-rsync-backup/etc/hello')
@@ -547,6 +562,10 @@ def run_all(args):
     _, own = sh(f'sudo stat -c "%U %n" /home/{S}/notes /home/{S}/personal_secrets/flag')
     note(f'step-3 files owned by: {" ".join(own.split())}')
     bot_goto(4)
+    remote(f'mv {FULL} {H}/full_aside', label='(skip test) hide the full backup')
+    lines, _ = bot_ready('A4', 4, 'full backup missing (skipped)')
+    result('SKIP-4', 'OK' if said(lines, 'goto 2') else 'PROBLEM', 'no full backup -> ' + verdict(lines))
+    remote(f'mv {H}/full_aside {FULL}', quiet=True)
     bk(D1, label='(mistake: no --compare-dest)')
     lines, _ = bot_ready('A4', 4, 'full copy')
     result('A4-full', 'OK' if said(lines, '--compare-dest') else 'PROBLEM', 'no --compare-dest -> ' + verdict(lines))
@@ -603,6 +622,10 @@ def run_all(args):
     lines, _ = bot_ready('A8', 8, 'forgot diff2 compare-dest')
     result('B4', 'OK' if said(lines, 'second --compare-dest') else 'PROBLEM', 'forgot diff2 --compare-dest -> ' + verdict(lines))
     remote(f'rm -rf {I1}', quiet=True)
+    remote(f'mv {D2} {H}/diff2_aside', label='(skip test) hide differential2')
+    lines, _ = bot_ready('A8', 8, 'differential2 missing (skipped)')
+    result('SKIP-8', 'OK' if said(lines, 'goto 5') else 'PROBLEM', 'no differential2 -> ' + verdict(lines))
+    remote(f'mv {H}/diff2_aside {D2}', quiet=True)
     bk(I1, FULL, D2)
     lines, fl = bot_ready('A8', 8, 'correct incremental1')
     result('A8', 'OK' if fl else 'PROBLEM', 'correct incremental1 -> ' + verdict(lines))
@@ -660,12 +683,12 @@ def run_all(args):
     # ---------------------------------------------------------------- Attack 11 (gate) and 12 (restore, reset, ownership)
     section('BOT: Attack 11 (safety gate) + 12 (restore, ownership, goto-11 reset)')
     bot_goto(11)
-    remote(f'mv {I2} {H}/incr2_aside', label='(gate test) hide incremental2')
-    lines, _ = bot_ready('A11', 11, 'incremental2 missing')
+    remote(f'mv {D1} {H}/diff1_aside', label='(gate test) hide differential1 (needed for attack 13)')
+    lines, _ = bot_ready('A11', 11, 'differential1 missing')
     _, still = sh(f'sudo test -d /home/{S}/trade_secrets && echo files-still-there || echo files-GONE')
-    result('A11-gate', 'OK' if said(lines, 'Not yet') and 'still-there' in still else 'PROBLEM',
-           f'with incremental2 missing -> {verdict(lines)} ({still.strip()})')
-    remote(f'mv {H}/incr2_aside {I2}', quiet=True)
+    result('A11-gate', 'OK' if said(lines, 'Not yet') and said(lines, '[differential1] NODIR') and 'still-there' in still else 'PROBLEM',
+           f'with differential1 missing -> {verdict(lines)} ({still.strip()})')
+    remote(f'mv {H}/diff1_aside {D1}', quiet=True)
     lines, _ = bot_ready('A11', 11, 'backups good')
     result('A11', 'OK' if said(lines, 'I just deleted') else 'PROBLEM', verdict(lines))
     bot_goto(12)

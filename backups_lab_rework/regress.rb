@@ -188,6 +188,36 @@ restored.call; FileUtils.rm_f(ORIGINALS.map { |f| "#{$root}/home/#{S}/#{f}" }); 
 restored.call; FileUtils.mkdir_p("#{$root}/home/#{S}/#{S}"); expect('nested restore', 12, "/home/#{S}/#{S}/")
 restored.call; FileUtils.rm_rf(Dir.glob("#{$root}/home/#{S}/*")); expect('nothing restored (B3)', 12, 'full backup')
 
+# ---- skipping ahead: each backup first checks the backups it is based on exist
+fresh; apply(3); backup('remote-rsync-differential1', only: steps(3)); expect('skipped the full backup', 4, "goto 2")
+fresh; backup('remote-rsync-full-backup'); apply(3); apply(5); backup('remote-rsync-differential1', only: steps(3, 5))
+expect('differential1 taken too late (holds step 5)', 4, "goto 3")
+fresh; backup('remote-rsync-full-backup'); apply(3); apply(5); apply(7); backup('remote-rsync-incremental1', only: steps(3, 5, 7))
+expect('skipped differential2', 8, "goto 5")
+upto9.call; FileUtils.rm_rf("#{$root}/home/#{U}/remote-rsync-incremental1"); backup('remote-rsync-incremental2', only: steps(7, 9))
+expect('skipped incremental1', 10, "goto 7")
+upto9.call; backup('remote-rsync-incremental2', only: steps(9)); FileUtils.rm_rf("#{$root}/home/#{U}/remote-rsync-differential1")
+g = run(scripts(11)[0]); ok = g.include?('GATE-FAIL') && g.include?('[differential1] NODIR')
+ok ? $pass += 1 : $fail += 1
+puts "#{ok ? 'PASS' : 'FAIL'}  #11 gate refuses without differential1 (attack 13 needs it)"
+
+# ---- unreachable VM: run the real pre_shell (as the bot does, with sh) with ssh swapped for a failing one
+def unreachable(n)
+  pre = ATTACKS[n - 1].at_xpath('pre_shell').text
+  fake = %q{sh -c 'cat >/dev/null; echo "ssh: connect to host 10.0.0.3 port 22: No route to host" >&2; exit 255'}
+  pre = pre.gsub(%r{ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no -oBatchMode=yes root@\S+( bash -s)?}, fake)
+  out, _ = Open3.capture2e('sh', '-c', pre)
+  out
+end
+[[1, "couldn't connect to the backup_server"], [4, "couldn't connect to the backup_server"],
+ [3, "couldn't connect to your desktop"], [12, "couldn't connect to your desktop"],
+ [11, "couldn't connect to the backup_server"]].each do |n, want|
+  v = verdict(n, unreachable(n))
+  ok = v.include?(want)
+  ok ? $pass += 1 : $fail += 1
+  puts "#{ok ? 'PASS' : 'FAIL'}  ##{n} VM unreachable\n      -> #{v[0, 150]}"
+end
+
 # ---- attack 13
 [[3, 'Well done'], [5, 'differential2'], [7, 'later version'], [9, 'later version']].each do |k, want|
   fresh; apply(k); expect("notes from step #{k}", 13, want)
