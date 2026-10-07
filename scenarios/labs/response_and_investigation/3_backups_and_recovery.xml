@@ -22,9 +22,15 @@
 
     Manually check you have done your backups correctly before telling Hackerbot you are ready. It may be a good idea to ssh to your backup server in a separate console tab ssh IP-ADDRESS (but do keep an eye on which system you are running each command on!).
 
-    Keep an eye on the trailing slashes in rsync commands and how it changes the behaviour (the difference between copying a directory or it's contents).
+    Keep an eye on the trailing slashes in rsync commands and how it changes the behaviour (the difference between copying a directory or its contents).
 
     Each time you can test that your rsync command is going to do what you expect by adding -n to the command, which does a "Dry Run" without making any of the actual changes -- once you are happy it's making the changes you expect, run it again without the -n
+
+    Use $HOME (or the full path), not ~, inside --compare-dest=... and --link-dest=... options: the shell doesn't expand ~ there, and rsync then silently makes a full copy.
+
+    With sudo, always write YOURUSERNAME@ before the backup_server's address (otherwise you connect as root), and use -M--fake-super so file ownership survives the backup and restore.
+
+    If a backup goes wrong because the files have already changed again, say 'goto 3' (or 5, 7, 9) then 'ready' to Hackerbot: it puts the second user's files back exactly as they were at that step.
 
   </description>
 
