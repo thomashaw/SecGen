@@ -1,0 +1,846 @@
+Backups lab automated test report  (script 2026-10-07.2)
+started 2026-10-07 20:23, took 16 min
+desktop=tom-bak-4-3-backups-and-recovery-desktop YOURUSER=zeus SECONDUSER=olitiau BACKUPIP=10.27.0.3
+versions: rsync  version 3.2.7  protocol version 32 | OpenSSH_9.2p1 Debian-2+deb12u10, OpenSSL 3.0.20 7 Apr 2026 | rsync  version 3.1.3  protocol version 31 | 10.13 | Python 3.7.3
+Note: key-based SSH was set up for automation, so no password prompts appear in the transcripts.
+
+SUMMARY  (CONFIRMED = issue reproduced; OK = works as intended; PROBLEM = unexpected; INFO = observation)
+OK              N4                   ls /home -> ['olitiau', 'vagrant', 'zeus'] (sheet now says: you, vagrant (ignore), and SECONDUSER=olitiau)
+INFO            L-copy               cp loses ownership as the sheet says: backup ['zeus', 'zeus'] vs original ['root', 'root']
+OK              N2/B6                mkdir rc=0, 1st scp rc=0, 2nd scp rc=0, scp_backup/ssh has the change: True
+OK              B8                   scp rule as taught in the sheet: ['b8_exists', 'b8_exists/d', 'b8_exists/d/f', 'b8_new', 'b8_new/f']
+OK              A1-none              nothing copied -> :( There's no /home/zeus/remote-bin-backup-d70b on the backup_server yet. With scp, if the destination doesn't exist, scp creates it *as* the copy (so you'd get the files with no bin/ directory) -- so
+OK              A1-nobin             contents without bin/ -> :( You copied the *contents* of bin straight into remote-bin-backup-d70b/, not a bin/ directory inside it. That's what scp does when the destination doesn't exist yet. Delete remote-bin-backup-d70b on
+OK              A1                   correct solution (23s for both copies) -> :) Well done! flag{..}
+OK              L-rsync-local        2nd local rsync transferred ['etc/hello']
+OK              B2-server            server copy of etc/shadow now records the real owner in an xattr: 640 zeus:zeus ['user.rsync.%stat']
+OK              L-restore-hello      /etc/hello restored with -M: ['644', 'root:root']; server copy: -rw-r--r-- 1 zeus zeus
+OK              L-delete             --delete removed etc/hello from the server
+INFO            P3                   non-sudo rsync rc=23: ['rsync: [sender] opendir "/home/olitiau/.ssh" failed: Permission denied (13)'] (sheet now explains why sudo)
+INFO            N6                   rc=11 ['rsync: mkdir "/home/zeus/remote-rsync-full-backup/olitiau" failed: No such file or directory (2)'] (sheet now explains this error)
+OK              A2-nodir             no backup -> :( I can't find /home/zeus/remote-rsync-full-backup/olitiau on the backup_server. Check the destination path. (If rsync said 'mkdir ... failed: No such file or directory', the parent directory didn't 
+OK              A2-top               contents at top -> :( You copied the *contents* of /home/olitiau straight into remote-rsync-full-backup/, instead of a olitiau/ directory inside it. With rsync, /home/olitiau (no trailing slash) copies the directory; /h
+OK              A2-nested            nested -> :( Your backup is nested one level too deep: remote-rsync-full-backup/olitiau/olitiau/. Give rsync the *parent* directory (.../remote-rsync-full-backup/) as the destination -- it creates olitiau/ insi
+OK              A2                   correct full backup -> :) Well done! flag{..}
+OK              B1                   week1 differential with $HOME: local 1 files, remote 1 files
+OK              N1-diff              remote restore full -> week2 (sheet commands, -M): 0 other /etc entries differ after the restore; symlinks /etc=838 restored=838; sudoers modes bad: none; restored: ['/etc/wgetrc 644 root:root', '/etc/hello 644 root:root']; missing: none
+OK              N1-local             local restore (sheet: "try restoring from the local copy"): 0 other /etc entries differ after the restore; symlinks /etc=838 restored=838; sudoers modes bad: none; restored: ['/etc/wgetrc 644 root:root', '/etc/hello 644 root:root']; missing: none
+OK              A3                   Ok, olitiau has made their changes... (Hint: Keep an eye out for a flag...) Now take the differential backup, before saying 'ready' again. (You can always say 'goto 3' then 'ready' to put their files 
+OK              A4-full              no --compare-dest -> :( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* olitiau/ (/home/ze
+OK              P2                   mismatched --compare-dest -> :( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* olitiau/ (/home/ze
+OK              A4                   correct differential1 -> :) Well done! flag{..}
+OK              N1-incr              restore full -> week2 -> monday -> tuesday (remote, -M): 0 other /etc entries differ after the restore; symlinks /etc=838 restored=838; sudoers modes bad: none; restored: ['/etc/wgetrc 644 root:root', '/etc/hello 644 root:root', '/etc/test1 644 root:root', '/etc/test2 644 root:root']; missing: none
+OK              A5                   Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 5' then 'ready' puts their files back to exactly this point.)
+OK              A6-top               contents at top -> :( You copied the *contents* of /home/olitiau straight into remote-rsync-differential2/, instead of a olitiau/ directory inside it (mind the trailing slash on the source). Delete it on the backup_serv
+OK              A6-incr              compared against diff1 too -> :( A differential backup holds *all* the changes since the full backup -- including step 3's. Compare against the full backup only (not differential1). Delete remote-rsync-differential2 and try again.
+OK              A6                   correct differential2 -> :) Well done! flag{..}
+OK              A7                   Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.)
+OK              B4                   forgot diff2 --compare-dest -> :( Your incremental backup contains changes that are already in differential2. An incremental only holds what changed since the *last* backup, so add a second --compare-dest=/home/zeus/remote-rsync-di
+OK              A8                   correct incremental1 -> :) Well done! flag{..}
+OK              B1-linkdest          snapshot_1 hard links: 1002; snapshot_2 hard links: 1006; du: 8.0M /home/zeus/backups/rsync_backup 1.4M /home/zeus/backups/rsync_backup_snapshot_1
+OK              A9                   Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 9' then 'ready' puts their files back to exactly this point.)
+OK              B5                   late incr1 -> :( Your backup doesn't contain step 9's changes. Either you backed up before saying 'ready' at step 9 ('goto 9', 'ready', then back up again), or your incremental1 already contains them because it was
+OK              REWIND-7             goto 7 + ready -> Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.); files now: 4d1f address_book credit_card flag really_not_a_flag Buy eggs 4d1f
+OK              REWIND-8             incr1 retaken after the rewind -> :) Well done! flag{..}
+OK              A10                  correct incremental2 -> :) Well done! flag{..}
+OK              Q10                  desktop notes answer rejected: True; incremental1 notes ('Buy eggs 4d1f') accepted: True
+OK              A11-gate             with incremental2 missing -> :( Not yet! I only attack systems whose backups would survive it, and some of yours wouldn't -- see the FAIL lines above. Fix those backups (the earlier steps' hints apply: 'goto' a change step to rew (files-still-there)
+OK              A11                  I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!
+OK              A12-none             nothing restored -> :( olitiau's original files aren't back yet: start by restoring the full backup. If your files are in a mess, say 'goto 11' then 'ready' and I'll delete them again so you can start the restore from sc (B3/N3 fixed?)
+OK              A12-order            wrong order -> :( Close... You restored something, but not everything... Check the order you did your restore commands in: notes isn't the latest version. If your files are in a mess, say 'goto 11' then 'ready' and 
+OK              RESET-11             goto 11 + ready -> I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!; /home/olitiau now: []
+OK              A12-owner            restore without -M (owners: 37 zeus) -> :( All the files are back, but some aren't owned by olitiau any more (so they can't edit their own files). Back up and restore with -M--fake-super so ownership survives the round trip (see the lab she
+OK              A12                  correct -M restore -> :) Well done! flag{..}; owners: 37 olitiau; olitiau can write: True
+OK              B7                   differential2 version -> :( Close: that's the version from differential2 (step 5). notes wasn't in the full backup -- which backup captured it first?
+OK              A13                  differential1 version -> :) Well done! flag{..}
+INFO            P1                   sudo ssh BACKUPIP connects as "user root"; sudo rsync ... BACKUPIP: rc=255 (sheet now warns about this)
+OK              FLAGS                10 distinct flags collected (10 expected: 9 in chat + 1 hidden file)
+
+
+DETAILS
+
+====================================================================================================
+SETUP: passwordless SSH to the backup_server (for automation only)
+====================================================================================================
+Key-based SSH as YOURUSER and as root@desktop -> YOURUSER@backup_server is set up; labsheet commands run verbatim.
+
+====================================================================================================
+SETUP: remove artefacts of earlier runs
+====================================================================================================
+
+====================================================================================================
+LABSHEET: Getting started
+====================================================================================================
+$ ls /home   -> rc=0 (0s)
+    | olitiau
+    | vagrant
+    | zeus
+[OK] N4: ls /home -> ['olitiau', 'vagrant', 'zeus'] (sheet now says: you, vagrant (ignore), and SECONDUSER=olitiau)
+$ uptime   -> rc=0 (0s)
+    |  20:24:10 up  4:47,  3 users,  load average: 0.05, 0.08, 0.02
+
+====================================================================================================
+LABSHEET: Copy
+====================================================================================================
+$ mkdir ~/backups/   -> rc=0 (0s)
+$ cp /etc/passwd ~/backups/   -> rc=0 (0s)
+$ ls -la ~/backups/passwd   -> rc=0 (0s)
+    | -rw-r--r-- 1 zeus zeus 2442 Oct  7 20:24 /home/zeus/backups/passwd
+$ ls -la /etc/passwd   -> rc=0 (0s)
+    | -rw-r--r-- 1 root root 2442 Oct  7 15:32 /etc/passwd
+[INFO] L-copy: cp loses ownership as the sheet says: backup ['zeus', 'zeus'] vs original ['root', 'root']
+
+====================================================================================================
+LABSHEET: SSH/SCP (rewritten: /etc/ssh into a pre-created scp_backup/)
+====================================================================================================
+$ ssh zeus@10.27.0.3 mkdir -p scp_backup   -> rc=0 (0s)
+$ sudo scp -pr /etc/ssh zeus@10.27.0.3:/home/zeus/scp_backup/   -> rc=0 (0s)
+$ sudo bash -c 'echo "# backup test" >> /etc/ssh/ssh_config'   -> rc=0 (0s)
+$ sudo scp -pr /etc/ssh zeus@10.27.0.3:/home/zeus/scp_backup/   -> rc=0 (0s)
+$ [backup_server] ls -la scp_backup/ssh/ | head -6; test -f scp_backup/ssh/ssh_config && tail -1 scp_backup/ssh/ssh_config   -> rc=0 (0s)
+    | total 628
+    | drwxr-xr-x 4 zeus zeus   4096 Jul 15 15:07 .
+    | drwxr-xr-x 3 zeus zeus   4096 Oct  7 20:24 ..
+    | -rw-r--r-- 1 zeus zeus 573928 Dec 19  2023 moduli
+    | -rw-r--r-- 1 zeus zeus   1664 Oct  7 20:24 ssh_config
+    | drwxr-xr-x 2 zeus zeus   4096 Dec 19  2023 ssh_config.d
+    | # backup test
+[OK] N2/B6: mkdir rc=0, 1st scp rc=0, 2nd scp rc=0, scp_backup/ssh has the change: True
+[OK] B8: scp rule as taught in the sheet: ['b8_exists', 'b8_exists/d', 'b8_exists/d/f', 'b8_new', 'b8_new/f']
+
+====================================================================================================
+BOT: Attack 1 (scp /usr/bin)
+====================================================================================================
+BOT #1 ready (nothing copied yet) [12s]:
+    > FYI: Warning: Permanently added '10.27.0.3' (ED25519) to the list of known hosts. / ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/p
+    > :( There's no /home/zeus/remote-bin-backup-d70b on the backup_server yet. With scp, if the destination doesn't exist, scp creates it *as* the copy (so you'd get the files with no bin/ directory) -- so create the directory first (ssh to the backup_server and mkdir it), then scp into it.
+[OK] A1-none: nothing copied -> :( There's no /home/zeus/remote-bin-backup-d70b on the backup_server yet. With scp, if the destination doesn't exist, scp creates it *as* the copy (so you'd get the files with no bin/ directory) -- so
+$ (mistake: dest dir not created first) scp -rq /usr/bin 10.27.0.3:/home/zeus/remote-bin-backup-d70b   -> rc=1 (9s)
+    | scp: local "/usr/bin/X11" is not a regular file
+    | scp: upload "/usr/bin/X11" to "/home/zeus/remote-bin-backup-d70b/X11" failed
+    | scp: failed to upload directory /usr/bin to /home/zeus/remote-bin-backup-d70b
+BOT #1 ready (scp to a not-yet-existing dir (contents, no bin/)) [8s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / UNEXPECTED contents-without-bin / RESULT FAIL
+    > :( You copied the *contents* of bin straight into remote-bin-backup-d70b/, not a bin/ directory inside it. That's what scp does when the destination doesn't exist yet. Delete remote-bin-backup-d70b on the backup_server, mkdir it, then scp -r the directory into it.
+[OK] A1-nobin: contents without bin/ -> :( You copied the *contents* of bin straight into remote-bin-backup-d70b/, not a bin/ directory inside it. That's what scp does when the destination doesn't exist yet. Delete remote-bin-backup-d70b on
+$ ssh zeus@10.27.0.3 mkdir -p remote-bin-backup-d70b   -> rc=0 (0s)
+$ scp -rq /usr/bin 10.27.0.3:/home/zeus/remote-bin-backup-d70b/   -> rc=1 (7s)
+    | scp: local "/usr/bin/X11" is not a regular file
+    | scp: upload "/usr/bin/X11" to "/home/zeus/remote-bin-backup-d70b/bin/X11" failed
+    | scp: failed to upload directory /usr/bin to /home/zeus/remote-bin-backup-d70b/
+BOT #1 ready (correct: mkdir then scp -r /usr/bin into it) [14s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK bin/ls bin/mkdir / RESULT PASS
+    > :) Well done! flag{sjlIKRZESpQTMAeWANQ}
+    > ** #2 **
+[OK] A1: correct solution (23s for both copies) -> :) Well done! flag{..}
+
+====================================================================================================
+LABSHEET: Rsync local, remote, -M--fake-super
+====================================================================================================
+$ sudo bash -c 'echo hello > /etc/hello'   -> rc=0 (0s)
+$ sudo rsync -av /etc ~/backups/rsync_backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | etc/
+    | etc/hello
+    | 
+    | sent 93,323 bytes  received 381 bytes  187,408.00 bytes/sec
+    | total size is 3,427,719  speedup is 36.58
+[OK] L-rsync-local: 2nd local rsync transferred ['etc/hello']
+$ sudo rsync -avzh -M--fake-super /etc zeus@10.27.0.3:/home/zeus/remote-rsync-backup/   -> rc=0 (1s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-backup
+    | etc/
+    | etc/.pwd.lock
+    | etc/adduser.conf
+    | etc/adduser.conf.update-old
+    |   ... (2169 lines omitted, see full log) ...
+    | etc/xml/sgml-data.xml.old
+    | etc/xml/xml-core.xml
+    | etc/xml/xml-core.xml.old
+    | 
+    | sent 1.17M bytes  received 23.08K bytes  793.92K bytes/sec
+    | total size is 3.43M  speedup is 2.88
+$ [backup_server] stat -c '%a %U:%G' remote-rsync-backup/etc/shadow; python3 -c 'import os;print(os.listxattr("remote-rsync-backup/etc/shadow"))'   -> rc=0 (0s)
+    | 640 zeus:zeus
+    | ['user.rsync.%stat']
+[OK] B2-server: server copy of etc/shadow now records the real owner in an xattr: 640 zeus:zeus ['user.rsync.%stat']
+$ sudo rm /etc/hello   -> rc=0 (0s)
+$ sudo rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup/etc/hello /etc/   -> rc=0 (0s)
+    | receiving incremental file list
+    | hello
+    | 
+    | sent 43 bytes  received 93 bytes  272.00 bytes/sec
+    | total size is 6  speedup is 0.04
+$ sheet: check that the ownership survived   -> rc=0 (0s)
+    | 644 root:root
+    | -rw-r--r-- 1 root root 6 Oct  7 20:25 /etc/hello
+$ [backup_server] ls -l remote-rsync-backup/etc/hello   -> rc=0 (0s)
+    | -rw-r--r-- 1 zeus zeus 6 Oct  7 20:25 remote-rsync-backup/etc/hello
+[OK] L-restore-hello: /etc/hello restored with -M: ['644', 'root:root']; server copy: -rw-r--r-- 1 zeus zeus
+$ sudo rm /etc/hello   -> rc=0 (0s)
+$ sudo rsync -avzh -M--fake-super --delete /etc zeus@10.27.0.3:/home/zeus/remote-rsync-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | deleting etc/hello
+    | etc/
+    | 
+    | sent 92.60K bytes  received 379 bytes  185.95K bytes/sec
+    | total size is 3.43M  speedup is 36.87
+$ [backup_server] test ! -e remote-rsync-backup/etc/hello   -> rc=0 (0s)
+[OK] L-delete: --delete removed etc/hello from the server
+
+====================================================================================================
+BOT: Attack 2 (full backup)
+====================================================================================================
+$ (P3) no sudo   -> rc=23 (0s)
+    | sending incremental file list
+    | rsync: [sender] opendir "/home/olitiau/.ssh" failed: Permission denied (13)
+    | rsync: [sender] opendir "/home/olitiau/.vim" failed: Permission denied (13)
+    | created directory /tmp/p3
+    | olitiau/
+    | olitiau/.bash_logout
+    |   ... (27 lines omitted, see full log) ...
+    | rsync: [sender] send_files failed to open "/home/olitiau/trade_secrets/code.pl": Permission denied (13)
+    | rsync: [sender] send_files failed to open "/home/olitiau/trade_secrets/credit_card": Permission denied (13)
+    | 
+    | sent 22,445 bytes  received 507 bytes  45,904.00 bytes/sec
+    | total size is 23,509  speedup is 1.02
+    | rsync error: some files/attrs were not transferred (see previous errors) (code 23) at main.c(1347) [sender=3.2.7]
+[INFO] P3: non-sudo rsync rc=23: ['rsync: [sender] opendir "/home/olitiau/.ssh" failed: Permission denied (13)'] (sheet now explains why sudo)
+$ (mistake: names SECONDUSER in the dest, parent missing)   -> rc=11 (0s)
+    | sending incremental file list
+    | rsync: mkdir "/home/zeus/remote-rsync-full-backup/olitiau" failed: No such file or directory (2)
+    | rsync error: error in file IO (code 11) at main.c(682) [Receiver=3.1.3]
+[INFO] N6: rc=11 ['rsync: mkdir "/home/zeus/remote-rsync-full-backup/olitiau" failed: No such file or directory (2)'] (sheet now explains this error)
+BOT #2 ready (no backup yet) [16s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / NODIR /home/zeus/remote-rsync-full-backup/olitiau / RESULT FAIL
+    > :( I can't find /home/zeus/remote-rsync-full-backup/olitiau on the backup_server. Check the destination path. (If rsync said 'mkdir ... failed: No such file or directory', the parent directory didn't exist: rsync only creates the last directory of the destination.)
+[OK] A2-nodir: no backup -> :( I can't find /home/zeus/remote-rsync-full-backup/olitiau on the backup_server. Check the destination path. (If rsync said 'mkdir ... failed: No such file or directory', the parent directory didn't 
+$ (mistake: trailing slash on source) contents into remote-rsync-full-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-full-backup
+    | ./
+    | .bash_logout
+    | .bashrc
+    | .face
+    |   ... (25 lines omitted, see full log) ...
+    | trade_secrets/
+    | trade_secrets/code.pl
+    | trade_secrets/credit_card
+    | 
+    | sent 11.97K bytes  received 549 bytes  25.04K bytes/sec
+    | total size is 23.51K  speedup is 1.88
+BOT #2 ready (contents at top) [16s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / UNEXPECTED contents-at-top / RESULT FAIL
+    > :( You copied the *contents* of /home/olitiau straight into remote-rsync-full-backup/, instead of a olitiau/ directory inside it. With rsync, /home/olitiau (no trailing slash) copies the directory; /home/olitiau/ copies only what's in it. Delete it on the backup_server and try again.
+[OK] A2-top: contents at top -> :( You copied the *contents* of /home/olitiau straight into remote-rsync-full-backup/, instead of a olitiau/ directory inside it. With rsync, /home/olitiau (no trailing slash) copies the directory; /h
+$ (mistake: nested) dest .../remote-rsync-full-backup/SECONDUSER/   -> rc=0 (0s)
+    | sending incremental file list
+    | olitiau/
+    | olitiau/.bash_logout
+    | olitiau/.bashrc
+    | olitiau/.face
+    | olitiau/.face.icon -> .face
+    |   ... (24 lines omitted, see full log) ...
+    | olitiau/trade_secrets/
+    | olitiau/trade_secrets/code.pl
+    | olitiau/trade_secrets/credit_card
+    | 
+    | sent 12.00K bytes  received 496 bytes  24.98K bytes/sec
+    | total size is 23.51K  speedup is 1.88
+BOT #2 ready (nested) [18s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / UNEXPECTED nested / MISSING original-files / RESULT FAIL
+    > :( Your backup is nested one level too deep: remote-rsync-full-backup/olitiau/olitiau/. Give rsync the *parent* directory (.../remote-rsync-full-backup/) as the destination -- it creates olitiau/ inside it. Delete it on the backup_server and try again.
+[OK] A2-nested: nested -> :( Your backup is nested one level too deep: remote-rsync-full-backup/olitiau/olitiau/. Give rsync the *parent* directory (.../remote-rsync-full-backup/) as the destination -- it creates olitiau/ insi
+$ sudo rsync -avzh -M--fake-super /home/olitiau zeus@10.27.0.3:/home/zeus/remote-rsync-full-backup/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-full-backup
+    | olitiau/
+    | olitiau/.bash_logout
+    | olitiau/.bashrc
+    | olitiau/.face
+    |   ... (25 lines omitted, see full log) ...
+    | olitiau/trade_secrets/
+    | olitiau/trade_secrets/code.pl
+    | olitiau/trade_secrets/credit_card
+    | 
+    | sent 12.00K bytes  received 554 bytes  25.10K bytes/sec
+    | total size is 23.51K  speedup is 1.87
+BOT #2 ready (correct full backup) [20s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files / RESULT PASS
+    > :) Well done! flag{e9058295}
+    > ** #3 **
+[OK] A2: correct full backup -> :) Well done! flag{..}
+
+====================================================================================================
+LABSHEET: Differential backups (/etc) + B1 fix + restore into a scratch copy
+====================================================================================================
+$ sudo bash -c 'echo "hello there" > /etc/hello'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ ~/backups/rsync_backup_week1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/backups/rsync_backup_week1
+    | etc/
+    | etc/hello
+    | 
+    | sent 93,332 bytes  received 442 bytes  187,548.00 bytes/sec
+    | total size is 3,427,725  speedup is 36.55
+$ sudo rsync -avzh -M--fake-super /etc --compare-dest=/home/zeus/remote-rsync-backup/ zeus@10.27.0.3:/home/zeus/remote-rsync-backup-week1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-backup-week1
+    | etc/
+    | etc/hello
+    | 
+    | sent 92.67K bytes  received 440 bytes  186.22K bytes/sec
+    | total size is 3.43M  speedup is 36.81
+[OK] B1: week1 differential with $HOME: local 1 files, remote 1 files
+$ sudo bash -c 'echo "hello there!" > /etc/hi'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ ~/backups/rsync_backup_week2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/backups/rsync_backup_week2
+    | etc/
+    | etc/hello
+    | etc/hi
+    | 
+    | sent 93,406 bytes  received 461 bytes  62,578.00 bytes/sec
+    | total size is 3,427,738  speedup is 36.52
+$ sudo rsync -avzh -M--fake-super /etc --compare-dest=/home/zeus/remote-rsync-backup/ zeus@10.27.0.3:/home/zeus/remote-rsync-backup-week2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-backup-week2
+    | etc/
+    | etc/hello
+    | etc/hi
+    | 
+    | sent 92.74K bytes  received 459 bytes  186.40K bytes/sec
+    | total size is 3.43M  speedup is 36.78
+week2: local 2 / remote 2 files
+$ sudo rm /etc/wgetrc /etc/hello   -> rc=0 (0s)
+$ [restore into scratch copy of /etc] remote restore full -> week2 (sheet commands, -M): rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup/etc/ /etc/ ; rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup-week2/etc/ /etc/   -> rc=0
+    | (no unexpected type/mode/owner changes)
+[OK] N1-diff: remote restore full -> week2 (sheet commands, -M): 0 other /etc entries differ after the restore; symlinks /etc=838 restored=838; sudoers modes bad: none; restored: ['/etc/wgetrc 644 root:root', '/etc/hello 644 root:root']; missing: none
+$ sudo rm /etc/wgetrc /etc/hello   -> rc=0 (0s)
+$ [restore into scratch copy of /etc] local restore (sheet: "try restoring from the local copy"): rsync -av /home/zeus/backups/rsync_backup/etc/ /etc/ ; rsync -av /home/zeus/backups/rsync_backup_week2/etc/ /etc/   -> rc=0
+    | (no unexpected type/mode/owner changes)
+[OK] N1-local: local restore (sheet: "try restoring from the local copy"): 0 other /etc entries differ after the restore; symlinks /etc=838 restored=838; sudoers modes bad: none; restored: ['/etc/wgetrc 644 root:root', '/etc/hello 644 root:root']; missing: none
+
+====================================================================================================
+BOT: Attacks 3-4 (step 3 changes, differential1)
+====================================================================================================
+BOT #3 ready (step 3 changes) [10s]:
+    > Ok, olitiau has made their changes... (Hint: Keep an eye out for a flag...) Now take the differential backup, before saying 'ready' again. (You can always say 'goto 3' then 'ready' to put their files back to exactly this point.)
+    > ** #4 **
+[OK] A3: Ok, olitiau has made their changes... (Hint: Keep an eye out for a flag...) Now take the differential backup, before saying 'ready' again. (You can always say 'goto 3' then 'ready' to put their files 
+$ sudo cat /home/olitiau/personal_secrets/flag   -> rc=0 (0s)
+    | flag{vz3EClgJmDuvJYE2qyl1g}
+$ sudo stat -c "%U %n" /home/olitiau/notes /home/olitiau/personal_secrets/flag   -> rc=0 (0s)
+    | olitiau /home/olitiau/notes
+    | olitiau /home/olitiau/personal_secrets/flag
+step-3 files owned by: olitiau /home/olitiau/notes olitiau /home/olitiau/personal_secrets/flag
+$ (mistake: no --compare-dest)   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-differential1
+    | olitiau/
+    | olitiau/.bash_logout
+    | olitiau/.bashrc
+    | olitiau/.face
+    |   ... (28 lines omitted, see full log) ...
+    | olitiau/trade_secrets/
+    | olitiau/trade_secrets/code.pl
+    | olitiau/trade_secrets/credit_card
+    | 
+    | sent 12.12K bytes  received 613 bytes  25.47K bytes/sec
+    | total size is 23.59K  speedup is 1.85
+BOT #4 ready (full copy) [20s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / UNEXPECTED original-files / OK changes-from-step-3 / RESULT FAIL
+    > :( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* olitiau/ (/home/zeus/remote-rsync-full-backup/), as an absolute path ($HOME works, ~ does not). Delete remote-rsync-di
+[OK] A4-full: no --compare-dest -> :( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* olitiau/ (/home/ze
+$ (P2 mistake: compare-dest one level too deep)   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-differential1
+    | olitiau/
+    | olitiau/.bash_logout
+    | olitiau/.bashrc
+    | olitiau/.face
+    |   ... (28 lines omitted, see full log) ...
+    | olitiau/trade_secrets/
+    | olitiau/trade_secrets/code.pl
+    | olitiau/trade_secrets/credit_card
+    | 
+    | sent 12.12K bytes  received 613 bytes  25.47K bytes/sec
+    | total size is 23.59K  speedup is 1.85
+BOT #4 ready (compare-dest too deep) [18s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / UNEXPECTED original-files / OK changes-from-step-3 / RESULT FAIL
+    > :( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* olitiau/ (/home/zeus/remote-rsync-full-backup/), as an absolute path ($HOME works, ~ does not). Delete remote-rsync-di
+[OK] P2: mismatched --compare-dest -> :( Your differential backup also contains files that haven't changed since the full backup, so --compare-dest didn't match anything. It has to point at the directory that *contains* olitiau/ (/home/ze
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ zeus@10.27.0.3:/home/zeus/remote-rsync-differential1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-differential1
+    | olitiau/
+    | olitiau/notes
+    | olitiau/logs/
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/flag
+    | 
+    | sent 1.20K bytes  received 158 bytes  2.71K bytes/sec
+    | total size is 23.59K  speedup is 17.38
+BOT #4 ready (correct differential1) [22s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / OK changes-from-step-3 / RESULT PAS
+    > :) Well done! flag{YfpkrMbJZWWvj9Rmu8w}
+    > ** #5 **
+[OK] A4: correct differential1 -> :) Well done! flag{..}
+
+====================================================================================================
+LABSHEET: Incremental backups (/etc) + restore into a scratch copy
+====================================================================================================
+$ sudo bash -c 'echo "Another test change" > /etc/test1'   -> rc=0 (0s)
+$ sudo bash -c 'echo "Another test change" > /etc/hello'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ --compare-dest=$HOME/backups/rsync_backup_week2/ ~/backups/rsync_backup_monday/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/backups/rsync_backup_monday
+    | etc/
+    | etc/hello
+    | etc/test1
+    | 
+    | sent 93,439 bytes  received 462 bytes  187,802.00 bytes/sec
+    | total size is 3,427,766  speedup is 36.50
+$ sudo rsync -avzh -M--fake-super /etc --compare-dest=/home/zeus/remote-rsync-backup/ --compare-dest=/home/zeus/remote-rsync-backup-week2/ zeus@10.27.0.3:/home/zeus/remote-rsync-backup-monday/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-backup-monday
+    | etc/
+    | etc/hello
+    | etc/test1
+    | 
+    | sent 92.78K bytes  received 467 bytes  186.49K bytes/sec
+    | total size is 3.43M  speedup is 36.76
+$ sudo bash -c 'echo "Another test change" > /etc/test2'   -> rc=0 (0s)
+$ sudo rsync -av /etc --compare-dest=$HOME/backups/rsync_backup/ --compare-dest=$HOME/backups/rsync_backup_week2/ --compare-dest=$HOME/backups/rsync_backup_monday/ ~/backups/rsync_backup_tuesday/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/backups/rsync_backup_tuesday
+    | etc/test2
+    | 
+    | sent 93,402 bytes  received 440 bytes  187,684.00 bytes/sec
+    | total size is 3,427,786  speedup is 36.53
+$ sudo rsync -avzh -M--fake-super /etc --compare-dest=/home/zeus/remote-rsync-backup/ --compare-dest=/home/zeus/remote-rsync-backup-week2/ --compare-dest=/home/zeus/remote-rsync-backup-monday/ zeus@10.27.0.3:/home/zeus/remote-rsync-backup-tuesday/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-backup-tuesday
+    | etc/test2
+    | 
+    | sent 92.74K bytes  received 439 bytes  62.12K bytes/sec
+    | total size is 3.43M  speedup is 36.79
+monday: local 2 / remote 2; tuesday: local 1 / remote 1 files
+$ sudo rm /etc/wgetrc /etc/hello /etc/test1 /etc/test2   -> rc=0 (0s)
+$ [restore into scratch copy of /etc] restore full -> week2 -> monday -> tuesday (remote, -M): rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup/etc/ /etc/ ; rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup-week2/etc/ /etc/ ; rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup-monday/etc/ /etc/ ; rsync -avz -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-backup-tuesday/etc/ /etc/   -> rc=0
+    | (no unexpected type/mode/owner changes)
+[OK] N1-incr: restore full -> week2 -> monday -> tuesday (remote, -M): 0 other /etc entries differ after the restore; symlinks /etc=838 restored=838; sudoers modes bad: none; restored: ['/etc/wgetrc 644 root:root', '/etc/hello 644 root:root', '/etc/test1 644 root:root', '/etc/test2 644 root:root']; missing: none
+
+====================================================================================================
+BOT: Attacks 5-6 (step 5 changes, differential2)
+====================================================================================================
+BOT #5 ready (step 5 changes) [10s]:
+    > Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 5' then 'ready' puts their files back to exactly this point.)
+    > ** #6 **
+[OK] A5: Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 5' then 'ready' puts their files back to exactly this point.)
+$ (mistake: trailing slash on source)   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-differential2
+    | ./
+    | .bash_logout
+    | .bashrc
+    | .face
+    |   ... (29 lines omitted, see full log) ...
+    | trade_secrets/
+    | trade_secrets/code.pl
+    | trade_secrets/credit_card
+    | 
+    | sent 12.20K bytes  received 631 bytes  25.65K bytes/sec
+    | total size is 23.63K  speedup is 1.84
+BOT #6 ready (contents at top) [16s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / UNEXPECTED contents-at-top / RESULT FAIL
+    > :( You copied the *contents* of /home/olitiau straight into remote-rsync-differential2/, instead of a olitiau/ directory inside it (mind the trailing slash on the source). Delete it on the backup_server and try again.
+[OK] A6-top: contents at top -> :( You copied the *contents* of /home/olitiau straight into remote-rsync-differential2/, instead of a olitiau/ directory inside it (mind the trailing slash on the source). Delete it on the backup_serv
+$ (mistake: incremental instead of differential)   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-differential2
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/really_not_a_flag
+    | 
+    | sent 1.22K bytes  received 166 bytes  2.77K bytes/sec
+    | total size is 23.63K  speedup is 17.05
+BOT #6 ready (incremental instead of differential) [22s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / MISSING changes-from-step-3 / OK ch
+    > :( A differential backup holds *all* the changes since the full backup -- including step 3's. Compare against the full backup only (not differential1). Delete remote-rsync-differential2 and try again.
+[OK] A6-incr: compared against diff1 too -> :( A differential backup holds *all* the changes since the full backup -- including step 3's. Compare against the full backup only (not differential1). Delete remote-rsync-differential2 and try again.
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ zeus@10.27.0.3:/home/zeus/remote-rsync-differential2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-differential2
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/flag
+    | olitiau/personal_secrets/really_not_a_flag
+    | 
+    | sent 1.29K bytes  received 171 bytes  2.93K bytes/sec
+    | total size is 23.63K  speedup is 16.15
+BOT #6 ready (correct differential2) [28s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / OK changes-from-step-3 / OK changes
+    > :) Well done! flag{355208ac375e09dc73fac0ffe60e92ad}
+    > ** #7 **
+[OK] A6: correct differential2 -> :) Well done! flag{..}
+
+====================================================================================================
+BOT: Attacks 7-8 (step 7 changes, incremental1) + B4 fix
+====================================================================================================
+BOT #7 ready (step 7 changes) [10s]:
+    > Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.)
+    > ** #8 **
+[OK] A7: Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.)
+$ (mistake: forgot differential2 --compare-dest)   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-incremental1
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/4d1f
+    | olitiau/personal_secrets/flag
+    | olitiau/personal_secrets/really_not_a_flag
+    | 
+    | sent 1.32K bytes  received 189 bytes  3.02K bytes/sec
+    | total size is 23.61K  speedup is 15.63
+BOT #8 ready (forgot diff2 compare-dest) [24s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / OK changes-from-step-7 / UNEXPECTED
+    > :( Your incremental backup contains changes that are already in differential2. An incremental only holds what changed since the *last* backup, so add a second --compare-dest=/home/zeus/remote-rsync-differential2/ (as well as the full backup). Delete remote-rsync-incremental1 and try again.
+[OK] B4: forgot diff2 --compare-dest -> :( Your incremental backup contains changes that are already in differential2. An incremental only holds what changed since the *last* backup, so add a second --compare-dest=/home/zeus/remote-rsync-di
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ --compare-dest=/home/zeus/remote-rsync-differential2/ zeus@10.27.0.3:/home/zeus/remote-rsync-incremental1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-incremental1
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/4d1f
+    | 
+    | sent 1.21K bytes  received 161 bytes  2.74K bytes/sec
+    | total size is 23.61K  speedup is 17.26
+BOT #8 ready (correct incremental1) [28s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / OK changes-from-step-7 / OK changes
+    > :) Well done! flag{FgsJxraU2ED63l4c7WDCMg}
+    > ** #9 **
+[OK] A8: correct incremental1 -> :) Well done! flag{..}
+
+====================================================================================================
+LABSHEET: Snapshots (/etc) with $HOME and linking to the previous snapshot
+====================================================================================================
+$ sudo find ~/backups/rsync_backup_snapshot_1 -type f -links +1 | wc -l; sudo du -sh ~/backups/rsync_backup ~/backups/rsync_backup_snapshot_1   -> rc=0 (0s)
+    | 1002
+    | 8.0M	/home/zeus/backups/rsync_backup
+    | 1.4M	/home/zeus/backups/rsync_backup_snapshot_1
+$ sudo bash -c 'echo "Another test change" > /etc/test3'   -> rc=0 (0s)
+$ sudo bash -c 'echo "Another test change" > /etc/test4'   -> rc=0 (0s)
+$ sudo find ~/backups/rsync_backup_snapshot_2 -type f -links +1 | wc -l   -> rc=0 (0s)
+    | 1006
+[OK] B1-linkdest: snapshot_1 hard links: 1002; snapshot_2 hard links: 1006; du: 8.0M /home/zeus/backups/rsync_backup 1.4M /home/zeus/backups/rsync_backup_snapshot_1
+
+====================================================================================================
+BOT: Attacks 9-10 (step 9, incremental2) + B5 + REWIND with goto 7 + quiz
+====================================================================================================
+BOT #9 ready (step 9 changes) [10s]:
+    > Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 9' then 'ready' puts their files back to exactly this point.)
+    > ** #10 **
+[OK] A9: Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 9' then 'ready' puts their files back to exactly this point.)
+$ (B5 mistake) delete incremental1 and redo it now, after step 9   -> rc=0 (0s)
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ --compare-dest=/home/zeus/remote-rsync-differential2/ zeus@10.27.0.3:/home/zeus/remote-rsync-incremental1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-incremental1
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/4d1f
+    | olitiau/personal_secrets/nothing_much
+    | 
+    | sent 1.28K bytes  received 184 bytes  2.94K bytes/sec
+    | total size is 23.64K  speedup is 16.10
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ --compare-dest=/home/zeus/remote-rsync-differential2/ --compare-dest=/home/zeus/remote-rsync-incremental1/ zeus@10.27.0.3:/home/zeus/remote-rsync-incremental2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-incremental2
+    | 
+    | sent 1.06K bytes  received 83 bytes  764.67 bytes/sec
+    | total size is 23.64K  speedup is 20.61
+BOT #10 ready (incremental1 redone late -> empty incremental2) [24s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / MISSING changes-from-step-9 / OK ch
+    > :( Your backup doesn't contain step 9's changes. Either you backed up before saying 'ready' at step 9 ('goto 9', 'ready', then back up again), or your incremental1 already contains them because it was redone after step 9 -- check on the backup_server. If so: 'goto 7', 'ready', redo incremental1, the
+[OK] B5: late incr1 -> :( Your backup doesn't contain step 9's changes. Either you backed up before saying 'ready' at step 9 ('goto 9', 'ready', then back up again), or your incremental1 already contains them because it was
+BOT #7 ready (REWIND to step 7) [10s]:
+    > Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.)
+    > ** #8 **
+$ sudo ls /home/olitiau/personal_secrets/; sudo cat /home/olitiau/notes   -> rc=0 (0s)
+    | 4d1f
+    | address_book
+    | credit_card
+    | flag
+    | really_not_a_flag
+    | Buy eggs 4d1f
+[OK] REWIND-7: goto 7 + ready -> Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 7' then 'ready' puts their files back to exactly this point.); files now: 4d1f address_book credit_card flag really_not_a_flag Buy eggs 4d1f
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ --compare-dest=/home/zeus/remote-rsync-differential2/ zeus@10.27.0.3:/home/zeus/remote-rsync-incremental1/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-incremental1
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/4d1f
+    | 
+    | sent 1.21K bytes  received 165 bytes  2.75K bytes/sec
+    | total size is 23.61K  speedup is 17.15
+BOT #8 ready (incremental1 after rewind) [28s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / OK changes-from-step-7 / OK changes
+    > :) Well done! flag{FgsJxraU2ED63l4c7WDCMg}
+    > ** #9 **
+[OK] REWIND-8: incr1 retaken after the rewind -> :) Well done! flag{..}
+BOT #9 ready (step 9 again) [10s]:
+    > Ok, olitiau has made more changes... No flag this time. Now take the next backup, before saying 'ready' again. ('goto 9' then 'ready' puts their files back to exactly this point.)
+    > ** #10 **
+$ sudo rsync -avzh -M--fake-super /home/olitiau --compare-dest=/home/zeus/remote-rsync-full-backup/ --compare-dest=/home/zeus/remote-rsync-differential2/ --compare-dest=/home/zeus/remote-rsync-incremental1/ zeus@10.27.0.3:/home/zeus/remote-rsync-incremental2/   -> rc=0 (0s)
+    | sending incremental file list
+    | created directory /home/zeus/remote-rsync-incremental2
+    | olitiau/notes
+    | olitiau/logs/log2
+    | olitiau/personal_secrets/
+    | olitiau/personal_secrets/nothing_much
+    | 
+    | sent 1.24K bytes  received 165 bytes  936.67 bytes/sec
+    | total size is 23.64K  speedup is 16.83
+BOT #10 ready (correct incremental2) [30s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / OK original-files (not included) / OK changes-from-step-9 / OK changes
+    > :) Well done! flag{gimpingconfessantnflracemationsverbalistic}
+    > Access the backups on the backup_server via SSH: what did olitiau's notes file say in incremental1?
+[OK] A10: correct incremental2 -> :) Well done! flag{..}
+$ (quiz) desktop notes - should NOT be the answer   -> rc=0 (0s)
+    | Buy batteries 1478
+$ (quiz) incremental1 notes on the backup_server   -> rc=0 (0s)
+    | Buy eggs 4d1f
+[OK] Q10: desktop notes answer rejected: True; incremental1 notes ('Buy eggs 4d1f') accepted: True
+
+====================================================================================================
+BOT: Attack 11 (safety gate) + 12 (restore, ownership, goto-11 reset)
+====================================================================================================
+$ (gate test) hide incremental2   -> rc=0 (0s)
+BOT #11 ready (incremental2 missing) [46s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / [full backup] OK original-files / [full backup] RESULT PASS / [differe
+    > :( Not yet! I only attack systems whose backups would survive it, and some of yours wouldn't -- see the FAIL lines above. Fix those backups (the earlier steps' hints apply: 'goto' a change step to rewind olitiau's files if you need to), then say 'ready' again.
+$ sudo test -d /home/olitiau/trade_secrets && echo files-still-there || echo files-GONE   -> rc=0 (0s)
+    | files-still-there
+[OK] A11-gate: with incremental2 missing -> :( Not yet! I only attack systems whose backups would survive it, and some of yours wouldn't -- see the FAIL lines above. Fix those backups (the earlier steps' hints apply: 'goto' a change step to rew (files-still-there)
+BOT #11 ready (backups good) [60s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / [full backup] OK original-files / [full backup] RESULT PASS / [differe
+    > I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!
+    > ** #12 **
+[OK] A11: I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!
+BOT #12 ready (nothing restored) [22s]:
+    > FYI: MISSING original-files / MISSING changes-from-step-3 / MISSING changes-from-step-5 / MISSING changes-from-step-7 / MISSING changes-from-step-9 / MISSING notes-latest-version / OK ownership / RESULT FAIL
+    > :( olitiau's original files aren't back yet: start by restoring the full backup. If your files are in a mess, say 'goto 11' then 'ready' and I'll delete them again so you can start the restore from scratch.
+[OK] A12-none: nothing restored -> :( olitiau's original files aren't back yet: start by restoring the full backup. If your files are in a mess, say 'goto 11' then 'ready' and I'll delete them again so you can start the restore from sc (B3/N3 fixed?)
+$ (wrong order) restore from remote-rsync-full-backup   -> rc=0 (0s)
+    | receiving incremental file list
+    | ./
+    | logs/
+    | logs/log1
+    | personal_secrets/
+    | personal_secrets/address_book
+    |   ... (1 lines omitted, see full log) ...
+    | trade_secrets/
+    | trade_secrets/code.pl
+    | trade_secrets/credit_card
+    | 
+    | sent 142 bytes  received 2,771 bytes  1,942.00 bytes/sec
+    | total size is 23,509  speedup is 8.07
+$ (wrong order) restore from remote-rsync-differential2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/flag
+    | personal_secrets/really_not_a_flag
+    | 
+    | sent 118 bytes  received 617 bytes  1,470.00 bytes/sec
+    | total size is 120  speedup is 0.16
+$ (wrong order) restore from remote-rsync-incremental2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/nothing_much
+    | 
+    | sent 111 bytes  received 529 bytes  1,280.00 bytes/sec
+    | total size is 94  speedup is 0.15
+$ (wrong order) restore from remote-rsync-incremental1   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/4d1f
+    | 
+    | sent 107 bytes  received 488 bytes  1,190.00 bytes/sec
+    | total size is 69  speedup is 0.12
+BOT #12 ready (wrong order) [20s]:
+    > FYI: OK original-files / OK changes-from-step-3 / OK changes-from-step-5 / OK changes-from-step-7 / OK changes-from-step-9 / MISSING notes-latest-version / OK ownership / RESULT FAIL
+    > :( Close... You restored something, but not everything... Check the order you did your restore commands in: notes isn't the latest version. If your files are in a mess, say 'goto 11' then 'ready' and I'll delete them again so you can start the restore from scratch.
+[OK] A12-order: wrong order -> :( Close... You restored something, but not everything... Check the order you did your restore commands in: notes isn't the latest version. If your files are in a mess, say 'goto 11' then 'ready' and 
+BOT #11 ready (RESET via goto 11) [60s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / [full backup] OK original-files / [full backup] RESULT PASS / [differe
+    > I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!
+    > ** #12 **
+$ sudo ls /home/olitiau   -> rc=0 (0s)
+[OK] RESET-11: goto 11 + ready -> I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!; /home/olitiau now: []
+$ (no -M) restore from remote-rsync-full-backup   -> rc=0 (0s)
+    | receiving incremental file list
+    | ./
+    | .face.icon
+    | .config/
+    | .config/autostart/
+    | .ssh/
+    |   ... (6 lines omitted, see full log) ...
+    | trade_secrets/
+    | trade_secrets/code.pl
+    | trade_secrets/credit_card
+    | 
+    | sent 231 bytes  received 2,877 bytes  2,072.00 bytes/sec
+    | total size is 23,509  speedup is 7.56
+$ (no -M) restore from remote-rsync-differential2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/flag
+    | personal_secrets/really_not_a_flag
+    | 
+    | sent 114 bytes  received 603 bytes  1,434.00 bytes/sec
+    | total size is 120  speedup is 0.17
+$ (no -M) restore from remote-rsync-incremental1   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/4d1f
+    | 
+    | sent 111 bytes  received 490 bytes  1,202.00 bytes/sec
+    | total size is 69  speedup is 0.11
+$ (no -M) restore from remote-rsync-incremental2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/nothing_much
+    | 
+    | sent 107 bytes  received 515 bytes  1,244.00 bytes/sec
+    | total size is 94  speedup is 0.15
+BOT #12 ready (restored without -M) [22s]:
+    > FYI: OK original-files / OK changes-from-step-3 / OK changes-from-step-5 / OK changes-from-step-7 / OK changes-from-step-9 / OK notes-latest-version / MISSING ownership / RESULT FAIL
+    > :( All the files are back, but some aren't owned by olitiau any more (so they can't edit their own files). Back up and restore with -M--fake-super so ownership survives the round trip (see the lab sheet) -- or, as a quick fix this time, sudo chown -R olitiau: /home/olitiau
+$ sudo find /home/olitiau -mindepth 1 -printf "%u\n" | sort | uniq -c   -> rc=0 (0s)
+    |      37 zeus
+[OK] A12-owner: restore without -M (owners: 37 zeus) -> :( All the files are back, but some aren't owned by olitiau any more (so they can't edit their own files). Back up and restore with -M--fake-super so ownership survives the round trip (see the lab she
+BOT #11 ready (reset again) [60s]:
+    > FYI: ** WARNING: connection is not using a post-quantum key exchange algorithm. / ** This session may be vulnerable to "store now, decrypt later" attacks. / ** The server may need to be upgraded. See https://openssh.com/pq.html / [full backup] OK original-files / [full backup] RESULT PASS / [differe
+    > I just deleted all olitiau's files! They don't call me Hackerbot for nothin'!
+    > ** #12 **
+$ (correct, -M) restore from remote-rsync-full-backup   -> rc=0 (0s)
+    | receiving incremental file list
+    | ./
+    | .face.icon -> .face
+    | .config/
+    | .config/autostart/
+    | .ssh/
+    |   ... (6 lines omitted, see full log) ...
+    | trade_secrets/
+    | trade_secrets/code.pl
+    | trade_secrets/credit_card
+    | 
+    | sent 211 bytes  received 2,840 bytes  6,102.00 bytes/sec
+    | total size is 23,509  speedup is 7.71
+$ (correct, -M) restore from remote-rsync-differential2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/flag
+    | personal_secrets/really_not_a_flag
+    | 
+    | sent 114 bytes  received 609 bytes  482.00 bytes/sec
+    | total size is 120  speedup is 0.17
+$ (correct, -M) restore from remote-rsync-incremental1   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/4d1f
+    | 
+    | sent 111 bytes  received 496 bytes  1,214.00 bytes/sec
+    | total size is 69  speedup is 0.11
+$ (correct, -M) restore from remote-rsync-incremental2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | logs/log2
+    | personal_secrets/
+    | personal_secrets/nothing_much
+    | 
+    | sent 111 bytes  received 525 bytes  1,272.00 bytes/sec
+    | total size is 94  speedup is 0.15
+BOT #12 ready (correct restore with -M) [26s]:
+    > FYI: OK original-files / OK changes-from-step-3 / OK changes-from-step-5 / OK changes-from-step-7 / OK changes-from-step-9 / OK notes-latest-version / OK ownership / RESULT PASS
+    > :) Well done! flag{slothfulnesses zebec}
+    > ** #13 **
+$ sudo find /home/olitiau -mindepth 1 -printf "%u\n" | sort | uniq -c   -> rc=0 (0s)
+    |      37 olitiau
+$ can olitiau write their own notes?   -> rc=0 (0s)
+[OK] A12: correct -M restore -> :) Well done! flag{..}; owners: 37 olitiau; olitiau can write: True
+
+====================================================================================================
+BOT: Attack 13 (first backed-up version of notes)
+====================================================================================================
+$ (mistake) notes from differential2   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | 
+    | sent 49 bytes  received 161 bytes  420.00 bytes/sec
+    | total size is 57  speedup is 0.27
+BOT #13 ready (notes from differential2) [8s]:
+    > FYI: NOTES-STEP-5
+    > :( Close: that's the version from differential2 (step 5). notes wasn't in the full backup -- which backup captured it first?
+[OK] B7: differential2 version -> :( Close: that's the version from differential2 (step 5). notes wasn't in the full backup -- which backup captured it first?
+$ sudo rsync -av -M--fake-super zeus@10.27.0.3:/home/zeus/remote-rsync-differential1/olitiau/notes /home/olitiau/notes   -> rc=0 (0s)
+    | receiving incremental file list
+    | notes
+    | 
+    | sent 49 bytes  received 140 bytes  378.00 bytes/sec
+    | total size is 36  speedup is 0.19
+BOT #13 ready (notes from differential1) [10s]:
+    > FYI: NOTES-STEP-3
+    > :) Well done! flag{bypasser shawling}
+[OK] A13: differential1 version -> :) Well done! flag{..}
+
+====================================================================================================
+EXTRA: P1 sudo + no user@
+====================================================================================================
+$ sudo ssh -G 10.27.0.3 2>/dev/null | grep "^user "   -> rc=0 (0s)
+    | user root
+$ sudo rsync -av --dry-run -e "ssh -o BatchMode=yes" /etc/hostname 10.27.0.3:   -> rc=255 (0s)
+    | root@10.27.0.3: Permission denied (publickey,password).
+    | rsync: connection unexpectedly closed (0 bytes received so far) [sender]
+    | rsync error: unexplained error (code 255) at io.c(232) [sender=3.2.7]
+[INFO] P1: sudo ssh BACKUPIP connects as "user root"; sudo rsync ... BACKUPIP: rc=255 (sheet now warns about this)
+
+====================================================================================================
+FLAGS
+====================================================================================================
+attack 1: correct: mkdir then scp -r /usr/bin into it: flag{sjlIKRZESpQTMAeWANQ}
+attack 2: correct full backup: flag{e9058295}
+attack 3 hidden file: flag{vz3EClgJmDuvJYE2qyl1g}
+attack 4: correct differential1: flag{YfpkrMbJZWWvj9Rmu8w}
+attack 6: correct differential2: flag{355208ac375e09dc73fac0ffe60e92ad}
+attack 8: correct incremental1: flag{FgsJxraU2ED63l4c7WDCMg}
+attack 8: incremental1 after rewind: flag{FgsJxraU2ED63l4c7WDCMg}
+attack 10: correct incremental2: flag{gimpingconfessantnflracemationsverbalistic}
+attack 10 quiz: flag{pw9H4ah8yjrHi5GkE1spg}
+attack 12: correct restore with -M: flag{slothfulnesses zebec}
+attack 13: notes from differential1: flag{bypasser shawling}
+[OK] FLAGS: 10 distinct flags collected (10 expected: 9 in chat + 1 hidden file)
+
