@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+	<name>DEV: Ghidra on Kali test</name>
+	<author>Thomas Shaw</author>
+	<description>DEV ONLY. A single Kali VM with just the ghidra module, for quickly testing the Ghidra 12.1.4 download/install without building the rest of malware_analysis_env_clamav.</description>
+
+	<type>simulation-environment</type>
+	<system>
+		<system_name>kali</system_name>
+		<base distro="Kali" name="MSF"/>
+
+		<input into_datastore="spoiler_admin_pass">
+			<generator type="strong_password_generator"/>
+		</input>
+
+		<utility module_path=".*/parameterised_accounts">
+			<input into="accounts">
+				<value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+			</input>
+		</utility>
+
+		<utility module_path=".*/ghidra"/>
+
+		<!-- not needed for the ghidra test; uncomment to also check the rest of the Kali toolset -->
+		<!-- <utility module_path=".*/reversing_tools"/> -->
+		<!-- <utility module_path=".*/hash_tools"/> -->
+		<!-- <utility module_path=".*/clamav"/> -->
+		<!-- <utility module_path=".*/live_malware_samples"/> -->
+
+		<network type="private_network"/>
+		<build type="cleanup">
+			<input into="root_password">
+				<datastore>spoiler_admin_pass</datastore>
+			</input>
+		</build>
+	</system>
+
+</scenario>

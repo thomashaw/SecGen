@@ -14,11 +14,18 @@ class ghidra::install{
 
     ensure_packages(['openjdk-21-jre', 'openjdk-21-jdk', 'curl', 'unzip', 'gdb', 'python3-pip'])
 
+    # ~570MB: no overall puppet timeout (slow links can exceed 30 min); curl instead aborts a stalled transfer
+    # (<10KB/s for 5 min) and retries (-C - resumes a partial /tmp download, also on a later provision).
+    # Skip the download if a verified zip is already in /tmp; on an HTTP error (curl 22, e.g. 416 when resuming
+    # a complete-but-corrupt file) or a checksum mismatch, delete the zip so the next run starts clean.
+    $zip_path = "/tmp/${ghidra_zip}"
+    $checksum = "echo '${ghidra_sha256}  ${zip_path}' | sha256sum -c -"
+    $download = "curl -fsSL -C - --retry 5 --retry-delay 15 --connect-timeout 60 --speed-limit 10240 --speed-time 300 -o ${zip_path} ${ghidra_url}"
     exec { 'download and unpack ghidra':
-      command  => "curl -fsSL --retry 3 -o /tmp/${ghidra_zip} ${ghidra_url} && echo '${ghidra_sha256}  /tmp/${ghidra_zip}' | sha256sum -c - && unzip -q /tmp/${ghidra_zip} -d /opt && rm -f /tmp/${ghidra_zip}",
+      command  => "if ! ${checksum} >/dev/null 2>&1; then ${download}; rc=\$?; if [ \$rc -eq 22 ]; then rm -f ${zip_path}; fi; [ \$rc -eq 0 ] || exit \$rc; ${checksum} || { rm -f ${zip_path}; exit 1; }; fi; unzip -q ${zip_path} -d /opt && rm -f ${zip_path}",
       creates  => $ghidra_dir,
       provider => shell,
-      timeout  => 1800,
+      timeout  => 0,
       require  => Package['curl', 'unzip'],
     }
 
