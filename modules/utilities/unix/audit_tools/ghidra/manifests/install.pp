@@ -43,11 +43,16 @@ class ghidra::install{
       require => [Exec['download and unpack ghidra'], Package['openjdk-21-jdk']],
     }
 
-    # Debugger: gdb's python needs the bundled ghidragdb/ghidratrace/protobuf wheels (offline install from the release).
-    # --ignore-installed avoids pip trying to remove apt-managed packages (e.g. an older python3-protobuf).
+    # Debugger: gdb's *embedded* python needs the bundled ghidragdb/ghidratrace/protobuf wheels (offline install).
+    # On kali-rolling gdb can embed a different python than python3/pip3 (e.g. 3.14 vs 3.13), so run pip inside
+    # gdb's python via runpy - the same way Ghidra's own launcher installs missing packages. gdb exits 0 even if
+    # pip fails, so success is checked by importing the modules inside gdb. --ignore-installed avoids pip trying
+    # to remove apt-managed packages (e.g. an older python3-protobuf).
+    $pip_args = "'pip', 'install', '--break-system-packages', '--ignore-installed', '--no-index', '-f', '${ghidra_dir}/Ghidra/Debug/Debugger-rmi-trace/pypkg/dist', '-f', '${ghidra_dir}/Ghidra/Debug/Debugger-agent-gdb/pypkg/dist', 'ghidragdb'"
+    $gdb_ok   = "gdb -batch -ex \"python import ghidragdb, ghidratrace; print('GHIDRA_GDB_OK')\" 2>/dev/null | grep -q GHIDRA_GDB_OK"
     exec { 'install ghidra gdb debugger python packages':
-      command  => "pip3 install --break-system-packages --ignore-installed --no-index -f ${ghidra_dir}/Ghidra/Debug/Debugger-rmi-trace/pypkg/dist -f ${ghidra_dir}/Ghidra/Debug/Debugger-agent-gdb/pypkg/dist ghidragdb",
-      unless   => "python3 -c 'import ghidragdb, ghidratrace'",
+      command  => "gdb -batch -ex 'python import sys, runpy' -ex \"python sys.argv=[${pip_args}]\" -ex \"python runpy.run_module('pip', run_name='__main__')\" && ${gdb_ok}",
+      unless   => $gdb_ok,
       provider => shell,
       require  => [Exec['download and unpack ghidra'], Package['python3-pip', 'gdb']],
     }
