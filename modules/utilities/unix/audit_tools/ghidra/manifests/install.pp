@@ -38,6 +38,13 @@ class ghidra::install{
     group => 'root',
   }
 
+  # put `ghidra` on the PATH (ghidraRun resolves its own location via readlink -f, so a symlink works)
+  file { '/usr/local/bin/ghidra':
+    ensure  => link,
+    target  => '/opt/ghidra/ghidraRun',
+    require => File['/opt/ghidra'],
+  }
+
   if $operatingsystem == 'Kali' {
     file_line { 'ghidra java home override':
       path    => '/opt/ghidra/support/launch.properties',
