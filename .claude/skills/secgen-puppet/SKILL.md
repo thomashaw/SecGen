@@ -101,7 +101,7 @@ file { '/usr/local/bin/upx':        # /usr/local/bin always exists; no parent-di
   mode   => '0755',
 }
 ```
-Large archives: copy into `/opt` or `/tmp`, then `exec` tar/unzip with `creates =>` the extracted path.
+Large archives: copy or download into `/opt` or `/var/tmp`, then `exec` tar/unzip with `creates =>` the extracted path. **Not `/tmp` on Kali**: kali-rolling (like Debian 13) mounts `/tmp` as a RAM-backed tmpfs (half of RAM), so a few hundred MB fails with `curl: (23) Failure writing output to destination` / "No space left on device". The `ghidra` module's Kali branch is a worked example of a large build-time download (checksum, stall/resume handling, `timeout => 0`).
 
 Upstream `.deb` (e.g. `reversing_tools` radare2): copy it with a `file`, then `package { 'x': provider => dpkg, source => '/opt/x.deb', require => File[...] }`. dpkg does **not** resolve dependencies - check the `.deb`'s `Depends:` and the highest `GLIBC_x.y` its binaries need against the oldest target base before bundling. Don't dpkg-install a package the distro also ships under the same name if another module may `apt install` it (use apt on that distro instead).
 

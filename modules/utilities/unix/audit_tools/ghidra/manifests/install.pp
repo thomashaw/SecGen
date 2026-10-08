@@ -15,10 +15,11 @@ class ghidra::install{
     ensure_packages(['openjdk-21-jre', 'openjdk-21-jdk', 'curl', 'unzip', 'gdb', 'python3-pip'])
 
     # ~570MB: no overall puppet timeout (slow links can exceed 30 min); curl instead aborts a stalled transfer
-    # (<10KB/s for 5 min) and retries (-C - resumes a partial /tmp download, also on a later provision).
-    # Skip the download if a verified zip is already in /tmp; on an HTTP error (curl 22, e.g. 416 when resuming
+    # (<10KB/s for 5 min) and retries (-C - resumes a partial download, also on a later provision).
+    # Skip the download if a verified zip is already present; on an HTTP error (curl 22, e.g. 416 when resuming
     # a complete-but-corrupt file) or a checksum mismatch, delete the zip so the next run starts clean.
-    $zip_path = "/tmp/${ghidra_zip}"
+    # /var/tmp, not /tmp: kali-rolling (like Debian 13) mounts /tmp as a RAM-backed tmpfs that is too small for the zip
+    $zip_path = "/var/tmp/${ghidra_zip}"
     $checksum = "echo '${ghidra_sha256}  ${zip_path}' | sha256sum -c -"
     $download = "curl -fsSL -C - --retry 5 --retry-delay 15 --connect-timeout 60 --speed-limit 10240 --speed-time 300 -o ${zip_path} ${ghidra_url}"
     exec { 'download and unpack ghidra':
