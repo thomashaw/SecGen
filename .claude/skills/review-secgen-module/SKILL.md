@@ -20,6 +20,8 @@ A module lives under `modules/{vulnerabilities,services,utilities}/.../<name>/`:
 
 Read `README-Modules-Metadata.md` and `README-Modules-Puppet.md` in the repo root for the authoritative format.
 
+This skill checks metadata/manifest *consistency*. For how the Puppet itself should be written — `secgen_functions` defines and their gotchas, install patterns, parent-directory and duplicate-title pitfalls, and decoding provisioning errors — use the `secgen-puppet` skill, and flag manifest problems it describes (e.g. a `file` whose parent directory is never created) as findings here.
+
 This skill reviews a module **in isolation**. Whether a module's inputs are wired correctly *within a challenge* — cross-module datastores, the overall kill chain, whether the scenario passes inputs the module actually reads — is the job of the `review-secgen-scenario` skill. Reach for that when reviewing a `scenarios/**/*.xml` file.
 
 ## How to run the review
