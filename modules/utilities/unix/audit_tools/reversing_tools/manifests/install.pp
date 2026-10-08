@@ -2,10 +2,60 @@ class reversing_tools::install {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
   ensure_packages(['gdb', 'git', 'ltrace', 'strace', 'valgrind', 'pax-utils', 'binwalk', 'vbindiff', 'ssdeep', 'gcc-multilib','yara'])
-  # ensure_packages(['upx-ucl'])
 
-  # java
-  ensure_packages(['procyon-decompiler'])
+  # UPX: upx-ucl is not in the Debian 12 repos, so install the static UPX 4.2.4 release binary
+  file { '/usr/local/bin/upx':
+    ensure => file,
+    source => 'puppet:///modules/reversing_tools/upx',
+    mode   => '0755',
+  }
+
+  # pwntools, radare2 and GEF need Debian 12+ or Kali (older bases e.g. the Buster reversing CTFs lack the packages, gdb >= 10 and glibc >= 2.35)
+  if $operatingsystem == 'Kali' or ($operatingsystem == 'Debian' and versioncmp($operatingsystemmajrelease, '12') >= 0) {
+
+    # pwntools: packaged on both Debian 12 (4.9) and Kali
+    ensure_packages(['python3-pwntools'])
+
+    # radare2: not in the Debian 12 repos, so install the bundled upstream .deb (needs glibc >= 2.35, depends only on libc6).
+    # Kali packages radare2 itself (and kali-tools-reverse-engineering may pull it in), so use apt there to avoid dpkg conflicts.
+    if $operatingsystem == 'Kali' {
+      ensure_packages(['radare2'])
+    } else {
+      file { '/opt/radare2_6.2.4_amd64.deb':
+        ensure => file,
+        source => 'puppet:///modules/reversing_tools/radare2_6.2.4_amd64.deb',
+      }
+      package { 'radare2':
+        ensure   => installed,
+        provider => dpkg,
+        source   => '/opt/radare2_6.2.4_amd64.deb',
+        require  => File['/opt/radare2_6.2.4_amd64.deb'],
+      }
+    }
+
+    # GEF (2026.01, needs gdb >= 10 with python >= 3.10): run with `gef`; plain `gdb` is left unchanged for existing lab sheets.
+    # /usr/local/bin precedes /usr/bin, so this also takes priority over Kali's own gef package if present.
+    file { '/opt/gef':
+      ensure => directory,
+    }
+    file { '/opt/gef/gef.py':
+      ensure  => file,
+      source  => 'puppet:///modules/reversing_tools/gef.py',
+      mode    => '0644',
+      require => File['/opt/gef'],
+    }
+    file { '/usr/local/bin/gef':
+      ensure  => file,
+      content => "#!/bin/sh\nexec gdb -q -x /opt/gef/gef.py \"\$@\"\n",
+      mode    => '0755',
+      require => [Package['gdb'], File['/opt/gef/gef.py']],
+    }
+  }
+
+  # java (procyon was removed from kali-rolling in 2026-04)
+  unless $operatingsystem == 'Kali' {
+    ensure_packages(['procyon-decompiler'])
+  }
 
   # ensure ncat is installed for testing purposes
   ensure_packages("nmap")
@@ -15,33 +65,6 @@ class reversing_tools::install {
     }
   }
 
-  # Install Radare2
-
-  # file { '/opt/radare2-2.7.0.tar.gz':
-  #   ensure => present,
-  #   source => 'puppet:///modules/reversing_tools/radare2-2.7.0.tar.gz',
-  # }
-  #
-  # exec { 'unpack r2':
-  #   cwd => '/opt/',
-  #   command => 'tar -xzvf radare2-2.7.0.tar.gz',
-  # }
-  #
-  # exec { 'configure r2':
-  #   cwd => '/opt/radare2-2.7.0/',
-  #   command => '/bin/bash ./configure --prefix=/usr',
-  # }
-  #
-  # exec { 'make r2':
-  #   cwd => '/opt/radare2-2.7.0/',
-  #   command => '/usr/bin/make -j8',
-  # }
-  #
-  # exec { 'make install r2':
-  #   cwd => '/opt/radare2-2.7.0/',
-  #   command => 'make install',
-  # }
-  #
   # # Install Cutter
   # $cutter_dir = '/opt/Cutter'
   # $cutter_appimage_url = 'https://github.com/radareorg/cutter/releases/download/v1.7.2/Cutter-v1.7.2-x86_64.Linux.AppImage'
