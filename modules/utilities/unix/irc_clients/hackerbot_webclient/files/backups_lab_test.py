@@ -333,7 +333,10 @@ def install_sudo(password):
     if rc == 0:
         log('sudo already passwordless')
         return
-    line = f'{C.U} ALL=(ALL) NOPASSWD: ALL'
+    # Not "USER ALL=(ALL) NOPASSWD: ALL": sudo uses the last matching rule, and on some bases the
+    # account's own "USER ALL=(ALL) ALL" line comes after #includedir /etc/sudoers.d, overriding it.
+    # A per-user Defaults applies to any rule without an explicit PASSWD/NOPASSWD tag, whatever the order.
+    line = f'Defaults:{C.U} !authenticate'
     p = subprocess.run(['sudo', '-S', '-p', '', 'bash', '-c',
                         f'echo {shlex.quote(line)} > /etc/sudoers.d/zz-backups-labtest && '
                         f'chmod 440 /etc/sudoers.d/zz-backups-labtest && visudo -cf /etc/sudoers.d/zz-backups-labtest'],
