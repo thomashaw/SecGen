@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 # Launch a SecGen Proxmox build with an auto-incremented prefix and VLAN.
 #
-# Usage: scripts/secgen-run -s scenario.xml [-p name] [--dry-run] [-- extra secgen args]
+# Usage: scripts/secgen-run -s scenario.xml [-p name] [--test] [--dry-run] [-- extra secgen args]
+#        scripts/secgen-run -m modules/<type>/.../<module> [-p name] [--dry-run] [-- extra secgen args]
 #   -s  scenario      (default: $SECGEN_SCENARIO; required if that is unset)
-#   -p  prefix name   (default: $SECGEN_NAME or "dev") -> <owner>-<name>-NN
+#   -m  module path   test one module (secgen.rb test-module; implies --test)
+#   -p  prefix name   (default: $SECGEN_NAME, the module name with -m, or "dev") -> <owner>-<name>-NN
+#   --test            build, run the secgen_tests after net0 teardown + reboot, write
+#                     test_results/<project-id>/, destroy the VMs (secgen.rb test-scenario).
+#                     Exit 0 PASS / 1 FAIL / 2 SKIP. Add -- --keep-vms to keep them.
 #   --dry-run         print the command and the next numbers without using them
 #
 # Settings (env, or ~/.config/secgen/secgen-run.env):
 #   SECGEN_RUN_OWNER  first part of the prefix (default: $USER)
 #   SECGEN_VLAN_MIN / SECGEN_VLAN_MAX  VLAN range to cycle through (default 200-1000)
+#   SECGEN_RETRIES    --retries passed to secgen.rb unless given (default 1; absorbs
+#                     the intermittent no-DHCP-lease provisioning flake)
 #   SECGEN_CONF       options file with the Proxmox creds (default ~/.config/secgen/secgen.conf)
 #   SECGEN_STATE      counter file (default ~/.config/secgen/run_counter)
 #
@@ -19,6 +26,7 @@
 #
 # Builds the checkout this script lives in (so a worktree builds its own code).
 # Output is logged to log/[ERROR_]<project_id>: interleaved, then stderr only.
+# With --test/-m the log is also copied (password masked) to test_results/<project-id>/build.log.
 
 set -euo pipefail
 source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
@@ -26,29 +34,40 @@ source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
 STATE="${SECGEN_STATE:-$HOME/.config/secgen/run_counter}"
 VLAN_MIN="${SECGEN_VLAN_MIN:-200}"   # VLAN wraps back to VLAN_MIN after VLAN_MAX
 VLAN_MAX="${SECGEN_VLAN_MAX:-1000}"
+RETRIES="${SECGEN_RETRIES:-1}"
 SCENARIO="${SECGEN_SCENARIO:-}"
 OWNER="${SECGEN_RUN_OWNER:-${USER:-$(id -un)}}"
-NAME="${SECGEN_NAME:-dev}"
+NAME="${SECGEN_NAME:-}"
+MODULE=""
+TEST=0
 DRY_RUN=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -s) SCENARIO="$2"; shift 2 ;;
+    -m) MODULE="${2%/}"; TEST=1; shift 2 ;;
     -p) NAME="$2"; shift 2 ;;
+    --test) TEST=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
-    -h|--help) sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,29p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --) shift; break ;;
     *) break ;;
   esac
 done
 
 require_conf
-[[ -n "$SCENARIO" ]] || { echo "No scenario: pass -s <scenario.xml> (or set SECGEN_SCENARIO)" >&2; exit 1; }
-if [[ ! -f "$SECGEN_DIR/$SCENARIO" ]]; then
-  # Not relative to the checkout: accept a path relative to the caller's cwd.
-  [[ -f "$SCENARIO" ]] || { echo "Scenario not found: $SCENARIO" >&2; exit 1; }
-  SCENARIO="$(readlink -f "$SCENARIO")"
+if [[ -n "$MODULE" ]]; then
+  [[ -f "$SECGEN_DIR/$MODULE/secgen_metadata.xml" ]] || { echo "Not a module in $SECGEN_DIR: $MODULE" >&2; exit 1; }
+  NAME="${NAME:-$(basename "$MODULE")}"
+else
+  [[ -n "$SCENARIO" ]] || { echo "No scenario: pass -s <scenario.xml> (or set SECGEN_SCENARIO)" >&2; exit 1; }
+  if [[ ! -f "$SECGEN_DIR/$SCENARIO" ]]; then
+    # Not relative to the checkout: accept a path relative to the caller's cwd.
+    [[ -f "$SCENARIO" ]] || { echo "Scenario not found: $SCENARIO" >&2; exit 1; }
+    SCENARIO="$(readlink -f "$SCENARIO")"
+  fi
 fi
+NAME="${NAME:-dev}"
 [[ "$NAME" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "Invalid name '$NAME' (use letters, digits, . _ -)" >&2; exit 1; }
 [[ "$OWNER" =~ ^[A-Za-z0-9._-]+$ ]] || { echo "Invalid SECGEN_RUN_OWNER '$OWNER'" >&2; exit 1; }
 [[ "$NAME" != "vlan" ]] || { echo "'vlan' is reserved" >&2; exit 1; }
@@ -75,13 +94,29 @@ flock -u 9
 
 PREFIX=$(printf '%s-%s-%02d' "$OWNER" "$NAME" "$RUN")
 
-CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
-     --shutdown --no-tests
-     --prefix "$PREFIX"
-     -s "$SCENARIO"
-     --proxmox-vlan "$VLAN"
-     --proxmox-post-boot --no-destroy-on-failure
-     "$@" r)
+EXTRA=("$@")
+[[ " ${EXTRA[*]} " == *" --retries "* ]] || EXTRA=(--retries "$RETRIES" "${EXTRA[@]}")
+
+if [[ -n "$MODULE" ]]; then
+  CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
+       --prefix "$PREFIX"
+       --proxmox-vlan "$VLAN"
+       "${EXTRA[@]}" test-module "$MODULE")
+elif [[ $TEST -eq 1 ]]; then
+  CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
+       --prefix "$PREFIX"
+       -s "$SCENARIO"
+       --proxmox-vlan "$VLAN"
+       "${EXTRA[@]}" test-scenario)
+else
+  CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
+       --shutdown --no-tests
+       --prefix "$PREFIX"
+       -s "$SCENARIO"
+       --proxmox-vlan "$VLAN"
+       --proxmox-post-boot --no-destroy-on-failure
+       "${EXTRA[@]}" r)
+fi
 
 echo "SecGen run: prefix=$PREFIX vlan=$VLAN dir=$SECGEN_DIR${BUNDLE_PATH:+ gems=$BUNDLE_PATH}"
 echo "${CMD[*]}"
@@ -112,7 +147,8 @@ else
   PROJECT_PATH=unknown
   PROJECT_ID="${PREFIX}_$(date +%Y%m%d_%H%M%S)"
 fi
-[[ $STATUS -eq 0 ]] && LOG_PREFIX="" || LOG_PREFIX="ERROR_"
+# 2 = tests SKIPped (could not test): not a build error
+[[ $STATUS -eq 0 || ( $TEST -eq 1 && $STATUS -eq 2 ) ]] && LOG_PREFIX="" || LOG_PREFIX="ERROR_"
 LOG="log/${LOG_PREFIX}${PROJECT_ID}"
 {
   printf 'SecGen project path::: %s\n\n\n' "$PROJECT_PATH"
@@ -124,4 +160,11 @@ LOG="log/${LOG_PREFIX}${PROJECT_ID}"
   cat "$ERR"
 } > "$LOG"
 echo "SecGen exit status $STATUS; log: $SECGEN_DIR/$LOG"
+
+if [[ $TEST -eq 1 && -f "test_results/$PROJECT_ID/summary.json" ]]; then
+  # Masking happens in Ruby with the password from the environment, never argv.
+  SECGEN_PROXMOX_PASS="$(conf_get --proxmoxpass)" \
+    ruby "$SECGEN_DIR/scripts/lib/attach_build_log.rb" "$SECGEN_DIR" "$LOG" "$PROJECT_ID" || true
+  echo "Test results: $SECGEN_DIR/test_results/$PROJECT_ID/summary.json"
+fi
 exit "$STATUS"
