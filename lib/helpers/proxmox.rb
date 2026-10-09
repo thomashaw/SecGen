@@ -52,7 +52,14 @@ class ProxmoxFunctions
         connection.stop_vm(vm_id)
 
         if keeps_provisioning_nic?(project_dir, vm_name)
-          Print.std " Keeping provisioning NIC (net0) on #{node}/#{vm_id}: a module needs the internal network"
+          # keep net0 (same MAC, so the guest's interface and its DHCP config carry over) but move it from the
+          # provisioning bridge onto the internal network bridge, untagged
+          bridge = options[:proxmox_internal_bridge] || 'vmbr3'
+          config = connection.get_vm_config(node: node, vm_id: vm_id, vm_type: :qemu)
+          net0 = (config[:net0] || config['net0']).to_s
+          net0 = net0.split(',').reject { |part| part.start_with?('bridge=', 'tag=') }.push("bridge=#{bridge}").join(',')
+          Print.std " Moving net0 on #{node}/#{vm_id} to the internal network (#{net0.sub(/^\w+=[0-9A-Fa-f:]+,/, '')}): a module needs it"
+          connection.config_clone(node: node, vm_type: :qemu, params: { vmid: vm_id, net0: net0 })
           next
         end
 
@@ -69,7 +76,7 @@ class ProxmoxFunctions
   end
 
   # True if one of the system's modules has <type>keep_provisioning_nic</type> (e.g. llm_relay, which relays
-  # the internal LLM API to the isolated lab network over net0).
+  # the internal LLM API to the isolated lab network): its net0 is moved to --proxmox-internal-bridge, not removed.
   def self.keeps_provisioning_nic?(project_dir, vm_name)
     Dir.glob("#{project_dir}/puppet/#{vm_name}/modules/*/secgen_metadata.xml").any? do |metadata|
       File.read(metadata).include?('<type>keep_provisioning_nic</type>')

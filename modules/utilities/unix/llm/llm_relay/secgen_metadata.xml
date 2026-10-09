@@ -11,9 +11,10 @@
     chat completions and model list endpoints are relayed, and the relay can add the API key itself so
     that no key is stored on a student VM. Clients use http://&lt;relay IP&gt;:&lt;listen_port&gt;/api/v1/
     as their base URL (e.g. the ghidra module's llm_relay_ip input).
-    On Proxmox the system keeps its provisioning NIC (net0, the internal network) after the build: the
-    keep_provisioning_nic type below tells SecGen not to remove it. Put this module on a system students
-    don't control (e.g. the Hackerbot server).</description>
+    On Proxmox the keep_provisioning_nic type below tells SecGen to keep the system's provisioning NIC
+    (net0) after the build and move it onto the internal network bridge (--proxmox-internal-bridge,
+    default vmbr3: 172.22.0.0/16 with DHCP, where the LLM gateway is). Put this module on a system
+    students don't control (e.g. the Hackerbot server).</description>
 
   <type>llm_relay</type>
   <type>keep_provisioning_nic</type>

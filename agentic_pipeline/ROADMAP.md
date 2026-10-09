@@ -36,8 +36,9 @@ Edge cases and deferred items live in the [Backlog](#backlog) at the end.
 
 ### Why the legacy tests broke on Proxmox
 
-- Vagrant provisions over `net0` (DHCP, vmbr3). Scenario networking is static on
-  vmbr1 + VLAN, which the SecGen host can't reach.
+- Vagrant provisions over `net0` (DHCP, 172.33.0.0/16: vmbr4 on pmox01 — not vmbr3,
+  which is the 172.22 internal network with the LLM gateway; checked 2026-10-09). Scenario
+  networking is static on vmbr1 + VLAN, which the SecGen host can't reach.
 - Static IPs (and some modules, e.g. WordPress) only take effect after a reboot.
 - For isolation, `net0` is removed after provisioning — so after the reboot there
   is no path from the host into the VM via SSH/Vagrant.

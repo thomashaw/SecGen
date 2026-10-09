@@ -83,6 +83,8 @@ def usage
    --proxmox-node [node]
    --proxmox-network [proxmox network name]
    --proxmox-vlan [vlan number]
+   --proxmox-internal-bridge [bridge]: bridge that systems with a keep_provisioning_nic module (e.g. llm_relay)
+       are moved onto instead of losing net0 after the build (default: vmbr3)
 
    COMMANDS:
    run, r: Builds project and then builds the VMs
@@ -759,6 +761,7 @@ opts = GetoptLong.new(
     ['--proxmox-node', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-network', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-vlan', GetoptLong::REQUIRED_ARGUMENT],
+    ['--proxmox-internal-bridge', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-post-boot', GetoptLong::NO_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
@@ -884,6 +887,9 @@ opts.each do |opt, arg|
   when '--proxmox-vlan'
     Print.info "Proxmox Network VLAN : #{arg}"
     options[:proxmoxvlan] = arg.to_i
+  when '--proxmox-internal-bridge'
+    Print.info "Proxmox internal network bridge : #{arg}"
+    options[:proxmox_internal_bridge] = arg
   when '--proxmox-post-boot'
     Print.info "Proxmox start all VMs post provision"
     options[:proxmox_post_boot] = true
