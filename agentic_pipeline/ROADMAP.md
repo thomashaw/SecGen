@@ -18,7 +18,8 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
    pipeline-only code lands in SecGen.
 3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
 4. Phases 4–10 follow in order (skills, tracker, gap analysis, orchestration,
-   content, Windows, then VirtualBox and base boxes much later).
+   content, Windows, then VirtualBox and base boxes much later). Phase 7A
+   (model tiering and token efficiency) is designed before the Phase 7 loop.
 
 Edge cases and deferred items live in the [Backlog](#backlog) at the end.
 
@@ -382,6 +383,48 @@ scheduled loop), paced to Max-plan limits, with a concurrency cap on Proxmox.
 
 - [ ] A reserved VMID range / pool for agent builds (same pool as the API
       token), and a sweeper that destroys orphaned test VMs.
+
+### 7A — Model tiering and token efficiency
+
+Goal: get the most out of the Max subscription so the loop can run
+unattended, testing old content and producing new content continuously. Design
+this before the Phase 7 loop is built, not after. Route each job to the
+cheapest worker that can do it; the largest saving is taking the model out of
+work that needs no judgement.
+
+| Tier | Work | Mechanism |
+|---|---|---|
+| **No model** | Build, test, destroy, orphan sweeper, XSD validation, `build-project`, issue picking, parsing `test_results/*.json`, retry/escalation state machine | Existing scripts (`scripts/secgen-run`, `test-scenario`, `scripts/secgen-destroy`) plus a small driver |
+| **Haiku** | Triage of results JSON (infra flake / build failure / module bug / test bug), log and evidence summaries, issue labels and comments, coverage inventory | `.claude/agents/triage.md`, `model: haiku`, read-only tools |
+| **Sonnet** | Write/fix Puppet, write `secgen_test`s, run the review skills, routine debugging | `.claude/agents/module-worker.md`, `model: sonnet`, scoped to one worktree |
+| **Opus** | Gap analysis, new module/scenario design, failures Sonnet couldn't fix, final summary before human review | Orchestrator session or an escalation agent |
+
+- [ ] Driver passes structured state (issue, worktree, tier JSON) between
+      workers, not transcripts, so each sub-agent starts with a small context.
+- [ ] Escalation ladder Haiku → Sonnet → Opus → `needs-human`, with a hard
+      retry cap per issue.
+- [ ] Triage before acting: infra failures (API latency, guest agent not up,
+      OPEN_QUESTIONS #14) are retried by script with no model involved.
+- [ ] Pace against the plan's usage windows: back off when a window is
+      exhausted instead of burning retries.
+- [ ] Metrics per tier (tokens/turns per issue, escalation rate) feed Phase 8.
+
+**Security content.** Smaller models follow the same usage policies, so
+tiering does not reduce refusals, and the pipeline should not be designed to
+route around safety checks. What cuts false positives on legitimate lab work
+(and saves tokens):
+
+- [ ] Exploit execution lives in deterministic, human-reviewed code (the
+      module's `secgen_test` / Phase 1C exploit runners). Agents run
+      `secgen-test-run` and read `{tier_reached, status}`; they never generate
+      or relay payloads in a loop.
+- [ ] Evidence is summarised by script before any model sees it ("tier 3 FAIL:
+      expected uid=0, got uid=1001", not a raw exploit transcript).
+- [ ] Every agent definition carries standing context: SecGen builds
+      deliberately vulnerable training VMs on our own Proxmox, on isolated
+      VLANs, for teaching.
+- [ ] A refusal is routed to `needs-human`, never retried. A human writes that
+      exploit check once; from then on it is code the pipeline runs.
 
 ## Phase 8 — Content production and feedback
 
