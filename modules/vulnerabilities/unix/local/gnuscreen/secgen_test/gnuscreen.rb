@@ -1,6 +1,6 @@
 require_relative '../../../../../lib/post_provision_test'
 
-class gnuscreen < PostProvisionTest
+class GnuscreenTest < PostProvisionTest
   def initialize
     self.module_name = 'gnuscreen'
     self.module_path = get_module_path(__FILE__)
@@ -14,4 +14,4 @@ class gnuscreen < PostProvisionTest
 
 end
 
-gnuscreen.new.run
+GnuscreenTest.new.run
