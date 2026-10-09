@@ -56,7 +56,8 @@ the authoritative state — this file is a quick orientation.
 
 ## Next steps (ROADMAP Phase 1 streams, in parallel)
 
-Agree the results contract (drafted in ROADMAP Phase 1) first, then:
+The results contract (`test_results/<project-id>/`, PASS/FAIL/SKIP, tiers 1–3)
+is agreed — see ROADMAP Phase 1. Streams:
 
 - **1A - Lifecycle + CLI** (`secgen.rb`): tests after net0 teardown + reboot +
   agent ready; `test-module` / `test-scenario`; absorb the provisioning flake

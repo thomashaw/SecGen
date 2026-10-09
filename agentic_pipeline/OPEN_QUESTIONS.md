@@ -36,3 +36,4 @@ Decisions to discuss (mostly with Cliffe). Move items to "Decided" with a date.
 | 2026-10-08 | `PostProvisionTest` gets node/VMID from `.vagrant/machines/*/proxmox/id` and url/user from `proxmox_test_context.json` written at build time; the password comes only from `SECGEN_PROXMOX_PASS`, never the project dir (was Q3). |
 | 2026-10-08 | Dev builds use VLANs 200–1000 on vmbr0; `scripts/secgen-run` auto-increments prefix + VLAN and wraps within that range. |
 | 2026-10-09 | Work order: Phase 1 test harness (parallel streams 1A–1C) → Phase 2 repo split → Phase 3 coverage baseline. `dirtycow` moved to the backlog. |
+| 2026-10-09 | Test results contract: per project run under gitignored `test_results/<project-id>/` (resolved `scenario.xml`, `build.log`, per-module JSON/logs/evidence, `summary.json`); PASS/FAIL/SKIP with exit 0/1/2; tiers 1–3; evidence auto-collected on FAIL; Proxmox password masked (not refused) in copied files. See ROADMAP Phase 1. |
