@@ -255,21 +255,38 @@ test_results/
 #### 1C — Exploit tests from inside a VM (tier 3)
 
 Network-side and exploit tests need something on the scenario VLAN; run them
-*from inside a VM* via the guest agent. Decide OPEN_QUESTIONS #8 (attacker VM
-per test scenario vs shared runner per VLAN) and #9 (Metasploit inside the
-attacker VM) first.
+*from inside a VM* via the guest agent.
 
-- [ ] Attacker/runner VM in test scenarios (e.g. Kali base), with the guest
-      agent working after net0 teardown.
-- [ ] `PostProvisionTest` helper to run a command on *another* system in the
-      project (resolve its node/VMID from `.vagrant/machines/<name>/proxmox/id`)
-      and target the system under test by its static IP.
-- [ ] Exploit runners: crafted HTTP requests (small helper library), and
-      Metasploit via `msfconsole -q -x` / resource script if #9 is approved.
-- [ ] Spike on one network vuln module end to end (exploit succeeds → PASS;
-      vuln removed → FAIL).
-- Depends on 1B for tier reporting; can start (decisions, attacker VM, spike)
-  before 1B lands.
+**First spike landed (2026-10-09, `distcc_exec`, branch
+`worktree-phase1c-distcc-exploit`).** Decisions #8/#9 taken for the spike:
+an **attacker VM per test scenario** (Kali/MSF base) on the scenario's own
+private network, and **Metasploit** is acceptable inside that attacker VM (it
+ships in the base; the SecGen host stays dependency-free). Verified on a real
+two-VM Proxmox build (`deploy-distcc-01`): all three tiers PASS,
+`tier_reached` 3 — msf `exploit/unix/misc/distcc_exec` from the Kali attacker
+ran a command on the Debian target, confirmed by a sentinel the target-side
+guest agent reads back (`uid=119(distccd)`).
+
+- [x] Attacker/runner VM in test scenarios (Kali/MSF base), guest agent working
+      after net0 teardown. (`scenarios/tests/test_scenario_distcc.xml`:
+      Debian 12 target + Kali attacker on one 10.88.0.0/24 private network.)
+- [x] `PostProvisionTest` helpers to run a command on *another* system in the
+      project (`run_on_system` / `other_system_ip` / `system_present?`), each
+      reached over *its own* QEMU Guest Agent (node/VMID from
+      `.vagrant/machines/<name>/proxmox/id`). Proxmox only; tier 3 SKIPs if no
+      attacker system, so single-VM module runs still work.
+- [x] Exploit runner: Metasploit via `msfconsole -q -x`. Two gotchas found by
+      running it — export `HOME` (guest-agent exec has none, so msfconsole's
+      rb-readline aborts), and prefer a **no-session** payload
+      (`cmd/unix/generic` + `CMD`) so there's no reverse/bind shell to race;
+      the proof is the sentinel file read back over the target's agent.
+- [x] Spike on one network vuln module end to end (distcc; exploit → PASS).
+- [ ] Negative case: vuln removed → FAIL (not yet run for distcc; the tier-3
+      check already FAILs cleanly when the sentinel is absent).
+- [ ] Generalise: HTTP-request exploit runners (small helper library) for
+      web vulns; decide whether `attacker` is a convention every exploit
+      scenario uses, or discovered from bases of type `attack`.
+- Depended on 1B for tier reporting (done).
 
 ## Phase 2 — Repo split
 
@@ -288,7 +305,7 @@ Proposed layout (to agree; see OPEN_QUESTIONS #15):
 | Repo | Visibility | Holds |
 |---|---|---|
 | `SecGen` | public | Core generator, modules, scenarios, `secgen_test`s, the test harness (`PostProvisionTest`, `proxmox_connection.rb`, which generated projects copy), `CLAUDE.md`, and the skills useful to any contributor (module/scenario review, `secgen-puppet`, hackerbot, CTF descriptions). |
-| `secgen-pipeline` (name TBD) | private | Orchestration and agent workflows, issue picker / claim protocol, gap analysis and backlog generation, coverage inventory and reports, metrics, pipeline-specific skills, run configs, and this roadmap / open questions / hand-off. |
+| `secgen-pipeline` (name TBD) | private | Orchestration and agent workflows, issue picker / claim protocol, gap analysis and backlog generation, coverage inventory and reports, metrics, pipeline-specific skills, run configs, and this roadmap and open questions. |
 
 - [ ] Agree what goes where. Open points: `scripts/` (generic Proxmox dev
       helpers, possibly useful to any contributor → SecGen?), and the
@@ -302,7 +319,7 @@ Proposed layout (to agree; see OPEN_QUESTIONS #15):
       with history where practical.
 - [ ] Shared `.code-workspace` file covering SecGen + the pipeline repo (and
       the other related repos if wanted).
-- [ ] Update `CLAUDE.md`, `HANDOFF.md` and the skills index to point at the new
+- [ ] Update `CLAUDE.md` and the skills index to point at the new
       locations; make sure Claude Code picks up skills/CLAUDE.md from both repos
       in a multi-root session.
 
