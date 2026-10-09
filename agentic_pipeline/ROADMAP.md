@@ -17,8 +17,8 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 2. **Phase 2 — Repo split**: move the pipeline into a private repo before more
    pipeline-only code lands in SecGen.
 3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
-4. Phases 4–9 follow in order (skills, tracker, gap analysis, orchestration,
-   content, Windows).
+4. Phases 4–10 follow in order (skills, tracker, gap analysis, orchestration,
+   content, Windows, then VirtualBox and base boxes much later).
 
 Edge cases and deferred items live in the [Backlog](#backlog) at the end.
 
@@ -233,20 +233,17 @@ test_results/
 
 #### Phase 1 follow-ups
 
-Gaps left by 1A/1B (all builds so far passed, so the failure paths are only
-checked offline against stubs):
-
+- [x] Speed: module tests run side by side (`SECGEN_TEST_JOBS`, default 4;
+      scripts sharing a module dir run in turn). Each guest call is still ~3s
+      (see Backlog), but a scenario's tests now overlap: offline, 7 tests
+      against a 3s-per-call stub went from 85s to 36s.
 - [ ] Exercise the non-PASS destroy path on a real VM: a deliberately broken
-      module (e.g. proftpd with `IdentLookups` put back) under plain `run` →
-      FAIL, VMs destroyed, no retry, exit 1; and with `--no-destroy-on-failure`
-      → kept.
-- [ ] See the remaining paths fire for real: a no-IP SKIP, the
-      destroy-all-and-retry on the DHCP flake (OPEN_QUESTIONS #14), and the
-      `run_vagrant_ssh` quoting fix on a VirtualBox VM.
-- [ ] VirtualBox: systems on DHCP SKIP their network checks and are now
-      destroyed; decide if that matters before Phase 3 runs non-Proxmox tests.
-- [ ] Speed: each guest call is ~3s, so a test with ~10 checks takes over a
-      minute (see Backlog). Batch helpers, or run modules' tests in parallel.
+      module (proftpd with `IdentLookups` put back, on a throwaway branch)
+      under `scripts/secgen-run --batch` → FAIL, VMs destroyed, no retry,
+      exit 1; and with `--no-destroy-on-failure` → kept.
+- The no-IP SKIP and the destroy-all-and-retry on the DHCP flake
+  (OPEN_QUESTIONS #14) were only checked offline; not worth forcing — note
+  them when they turn up in normal runs. VirtualBox items moved to Phase 10.
 
 #### 1C — Exploit tests from inside a VM (tier 3)
 
@@ -386,6 +383,22 @@ scheduled loop), paced to Max-plan limits, with a concurrency cap on Proxmox.
 - [ ] Windows bases with the virtio-win QEMU Guest Agent service.
 - [ ] `exec_qemu_guest(..., windows: true)` paths in the test harness.
 - [ ] Extend tests/skills to the 3 Windows vulnerabilities and 20 utilities, then new Windows content.
+
+## Phase 10 — VirtualBox parity and base boxes (much later)
+
+The pipeline targets Proxmox; VirtualBox (and other Vagrant providers) keep the
+legacy in-build test runner. Pick these up only once everything above is done.
+
+- [ ] Run the harness on a VirtualBox VM: check the `run_vagrant_ssh` argv
+      quoting fix and the vagrant-ssh paths of the 1B helpers (HTTP/banner
+      checks go from the host there, not the guest).
+- [ ] DHCP systems: network checks can't find an IP, so they SKIP and the VMs
+      are now destroyed. Resolve the IP (e.g. via `vagrant ssh`) or accept it.
+- [ ] Optionally move VirtualBox onto the Proxmox-style lifecycle (tests after
+      the final reboot).
+- [ ] Base boxes: update the existing bases (Proxmox templates and VirtualBox
+      boxes) to current releases, and add more bases for both, with the QEMU
+      Guest Agent baked into the Proxmox templates.
 
 ---
 

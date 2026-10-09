@@ -138,7 +138,8 @@ build (with `--retries 1`) → `net0` teardown → snapshot if `--snapshot` →
 start (the one full reboot: static IPs up, reboot-dependent modules settle) →
 wait for the guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) → settle
 (`SECGEN_TEST_SETTLE`, default 30s) → every module's `secgen_test` (each with a
-`SECGEN_TEST_TIMEOUT`, default 900s) → `test_results/<project-id>/` →
+`SECGEN_TEST_TIMEOUT`, default 900s; `SECGEN_TEST_JOBS`, default 4, run side by
+side) → `test_results/<project-id>/` →
 destroy the VMs via the API and remove the project.
 
 - **Exit code:** 0 all PASS, 1 any FAIL (or the build failed), 2 any SKIP.
