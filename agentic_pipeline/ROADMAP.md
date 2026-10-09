@@ -239,7 +239,7 @@ test_results/
       against a 3s-per-call stub went from 85s to 36s; on Proxmox two tests
       on one VM ran concurrently with no agent problems (24s for both).
 - [x] Non-PASS destroy path on a real VM (2026-10-09, throwaway branch with
-      proftpd's `Port` hard-coded to 2121, `scripts/secgen-run --batch`):
+      proftpd's `Port` hard-coded to 2121, a plain `run` with tests on):
       Puppet succeeds, proftpd test FAILs (port 21 closed; evidence shows it
       listening on 2121), one build attempt (no retry), VM deleted and gone
       from the cluster, project + `test_results/` kept, exit 1. With
@@ -247,6 +247,11 @@ test_results/
       Note: putting `IdentLookups` back makes Puppet's own service restart
       fail, so that breakage is a **build** failure (retried, then destroyed,
       or kept with `--no-destroy-on-failure`) — also checked, and it behaves.
+- [ ] **Real batches don't run tests yet:** `lib/batch/batch_secgen.rb`
+      prepends `--shutdown --no-tests` to every queued job, so a batch never
+      reaches the destroy-on-FAIL/SKIP logic. Decide whether to drop
+      `--no-tests` there (adds ~1 min a build; non-PASS builds are then
+      destroyed and never reach Hacktivity).
 - The no-IP SKIP and the destroy-all-and-retry on the DHCP flake
   (OPEN_QUESTIONS #14) were only checked offline; not worth forcing — note
   them when they turn up in normal runs. VirtualBox items moved to Phase 10.
