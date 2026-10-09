@@ -109,15 +109,57 @@ guest network path, so it survives `net0` teardown and the post-provision reboot
 
 Each stream is one agent, one worktree, one branch off `master`. They touch
 different files; the only shared surface is the **results contract** below,
-which 1B owns and 1A/1C consume. Agree it first (small PR) and the three can
+which 1B owns and 1A/1C consume. It is agreed (below), so the three can
 proceed independently.
 
-**Results contract (draft — 1B finalises):**
-- Each test writes `projects/<p>/test_results/<system>/<module>.json`:
-  `{module, system, tier, results: [{name, status, detail}], status}` where
-  `status` is `PASS` / `FAIL` / `SKIP`.
-- Exit codes: `0` pass, `1` fail, `2` skip (could not test — never a pass).
-- Human-readable `PASSED:` / `FAILED:` lines stay on stdout.
+**Results contract (agreed 2026-10-09):**
+
+Results are kept per **project run** (not per scenario — scenarios are
+randomly fulfilled, so the resolved `scenario.xml` is what was tested), in a
+top-level, gitignored `test_results/` that survives VM and project teardown:
+
+```
+test_results/
+  <project-id>/                    # e.g. tom-proftpd-03_SecGen20261009_140211
+    summary.json                   # project-level report (1A)
+    scenario.xml                   # copy of projects/<id>/scenario.xml (resolved)
+    build.log                      # copy of log/<id> from secgen-run
+    <system>/
+      <module>.json                # per-module result (1B)
+      <module>.log                 # the test's raw stdout/stderr
+      evidence/<module>/*.txt      # collected on FAIL (journalctl, ss, ...)
+```
+
+- **Per-module JSON** (1B; tests write it into `projects/<id>/test_results/`,
+  1A copies it out):
+  `{module, module_path, system, backend, started_at, duration_s, status,
+  tier_reached, results: [{tier, name, status, detail, evidence?}]}`.
+  Each check's `status` is `PASS` / `FAIL` / `SKIP`. Module status: FAIL if any
+  check failed, else SKIP if any skipped, else PASS — a SKIP is never a pass.
+- **Tiers:** `1` provisioned, `2` service/tool works, `3` exploitable.
+  `tier_reached` = highest tier whose checks all passed (`0` if none).
+- **Exit codes:** `0` PASS, `1` FAIL, `2` SKIP (could not test — usually a
+  harness/network problem, not the module). Human-readable `PASSED:` /
+  `FAILED:` lines stay on stdout so legacy tests and scripts keep working.
+- **Evidence:** collected automatically on FAIL — a standard set of commands
+  (service status, recent journal, listening ports) batched into one guest-agent
+  call (~6s), plus anything the test adds.
+- **`summary.json`** (1A): `{project, source_scenario, secgen_commit,
+  secgen_branch, started_at, finished_at, build: {status, attempts, log},
+  status, counts: {PASS, FAIL, SKIP}, masked_secrets, systems: [{system, base,
+  vmid, modules: [{module, status, tier_reached, result}]}]}`. A failed build
+  is recorded under `build`, not as module failures. `test-scenario` exits with
+  the worst status across modules (FAIL > SKIP > PASS).
+- **Never copy** `Vagrantfile`, `systems`, `datastores`, the flags/hints XML,
+  spoiler passwords or `proxmox_test_context.json`.
+- **Secret masking on copy:** every file copied into `test_results/` has the
+  Proxmox password replaced with `********` — in Ruby, reading
+  `SECGEN_PROXMOX_PASS` and doing a literal (non-regex) replace, as
+  `project_files_creator.rb` already does for the `systems` dump. Never `sed`
+  with the password on a command line. The replacement count goes into
+  `summary.json` (`masked_secrets`) so leaks get fixed at source.
+- `test_results/` is pipeline output: after the Phase 2 split it belongs to
+  (or is referenced from) the private pipeline repo, not public SecGen.
 
 #### 1A — Lifecycle and CLI (`secgen.rb`, `scripts/`)
 
@@ -126,8 +168,9 @@ proceed independently.
       guest agent (`qemu_agent_running?`, with timeout) → run tests → snapshot /
       destroy. Today `secgen.rb` runs `post_provision_tests` *before*
       `proxmox_post_build`, using a `vagrant halt/up` reboot.
-- [ ] Collect per-module results (contract above) into one project-level
-      report; non-zero exit if any FAIL.
+- [ ] Before teardown, copy results into `test_results/<project-id>/` per the
+      contract above (with secret masking) and write `summary.json`;
+      non-zero exit if any FAIL/SKIP.
 - [ ] CLI: `secgen.rb test-module <path>` and `test-scenario <xml>` — build,
       test, write report, destroy; meaningful exit codes.
 - [ ] Absorb the intermittent provisioning flake (OPEN_QUESTIONS #14): always
