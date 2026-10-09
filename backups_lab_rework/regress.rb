@@ -163,9 +163,17 @@ upto9.call; backup('remote-rsync-incremental2', only: steps(7, 9)); expect('forg
 upto9.call; backup('remote-rsync-incremental2', only: []); expect('incr1 retaken late -> empty incr2 (B5)', 10, 'redone after step 9')
 quiz = ATTACKS[9].at_xpath('quiz/answer').text
 eggs = File.read("#{$root}/home/#{U}/remote-rsync-incremental1/#{S}/notes").strip
-qok = eggs.match?(/^(?:#{quiz})$/i) && !File.read("#{$root}/home/#{S}/notes").strip.match?(/^(?:#{quiz})$/i)
+qre = /^(?:#{quiz})$/i                 # how hackerbot.rb matches answers
+code = eggs.split.last
+qok = eggs.match?(qre) && code.match?(qre) && code.match?(/\A\h{8}\z/)
 qok ? $pass += 1 : $fail += 1
-puts "#{qok ? 'PASS' : 'FAIL'}  #10 quiz: incremental1 notes (#{eggs.inspect}) is accepted; desktop notes is not"
+puts "#{qok ? 'PASS' : 'FAIL'}  #10 quiz: incremental1 notes (#{eggs.inspect}) and its 8-hex code are accepted"
+# nothing still on the desktop (any file name or line in SECONDUSER's home) may answer it
+leaks = Dir.glob("#{$root}/home/#{S}/**/*", File::FNM_DOTMATCH).flat_map do |p|
+  [File.basename(p)] + (File.file?(p) ? File.read(p).lines.map(&:strip) : [])
+end.select { |s| s.match?(qre) }
+leaks.empty? ? $pass += 1 : $fail += 1
+puts "#{leaks.empty? ? 'PASS' : 'FAIL'}  #10 quiz: no file name or content on the desktop answers it#{leaks.empty? ? '' : ': ' + leaks.inspect}"
 
 # ---- attack 11 gate (backup side only)
 upto9.call; backup('remote-rsync-incremental2', only: steps(9))
