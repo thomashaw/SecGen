@@ -36,43 +36,85 @@ module TestResults
     Dir.glob("#{project_dir}/puppet/*/modules/*/secgen_test/*.rb").sort
   end
 
-  # Runs every secgen_test in the project (each with a timeout) and returns
-  # [{system, module, status, tier_reached, exit_code}]. A test that dies
-  # without writing its JSON is recorded as SKIP (or FAIL if it exited 1).
-  def run_tests(project_dir, timeout: (ENV['SECGEN_TEST_TIMEOUT'] || 900).to_i)
-    test_scripts(project_dir).map do |script|
-      system = script.split('/')[-5]
-      mod = script.split('/')[-3]
-      out_dir = "#{project_dir}/test_results/#{system}"
-      FileUtils.mkdir_p(out_dir)
-      json_path = "#{out_dir}/#{mod}.json"
-      log_path = "#{out_dir}/#{mod}.log"
-      FileUtils.rm_f(json_path)
+  # Runs every secgen_test in the project, SECGEN_TEST_JOBS (default 4) at a
+  # time, each with a timeout, and returns [{system, module, status,
+  # tier_reached, exit_code}] in script order. Each test is its own process
+  # talking to the guest agent, so most of the time is spent waiting on the
+  # Proxmox API (~3s a call): running them side by side cuts the wall time.
+  # Scripts in the same module dir share its JSON/log, so they run in turn.
+  # A test that dies without writing its JSON is recorded as SKIP (or FAIL if
+  # it exited 1).
+  def run_tests(project_dir, timeout: (ENV['SECGEN_TEST_TIMEOUT'] || 900).to_i,
+                jobs: (ENV['SECGEN_TEST_JOBS'] || 4).to_i)
+    scripts = test_scripts(project_dir)
+    groups = scripts.each_with_index.group_by { |script, _| script.split('/')[-5, 3].join('/') }.values
+    jobs = [[jobs, 1].max, groups.size].min
+    return [] if scripts.empty?
 
-      Print.std "Testing #{system}/#{mod} (#{File.basename(script)})"
-      started = Time.now
-      exit_code = run_with_timeout(['bundle', 'exec', 'ruby', script], log_path, timeout)
-      log = File.exist?(log_path) ? File.read(log_path) : ''
-      log.each_line { |line| Print.std "  #{line.chomp}" }
-
-      unless File.exist?(json_path)
-        status = exit_code == 1 ? 'FAIL' : 'SKIP'
-        detail = exit_code.nil? ? "timed out after #{timeout}s" : "exited #{exit_code} without writing results"
-        File.write(json_path, JSON.pretty_generate(
-          module: mod, module_path: nil, system: system, backend: nil,
-          started_at: started.iso8601, duration_s: (Time.now - started).round(1),
-          status: status, tier_reached: 0,
-          results: [{ tier: 1, name: 'test produced no results', status: status,
-                      detail: "#{detail}; see #{mod}.log" }]) + "\n")
+    Print.info "Running #{scripts.size} test(s), up to #{jobs} at a time"
+    started = Time.now
+    queue = Queue.new
+    groups.each { |group| queue << group }
+    results = Array.new(scripts.size)
+    print_lock = Mutex.new
+    workers = Array.new(jobs) do
+      Thread.new do
+        loop do
+          group = begin
+            queue.pop(true)
+          rescue ThreadError
+            break
+          end
+          group.each { |script, i| results[i] = run_test(project_dir, script, timeout, print_lock) }
+        end
       end
-      result = JSON.parse(File.read(json_path))
-      status = result['status']
-      # A FAIL exit with a non-FAIL JSON, or a crash after writing, is a FAIL.
-      status = 'FAIL' if exit_code == 1 && status != 'FAIL'
-      print_status(system, mod, status)
-      { 'system' => system, 'module' => mod, 'status' => status,
-        'tier_reached' => result['tier_reached'], 'exit_code' => exit_code }
     end
+    workers.each(&:join)
+    Print.info "#{scripts.size} test(s) finished in #{(Time.now - started).round}s"
+    results
+  end
+
+  # Runs one test script; prints its output in one block when it finishes.
+  def run_test(project_dir, script, timeout, print_lock)
+    system = script.split('/')[-5]
+    mod = script.split('/')[-3]
+    out_dir = "#{project_dir}/test_results/#{system}"
+    FileUtils.mkdir_p(out_dir)
+    json_path = "#{out_dir}/#{mod}.json"
+    log_path = "#{out_dir}/#{mod}.log"
+    FileUtils.rm_f(json_path)
+
+    print_lock.synchronize { Print.std "Testing #{system}/#{mod} (#{File.basename(script)})" }
+    started = Time.now
+    exit_code = begin
+      run_with_timeout(['bundle', 'exec', 'ruby', script], log_path, timeout)
+    rescue StandardError => e
+      File.write(log_path, "Could not run test: #{e.class}: #{e.message}\n", mode: 'a')
+      nil
+    end
+
+    unless File.exist?(json_path)
+      status = exit_code == 1 ? 'FAIL' : 'SKIP'
+      detail = exit_code.nil? ? "timed out after #{timeout}s or could not run" : "exited #{exit_code} without writing results"
+      File.write(json_path, JSON.pretty_generate(
+        module: mod, module_path: nil, system: system, backend: nil,
+        started_at: started.iso8601, duration_s: (Time.now - started).round(1),
+        status: status, tier_reached: 0,
+        results: [{ tier: 1, name: 'test produced no results', status: status,
+                    detail: "#{detail}; see #{mod}.log" }]) + "\n")
+    end
+    result = JSON.parse(File.read(json_path))
+    status = result['status']
+    # A FAIL exit with a non-FAIL JSON, or a crash after writing, is a FAIL.
+    status = 'FAIL' if exit_code == 1 && status != 'FAIL'
+    log = File.exist?(log_path) ? File.read(log_path) : ''
+    print_lock.synchronize do
+      Print.std "#{system}/#{mod} (#{(Time.now - started).round}s):"
+      log.each_line { |line| Print.std "  #{line.chomp}" }
+      print_status(system, mod, status)
+    end
+    { 'system' => system, 'module' => mod, 'status' => status,
+      'tier_reached' => result['tier_reached'], 'exit_code' => exit_code }
   end
 
   # Runs argv with stdout+stderr to log_path; returns its exit code, or nil if
