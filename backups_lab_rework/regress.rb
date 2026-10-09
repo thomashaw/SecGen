@@ -201,12 +201,23 @@ g = run(scripts(11)[0]); ok = g.include?('GATE-FAIL') && g.include?('[differenti
 ok ? $pass += 1 : $fail += 1
 puts "#{ok ? 'PASS' : 'FAIL'}  #11 gate refuses without differential1 (attack 13 needs it)"
 
+# ---- every pre_shell must parse in the shell the bot really uses: Ruby backticks run /bin/sh, which is dash on the
+# Kali hackerbot_server (macOS's sh is bash, which is more forgiving - e.g. it accepted "$((" where dash didn't)
+SH = system('command -v dash >/dev/null 2>&1') ? 'dash' : 'sh'
+ATTACKS.each_with_index do |a, i|
+  pre = a.at_xpath('pre_shell')&.text or next
+  _, err, st = Open3.capture3(SH, '-n', '-c', pre)
+  ok = st.success?
+  ok ? $pass += 1 : $fail += 1
+  puts "#{ok ? 'PASS' : 'FAIL'}  ##{i + 1} pre_shell parses with #{SH}#{ok ? '' : ': ' + err.strip}"
+end
+
 # ---- unreachable VM: run the real pre_shell (as the bot does, with sh) with ssh swapped for a failing one
 def unreachable(n)
   pre = ATTACKS[n - 1].at_xpath('pre_shell').text
   fake = %q{sh -c 'cat >/dev/null; echo "ssh: connect to host 10.0.0.3 port 22: No route to host" >&2; exit 255'}
   pre = pre.gsub(%r{ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no -oBatchMode=yes root@\S+( bash -s)?}, fake)
-  out, _ = Open3.capture2e('sh', '-c', pre)
+  out, _ = Open3.capture2e(SH, '-c', pre)
   out
 end
 [[1, "couldn't connect to the backup_server"], [4, "couldn't connect to the backup_server"],

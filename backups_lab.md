@@ -363,7 +363,8 @@ sudo rsync -avzh -M--fake-super /etc --compare-dest=/home/==edit: YOURUSERNAME==
 
 > Warning: Two things make `--compare-dest` silently copy *everything* (so your "differential" is really another full backup):
 >
-> - **Using `~` in it.** The shell doesn't expand `~` after `=` in an option like `--compare-dest=~/...`, so rsync gets a literal `~` (it warns `--compare-dest arg does not exist: ~/backups/rsync_backup`, easily missed among the file list). Use `$HOME/...` or the full path, as above.
+> - **Using `~` in it, for a local backup.** The shell doesn't expand `~` after `=` in an option like `--compare-dest=~/...`, so rsync gets a literal `~` (it warns `--compare-dest arg does not exist: ~/backups/rsync_backup`, easily missed among the file list). Use `$HOME/...` or the full path, as above. (For a *remote* backup it happens to work: rsync passes the path to the backup_server as a separate word, and the backup_server's shell expands `~` to your home directory there. A full path works in both cases.)
+> - **A relative path.** `--compare-dest=remote-rsync-backup/` (no leading `/`) is looked up *inside the destination directory*, so rsync can't find it, warns `--compare-dest arg does not exist`, and copies everything.
 > - **The wrong level of directory.** The `--compare-dest` directory must have the same layout as your destination: we copy `/etc` (no trailing slash) so the destination gets an `etc/` directory, and `rsync_backup/` also contains `etc/`. If you point it one level too deep (e.g. `.../rsync_backup/etc/`), nothing matches and rsync doesn't warn you at all.
 >
 > A dry run (`-n`) shows you what would be copied: if it lists every file, check your `--compare-dest`.

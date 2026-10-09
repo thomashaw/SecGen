@@ -26,7 +26,7 @@
 
     Each time you can test that your rsync command is going to do what you expect by adding -n to the command, which does a "Dry Run" without making any of the actual changes -- once you are happy it's making the changes you expect, run it again without the -n
 
-    Use $HOME (or the full path), not ~, inside --compare-dest=... and --link-dest=... options: the shell doesn't expand ~ there, and rsync then silently makes a full copy.
+    Give --compare-dest=... and --link-dest=... a full path (or $HOME/...), not ~ or a relative path: in a local backup the shell doesn't expand ~ there, and a relative path is looked up inside the destination directory -- either way rsync can't find it and silently makes a full copy.
 
     With sudo, always write YOURUSERNAME@ before the backup_server's address (otherwise you connect as root), and use -M--fake-super so file ownership survives the backup and restore.
 

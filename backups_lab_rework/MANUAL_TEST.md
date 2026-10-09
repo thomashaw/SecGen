@@ -160,16 +160,21 @@ read -p "directory from task 1 (remote-bin-backup-....): " D
   Say `goto 3`, then `ready`. **Expect:** "Ok, S has made their changes… (Hint: Keep an eye out for a flag...)".
   The hidden flag: `sudo cat /home/$S/personal_secrets/flag`
 
-- [ ] **2b — `~` in `--compare-dest`** (the shell doesn't expand it; on the server it's a literal `~` dir)
+- [ ] **2b — relative path in `--compare-dest`** (the backup_server looks it up *inside* the destination dir)
 
   ```bash
-  sudo rsync -avzh $M /home/$S --compare-dest=~/remote-rsync-full-backup/ $U@$IP:$B/remote-rsync-differential1/
+  sudo rsync -avzh $M /home/$S --compare-dest=remote-rsync-full-backup/ $U@$IP:$B/remote-rsync-differential1/
   ```
 
-  Note rsync's `--compare-dest arg does not exist` warning in the output. Say `ready`. **Expect:** "Your
-  differential backup also contains files that haven't changed since the full backup … absolute path ($HOME works,
-  ~ does not)…"
+  Note rsync's `--compare-dest arg does not exist` warning, and that every file is copied. Say `ready`.
+  **Expect:** "Your differential backup also contains files that haven't changed since the full backup … as a full
+  path starting with / (a relative path is looked up inside the destination directory … '--compare-dest arg does
+  not exist' …)"
   - [ ] hint clear?
+
+  (A `~` here, `--compare-dest=~/remote-rsync-full-backup/`, actually *works* for a remote backup: rsync passes the
+  path as a separate word and the backup_server's shell expands it. It only fails for local backups — see the
+  labsheet.)
 
   ```bash
   ssh $U@$IP rm -rf remote-rsync-differential1
