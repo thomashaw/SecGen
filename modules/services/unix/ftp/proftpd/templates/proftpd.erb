@@ -10,14 +10,11 @@ Include /etc/proftpd/modules.conf
 
 # Set off to disable IPv6 support which is annoying on IPv4 only boxes.
 UseIPv6				off
-# If set on you can experience a longer connection delay in many cases.
-IdentLookups			off
 
 ServerName			"Debian"
 ServerType			standalone
 DeferWelcome			off
 
-MultilineRFC2228		on
 DefaultServer			on
 ShowSymlinks			on
 
