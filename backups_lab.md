@@ -30,14 +30,14 @@ This lab **needs to be completed in order**. Between your backups, Hackerbot has
 You should manually check you have done your backups correctly **before** telling Hackerbot you are ready. It may be a good idea to SSH to your backup server in a separate console tab (but do keep an eye on which system you are running each command on; your prompt shows the hostname, or you can run `hostname` if unsure!):
 
 ```bash
-ssh ==edit: the backup_server's IP address==
+ssh ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==
 ```
 
 > Note: Hackerbot's FYI output shows what it has checked: one line for each thing it looked for (`OK ...`, `MISSING ...` or `UNEXPECTED ...`), followed by `RESULT PASS` or `RESULT FAIL`. The `MISSING` and `UNEXPECTED` lines describe what is wrong with your backup, so read these first.
 
-> Tip: **If a backup goes wrong because the files have already moved on**, you don't need to start the lab again. The steps where the second user changes their files (Hackerbot attacks 3, 5, 7 and 9) can be repeated: say `goto 3` (or 5, 7 or 9) followed by `ready`, and Hackerbot returns their files to exactly the state they were in at that step. You can then delete the bad backup on the backup_server, take it again, and carry on.
+> Tip: If a backup goes wrong because the files have already moved on, **you don't need to start the lab again**. The steps where the second user changes their files (Hackerbot attacks 3, 5, 7 and 9) can be repeated: say `goto 3` (or 5, 7 or 9) followed by `ready`, and Hackerbot returns their files to exactly the state they were in at that step. You can then delete the bad backup on the backup_server, take it again, and carry on.
 
-> Warning: When you use `sudo` with `ssh`, `scp` or `rsync`, **always write `==edit: YOURUSERNAME==@` before the backup_server's IP address**. Since `sudo` makes you root locally, leaving out the username means the connection is attempted as `root`, and you don't have the backup_server's root password. You will also be asked for two passwords: first your local password (for `sudo`), and then your password on the backup_server.
+> Warning: When you use `sudo` with `ssh`, `scp` or `rsync`, **always** write your username and `@` before the backup_server's IP address (`==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==`). Since `sudo` makes you root locally, leaving out the username means the connection is attempted as `root`, and you don't have the backup_server's root password. You will also be asked for two passwords: first your local password (for `sudo`), and then your password on the backup_server.
 
 ### VMs in this lab {#vms-in-this-lab}
 
@@ -143,9 +143,9 @@ sudo scp -pr /etc/ssh ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==ed
 
 Read the scp man page to ==action: determine what the `-p` and `-r` flags do==.
 
-> Hint: `man scp`, press "q" to quit.
+> Hint: Run `man scp`, and press "q" to quit.
 
-> Note: **Where does scp put a directory?** If the destination directory already exists (as `scp_backup` does), scp copies the directory *into* it, resulting in `scp_backup/ssh/`. If, however, the destination does not exist, scp creates it *as* the copy, so the contents of `ssh` would end up directly in the new directory. Furthermore, with current versions of OpenSSH, a destination ending in `/` that does not yet exist is treated as an error, which is why we created `scp_backup` first.
+> Note: Where scp puts a directory depends on whether the destination already exists. If it does (as `scp_backup` does), scp copies the directory *into* it, resulting in `scp_backup/ssh/`. If, however, the destination does not exist, scp creates it *as* the copy, so the contents of `ssh` would end up directly in the new directory. Furthermore, with current versions of OpenSSH, a destination ending in `/` that does not yet exist is treated as an error, which is why we created `scp_backup` first.
 
 Now, let's change a file in /etc/ssh, and repeat the backup:
 
@@ -158,7 +158,7 @@ Note that the program re-copies all of the files entirely, regardless of whether
 
 \==action: SSH to your backup_server system==, to look at your backup files:
 
-> Tip: `ssh *username*@*server-ip-address*` will log you in with *username* on the system. Assuming the remote computer has the same user account available (as is the case with the VMs provided), you can omit "username", and just run `ssh *ip-address*`, and you will be prompted to provide authentication for your own account, as configured on their system. However, this does **not** apply when you use `sudo`, as described in the warning at the start of this lab.
+> Tip: Running `ssh *username*@*server-ip-address*` will log you in with *username* on the system. Assuming the remote computer has the same user account available (as is the case with the VMs provided), you can omit "username", and just run `ssh *ip-address*`, and you will be prompted to provide authentication for your own account, as configured on their system. However, this does **not** apply when you use `sudo`, as described in the warning at the start of this lab.
 
 So, that is:
 
@@ -176,7 +176,7 @@ ls -la scp_backup/ssh/
 
 \==action: Exit ssh==:
 
-> Tip: `exit` (Or Ctrl-D)
+> Tip: Type `exit` (or press Ctrl-D).
 >
 > Note, this command will close your bash shell, if you are not logged in via ssh.
 
@@ -184,7 +184,7 @@ ls -la scp_backup/ssh/
 
 You can skip the bot to here, by saying **goto 1**.
 
-> Hackerbot: Use scp to copy the desktop's /usr/bin/ directory to the backup_server, so that BACKUPSERVERIP:/home/YOURUSERNAME/remote-bin-backup-*(a short suffix Hackerbot gives you in the chat)*/ contains the backed up bin/ directory.
+> Hackerbot: Use scp to back up the desktop's `/usr/bin` directory to the backup_server, into the directory that Hackerbot names in the chat.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -279,7 +279,7 @@ sudo rsync -avzh -M--fake-super --delete /etc ==edit: YOURUSERNAME==@==edit: BAC
 
 You can skip the bot to here, by saying **goto 2**.
 
-> Hackerbot: It's your job to set up remote backups for ==edit: SECONDUSER== (a user on your system). Use rsync to create a full (epoch) remote backup of /home/==edit: SECONDUSER== from your desktop system to the backup_server, so it ends up in BACKUPSERVERIP:/home/YOURUSERNAME/remote-rsync-full-backup/SECONDUSER -- keeping SECONDUSER's file ownership (-M--fake-super, see the lab sheet).
+> Hackerbot: Use rsync to take a full (epoch) backup of the second user's home directory on the backup_server, keeping the ownership of their files.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -389,7 +389,7 @@ Since every backup builds on the ones before it, **you cannot skip any of them**
 
 You can skip the bot to here, by saying **goto 3**.
 
-> Hackerbot: Step 3: the SECONDUSER user is about to make some changes to their files. Say 'ready' to let them.
+> Hackerbot: The second user is about to change some of their files.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -401,7 +401,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 4**.
 
-> Hackerbot: Create a differential backup of SECONDUSER's home directory on the backup_server, so it ends up in BACKUPSERVERIP:/home/YOURUSERNAME/remote-rsync-differential1/SECONDUSER/ (just the changes since the full backup).
+> Hackerbot: Take a differential backup of the second user's home directory, containing only the changes since the full backup.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -459,7 +459,7 @@ sudo rm /etc/wgetrc /etc/hello /etc/test1 /etc/test2
 
 You can skip the bot to here, by saying **goto 5**.
 
-> Hackerbot: Step 5: the SECONDUSER user is about to make some more changes. Say 'ready' to let them.
+> Hackerbot: The second user is about to make some more changes.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -471,7 +471,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 6**.
 
-> Hackerbot: Create another differential backup of SECONDUSER's home directory, so it ends up in BACKUPSERVERIP:/home/YOURUSERNAME/remote-rsync-differential2/SECONDUSER/ (all changes since the full backup).
+> Hackerbot: Take a second differential backup, containing all of the changes since the full backup.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -483,7 +483,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 7**.
 
-> Hackerbot: Step 7: the SECONDUSER user is about to make even more changes. Say 'ready' to let them.
+> Hackerbot: The second user is about to make even more changes.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -493,7 +493,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 8**.
 
-> Hackerbot: Create an incremental backup of SECONDUSER's home directory, so it ends up in BACKUPSERVERIP:/home/YOURUSERNAME/remote-rsync-incremental1/SECONDUSER/ -- only the changes since your last backup, so base it on the full backup and differential2.
+> Hackerbot: Take an incremental backup, containing only the changes since your last backup (differential2).
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -544,7 +544,7 @@ sudo rsync -av --delete --link-dest=$HOME/backups/rsync_backup_snapshot_1/ /etc 
 
 You can skip the bot to here, by saying **goto 9**.
 
-> Hackerbot: Step 9: again, the SECONDUSER user is about to make even more changes. Say 'ready' to let them.
+> Hackerbot: The second user is about to make one more set of changes.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -554,13 +554,13 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 10**.
 
-> Hackerbot: Create another incremental backup of SECONDUSER's home directory, so it ends up in BACKUPSERVERIP:/home/YOURUSERNAME/remote-rsync-incremental2/SECONDUSER/ -- only the changes since your last backup, so base it on the full backup, differential2 and incremental1.
+> Hackerbot: Take a second incremental backup, containing only the changes since incremental1.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
 > Note: Your backup should include only the changes since the last backup, which this time requires three `--compare-dest` options.
 
-> Hackerbot quiz: Access the backups on the backup_server via SSH: what did SECONDUSER's notes file say in incremental1?
+> Hackerbot quiz: A question about the contents of one of your earlier backups, which you will need to look up on the backup_server.
 
 \==action: answer *YOURANSWER*== to Hackerbot with what the file said, to get another flag. Since the desktop's copy has changed since then, you will need to use your backup.
 
@@ -570,7 +570,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 11**.
 
-> Hackerbot: I am going to attack you now! (Don't worry: first I'll check that every backup you'll need afterwards is right -- full, differential1, differential2, incremental1 and incremental2.)
+> Hackerbot: Hackerbot checks your backups, and then deletes the second user's files.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -582,7 +582,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 12**.
 
-> Hackerbot: Use all the backups you need (including differential and incremental) to restore all of SECONDUSER's files on the desktop system, with their original ownership.
+> Hackerbot: Use your backups to restore all of the second user's files on the desktop, with their original ownership.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
@@ -596,7 +596,7 @@ Don't forget to ==action: save and submit any flags!==
 
 You can skip the bot to here, by saying **goto 13**.
 
-> Hackerbot: Restore SECONDUSER's notes file to the first version of it that was backed up.
+> Hackerbot: Restore one of the second user's files to the first version of it that was backed up.
 
 When you are ready for the bot to run the attack, ==action: say 'ready'== to Hackerbot.
 
