@@ -14,6 +14,7 @@ require_relative 'lib/readers/system_reader.rb'
 require_relative 'lib/readers/module_reader.rb'
 require_relative 'lib/output/project_files_creator.rb'
 require_relative 'lib/helpers/network.rb'
+require_relative 'lib/helpers/test_results.rb'
 
 # Displays secgen usage data
 def usage
@@ -39,6 +40,8 @@ def usage
    --no-destroy-on-failure: Don't delete VMs that fail to build (except when retrying).
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
+   --keep-vms: test-scenario/test-module: keep the VMs and project after testing.
+   --test-base [distro]: test-module: base distro for the test VM (default 'Debian 12').
 
    VIRTUALBOX OPTIONS:
    --gui-output, -g: Show the running VM (not headless)
@@ -91,6 +94,12 @@ def usage
               (snapshots and networking)
    create-forensic-image: Builds forensic images from a previously generated project
               (can be used in combination with --project [dir])
+   test-scenario [xml file]: Builds the scenario (or --scenario), runs every module's
+              secgen_test (on Proxmox: after net0 teardown and a reboot, over the
+              QEMU Guest Agent), writes test_results/<project-id>/summary.json,
+              then destroys the VMs and project. Exit 0 PASS, 1 FAIL, 2 SKIP.
+   test-module [module path]: As test-scenario, for a one-system scenario holding
+              just that module (e.g. modules/services/unix/ftp/proftpd).
    list-scenarios: Lists all scenarios that can be used with the --scenario option
    list-projects: Lists all projects that can be used with the --project option
    delete-all-projects: Deletes all current projects in the projects directory
@@ -161,10 +170,15 @@ def build_vms(scenario, project_dir, options)
   # retry count, for when things fail to build
   retry_count = options.has_key?(:retries) ? options[:retries].to_i : 0
   successful_creation = false
+  options[:build_attempts] = 0
+
+  # On Proxmox, tests run after the post-build (net0 teardown + reboot), not here.
+  proxmox_tests = ProxmoxFunctions.provider_proxmox?(options) && !options[:notests]
 
   while retry_count >= 0 and !successful_creation
+    options[:build_attempts] += 1
     vagrant_output = GemExec.exe('vagrant', project_dir, "#{command} #{system}")
-    if vagrant_output[:status] == 0 and post_provision_tests(project_dir, options)
+    if vagrant_output[:status] == 0 and (proxmox_tests or post_provision_tests(project_dir, options))
       Print.info 'VMs created.'
       successful_creation = true
       if options[:shutdown] or OVirtFunctions::provider_ovirt?(options) or ProxmoxFunctions::provider_proxmox?(options)
@@ -196,8 +210,12 @@ def build_vms(scenario, project_dir, options)
           failures_to_destroy = failures_to_destroy.uniq
 
           if failures_to_destroy.size == 0
-            Print.err 'Failed. Not retrying. Please refer to the error above.'
-            exit 1
+            # e.g. the intermittent no-DHCP-lease on the provisioning net, where
+            # vagrant gives up waiting for an IP without naming the VM as failed.
+            Print.err 'Error creating VMs (could not tell which failed): destroying all VMs and retrying...'
+            GemExec.exe('vagrant', project_dir, 'destroy -f')
+            retry_count -= 1
+            next
           end
           Print.err 'Error creating VMs [' + failures_to_destroy.join(',') + '] destroying VMs and retrying...'
           failures_to_destroy.each do |failed_vm|
@@ -233,10 +251,12 @@ def build_vms(scenario, project_dir, options)
     retry_count -= 1
   end
   if successful_creation
+    build = { status: 'success', attempts: options[:build_attempts], log: nil }
     if OVirtFunctions.provider_ovirt?(options)
       ovirt_post_build(options, scenario, project_dir)
     elsif ProxmoxFunctions.provider_proxmox?(options)
       proxmox_post_build(options, scenario, project_dir)
+      return proxmox_post_build_tests(options, scenario, project_dir, build) if proxmox_tests
     elsif options[:snapshot]
       # snapshots happen in the above post_build functions
       # VirtualBox snapshots
@@ -244,9 +264,14 @@ def build_vms(scenario, project_dir, options)
       sleep(10) # give oVirt/Virtualbox a chance to save any VM config changes before creating the snapshot
       GemExec.exe('vagrant', project_dir, 'snapshot push')
     end
+    unless options[:notests]
+      return TestResults.write_report(project_dir, source_scenario: scenario, build: build,
+                                      started_at: $beginning_time, test_runs: options[:test_runs] || [])
+    end
+    nil
   else
     Print.err "Failed to build VMs"
-    show_running_time(beginning_time)
+    show_running_time($beginning_time)
     exit 1
   end
 end
@@ -435,29 +460,185 @@ def post_provision_tests(project_dir, options)
     reboot_cycle(project_dir)
     Print.info 'Running post-provision tests...'
 
-    test_module_outputs = []
-    test_script_paths = Dir.glob("#{project_dir}/puppet/*/modules/*/secgen_test/*.rb")
-    test_script_paths.each do |test_file_path|
-      test_stdout, test_stderr, test_status = Open3.capture3("bundle exec ruby #{test_file_path}")
-      test_module_outputs << {:stdout => test_stdout.split("\n"), :stderr => test_stderr, :exit_status => test_status}
-    end
-    test_module_outputs.each do |test_output|
-      # exit 2 = SKIP (could not test, e.g. no IP): not a pass, but not a reason
-      # to fail the build either.
-      if test_output[:exit_status].exitstatus == 2
-        Print.err test_output[:stdout].join("\n")
-        Print.err 'Post provision test skipped (could not test).'
-      elsif test_output[:exit_status].exitstatus != 0
-        tests_passed = false
-        Print.err test_output[:stdout].join("\n")
-        Print.err "Post provision tests contained failures!"
-        Print.err test_output[:stderr]
-      else
-        Print.info test_output[:stdout].join("\n")
-      end
+    # exit 2 = SKIP (could not test, e.g. no IP): not a pass, but not a reason
+    # to fail the build either.
+    options[:test_runs] = TestResults.run_tests(project_dir)
+    if options[:test_runs].any? { |r| r['status'] == 'FAIL' }
+      tests_passed = false
+      Print.err "Post provision tests contained failures!"
     end
   end
   tests_passed
+end
+
+# Proxmox: runs the tests once the post-build is done, i.e. after net0 teardown
+# and a full stop/start, so the VMs are tested in their final state (static IPs
+# up, reboot-dependent modules settled). Writes test_results/<project-id>/ and
+# returns the summary. Leaves the VMs running only if --proxmox-post-boot.
+def proxmox_post_build_tests(options, scenario, project_dir, build)
+  vm_names = get_vm_names(scenario)
+  ProxmoxFunctions::start_vms(project_dir, vm_names, options) unless options[:proxmox_post_boot]
+  agent_wait = (ENV['SECGEN_AGENT_WAIT_BOOT'] || 600).to_i
+  Print.info "Waiting up to #{agent_wait}s for the QEMU Guest Agent on each VM..."
+  ProxmoxFunctions::wait_for_agents(project_dir, vm_names, options, agent_wait)
+  settle = (ENV['SECGEN_TEST_SETTLE'] || 30).to_i
+  Print.info "Letting services settle for #{settle}s..."
+  sleep(settle)
+
+  Print.info 'Running post-provision tests over the QEMU Guest Agent...'
+  test_runs = TestResults.run_tests(project_dir)
+  summary = TestResults.write_report(project_dir, source_scenario: options[:test_source] || scenario,
+                                     build: build, started_at: $beginning_time, test_runs: test_runs)
+
+  unless options[:proxmox_post_boot] || options[:test_command]
+    Print.info 'Shutting down VMs after testing'
+    ProxmoxFunctions::shutdown_vms(project_dir, vm_names, options)
+  end
+  summary
+end
+
+
+# Writes a minimal one-system scenario that selects just the module at
+# module_path (plus an account, network and the cleanup build), for test-module.
+def module_test_scenario(module_path, options)
+  rel = module_path.sub(%r{\A#{Regexp.escape(ROOT_DIR)}/}, '').sub(%r{/\z}, '')
+  unless File.exist?("#{ROOT_DIR}/#{rel}/secgen_metadata.xml")
+    Print.err "Not a module (no secgen_metadata.xml): #{module_path}"
+    exit 1
+  end
+  type = { 'vulnerabilities' => 'vulnerability', 'services' => 'service',
+           'utilities' => 'utility' }[rel.split('/')[1]]
+  unless rel.start_with?('modules/') && type
+    Print.err "test-module takes a vulnerability, service or utility module path, e.g. modules/services/unix/ftp/proftpd"
+    exit 1
+  end
+  name = File.basename(rel)
+  base = options[:test_base] || 'Debian 12'
+  # SecGen matches module_path as ^...$, so the exact path selects just this module.
+  accounts = rel.end_with?('/parameterised_accounts') ? '' : <<~XML
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+  XML
+  xml = <<~XML
+    <?xml version="1.0"?>
+    <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+      <name>Test: #{name}</name>
+      <author>secgen.rb test-module</author>
+      <description>Generated by secgen.rb test-module to build and test #{rel}.</description>
+      <type>test</type>
+      <system>
+        <system_name>#{name}_testing</system_name>
+        <base platform="linux" distro="#{base}" type="desktop"/>
+        <input into_datastore="IP_addresses">
+          <network_ip system="#{name}_testing"/>
+        </input>
+        <input into_datastore="accounts">
+          <generator type="account">
+            <input into="username">
+              <generator type="random_sanitised_word">
+                <input into="wordlist"><value>mythical_creatures</value></input>
+              </generator>
+            </input>
+            <input into="password"><generator type="strong_password_generator"/></input>
+            <input into="super_user"><value>false</value></input>
+            <input into="leaked_filenames"><value>flag.txt</value></input>
+            <input into="strings_to_leak"><generator type="flag_generator"/></input>
+          </generator>
+        </input>
+    #{accounts.gsub(/^/, '    ')}
+        <#{type} module_path="#{rel}"/>
+        <network type="private_network"/>
+        <input into_datastore="spoiler_admin_pass">
+          <generator type="strong_password_generator"/>
+        </input>
+        <build type="cleanup">
+          <input into="root_password">
+            <datastore>spoiler_admin_pass</datastore>
+          </input>
+        </build>
+      </system>
+    </scenario>
+  XML
+  FileUtils.mkdir_p(PROJECTS_DIR)
+  path = "#{PROJECTS_DIR}/.test-module_#{name}_#{Time.new.strftime('%Y%m%d_%H%M%S')}.xml"
+  File.write(path, xml)
+  Print.info "Generated test scenario for #{rel}: #{path}"
+  [path, rel]
+end
+
+# test-scenario / test-module: build, test (after net0 teardown + reboot on
+# Proxmox), write test_results/<project-id>/, destroy the VMs and project
+# (unless --keep-vms). Exits 0 PASS, 1 FAIL (or the build failed), 2 SKIP.
+def test_command(command, target, scenario, project_dir, options)
+  options.delete(:notests)
+  options[:test_command] = command
+  options[:retries] ||= 1 # absorb the intermittent provisioning-net flake
+  generated = nil
+  if command == 'test-module'
+    unless target
+      Print.err 'Usage: secgen.rb [options] test-module <module path>'
+      exit 1
+    end
+    generated, options[:test_source] = module_test_scenario(target, options)
+    scenario = generated
+  elsif target
+    scenario = target
+  end
+  scenario = File.expand_path(scenario)
+  unless File.exist?(scenario)
+    Print.err "Scenario not found: #{scenario}"
+    exit 1
+  end
+  project_dir ||= default_project_dir
+  project_dir = File.expand_path(project_dir)
+
+  summary = nil
+  begin
+    build_config(scenario, project_dir, options)
+    summary = build_vms(scenario, project_dir, options)
+  rescue SystemExit => e
+    Print.err "Build failed (exit #{e.status})"
+  end
+  if summary.nil?
+    summary = TestResults.write_report(project_dir, source_scenario: options[:test_source] || scenario,
+                                       build: { status: 'failed', attempts: options[:build_attempts] || 0, log: nil },
+                                       started_at: $beginning_time)
+  end
+
+  if options[:keepvms]
+    Print.info "Keeping VMs and project (--keep-vms): #{project_dir}"
+  else
+    test_cleanup(scenario, project_dir, options)
+  end
+  FileUtils.rm_f(generated) if generated
+
+  status = summary[:status]
+  Print.info "#{command}: #{status}"
+  show_running_time($beginning_time)
+  exit(TestResults::EXIT_CODES[status] || 1)
+end
+
+# Destroys the VMs a test run built, then removes its project directory
+# (kept if any VM could not be deleted, since it holds their ids).
+def test_cleanup(scenario, project_dir, options)
+  return unless File.directory?(project_dir)
+  Print.info 'Destroying test VMs...'
+  remaining = if ProxmoxFunctions.provider_proxmox?(options)
+                ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
+              else
+                GemExec.exe('vagrant', project_dir, 'destroy -f')[:status] == 0 ? [] : ['(vagrant destroy failed)']
+              end
+  if remaining.empty?
+    FileUtils.rm_rf(project_dir)
+    Print.info "Removed #{project_dir}"
+  else
+    Print.err "VMs not destroyed: #{remaining.join(', ')}. Keeping #{project_dir} for manual cleanup."
+  end
 end
 
 def show_running_time(beginning_time)
@@ -486,7 +667,7 @@ Print.std '~'*47
 Print.debug "\nPlease take a minute to tell us how you are using SecGen:"
 Print.debug "https://tinyurl.com/SecGenFeedback\n"
 
-beginning_time = Time.now
+beginning_time = $beginning_time = Time.now
 
 # Add read-options from config file (needs handling before options parsed by GetoptLong)
 if ARGV.include? '--read-options'
@@ -525,6 +706,8 @@ opts = GetoptLong.new(
     ['--no-destroy-on-failure', GetoptLong::NO_ARGUMENT],
     ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
+    ['--keep-vms', GetoptLong::NO_ARGUMENT],
+    ['--test-base', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtpass', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirt-url', GetoptLong::REQUIRED_ARGUMENT],
@@ -716,6 +899,10 @@ opts.each do |opt, arg|
   when '--retries'
     Print.info "Number of retries to build vms : #{arg}"
     options[:retries] = arg
+  when '--keep-vms'
+    options[:keepvms] = true
+  when '--test-base'
+    options[:test_base] = arg
   else
     Print.err "Argument not valid: #{arg}"
     usage
@@ -734,13 +921,13 @@ end
 case ARGV[0]
 when 'run', 'r'
   project_dir = default_project_dir unless project_dir
-  run(scenario, project_dir, options)
+  test_summary = run(scenario, project_dir, options)
 when 'build-project', 'p'
   project_dir = default_project_dir unless project_dir
   build_config(scenario, project_dir, options)
 when 'build-vms', 'v'
   if project_dir
-    build_vms(scenario, project_dir, options)
+    test_summary = build_vms(scenario, project_dir, options)
   else
     Print.err 'Please specify project directory to read'
     usage
@@ -769,6 +956,9 @@ when 'ovirt-post-build'
 when 'proxmox-post-build'
   proxmox_post_build(options, scenario, project_dir)
 
+when 'test-scenario', 'test-module'
+  test_command(ARGV[0], ARGV[1], scenario, project_dir, options)
+
 when 'list-scenarios'
   list_scenarios
   exit 0
@@ -789,3 +979,8 @@ else
 end
 
 show_running_time(beginning_time)
+
+# When tests ran: exit 1 if any FAIL, 2 if any SKIP (a SKIP is never a pass).
+if defined?(test_summary) && test_summary.is_a?(Hash)
+  exit(TestResults::EXIT_CODES[test_summary[:status]] || 1)
+end
