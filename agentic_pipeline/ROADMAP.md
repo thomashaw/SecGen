@@ -9,9 +9,11 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 
 ## Order of work (as of 2026-10-09)
 
-1. **Phase 1 — Test harness**: finish lifecycle, `PostProvisionTest` and
-   in-VM exploit tests. Split into three streams (1A–1C) so separate agents can
-   work in parallel.
+1. **Phase 1 — Test harness**: lifecycle (1A) and `PostProvisionTest` (1B)
+   are **done and on master** (2026-10-09): `secgen.rb test-scenario` /
+   `test-module` build, test after net0 teardown + reboot, report to
+   `test_results/` and destroy. Remaining: in-VM exploit tests (1C) and the
+   [Phase 1 follow-ups](#phase-1-follow-ups).
 2. **Phase 2 — Repo split**: move the pipeline into a private repo before more
    pipeline-only code lands in SecGen.
 3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
@@ -110,7 +112,10 @@ guest network path, so it survives `net0` teardown and the post-provision reboot
 Each stream is one agent, one worktree, one branch off `master`. They touch
 different files; the only shared surface is the **results contract** below,
 which 1B owns and 1A/1C consume. It is agreed (below), so the three can
-proceed independently.
+proceed independently. In practice 1B and 1A were done by one agent in
+sequence (stacked branches `phase1b-post-provision-test` →
+`phase1a-lifecycle-cli`, full history on `thomashaw`) and landed on master as
+one squashed commit each. 1C branches from master.
 
 **Results contract (agreed 2026-10-09):**
 
@@ -225,6 +230,23 @@ test_results/
   `parameterised_accounts` test unchanged → PASS; deliberate tier-3 failure →
   FAIL (exit 1, `tier_reached` 2, 6 evidence files); no password → SKIP
   (exit 2). The no-IP SKIP was checked offline against a stubbed agent.
+
+#### Phase 1 follow-ups
+
+Gaps left by 1A/1B (all builds so far passed, so the failure paths are only
+checked offline against stubs):
+
+- [ ] Exercise the non-PASS destroy path on a real VM: a deliberately broken
+      module (e.g. proftpd with `IdentLookups` put back) under plain `run` →
+      FAIL, VMs destroyed, no retry, exit 1; and with `--no-destroy-on-failure`
+      → kept.
+- [ ] See the remaining paths fire for real: a no-IP SKIP, the
+      destroy-all-and-retry on the DHCP flake (OPEN_QUESTIONS #14), and the
+      `run_vagrant_ssh` quoting fix on a VirtualBox VM.
+- [ ] VirtualBox: systems on DHCP SKIP their network checks and are now
+      destroyed; decide if that matters before Phase 3 runs non-Proxmox tests.
+- [ ] Speed: each guest call is ~3s, so a test with ~10 checks takes over a
+      minute (see Backlog). Batch helpers, or run modules' tests in parallel.
 
 #### 1C — Exploit tests from inside a VM (tier 3)
 
