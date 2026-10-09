@@ -51,6 +51,11 @@ class ProxmoxFunctions
         Print.std " Stopping #{node}/#{vm_id} for NIC teardown"
         connection.stop_vm(vm_id)
 
+        if keeps_provisioning_nic?(project_dir, vm_name)
+          Print.std " Keeping provisioning NIC (net0) on #{node}/#{vm_id}: a module needs the internal network"
+          next
+        end
+
         Print.std " Removing provisioning NIC (net0) from #{node}/#{vm_id}"
         connection.config_clone(node: node, vm_type: :qemu, params: { vmid: vm_id, delete: 'net0' })
 
@@ -60,6 +65,14 @@ class ProxmoxFunctions
       ensure
         file.close if file
       end
+    end
+  end
+
+  # True if one of the system's modules has <type>keep_provisioning_nic</type> (e.g. llm_relay, which relays
+  # the internal LLM API to the isolated lab network over net0).
+  def self.keeps_provisioning_nic?(project_dir, vm_name)
+    Dir.glob("#{project_dir}/puppet/#{vm_name}/modules/*/secgen_metadata.xml").any? do |metadata|
+      File.read(metadata).include?('<type>keep_provisioning_nic</type>')
     end
   end
 

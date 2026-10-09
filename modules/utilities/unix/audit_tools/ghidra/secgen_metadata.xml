@@ -13,6 +13,40 @@
 
   <software_license>GPLv3</software_license>
 
+  <!-- LLM assistant (Kali only): installs the GhidrAssist plugin and points it at an OpenAI-compatible API,
+       normally the local Spark LLMs via an llm_relay VM. Off by default, so assessed labs stay unassisted. -->
+  <read_fact>llm_assistant</read_fact>
+  <!-- OpenAI-compatible base URL, used when llm_relay_ip is not set (e.g. the gateway directly) -->
+  <read_fact>llm_api_url</read_fact>
+  <!-- IP of an llm_relay VM: when set, the URL becomes http://<llm_relay_ip>:<llm_relay_port>/api/v1/ -->
+  <read_fact>llm_relay_ip</read_fact>
+  <read_fact>llm_relay_port</read_fact>
+  <!-- Stored in each user's Ghidra preferences, readable by the student. Leave as the placeholder when the
+       relay adds the real key. -->
+  <read_fact>llm_api_key</read_fact>
+  <!-- One GhidrAssist provider per model; the first is the active one -->
+  <read_fact>llm_models</read_fact>
+
+  <default_input into="llm_assistant">
+    <value>false</value>
+  </default_input>
+  <default_input into="llm_api_url">
+    <value>http://172.22.222.222:8080/api/v1/</value>
+  </default_input>
+  <default_input into="llm_relay_ip">
+    <value></value>
+  </default_input>
+  <default_input into="llm_relay_port">
+    <value>8080</value>
+  </default_input>
+  <default_input into="llm_api_key">
+    <value>relay</value>
+  </default_input>
+  <default_input into="llm_models">
+    <value>fast</value>
+    <value>smart</value>
+  </default_input>
+
   <conflict>
     <name>.*Debian.*Wheezy.*</name>
   </conflict>

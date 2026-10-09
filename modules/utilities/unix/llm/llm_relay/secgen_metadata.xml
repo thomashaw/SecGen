@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>LLM API relay</name>
+  <author>Thomas Shaw</author>
+  <module_license>GPLv3</module_license>
+  <description>An nginx reverse proxy that lets lab VMs on an isolated network use the local LLMs (an
+    OpenAI-compatible API such as the Spark LLM gateway) without joining the internal network. Only the
+    chat completions and model list endpoints are relayed, and the relay can add the API key itself so
+    that no key is stored on a student VM. Clients use http://&lt;relay IP&gt;:&lt;listen_port&gt;/api/v1/
+    as their base URL (e.g. the ghidra module's llm_relay_ip input).
+    On Proxmox the system keeps its provisioning NIC (net0, the internal network) after the build: the
+    keep_provisioning_nic type below tells SecGen not to remove it. Put this module on a system students
+    don't control (e.g. the Hackerbot server).</description>
+
+  <type>llm_relay</type>
+  <type>keep_provisioning_nic</type>
+  <platform>linux</platform>
+
+  <software_name>nginx</software_name>
+  <software_license>BSD-2-Clause</software_license>
+
+  <!-- the API the relay forwards to (scheme://host:port, no path) -->
+  <read_fact>upstream_url</read_fact>
+  <!-- added as "Authorization: Bearer <key>"; empty = pass the client's Authorization header through -->
+  <read_fact>api_key</read_fact>
+  <read_fact>listen_port</read_fact>
+  <!-- CIDRs allowed to use the relay (nginx allow rules); empty = anyone who can reach the port -->
+  <read_fact>allowed_networks</read_fact>
+
+  <default_input into="upstream_url">
+    <value>http://172.22.222.222:8080</value>
+  </default_input>
+  <default_input into="api_key">
+    <value></value>
+  </default_input>
+  <default_input into="listen_port">
+    <value>8080</value>
+  </default_input>
+  <default_input into="allowed_networks">
+    <value></value>
+  </default_input>
+
+  <conflict>
+    <name>.*Debian.*Wheezy.*</name>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+</utility>
