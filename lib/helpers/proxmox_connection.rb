@@ -105,8 +105,11 @@ module Proxmox
         return nil
       end
       # select the first nic (0 = lo, 1 = first nic)
-      response.dig(:data, :result).each do |nic|
-        nic.dig(:"ip-addresses").each do |ip_addresses_block|
+      # agent may report no interfaces yet (returns nil result) — treat as "no IP"
+      interfaces = response.dig(:data, :result)
+      return nil if interfaces.nil?
+      interfaces.each do |nic|
+        (nic.dig(:"ip-addresses") || []).each do |ip_addresses_block|
           # find an IPv4 address and return it
           if ip_addresses_block.dig(:"ip-address-type") == "ipv4"
             ip = ip_addresses_block.dig(:"ip-address")
@@ -188,6 +191,52 @@ module Proxmox
       wait_for_completion task_response: response, timeout_message: 'vagrant_proxmox.errors.shutdown_vm_timeout'
     end
 
+    # QEMU Guest Agent helpers. These need the VM option "QEMU Guest Agent" enabled
+    # (takes effect after a full stop/start) and qemu-guest-agent running in the guest.
+    # They work without any network path into the guest.
+
+    # true if the VM config has the QEMU Guest Agent option enabled
+    def qemu_agent_enabled?(vm_id, node)
+      agent = get_vm_config(node: node, vm_id: vm_id, vm_type: 'qemu')[:agent].to_s
+      agent == '1' || agent.start_with?('1,') || agent.include?('enabled=1')
+    end
+
+    # true if the guest agent answers a ping (false if it isn't running/reachable)
+    def qemu_agent_running?(vm_id, node)
+      post_json "/nodes/#{node}/qemu/#{vm_id}/agent/ping", {}
+      true
+    rescue ApiError::ServerError
+      false
+    end
+
+    # Runs a command in the guest. command is an argv array (no shell), e.g. ['id']
+    # or ['sh', '-c', 'echo $HOME']. Returns { exitcode:, stdout:, stderr:, truncated: };
+    # the caller decides success from exitcode. Raises ProxmoxTaskTimeout if the
+    # command hasn't exited within timeout seconds.
+    def exec_qemu_guest(vm_id, node, command, timeout: 10, input_data: nil)
+      body = { command: Array(command) }
+      body[:'input-data'] = input_data if input_data
+      pid = post_json("/nodes/#{node}/qemu/#{vm_id}/agent/exec", body).dig(:data, :pid)
+
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+      delay = 0.25
+      loop do
+        status = get("/nodes/#{node}/qemu/#{vm_id}/agent/exec-status?pid=#{pid}")[:data]
+        # PVE versions differ on whether flags are 1 or true
+        if truthy?(status[:exited])
+          return { exitcode: status[:exitcode],
+                   stdout: status[:'out-data'].to_s,
+                   stderr: status[:'err-data'].to_s,
+                   truncated: truthy?(status[:'out-truncated']) || truthy?(status[:'err-truncated']) }
+        end
+        if Process.clock_gettime(Process::CLOCK_MONOTONIC) >= deadline
+          raise ProxmoxTaskTimeout, "guest command #{Array(command).inspect} on VM #{vm_id} did not exit within #{timeout}s"
+        end
+        sleep delay
+        delay = [delay * 2, 1].min
+      end
+    end
+
 
 
     private
@@ -235,7 +284,7 @@ module Proxmox
     private
 
     def delete(path, _params = {})
-      response = RestClient.delete "#{api_url}#{path}", headers
+      response = RestClient::Resource.new("#{api_url}#{path}", verify_ssl: false, headers: headers).delete
       JSON.parse response.to_s, symbolize_names: true
     rescue RestClient::Unauthorized
       raise ApiError::UnauthorizedError
@@ -260,6 +309,29 @@ module Proxmox
       raise ApiError::ServerError, "#{x.message} for POST #{api_url}#{path}"
     rescue => x
       raise ApiError::ConnectionError, x.message
+    end
+
+    private
+
+    # JSON-encoded POST: form encoding mangles array params such as agent/exec's command
+    def post_json(path, body)
+      response = RestClient::Resource.new("#{api_url}#{path}", verify_ssl: false,
+                                          headers: headers.merge(content_type: :json)).post body.to_json
+      JSON.parse response.to_s, symbolize_names: true
+    rescue RestClient::Unauthorized
+      raise ApiError::UnauthorizedError
+    rescue RestClient::NotImplemented
+      raise ApiError::NotImplemented
+    rescue RestClient::InternalServerError => x
+      raise ApiError::ServerError, "#{x.message} for POST #{api_url}#{path}"
+    rescue => x
+      raise ApiError::ConnectionError, x.message
+    end
+
+    private
+
+    def truthy?(value)
+      value == true || value == 1 || value == '1'
     end
 
     private

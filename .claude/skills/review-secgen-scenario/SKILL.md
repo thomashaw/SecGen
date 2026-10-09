@@ -170,3 +170,11 @@ A scenario review is incomplete without checking the modules it composes, becaus
 - Utilities: `parameterised_accounts`, `iceweasel`, `kali_top10`, `kali_web`.
 
 Offer to run those module reviews next.
+
+## Then: verify it live with the pipeline
+
+Static review can't confirm the scenario actually builds and the kill chain works
+on real VMs. After reviewing, verify it with the **`secgen-test-pipeline`** skill:
+build the scenario with `secgen-run`, then run each module's `secgen_test` over the
+Proxmox guest agent with `secgen-test-run`, and clean the VMs up afterwards. Offer
+this alongside the per-module reviews.

@@ -643,6 +643,9 @@ opts.each do |opt, arg|
   when '--proxmoxpass'
     Print.info "Proxmox Password : ********"
     options[:proxmoxpass] = arg
+    # Generated Vagrantfiles read the password from the environment rather than
+    # embedding it; vagrant inherits this when run by secgen.rb
+    ENV['SECGEN_PROXMOX_PASS'] = arg
   when '--proxmox-url'
     Print.info "Proxmox API url : #{arg}"
     options[:proxmoxurl] = arg

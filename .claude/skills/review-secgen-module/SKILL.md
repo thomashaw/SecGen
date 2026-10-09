@@ -206,3 +206,13 @@ End with an explicit walkthrough of the attack path and a verdict:
 3. Whether the solution `strings_to_leak` payload becomes reachable only at that step — not before.
 
 Verdict: does the challenge actually hand the pen tester its pre-leak clues *before* the attack and its solution payload *only after* the intended attack?
+
+## Then: verify it live with the pipeline
+
+Static review catches declaration/consistency bugs, but not "does it actually
+provision and start on a current base". After reviewing, verify the module on a
+freshly built VM with the **`secgen-test-pipeline`** skill (build a minimal
+`scenarios/tests/` scenario, `secgen-run`, then `secgen-test-run`, testing over
+the Proxmox guest agent). If the module has no `secgen_test/`, that skill covers
+writing one. Real builds surface things review can't — e.g. proftpd passed review
+but failed to start on Debian 12 on a removed config directive.

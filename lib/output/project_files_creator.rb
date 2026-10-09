@@ -130,7 +130,13 @@ class ProjectFilesCreator
     Print.std "Creating scenario definition file: #{xfile}"
     write_data_to_file(xml, xfile)
 
-    write_data_to_file(@systems.to_s, "#{@out_dir}/systems")
+    # each system holds the command line options, so mask any hypervisor passwords
+    systems_dump = @systems.to_s
+    [:proxmoxpass, :ovirtpass, :esxipass].each do |key|
+      secret = @options[key].to_s
+      systems_dump = systems_dump.gsub(secret, '********') unless secret.empty?
+    end
+    write_data_to_file(systems_dump, "#{@out_dir}/systems")
     write_data_to_file(@scenario.to_s, "#{@out_dir}/scenario")
 
 
@@ -205,6 +211,16 @@ class ProjectFilesCreator
     Print.std "Copying post-provision testing class"
     FileUtils.mkdir("#{@out_dir}/lib")
     FileUtils.cp("#{ROOT_DIR}/lib/objects/post_provision_test.rb", "#{@out_dir}/lib/post_provision_test.rb")
+
+    # For Proxmox builds, ship the guest-agent client and a (non-secret) test
+    # context so post-provision tests can reach VMs via the QEMU Guest Agent.
+    # The password is NOT written here; it is read from ENV at test time.
+    if @options[:proxmoxuser] && @options[:proxmoxurl]
+      FileUtils.cp("#{ROOT_DIR}/lib/helpers/proxmox_connection.rb", "#{@out_dir}/lib/proxmox_connection.rb")
+      context = { 'url' => @options[:proxmoxurl], 'user' => @options[:proxmoxuser] }
+      write_data_to_file(JSON.pretty_generate(context), "#{@out_dir}/proxmox_test_context.json")
+      Print.std "Wrote Proxmox test context (credentials excluded)"
+    end
 
     Print.std "VM(s) can be built using 'vagrant up' in #{@out_dir}"
 

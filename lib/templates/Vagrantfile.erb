@@ -24,6 +24,14 @@
 -%>
 
 VAGRANTFILE_API_VERSION = "2"
+<% if provider == "proxmox" -%>
+
+# The Proxmox password is not stored in this file. secgen.rb passes it to vagrant
+# via SECGEN_PROXMOX_PASS; to run vagrant by hand here, export it first.
+unless ENV['SECGEN_PROXMOX_PASS']
+  warn "SECGEN_PROXMOX_PASS is not set: Proxmox actions will fail to authenticate."
+end
+<% end -%>
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 <%
@@ -104,7 +112,7 @@ end
     <%= system.name %>.vm.provider :proxmox do |proxmox|
       proxmox.endpoint = '<%= @options[:proxmoxurl] %>'
       proxmox.user_name = '<%= @options[:proxmoxuser] %>'
-      proxmox.password = '<%= @options[:proxmoxpass] %>'
+      proxmox.password = ENV['SECGEN_PROXMOX_PASS']
       proxmox.vm_type = :qemu
       proxmox.qemu_os = :l26
       # proxmox.qemu_disk_size = '30G'
