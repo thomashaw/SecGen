@@ -56,7 +56,7 @@ assert in `test_module`. Tiers to aim for:
    (`test_service_up`; for utilities actually invoke the binary so PATH and
    missing-lib problems surface).
 3. **Exploitable** — the intended vuln is actually exploitable (real exploit:
-   Metasploit or a crafted request, run from an attacker VM — roadmap Phase 2).
+   Metasploit or a crafted request, run from an attacker VM — roadmap Phase 1, stream 1C).
 
 ```ruby
 require_relative '../../../../../lib/post_provision_test'

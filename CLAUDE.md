@@ -82,7 +82,7 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Publish a hackerbot lab sheet to Hacktivity | `convert_hackerbot_to_hacktivity_lab_sheets` |
 | Write/debug module Puppet code | `secgen-puppet` |
 
-Planned (see `agentic_pipeline/ROADMAP.md` Phase 3): write a module, build a
+Planned (see `agentic_pipeline/ROADMAP.md` Phase 4): write a module, build a
 scenario, provision a VM, write `secgen_test`s, test a module/scenario, add
 requires/conflicts.
 
