@@ -46,10 +46,9 @@ is the mechanism and the workflow.
 - **Each API call ~3s** from this dev server; batch guest checks into one
   command where you can rather than many round-trips. The system IP is only
   looked up (one `agent/network-get-interfaces` call) if something needs it.
-- Legacy `secgen.rb` still runs its in-build test runner at the *old* point
-  (before net0 teardown, via a vagrant reboot). Until that's reordered, **test
-  out-of-band** with `scripts/secgen-test-run` against a VM left running by `scripts/secgen-run`,
-  rather than relying on `--no-tests` being off.
+- On Proxmox, `secgen.rb` runs the tests **after** net0 teardown and the
+  reboot (see the loop below). Other providers keep the old in-build runner
+  (vagrant halt/up, before any post-build).
 
 ## Writing a secgen_test
 
@@ -128,6 +127,36 @@ tier_reached, results: [{tier, name, status, detail, evidence?}]}`), and exits:
 passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
 ## The build + test loop
 
+### One shot (preferred): `test-scenario` / `test-module`
+
+`scripts/secgen-run --test -s scenarios/tests/<scn>.xml` (or
+`scripts/secgen-run -m modules/<type>/.../<mod>` for a generated one-system
+scenario holding just that module on Debian 12; `-- --test-base "<distro>"`
+to change it) runs `secgen.rb test-scenario` / `test-module`:
+
+build (with `--retries 1`) → `net0` teardown → snapshot if `--snapshot` →
+start (the one full reboot: static IPs up, reboot-dependent modules settle) →
+wait for the guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) → settle
+(`SECGEN_TEST_SETTLE`, default 30s) → every module's `secgen_test` (each with a
+`SECGEN_TEST_TIMEOUT`, default 900s) → `test_results/<project-id>/` →
+destroy the VMs via the API and remove the project.
+
+- **Exit code:** 0 all PASS, 1 any FAIL (or the build failed), 2 any SKIP.
+- **Results** (gitignored, survive teardown): `test_results/<project-id>/`
+  holds `summary.json` (build status/attempts, counts, per-system modules with
+  status and `tier_reached`, SecGen commit/branch, `masked_secrets`),
+  `scenario.xml` (the resolved scenario: what was actually tested),
+  `build.log`, and `<system>/<mod>.json`, `<mod>.log`, `evidence/<mod>/`.
+  Every copied file has the Proxmox password masked; `masked_secrets` > 0
+  means something leaked it and should be fixed at source.
+- `-- --keep-vms` keeps the VMs and project for debugging; destroy them
+  afterwards with `scripts/secgen-destroy projects/<id>`.
+- A plain `secgen.rb run` on Proxmox without `--no-tests` uses the same
+  order and writes the same report, then shuts the VMs down unless
+  `--proxmox-post-boot`; it exits 1/2 on FAIL/SKIP.
+
+### Step by step (to iterate on one VM)
+
 1. Make a minimal test scenario in `scenarios/tests/` (one `<system>`, the module,
    a `parameterised_accounts` user if required, a `<network>`, and the **required**
    `build type="cleanup"` root-password reset). Pick a base whose Proxmox template
@@ -136,10 +165,11 @@ passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
 3. Build: `scripts/secgen-run -p <name> -s scenarios/tests/<scn>.xml`
-   (`--dry-run` first). It leaves the VM running in final state (net0 gone).
-   **The provisioning net is an intermittent flake across bases** — if `vagrant up`
-   times out "waiting for SSH to configure network interfaces" (no IP via agent)
-   with no Puppet having run, just retry (or pass `--retries`).
+   (`--dry-run` first). It leaves the VM running in final state (net0 gone),
+   with tests off. It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
+   intermittent provisioning-net flake (no DHCP lease → vagrant times out
+   "waiting for SSH to configure network interfaces" with no Puppet run); when
+   vagrant can't say which VM failed, SecGen now destroys all and retries.
 4. Run the test: `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
    — expect `PASSED: ...` / exit 0 (1 FAIL, 2 SKIP). `scripts/secgen-test-run` injects
    `SECGEN_PROXMOX_PASS` from the config without printing it. The JSON result
@@ -150,9 +180,10 @@ passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
    config-syntax checks). A failing test on a genuinely broken module is the
    pipeline working — fix the **module template/manifest**, not the generated
    project, then rebuild.
-6. **Clean up**: destroy every VM you built (stop + delete via the Proxmox API),
-   remove the `projects/*` dir and any scratch files/logs. Verify no orphans by
-   listing `/cluster/resources?type=vm` and grepping your prefix.
+6. **Clean up**: `scripts/secgen-destroy projects/<id>` stops and deletes the
+   project's VMs via the API, checks they're gone, and removes the project dir.
+   Remove any scratch files/logs too. Verify no orphans with
+   `scripts/pve-check --all | grep <vmid>`.
 
 ## Worked precedent
 
