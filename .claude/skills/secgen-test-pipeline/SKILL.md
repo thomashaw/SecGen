@@ -123,6 +123,12 @@ tier_reached, results: [{tier, name, status, detail, evidence?}]}`), and exits:
   (DHCP on Vagrant), or the test itself raised. **A SKIP is never a pass** —
   usually a harness problem, not the module.
 
+A breakage Puppet itself notices (e.g. the service fails to (re)start during
+provisioning) is a **build** failure, not a test FAIL: no tests run, the build
+is retried and then destroyed; read `build.log`. A test FAIL means Puppet was
+happy but the check wasn't (e.g. proftpd up on the wrong port), and the
+evidence usually shows why (`listening_ports.txt` showed it on 2121).
+
 `tier_reached` is the highest tier whose checks (and every lower tier's) all
 passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
 ## The build + test loop

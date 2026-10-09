@@ -12,8 +12,8 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 1. **Phase 1 — Test harness**: lifecycle (1A) and `PostProvisionTest` (1B)
    are **done and on master** (2026-10-09): `secgen.rb test-scenario` /
    `test-module` build, test after net0 teardown + reboot, report to
-   `test_results/` and destroy. Remaining: in-VM exploit tests (1C) and the
-   [Phase 1 follow-ups](#phase-1-follow-ups).
+   `test_results/` and destroy. Tests run in parallel and the destroy-on-failure path is checked on a real
+   VM ([follow-ups](#phase-1-follow-ups)). Remaining: in-VM exploit tests (1C).
 2. **Phase 2 — Repo split**: move the pipeline into a private repo before more
    pipeline-only code lands in SecGen.
 3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
@@ -236,11 +236,17 @@ test_results/
 - [x] Speed: module tests run side by side (`SECGEN_TEST_JOBS`, default 4;
       scripts sharing a module dir run in turn). Each guest call is still ~3s
       (see Backlog), but a scenario's tests now overlap: offline, 7 tests
-      against a 3s-per-call stub went from 85s to 36s.
-- [ ] Exercise the non-PASS destroy path on a real VM: a deliberately broken
-      module (proftpd with `IdentLookups` put back, on a throwaway branch)
-      under `scripts/secgen-run --batch` → FAIL, VMs destroyed, no retry,
-      exit 1; and with `--no-destroy-on-failure` → kept.
+      against a 3s-per-call stub went from 85s to 36s; on Proxmox two tests
+      on one VM ran concurrently with no agent problems (24s for both).
+- [x] Non-PASS destroy path on a real VM (2026-10-09, throwaway branch with
+      proftpd's `Port` hard-coded to 2121, `scripts/secgen-run --batch`):
+      Puppet succeeds, proftpd test FAILs (port 21 closed; evidence shows it
+      listening on 2121), one build attempt (no retry), VM deleted and gone
+      from the cluster, project + `test_results/` kept, exit 1. With
+      `--no-destroy-on-failure` the VM was kept (exit 1).
+      Note: putting `IdentLookups` back makes Puppet's own service restart
+      fail, so that breakage is a **build** failure (retried, then destroyed,
+      or kept with `--no-destroy-on-failure`) — also checked, and it behaves.
 - The no-IP SKIP and the destroy-all-and-retry on the DHCP flake
   (OPEN_QUESTIONS #14) were only checked offline; not worth forcing — note
   them when they turn up in normal runs. VirtualBox items moved to Phase 10.
