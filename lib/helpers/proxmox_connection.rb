@@ -1,3 +1,4 @@
+require 'json'
 require 'rest-client'
 require 'retryable'
 require 'irb'
