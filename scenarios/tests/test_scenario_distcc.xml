@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: distcc remote command execution (attacker + target)</name>
+  <author>Thomas Shaw</author>
+  <description>Two-VM test scenario for the agentic pipeline's tier-3 (exploit)
+  testing (Phase 1C). A Debian 12 target runs the vulnerable DistCC daemon
+  (CVE-2004-2687); a Kali/MSF attacker sits on the same private network. The
+  distcc_exec module's secgen_test drives Metasploit's
+  exploit/unix/misc/distcc_exec from the attacker against the target over the
+  Proxmox QEMU Guest Agent and proves remote code execution. Both systems share
+  a 10.88.0.0/24 private network (logical VLAN 1): IP_addresses[0] 10.88.0.10 is
+  the target, [1] 10.88.0.20 is the attacker.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <value>10.88.0.10</value>
+      <value>10.88.0.20</value>
+    </input>
+
+    <vulnerability module_path=".*/distcc_exec"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+  </system>
+
+</scenario>
