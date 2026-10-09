@@ -304,6 +304,46 @@ class PostProvisionTest
   end
   alias run_command run_vagrant_ssh
 
+  # --- Cross-system helpers (tier 3 / Phase 1C) ---------------------------
+  # Network-side and exploit tests run from *another* system in the project
+  # (e.g. a Kali attacker VM) and target the system under test by its IP.
+  # On Proxmox each sibling system is reached over its own QEMU Guest Agent,
+  # resolved from .vagrant/machines/<name>/proxmox/id, so no guest network
+  # path to the host is needed. Only supported on Proxmox.
+
+  # Does a sibling system by this name exist in the project?
+  def system_present?(name)
+    return File.exist?(other_proxmox_id_path(name)) if proxmox?
+    File.directory?("#{get_project_path}/.vagrant/machines/#{name}")
+  end
+
+  def other_proxmox_id_path(name)
+    "#{get_project_path}/.vagrant/machines/#{name}/proxmox/id"
+  end
+
+  # [node, vmid] for a sibling system from its Vagrant-written id file.
+  def other_proxmox_node_vmid(name)
+    File.read(other_proxmox_id_path(name)).strip.split('/')
+  end
+
+  # Run a shell command on another system in the project. Returns
+  # {stdout:, stderr:, exit_status:}. Proxmox only (guest agent on that VM).
+  def run_on_system(name, args, timeout: 60)
+    unless proxmox?
+      return {:stdout => '', :stderr => "run_on_system is Proxmox-only (#{name})", :exit_status => 127}
+    end
+    node, vmid = other_proxmox_node_vmid(name)
+    result = proxmox_connection.exec_qemu_guest(vmid, node, ['bash', '-lc', args], timeout: timeout)
+    {:stdout => result[:stdout], :stderr => result[:stderr], :exit_status => result[:exitcode]}
+  end
+
+  # The IP of a sibling system (first non-loopback IPv4 from its guest agent).
+  def other_system_ip(name)
+    return nil unless proxmox?
+    node, vmid = other_proxmox_node_vmid(name)
+    proxmox_connection.qemu_agent_get_ip(vmid, node)
+  end
+
   # Run a shell command as the given account (login shell, that user's
   # environment) rather than root.
   def run_as_user(user, command, timeout: 30)
