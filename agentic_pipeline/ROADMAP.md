@@ -239,7 +239,7 @@ test_results/
       against a 3s-per-call stub went from 85s to 36s; on Proxmox two tests
       on one VM ran concurrently with no agent problems (24s for both).
 - [x] Non-PASS destroy path on a real VM (2026-10-09, throwaway branch with
-      proftpd's `Port` hard-coded to 2121, `scripts/secgen-run --batch`):
+      proftpd's `Port` hard-coded to 2121, a plain `run` with tests on):
       Puppet succeeds, proftpd test FAILs (port 21 closed; evidence shows it
       listening on 2121), one build attempt (no retry), VM deleted and gone
       from the cluster, project + `test_results/` kept, exit 1. With
@@ -325,6 +325,13 @@ Proposed layout (to agree; see OPEN_QUESTIONS #15):
 - [ ] Generators/encoders (~190) — local unit tests, no VM needed.
 - [ ] Write the missing tests (agents, using `secgen-test-pipeline` and the
       Phase 4 skills as they land — first real use of the pipeline).
+- [ ] **Only then: turn tests on in real batches.** `lib/batch/batch_secgen.rb`
+      prepends `--shutdown --no-tests` to every queued job, so batches never
+      run the tests or reach destroy-on-FAIL/SKIP. Keep it that way until the
+      suite has full, comprehensive coverage and a clean baseline (Tom,
+      2026-10-09): with gaps or flaky tests, turning them on would destroy
+      good builds. When dropped, non-PASS builds are destroyed and never reach
+      Hacktivity (~1 min extra a build).
 
 ## Phase 4 — Claude skills
 

@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 # Launch a SecGen Proxmox build with an auto-incremented prefix and VLAN.
 #
-# Usage: scripts/secgen-run -s scenario.xml [-p name] [--test | --batch] [--dry-run] [-- extra secgen args]
+# Usage: scripts/secgen-run -s scenario.xml [-p name] [--test] [--dry-run] [-- extra secgen args]
 #        scripts/secgen-run -m modules/<type>/.../<module> [-p name] [--dry-run] [-- extra secgen args]
 #   -s  scenario      (default: $SECGEN_SCENARIO; required if that is unset)
 #   -m  module path   test one module (secgen.rb test-module; implies --test)
 #   -p  prefix name   (default: $SECGEN_NAME, the module name with -m, or "dev") -> <owner>-<name>-NN
-#   --test            build, run the secgen_tests after net0 teardown + reboot, write
-#                     test_results/<project-id>/, destroy the VMs (secgen.rb test-scenario).
-#                     Exit 0 PASS / 1 FAIL / 2 SKIP. Add -- --keep-vms to keep them.
-#   --batch           a plain `secgen.rb run` with tests on, as batches run it: tests
-#                     after net0 teardown + reboot, report to test_results/, and anything
-#                     but PASS destroys the VMs (add -- --no-destroy-on-failure to keep
-#                     them). PASSing VMs are left shut down. Exit 0 / 1 / 2.
+#   --test            build, test, write test_results/<project-id>/, then destroy the VMs
+#                     and project whatever the result (secgen.rb test-scenario).
+#                     Add -- --keep-vms to keep them.
 #   --dry-run         print the command and the next numbers without using them
+#
+# Without --test/-m (development build): runs the secgen_tests after net0 teardown +
+# reboot and writes test_results/<project-id>/, but always leaves the VMs running in
+# their final state, even if the build or a test fails, so you can investigate.
+# Add -- --no-tests to skip the tests. Exit 0 PASS / 1 FAIL (or build failed) / 2 SKIP.
 #
 # Settings (env, or ~/.config/secgen/secgen-run.env):
 #   SECGEN_RUN_OWNER  first part of the prefix (default: $USER)
@@ -29,8 +30,8 @@
 # Edit it by hand to jump to a different number/VLAN.
 #
 # Builds the checkout this script lives in (so a worktree builds its own code).
-# Output is logged to log/[ERROR_]<project_id>: interleaved, then stderr only.
-# With --test/-m the log is also copied (password masked) to test_results/<project-id>/build.log.
+# Output is logged to log/[ERROR_]<project_id>: interleaved, then stderr only. When
+# tests ran, the log is also copied (password masked) to test_results/<project-id>/build.log.
 
 set -euo pipefail
 source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
@@ -44,7 +45,6 @@ OWNER="${SECGEN_RUN_OWNER:-${USER:-$(id -un)}}"
 NAME="${SECGEN_NAME:-}"
 MODULE=""
 TEST=0
-BATCH=0
 DRY_RUN=0
 
 while [[ $# -gt 0 ]]; do
@@ -53,9 +53,8 @@ while [[ $# -gt 0 ]]; do
     -m) MODULE="${2%/}"; TEST=1; shift 2 ;;
     -p) NAME="$2"; shift 2 ;;
     --test) TEST=1; shift ;;
-    --batch) BATCH=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
-    -h|--help) sed -n '2,33p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --) shift; break ;;
     *) break ;;
   esac
@@ -108,13 +107,6 @@ if [[ -n "$MODULE" ]]; then
        --prefix "$PREFIX"
        --proxmox-vlan "$VLAN"
        "${EXTRA[@]}" test-module "$MODULE")
-elif [[ $BATCH -eq 1 ]]; then
-  # As a batch run does: tests on, anything but PASS destroys the VMs.
-  CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
-       --prefix "$PREFIX"
-       -s "$SCENARIO"
-       --proxmox-vlan "$VLAN"
-       "${EXTRA[@]}" r)
 elif [[ $TEST -eq 1 ]]; then
   CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
        --prefix "$PREFIX"
@@ -123,7 +115,7 @@ elif [[ $TEST -eq 1 ]]; then
        "${EXTRA[@]}" test-scenario)
 else
   CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
-       --shutdown --no-tests
+       --shutdown
        --prefix "$PREFIX"
        -s "$SCENARIO"
        --proxmox-vlan "$VLAN"
@@ -161,7 +153,7 @@ else
   PROJECT_ID="${PREFIX}_$(date +%Y%m%d_%H%M%S)"
 fi
 # 2 = tests SKIPped (could not test): not a build error
-[[ $STATUS -eq 0 || ( ( $TEST -eq 1 || $BATCH -eq 1 ) && $STATUS -eq 2 ) ]] && LOG_PREFIX="" || LOG_PREFIX="ERROR_"
+[[ $STATUS -eq 0 || $STATUS -eq 2 ]] && LOG_PREFIX="" || LOG_PREFIX="ERROR_"
 LOG="log/${LOG_PREFIX}${PROJECT_ID}"
 {
   printf 'SecGen project path::: %s\n\n\n' "$PROJECT_PATH"
@@ -174,7 +166,7 @@ LOG="log/${LOG_PREFIX}${PROJECT_ID}"
 } > "$LOG"
 echo "SecGen exit status $STATUS; log: $SECGEN_DIR/$LOG"
 
-if [[ ( $TEST -eq 1 || $BATCH -eq 1 ) && -f "test_results/$PROJECT_ID/summary.json" ]]; then
+if [[ -f "test_results/$PROJECT_ID/summary.json" ]]; then
   # Masking happens in Ruby with the password from the environment, never argv.
   SECGEN_PROXMOX_PASS="$(conf_get --proxmoxpass)" \
     ruby "$SECGEN_DIR/scripts/lib/attach_build_log.rb" "$SECGEN_DIR" "$LOG" "$PROJECT_ID" || true
