@@ -179,6 +179,39 @@ guest network path, so it survives `net0` teardown and the post-provision reboot
 - [ ] Generators/encoders (~190) — local unit tests, no VM needed.
 - [ ] Write the missing tests (agents, using Phase 3 skills — first real use of the pipeline).
 
+### Repo split (planned — not started)
+
+Suggested by Cliffe (2026-10-09). Move the automation pipeline out of the SecGen
+repo into a separate **private** repo, so SecGen stays focused on the
+generator, modules and scenarios. Related repos are opened together in one
+multi-root VS Code workspace, the same way Hacktivity, SecGen, BreakEscape and
+HacktivityLabSheets are already developed side by side.
+
+Do this before Phase 4–6 (tracker, gap analysis, orchestration), which would
+otherwise add more pipeline-only code to SecGen.
+
+Proposed layout (to agree; see OPEN_QUESTIONS #15):
+
+| Repo | Visibility | Holds |
+|---|---|---|
+| `SecGen` | public | Core generator, modules, scenarios, `secgen_test`s, the test harness (`PostProvisionTest`, `proxmox_connection.rb`, which generated projects copy), `CLAUDE.md`, and the skills useful to any contributor (module/scenario review, `secgen-puppet`, hackerbot, CTF descriptions). |
+| `secgen-pipeline` (name TBD) | private | Orchestration and agent workflows, issue picker / claim protocol, gap analysis and backlog generation, coverage inventory and reports, metrics, pipeline-specific skills, run configs, and this roadmap / open questions / hand-off. |
+
+- [ ] Agree what goes where. Open points: `scripts/` (generic Proxmox dev
+      helpers, possibly useful to any contributor → SecGen?), and the
+      `secgen-test-pipeline` skill (documents the harness, but also the
+      agent loop).
+- [ ] Define the interface between them: the pipeline drives SecGen only
+      through its CLI (`secgen.rb`, `scripts/`) and a path to a SecGen checkout,
+      not by reaching into `lib/` internals.
+- [ ] Create the private repo; move `agentic_pipeline/` and pipeline-only code
+      with history where practical.
+- [ ] Shared `.code-workspace` file covering SecGen + the pipeline repo (and
+      the other related repos if wanted).
+- [ ] Update `CLAUDE.md`, `HANDOFF.md` and the skills index to point at the new
+      locations; make sure Claude Code picks up skills/CLAUDE.md from both repos
+      in a multi-root session.
+
 ## Phase 3 — Claude skills
 
 Derived from analysis of existing modules + `README-Modules-*.md`. Each skill is

@@ -18,6 +18,7 @@ Decisions to discuss (mostly with Cliffe). Move items to "Decided" with a date.
 | 12 | Target number / priority areas of new modules. | Later — gap analysis informs this. |
 
 | 14 | **Intermittent** provisioning-network failure on pmox01: guest sometimes gets **no DHCP lease on net0**, so `vagrant up` times out "waiting for SSH to configure network interfaces" (no IP via agent) → no Puppet. Seen on both Debian 9 **and** Debian 12 (a D12 build failed this way, an identical retry succeeded), so it's a **flaky provisioning net issue, not base-specific**. Mitigation: SecGen's `--retries` flag (and/or `secgen-run` auto-retry) should absorb it; root cause (DHCP on the provisioning bridge) still worth understanding with Tom/Cliffe. Not a blocker now — retries work around it. |
+| 15 | Repo split: what lives in public SecGen vs the private pipeline repo (esp. `scripts/` and the `secgen-test-pipeline` skill)? Repo name and owner (`cliffe` org vs `thomashaw`)? When — before Phase 4? | Cliffe suggested a private repo (2026-10-09). Draft layout in ROADMAP Phase 2 "Repo split". |
 
 ## Decided
 
