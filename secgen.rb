@@ -37,7 +37,7 @@ def usage
    --system, -y [system_name]: Only build this system_name from the scenario
    --snapshot: Creates a snapshot of VMs once built
    --no-tests: Prevent post-provisioning tests from running.
-   --no-destroy-on-failure: Keep VMs that fail to build or fail a post-provision test
+   --no-destroy-on-failure: Keep VMs that fail to build or don't PASS post-provision tests
               (except when retrying a build). For investigating; by default they are destroyed.
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
@@ -182,7 +182,7 @@ def build_vms(scenario, project_dir, options)
     options[:build_attempts] += 1
     vagrant_output = GemExec.exe('vagrant', project_dir, "#{command} #{system}")
     if vagrant_output[:status] == 0 and !proxmox_tests and !post_provision_tests(project_dir, options)
-      # Built, but a test FAILed: a broken module, not a build flake, so retrying won't help.
+      # Built, but a test didn't PASS (FAIL, or SKIP: couldn't be verified). Not a build flake, so retrying won't help.
       tests_failed = true
       break
     end
@@ -475,12 +475,12 @@ def post_provision_tests(project_dir, options)
     reboot_cycle(project_dir)
     Print.info 'Running post-provision tests...'
 
-    # exit 2 = SKIP (could not test, e.g. no IP): not a pass, but not a reason
-    # to fail the build either.
+    # Anything but PASS fails the build: a SKIP (could not test, e.g. no IP) is unverified,
+    # and surviving VMs are taken as good builds.
     options[:test_runs] = TestResults.run_tests(project_dir)
-    if options[:test_runs].any? { |r| r['status'] == 'FAIL' }
+    if options[:test_runs].any? { |r| r['status'] != 'PASS' }
       tests_passed = false
-      Print.err "Post provision tests contained failures!"
+      Print.err "Post provision tests did not all pass!"
     end
   end
   tests_passed
@@ -505,7 +505,7 @@ def proxmox_post_build_tests(options, scenario, project_dir, build)
   summary = TestResults.write_report(project_dir, source_scenario: options[:test_source] || scenario,
                                      build: build, started_at: $beginning_time, test_runs: test_runs)
 
-  if summary[:status] == 'FAIL'
+  if summary[:status] != 'PASS'
     destroy_after_test_failure(scenario, project_dir, options)
   elsif !(options[:proxmox_post_boot] || options[:test_command])
     Print.info 'Shutting down VMs after testing'
@@ -514,17 +514,17 @@ def proxmox_post_build_tests(options, scenario, project_dir, build)
   summary
 end
 
-# A test FAILed: destroy the VMs (the project dir and results stay), so a broken
-# build is never left looking like a good one (batches treat surviving VMs as
+# A test FAILed or SKIPped: destroy the VMs (the project dir and results stay), so an
+# unverified build is never left looking like a good one (batches treat surviving VMs as
 # successes). --no-destroy-on-failure / --keep-vms keep them for investigation.
 # test-scenario/test-module do their own cleanup afterwards.
 def destroy_after_test_failure(scenario, project_dir, options)
   return if options[:test_command]
   if options[:nodestroy]
-    Print.err 'Post-provision tests failed: keeping the VMs (--no-destroy-on-failure).'
+    Print.err 'Post-provision tests did not pass: keeping the VMs (--no-destroy-on-failure).'
     return
   end
-  Print.err 'Post-provision tests failed: destroying the VMs.'
+  Print.err 'Post-provision tests did not pass: destroying the VMs.'
   if ProxmoxFunctions.provider_proxmox?(options)
     remaining = ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
     Print.err "VMs not destroyed: #{remaining.join(', ')}" unless remaining.empty?
@@ -648,8 +648,8 @@ def test_command(command, target, scenario, project_dir, options)
 
   if options[:keepvms]
     Print.info "Keeping VMs and project (--keep-vms): #{project_dir}"
-  elsif options[:nodestroy] && summary[:status] == 'FAIL'
-    Print.info "Keeping the failed VMs and project (--no-destroy-on-failure): #{project_dir}"
+  elsif options[:nodestroy] && summary[:status] != 'PASS'
+    Print.info "Keeping the VMs and project (did not PASS; --no-destroy-on-failure): #{project_dir}"
   else
     test_cleanup(scenario, project_dir, options)
   end

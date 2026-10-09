@@ -150,15 +150,16 @@ destroy the VMs via the API and remove the project.
   Every copied file has the Proxmox password masked; `masked_secrets` > 0
   means something leaked it and should be fixed at source.
 - `-- --keep-vms` keeps the VMs and project for debugging (even on PASS);
-  `-- --no-destroy-on-failure` keeps them only if a test or the build FAILs.
-  Destroy them afterwards with `scripts/secgen-destroy projects/<id>`.
+  `-- --no-destroy-on-failure` keeps them only if the build fails or the
+  tests don't PASS. Destroy them afterwards with `scripts/secgen-destroy projects/<id>`.
 - A plain `secgen.rb run` on Proxmox without `--no-tests` uses the same
-  order and writes the same report. On PASS/SKIP it shuts the VMs down unless
-  `--proxmox-post-boot`; on a test **FAIL it destroys them** (the project dir
-  and results stay) unless `--no-destroy-on-failure`, and never retries,
+  order and writes the same report. On PASS it shuts the VMs down unless
+  `--proxmox-post-boot`; on a **FAIL or SKIP it destroys them** (the project
+  dir and results stay) unless `--no-destroy-on-failure`, and never retries,
   because batches treat surviving VMs as good builds (they get pulled into
-  Hacktivity). It exits 1/2 on FAIL/SKIP. The other providers' in-build
-  runner also destroys on a test FAIL now, without retrying.
+  Hacktivity) and a SKIP is unverified. It exits 1/2 on FAIL/SKIP. The other
+  providers' in-build runner does the same now (so on VirtualBox a system
+  whose network test SKIPs, e.g. DHCP, is destroyed).
 
 ### Step by step (to iterate on one VM)
 

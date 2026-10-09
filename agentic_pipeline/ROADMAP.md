@@ -168,11 +168,12 @@ test_results/
       if `--snapshot` (pristine, pre-test) → start (the single full reboot) →
       wait for every guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) →
       settle (`SECGEN_TEST_SETTLE`, 30s) → tests → report → shut down again
-      unless `--proxmox-post-boot`. A test **FAIL destroys the VMs** (unless
-      `--no-destroy-on-failure`) and is never retried: batches treat surviving
-      VMs as good builds that get pulled into Hacktivity (Tom, 2026-10-09).
-      Other providers keep the old in-build runner, but a test FAIL there now
-      also destroys without retrying (retries are for build flakes).
+      unless `--proxmox-post-boot`. A test **FAIL or SKIP destroys the VMs**
+      (unless `--no-destroy-on-failure`) and is never retried: batches treat
+      surviving VMs as good builds that get pulled into Hacktivity, and a SKIP
+      is unverified (Tom, 2026-10-09). Other providers keep the old in-build
+      runner, but a non-PASS there now also destroys without retrying
+      (retries are for build flakes).
 - [x] Results copied into `test_results/<project-id>/` per the contract
       (`lib/helpers/test_results.rb`): per-test log + JSON (synthesised as
       SKIP/FAIL if a test dies without writing one; per-test timeout
