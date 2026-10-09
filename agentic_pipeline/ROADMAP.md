@@ -247,11 +247,6 @@ test_results/
       Note: putting `IdentLookups` back makes Puppet's own service restart
       fail, so that breakage is a **build** failure (retried, then destroyed,
       or kept with `--no-destroy-on-failure`) — also checked, and it behaves.
-- [ ] **Real batches don't run tests yet:** `lib/batch/batch_secgen.rb`
-      prepends `--shutdown --no-tests` to every queued job, so a batch never
-      reaches the destroy-on-FAIL/SKIP logic. Decide whether to drop
-      `--no-tests` there (adds ~1 min a build; non-PASS builds are then
-      destroyed and never reach Hacktivity).
 - The no-IP SKIP and the destroy-all-and-retry on the DHCP flake
   (OPEN_QUESTIONS #14) were only checked offline; not worth forcing — note
   them when they turn up in normal runs. VirtualBox items moved to Phase 10.
@@ -330,6 +325,13 @@ Proposed layout (to agree; see OPEN_QUESTIONS #15):
 - [ ] Generators/encoders (~190) — local unit tests, no VM needed.
 - [ ] Write the missing tests (agents, using `secgen-test-pipeline` and the
       Phase 4 skills as they land — first real use of the pipeline).
+- [ ] **Only then: turn tests on in real batches.** `lib/batch/batch_secgen.rb`
+      prepends `--shutdown --no-tests` to every queued job, so batches never
+      run the tests or reach destroy-on-FAIL/SKIP. Keep it that way until the
+      suite has full, comprehensive coverage and a clean baseline (Tom,
+      2026-10-09): with gaps or flaky tests, turning them on would destroy
+      good builds. When dropped, non-PASS builds are destroyed and never reach
+      Hacktivity (~1 min extra a build).
 
 ## Phase 4 — Claude skills
 
