@@ -442,7 +442,12 @@ def post_provision_tests(project_dir, options)
       test_module_outputs << {:stdout => test_stdout.split("\n"), :stderr => test_stderr, :exit_status => test_status}
     end
     test_module_outputs.each do |test_output|
-      if test_output[:exit_status].exitstatus != 0
+      # exit 2 = SKIP (could not test, e.g. no IP): not a pass, but not a reason
+      # to fail the build either.
+      if test_output[:exit_status].exitstatus == 2
+        Print.err test_output[:stdout].join("\n")
+        Print.err 'Post provision test skipped (could not test).'
+      elsif test_output[:exit_status].exitstatus != 0
         tests_passed = false
         Print.err test_output[:stdout].join("\n")
         Print.err "Post provision tests contained failures!"

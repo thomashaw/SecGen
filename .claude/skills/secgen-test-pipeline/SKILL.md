@@ -33,14 +33,19 @@ is the mechanism and the workflow.
 
 ### Caveats that change how you write/read tests
 
-- **Guest commands run as root.** For "as the intended user" checks, wrap the
-  command: `runuser -u <user> -- <cmd>`.
-- **The dev server can't reach the VMs' VLAN IPs directly.** So `test_service_up`
-  checks the port **inside the guest** on Proxmox (via the agent), not with a TCP
-  connect from the host. Remote/exploit-from-attacker tests must run **from a VM
-  on the scenario VLAN** (e.g. a Kali box in the scenario), not from the host.
+- **Guest commands run as root.** For "as the intended user" checks use
+  `run_as_user(user, cmd)` or pass `user:` to `test_local_command` /
+  `test_command_succeeds` (wraps `runuser -u <user> -- bash -lc`, falling back
+  to `su`).
+- **The dev server can't reach the VMs' VLAN IPs directly.** So on Proxmox
+  `test_service_up`, `test_banner`, `test_http` and `test_html_returned_content`
+  all run **inside the guest** via the agent (port check with `ss`, HTTP with
+  curl → wget → bash `/dev/tcp`, against 127.0.0.1 then the guest's own IP), not
+  from the host. Remote/exploit-from-attacker tests must run **from a VM on the
+  scenario VLAN** (e.g. a Kali box in the scenario), not from the host.
 - **Each API call ~3s** from this dev server; batch guest checks into one
-  `sh -c '...'` where you can rather than many round-trips.
+  command where you can rather than many round-trips. The system IP is only
+  looked up (one `agent/network-get-interfaces` call) if something needs it.
 - Legacy `secgen.rb` still runs its in-build test runner at the *old* point
   (before net0 teardown, via a vagrant reboot). Until that's reordered, **test
   out-of-band** with `scripts/secgen-test-run` against a VM left running by `scripts/secgen-run`,
@@ -49,12 +54,14 @@ is the mechanism and the workflow.
 ## Writing a secgen_test
 
 Subclass `PostProvisionTest`, set `module_name`/`module_path`, call `super`, then
-assert in `test_module`. Tiers to aim for:
+assert in `test_module`. Every check is recorded with a **tier**:
 
-1. **Provisioned** — the package/files/accounts exist (`test_local_command`).
-2. **Service/tool works** — the service listens / the tool runs from a terminal
-   (`test_service_up`; for utilities actually invoke the binary so PATH and
-   missing-lib problems surface).
+1. **Provisioned** — the package/files/accounts exist (`test_local_command`,
+   default tier 1).
+2. **Service/tool works** — the service listens / answers / the tool runs from a
+   terminal (`test_service_up`, `test_banner`, `test_http`,
+   `test_command_succeeds`; default tier 2). For utilities actually invoke the
+   binary, as the intended user, so PATH and missing-lib problems surface.
 3. **Exploitable** — the intended vuln is actually exploitable (real exploit:
    Metasploit or a crafted request, run from an attacker VM — roadmap Phase 1, stream 1C).
 
@@ -68,16 +75,57 @@ class FooTest < PostProvisionTest
   end
   def test_module
     super
-    test_service_up                                   # port from json_inputs
-    test_local_command('installed?', 'which foo', '/usr/bin/foo')
+    tier(1) { test_local_command('installed?', 'which foo', '/usr/bin/foo') }
+    tier(2) do
+      test_service_up                                 # port from json_inputs
+      test_banner('220 ', send: nil)                  # first bytes from the port
+      test_http('/login.php', match: 'Sign in')       # status 2xx/3xx + body match
+      test_command_succeeds('foo runs', 'foo --version', user: 'alice')
+    end
+    # tier(3) { ... exploit ... }  (1C)
   end
 end
 FooTest.new.run
 ```
 
-`test_local_command(label, cmd, expected_substring)` passes if `expected_substring`
-is in stdout **or** stderr. `run` prints outputs and exits non-zero on any failure.
+API (all in `lib/objects/post_provision_test.rb`):
 
+| Helper | Passes when |
+|---|---|
+| `test_service_up(port: self.port)` | port is listening (SKIP if there's no port input) |
+| `test_local_command(label, cmd, substr, user: nil)` | `substr` in stdout **or** stderr |
+| `test_command_succeeds(label, cmd, user: nil)` | exit status 0 |
+| `test_banner(match, port:, send: nil)` | what the port sends (after `send` + CRLF) contains `match` |
+| `test_http(path, match: nil, status: nil, port:, scheme: 'http')` | status matches (default 2xx/3xx) and body contains `match` |
+| `test_html_returned_content(page, match, hide = false)` | legacy: body contains `match` |
+| `pass_check` / `fail_check` / `skip_check(name, detail = nil, tier:, evidence:)` | record your own check |
+| `skip!(reason)` | stop now, report SKIP (prerequisite missing) |
+| `run_command(cmd)` / `run_as_user(user, cmd)` / `http_get(path)` | raw `{stdout, stderr, exit_status}` / `{status, body, error}` |
+| `add_evidence(name, cmd)` | extra command whose output is saved if the test FAILs |
+
+Every helper takes `tier:`; a `tier(n) { ... }` block sets it for the checks
+inside. Legacy tests that push `"PASSED: ..."` / `"FAILED: ..."` onto `outputs`
+and set `all_tests_passed` still work — those lines are recorded as checks.
+
+### Results and exit codes
+
+`run` prints `PASSED:` / `FAILED:` / `SKIPPED:` lines, writes
+`projects/<id>/test_results/<system>/<module>.json`
+(`{module, module_path, system, backend, started_at, duration_s, status,
+tier_reached, results: [{tier, name, status, detail, evidence?}]}`), and exits:
+
+- `0` **PASS** — every check passed.
+- `1` **FAIL** — a check failed. Evidence (failed units, `systemctl status
+  *<module>*`, the boot journal, listening ports, processes, plus any
+  `add_evidence`) is collected in one guest call into
+  `test_results/<system>/evidence/<module>/`.
+- `2` **SKIP** — could not test: no `SECGEN_PROXMOX_PASS`, guest agent not
+  answering (waits `SECGEN_AGENT_WAIT`, default 60s), no IP when one was needed
+  (DHCP on Vagrant), or the test itself raised. **A SKIP is never a pass** —
+  usually a harness problem, not the module.
+
+`tier_reached` is the highest tier whose checks (and every lower tier's) all
+passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
 ## The build + test loop
 
 1. Make a minimal test scenario in `scenarios/tests/` (one `<system>`, the module,
@@ -93,9 +141,11 @@ is in stdout **or** stderr. `run` prints outputs and exits non-zero on any failu
    times out "waiting for SSH to configure network interfaces" (no IP via agent)
    with no Puppet having run, just retry (or pass `--retries`).
 4. Run the test: `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
-   — expect `PASSED: ...` / exit 0. `scripts/secgen-test-run` injects
-   `SECGEN_PROXMOX_PASS` from the config without printing it.
-5. **If it fails**, diagnose via the guest agent (`scripts/agent-check <vmid>`, or a small
+   — expect `PASSED: ...` / exit 0 (1 FAIL, 2 SKIP). `scripts/secgen-test-run` injects
+   `SECGEN_PROXMOX_PASS` from the config without printing it. The JSON result
+   and any FAIL evidence land in `<project>/test_results/<system>/`.
+5. **If it fails**, start from the collected evidence
+   (`test_results/<system>/evidence/<mod>/`), then diagnose further via the guest agent (`scripts/agent-check <vmid>`, or a small
    script calling `exec_qemu_guest` for `systemctl status`, `journalctl`,
    config-syntax checks). A failing test on a genuinely broken module is the
    pipeline working — fix the **module template/manifest**, not the generated
