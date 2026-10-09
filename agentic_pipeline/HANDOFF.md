@@ -6,17 +6,16 @@ the authoritative state — this file is a quick orientation.
 
 ## Where to work
 
-- Worktree `/home/deploy/SecGen/.claude/worktrees/agentic-pipeline`, branch
-  `worktree-agentic-pipeline`, pushed to remote `thomashaw` (SSH via the
-  `secgen-fork` alias, through the Squid proxy).
-- Commit footer: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
-  Never push master. Ask before history-rewriting git.
-- Run SecGen via `scripts/` — the helpers use the checkout they live in and
+- One worktree + branch per task, off `master` (e.g. one per Phase 1 stream),
+  pushed to remote `thomashaw`. Several agents work in parallel — never bare
+  `git stash`.
+- Never push master. Ask before history-rewriting git.
+- Run SecGen via `scripts/` - the helpers use the checkout they live in and
   pick up the main checkout's `vendor/bundle` from a worktree automatically.
 
 ## Done so far
 
-- **Phase 0 complete:** CLAUDE.md; creds in `~/.config/secgen/secgen.conf` via
+- **Phase 0 complete:** CLAUDE.md; PAT removed from the remote URL; creds in `~/.config/secgen/secgen.conf` via
   `--read-options`; permission deny rules; Proxmox password no longer written
   into generated `projects/*/Vagrantfile` or `systems` (Vagrantfile reads
   `SECGEN_PROXMOX_PASS`, set by secgen.rb). PVE 9.2.3; guest agent enabled on
@@ -55,19 +54,24 @@ the authoritative state — this file is a quick orientation.
   dirs and scratch files when done. Verify no orphans:
   list `/cluster/resources?type=vm` and grep your prefix.
 
-## Next steps (roadmap Phase 1 tail)
+## Next steps (ROADMAP Phase 1 streams, in parallel)
 
-1. Add build-retry to `secgen-run` (or always pass `--retries`) to absorb the
-   provisioning flake.
-2. Add the `dirtycow` local-command test (exercises the other test type).
-3. Run all 60 existing module tests → coverage baseline; failures become issues.
-4. Wire test-ordering into `secgen.rb` itself (run after net0 teardown + reboot)
-   so `secgen.rb test-module` / `test-scenario` work without external
-   `secgen-test-run`.
+Agree the results contract (drafted in ROADMAP Phase 1) first, then:
+
+- **1A - Lifecycle + CLI** (`secgen.rb`): tests after net0 teardown + reboot +
+  agent ready; `test-module` / `test-scenario`; absorb the provisioning flake
+  with `--retries`.
+- **1B - `PostProvisionTest` refactor**: JSON PASS/FAIL/SKIP, no silent
+  `exit(0)` passes, IP via `network-get-interfaces`, test tiers.
+- **1C - Exploit tests from an attacker VM**: decide OPEN_QUESTIONS #8/#9,
+  attacker VM in test scenarios, one module spike.
+
+Then Phase 2 (repo split), then Phase 3 (coverage baseline: run all 60 tests).
+`dirtycow` is in the Backlog.
 
 ## Orient on start
 
 ```
-cd ~/SecGen/.claude/worktrees/agentic-pipeline && git log --oneline -12 \
+cd <your worktree> && git log --oneline -12 \
   && cat agentic_pipeline/ROADMAP.md agentic_pipeline/OPEN_QUESTIONS.md
 ```

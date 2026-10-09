@@ -7,6 +7,19 @@ by a SecGen developer (Tom / Cliffe) before merging.
 
 Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 
+## Order of work (as of 2026-10-09)
+
+1. **Phase 1 — Test harness**: finish lifecycle, `PostProvisionTest` and
+   in-VM exploit tests. Split into three streams (1A–1C) so separate agents can
+   work in parallel.
+2. **Phase 2 — Repo split**: move the pipeline into a private repo before more
+   pipeline-only code lands in SecGen.
+3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
+4. Phases 4–9 follow in order (skills, tracker, gap analysis, orchestration,
+   content, Windows).
+
+Edge cases and deferred items live in the [Backlog](#backlog) at the end.
+
 ## Baseline (as of 2026-10-07)
 
 | Area | State |
@@ -34,152 +47,134 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 - **No new external dependencies.** No new gems; no `qm` (the app talks to
   Proxmox remotely over the REST API).
 - Dev Proxmox environment only for now.
-- Linux first; Windows bases are a later phase (Phase 8).
+- Linux first; Windows bases are a later phase (Phase 9).
 
 ---
 
-## Phase 0 — Foundations
+## Phase 0 — Foundations (done)
 
-- [ ] Install Claude Code on the dev server; run the pipeline from there (it needs
-      Proxmox API access, the SecGen toolchain and to stay up for long runs).
-- [x] Add a repo `CLAUDE.md`: conventions, how to build/test, what never to touch.
+- [x] Claude Code installed on the dev server; the pipeline runs from there.
+- [x] Repo `CLAUDE.md`: conventions, how to build/test, what never to touch.
       Three-way split: shared `CLAUDE.md` (repo map, hard rules, cheap checks,
       skills index); server-specific `CLAUDE.local.md` (gitignored); procedures
-      as Phase 3 skills.
-- [x] Confirm base images have `qemu-guest-agent` installed and Proxmox
+      as Phase 4 skills.
+- [x] Base images have `qemu-guest-agent` installed and Proxmox
       **Options → QEMU Guest Agent** enabled in the templates (needs full stop/start
-      after changing, not a guest reboot). *2026-10-08: installed; option ON for
-      every template used by `modules/bases` (checked with `pve-check`).*
-- [x] Record the PVE version — **9.2.3** (2026-10-08).
-- [ ] *(Deferred)* `debian_wheezy_desktop_kde` and `debian_wheezy_server` bases reference
-      Proxmox template `DebianWheezyDesktopKDE2`, which doesn't exist on the
-      cluster (closest: `DebianDesktopKDE` / `DebianWheezyServer`). Fix or drop.
-- Helper scripts (now in `scripts/`, see `scripts/README.md`):
-  `secgen-run` (auto-increment prefix per name + VLAN 200–1000, creds from
-  config) and `pve-check` (read-only: PVE version + guest-agent option per
-  template). Both use curl `-k`, matching SecGen's `verify_ssl: false`; TODO
-  trust the PVE CA instead.
-- [ ] **Keep Proxmox credentials out of chat and shell history.** Now that an
-      external LLM sees commands and output, creds must not appear on the command
-      line or in files Claude reads.
-  - [x] Stub config at `~/.config/secgen/secgen.conf` (deploy user, mode 600,
-        outside the repo so every worktree can use the same absolute path).
-        Loaded with `ruby secgen.rb --read-options ~/.config/secgen/secgen.conf ...`.
-        Format: whitespace-separated flags only — no comments, no spaces in values
-        (`secgen.rb:486-497` splits the file on whitespace).
-  - [ ] Fill in real values (by hand, not via Claude); remove creds from
-        `~/.bash_history`.
+      after changing, not a guest reboot). *2026-10-08: option ON for every
+      template used by `modules/bases` (checked with `pve-check`).*
+- [x] PVE version — **9.2.3** (2026-10-08).
+- [x] Helper scripts in `scripts/` (see `scripts/README.md`): `secgen-run`
+      (auto-increment prefix per name + VLAN 200–1000, creds from config),
+      `pve-check`, `agent-check`, `secgen-test-run`.
+- [x] **Proxmox credentials kept out of chat and shell history.**
+  - [x] Config at `~/.config/secgen/secgen.conf` (deploy user, mode 600,
+        outside the repo so every worktree can use the same absolute path),
+        loaded with `--read-options`. Format: whitespace-separated flags only —
+        no comments, no spaces in values (`secgen.rb:486-497`).
+  - [x] Real values filled in by hand; creds removed from `~/.bash_history`.
   - [x] Generated projects no longer contain the Proxmox password: the
         Vagrantfile reads `ENV['SECGEN_PROXMOX_PASS']` (set by `secgen.rb`), and
         the `projects/*/systems` debug dump masks proxmox/ovirt/esxi passwords.
-        Verified with a fake password + `build-project`: 0 files contain it.
-        Running `vagrant` by hand in a project dir now needs
-        `SECGEN_PROXMOX_PASS` exported. Projects generated before this change
-        still contain the password in `Vagrantfile` and `systems`.
+        Projects generated before this change still contain it.
   - [x] Claude Code `permissions.deny` rules (deploy user `~/.claude/settings.json`)
-        for `~/.config/secgen/**`, `~/.git-credentials` and `projects/**/Vagrantfile`
-        (Read tool + Bash commands naming them). Tested on a decoy file.
-  - [ ] Later: switch to a scoped Proxmox API token (see OPEN_QUESTIONS #4).
-  - [ ] Remove the GitHub PAT embedded in the `thomashaw` remote URL on the dev
-        server (rotate it; use a credential helper or `gh auth`).
+        for `~/.config/secgen/**`, `~/.git-credentials` and `projects/**/Vagrantfile`.
+  - [x] GitHub PAT removed from the `thomashaw` remote URL and rotated.
+  - Scoped API token: moved to the end of Phase 6 (before unattended runs).
 
-## Phase 1 — Proxmox testing suite (critical path)
+## Phase 1 — Test harness (critical path, current)
 
 **Transport: QEMU Guest Agent over the Proxmox REST API.** Works without any
 guest network path, so it survives `net0` teardown and the post-provision reboot.
 
-1. **Port guest-agent helpers into `proxmox_connection.rb`** (existing rest-client only):
-   *2026-10-08: `post_json`, `exec_qemu_guest`, `qemu_agent_running?`,
-   `qemu_agent_enabled?` done and tested (`scripts/agent-check <vmid>`).
-   Findings: guest commands run as **root** (tests for "as the intended user"
-   need `runuser -u <user> -- ...`); every API call from the dev server takes
-   **~3.1s** (server-side wait after TLS, via the Squid proxy — direct access
-   is blocked), so one guest command costs ≥ ~6s. Investigate (does the API
-   respond faster from elsewhere?) before test suites get large; batch checks
-   into one `sh -c` per module meanwhile.*
-   - [x] `post_json` (form-encoding breaks the `agent/exec` command array).
-   - [x] `exec_qemu_guest(vm_id, node, command, timeout: 10)` — POST
-         `agent/exec`, poll `agent/exec-status?pid=` with a monotonic deadline and
-         backoff (0.25s doubling, cap 1s). Success decided by **`exitcode`**, not
-         presence of `err-data`; accept `exited`/`out-truncated` as `1` or `true`;
-         warn on truncation; log stderr as a warning when exit code is 0.
-   - [x] `qemu_agent_running?(vm_id, node)` — `agent/ping`; plus a config check
-         (`agent: 1`) to distinguish "option off" from "agent not running".
-   - [ ] Optional: API token auth (`PVEAPIToken=...`) instead of user/password.
-   *2026-10-08: transport wired into `PostProvisionTest` and verified against a
-   VM in the FINAL isolated state — net0 (provisioning bridge) removed, rebooted
-   onto its static VLAN (10.x on vmbr1), unreachable from the deploy server by
-   network. The guest agent reached it fine. This is the state tests must run in.*
-2. **Lifecycle** — define and implement one known-good order:
-   *Not done. secgen.rb still runs `post_provision_tests` BEFORE
-   `proxmox_post_build` (net0 teardown) using a `vagrant halt/up` reboot. Needs
-   reordering so tests run after teardown + reboot + start. Meanwhile,
-   `secgen-run` already leaves the VM in final state, so a module's test can be
-   run externally with `secgen-test-run <secgen_test/x.rb>`.*
-   provision → `net0` teardown → single full reboot (static IPs + reboot-dependent
-   modules settle) → wait for guest agent → run tests → snapshot / destroy.
-3. **Refactor `PostProvisionTest`**:
-   - [ ] Backend detection (Vagrant vs Proxmox) and a way to get node / VMID /
-         credentials (e.g. a JSON test-context file written into the project dir
-         at build time from `.vagrant/machines/*/proxmox/id`). Vagrant path keeps
-         working.
-   - [ ] `test_local_command` → `exec_qemu_guest` on Proxmox (also fixes the
-         `-c '#{args}'` quoting bug).
-   - [ ] Resolve the DHCP TODO via `agent/network-get-interfaces` (first
-         non-loopback IPv4) instead of silently passing.
-   - [ ] Structured results (JSON) with PASS / FAIL / SKIP, so agents can parse them.
-   - [ ] Test tiers: **provisioned** → **service/tool works** → **exploitable**.
-4. **Network-side and exploit tests** need something on the scenario VLAN:
-   run them *from inside a VM* via the guest agent (e.g. a Kali/attacker VM in the
-   test scenario, or from the target itself against `localhost` where meaningful).
-5. **CLI entry points**: `secgen.rb test-module <path>` and
-   `test-scenario <xml>` — build, test, write report, destroy; meaningful exit codes.
-   *2026-10-08: first fresh build attempt (`test_scenario_proftpd`, Debian 9
-   server) FAILED to provision — guest got no DHCP on net0, vagrant timed out
-   before Puppet ran, so proftpd was never installed (OPEN_QUESTIONS #14). The
-   test transport + password handling + context file all verified correct on the
-   real build; the blocker is base/provisioning-network, not the harness. Fixed
-   two pre-existing proxmox-client bugs found en route: `qemu_agent_get_ip` nil
-   crash and `delete()` TLS verify. VM cleaned up. `agent-check`, `secgen-test-run`
-   helpers added.*
-6. [x] Spike: **proftpd end-to-end PROVEN on a fresh Debian 12 build (2026-10-08)**.
-       Full loop works: build → provision → net0 teardown → `secgen_test` over the
-       guest agent. Broken proftpd → `FAILED: Port 21 is closed` (exit 1); after
-       fixing the config → `PASSED` (exit 0). The pipeline both ran and correctly
-       reported pass/fail, and surfaced a real module regression (see finding
-       below). `secgen-test-run <test.rb>` runs a module's test with creds from
-       the config.
-   - [x] **FIXED — proftpd module config stale on Debian 12 (Bookworm).**
-         `templates/proftpd.erb` used `IdentLookups` (removed in modern ProFTPD →
-         `fatal: unknown configuration directive`) and deprecated
-         `MultilineRFC2228`. Both dropped (commit `726fb87b6`). Verified on a
-         clean Debian 12 build: proftpd starts, `secgen_test` → `PASSED: Port 21
-         is open` (exit 0). This was the pipeline's first real detect-and-fix.
-   - [ ] `dirtycow` (local command test) via the guest agent.
-   - [ ] Then run all 60 existing tests → baseline report; failures become issues.
+### Done
 
-## Phase 2 — Coverage baseline
+- [x] Guest-agent helpers in `proxmox_connection.rb`: `post_json`,
+      `exec_qemu_guest` (decides on `exitcode`, polls `exec-status` with
+      backoff), `qemu_agent_running?`, `qemu_agent_enabled?`. Fixed
+      `qemu_agent_get_ip` nil crash and `delete()` TLS verify.
+      Findings: guest commands run as **root** (use `runuser -u <user> -- ...`
+      for user-context tests); each API call from the dev server takes **~3.1s**
+      (see Backlog), so batch checks into one `sh -c` per module.
+- [x] Backend detection + test context: Proxmox builds write
+      `proxmox_test_context.json` (url + user, **no password** — that comes from
+      `SECGEN_PROXMOX_PASS`); `PostProvisionTest#proxmox?` uses it plus
+      `.vagrant/machines/*/proxmox/id` for node/VMID. Vagrant path still works.
+- [x] `test_local_command` / `test_service_up` go over the guest agent on Proxmox.
+- [x] **proftpd end-to-end on a fresh Debian 12 build (2026-10-08).** build →
+      provision → net0 teardown → `secgen_test` over the agent. Broken config →
+      `FAILED` (exit 1); fixed module (`IdentLookups` / `MultilineRFC2228`
+      dropped) → `PASSED` (exit 0). First real detect-and-fix.
 
-- [ ] **Exploit-capability audit.** For every vulnerability module, classify how it
-      can be verified with a *real* exploit:
-      Metasploit module exists / web-app exploit (HTTP request sequence we'd write) /
-      local privesc script / credential-based / needs bespoke tooling / not
-      automatable. Output: what the current harness can already do and what we
-      must add (e.g. Metasploit RPC/`msfconsole -r` from the attacker VM, a small
-      HTTP exploit helper library in `PostProvisionTest`).
-- [ ] **Utility tests run the tool from a terminal** (as the intended user, via the
-      guest agent) — catches PATH, missing libraries and broken installs, not just
-      "package present".
-- [ ] Service tests: port open *and* a real protocol interaction (banner, login,
-      fetch a page).
-- [ ] Inventory script: per module → has test? which tiers? which test scenario?
-      last pass date. This is the coverage dashboard.
-- [ ] Test scenarios: auto-generate one minimal scenario per module, then pack
-      compatible modules together (respecting `conflict`) to cut VM count.
-- [ ] Generators/encoders (~190) — local unit tests, no VM needed.
-- [ ] Write the missing tests (agents, using Phase 3 skills — first real use of the pipeline).
+### Parallel streams
 
-### Repo split (planned — not started)
+Each stream is one agent, one worktree, one branch off `master`. They touch
+different files; the only shared surface is the **results contract** below,
+which 1B owns and 1A/1C consume. Agree it first (small PR) and the three can
+proceed independently.
+
+**Results contract (draft — 1B finalises):**
+- Each test writes `projects/<p>/test_results/<system>/<module>.json`:
+  `{module, system, tier, results: [{name, status, detail}], status}` where
+  `status` is `PASS` / `FAIL` / `SKIP`.
+- Exit codes: `0` pass, `1` fail, `2` skip (could not test — never a pass).
+- Human-readable `PASSED:` / `FAILED:` lines stay on stdout.
+
+#### 1A — Lifecycle and CLI (`secgen.rb`, `scripts/`)
+
+- [ ] **Reorder:** provision → `net0` teardown (`proxmox_post_build`) → single
+      full reboot (static IPs + reboot-dependent modules settle) → wait for the
+      guest agent (`qemu_agent_running?`, with timeout) → run tests → snapshot /
+      destroy. Today `secgen.rb` runs `post_provision_tests` *before*
+      `proxmox_post_build`, using a `vagrant halt/up` reboot.
+- [ ] Collect per-module results (contract above) into one project-level
+      report; non-zero exit if any FAIL.
+- [ ] CLI: `secgen.rb test-module <path>` and `test-scenario <xml>` — build,
+      test, write report, destroy; meaningful exit codes.
+- [ ] Absorb the intermittent provisioning flake (OPEN_QUESTIONS #14): always
+      pass `--retries`, or retry in `secgen-run`.
+- Done when: `test-scenario scenarios/tests/test_scenario_proftpd.xml` runs
+  end to end with no external `secgen-test-run` and leaves no VMs behind.
+
+#### 1B — `PostProvisionTest` refactor (`lib/objects/post_provision_test.rb`)
+
+- [ ] Structured results per the contract (JSON + exit codes), keeping existing
+      `secgen_test`s working unchanged.
+- [ ] Replace silent passes with **SKIP**: `get_system_ip` still `exit(0)`s when
+      the agent returns no IP (Proxmox) and for DHCP systems (Vagrant). Resolve
+      the IP via `agent/network-get-interfaces` (first non-loopback IPv4); SKIP
+      only if that fails.
+- [ ] Fix the Vagrant-path quoting bug in `run_vagrant_ssh`
+      (`-c '#{args}'` breaks on single quotes).
+- [ ] **Test tiers**: **provisioned** → **service/tool works** →
+      **exploitable**. A test declares its tier(s); results report the highest
+      tier reached.
+- [ ] Helpers for tier 2: run a command as a given user
+      (`runuser -u <user> -- ...`), protocol checks (banner, HTTP fetch from
+      inside the guest — implement the empty `test_html_returned_content`).
+- [ ] Update the `secgen-test-pipeline` skill with the new API.
+- Done when: the proftpd test emits JSON, a no-IP case reports SKIP (exit 2),
+  and an unchanged legacy test still runs.
+
+#### 1C — Exploit tests from inside a VM (tier 3)
+
+Network-side and exploit tests need something on the scenario VLAN; run them
+*from inside a VM* via the guest agent. Decide OPEN_QUESTIONS #8 (attacker VM
+per test scenario vs shared runner per VLAN) and #9 (Metasploit inside the
+attacker VM) first.
+
+- [ ] Attacker/runner VM in test scenarios (e.g. Kali base), with the guest
+      agent working after net0 teardown.
+- [ ] `PostProvisionTest` helper to run a command on *another* system in the
+      project (resolve its node/VMID from `.vagrant/machines/<name>/proxmox/id`)
+      and target the system under test by its static IP.
+- [ ] Exploit runners: crafted HTTP requests (small helper library), and
+      Metasploit via `msfconsole -q -x` / resource script if #9 is approved.
+- [ ] Spike on one network vuln module end to end (exploit succeeds → PASS;
+      vuln removed → FAIL).
+- Depends on 1B for tier reporting; can start (decisions, attacker VM, spike)
+  before 1B lands.
+
+## Phase 2 — Repo split
 
 Suggested by Cliffe (2026-10-09). Move the automation pipeline out of the SecGen
 repo into a separate **private** repo, so SecGen stays focused on the
@@ -187,8 +182,9 @@ generator, modules and scenarios. Related repos are opened together in one
 multi-root VS Code workspace, the same way Hacktivity, SecGen, BreakEscape and
 HacktivityLabSheets are already developed side by side.
 
-Do this before Phase 4–6 (tracker, gap analysis, orchestration), which would
-otherwise add more pipeline-only code to SecGen.
+Do this after Phase 1 (the harness stays in SecGen) and before Phases 5–7
+(tracker, gap analysis, orchestration), which would otherwise add more
+pipeline-only code to SecGen.
 
 Proposed layout (to agree; see OPEN_QUESTIONS #15):
 
@@ -202,8 +198,9 @@ Proposed layout (to agree; see OPEN_QUESTIONS #15):
       `secgen-test-pipeline` skill (documents the harness, but also the
       agent loop).
 - [ ] Define the interface between them: the pipeline drives SecGen only
-      through its CLI (`secgen.rb`, `scripts/`) and a path to a SecGen checkout,
-      not by reaching into `lib/` internals.
+      through its CLI (`secgen.rb`, `scripts/`, the Phase 1A `test-*`
+      commands) and a path to a SecGen checkout, not by reaching into `lib/`
+      internals.
 - [ ] Create the private repo; move `agentic_pipeline/` and pipeline-only code
       with history where practical.
 - [ ] Shared `.code-workspace` file covering SecGen + the pipeline repo (and
@@ -212,7 +209,28 @@ Proposed layout (to agree; see OPEN_QUESTIONS #15):
       locations; make sure Claude Code picks up skills/CLAUDE.md from both repos
       in a multi-root session.
 
-## Phase 3 — Claude skills
+## Phase 3 — Coverage baseline
+
+- [ ] **Run all 60 existing tests** → baseline report; failures become issues.
+- [ ] **Exploit-capability audit.** For every vulnerability module, classify how it
+      can be verified with a *real* exploit:
+      Metasploit module exists / web-app exploit (HTTP request sequence we'd write) /
+      local privesc script / credential-based / needs bespoke tooling / not
+      automatable. Output: what the harness (after 1C) can do and what to add.
+- [ ] **Utility tests run the tool from a terminal** (as the intended user, via the
+      guest agent) — catches PATH, missing libraries and broken installs, not just
+      "package present".
+- [ ] Service tests: port open *and* a real protocol interaction (banner, login,
+      fetch a page).
+- [ ] Inventory script: per module → has test? which tiers? which test scenario?
+      last pass date. This is the coverage dashboard.
+- [ ] Test scenarios: auto-generate one minimal scenario per module, then pack
+      compatible modules together (respecting `conflict`) to cut VM count.
+- [ ] Generators/encoders (~190) — local unit tests, no VM needed.
+- [ ] Write the missing tests (agents, using `secgen-test-pipeline` and the
+      Phase 4 skills as they land — first real use of the pipeline).
+
+## Phase 4 — Claude skills
 
 Derived from analysis of existing modules + `README-Modules-*.md`. Each skill is
 validated by having a fresh agent rebuild a known module and diffing the result.
@@ -225,7 +243,7 @@ validated by having a fresh agent rebuild a known module and diffing the result.
 - [ ] Add `requires` / `conflict` when incompatibilities are found.
 - Reuse `review-secgen-module` / `review-secgen-scenario` as a pre-human-review gate.
 
-## Phase 4 — Issue tracker (GitHub Issues)
+## Phase 5 — Issue tracker (GitHub Issues)
 
 Agreed with Cliffe: use GitHub Issues as the central tracker.
 
@@ -236,24 +254,33 @@ Agreed with Cliffe: use GitHub Issues as the central tracker.
       double-pick.
 - [ ] `next-issue` picker script (`gh` CLI) ordered by priority.
 
-## Phase 5 — Gap analysis
+## Phase 6 — Gap analysis
 
 - [ ] Coverage matrix against: CWE/vulnerability classes, CyBOK knowledge areas
       (reuse existing tags), services/protocols, platforms, network topologies.
 - [ ] Auto-create ranked `type:gap` / `type:new-module` issues.
+- [ ] **Scoped Proxmox API token** (OPEN_QUESTIONS #4) — before Phase 7 runs
+      agents unattended. Today the pipeline logs in with a user password; a
+      privilege-separated token limits what a leaked secret can do (only the
+      agent pool, no template changes, guest-agent exec only on test VMs) and
+      can be revoked/expired independently.
+  - [ ] `PVEAPIToken=` header auth in `proxmox_connection.rb` (no ticket/CSRF).
+  - [ ] Dedicated user + pool + minimal role (VM allocate/config/power, guest
+        agent on the pool; audit-only on templates).
+  - [ ] Config / `secgen-run` / `secgen-test-run` take the token instead of the
+        password.
 
-## Phase 6 — Orchestration
+## Phase 7 — Orchestration
 
 Per issue: pick → worktree/branch → write module + test → schema validation
 (`lib/CyBOK/validate_xml_*`) → Proxmox build + tests → review skills → draft PR,
 or `needs-human` with summary. Run headless on the dev server (`claude -p` /
 scheduled loop), paced to Max-plan limits, with a concurrency cap on Proxmox.
 
-- [ ] A reserved VMID range / pool for agent builds, and a sweeper that destroys
-      orphaned test VMs (moved from Phase 0 — only needed once agents build
-      unattended).
+- [ ] A reserved VMID range / pool for agent builds (same pool as the API
+      token), and a sweeper that destroys orphaned test VMs.
 
-## Phase 7 — Content production and feedback
+## Phase 8 — Content production and feedback
 
 - [ ] Generate new modules/scenarios from the gap backlog.
 - [ ] Human review (Tom / Cliffe); review findings → issues; recurring issues →
@@ -261,8 +288,26 @@ scheduled loop), paced to Max-plan limits, with a concurrency cap on Proxmox.
 - [ ] Metrics: first-attempt pass rate, human interventions per module, review
       defects per module.
 
-## Phase 8 — Windows (after Linux pipeline is fully working)
+## Phase 9 — Windows (after Linux pipeline is fully working)
 
 - [ ] Windows bases with the virtio-win QEMU Guest Agent service.
 - [ ] `exec_qemu_guest(..., windows: true)` paths in the test harness.
 - [ ] Extend tests/skills to the 3 Windows vulnerabilities and 20 utilities, then new Windows content.
+
+---
+
+## Backlog
+
+Edge cases and deferred items. Pick up when convenient or when they block something.
+
+- [ ] **`dirtycow` local-privesc test** via the guest agent. Real edge case
+      (kernel-version dependent); add a test and check it works once the
+      tier-3 harness (1B/1C) exists.
+- [ ] `debian_wheezy_desktop_kde` and `debian_wheezy_server` bases reference
+      Proxmox template `DebianWheezyDesktopKDE2`, which doesn't exist on the
+      cluster (closest: `DebianDesktopKDE` / `DebianWheezyServer`). Fix or drop.
+- [ ] Helper scripts use curl `-k` (matching SecGen's `verify_ssl: false`);
+      trust the PVE CA instead.
+- [ ] Proxmox API latency: ~3.1s per call from the dev server (server-side wait
+      after TLS, via the Squid proxy). Investigate before test suites get large.
+- [ ] Root-cause the provisioning DHCP flake (OPEN_QUESTIONS #14) with Cliffe.
