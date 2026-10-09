@@ -94,10 +94,12 @@ module Proxmox
       wait_for_completion task_response: response, timeout_message: 'vagrant_proxmox.errors.destroy_vm_timeout'
     end
 
-    def qemu_agent_get_ip(vm_id)
-      vm_info = get_vm_info vm_id
+    # First non-loopback, non-link-local IPv4 the guest agent reports, or nil.
+    # Pass node to skip the cluster-wide VM lookup.
+    def qemu_agent_get_ip(vm_id, node = nil)
+      vm_info = node ? { node: node, type: 'qemu' } : get_vm_info(vm_id)
+      return nil if vm_info.nil?
       begin
-        # binding.irb
         response = get "/nodes/#{vm_info[:node]}/#{vm_info[:type]}/#{vm_id}/agent/network-get-interfaces"
       rescue ApiError::ServerError
         return nil
@@ -113,7 +115,7 @@ module Proxmox
           # find an IPv4 address and return it
           if ip_addresses_block.dig(:"ip-address-type") == "ipv4"
             ip = ip_addresses_block.dig(:"ip-address")
-            return ip if ip != "127.0.0.1"
+            return ip unless ip.nil? || ip.start_with?('127.') || ip.start_with?('169.254.')
           end
         end
       end

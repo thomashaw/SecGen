@@ -180,23 +180,32 @@ test_results/
 
 #### 1B — `PostProvisionTest` refactor (`lib/objects/post_provision_test.rb`)
 
-- [ ] Structured results per the contract (JSON + exit codes), keeping existing
-      `secgen_test`s working unchanged.
-- [ ] Replace silent passes with **SKIP**: `get_system_ip` still `exit(0)`s when
-      the agent returns no IP (Proxmox) and for DHCP systems (Vagrant). Resolve
-      the IP via `agent/network-get-interfaces` (first non-loopback IPv4); SKIP
-      only if that fails.
-- [ ] Fix the Vagrant-path quoting bug in `run_vagrant_ssh`
-      (`-c '#{args}'` breaks on single quotes).
-- [ ] **Test tiers**: **provisioned** → **service/tool works** →
-      **exploitable**. A test declares its tier(s); results report the highest
-      tier reached.
-- [ ] Helpers for tier 2: run a command as a given user
-      (`runuser -u <user> -- ...`), protocol checks (banner, HTTP fetch from
-      inside the guest — implement the empty `test_html_returned_content`).
-- [ ] Update the `secgen-test-pipeline` skill with the new API.
-- Done when: the proftpd test emits JSON, a no-IP case reports SKIP (exit 2),
-  and an unchanged legacy test still runs.
+- [x] Structured results per the contract (JSON + exit codes), keeping existing
+      `secgen_test`s working unchanged. Legacy `PASSED:`/`FAILED:` lines pushed
+      onto `outputs` are recorded as checks; all 60 tests compile (gnuscreen's
+      lowercase class name fixed).
+- [x] Replace silent passes with **SKIP**: no IP (agent or DHCP), no
+      `SECGEN_PROXMOX_PASS`, an agent that never answers (`SECGEN_AGENT_WAIT`,
+      default 60s) or a test that raises → SKIP, exit 2. The IP is resolved
+      lazily via `agent/network-get-interfaces` (first non-loopback,
+      non-link-local IPv4), so in-guest tests don't need one.
+- [x] Fix the Vagrant-path quoting bug in `run_vagrant_ssh`: argv to
+      `vagrant ssh -c` (no local shell). Not exercised on a VirtualBox VM.
+- [x] **Test tiers**: `tier(n) { ... }` or `tier:` per check; helpers default
+      to 1 (`test_local_command`) or 2 (service/HTTP/banner/command);
+      `tier_reached` in the JSON.
+- [x] Helpers for tier 2: `run_as_user` / `user:` (`runuser`, `su` fallback),
+      `test_command_succeeds`, `test_banner`, `test_http`, and in-guest HTTP
+      for `test_html_returned_content` (curl → wget → bash `/dev/tcp`), which
+      fixes the 28 HTML checks that could never reach the VLAN from the host.
+      Evidence (failed units, service status, journal, ports, processes, plus
+      `add_evidence`) collected on FAIL in one guest call.
+- [x] Update the `secgen-test-pipeline` skill with the new API.
+- Done (2026-10-09, `tom-p1b-01`, Debian 12): proftpd test → PASS JSON
+  (exit 0, IP from the agent after net0 teardown); legacy
+  `parameterised_accounts` test unchanged → PASS; deliberate tier-3 failure →
+  FAIL (exit 1, `tier_reached` 2, 6 evidence files); no password → SKIP
+  (exit 2). The no-IP SKIP was checked offline against a stubbed agent.
 
 #### 1C — Exploit tests from inside a VM (tier 3)
 

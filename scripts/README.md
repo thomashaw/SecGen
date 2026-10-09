@@ -9,7 +9,7 @@ bundler at the main checkout's gems.
 | Script | What it does |
 |---|---|
 | `scripts/secgen-run -s <scenario.xml> [-p name] [--dry-run] [-- extra secgen args]` | Proxmox build with prefix `<owner>-<name>-NN` (per-name counter) and the next VLAN in the range (shared counter). Leaves the VM running in its final state (`--shutdown --no-tests --proxmox-post-boot --no-destroy-on-failure`). Logs to `log/[ERROR_]<project_id>`. `--dry-run` shows the command and numbers without using them. |
-| `scripts/secgen-test-run <projects/.../secgen_test/<mod>.rb>` | Runs one module's post-provision test against its built VM over the QEMU Guest Agent. Expect `PASSED: ...` / exit 0. |
+| `scripts/secgen-test-run <projects/.../secgen_test/<mod>.rb>` | Runs one module's post-provision test against its built VM over the QEMU Guest Agent. Exits 0 PASS / 1 FAIL / 2 SKIP; writes `<project>/test_results/<system>/<mod>.json` (plus evidence on FAIL). |
 | `scripts/pve-check [--all]` | Read-only: PVE version and the QEMU Guest Agent option on every template (or all VMs). |
 | `scripts/agent-check <vmid> [node]` | Read-only guest-agent smoke test (`id`, `hostname`, IPs) via `lib/helpers/proxmox_connection.rb`. |
 
