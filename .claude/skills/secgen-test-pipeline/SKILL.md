@@ -10,8 +10,10 @@ This is the automated-verification half of the agentic pipeline (see
 and is the intended service/exploit really there on a freshly built VM?* — without
 which agent-generated content can't be trusted.
 
-Host/dev-server specifics (paths, helper scripts, creds, VLANs) live in
-`CLAUDE.local.md`. This skill is the mechanism and the workflow.
+The helper scripts are in `scripts/` (usage in `scripts/README.md`); run them as
+`scripts/<name>` from the checkout/worktree you're working in. Host specifics
+(Proxmox hosts, creds location, VLAN range) live in `CLAUDE.local.md`. This skill
+is the mechanism and the workflow.
 
 ## How testing works
 
@@ -41,7 +43,7 @@ Host/dev-server specifics (paths, helper scripts, creds, VLANs) live in
   `sh -c '...'` where you can rather than many round-trips.
 - Legacy `secgen.rb` still runs its in-build test runner at the *old* point
   (before net0 teardown, via a vagrant reboot). Until that's reordered, **test
-  out-of-band** with `secgen-test-run` against a VM left running by `secgen-run`,
+  out-of-band** with `scripts/secgen-test-run` against a VM left running by `scripts/secgen-run`,
   rather than relying on `--no-tests` being off.
 
 ## Writing a secgen_test
@@ -81,19 +83,19 @@ is in stdout **or** stderr. `run` prints outputs and exits non-zero on any failu
 1. Make a minimal test scenario in `scenarios/tests/` (one `<system>`, the module,
    a `parameterised_accounts` user if required, a `<network>`, and the **required**
    `build type="cleanup"` root-password reset). Pick a base whose Proxmox template
-   exists (`pve-check`). Debian 12 provisions reliably; Debian 9 server has a flaky
+   exists (`scripts/pve-check`). Debian 12 provisions reliably; Debian 9 server has a flaky
    provisioning net. See the `review-secgen-scenario` skill for scenario rules.
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
-3. Build (dev server): `secgen-run -p <name> -s scenarios/tests/<scn>.xml`
+3. Build: `scripts/secgen-run -p <name> -s scenarios/tests/<scn>.xml`
    (`--dry-run` first). It leaves the VM running in final state (net0 gone).
    **The provisioning net is an intermittent flake across bases** — if `vagrant up`
    times out "waiting for SSH to configure network interfaces" (no IP via agent)
    with no Puppet having run, just retry (or pass `--retries`).
-4. Run the test: `secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
-   — expect `PASSED: ...` / exit 0. `secgen-test-run` injects
+4. Run the test: `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
+   — expect `PASSED: ...` / exit 0. `scripts/secgen-test-run` injects
    `SECGEN_PROXMOX_PASS` from the config without printing it.
-5. **If it fails**, diagnose via the guest agent (`agent-check <vmid>`, or a small
+5. **If it fails**, diagnose via the guest agent (`scripts/agent-check <vmid>`, or a small
    script calling `exec_qemu_guest` for `systemctl status`, `journalctl`,
    config-syntax checks). A failing test on a genuinely broken module is the
    pipeline working — fix the **module template/manifest**, not the generated

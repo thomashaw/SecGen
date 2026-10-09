@@ -61,8 +61,11 @@ its isolated VLAN (the state that broke the legacy suite). At build time the pro
 gets a `proxmox_test_context.json` (url + user, **no password** — that comes from
 `ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. The whole
 build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
-**`secgen-test-pipeline`** skill; dev-server helpers (`secgen-run`,
-`secgen-test-run`) are in `CLAUDE.local.md`. A failing test on a genuinely broken
+**`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
+`scripts/README.md`): `scripts/secgen-run` (build), `scripts/secgen-test-run` (run one
+`secgen_test`), `scripts/pve-check`, `scripts/agent-check`. Run them by that path from
+the checkout/worktree you're working in — they build that checkout and find the gems
+themselves. A failing test on a genuinely broken
 module is the pipeline working — fix the module template, not the generated project.
 
 ## Skills
@@ -85,5 +88,5 @@ requires/conflicts.
 
 ## Environment-specific notes
 
-Deployment details (hosts, users, helper scripts) belong in a personal
+Deployment details (hosts, users, creds locations) belong in a personal
 `CLAUDE.local.md` (gitignored), not here.

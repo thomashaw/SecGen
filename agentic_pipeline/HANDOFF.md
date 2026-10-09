@@ -11,8 +11,8 @@ the authoritative state — this file is a quick orientation.
   `secgen-fork` alias, through the Squid proxy).
 - Commit footer: `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
   Never push master. Ask before history-rewriting git.
-- In a worktree, SecGen needs `BUNDLE_PATH=/home/deploy/SecGen/vendor/bundle`
-  (gems live in the main checkout).
+- Run SecGen via `scripts/` — the helpers use the checkout they live in and
+  pick up the main checkout's `vendor/bundle` from a worktree automatically.
 
 ## Done so far
 
@@ -29,19 +29,19 @@ the authoritative state — this file is a quick orientation.
   (`qemu_agent_get_ip` nil crash; `delete()` missing TLS-verify-skip).
 - **First real detect-and-fix:** proftpd failed to start on Debian 12
   (`IdentLookups` removed in modern ProFTPD). Fixed the module template
-  (`726fb87b6`, dropped `IdentLookups` + deprecated `MultilineRFC2228`);
+  (`c6897c96c`, dropped `IdentLookups` + deprecated `MultilineRFC2228`);
   `secgen_test` now PASSES from a clean Debian 12 build. Test scenario:
   `scenarios/tests/test_scenario_proftpd.xml`.
 
-## Helper scripts (`~/.local/bin`)
+## Helper scripts (`scripts/`, see `scripts/README.md`)
 
-- `secgen-run [-p name] [-s scenario.xml] [--dry-run] [-- extra args]` — build;
-  auto prefix `tom-<name>-NN` + next free VLAN (200–1000); logs to
-  `<secgendir>/log/`. Real runs build VMs on shared hardware — dry-run first / ask.
-- `secgen-test-run <path/to/secgen_test/x.rb>` — run one module's test, creds
-  injected from config (password never printed).
-- `pve-check [--all]` — read-only PVE version + guest-agent option per template.
-- `agent-check <vmid> [node]` — read-only guest-agent smoke test.
+- `scripts/secgen-run -s scenario.xml [-p name] [--dry-run] [-- extra args]` —
+  build; auto prefix `<owner>-<name>-NN` + next free VLAN (200–1000); logs to
+  `log/`. Real runs build VMs on shared hardware — dry-run first / ask.
+- `scripts/secgen-test-run <path/to/secgen_test/x.rb>` — run one module's test,
+  creds injected from config (password never printed).
+- `scripts/pve-check [--all]` — read-only PVE version + guest-agent option per template.
+- `scripts/agent-check <vmid> [node]` — read-only guest-agent smoke test.
 
 ## Key gotchas
 

@@ -54,7 +54,7 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 - [ ] *(Deferred)* `debian_wheezy_desktop_kde` and `debian_wheezy_server` bases reference
       Proxmox template `DebianWheezyDesktopKDE2`, which doesn't exist on the
       cluster (closest: `DebianDesktopKDE` / `DebianWheezyServer`). Fix or drop.
-- Helper scripts (deploy user, `~/.local/bin`, not in repo yet):
+- Helper scripts (now in `scripts/`, see `scripts/README.md`):
   `secgen-run` (auto-increment prefix per name + VLAN 200–1000, creds from
   config) and `pve-check` (read-only: PVE version + guest-agent option per
   template). Both use curl `-k`, matching SecGen's `verify_ssl: false`; TODO
@@ -90,7 +90,7 @@ guest network path, so it survives `net0` teardown and the post-provision reboot
 
 1. **Port guest-agent helpers into `proxmox_connection.rb`** (existing rest-client only):
    *2026-10-08: `post_json`, `exec_qemu_guest`, `qemu_agent_running?`,
-   `qemu_agent_enabled?` done and tested (`~/.local/bin/agent-check <vmid>`).
+   `qemu_agent_enabled?` done and tested (`scripts/agent-check <vmid>`).
    Findings: guest commands run as **root** (tests for "as the intended user"
    need `runuser -u <user> -- ...`); every API call from the dev server takes
    **~3.1s** (server-side wait after TLS, via the Squid proxy — direct access

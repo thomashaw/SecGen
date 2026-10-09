@@ -34,4 +34,4 @@ Decisions to discuss (mostly with Cliffe). Move items to "Decided" with a date.
 | 2026-10-07 | Claude Code runs on the dev server for pipeline work. |
 | 2026-10-08 | PVE version is 9.2.3 (was Q5). |
 | 2026-10-08 | Base templates have `qemu-guest-agent` installed and the Proxmox QEMU Guest Agent option enabled (was Q6). |
-| 2026-10-08 | Dev builds use VLANs 200–1000 on vmbr0; `~/.local/bin/secgen-run` (deploy user) auto-increments prefix + VLAN and wraps within that range. |
+| 2026-10-08 | Dev builds use VLANs 200–1000 on vmbr0; `scripts/secgen-run` auto-increments prefix + VLAN and wraps within that range. |

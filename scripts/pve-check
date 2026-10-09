@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# Read-only Proxmox check: PVE version + QEMU Guest Agent option on every template.
+# Credentials come from the SecGen options file and are never printed.
+#
+# Usage: scripts/pve-check [--all]   (--all also lists non-template VMs)
+
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
+
+SHOW_ALL=0
+[[ "${1:-}" == "--all" ]] && SHOW_ALL=1
+require_conf
+
+USER_=$(conf_get --proxmoxuser)
+URL=$(conf_get --proxmox-url); URL=${URL%/}
+
+# PVE's self-signed cert is usually untrusted; SecGen's client also uses verify_ssl: false.
+# TODO: trust the PVE CA (pve-root-ca.pem) with --cacert instead of -k.
+CURL=(curl -sS -f -k)
+
+TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+chmod 700 "$TMP"
+
+# Log in (password via stdin, not argv), keep ticket in a private cookie file.
+printf '%s' "$(conf_get --proxmoxpass)" | "${CURL[@]}" -X POST "$URL/access/ticket" \
+  --data-urlencode "username=$USER_" --data-urlencode "password@-" \
+  -o "$TMP/login.json" || { echo "Login failed (check URL/creds/TLS)" >&2; exit 1; }
+
+python3 -I - "$TMP/login.json" "$TMP/cookie" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1]))["data"]
+open(sys.argv[2], "w").write("PVEAuthCookie=" + d["ticket"])
+PY
+
+api() { "${CURL[@]}" -b "$(cat "$TMP/cookie")" "$URL$1"; }
+
+echo "== PVE version"
+api /version | python3 -I -c 'import json,sys; d=json.load(sys.stdin)["data"]; print("  version", d.get("version"), "release", d.get("release"), "repoid", d.get("repoid"))'
+
+echo "== QEMU Guest Agent option ($([[ $SHOW_ALL -eq 1 ]] && echo 'all VMs' || echo 'templates'))"
+api "/cluster/resources?type=vm" > "$TMP/vms.json"
+python3 -I - "$TMP/vms.json" "$SHOW_ALL" <<'PY' > "$TMP/list"
+import json, sys
+vms = json.load(open(sys.argv[1]))["data"]
+show_all = sys.argv[2] == "1"
+for v in sorted(vms, key=lambda v: v["vmid"]):
+    if v.get("type") != "qemu": continue
+    if not show_all and not v.get("template"): continue
+    print(v["node"], v["vmid"], v.get("name", "?"), "template" if v.get("template") else v.get("status", "?"))
+PY
+
+printf '  %-6s %-8s %-40s %-9s %s\n' VMID NODE NAME KIND AGENT
+while read -r node vmid name kind; do
+  agent=$(api "/nodes/$node/qemu/$vmid/config" | python3 -I -c '
+import json,sys
+a = json.load(sys.stdin)["data"].get("agent")
+if a is None: print("OFF (not set)")
+else:
+    s = str(a); on = s == "1" or "enabled=1" in s or s.startswith("1,")
+    print(("ON  " if on else "OFF ") + "(" + s + ")")')
+  printf '  %-6s %-8s %-40s %-9s %s\n' "$vmid" "$node" "$name" "$kind" "$agent"
+done < "$TMP/list"

@@ -175,6 +175,6 @@ Offer to run those module reviews next.
 
 Static review can't confirm the scenario actually builds and the kill chain works
 on real VMs. After reviewing, verify it with the **`secgen-test-pipeline`** skill:
-build the scenario with `secgen-run`, then run each module's `secgen_test` over the
-Proxmox guest agent with `secgen-test-run`, and clean the VMs up afterwards. Offer
+build the scenario with `scripts/secgen-run`, then run each module's `secgen_test` over the
+Proxmox guest agent with `scripts/secgen-test-run`, and clean the VMs up afterwards. Offer
 this alongside the per-module reviews.

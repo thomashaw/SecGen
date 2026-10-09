@@ -212,7 +212,7 @@ Verdict: does the challenge actually hand the pen tester its pre-leak clues *bef
 Static review catches declaration/consistency bugs, but not "does it actually
 provision and start on a current base". After reviewing, verify the module on a
 freshly built VM with the **`secgen-test-pipeline`** skill (build a minimal
-`scenarios/tests/` scenario, `secgen-run`, then `secgen-test-run`, testing over
+`scenarios/tests/` scenario, `scripts/secgen-run`, then `scripts/secgen-test-run`, testing over
 the Proxmox guest agent). If the module has no `secgen_test/`, that skill covers
 writing one. Real builds surface things review can't — e.g. proftpd passed review
 but failed to start on Debian 12 on a removed config directive.

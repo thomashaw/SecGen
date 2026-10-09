@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Run a single SecGen secgen_test .rb file against its built VM, injecting the
+# Proxmox password from the config into SECGEN_PROXMOX_PASS so the test can
+# reach the guest agent. The password is never printed or placed on a command line.
+#
+# Usage: scripts/secgen-test-run <projects/.../secgen_test/xxx.rb>
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
+
+test_file="${1:?Usage: scripts/secgen-test-run <secgen_test/xxx.rb>}"
+[[ -f "$test_file" ]] || { echo "No such test file: $test_file" >&2; exit 1; }
+require_conf
+
+SECGEN_PROXMOX_PASS="$(conf_get --proxmoxpass)"
+export SECGEN_PROXMOX_PASS
+
+exec bundle exec ruby "$test_file"
