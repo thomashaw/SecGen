@@ -258,57 +258,7 @@ To recover the file, you can simply ==action: retrieve the backup:==
 sudo rsync -avz -M--fake-super ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/remote-rsync-backup/etc/hello /etc/
 ```
 
-> Note: **What is `-M--fake-super` for?** On the backup_server, rsync runs as *your* user, which means it cannot make files owned by root (or by any other user). Consequently, every backed up file would end up owned by you, and the original owners would be lost when you restore. The `--fake-super` option addresses this by having rsync record each file's real owner, group and permissions in extended attributes (hidden metadata stored alongside a file) on the backup copy, and read them back when the file is restored.
->
-> However, `--fake-super` only affects the rsync process it is given to. An rsync over SSH involves *two* rsync processes, your local one and one that rsync starts on the backup_server, and it is the backup_server's process that requires the option. The `-M` option (short for `--remote-option`) passes an option to the remote rsync, so `-M--fake-super` instructs the backup_server's rsync to use `--fake-super`. Your local rsync, on the other hand, runs as root (via `sudo`), so it can set the real owners itself and does not need the option. You should therefore use `-M--fake-super` both when backing up and when restoring. This approach also avoids the need for root SSH access to the backup server, which, for security reasons, is not usually permitted.
-
-\==action: Read the man page entries for `--fake-super` and `--remote-option`==
-
-> Hint: `man rsync`, then press '/' followed by '--fake-super$', and enter. Then search for `--remote-option`.
-
-\==action: Check that the ownership has been preserved==: `ls -l /etc/hello` should show that the file is owned by root, even though the copy on the backup_server (`ssh ==edit: BACKUPSERVERIP== ls -l remote-rsync-backup/etc/hello`) is owned by you.
-
-#### See the difference: `--fake-super` vs `-M--fake-super` {#see-the-difference-fake-super-vs-m-fake-super}
-
-The following steps demonstrate why the option needs to be given to the remote rsync. ==action: Create a test file== owned by root and the `adm` group, and readable only by them:
-
-```bash
-sudo bash -c 'echo "fake-super demo" > /etc/fsdemo; chgrp adm /etc/fsdemo; chmod 640 /etc/fsdemo'
-ls -l /etc/fsdemo
-```
-
-\==action: Back it up twice==: once giving `--fake-super` to *your* (local) rsync, and once giving it to the backup_server's rsync with `-M`:
-
-```bash
-sudo rsync -av --fake-super /etc/fsdemo ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-local/
-sudo rsync -av -M--fake-super /etc/fsdemo ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-remote/
-```
-
-\==action: Look at the two copies on the backup_server==:
-
-```bash
-ssh ==edit: BACKUPSERVERIP== ls -l fsdemo-local/fsdemo fsdemo-remote/fsdemo
-```
-
-The two copies appear identical, since both are owned by you; the difference is held in the extended attributes of the second copy. ==action: Restore both copies== (into /tmp, so that nothing important is affected) and compare them with the original:
-
-```bash
-sudo rsync -av -M--fake-super ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-local/fsdemo /tmp/fsdemo-from-local
-sudo rsync -av -M--fake-super ==edit: YOURUSERNAME==@==edit: BACKUPSERVERIP==:/home/==edit: YOURUSERNAME==/fsdemo-remote/fsdemo /tmp/fsdemo-from-remote
-ls -l /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote
-```
-
-The copy that was backed up with `-M--fake-super` is restored as `root adm`, exactly matching the original. In contrast, the copy that was backed up with `--fake-super` alone is restored owned by *you*, since the backup_server never recorded who actually owned the file, and that information has been permanently lost.
-
-> Log Book Question: Why did `--fake-super` on its own make no difference when backing up? (Hint: which computer was writing the backup copy, and which rsync process had the option?)
-
-> Warning: **Never restore with `--fake-super` on its own (without `-M`).** Doing so enables the option for your local rsync, which is running as root; rather than setting the real owners, it stores them in extended attributes, and it stores symbolic links as plain files. When we tested restoring the whole of /etc in this way, over 800 symbolic links in /etc were turned into ordinary files and the permissions of the sudo configuration were changed, which was enough to break the VM.
-
-\==action: Clean up== the demo files:
-
-```bash
-sudo rm /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote
-```
+> Note: The `-M--fake-super` option preserves the original ownership and permissions of your files. Since rsync on the backup_server runs as your user, it cannot set the real owners of the backed up files; instead, this option has it record them alongside each backup copy, so that they can be put back when you restore. Use it both when backing up and when restoring; this also avoids the need for root SSH access to the backup_server, which, for security reasons, is not usually permitted.
 
 \==action: Delete the file locally, and sync the changes== *including deletions* to the server so that it is also deleted there:
 

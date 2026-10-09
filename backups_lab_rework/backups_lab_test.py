@@ -486,25 +486,10 @@ def run_all(args):
     sh('sudo rm /etc/hello')
     sh(f'sudo rsync -avzh {M} /etc {U}@{IP}:{H}/remote-rsync-backup/', quiet=True)
     sh(f'sudo rsync -avz {M} {U}@{IP}:{H}/remote-rsync-backup/etc/hello /etc/')
-    _, own = sh('stat -c "%a %U:%G" /etc/hello; ls -l /etc/hello', label='sheet: check that the ownership survived')
+    _, own = sh('stat -c "%a %U:%G" /etc/hello; ls -l /etc/hello', label='check that the ownership survived')
     _, own_srv = remote('ls -l remote-rsync-backup/etc/hello')
     result('L-restore-hello', 'OK' if own.split()[1:2] == ['root:root'] else 'PROBLEM',
            f'/etc/hello restored with -M: {own.split()[0:2]}; server copy: {" ".join(own_srv.split()[0:4])}')
-    # the sheet's --fake-super vs -M--fake-super demo
-    sh("sudo bash -c 'echo \"fake-super demo\" > /etc/fsdemo; chgrp adm /etc/fsdemo; chmod 640 /etc/fsdemo'")
-    sh(f'sudo rsync -av --fake-super /etc/fsdemo {U}@{IP}:{H}/fsdemo-local/')
-    sh(f'sudo rsync -av {M} /etc/fsdemo {U}@{IP}:{H}/fsdemo-remote/')
-    _, srv = remote('ls -l fsdemo-local/fsdemo fsdemo-remote/fsdemo')
-    sh(f'sudo rsync -av {M} {U}@{IP}:{H}/fsdemo-local/fsdemo /tmp/fsdemo-from-local')
-    sh(f'sudo rsync -av {M} {U}@{IP}:{H}/fsdemo-remote/fsdemo /tmp/fsdemo-from-remote')
-    _, st = sh('stat -c "%a %U:%G %n" /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote')
-    rows = {l.split()[2]: ' '.join(l.split()[:2]) for l in st.splitlines() if len(l.split()) == 3}
-    ok = (rows.get('/tmp/fsdemo-from-remote') == rows.get('/etc/fsdemo') == '640 root:adm'
-          and rows.get('/tmp/fsdemo-from-local', '').endswith(f'{U}:{U}'))
-    result('DEMO-M', 'OK' if ok else 'PROBLEM',
-           f'sheet demo: original {rows.get("/etc/fsdemo")}, via --fake-super {rows.get("/tmp/fsdemo-from-local")}, '
-           f'via -M--fake-super {rows.get("/tmp/fsdemo-from-remote")}; server copies: {" | ".join(" ".join(l.split()[2:4]) for l in srv.splitlines())}')
-    sh('sudo rm /etc/fsdemo /tmp/fsdemo-from-local /tmp/fsdemo-from-remote')
     sh('sudo rm /etc/hello')
     sh(f'sudo rsync -avzh {M} --delete /etc {U}@{IP}:{H}/remote-rsync-backup/')
     rc, _ = remote('test ! -e remote-rsync-backup/etc/hello')
