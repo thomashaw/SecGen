@@ -22,9 +22,15 @@
 
     Manually check you have done your backups correctly before telling Hackerbot you are ready. It may be a good idea to ssh to your backup server in a separate console tab ssh IP-ADDRESS (but do keep an eye on which system you are running each command on!).
 
-    Keep an eye on the trailing slashes in rsync commands and how it changes the behaviour (the difference between copying a directory or it's contents).
+    Keep an eye on the trailing slashes in rsync commands and how it changes the behaviour (the difference between copying a directory or its contents).
 
     Each time you can test that your rsync command is going to do what you expect by adding -n to the command, which does a "Dry Run" without making any of the actual changes -- once you are happy it's making the changes you expect, run it again without the -n
+
+    Give --compare-dest=... and --link-dest=... a full path (or $HOME/...), not ~ or a relative path: in a local backup the shell doesn't expand ~ there, and a relative path is looked up inside the destination directory -- either way rsync can't find it and silently makes a full copy.
+
+    With sudo, always write YOURUSERNAME@ before the backup_server's address (otherwise you connect as root), and use -M--fake-super so file ownership survives the backup and restore.
+
+    If a backup goes wrong because the files have already changed again, say 'goto 3' (or 5, 7, 9) then 'ready' to Hackerbot: it puts the second user's files back exactly as they were at that step.
 
   </description>
 
@@ -89,7 +95,8 @@
       <network_ip system="hackerbot_server"/>
     </input>
 
-    <!--generate two accounts, YOU and someone else-->
+    <!--generate two accounts: [0] YOU (sudo, autologin), [1] the user whose files Hackerbot has you back up-->
+    <!--(the hackerbot backups generator reads accounts[0] and accounts[1] only)-->
     <input into_datastore="accounts">
       <generator type="account">
         <input into="username">
@@ -152,27 +159,6 @@
             [80383.925811] usb 3-1: USB disconnect, device number 4
           </value>
           <generator type="person" />
-        </input>
-      </generator>
-      <generator type="account">
-        <input into="username">
-          <generator type="random_sanitised_word">
-            <input into="wordlist">
-              <value>mythical_creatures</value>
-            </input>
-          </generator>
-        </input>
-        <input into="password">
-          <value>test</value>
-        </input>
-        <input into="super_user">
-          <value>false</value>
-        </input>
-        <input into="leaked_filenames">
-          <value></value>
-        </input>
-        <input into="strings_to_leak">
-          <value></value>
         </input>
       </generator>
     </input>
