@@ -79,6 +79,7 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Review a scenario (wiring, solvable kill chain) | `review-secgen-scenario` |
 | Test/verify a module or scenario on Proxmox; write a `secgen_test` | `secgen-test-pipeline` |
 | Hackerbot labs / `hackerbot_config` generators | `secgen-hackerbot` |
+| Test/improve a Hackerbot lab + labsheet end to end (on-VM tester, talk to the bot, fix/re-run loop) | `hackerbot-lab-testing` |
 | CTF scenario descriptions | `write-secgen-ctf-description` |
 | Publish a hackerbot lab sheet to Hacktivity | `convert_hackerbot_to_hacktivity_lab_sheets` |
 | Write/debug module Puppet code | `secgen-puppet` |

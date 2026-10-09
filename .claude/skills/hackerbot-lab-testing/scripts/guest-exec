@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Run one shell command inside a Proxmox VM via the QEMU guest agent (as root), print its output.
+#
+# Usage: guest-exec <vmid> '<shell command>' [timeout_seconds=60]
+#   e.g. guest-exec 6817491 'ls /home; getent hosts hackerbot'
+#        guest-exec 6817491 "su - alice -c 'python3 hackerbot_irc.py list'" 90
+# The VM id is in <project>/.vagrant/machines/<system>/proxmox/id (node/vmid).
+#
+# Same mechanism and credential handling as scripts/agent-check: the Proxmox creds come from the
+# SecGen options file (scripts/lib/common.sh) and are never printed. Needs the repo's scripts/ and
+# lib/helpers/proxmox_connection.rb (master since the agentic pipeline commit).
+# A command that keeps running (a detached long job) makes the call time out - start long jobs with
+# setsid nohup ... &, then poll them with further guest-exec calls.
+set -euo pipefail
+here="$(dirname "$(readlink -f "$0")")"
+repo="$(git -C "$here" rev-parse --show-toplevel)"
+source "$repo/scripts/lib/common.sh"
+require_conf
+export SECGEN_DIR SECGEN_CONF
+exec bundle exec ruby "$here/lib/guest_exec.rb" "$@"
