@@ -193,7 +193,8 @@ test_results/
 - Done (2026-10-09, `tom-p1a-01`): `scripts/secgen-run --test -s
   scenarios/tests/test_scenario_proftpd.xml` → build, net0 teardown, reboot,
   agent up, 2/2 PASS, `summary.json` + masked `build.log`, VM deleted and
-  verified gone, project removed; exit 0, ~10 min.
+  verified gone, project removed; exit 0, ~10 min. `secgen-run -m
+  modules/services/unix/ftp/proftpd` (`tom-p1a-mod-01`, generated scenario) → same, PASS.
 
 #### 1B — `PostProvisionTest` refactor (`lib/objects/post_provision_test.rb`)
 
