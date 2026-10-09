@@ -32,43 +32,49 @@ the authoritative state — this file is a quick orientation.
   `secgen_test` now PASSES from a clean Debian 12 build. Test scenario:
   `scenarios/tests/test_scenario_proftpd.xml`.
 
+- **Phase 1A + 1B done (2026-10-09)**, stacked branches
+  `worktree-results-contract` → `phase1b-post-provision-test` →
+  `phase1a-lifecycle-cli` (not merged to master). `PostProvisionTest` writes
+  per-module JSON (PASS/FAIL/SKIP, exit 0/1/2, tiers, evidence on FAIL);
+  `secgen.rb test-scenario` / `test-module` build → net0 teardown → reboot →
+  agent → tests → `test_results/<project-id>/summary.json` → destroy.
+  Verified on `tom-p1b-01` / `tom-p1a-01` (proftpd, Debian 12).
+
 ## Helper scripts (`scripts/`, see `scripts/README.md`)
 
 - `scripts/secgen-run -s scenario.xml [-p name] [--dry-run] [-- extra args]` —
   build; auto prefix `<owner>-<name>-NN` + next free VLAN (200–1000); logs to
   `log/`. Real runs build VMs on shared hardware — dry-run first / ask.
+- `scripts/secgen-run --test -s scenario.xml` / `-m <module path>` — build,
+  test, report to `test_results/`, destroy (exit 0/1/2).
 - `scripts/secgen-test-run <path/to/secgen_test/x.rb>` — run one module's test,
   creds injected from config (password never printed).
+- `scripts/secgen-destroy <projects/<id>>` — delete a project's VMs via the API
+  and remove the project.
 - `scripts/pve-check [--all]` — read-only PVE version + guest-agent option per template.
 - `scripts/agent-check <vmid> [node]` — read-only guest-agent smoke test.
 
 ## Key gotchas
 
-- Guest commands run as **root** — wrap with `runuser -u <user> -- ...` for
+- Guest commands run as **root** — use `run_as_user` / `user:` for
   user-context tests.
-- Every Proxmox API call from this server takes ~3s (so one guest command ~6s).
+- Every Proxmox API call from this server takes ~3s (so one guest command ~6s;
+  a test with ~10 checks takes over a minute).
 - The net0/DHCP provisioning failure is an **intermittent flake across all
-  bases** (OPEN_QUESTIONS #14), not base-specific — mitigate with SecGen's
-  `--retries`.
-- Always destroy test VMs via the API (stop + delete) and remove `projects/*`
-  dirs and scratch files when done. Verify no orphans:
-  list `/cluster/resources?type=vm` and grep your prefix.
+  bases** (OPEN_QUESTIONS #14), not base-specific — `secgen-run` now passes
+  `--retries 1` by default.
+- Always destroy test VMs (`scripts/secgen-destroy`, or `test-*` does it) and
+  remove scratch files when done. Verify no orphans with
+  `scripts/pve-check --all | grep <vmid>`.
 
-## Next steps (ROADMAP Phase 1 streams, in parallel)
+## Next steps
 
-The results contract (`test_results/<project-id>/`, PASS/FAIL/SKIP, tiers 1–3)
-is agreed — see ROADMAP Phase 1. Streams:
-
-- **1A - Lifecycle + CLI** (`secgen.rb`): tests after net0 teardown + reboot +
-  agent ready; `test-module` / `test-scenario`; absorb the provisioning flake
-  with `--retries`.
-- **1B - `PostProvisionTest` refactor**: JSON PASS/FAIL/SKIP, no silent
-  `exit(0)` passes, IP via `network-get-interfaces`, test tiers.
 - **1C - Exploit tests from an attacker VM**: decide OPEN_QUESTIONS #8/#9,
-  attacker VM in test scenarios, one module spike.
+  attacker VM in test scenarios, one module spike. Builds on 1B's tiers.
+- Review/merge the 1B → 1A stack.
 
-Then Phase 2 (repo split), then Phase 3 (coverage baseline: run all 60 tests).
-`dirtycow` is in the Backlog.
+Then Phase 2 (repo split), then Phase 3 (coverage baseline: run all 60 tests
+with `test-scenario`/`test-module`). `dirtycow` is in the Backlog.
 
 ## Orient on start
 

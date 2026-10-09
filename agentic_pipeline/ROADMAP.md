@@ -163,20 +163,39 @@ test_results/
 
 #### 1A — Lifecycle and CLI (`secgen.rb`, `scripts/`)
 
-- [ ] **Reorder:** provision → `net0` teardown (`proxmox_post_build`) → single
-      full reboot (static IPs + reboot-dependent modules settle) → wait for the
-      guest agent (`qemu_agent_running?`, with timeout) → run tests → snapshot /
-      destroy. Today `secgen.rb` runs `post_provision_tests` *before*
-      `proxmox_post_build`, using a `vagrant halt/up` reboot.
-- [ ] Before teardown, copy results into `test_results/<project-id>/` per the
-      contract above (with secret masking) and write `summary.json`;
-      non-zero exit if any FAIL/SKIP.
-- [ ] CLI: `secgen.rb test-module <path>` and `test-scenario <xml>` — build,
-      test, write report, destroy; meaningful exit codes.
-- [ ] Absorb the intermittent provisioning flake (OPEN_QUESTIONS #14): always
-      pass `--retries`, or retry in `secgen-run`.
-- Done when: `test-scenario scenarios/tests/test_scenario_proftpd.xml` runs
-  end to end with no external `secgen-test-run` and leaves no VMs behind.
+- [x] **Reorder:** on Proxmox (tests on), `build_vms` no longer runs tests in
+      the vagrant loop: provision → halt → `net0` teardown (stop) → snapshot
+      if `--snapshot` (pristine, pre-test) → start (the single full reboot) →
+      wait for every guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) →
+      settle (`SECGEN_TEST_SETTLE`, 30s) → tests → report → shut down again
+      unless `--proxmox-post-boot`. A test **FAIL or SKIP destroys the VMs**
+      (unless `--no-destroy-on-failure`) and is never retried: batches treat
+      surviving VMs as good builds that get pulled into Hacktivity, and a SKIP
+      is unverified (Tom, 2026-10-09). Other providers keep the old in-build
+      runner, but a non-PASS there now also destroys without retrying
+      (retries are for build flakes).
+- [x] Results copied into `test_results/<project-id>/` per the contract
+      (`lib/helpers/test_results.rb`): per-test log + JSON (synthesised as
+      SKIP/FAIL if a test dies without writing one; per-test timeout
+      `SECGEN_TEST_TIMEOUT`, 900s), evidence, resolved `scenario.xml`,
+      `summary.json`; Proxmox password masked on copy, count in
+      `masked_secrets`. `run` / `build-vms` with tests exit 1 on FAIL, 2 on SKIP.
+      `secgen-run --test` attaches its log as `build.log` (masked in Ruby).
+- [x] CLI: `secgen.rb test-scenario [xml]` and `test-module <path>` (generated
+      one-system scenario: the module + an account on Debian 12,
+      `--test-base` to change) — build, test, report, destroy VMs via the API,
+      remove the project; `--keep-vms` to keep them. Exit 0/1/2 (a failed
+      build is 1, recorded under `build`). Wrapped by `scripts/secgen-run
+      --test` / `-m`; `scripts/secgen-destroy` cleans up kept projects.
+- [x] Absorb the provisioning flake (OPEN_QUESTIONS #14): `secgen-run` always
+      passes `--retries 1` (`SECGEN_RETRIES`), `test-*` default to 1, and when
+      vagrant fails without naming a VM SecGen now destroys all and retries
+      instead of giving up. (Not yet seen to fire: no flake in these builds.)
+- Done (2026-10-09, `tom-p1a-01`): `scripts/secgen-run --test -s
+  scenarios/tests/test_scenario_proftpd.xml` → build, net0 teardown, reboot,
+  agent up, 2/2 PASS, `summary.json` + masked `build.log`, VM deleted and
+  verified gone, project removed; exit 0, ~10 min. `secgen-run -m
+  modules/services/unix/ftp/proftpd` (`tom-p1a-mod-01`, generated scenario) → same, PASS.
 
 #### 1B — `PostProvisionTest` refactor (`lib/objects/post_provision_test.rb`)
 

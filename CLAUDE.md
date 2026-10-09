@@ -7,7 +7,8 @@ Vagrantfile + Puppet), then Vagrant builds the VMs (VirtualBox, oVirt or Proxmox
 ## Repo map
 
 - `secgen.rb` — CLI entry point (`ruby secgen.rb --help`). Commands: `run`/`r`,
-  `build-project`/`p`, `build-vms`/`v`, `list-scenarios`, `proxmox-post-build`.
+  `build-project`/`p`, `build-vms`/`v`, `test-scenario`, `test-module`, `list-scenarios`,
+  `proxmox-post-build`.
 - `lib/` — readers, objects (`lib/objects/post_provision_test.rb` is the test base
   class), output generators, `lib/helpers/proxmox*.rb`, XSD schemas in `lib/schemas/`,
   Vagrantfile template in `lib/templates/Vagrantfile.erb`.
@@ -63,7 +64,7 @@ gets a `proxmox_test_context.json` (url + user, **no password** — that comes f
 build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
 `scripts/README.md`): `scripts/secgen-run` (build), `scripts/secgen-test-run` (run one
-`secgen_test`), `scripts/pve-check`, `scripts/agent-check`. Run them by that path from
+`secgen_test`), `scripts/secgen-destroy`, `scripts/pve-check`, `scripts/agent-check`. Run them by that path from
 the checkout/worktree you're working in — they build that checkout and find the gems
 themselves. A failing test on a genuinely broken
 module is the pipeline working — fix the module template, not the generated project.
