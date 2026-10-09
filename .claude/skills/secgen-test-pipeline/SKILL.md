@@ -178,12 +178,13 @@ destroy the VMs via the API and remove the project.
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
 3. Build: `scripts/secgen-run -p <name> -s scenarios/tests/<scn>.xml`
-   (`--dry-run` first). It leaves the VM running in final state (net0 gone),
-   with tests off. It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
+   (`--dry-run` first). It runs the tests after net0 teardown + reboot and
+   writes `test_results/<id>/`, but leaves the VM running in its final state
+   whatever the result (`-- --no-tests` to skip them). It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
    intermittent provisioning-net flake (no DHCP lease → vagrant times out
    "waiting for SSH to configure network interfaces" with no Puppet run); when
    vagrant can't say which VM failed, SecGen now destroys all and retries.
-4. Run the test: `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
+4. Re-run a test against the running VM (e.g. after changing the test): `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
    — expect `PASSED: ...` / exit 0 (1 FAIL, 2 SKIP). `scripts/secgen-test-run` injects
    `SECGEN_PROXMOX_PASS` from the config without printing it. The JSON result
    and any FAIL evidence land in `<project>/test_results/<system>/`.
