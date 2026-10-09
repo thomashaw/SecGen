@@ -37,10 +37,11 @@ def usage
    --system, -y [system_name]: Only build this system_name from the scenario
    --snapshot: Creates a snapshot of VMs once built
    --no-tests: Prevent post-provisioning tests from running.
-   --no-destroy-on-failure: Don't delete VMs that fail to build (except when retrying).
+   --no-destroy-on-failure: Keep VMs that fail to build or fail a post-provision test
+              (except when retrying a build). For investigating; by default they are destroyed.
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
-   --keep-vms: test-scenario/test-module: keep the VMs and project after testing.
+   --keep-vms: test-scenario/test-module: keep the VMs and project after testing, even on PASS.
    --test-base [distro]: test-module: base distro for the test VM (default 'Debian 12').
 
    VIRTUALBOX OPTIONS:
@@ -175,10 +176,17 @@ def build_vms(scenario, project_dir, options)
   # On Proxmox, tests run after the post-build (net0 teardown + reboot), not here.
   proxmox_tests = ProxmoxFunctions.provider_proxmox?(options) && !options[:notests]
 
+  tests_failed = false
+
   while retry_count >= 0 and !successful_creation
     options[:build_attempts] += 1
     vagrant_output = GemExec.exe('vagrant', project_dir, "#{command} #{system}")
-    if vagrant_output[:status] == 0 and (proxmox_tests or post_provision_tests(project_dir, options))
+    if vagrant_output[:status] == 0 and !proxmox_tests and !post_provision_tests(project_dir, options)
+      # Built, but a test FAILed: a broken module, not a build flake, so retrying won't help.
+      tests_failed = true
+      break
+    end
+    if vagrant_output[:status] == 0
       Print.info 'VMs created.'
       successful_creation = true
       if options[:shutdown] or OVirtFunctions::provider_ovirt?(options) or ProxmoxFunctions::provider_proxmox?(options)
@@ -249,6 +257,13 @@ def build_vms(scenario, project_dir, options)
       end
     end
     retry_count -= 1
+  end
+  if tests_failed
+    summary = TestResults.write_report(project_dir, source_scenario: options[:test_source] || scenario,
+                                       build: { status: 'success', attempts: options[:build_attempts], log: nil },
+                                       started_at: $beginning_time, test_runs: options[:test_runs] || [])
+    destroy_after_test_failure(scenario, project_dir, options)
+    return summary
   end
   if successful_creation
     build = { status: 'success', attempts: options[:build_attempts], log: nil }
@@ -490,11 +505,32 @@ def proxmox_post_build_tests(options, scenario, project_dir, build)
   summary = TestResults.write_report(project_dir, source_scenario: options[:test_source] || scenario,
                                      build: build, started_at: $beginning_time, test_runs: test_runs)
 
-  unless options[:proxmox_post_boot] || options[:test_command]
+  if summary[:status] == 'FAIL'
+    destroy_after_test_failure(scenario, project_dir, options)
+  elsif !(options[:proxmox_post_boot] || options[:test_command])
     Print.info 'Shutting down VMs after testing'
     ProxmoxFunctions::shutdown_vms(project_dir, vm_names, options)
   end
   summary
+end
+
+# A test FAILed: destroy the VMs (the project dir and results stay), so a broken
+# build is never left looking like a good one (batches treat surviving VMs as
+# successes). --no-destroy-on-failure / --keep-vms keep them for investigation.
+# test-scenario/test-module do their own cleanup afterwards.
+def destroy_after_test_failure(scenario, project_dir, options)
+  return if options[:test_command]
+  if options[:nodestroy]
+    Print.err 'Post-provision tests failed: keeping the VMs (--no-destroy-on-failure).'
+    return
+  end
+  Print.err 'Post-provision tests failed: destroying the VMs.'
+  if ProxmoxFunctions.provider_proxmox?(options)
+    remaining = ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
+    Print.err "VMs not destroyed: #{remaining.join(', ')}" unless remaining.empty?
+  else
+    GemExec.exe('vagrant', project_dir, 'destroy -f')
+  end
 end
 
 
@@ -612,6 +648,8 @@ def test_command(command, target, scenario, project_dir, options)
 
   if options[:keepvms]
     Print.info "Keeping VMs and project (--keep-vms): #{project_dir}"
+  elsif options[:nodestroy] && summary[:status] == 'FAIL'
+    Print.info "Keeping the failed VMs and project (--no-destroy-on-failure): #{project_dir}"
   else
     test_cleanup(scenario, project_dir, options)
   end
