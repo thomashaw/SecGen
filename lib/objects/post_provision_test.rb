@@ -291,12 +291,9 @@ class PostProvisionTest
   # over vagrant ssh). Returns {stdout:, stderr:, exit_status:}.
   def run_vagrant_ssh(args, timeout: 30)
     # On Proxmox, run the command in the guest via the QEMU Guest Agent instead
-    # of vagrant ssh (no guest network path is needed, and it survives net0 teardown).
-    if proxmox?
-      node, vmid = proxmox_node_vmid
-      result = proxmox_connection.exec_qemu_guest(vmid, node, ['bash', '-lc', args], timeout: timeout)
-      return {:stdout => result[:stdout], :stderr => result[:stderr], :exit_status => result[:exitcode]}
-    end
+    # of vagrant ssh (no guest network path is needed, and it survives net0
+    # teardown). This is just run_on_system targeting ourselves.
+    return run_on_system(get_system_name, args, timeout: timeout) if proxmox?
     # argv form: no local shell, so quotes in args reach the guest intact.
     vagrant = File.executable?('/usr/bin/vagrant') ? '/usr/bin/vagrant' : 'vagrant'
     stdout, stderr, status = Open3.capture3(vagrant, 'ssh', get_system_name, '-c', args, chdir: get_project_path)
@@ -345,12 +342,21 @@ class PostProvisionTest
   end
 
   # The SecGen checkout root (the project lives at <root>/projects/<id>).
+  # The SecGen checkout root (the project lives at <root>/projects/<id>, see
+  # PROJECTS_DIR in lib/helpers/constants.rb). We derive it rather than use the
+  # ROOT_DIR constant on purpose: a secgen_test runs as a standalone `ruby`
+  # subprocess that never requires constants.rb, so ROOT_DIR isn't defined
+  # here. This matches how the rest of this class self-derives its paths
+  # (get_project_path etc.).
   def secgen_root
     File.expand_path('../../', get_project_path)
   end
 
   # [[system_name, base_module_path], ...] for every system in the project,
   # read from the resolved projects/<id>/scenario.xml (no secrets in it).
+  # Scanned with a regex rather than REXML/Nokogiri: the file has a default
+  # xmlns (which REXML's XPath handles badly) and the test process keeps its
+  # requires minimal; the generated markup is simple and stable.
   def project_systems
     @project_systems ||= begin
       xml = File.read("#{get_project_path}/scenario.xml")
@@ -504,13 +510,14 @@ class PostProvisionTest
     !proxmox_context.nil? && File.exist?(proxmox_id_path) && !!defined?(Proxmox::Connection)
   end
 
+  # This system's id-file path / [node, vmid] — the sibling helpers applied to
+  # ourselves (see the cross-system helpers section).
   def proxmox_id_path
-    "#{get_project_path}/.vagrant/machines/#{get_system_name}/proxmox/id"
+    other_proxmox_id_path(get_system_name)
   end
 
-  # Returns [node, vmid] for this system from the Vagrant-written id file.
   def proxmox_node_vmid
-    File.read(proxmox_id_path).strip.split('/')
+    other_proxmox_node_vmid(get_system_name)
   end
 
   def proxmox_connection
@@ -551,9 +558,8 @@ class PostProvisionTest
 
   def get_system_ip
     if proxmox?
-      node, vmid = proxmox_node_vmid
-      # first non-loopback IPv4 from agent/network-get-interfaces
-      ip = proxmox_connection.qemu_agent_get_ip(vmid, node)
+      # first non-loopback IPv4 from agent/network-get-interfaces (our own guest)
+      ip = other_system_ip(get_system_name)
       skip!("Could not determine #{get_system_name}'s IP via the QEMU Guest Agent") if ip.nil?
       return ip
     end

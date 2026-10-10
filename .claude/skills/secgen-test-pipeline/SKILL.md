@@ -49,6 +49,15 @@ is the mechanism and the workflow.
 - On Proxmox, `secgen.rb` runs the tests **after** net0 teardown and the
   reboot (see the loop below). Other providers keep the old in-build runner
   (vagrant halt/up, before any post-build).
+- **A test is a standalone `ruby` subprocess.** `test_results.rb` runs each
+  `secgen_test` as its own `bundle exec ruby <script>`; it does **not** load
+  `constants.rb` or `Print`, so `ROOT_DIR`/`BASES_DIR`/`Print.std` are not
+  available. Derive paths from the base class instead (`get_project_path`,
+  `get_system_name`, `secgen_root`, `module_path`) and record via the check API
+  (`pass_check`/`fail_check`/`skip_check`), not `puts`. **Reuse the base-class
+  helpers** below rather than re-implementing guest exec, IP lookup or node/VMID
+  parsing; if you need something new and reusable, add it to `PostProvisionTest`
+  and have both the self and sibling cases share it.
 
 ## Writing a secgen_test
 
