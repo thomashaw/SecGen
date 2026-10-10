@@ -16,8 +16,8 @@ Vagrantfile + Puppet), then Vagrant builds the VMs (VirtualBox, oVirt or Proxmox
   `modules/{generators,encoders}` — run locally at build time to produce data.
 - `scenarios/` — `ctf/`, `labs/`, `examples/`, `tests/`, `dev/` …
 - `projects/` — generated output (gitignored). Never edit; regenerate instead.
-- `agentic_pipeline/` — roadmap and open questions for the agentic module pipeline.
-- `README-*.md` — longer docs (Modules-Metadata, Modules-Puppet, Creating-Scenarios, Networking).
+- `README-*.md` — longer docs (Modules-Metadata, Modules-Puppet, Creating-Scenarios, Networking,
+  Testing: tiers, statuses and the `test_results/` contract).
 
 ## Module anatomy
 
@@ -94,7 +94,7 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Publish a hackerbot lab sheet to Hacktivity | `convert_hackerbot_to_hacktivity_lab_sheets` |
 | Write/debug module Puppet code | `secgen-puppet` |
 
-Planned (see `agentic_pipeline/ROADMAP.md` Phase 4): write a module, build a
+Planned (agentic pipeline roadmap, Phase 4): write a module, build a
 scenario, provision a VM, write `secgen_test`s, test a module/scenario, add
 requires/conflicts.
 
