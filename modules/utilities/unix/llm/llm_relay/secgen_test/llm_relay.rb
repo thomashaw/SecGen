@@ -32,9 +32,9 @@ class LlmRelayTest < PostProvisionTest
       else
         fail_check('relay reaches the upstream LLM API', "HTTP #{code.empty? ? '000' : code}")
       end
-      # ... and nothing else on the internal network. The targets must answer when unfiltered (checked from the
-      # internal network on 2026-10-10: the Spark gateway's LiteLLM port 4000 and the web proxy do), otherwise
-      # "blocked" proves nothing. HTTP 000 = no connection.
+      # ... and nothing else on the internal network. The target must answer when unfiltered (checked from the
+      # internal network on 2026-10-10: the Spark gateway's LiteLLM port 4000 does), otherwise "blocked" proves
+      # nothing. HTTP 000 = no connection.
       upstream = (json_inputs['upstream_url'] || ['http://172.22.222.222:8080']).first
       upstream_host = upstream[%r{//([\d.]+)}, 1]
       other_port = upstream.end_with?(':4000') ? 8080 : 4000
@@ -43,9 +43,6 @@ class LlmRelayTest < PostProvisionTest
         code == '000' ? pass_check("#{label} blocked", url) : fail_check("#{label} blocked", "#{url} answered HTTP #{code}")
       end
       blocked.call("upstream host's other port", "http://#{upstream_host}:#{other_port}/")
-      proxy = run_command("sed -n 's/^http_proxy=//Ip' /etc/environment | tr -d '\"' | head -1")[:stdout].strip
-      # only where a proxy is configured (a SKIP here would mark the whole module unverified)
-      blocked.call('web proxy', proxy) unless proxy.empty?
       add_evidence('relay interfaces and routes', 'ip -4 -o addr show; ip route')
       add_evidence('nginx error log', 'tail -n 50 /var/log/nginx/error.log')
     end

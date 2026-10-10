@@ -13,7 +13,8 @@ remaining steps follow in order, and open questions are listed at the end.
 ## Order of work (as of 2026-10-10)
 
 1. **Phase 0, the working route**: **done** on `feature/ghidra-llm-assistant`
-   (see [Work done](#work-done-as-of-2026-10-10)).
+   (see [Work done](#work-done-as-of-2026-10-10)). The Phase 2 network refactor
+   and the relay's in-guest firewall (Phase 3) are also done.
 2. **Phase 1, staff pilot**: a real key in `secgen.conf`, real answers from
    `fast` and `smart`, and a judgement on whether the answers are good enough to
    build into a lab.
@@ -33,13 +34,17 @@ remaining steps follow in order, and open questions are listed at the end.
 ## Work done (as of 2026-10-10)
 
 All of the following is on the branch `feature/ghidra-llm-assistant` of the
-`thomashaw` fork, in three commits:
+`thomashaw` fork:
 
 | Commit | Summary |
 |---|---|
 | `d7368f09b` | GhidrAssist in the `ghidra` module, the new `llm_relay` module, and the test scenario |
-| `6970bd1b9` | Move the relay's net0 onto the internal bridge after the build, rather than keeping it on the provisioning bridge |
+| `6970bd1b9` | Move the relay's net0 onto the internal bridge after the build (superseded by the refactor below) |
 | `88c809d61` | The API key via `--llm-api-key`, never written to the scenario or the project |
+| `cc6febc2b` | This roadmap |
+| `0c55ac148` | The `internal_network` `<network>` module in place of `keep_provisioning_nic`; the relay's nftables firewall |
+| `f2edabcdf` | The relay's lab networks passed by SecGen (`secgen_lab_networks`) rather than guessed on the VM |
+| `70a22c9b4` and later | The relay test checks blocking against an internal service that answers when unfiltered |
 
 ### What was built
 
@@ -62,10 +67,16 @@ All of the following is on the branch `feature/ghidra-llm-assistant` of the
   interface, sign-up and administration pages are not reachable through it.
   Responses are streamed (`proxy_buffering off`) with long timeouts for slow
   models, and `allowed_networks` optionally restricts which subnets may use it.
-- **Internal network NIC** (`lib/helpers/proxmox.rb`, `secgen.rb`): systems
-  carrying a module of type `keep_provisioning_nic` have net0 moved, with its MAC
-  unchanged, onto `--proxmox-internal-bridge` (default `vmbr3`) after the build,
-  rather than having it removed.
+- **Internal network NIC** (`modules/networks/internal_network`,
+  `lib/templates/Vagrantfile.erb`): the relay system declares
+  `<network type="internal_network"/>`, which is attached at build time as an
+  untagged NIC on `vmbr3` (DHCP by default). Modules on that system receive the
+  facts `secgen_internal_network` and `secgen_lab_networks`; the relay fails
+  clearly without the internal network. (This replaced an earlier approach that
+  moved net0 onto the internal bridge after the build; see Phase 2.)
+- **Relay firewall** (`llm_relay::firewall`): self-contained nftables rules,
+  loaded from the post-build reboot, which confine the relay to its job (see
+  Phase 3). The module conflicts with the other firewall modules.
 - **API key handling** (`secgen.rb`, `lib/templates/Vagrantfile.erb`):
   `--llm-api-key`, kept in a `--read-options` file such as `secgen.conf`, sets
   `SECGEN_LLM_API_KEY`, in the same way as `--proxmoxpass`. For modules of type
@@ -99,6 +110,9 @@ All of the following is on the branch `feature/ghidra-llm-assistant` of the
 | `deploy-ghidrallm-02` | 3/3 tests passed after the bridge fix; Kali reached the gateway through the relay (401 without a key) |
 | `deploy-ghidrallm-03` | Kept running for manual testing (relay 122688943, Kali 886096595); built before the key change |
 | `deploy-ghidrallm-04` | 3/3 passed with a fake canary key; the relay reported adding the key, and the canary appeared in no project file, log or test result |
+| `deploy-ghidrallm-05` | Build failed in the firewall script: guessing the lab subnets on the VM found none (fixed by `secgen_lab_networks`) |
+| `deploy-ghidrallm-06` | 3/3 passed with the `internal_network` module and the firewall; its "blocked" checks targeted hosts that do not answer even unfiltered, so proved nothing |
+| `deploy-ghidrallm-07` | 3/3 passed; the gateway's LiteLLM port 4000, which answers from the internal network, is unreachable from the relay, whilst the API port still works from the relay and from Kali through it |
 
 ## Phase 1: staff pilot
 
@@ -157,7 +171,8 @@ explicit in the scenario, in the same way as the lab network:
 - [x] Removed the `keep_provisioning_nic` type, the net0 move in
       `lib/helpers/proxmox.rb` and `--proxmox-internal-bridge`, and updated the
       test scenario and the module description.
-- [ ] Re-run the test build to confirm the relay still reaches the gateway.
+- [x] Re-ran the test build: the relay still reaches the gateway
+      (`deploy-ghidrallm-06` and `-07`, 3/3 passing).
 
 ### General tidy-up
 
@@ -284,9 +299,6 @@ pivot. The PDF describes it as initial thinking rather than a tested design.
 - Who owns enabling the datacenter firewall on the cluster, and when?
 - Should the relay be a dedicated VM, or run on the Hackerbot server as the PDF
   suggests (with Hackerbot's services then inside the trust boundary)?
-- Can vagrant-proxmox attach an untagged NIC on `vmbr3` at build time (the
-  preferred approach in Phase 2), or must the internal network still be added
-  in the post-build?
 - Could the gateway sit on its own small network segment, rather than the
   general 172.22.0.0/16 network, so that the relay's internal NIC cannot reach
   anything else even without host rules?
