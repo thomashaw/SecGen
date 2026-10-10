@@ -176,7 +176,7 @@ echo "SecGen exit status $STATUS; log: $SECGEN_DIR/$LOG"
 
 if [[ ( $TEST -eq 1 || $BATCH -eq 1 ) && -f "test_results/$PROJECT_ID/summary.json" ]]; then
   # Masking happens in Ruby with the password from the environment, never argv.
-  SECGEN_PROXMOX_PASS="$(conf_get --proxmoxpass)" \
+  SECGEN_PROXMOX_PASS="$(conf_get --proxmoxpass)" SECGEN_LLM_API_KEY="${SECGEN_LLM_API_KEY:-$(conf_get --llm-api-key)}" \
     ruby "$SECGEN_DIR/scripts/lib/attach_build_log.rb" "$SECGEN_DIR" "$LOG" "$PROJECT_ID" || true
   echo "Test results: $SECGEN_DIR/test_results/$PROJECT_ID/summary.json"
 fi

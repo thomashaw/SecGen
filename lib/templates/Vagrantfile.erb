@@ -332,6 +332,10 @@ end
       -%>
 <%=   module_name%>.facter = {
         "base64_inputs_file" => '<%= json_inputs_filename %>',
+<%      if selected_module.attributes['type'].to_a.include?('llm_api_key') -%>
+        # from secgen.rb --llm-api-key (via the environment, so the key is never written here)
+        "llm_api_key" => ENV['SECGEN_LLM_API_KEY'].to_s,
+<%      end -%>
       }
 <%    end -%>
       <%=module_name%>.module_path = "<%="puppet/#{system.name}/modules"%>"

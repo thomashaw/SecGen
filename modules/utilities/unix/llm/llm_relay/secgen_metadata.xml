@@ -14,10 +14,15 @@
     On Proxmox the keep_provisioning_nic type below tells SecGen to keep the system's provisioning NIC
     (net0) after the build and move it onto the internal network bridge (--proxmox-internal-bridge,
     default vmbr3: 172.22.0.0/16 with DHCP, where the LLM gateway is). Put this module on a system
-    students don't control (e.g. the Hackerbot server).</description>
+    students don't control (e.g. the Hackerbot server).
+    The API key normally comes from secgen.rb's llm-api-key option (e.g. in secgen.conf): the llm_api_key
+    type below makes SecGen pass it as a Puppet fact read from the environment, so it is never written to
+    the scenario or the generated project. It takes precedence over the api_key input, which is only for
+    one-off testing (an api_key input ends up in the project files).</description>
 
   <type>llm_relay</type>
   <type>keep_provisioning_nic</type>
+  <type>llm_api_key</type>
   <platform>linux</platform>
 
   <software_name>nginx</software_name>
