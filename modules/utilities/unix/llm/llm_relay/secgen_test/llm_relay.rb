@@ -57,6 +57,11 @@ class LlmRelayTest < PostProvisionTest
     ids = (JSON.parse(models_body)['data'] || []).map { |m| m['id'] } rescue []
     if models_code.strip == '200' && !ids.empty?
       pass_check('models listed through the relay', ids.join(', '))
+    elsif models_code.strip == '200'
+      # the gateway accepted the key, but its account has access to no models (an Open WebUI permission setting)
+      fail_check('models listed through the relay',
+                 "key accepted, but its account can see no models: grant it access in Open WebUI (#{models_body[0, 100]})")
+      return
     else
       fail_check('models listed through the relay', "HTTP #{models_code.strip}: #{models_body[0, 200]}")
       return
