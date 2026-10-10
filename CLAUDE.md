@@ -42,6 +42,16 @@ modules/<type>/<platform>/<category>/<name>/
   templates.
 - **Dependencies.** Don't add gems or other external dependencies without asking.
 - **Generated code.** Fix the template/module, not the generated project.
+- **Reuse, don't re-roll.** Before adding a helper, check what SecGen already
+  provides. Paths/dirs are constants in `lib/helpers/constants.rb` (`ROOT_DIR`,
+  `PROJECTS_DIR`, `MODULES_DIR`, `BASES_DIR`, the `*_SCHEMA_FILE`s …); output
+  goes through `Print` (`lib/helpers/print.rb`); Proxmox calls go through
+  `lib/helpers/proxmox_connection.rb`. **Exception:** a `secgen_test` runs as a
+  standalone `ruby` subprocess that doesn't load `constants.rb`/`Print`, so it
+  must self-derive paths (via `PostProvisionTest`'s `get_project_path` /
+  `secgen_root` …) and use its own check/record API — don't reach for `ROOT_DIR`
+  there. When you do add something reusable, put it on the base class and have
+  the specific case call it (see `PostProvisionTest`).
 
 ## Check cheaply before building VMs
 
