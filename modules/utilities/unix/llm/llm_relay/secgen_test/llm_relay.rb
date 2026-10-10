@@ -32,17 +32,20 @@ class LlmRelayTest < PostProvisionTest
       else
         fail_check('relay reaches the upstream LLM API', "HTTP #{code.empty? ? '000' : code}")
       end
-      # ... and nothing else on the internal network: the internal NIC's default gateway must not answer pings,
-      # and the upstream host must not be reachable on other ports (locally dropped: fails at once)
-      gateway = run_command("ip -4 route show default | awk '{print $3; exit}'")[:stdout].strip
-      if gateway.empty?
-        skip_check('internal gateway blocked', 'no default route to test against')
-      else
-        test_command_succeeds("internal gateway #{gateway} blocked", "! ping -c 1 -W 3 #{gateway}")
+      # ... and nothing else on the internal network. The targets must answer when unfiltered (checked from the
+      # internal network on 2026-10-10: the Spark gateway's LiteLLM port 4000 and the web proxy do), otherwise
+      # "blocked" proves nothing. HTTP 000 = no connection.
+      upstream = (json_inputs['upstream_url'] || ['http://172.22.222.222:8080']).first
+      upstream_host = upstream[%r{//([\d.]+)}, 1]
+      other_port = upstream.end_with?(':4000') ? 8080 : 4000
+      blocked = lambda do |label, url|
+        code = run_command("curl -s -m 8 --noproxy '*' -o /dev/null -w '%{http_code}' #{url}")[:stdout].strip
+        code == '000' ? pass_check("#{label} blocked", url) : fail_check("#{label} blocked", "#{url} answered HTTP #{code}")
       end
-      upstream_host = (json_inputs['upstream_url'] || ['http://172.22.222.222:8080']).first[%r{//([\d.]+)}, 1]
-      test_command_succeeds("upstream host #{upstream_host} blocked on other ports",
-                            "! timeout 5 bash -c '</dev/tcp/#{upstream_host}/22' 2>/dev/null")
+      blocked.call("upstream host's other port", "http://#{upstream_host}:#{other_port}/")
+      proxy = run_command("sed -n 's/^http_proxy=//Ip' /etc/environment | tr -d '\"' | head -1")[:stdout].strip
+      # only where a proxy is configured (a SKIP here would mark the whole module unverified)
+      blocked.call('web proxy', proxy) unless proxy.empty?
       add_evidence('relay interfaces and routes', 'ip -4 -o addr show; ip route')
       add_evidence('nginx error log', 'tail -n 50 /var/log/nginx/error.log')
     end
