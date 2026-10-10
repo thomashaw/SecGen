@@ -43,8 +43,8 @@
     <value>relay</value>
   </default_input>
   <default_input into="llm_models">
-    <value>fast</value>
     <value>smart</value>
+    <value>fast</value>
   </default_input>
 
   <conflict>

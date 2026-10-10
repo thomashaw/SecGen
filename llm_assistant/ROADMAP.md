@@ -116,7 +116,17 @@ All of the following is on the branch `feature/ghidra-llm-assistant` of the
 
 ## Phase 1: staff pilot
 
-**Parked (2026-10-10).** A build with a real key (`deploy-ghidrallm-09`) showed
+**Resumed: model access granted.** Through the relay of `deploy-ghidrallm-09`
+(built with the key), the account now lists `smart`, `fast` and `demo`; `smart`
+and `fast` answer (HTTP 200, "PONG" in about 3 s and 0.1 s respectively), both
+from the relay and from the Kali VM through the relay, and the relay's tier 3
+check passes. `demo` is broken on the gateway: it is routed to a backend model,
+`llama-3.2-3b`, which does not exist (the PDF describes `demo` as Qwen2.5-3B);
+this is for Cliffe. `smart` is now the `ghidra` module's default (first, hence
+selected, provider), with a 300 s request timeout because it reasons before
+answering.
+
+**Previously parked (2026-10-10).** A build with a real key (`deploy-ghidrallm-09`) showed
 that the key reaches the relay and the gateway accepts it (HTTP 200 rather than
 401), but the key's Open WebUI account can see no models: `/api/models` returns
 an empty list and chat requests fail with "Model not found". Model access for

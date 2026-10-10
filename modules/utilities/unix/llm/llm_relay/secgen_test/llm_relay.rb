@@ -67,8 +67,9 @@ class LlmRelayTest < PostProvisionTest
       return
     end
 
-    model = ids.include?('fast') ? 'fast' : ids.first
-    payload = { model: model, max_tokens: 32,
+    # smart is the ghidra module's default model; it reasons first, so allow it more tokens than the reply needs
+    model = %w[smart fast].find { |m| ids.include?(m) } || ids.first
+    payload = { model: model, max_tokens: 400,
                 messages: [{ role: 'user', content: 'Reply with exactly one word: PONG' }] }.to_json
     started = Time.now
     chat_out = run_command("curl -s -m 120 -w '\\n%{http_code}' -H 'Content-Type: application/json' " \
