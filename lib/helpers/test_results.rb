@@ -177,7 +177,7 @@ module TestResults
     masked += copy_masked(scenario_xml, "#{out}/scenario.xml") if File.exist?(scenario_xml)
 
     # Only the test outputs: json, logs, evidence. Never the Vagrantfile,
-    # systems, datastores, flags/hints or proxmox_test_context.json.
+    # systems, datastores, flags/hints or test_context.json.
     project_results = "#{project_dir}/test_results"
     Dir.glob("#{project_results}/**/*").select { |f| File.file?(f) }.each do |f|
       masked += copy_masked(f, "#{out}/#{f.sub("#{project_results}/", '')}")
