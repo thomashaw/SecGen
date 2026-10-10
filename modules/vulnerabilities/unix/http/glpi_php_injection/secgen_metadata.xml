@@ -50,6 +50,7 @@
   <software_license>GNU GPLv3</software_license>
 
   <!-- disable faulty module (TODO: FIXME module is vulnerable/exploitable but not discoverable or functioning as normal) -->
+  <msf_module>exploit/linux/http/glpi_htmlawed_php_injection</msf_module>
   <conflict>
     <name>.*</name>
   </conflict>
