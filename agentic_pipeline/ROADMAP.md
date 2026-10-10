@@ -13,11 +13,12 @@ Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
    are **done and on master** (2026-10-09): `secgen.rb test-scenario` /
    `test-module` build, test after net0 teardown + reboot, report to
    `test_results/` and destroy. Tests run in parallel and the destroy-on-failure path is checked on a real
-   VM ([follow-ups](#phase-1-follow-ups)). **In-VM exploit tests (1C)** have
-   their framework support done on branch `worktree-phase1c-distcc-exploit`
-   (tier-3 `test_msf_exploit` from a `type=attack` VM, distcc verified end to
-   end, skill documented) — not yet merged to master; follow-ups (negative
-   case, a second module, HTTP exploit runners) remain.
+   VM ([follow-ups](#phase-1-follow-ups)). **In-VM exploit tests (1C)** are
+   done: the framework (tier-3 `test_msf_exploit` from a `type=attack` VM) is on
+   master, and the three follow-ups — negative case, a second module (vsftpd),
+   and non-Metasploit HTTP exploit runners — are complete and confirmed on a
+   real two-VM Proxmox build, on branch `worktree-phase1c-followups` (not yet
+   merged to master). See [1C](#1c--exploit-tests-from-inside-a-vm-tier-3).
 2. **Phase 2 — Repo split**: move the pipeline into a private repo before more
    pipeline-only code lands in SecGen.
 3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
@@ -297,32 +298,44 @@ the Debian target; proof is a sentinel the target-side guest agent reads back
 - [x] Document it: `secgen-test-pipeline` skill gained a "Tier 3: exploit from
       an attacker VM" section (scenario pattern, the helper, the sentinel
       proof, the gotchas, and the non-Metasploit `run_on_system` path).
-- [~] Negative case: distcc present but NOT remotely exploitable → FAIL.
+  All three confirmed end to end on one real two-VM Proxmox build
+  (`deploy-1c-01`, 2026-10-10): the three services share one Debian 12 target
+  (different ports) with one Kali attacker
+  (`scenarios/tests/test_scenario_1c_combined.xml`); single-purpose scenarios
+  also exist for each. All on branch `worktree-phase1c-followups`.
+- [x] Negative case: distcc present but NOT remotely exploitable → FAIL.
       `scenarios/tests/test_scenario_distcc_firewalled.xml` adds the
       `iptables_rules` utility to the distcc target to drop the attacker's
-      traffic to port 3632 (distccd still installed + listening locally, so
-      tiers 1/2 pass; the remote exploit must FAIL). The distcc test is reused
-      unchanged. Staged on branch `worktree-phase1c-followups`; XSD-valid and
-      `build-project` resolves (iptables rule wired into the project). **Pending
-      a confirming Proxmox build** (expect tier_reached 2, tier-3 FAIL).
-- [~] Second module: `vsftpd_234_backdoor` now ships a tier-3 test reusing
-      `test_msf_exploit`, exercising a *different payload shape* — the backdoor
-      yields a shell on 6200, so it uses the `session:` mode (cmd/unix/interact +
-      `sessions -c`) added to the helper, vs distcc's no-session cmd/unix/generic.
-      `scenarios/tests/test_scenario_vsftpd.xml`. Staged on the same branch;
-      XSD-valid, `build-project` resolves. **Pending a confirming Proxmox build.**
-- [~] HTTP-request exploit runners: `http_from_attacker` + `test_http_exploit`
+      traffic to port 3632. Confirmed: distcc tier 1 (installed) + tier 2 (3632
+      listening locally) PASS, tier 3 **FAIL** (sentinel absent — the exploit
+      can't reach the firewalled port). Proves the tier-3 check is a real
+      exploit test, and that the DROP is surgical (ports 21/80 still exploited).
+- [x] Second module: `vsftpd_234_backdoor` ships a tier-3 test reusing
+      `test_msf_exploit` with a *different payload shape*. NB in current
+      Metasploit this module's only compatible payloads are command-stager
+      "fetch" payloads (`cmd/linux/http/*`), **not** a `cmd/unix/interact`
+      shell — so the test drives the no-session `cmd/linux/http/x64/exec`
+      (helper auto-sets `FETCH_SRVHOST` to the attacker) with `force: true` (the
+      module's auto-check is inconclusive). Confirmed tier-3 PASS
+      (`uid=0(root)`). (An earlier `session:` helper mode built on the wrong
+      assumption was dropped — ship only what a real module exercises.)
+- [x] HTTP-request exploit runners: `http_from_attacker` + `test_http_exploit`
       added to `PostProvisionTest` — curl from the attacker VM, assert on the
       response body/header (`expect`/`include_headers`) and/or a target-side
       `sentinel` for command-injection. First consumer is a SQLi auth-bypass on
-      the bespoke `vuln_parameterised_website` (no CVE → genuinely no MSF module;
-      `scenarios/tests/test_scenario_param_website_sqli.xml`). Staged on the same
-      branch; XSD-valid, `build-project` resolves. **Pending a confirming build.**
+      the bespoke `vuln_parameterised_website` (no CVE → genuinely no MSF
+      module; `scenarios/tests/test_scenario_param_website_sqli.xml`). Confirmed
+      tier-3 PASS (302 → index.php from the attacker's injected POST).
 - Depended on 1B for tier reporting (done).
 - Aside (2026-10-10): nine `modules/vulnerabilities/unix/http/*` modules had a
       Metasploit module but no `<msf_module>` tag — the tag was missing, not the
       module. Added them (commit on this branch). The Phase 3 exploit-capability
       audit must not treat a missing `<msf_module>` as "no MSF module exists".
+- Found while testing (pre-existing, not these follow-ups; candidate fixes):
+      (a) the `mysql` service module's own test greps for `mysqld` but Debian 12
+      runs `mariadbd` → false FAIL; (b) `vuln_parameterised_website`'s content
+      checks request `/index.html`, `/contact.html` etc. but the app serves
+      `.php`, so they 404 and the module's non-tier-3 checks FAIL.
 
 ## Phase 2 — Repo split
 

