@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: Phase 1C follow-ups combined (one target, one attacker)</name>
+  <author>Thomas Shaw</author>
+  <description>One-target exercise of all three Phase 1C tier-3 follow-ups, since
+  the services sit on different ports and don't interfere. A Debian 12 target
+  runs three vulnerabilities and a Kali/MSF attacker shares its private network.
+  The target's secgen_tests each run over the Proxmox QEMU Guest Agent and
+  should report:
+    * vsftpd 2.3.4 backdoor (port 21) — tier-3 PASS via test_msf_exploit in
+      session mode (cmd/unix/interact + sessions -c).
+    * Random Parameterised Website (port 80) — tier-3 PASS via test_http_exploit
+      (SQL injection auth bypass driven as an HTTP POST from the attacker; no
+      Metasploit module, bespoke app).
+    * DistCC daemon (port 3632) — tier-3 FAIL (negative control): distccd is
+      installed and listening locally, but an iptables rule drops the attacker's
+      traffic to 3632, so the Metasploit exploit cannot reach it. This proves
+      the tier-3 check is a real exploit test, not a rubber stamp, and that the
+      firewall rule is surgical (21 and 80 still exploitable).
+  Both systems share a 10.92.0.0/24 private network (logical VLAN 1):
+  IP_addresses[0] 10.92.0.10 is the target, [1] 10.92.0.20 is the attacker.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <value>10.92.0.10</value>
+      <value>10.92.0.20</value>
+    </input>
+
+    <vulnerability module_path=".*/vsftpd_234_backdoor"/>
+    <vulnerability module_path=".*/vuln_parameterised_website"/>
+    <vulnerability module_path=".*/distcc_exec"/>
+
+    <!-- Negative control for distcc: drop the attacker's packets to distcc's
+         port only. distccd keeps listening locally (tiers 1/2 pass); only its
+         remote exploit fails. vsftpd (21) and the website (80) are untouched. -->
+    <utility module_path=".*/iptables_rules">
+      <input into="rules">
+        <value>-A INPUT -s 10.92.0.20 -p tcp --dport 3632 -j DROP</value>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+  </system>
+
+</scenario>
