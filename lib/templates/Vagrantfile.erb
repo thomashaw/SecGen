@@ -348,9 +348,18 @@ end
         "base64_inputs_file" => '<%= json_inputs_filename %>',
 <%      internal_network = system.module_selections.find { |m| m.module_type == 'network' && m.attributes['type'].to_a.include?('internal_network') }
         if internal_network
-          internal_ip = internal_network.received_inputs['internal_ip']&.first.to_s -%>
-        # the system has an internal_network module: "dhcp" or its static IP
+          internal_ip = internal_network.received_inputs['internal_ip']&.first.to_s
+          # the system's lab (non-internal) networks as CIDRs, e.g. "10.229.0.0/24"
+          lab_networks = system.module_selections.select { |m| m.module_type == 'network' && m != internal_network }.map do |m|
+            ip = lookup_network_ip(m)
+            next unless ip
+            mask = m.received_inputs['subnet_mask']&.first.to_s
+            mask = '255.255.255.0' if mask.empty?
+            "#{IPAddr.new("#{ip}/#{mask}")}/#{IPAddr.new(mask).to_i.to_s(2).count('1')}"
+          end.compact.uniq.join(' ') -%>
+        # the system has an internal_network module: "dhcp" or its static IP, and its lab networks
         "secgen_internal_network" => '<%= internal_ip.empty? ? 'dhcp' : internal_ip %>',
+        "secgen_lab_networks" => '<%= lab_networks %>',
 <%      end -%>
 <%      if selected_module.attributes['type'].to_a.include?('llm_api_key') -%>
         # from secgen.rb --llm-api-key (via the environment, so the key is never written here)

@@ -11,6 +11,8 @@ class llm_relay::firewall {
   $allowed_networks  = $secgen_parameters['allowed_networks'].filter |$n| { $n != '' }
   $lab_inbound_ports = $secgen_parameters['lab_inbound_ports'].filter |$p| { $p != '' }
   $internal_network  = $::secgen_internal_network
+  # the system's lab networks as CIDRs, from SecGen (set alongside secgen_internal_network)
+  $lab_networks      = $::secgen_lab_networks
 
   # the firewall needs the upstream as an IP (no DNS is allowed out)
   $upstream_url = regsubst($secgen_parameters['upstream_url'][0], '/+$', '')

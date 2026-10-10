@@ -4,18 +4,22 @@
 #
 #   internal subnet: the internal_network NIC's connected subnet (found by its static IP, or as the
 #                    directly connected route to the upstream API when it uses DHCP)
-#   lab subnets:     connected subnets of the other statically addressed NICs (the provisioning NIC uses
-#                    DHCP, so it is left out; it is removed after the build anyway)
+#   lab subnets:     the system's lab networks, from SecGen (fact secgen_lab_networks)
 set -u
 UPSTREAM_HOST='<%= @upstream_host %>'
 UPSTREAM_PORT='<%= @upstream_port %>'
 RELAY_PORT='<%= @listen_port %>'
 INTERNAL_NETWORK='<%= @internal_network %>'
+LAB_NETS='<%= @lab_networks %>'
 ALLOWED_NETWORKS='<%= Array(@allowed_networks).join(' ') %>'
 LAB_INBOUND_PORTS='<%= Array(@lab_inbound_ports).join(' ') %>'
 CONF=/etc/nftables.conf
 
-die() { echo "secgen-llm-relay-firewall: $*" >&2; exit 2; }
+die() {
+  echo "secgen-llm-relay-firewall: $*" >&2
+  { echo 'interfaces:'; ip -4 -o addr show; echo 'routes:'; ip -4 route; } | sed 's/^/  /' >&2
+  exit 2
+}
 
 # connected (kernel, scope link) IPv4 subnet of an interface
 subnet_of() { ip -4 -o route show dev "$1" proto kernel scope link | awk '{print $1; exit}'; }
@@ -33,15 +37,10 @@ fi
 INTERNAL_NET=$(subnet_of "$INTERNAL_IF")
 [ -n "$INTERNAL_NET" ] || die "no connected subnet on $INTERNAL_IF"
 
-LAB_NETS=""
-while read -r _ dev _ addr rest; do
-  [ "$dev" = "$INTERNAL_IF" ] && continue
-  case "$rest" in *dynamic*) continue ;; esac
-  net=$(subnet_of "$dev")
-  [ -n "$net" ] && [ "$net" != "$INTERNAL_NET" ] && LAB_NETS="$LAB_NETS $net"
-done < <(ip -4 -o addr show scope global)
-LAB_NETS=$(echo $LAB_NETS | tr ' ' '\n' | sort -u | tr '\n' ' ')
-[ -n "${LAB_NETS// /}" ] || die "no statically addressed lab network found"
+[ -n "${LAB_NETS// /}" ] || die "no lab network: the system needs a lab <network> as well as internal_network"
+for n in $LAB_NETS; do
+  [ "$n" = "$INTERNAL_NET" ] && die "lab network $n is the internal network"
+done
 
 CLIENT_NETS=${ALLOWED_NETWORKS:-$LAB_NETS}
 for p in $RELAY_PORT $UPSTREAM_PORT $LAB_INBOUND_PORTS; do
