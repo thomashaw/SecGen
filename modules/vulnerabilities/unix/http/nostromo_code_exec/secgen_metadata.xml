@@ -52,6 +52,7 @@
   <software_license>GPLv2</software_license>
 
 
+  <msf_module>exploit/multi/http/nostromo_code_exec</msf_module>
   <requires>
     <type>update</type>
   </requires>

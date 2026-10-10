@@ -55,6 +55,7 @@
     <software_name>Apache Druid</software_name>
     <software_license>Apache License 2.0</software_license>
 
+    <msf_module>exploit/linux/http/apache_druid_js_rce</msf_module>
     <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
       <keyword>server-side misconfiguration and vulnerable components</keyword>
     </CyBOK>

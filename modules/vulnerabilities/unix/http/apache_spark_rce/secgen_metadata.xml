@@ -60,6 +60,7 @@
   <software_name>Apache Spark</software_name>
   <software_license>Apache License 2.0</software_license>
 
+  <msf_module>exploit/linux/http/apache_spark_rce_cve_2022_33891</msf_module>
   <requires>
     <type>update</type>
   </requires>

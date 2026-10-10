@@ -55,6 +55,7 @@
   <software_name>Jenkins</software_name>
   <software_license>MIT</software_license>
 
+  <msf_module>exploit/linux/http/jenkins_cli_deserialization</msf_module>
   <CyBOK KA="MAT" topic="Attacks and exploitation">
     <keyword>EXPLOITATION</keyword>
     <keyword>EXPLOITATION FRAMEWORKS</keyword>
