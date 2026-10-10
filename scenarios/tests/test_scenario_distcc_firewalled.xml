@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: distcc NOT remotely exploitable (tier-3 negative case)</name>
+  <author>Thomas Shaw</author>
+  <description>Negative control for the agentic pipeline's tier-3 (exploit)
+  testing (Phase 1C). Identical to test_scenario_distcc — a Debian 12 target
+  running the vulnerable DistCC daemon (CVE-2004-2687) and a Kali/MSF attacker
+  on one private network — except the target also runs an iptables rule that
+  drops the attacker's traffic to distcc's port (3632). distccd is still
+  installed (tier 1) and still listening locally (tier 2, detected via the
+  listening socket), but the Metasploit exploit from the attacker cannot reach
+  it, so the distcc_exec module's tier-3 test_msf_exploit check must report
+  FAIL, not a false PASS. This proves the tier-3 check is a real exploit test,
+  not a rubber stamp. Both systems share a 10.90.0.0/24 private network (logical
+  VLAN 1): IP_addresses[0] 10.90.0.10 is the target, [1] 10.90.0.20 is the
+  attacker.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <value>10.90.0.10</value>
+      <value>10.90.0.20</value>
+    </input>
+
+    <vulnerability module_path=".*/distcc_exec"/>
+
+    <!-- Neutralise the remote attack path without touching the vuln module:
+         drop the attacker's packets to distcc's port. distccd keeps listening
+         locally, so tiers 1 and 2 still pass; only the remote exploit fails. -->
+    <utility module_path=".*/iptables_rules">
+      <input into="rules">
+        <value>-A INPUT -s 10.90.0.20 -p tcp --dport 3632 -j DROP</value>
+      </input>
+    </utility>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="0">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+      <input into="vlan">
+        <value>1</value>
+      </input>
+    </network>
+  </system>
+
+</scenario>

