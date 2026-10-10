@@ -116,6 +116,20 @@ All of the following is on the branch `feature/ghidra-llm-assistant` of the
 
 ## Phase 1: staff pilot
 
+**Parked (2026-10-10).** A build with a real key (`deploy-ghidrallm-09`) showed
+that the key reaches the relay and the gateway accepts it (HTTP 200 rather than
+401), but the key's Open WebUI account can see no models: `/api/models` returns
+an empty list and chat requests fail with "Model not found". Model access for
+that account is being arranged by Cliffe. Two points to resolve on resuming:
+
+- Re-add `--llm-api-key sk-...` to `~/.config/secgen/secgen.conf` (the file
+  `scripts/secgen-run` reads; a copy in the checkout is not read) and confirm
+  that the build log shows `LLM API key : ********`. It was removed because
+  branches whose `secgen.rb` lacks the option fail on it; a key file read only
+  by this branch's tooling would avoid that.
+- Once the account can see `fast` and `smart`, re-run the relay's
+  `secgen_test`, whose tier 3 check asks the model for a reply.
+
 - [ ] Create the dedicated `ghidra-lab` account in Open WebUI and add its key to
       `secgen.conf` as `--llm-api-key` (the PDF recommends a shared lab account
       rather than a personal key for this stage).
