@@ -10,8 +10,6 @@ Decisions to discuss (mostly with Cliffe). Move items to "Decided" with a date.
 | 2 | Label scheme and claim protocol for agents. | Draft in ROADMAP Phase 5. |
 | 4 | API token (`PVEAPIToken`) vs username/password for the pipeline; what minimum privileges? | Planned for the end of ROADMAP Phase 6, before unattended orchestration (2026-10-09). PVE 9.2.3. |
 | 7 | Keep the old "any stderr = failure" behaviour for any existing `exec_qemu_guest` callers (Hacktivity)? | Proposed: decide on `exitcode`. |
-| 8 | How are exploit tests run — attacker VM inside each test scenario, or one shared test-runner VM per VLAN? | |
-| 9 | Is Metasploit acceptable as a test-time dependency (inside the attacker VM, not the SecGen host)? | Keeps "no new external deps" on the host. |
 | 10 | Proxmox capacity / concurrency limits for agent builds. | Later — once pipeline works. |
 | 11 | Review cadence and capacity (Tom + Cliffe). | Later. |
 | 12 | Target number / priority areas of new modules. | Later — gap analysis informs this. |
@@ -37,3 +35,5 @@ Decisions to discuss (mostly with Cliffe). Move items to "Decided" with a date.
 | 2026-10-08 | Dev builds use VLANs 200–1000 on vmbr0; `scripts/secgen-run` auto-increments prefix + VLAN and wraps within that range. |
 | 2026-10-09 | Work order: Phase 1 test harness (parallel streams 1A–1C) → Phase 2 repo split → Phase 3 coverage baseline. `dirtycow` moved to the backlog. |
 | 2026-10-09 | Test results contract: per project run under gitignored `test_results/<project-id>/` (resolved `scenario.xml`, `build.log`, per-module JSON/logs/evidence, `summary.json`); PASS/FAIL/SKIP with exit 0/1/2; tiers 1–3; evidence auto-collected on FAIL; Proxmox password masked (not refused) in copied files. See ROADMAP Phase 1. |
+| 2026-10-10 | (was Q8) Exploit tests run from an **attacker VM inside each test scenario**, not a shared per-VLAN runner. The attacker is discovered by base `<type>attack</type>` (not a hard-coded name); tier 3 SKIPs if there is none. See ROADMAP 1C. |
+| 2026-10-10 | (was Q9) Metasploit is acceptable **inside the attacker VM** (it ships in the Kali base); the SecGen host stays dependency-free. Framework helper `test_msf_exploit` drives it over the guest agent. See ROADMAP 1C. |

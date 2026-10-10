@@ -7,13 +7,17 @@ by a SecGen developer (Tom / Cliffe) before merging.
 
 Open decisions are tracked in [OPEN_QUESTIONS.md](OPEN_QUESTIONS.md).
 
-## Order of work (as of 2026-10-09)
+## Order of work (as of 2026-10-10)
 
 1. **Phase 1 — Test harness**: lifecycle (1A) and `PostProvisionTest` (1B)
    are **done and on master** (2026-10-09): `secgen.rb test-scenario` /
    `test-module` build, test after net0 teardown + reboot, report to
    `test_results/` and destroy. Tests run in parallel and the destroy-on-failure path is checked on a real
-   VM ([follow-ups](#phase-1-follow-ups)). Remaining: in-VM exploit tests (1C).
+   VM ([follow-ups](#phase-1-follow-ups)). **In-VM exploit tests (1C)** have
+   their framework support done on branch `worktree-phase1c-distcc-exploit`
+   (tier-3 `test_msf_exploit` from a `type=attack` VM, distcc verified end to
+   end, skill documented) — not yet merged to master; follow-ups (negative
+   case, a second module, HTTP exploit runners) remain.
 2. **Phase 2 — Repo split**: move the pipeline into a private repo before more
    pipeline-only code lands in SecGen.
 3. **Phase 3 — Coverage baseline**: run every existing test, audit, fill gaps.
@@ -257,35 +261,48 @@ test_results/
 Network-side and exploit tests need something on the scenario VLAN; run them
 *from inside a VM* via the guest agent.
 
-**First spike landed (2026-10-09, `distcc_exec`, branch
-`worktree-phase1c-distcc-exploit`).** Decisions #8/#9 taken for the spike:
-an **attacker VM per test scenario** (Kali/MSF base) on the scenario's own
-private network, and **Metasploit** is acceptable inside that attacker VM (it
-ships in the base; the SecGen host stays dependency-free). Verified on a real
-two-VM Proxmox build (`deploy-distcc-01`): all three tiers PASS,
-`tier_reached` 3 — msf `exploit/unix/misc/distcc_exec` from the Kali attacker
-ran a command on the Debian target, confirmed by a sentinel the target-side
-guest agent reads back (`uid=119(distccd)`).
+**Framework support landed (2026-10-10, `distcc_exec`, branch
+`worktree-phase1c-distcc-exploit`).** Decisions #8/#9 taken: an **attacker VM
+per test scenario** (a base of `<type>attack</type>`, i.e. Kali/MSF) on the
+scenario's own private network, and **Metasploit** is acceptable inside that
+attacker VM (it ships in the base; the SecGen host stays dependency-free).
+Tier-3 exploit testing is now a reusable part of `PostProvisionTest`, not a
+one-off: a new exploit test is a few lines. Verified end to end on three real
+two-VM Proxmox builds (`deploy-distcc-01..03`) — the last two a full
+`test-scenario` from committed source that PASSed at `tier_reached` 3 and then
+auto-destroyed. The Kali attacker runs `exploit/unix/misc/distcc_exec` against
+the Debian target; proof is a sentinel the target-side guest agent reads back
+(`uid=119(distccd)`).
 
 - [x] Attacker/runner VM in test scenarios (Kali/MSF base), guest agent working
       after net0 teardown. (`scenarios/tests/test_scenario_distcc.xml`:
       Debian 12 target + Kali attacker on one 10.88.0.0/24 private network.)
-- [x] `PostProvisionTest` helpers to run a command on *another* system in the
-      project (`run_on_system` / `other_system_ip` / `system_present?`), each
-      reached over *its own* QEMU Guest Agent (node/VMID from
-      `.vagrant/machines/<name>/proxmox/id`). Proxmox only; tier 3 SKIPs if no
-      attacker system, so single-VM module runs still work.
-- [x] Exploit runner: Metasploit via `msfconsole -q -x`. Two gotchas found by
-      running it — export `HOME` (guest-agent exec has none, so msfconsole's
-      rb-readline aborts), and prefer a **no-session** payload
-      (`cmd/unix/generic` + `CMD`) so there's no reverse/bind shell to race;
-      the proof is the sentinel file read back over the target's agent.
-- [x] Spike on one network vuln module end to end (distcc; exploit → PASS).
+- [x] `PostProvisionTest` cross-system helpers: `run_on_system` /
+      `other_system_ip` / `system_present?`, each reaching a sibling VM over
+      *its own* QEMU Guest Agent (node/VMID from
+      `.vagrant/machines/<name>/proxmox/id`). Proxmox only.
+- [x] Attacker discovered by base `<type>attack</type>` (`attack_system`, read
+      from the resolved project `scenario.xml` + the base metadata), not a
+      hard-coded system name. Both Kali bases already declare the type. Tier 3
+      SKIPs if there is no attacker, so single-VM module runs still work.
+- [x] Reusable exploit runner `test_msf_exploit(module, rhost:, rport:,
+      collect:, options:, tier:)`: resolves the attacker, runs `msfconsole
+      -q -x` on it via `run_on_system`, and verifies RCE by the sentinel the
+      target's agent reads back. Two gotchas baked in — export `HOME`
+      (guest-agent exec has none, so msfconsole's rb-readline aborts) and a
+      **no-session** payload (`cmd/unix/generic` + `CMD`) so there's no
+      reverse/bind shell to race.
+- [x] Spike on one network vuln module end to end (distcc; exploit → PASS),
+      refactored onto `test_msf_exploit` (a 4-line call).
+- [x] Document it: `secgen-test-pipeline` skill gained a "Tier 3: exploit from
+      an attacker VM" section (scenario pattern, the helper, the sentinel
+      proof, the gotchas, and the non-Metasploit `run_on_system` path).
 - [ ] Negative case: vuln removed → FAIL (not yet run for distcc; the tier-3
       check already FAILs cleanly when the sentinel is absent).
-- [ ] Generalise: HTTP-request exploit runners (small helper library) for
-      web vulns; decide whether `attacker` is a convention every exploit
-      scenario uses, or discovered from bases of type `attack`.
+- [ ] Second module: first reuse of `test_msf_exploit` on another vuln to
+      confirm the API generalises (ideally a different payload/verification).
+- [ ] HTTP-request exploit runners (a small helper library) for web vulns that
+      have no Metasploit module, on the same attacker-VM / guest-agent shape.
 - Depended on 1B for tier reporting (done).
 
 ## Phase 2 — Repo split
