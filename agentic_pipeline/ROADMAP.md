@@ -297,13 +297,32 @@ the Debian target; proof is a sentinel the target-side guest agent reads back
 - [x] Document it: `secgen-test-pipeline` skill gained a "Tier 3: exploit from
       an attacker VM" section (scenario pattern, the helper, the sentinel
       proof, the gotchas, and the non-Metasploit `run_on_system` path).
-- [ ] Negative case: vuln removed → FAIL (not yet run for distcc; the tier-3
-      check already FAILs cleanly when the sentinel is absent).
-- [ ] Second module: first reuse of `test_msf_exploit` on another vuln to
-      confirm the API generalises (ideally a different payload/verification).
-- [ ] HTTP-request exploit runners (a small helper library) for web vulns that
-      have no Metasploit module, on the same attacker-VM / guest-agent shape.
+- [~] Negative case: distcc present but NOT remotely exploitable → FAIL.
+      `scenarios/tests/test_scenario_distcc_firewalled.xml` adds the
+      `iptables_rules` utility to the distcc target to drop the attacker's
+      traffic to port 3632 (distccd still installed + listening locally, so
+      tiers 1/2 pass; the remote exploit must FAIL). The distcc test is reused
+      unchanged. Staged on branch `worktree-phase1c-followups`; XSD-valid and
+      `build-project` resolves (iptables rule wired into the project). **Pending
+      a confirming Proxmox build** (expect tier_reached 2, tier-3 FAIL).
+- [~] Second module: `vsftpd_234_backdoor` now ships a tier-3 test reusing
+      `test_msf_exploit`, exercising a *different payload shape* — the backdoor
+      yields a shell on 6200, so it uses the `session:` mode (cmd/unix/interact +
+      `sessions -c`) added to the helper, vs distcc's no-session cmd/unix/generic.
+      `scenarios/tests/test_scenario_vsftpd.xml`. Staged on the same branch;
+      XSD-valid, `build-project` resolves. **Pending a confirming Proxmox build.**
+- [~] HTTP-request exploit runners: `http_from_attacker` + `test_http_exploit`
+      added to `PostProvisionTest` — curl from the attacker VM, assert on the
+      response body/header (`expect`/`include_headers`) and/or a target-side
+      `sentinel` for command-injection. First consumer is a SQLi auth-bypass on
+      the bespoke `vuln_parameterised_website` (no CVE → genuinely no MSF module;
+      `scenarios/tests/test_scenario_param_website_sqli.xml`). Staged on the same
+      branch; XSD-valid, `build-project` resolves. **Pending a confirming build.**
 - Depended on 1B for tier reporting (done).
+- Aside (2026-10-10): nine `modules/vulnerabilities/unix/http/*` modules had a
+      Metasploit module but no `<msf_module>` tag — the tag was missing, not the
+      module. Added them (commit on this branch). The Phase 3 exploit-capability
+      audit must not treat a missing `<msf_module>` as "no MSF module exists".
 
 ## Phase 2 — Repo split
 
