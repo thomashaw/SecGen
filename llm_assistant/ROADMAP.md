@@ -120,12 +120,12 @@ All of the following is on the branch `feature/ghidra-llm-assistant` of the
 
 ### Internal network as a `<network>` module
 
-At present the relay asks SecGen for the internal network implicitly: its
-metadata carries the `keep_provisioning_nic` type, and the Proxmox post-build
-moves net0 onto the internal bridge for any system with a module of that type.
-This hides a networking decision inside a utility module and ties it to the
-provisioning NIC. The refactor makes the internal network explicit in the
-scenario, in the same way as the lab network:
+Previously the relay asked SecGen for the internal network implicitly: its
+metadata carried the `keep_provisioning_nic` type, and the Proxmox post-build
+moved net0 onto the internal bridge for any system with a module of that type.
+This hid a networking decision inside a utility module and tied it to the
+provisioning NIC. The refactor (done 2026-10-10) makes the internal network
+explicit in the scenario, in the same way as the lab network:
 
 ```xml
 <system>
@@ -137,28 +137,26 @@ scenario, in the same way as the lab network:
 </system>
 ```
 
-- [ ] Add a network module, `modules/networks/internal_network`, with inputs for
-      the bridge (default `vmbr3`), DHCP or a static address (the static option is
-      also needed for the Proxmox firewall in Phase 4), and no VLAN.
-- [ ] Teach `lib/templates/Vagrantfile.erb` (and the network helpers) to attach
-      that network on the given bridge, untagged. Two approaches are possible:
-      attach it as an ordinary extra NIC at build time, so that net0 is torn
-      down as normal for every system; or keep the post-build approach, but key
-      it on the presence of the `internal_network` module rather than on a module
-      type. The first is simpler and removes a special case from the teardown,
-      and is preferred unless vagrant-proxmox cannot attach an untagged NIC.
-- [ ] **Internal check in the relay module**: the relay determines whether its
-      system has the `internal_network` module, and only then applies the
-      internal-network configuration (for example the in-guest firewall rules
-      on that NIC in Phase 3). SecGen would expose this to the module, for
-      instance as an input or fact listing the system's network modules (or the
-      internal NIC's address), so that the module can identify the internal
-      interface. If the network is absent, the relay should fail clearly, since
-      it cannot reach the gateway without it.
-- [ ] Remove the `keep_provisioning_nic` type, the net0 move in
-      `lib/helpers/proxmox.rb`, and `--proxmox-internal-bridge` (which becomes an
-      input of the network module), and update the test scenario and the module
-      description.
+- [x] A network module, `modules/networks/internal_network`, with the inputs
+      `bridge` (default `vmbr3`), `internal_ip` (empty for DHCP, or a static
+      address, which the Proxmox firewall in Phase 4 will need) and
+      `internal_netmask`, and no VLAN. `internal_network` was added to the
+      network type enumeration in `lib/schemas/network_metadata_schema.xsd`. It
+      takes no part in the lab network map, so it gets no lab IP or VLAN.
+- [x] `lib/templates/Vagrantfile.erb` attaches it as an ordinary extra NIC at
+      build time (`vm.network :private_network` with `proxmox_bridge` and no
+      `proxmox_vlan`, which vagrant-proxmox supports), so net0 is torn down as
+      normal for every system and the teardown no longer has a special case.
+      Other providers skip it with a comment.
+- [x] **Internal check in the relay module**: every Puppet module on a system with
+      an `internal_network` module receives the fact `secgen_internal_network`
+      (`dhcp` or the static IP). The relay fails with a clear message if the fact
+      is absent, and its firewall script uses it to identify the internal
+      interface (by the static IP, or as the directly connected route to the
+      upstream API when DHCP is used).
+- [x] Removed the `keep_provisioning_nic` type, the net0 move in
+      `lib/helpers/proxmox.rb` and `--proxmox-internal-bridge`, and updated the
+      test scenario and the module description.
 - [ ] Re-run the test build to confirm the relay still reaches the gateway.
 
 ### General tidy-up
@@ -186,13 +184,25 @@ required before students (rather than staff) use the relay.
 - [ ] **Verify on a built relay** (read-only, via the guest agent) which services
       listen on the lab interface, whether a `vagrant` account or insecure key is
       present, and the value of `net.ipv4.ip_forward`.
-- [ ] **In-guest firewall** (nftables, managed by Puppet): on the internal NIC,
-      permit only DHCP and outbound connections to the gateway port; on the lab
-      NIC, permit only inbound connections to the relay port. Root on the relay
-      could remove these rules, but they prevent casual pivoting and limit what
-      is exposed to students.
-- [ ] **Set `net.ipv4.ip_forward=0` explicitly**, rather than relying on the
-      Debian default.
+- [x] **In-guest firewall** (nftables, in `llm_relay::firewall`, done
+      2026-10-10). The relay is self-contained: it declares a `<conflict>` with
+      the other firewall modules (types `firewall` and `iptables_rule`, and
+      `mirror_traffic_to_ids_iptables`), so scenarios need no separate firewall
+      rules for it. A script on the VM works out the internal subnet and the lab
+      subnets at provision time and writes `/etc/nftables.conf`. Inbound, it
+      accepts only the relay port from the lab subnets (or `allowed_networks`),
+      any `lab_inbound_ports` (for example Hackerbot's, when sharing its VM),
+      ping from the lab, and DHCP replies; nothing new is accepted from the
+      internal network. Outbound, it allows only the upstream API's host and
+      port, DHCP and the lab subnets, which also blocks the internet through the
+      internal default route. Forwarding is dropped. nftables is enabled but not
+      started, so the rules apply from the post-build reboot and cannot cut off
+      vagrant's SSH during provisioning. Root on the relay could remove these
+      rules, but they prevent casual pivoting and limit what is exposed to
+      students; the Proxmox firewall (Phase 4) is still needed for a boundary
+      that root cannot remove.
+- [x] **Set `net.ipv4.ip_forward=0` explicitly** (and IPv6 forwarding), rather
+      than relying on the Debian default.
 - [ ] **Lock down logins**: disable SSH, or bind it to the internal side only,
       and remove or lock the `vagrant` account.
 - [ ] **Rate limiting** per lab IP in nginx, so that a single VM (or a malware

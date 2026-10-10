@@ -6,10 +6,10 @@
 
   <name>Test: Ghidra LLM assistant via relay</name>
   <author>Thomas Shaw</author>
-  <description>Two VMs for testing the Ghidra LLM assistant: a relay VM running llm_relay, which keeps its
-  internal (provisioning) NIC after the build, and a Kali VM with Ghidra and the GhidrAssist plugin
-  pointed at the relay on the isolated lab network. No API key is used, so the gateway answering
-  401 through the relay is the expected result; add an api_key to the relay to use the models.</description>
+  <description>Two VMs for testing the Ghidra LLM assistant: a relay VM running llm_relay, with an
+  internal_network NIC as well as its lab network, and a Kali VM with Ghidra and the GhidrAssist plugin
+  pointed at the relay on the isolated lab network. Without an API key (secgen.rb's llm-api-key option)
+  the gateway answering 401 through the relay is the expected result.</description>
 
   <type>test</type>
 
@@ -25,6 +25,7 @@
     <utility module_path=".*/llm_relay"/>
 
     <network type="private_network"/>
+    <network type="internal_network"/>
 
     <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>

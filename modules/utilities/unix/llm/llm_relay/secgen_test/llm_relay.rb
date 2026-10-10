@@ -15,6 +15,10 @@ class LlmRelayTest < PostProvisionTest
       # informational: whether the relay adds the key itself (secgen.rb --llm-api-key) or passes clients' through
       adds_key = run_command('grep -q "proxy_set_header Authorization" /etc/nginx/conf.d/secgen_llm_relay.conf && echo yes')[:stdout].include?('yes')
       pass_check('relay key mode', adds_key ? 'relay adds the API key' : "passes the client's Authorization header through")
+      # the relay's own firewall, loaded at boot
+      test_command_succeeds('firewall rules loaded', 'nft list table inet secgen_llm_relay')
+      test_local_command('IP forwarding off', 'sysctl -n net.ipv4.ip_forward', '0')
+      add_evidence('nftables ruleset', 'nft list ruleset')
     end
     tier(2) do
       test_service_up(port: port)
@@ -28,6 +32,17 @@ class LlmRelayTest < PostProvisionTest
       else
         fail_check('relay reaches the upstream LLM API', "HTTP #{code.empty? ? '000' : code}")
       end
+      # ... and nothing else on the internal network: the internal NIC's default gateway must not answer pings,
+      # and the upstream host must not be reachable on other ports (locally dropped: fails at once)
+      gateway = run_command("ip -4 route show default | awk '{print $3; exit}'")[:stdout].strip
+      if gateway.empty?
+        skip_check('internal gateway blocked', 'no default route to test against')
+      else
+        test_command_succeeds("internal gateway #{gateway} blocked", "! ping -c 1 -W 3 #{gateway}")
+      end
+      upstream_host = (json_inputs['upstream_url'] || ['http://172.22.222.222:8080']).first[%r{//([\d.]+)}, 1]
+      test_command_succeeds("upstream host #{upstream_host} blocked on other ports",
+                            "! timeout 5 bash -c '</dev/tcp/#{upstream_host}/22' 2>/dev/null")
       add_evidence('relay interfaces and routes', 'ip -4 -o addr show; ip route')
       add_evidence('nginx error log', 'tail -n 50 /var/log/nginx/error.log')
     end

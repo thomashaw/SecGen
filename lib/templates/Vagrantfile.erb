@@ -259,8 +259,22 @@ end
     #<%= system.name %>.vm.synced_folder '.', '/vagrant', disabled: true
     <% end %>
 <%   when 'network' -%>
+<%     # Internal network (e.g. for llm_relay): untagged NIC on the given bridge, outside the lab network map -%>
+<%     if selected_module.attributes['type'].to_a.include?('internal_network')
+         internal_bridge = selected_module.received_inputs['bridge']&.first.to_s
+         internal_bridge = 'vmbr3' if internal_bridge.empty?
+         internal_ip = selected_module.received_inputs['internal_ip']&.first.to_s
+         internal_netmask = selected_module.received_inputs['internal_netmask']&.first.to_s
+         internal_netmask = '255.255.0.0' if internal_netmask.empty? -%>
+<%       if provider == "proxmox" && internal_ip.empty? -%>
+    <%= system.name %>.vm.network :private_network, type: "dhcp", proxmox_bridge: "<%= internal_bridge %>"
+<%       elsif provider == "proxmox" -%>
+    <%= system.name %>.vm.network :private_network, ip: "<%= internal_ip %>", netmask: "<%= internal_netmask %>", proxmox_bridge: "<%= internal_bridge %>"
+<%       else -%>
+    # internal_network is only supported on Proxmox: not attached for this provider
+<%       end -%>
 <%     # DHCP networking -%>
-      <% if (!selected_module.received_inputs.include?('IP_address')) and (selected_module.received_inputs['range']&.first.nil? || selected_module.received_inputs['range']&.first == 'dhcp') %>
+      <% elsif (!selected_module.received_inputs.include?('IP_address')) and (selected_module.received_inputs['range']&.first.nil? || selected_module.received_inputs['range']&.first == 'dhcp') %>
         <%       if (@options.has_key? :ovirtnetwork) && provider == "ovirt"  %>
     <%= system.name %>.vm.network :<%= selected_module.attributes['type'].first %>, type: "dhcp", :ovirt__network_name => '<%= get_ovirt_network_name(system.name, @options[:ovirtnetwork]) %>'
 <%       elsif provider == "proxmox"  %>
@@ -332,6 +346,12 @@ end
       -%>
 <%=   module_name%>.facter = {
         "base64_inputs_file" => '<%= json_inputs_filename %>',
+<%      internal_network = system.module_selections.find { |m| m.module_type == 'network' && m.attributes['type'].to_a.include?('internal_network') }
+        if internal_network
+          internal_ip = internal_network.received_inputs['internal_ip']&.first.to_s -%>
+        # the system has an internal_network module: "dhcp" or its static IP
+        "secgen_internal_network" => '<%= internal_ip.empty? ? 'dhcp' : internal_ip %>',
+<%      end -%>
 <%      if selected_module.attributes['type'].to_a.include?('llm_api_key') -%>
         # from secgen.rb --llm-api-key (via the environment, so the key is never written here)
         "llm_api_key" => ENV['SECGEN_LLM_API_KEY'].to_s,
