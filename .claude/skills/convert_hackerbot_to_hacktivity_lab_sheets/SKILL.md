@@ -15,8 +15,13 @@ highlighting format.
 
 Two repos are involved:
 
-- SecGen: `/home/cliffe/Files/Projects/Code/SecGen`
-- Hacktivity lab sheets: `/home/cliffe/Files/Projects/Code/HacktivityLabSheets`
+- SecGen: this repository (its root, or the worktree you are working in).
+- Hacktivity lab sheets: a checkout of HacktivityLabSheets kept beside SecGen,
+  i.e. `../HacktivityLabSheets` relative to the SecGen root (for a worktree,
+  relative to the main checkout). If it lives elsewhere, `$HACKTIVITY_LABSHEETS_DIR`
+  gives its path. If neither exists, ask for the location rather than guessing.
+
+Paths below written as `HacktivityLabSheets/...` are relative to that checkout.
 
 ## Before you start: how the sheet is actually assembled
 
@@ -164,7 +169,7 @@ same machine breaks. Check for and fix each of these:
 
 ## Step 4 — convert to Hacktivity format
 
-Read `/home/cliffe/Files/Projects/Code/HacktivityLabSheets/_labs/example_highlighting_guide.md`
+Read `HacktivityLabSheets/_labs/example_highlighting_guide.md`
 in full and follow it. The most common conversions in Hackerbot sheets:
 
 - **Untyped highlights.** Hackerbot sheets use bare `==Run:==`, `==Set the 'i'
