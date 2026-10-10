@@ -5,8 +5,8 @@ description: Test a SecGen module or scenario end-to-end on Proxmox using the ag
 
 # Test a SecGen module/scenario (Proxmox guest-agent pipeline)
 
-This is the automated-verification half of the agentic pipeline (see
-`agentic_pipeline/ROADMAP.md`). It answers: *does this module actually provision,
+This is the automated-verification half of the agentic pipeline (statuses,
+tiers and the results format are in `README-Testing.md`). It answers: *does this module actually provision,
 and is the intended service/exploit really there on a freshly built VM?* — without
 which agent-generated content can't be trusted.
 
@@ -225,7 +225,8 @@ happy but the check wasn't (e.g. proftpd up on the wrong port), and the
 evidence usually shows why (`listening_ports.txt` showed it on 2121).
 
 `tier_reached` is the highest tier whose checks (and every lower tier's) all
-passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
+passed. The format is the results contract in `README-Testing.md`.
+
 ## The build + test loop
 
 ### One shot (preferred): `test-scenario` / `test-module`

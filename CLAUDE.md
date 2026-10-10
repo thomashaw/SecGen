@@ -16,8 +16,8 @@ Vagrantfile + Puppet), then Vagrant builds the VMs (VirtualBox, oVirt or Proxmox
   `modules/{generators,encoders}` — run locally at build time to produce data.
 - `scenarios/` — `ctf/`, `labs/`, `examples/`, `tests/`, `dev/` …
 - `projects/` — generated output (gitignored). Never edit; regenerate instead.
-- `agentic_pipeline/` — roadmap and open questions for the agentic module pipeline.
-- `README-*.md` — longer docs (Modules-Metadata, Modules-Puppet, Creating-Scenarios, Networking).
+- `README-*.md` — longer docs (Modules-Metadata, Modules-Puppet, Creating-Scenarios, Networking,
+  Testing: tiers, statuses and the `test_results/` contract).
 
 ## Module anatomy
 
