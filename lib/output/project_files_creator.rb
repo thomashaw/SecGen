@@ -217,9 +217,15 @@ class ProjectFilesCreator
     # The password is NOT written here; it is read from ENV at test time.
     if @options[:proxmoxuser] && @options[:proxmoxurl]
       FileUtils.cp("#{ROOT_DIR}/lib/helpers/proxmox_connection.rb", "#{@out_dir}/lib/proxmox_connection.rb")
-      context = { 'url' => @options[:proxmoxurl], 'user' => @options[:proxmoxuser] }
-      write_data_to_file(JSON.pretty_generate(context), "#{@out_dir}/proxmox_test_context.json")
-      Print.std "Wrote Proxmox test context (credentials excluded)"
+      context = {
+        'url' => @options[:proxmoxurl],
+        'user' => @options[:proxmoxuser],
+        # Per-system facts tests need without reaching back into the SecGen
+        # checkout (e.g. which VM is the attacker — base <type>attack</type>).
+        'systems' => @systems.map { |system| system_test_context(system) }
+      }
+      write_data_to_file(JSON.pretty_generate(context), "#{@out_dir}/test_context.json")
+      Print.std "Wrote test context (credentials excluded)"
     end
 
     Print.std "VM(s) can be built using 'vagrant up' in #{@out_dir}"
@@ -235,6 +241,28 @@ class ProjectFilesCreator
       Print.err "Error writing file: #{e.message}"
       abort
     end
+  end
+
+  # Non-secret per-system facts for test_context.json: the system name, its base
+  # module path, and the base's <type> tags (e.g. 'attack' for a Kali box), read
+  # from the base metadata here at build time so a secgen_test doesn't have to
+  # reach back into the checkout.
+  def system_test_context(system)
+    base = system.module_selections.find { |m| m.module_type == 'base' }
+    base_path = base&.module_path
+    { 'name' => system.name,
+      'base' => base_path,
+      'base_types' => base_path ? base_type_tags(base_path) : [] }
+  end
+
+  # The <type> values declared in a base module's secgen_metadata.xml.
+  def base_type_tags(base_module_path)
+    meta = "#{ROOT_DIR}/#{base_module_path}/secgen_metadata.xml"
+    return [] unless File.exist?(meta)
+    Nokogiri::XML(File.read(meta)).remove_namespaces!.xpath('//type').map { |n| n.text.strip }
+  rescue StandardError => e
+    Print.verbose "Could not read base types from #{base_module_path}: #{e.message}"
+    []
   end
 
 # @param [Object] template erb path

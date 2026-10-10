@@ -26,7 +26,7 @@ require 'time'
 require 'rexml/document'
 
 # Proxmox transport (QEMU Guest Agent). Optional: only used when the project was
-# built against Proxmox (a proxmox_test_context.json sits in the project root and
+# built against Proxmox (a test_context.json sits in the project root and
 # .vagrant/machines/<system>/proxmox/id exists). Copied into the project lib
 # alongside this file at build time.
 begin
@@ -343,53 +343,24 @@ class PostProvisionTest
 
   # The SecGen checkout root (the project lives at <root>/projects/<id>).
   # The SecGen checkout root (the project lives at <root>/projects/<id>, see
-  # PROJECTS_DIR in lib/helpers/constants.rb). We derive it rather than use the
-  # ROOT_DIR constant on purpose: a secgen_test runs as a standalone `ruby`
-  # subprocess that never requires constants.rb, so ROOT_DIR isn't defined
-  # here. This matches how the rest of this class self-derives its paths
-  # (get_project_path etc.).
-  def secgen_root
-    File.expand_path('../../', get_project_path)
-  end
-
-  # [[system_name, base_module_path], ...] for every system in the project,
-  # read from the resolved projects/<id>/scenario.xml (no secrets in it).
-  # Scanned with a regex rather than REXML/Nokogiri: the file has a default
-  # xmlns (which REXML's XPath handles badly) and the test process keeps its
-  # requires minimal; the generated markup is simple and stable.
-  def project_systems
-    @project_systems ||= begin
-      xml = File.read("#{get_project_path}/scenario.xml")
-      xml.scan(/<system>.*?<\/system>/m).map do |block|
-        name = block[/<system_name>\s*(.*?)\s*<\/system_name>/m, 1]
-        base = block[/<base[^>]*\bmodule_path="([^"]+)"/m, 1]
-        [name, base]
-      end.reject { |n, _| n.nil? }
-    end
-  rescue StandardError
-    []
-  end
-
-  # Does the base module at this path declare <type>wanted</type>?
-  def base_has_type?(base_module_path, wanted)
-    return false if base_module_path.nil?
-    meta = "#{secgen_root}/#{base_module_path}/secgen_metadata.xml"
-    return false unless File.exist?(meta)
-    File.read(meta).scan(/<type>\s*(.*?)\s*<\/type>/m).flatten.include?(wanted)
-  rescue StandardError
-    false
+  # Per-system facts the build recorded in test_context.json (no secrets):
+  # [{'name', 'base', 'base_types'}, ...]. Written by project_files_creator at
+  # build time, so a secgen_test never has to read module metadata out of the
+  # SecGen checkout.
+  def context_systems
+    (test_context && test_context['systems']) || []
   end
 
   # Name of the sibling system acting as the attacker: the first *other* system
-  # whose base is type 'attack' (e.g. a Kali base). nil if there isn't one, so
-  # callers SKIP cleanly on a single-VM run. Override by passing an explicit
-  # name to the exploit helpers.
+  # whose base declares <type>attack</type> (e.g. a Kali base). nil if there
+  # isn't one, so callers SKIP cleanly on a single-VM run. Override by passing
+  # an explicit name to the exploit helpers.
   def attack_system
     return @attack_system if defined?(@attack_system)
-    @attack_system = project_systems
-                     .reject { |name, _| name == get_system_name }
-                     .find { |_, base| base_has_type?(base, 'attack') }
-                     &.first
+    @attack_system = context_systems
+                     .reject { |s| s['name'] == get_system_name }
+                     .find { |s| Array(s['base_types']).include?('attack') }
+                     &.dig('name')
   end
 
   # --- Metasploit exploit helper (tier 3) ---------------------------------
@@ -499,15 +470,15 @@ class PostProvisionTest
   # Proxmox (Guest Agent)    #
   ############################
 
-  # Memoised {url, user} from the project, or nil if this isn't a Proxmox build.
-  def proxmox_context
-    return @proxmox_context if defined?(@proxmox_context)
-    ctx_path = "#{get_project_path}/proxmox_test_context.json"
-    @proxmox_context = File.exist?(ctx_path) ? JSON.parse(File.read(ctx_path)) : nil
+  # Memoised test_context.json ({url, user, systems}), or nil if this isn't a Proxmox build.
+  def test_context
+    return @test_context if defined?(@test_context)
+    ctx_path = "#{get_project_path}/test_context.json"
+    @test_context = File.exist?(ctx_path) ? JSON.parse(File.read(ctx_path)) : nil
   end
 
   def proxmox?
-    !proxmox_context.nil? && File.exist?(proxmox_id_path) && !!defined?(Proxmox::Connection)
+    !test_context.nil? && File.exist?(proxmox_id_path) && !!defined?(Proxmox::Connection)
   end
 
   # This system's id-file path / [node, vmid] — the sibling helpers applied to
@@ -526,8 +497,8 @@ class PostProvisionTest
     if password.nil? || password.empty?
       skip!('SECGEN_PROXMOX_PASS is not set; cannot reach the Proxmox API for testing.')
     end
-    @proxmox_connection = Proxmox::Connection.new(proxmox_context['url'])
-    @proxmox_connection.login(username: proxmox_context['user'], password: password)
+    @proxmox_connection = Proxmox::Connection.new(test_context['url'])
+    @proxmox_connection.login(username: test_context['user'], password: password)
     @proxmox_connection
   end
 

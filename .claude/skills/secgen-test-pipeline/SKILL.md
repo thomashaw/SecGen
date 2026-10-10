@@ -25,7 +25,7 @@ is the mechanism and the workflow.
   has rebooted onto its isolated static VLAN (the state that broke the legacy
   suite). The transport is in `lib/helpers/proxmox_connection.rb`
   (`exec_qemu_guest`, `qemu_agent_get_ip`, `qemu_agent_running?`).
-- At build time `project_files_creator` writes `proxmox_test_context.json`
+- At build time `project_files_creator` writes `test_context.json`
   (url + user, **no password**) and copies the client into the project `lib/`.
   The test reads the password from `ENV['SECGEN_PROXMOX_PASS']` at run time, and
   the node/VMID from `.vagrant/machines/<system>/proxmox/id`.

@@ -102,7 +102,7 @@ guest network path, so it survives `net0` teardown and the post-provision reboot
       for user-context tests); each API call from the dev server takes **~3.1s**
       (see Backlog), so batch checks into one `sh -c` per module.
 - [x] Backend detection + test context: Proxmox builds write
-      `proxmox_test_context.json` (url + user, **no password** — that comes from
+      `test_context.json` (url + user, **no password** — that comes from
       `SECGEN_PROXMOX_PASS`); `PostProvisionTest#proxmox?` uses it plus
       `.vagrant/machines/*/proxmox/id` for node/VMID. Vagrant path still works.
 - [x] `test_local_command` / `test_service_up` go over the guest agent on Proxmox.
@@ -160,7 +160,7 @@ test_results/
   is recorded under `build`, not as module failures. `test-scenario` exits with
   the worst status across modules (FAIL > SKIP > PASS).
 - **Never copy** `Vagrantfile`, `systems`, `datastores`, the flags/hints XML,
-  spoiler passwords or `proxmox_test_context.json`.
+  spoiler passwords or `test_context.json`.
 - **Secret masking on copy:** every file copied into `test_results/` has the
   Proxmox password replaced with `********` — in Ruby, reading
   `SECGEN_PROXMOX_PASS` and doing a literal (non-regex) replace, as

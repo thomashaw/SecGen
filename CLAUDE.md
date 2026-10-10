@@ -69,7 +69,7 @@ Modules can ship `secgen_test/<name>.rb` (a `PostProvisionTest` subclass). On a
 (`lib/helpers/proxmox_connection.rb`), which needs no network path into the guest —
 so tests work after the provisioning NIC is torn down and the VM has rebooted onto
 its isolated VLAN (the state that broke the legacy suite). At build time the project
-gets a `proxmox_test_context.json` (url + user, **no password** — that comes from
+gets a `test_context.json` (url + user, **no password** — that comes from
 `ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. The whole
 build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
