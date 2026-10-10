@@ -311,14 +311,16 @@ the Debian target; proof is a sentinel the target-side guest agent reads back
       can't reach the firewalled port). Proves the tier-3 check is a real
       exploit test, and that the DROP is surgical (ports 21/80 still exploited).
 - [x] Second module: `vsftpd_234_backdoor` ships a tier-3 test reusing
-      `test_msf_exploit` with a *different payload shape*. NB in current
-      Metasploit this module's only compatible payloads are command-stager
-      "fetch" payloads (`cmd/linux/http/*`), **not** a `cmd/unix/interact`
-      shell — so the test drives the no-session `cmd/linux/http/x64/exec`
-      (helper auto-sets `FETCH_SRVHOST` to the attacker) with `force: true` (the
-      module's auto-check is inconclusive). Confirmed tier-3 PASS
-      (`uid=0(root)`). (An earlier `session:` helper mode built on the wrong
-      assumption was dropped — ship only what a real module exercises.)
+      `test_msf_exploit`. NB in current Metasploit this module has **no
+      `cmd/unix/interact`** payload (the old "just run it → shell" default is
+      gone), but the helper's default no-session `cmd/unix/generic` (distcc's
+      payload) is compatible — so the test is just `force: true` (the module's
+      auto-check is inconclusive). Confirmed tier-3 PASS (`uid=0(root)`). Two
+      helper additions came out of this: `force:` (ForceExploit) and automatic
+      `FETCH_SRVHOST` for `cmd/<os>/http/*` fetch payloads (an alternative that
+      also works). An earlier speculative `session:` mode was dropped — ship
+      only what a real module exercises. The payload-assumption pitfall is now
+      documented in the `secgen-test-pipeline` skill.
 - [x] HTTP-request exploit runners: `http_from_attacker` + `test_http_exploit`
       added to `PostProvisionTest` — curl from the attacker VM, assert on the
       response body/header (`expect`/`include_headers`) and/or a target-side

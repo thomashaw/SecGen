@@ -8,16 +8,15 @@ require_relative '../../../../../lib/post_provision_test'
 #   2  the FTP daemon is listening (port 21).
 #   3  a real exploit from the attacker VM achieves remote command execution.
 #
-# Tier 3 is the second consumer of the framework helper test_msf_exploit, and
-# exercises a different payload shape from distcc. In current Metasploit this
-# module's only compatible payloads are command-stager "fetch" payloads
-# (cmd/linux/http/*), not a cmd/unix/interact shell, so we drive the no-session
-# cmd/linux/http/x64/exec: it runs the proof-of-RCE command on the target (the
-# stager fetches a runner over HTTP from the attacker, which the helper wires up
-# via FETCH_SRVHOST). The module's automatic check is inconclusive, so force:
-# sets ForceExploit. RCE is proven the same way as distcc, by a sentinel the
-# target's own guest agent reads back. With no attacker system (e.g. a single-VM
-# module run) tier 3 SKIPs.
+# Tier 3 is the second consumer of the framework helper test_msf_exploit. In
+# current Metasploit this module has no cmd/unix/interact payload (the classic
+# "just run it and you get a shell" default is gone), but the no-session
+# cmd/unix/generic — the helper's default, as used for distcc — is compatible
+# and runs the proof-of-RCE command on the target directly. The only extra it
+# needs is force: true, because the module's automatic check is inconclusive
+# ("Cannot reliably check exploitability"). RCE is proven the same way as
+# distcc, by a sentinel the target's own guest agent reads back. With no
+# attacker system (e.g. a single-VM module run) tier 3 SKIPs.
 class Vsftpd234BackdoorTest < PostProvisionTest
   def initialize
     self.module_name = 'vsftpd_234_backdoor'
@@ -34,10 +33,10 @@ class Vsftpd234BackdoorTest < PostProvisionTest
     # Tier 2 — FTP daemon listening on the target.
     test_service_up(tier: 2)
 
-    # Tier 3 — exploit from the attacker VM via a no-session fetch payload.
+    # Tier 3 — exploit from the attacker VM (default cmd/unix/generic payload;
+    # force: because this module's automatic check is inconclusive).
     test_msf_exploit('exploit/unix/ftp/vsftpd_234_backdoor',
                      rport: 21,
-                     payload: 'cmd/linux/http/x64/exec',
                      force: true,
                      tier: 3)
   end

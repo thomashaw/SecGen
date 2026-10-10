@@ -112,7 +112,9 @@ API (all in `lib/objects/post_provision_test.rb`):
 | `skip!(reason)` | stop now, report SKIP (prerequisite missing) |
 | `run_command(cmd)` / `run_as_user(user, cmd)` / `http_get(path)` | raw `{stdout, stderr, exit_status}` / `{status, body, error}` |
 | `add_evidence(name, cmd)` | extra command whose output is saved if the test FAILs |
-| `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, options:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below) |
+| `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, force:, options:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below) |
+| `test_http_exploit(path, method:, data:, headers:, expect:, expect_status:, sentinel:, include_headers:, collect:, tier: 3)` | a non-Metasploit web exploit run as HTTP request(s) from the attacker VM: PASSes when the response matches `expect` and/or a target-side `sentinel` proves command execution (see below) |
+| `http_from_attacker(path, attacker:, rhost:, method:, data:, headers:, include_headers:)` | raw: one `curl` request from the attacker VM → `{status, body, error, curl}` |
 | `run_on_system(name, cmd)` / `other_system_ip(name)` | run a command on / get the IP of **another** VM in the project (Proxmox, over its own guest agent) |
 | `system_present?(name)` / `attack_system` | a sibling VM by name exists / the sibling whose base is `<type>attack</type>` (nil if none) |
 
@@ -143,6 +145,7 @@ in `<msf_module>`):
 test_msf_exploit('exploit/unix/misc/distcc_exec',
                  rport: 3632,                     # target port (rhost defaults to the target's IP)
                  collect: 'cat /home/distccd/*',  # extra shell appended to the proof cmd (optional)
+                 force: true,                     # set ForceExploit (see pitfall below; optional)
                  options: { 'LHOST' => '...' },   # extra/override msf datastore opts (optional)
                  tier: 3)
 ```
@@ -153,8 +156,11 @@ exploit drops on the target, which the target's own guest agent reads back and
 checks for `uid=`. msf output and the sentinel are attached as evidence. It
 defaults to the no-session `cmd/unix/generic` payload — the exploit runs a
 command on the target directly, so there's no reverse/bind shell to race.
+Pass `payload:` to override (e.g. a `cmd/<os>/http/...` command-stager "fetch"
+payload — the helper then auto-sets `FETCH_SRVHOST` to the attacker), and
+`force: true` to set `ForceExploit`.
 
-**Gotchas (both already handled by `test_msf_exploit`; mind them in any custom
+**Gotchas (all handled by `test_msf_exploit`; mind them in any custom
 attacker-side command):**
 
 - **Export `HOME`.** The guest agent runs commands with no `HOME`, and
@@ -163,11 +169,37 @@ attacker-side command):**
 - **Avoid a reverse/bind shell for the assertion.** A session can open and close
   before you interact with it. Prefer a payload/command that executes on the
   target and leaves a durable artefact you verify out-of-band (the sentinel).
+- **Don't assume a payload name — Metasploit changes module payload
+  compatibility between versions, and a *global/auto default payload* can
+  silently take over.** A `set PAYLOAD <name>` for a payload the current module
+  no longer lists is rejected (`The value specified for PAYLOAD is not valid`);
+  msf then keeps the *configured* default — on these dev Kali boxes that is a
+  `cmd/linux/http/.../meterpreter_reverse_tcp`, which needs `LHOST` and aborts
+  with `One or more options failed to validate: LHOST`. The exploit never fires
+  and the sentinel is absent, so the test FAILs for a reason that has nothing to
+  do with the target. This bit the `vsftpd_234_backdoor` tier-3 test: in the
+  installed Metasploit that module has **no `cmd/unix/interact`** payload (the
+  classic "just run it and you get a shell" default is gone) — its compatible
+  set is huge but the no-session **`cmd/unix/generic`** (distcc's default) is in
+  it and works with `force: true`. Diagnose by running `use <module>; show
+  payloads` on the attacker (the list is long — grep it, don't eyeball the first
+  screen) and confirm the name before wiring it into a test. Prefer the default
+  `cmd/unix/generic` (arch-independent, no HTTP-fetch infrastructure).
+- **Inconclusive automatic check.** Some modules can't self-verify the target
+  (`Cannot reliably check exploitability ... set ForceExploit true to override`)
+  and abort before exploiting. Pass `force: true` (the vsftpd backdoor needs
+  this). This is distinct from a payload problem — read `msf_output` evidence to
+  tell them apart (`LHOST`/`not valid` = payload; `Cannot reliably check` =
+  AutoCheck).
 
-**For non-Metasploit exploits** (e.g. a crafted HTTP request), run the attack
-yourself with `run_on_system(attack_system, '<curl ...>')`, then assert on the
-effect on the target (`run_command`) — same attacker-VM / guest-agent shape,
-your own verification.
+**For non-Metasploit exploits** (web vulns with no msf module), use the
+`test_http_exploit` helper: it crafts the HTTP request(s) with `curl` **on the
+attacker VM** (`http_from_attacker`) and asserts on the response body/header
+(`expect:` / `include_headers:`) and/or a target-side `sentinel:` for command
+injection — same attacker-VM / guest-agent shape, non-Metasploit path. Precedent:
+`vuln_parameterised_website` (SQLi auth-bypass, `expect: /location:\s*index\.php/i`
+on the 302). For anything more bespoke, run the attack directly with
+`run_on_system(attack_system, '<curl ...>')` and assert with `run_command`.
 
 ### Results and exit codes
 
