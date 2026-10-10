@@ -61,8 +61,9 @@ assert in `test_module`. Every check is recorded with a **tier**:
    terminal (`test_service_up`, `test_banner`, `test_http`,
    `test_command_succeeds`; default tier 2). For utilities actually invoke the
    binary, as the intended user, so PATH and missing-lib problems surface.
-3. **Exploitable** — the intended vuln is actually exploitable (real exploit:
-   Metasploit or a crafted request, run from an attacker VM — roadmap Phase 1, stream 1C).
+3. **Exploitable** — the intended vuln is actually exploitable with a real
+   exploit (Metasploit or a crafted request) run **from an attacker VM** in the
+   same project. See [Tier 3: exploit from an attacker VM](#tier-3-exploit-from-an-attacker-vm).
 
 ```ruby
 require_relative '../../../../../lib/post_provision_test'
@@ -81,7 +82,8 @@ class FooTest < PostProvisionTest
       test_http('/login.php', match: 'Sign in')       # status 2xx/3xx + body match
       test_command_succeeds('foo runs', 'foo --version', user: 'alice')
     end
-    # tier(3) { ... exploit ... }  (1C)
+    # Tier 3: real exploit from an attacker VM (see below)
+    test_msf_exploit('exploit/unix/misc/foo_rce', rport: 1234, tier: 3)
   end
 end
 FooTest.new.run
@@ -101,10 +103,62 @@ API (all in `lib/objects/post_provision_test.rb`):
 | `skip!(reason)` | stop now, report SKIP (prerequisite missing) |
 | `run_command(cmd)` / `run_as_user(user, cmd)` / `http_get(path)` | raw `{stdout, stderr, exit_status}` / `{status, body, error}` |
 | `add_evidence(name, cmd)` | extra command whose output is saved if the test FAILs |
+| `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, options:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below) |
+| `run_on_system(name, cmd)` / `other_system_ip(name)` | run a command on / get the IP of **another** VM in the project (Proxmox, over its own guest agent) |
+| `system_present?(name)` / `attack_system` | a sibling VM by name exists / the sibling whose base is `<type>attack</type>` (nil if none) |
 
 Every helper takes `tier:`; a `tier(n) { ... }` block sets it for the checks
 inside. Legacy tests that push `"PASSED: ..."` / `"FAILED: ..."` onto `outputs`
 and set `all_tests_passed` still work — those lines are recorded as checks.
+
+### Tier 3: exploit from an attacker VM
+
+A tier-3 check proves the vuln is really exploitable by attacking the target
+**from another VM in the project** — network/exploit traffic has to come from
+the scenario VLAN, not the SecGen host. Each sibling VM is reached over **its
+own** QEMU Guest Agent (so this works after net0 teardown, like the rest).
+
+**1. Put an attacker VM in the test scenario.** Add a second system on the same
+private network as the target, built from a base of `<type>attack</type>`
+(`<base distro="Kali" name="MSF"/>` — ships Metasploit). Give both systems
+static IPs on one subnet/VLAN so the attacker can reach the target. Minimal
+precedent: `scenarios/tests/test_scenario_distcc.xml` (Debian 12 target + Kali
+attacker on `10.88.0.0/24`). The helper finds the attacker by base type, so the
+system can be named anything; if there is no `type=attack` sibling, tier 3
+SKIPs and the module still tests fine on its own.
+
+**2. Use `test_msf_exploit`** for a Metasploit module (metadata often names it
+in `<msf_module>`):
+
+```ruby
+test_msf_exploit('exploit/unix/misc/distcc_exec',
+                 rport: 3632,                     # target port (rhost defaults to the target's IP)
+                 collect: 'cat /home/distccd/*',  # extra shell appended to the proof cmd (optional)
+                 options: { 'LHOST' => '...' },   # extra/override msf datastore opts (optional)
+                 tier: 3)
+```
+
+It resolves the attacker, SKIPs cleanly if there's none, runs `msfconsole -q -x`
+on the attacker via `run_on_system`, and proves RCE by a **sentinel file** the
+exploit drops on the target, which the target's own guest agent reads back and
+checks for `uid=`. msf output and the sentinel are attached as evidence. It
+defaults to the no-session `cmd/unix/generic` payload — the exploit runs a
+command on the target directly, so there's no reverse/bind shell to race.
+
+**Gotchas (both already handled by `test_msf_exploit`; mind them in any custom
+attacker-side command):**
+
+- **Export `HOME`.** The guest agent runs commands with no `HOME`, and
+  `msfconsole`'s rb-readline aborts on startup without it — prefix
+  `export HOME=/root TERM=dumb;`.
+- **Avoid a reverse/bind shell for the assertion.** A session can open and close
+  before you interact with it. Prefer a payload/command that executes on the
+  target and leaves a durable artefact you verify out-of-band (the sentinel).
+
+**For non-Metasploit exploits** (e.g. a crafted HTTP request), run the attack
+yourself with `run_on_system(attack_system, '<curl ...>')`, then assert on the
+effect on the target (`run_command`) — same attacker-VM / guest-agent shape,
+your own verification.
 
 ### Results and exit codes
 
@@ -206,6 +260,12 @@ wouldn't start on Debian 12 (`fatal: unknown configuration directive 'IdentLooku
 — removed in modern ProFTPD). The test reported `FAILED: Port 21 is closed`; after
 dropping the stale directive from the module template it reported
 `PASSED: Port 21 is open`. That is the detect → fix → re-verify loop this skill is for.
+
+For a **tier-3** precedent, `scenarios/tests/test_scenario_distcc.xml` +
+`modules/vulnerabilities/unix/misc/distcc_exec/secgen_test/distcc_exec.rb`: a
+Kali attacker runs `exploit/unix/misc/distcc_exec` against the Debian target and
+the test PASSes tier 3 on the sentinel it drops (`uid=119(distccd)`). It is a
+4-line `test_msf_exploit` call on top of the framework.
 
 ## Then
 
