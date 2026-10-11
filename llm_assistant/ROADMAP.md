@@ -126,6 +126,18 @@ this is for Cliffe. `smart` is now the `ghidra` module's default (first, hence
 selected, provider), with a 300 s request timeout because it reasons before
 answering.
 
+**Tool calling is broken on the gateway (2026-10-11).** GhidrAssist's Explain
+and Query tabs work with both models, but its Actions tab (Analyze Function)
+does not: it sends OpenAI `tools` with `tool_choice: "auto"`, and both `smart`
+and `fast` answer with the call as plain text in `content` (Qwen's XML form,
+`<function=rename_function><parameter=new_name>...</parameter></function></tool_call>`),
+with `finish_reason: "stop"` and no `tool_calls`. The models choose sensible
+names, so the fault is that vLLM does not parse their tool-call format: the
+models need launching with `--enable-auto-tool-choice` and a `--tool-call-parser`
+matching that XML format (for the Qwen3 family, `qwen3_coder` or `qwen3_xml`
+rather than `hermes`). This is for Cliffe; it also blocks the MCP agent route
+(Phase 6), which depends entirely on tool calling.
+
 **Previously parked (2026-10-10).** A build with a real key (`deploy-ghidrallm-09`) showed
 that the key reaches the relay and the gateway accepts it (HTTP 200 rather than
 401), but the key's Open WebUI account can see no models: `/api/models` returns
