@@ -1,6 +1,7 @@
 # Security Scenario Generator (SecGen)
 
 ## Summary
+
 SecGen creates vulnerable virtual machines, lab environments, and hacking challenges, so students can learn security penetration testing techniques.
 
 Boxes like Metasploitable2 are always the same, this project uses Vagrant, Puppet, and Ruby to create randomly vulnerable virtual machines that can be used for learning or for hosting CTF events.
@@ -12,6 +13,7 @@ Boxes like Metasploitable2 are always the same, this project uses Vagrant, Puppe
 [For a hosted solution visit: https://hacktivity.co.uk/](https://hacktivity.co.uk/)
 
 ## Introduction
+
 Computer security students benefit from engaging in hacking challenges. Practical lab work and pre-configured hacking challenges are common practice both in security education and also as a pastime for security-minded individuals. Competitive hacking challenges, such as capture the flag (CTF) competitions have become a mainstay at industry conferences and are the focus of large online communities. Virtual machines (VMs) provide an effective way of sharing targets for hacking, and can be designed in order to test the skills of the attacker. Websites such as Vulnhub host pre-configured hacking challenge VMs and are a valuable resource for those learning and advancing their skills in computer security. However, developing these hacking challenges is time consuming, and once created, essentially static. That is, once the challenge has been "solved" there is no remaining challenge for the student, and if the challenge is created for a competition or assessment, the challenge cannot be reused without risking plagiarism, and collusion.
 
 Security Scenario Generator (SecGen) generates randomised vulnerable systems. VMs are created based on a scenario specification, which describes the constraints and properties of the VMs to be created. For example, a scenario could specify the creation of a system with a remotely exploitable vulnerability that would result in user-level compromise, and a locally exploitable flaw that would result in root-level compromise. This would require the attacker to discover and exploit both randomly selected vulnerabilities in order to obtain root access to the system. Alternatively, the scenario that is defined can be more specific, specifying certain kinds of services (such as FTP or SMB) or even exact vulnerabilities (by CVE).
@@ -19,77 +21,106 @@ Security Scenario Generator (SecGen) generates randomised vulnerable systems. VM
 SecGen is a Ruby application, with an XML configuration language. SecGen reads its configuration, including the available vulnerabilities, services, networks, users, and content, reads the definition of the requested scenario, applies logic for randomising the scenario, and leverages Puppet and Vagrant to provision the required VMs.
 
 ## License
+
 SecGen is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 SecGen contains modules, which install various software packages. Each SecGen module may contain or remotely source software, and each module defines its own license in the accompanying secgen_metadata.xml file.
 
 ## Installation
+
 SecGen is developed and tested on Ubuntu Linux. In theory, SecGen should run on Mac or Windows, if you have all the required software installed.
 
-You will need to install the following:
-- Ruby (development): https://www.ruby-lang.org/en/
-- Vagrant: http://www.vagrantup.com/
-- Virtual Box: https://www.virtualbox.org/
-- Puppet: http://puppet.com/
-- Packer: https://www.packer.io/
-- ImageMagick: https://www.imagemagick.org/
-- And the required Ruby Gems (including Nokogiri and Librarian-puppet)
+SecGen needs:
 
-This project has been adapted to work with the Ubuntu (20.04) release due to (16.04) coming to end of life as of April 2021, though it will still work on that version it is not guaranteed to support the security updates needed for your development environment.
+- Ruby 2.7 to 4.0, with development headers, and the Ruby gems in the Gemfile (including Nokogiri and Librarian-puppet)
+- Vagrant: https://developer.hashicorp.com/vagrant
+- VirtualBox: https://www.virtualbox.org/ (or Proxmox / oVirt / ESXi, see below)
+- ImageMagick, ExifTool, Graphviz and a few libraries for native gems
+- Packer, only for the Windows bases: https://www.packer.io/
 
+There are two ways to install it. Both have been tested from a fresh Ubuntu install.
 
-### On Ubuntu (20.04) these commands will get you up and running
+### Option 1: Docker
 
-Ensure Ubuntu is updated using the following commands:
-```bash
-sudo apt update
-sudo apt upgrade
-```
-Install a recent version of vagrant:
-```bash
-wget https://releases.hashicorp.com/vagrant/2.2.9/vagrant_2.2.9_x86_64.deb
-sudo apt install ./vagrant_2.2.9_x86_64.deb
-```
-Install other required packages:
-```bash
-sudo apt-get install ruby-dev zlib1g-dev liblzma-dev build-essential patch virtualbox ruby-bundler imagemagick libmagickwand-dev exiftool libpq-dev libcurl4-openssl-dev libxml2-dev graphviz graphviz-dev libpcap0.8-dev git
-```
-Clone the SecGen repo using the following command.By default this will be /home/username/SecGen, change as required:
+Install Docker and VirtualBox on the host, then let `docker/secgen-docker.sh` build a container with everything else. VirtualBox is still needed on the host for its kernel driver. See [docker/README.md](docker/README.md).
+
 ```bash
 git clone https://github.com/cliffe/SecGen.git
+cd SecGen
+docker/secgen-docker.sh run -s scenarios/default_scenario.xml
 ```
-Install gems using the following commands:
+
+### Option 2: Native install on Ubuntu (22.04, 24.04, 26.04; 20.04 with the note below)
+
+Install VirtualBox from Oracle's repository. The `virtualbox` package in Ubuntu 24.04 (7.0.16) cannot build its kernel driver for the current HWE kernels, and Linux 7.0 needs VirtualBox 7.2.8 or later:
+
 ```bash
-#Step In to the file directory
-
-cd /home/username/SecGen
-
-bundle update --bundler
+sudo apt-get update
+sudo apt-get install -y wget gpg lsb-release
+wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc \
+  | sudo gpg --yes --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" \
+  | sudo tee /etc/apt/sources.list.d/virtualbox.list
+sudo apt-get update
+sudo apt-get install -y virtualbox-7.2
 ```
-Update gems:
+
+If KVM is loaded, VirtualBox can't start VMs while KVM holds VT-x (`VERR_VMX_IN_VMX_ROOT_MODE`). On kernels 6.12 and later you can let them coexist:
+
 ```bash
-bundle update
+echo "options kvm enable_virt_at_load=0" | sudo tee /etc/modprobe.d/kvm-virtualbox.conf
+sudo modprobe -r kvm_intel kvm_amd kvm; sudo modprobe kvm_intel || sudo modprobe kvm_amd
 ```
 
-### On Ubuntu (16.04) these commands will get you up and running
-Install all the required packages:
+SecGen scenarios use host-only network ranges outside VirtualBox's default 192.168.56.0/21, so allow any range:
+
 ```bash
-# install a recent version of vagrant
-wget https://releases.hashicorp.com/vagrant/1.9.8/vagrant_1.9.8_x86_64.deb
-sudo apt install ./vagrant_1.9.8_x86_64.deb
-# install other required packages via repos
-sudo apt-get install ruby-dev zlib1g-dev liblzma-dev build-essential patch virtualbox ruby-bundler imagemagick libmagickwand-dev exiftool libpq-dev libcurl4-openssl-dev libxml2-dev graphviz graphviz-dev libpcap0.8-dev git
+sudo mkdir -p /etc/vbox
+echo '* 0.0.0.0/0 ::/0' | sudo tee /etc/vbox/networks.conf
 ```
 
-Copy SecGen to a directory of your choosing, such as */home/user/bin/SecGen*
+Install Vagrant from HashiCorp's repository (Ubuntu 26.04 no longer packages it, and older Vagrant releases can't download boxes from Vagrant Cloud any more):
 
-Then install gems:
 ```bash
-cd /home/user/bin/SecGen
-bundle install
+wget -qO- https://apt.releases.hashicorp.com/gpg | sudo gpg --yes --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" \
+  | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt-get update
+sudo apt-get install -y vagrant
 ```
+
+Install Ruby and the other required packages:
+
+```bash
+sudo apt-get install -y git ruby-full ruby-dev build-essential patch pkg-config zlib1g-dev liblzma-dev \
+  imagemagick exiftool libpq-dev libcurl4-openssl-dev libxml2-dev libxslt1-dev graphviz libgraphviz-dev \
+  libpcap-dev libsqlite3-dev libgpgme-dev libyaml-dev libffi-dev libssl-dev
+```
+
+Clone SecGen and install the gems. Use `bundle install`, not `bundle update`: Gemfile.lock pins versions that work on every supported Ruby, and `bundle update` replaces them with the newest releases, which may not.
+
+```bash
+git clone https://github.com/cliffe/SecGen.git
+cd SecGen
+sudo gem install bundler -v '~> 2.4'
+sudo bundle install
+```
+
+Then try the default scenario (it downloads the base box from Vagrant Cloud the first time):
+
+```bash
+ruby secgen.rb run
+```
+
+Notes:
+
+- **Ubuntu 20.04 (Ruby 2.7):** HashiCorp's apt repository no longer verifies on 20.04; install Vagrant from the `.deb` on https://releases.hashicorp.com/vagrant/ instead. Don't install the `ruby-bundler` package. It brings a Debian-packaged `thor` gem, and `bundle install` then fails with "Could not find thor-0.19.4.gem". Use `sudo gem install bundler -v 2.4.22` as above (2.4 is the last Bundler release that supports Ruby 2.7).
+- **Ruby 4.0:** `bundle install` re-resolves a few gems (librarian-puppet and its dependencies) and rewrites Gemfile.lock locally, because the versions pinned for Ruby 2.7 don't allow Ruby 4.
+- Already using SecGen on an older system? After pulling, run `sudo bundle install` again.
+- **Memory:** on VirtualBox, VMs built on desktop bases (Kali, Debian KDE) get 3000 MB each, other VMs 1024 MB, so a CTF with an attack VM and a desktop target (such as `scenarios/ctf/nosferatu.xml`) needs about 6 GB of free RAM. Override with `--memory-per-vm` or `--total-memory`.
 
 To use the Windows basesboxes you will need to install Packer. Use the following command:
+
 ```bash
 curl -SL https://releases.hashicorp.com/packer/1.3.2/packer_1.3.2_linux_amd64.zip -o packer_1.3.2_linux_amd64.zip
 unzip packer_1.3.2_linux_amd64.zip
@@ -100,13 +131,16 @@ sudo vagrant plugin install winrm-fs
 ```
 
 ## Usage
+
 Basic usage:
+
 ```bash
 ruby secgen.rb run
 ```
-This will use the default scenario to randomly generate VM(s).
-![gify goodness](lib/resources/images/readme_gifs/secgen_default_scenario_run.gif  "SecGen randomising a vulnerable VM -- part 1, randomisation")
-![gify goodness](lib/resources/images/readme_gifs/secgen_default_scenario_run_vm.gif  "SecGen randomising a vulnerable VM -- part 2, provisioning VMs")
+
+![gify goodness](lib/resources/images/readme_gifs/secgen_default_scenario_run.gif "SecGen randomising a vulnerable VM -- part 1, randomisation")
+
+![gify goodness](lib/resources/images/readme_gifs/secgen_default_scenario_run_vm.gif "SecGen randomising a vulnerable VM -- part 2, provisioning VMs")
 
 SecGen accepts arguments to change the way that it behaves, the currently implemented arguments are:
 
@@ -181,74 +215,84 @@ SecGen accepts arguments to change the way that it behaves, the currently implem
       list-scenarios: Lists all scenarios that can be used with the --scenario option
       list-projects: Lists all projects that can be used with the --project option
       delete-all-projects: Deletes all current projects in the projects directory
-
 ```
 
 ## Troubleshooting: updating base boxes
+
 If SecGen experiences errors installing packages, the template VMs (base boxes) we publish on Vagrant cloud may need updating (especially Kali, which is a rolling-release). After you have built some VMs, browse in your home directory `.vagrant.d/boxes/`, from here you can manually launch the VMs that are used as templates, and apply software updates `sudo apt-get update; sudo apt-get upgrade`. Then power down the VM, and try SecGen again.
 
-For Proxmox, use this Vagrant plugin: https://github.com/cliffe/vagrant-proxmox/, and make this fix to Vagrant: https://github.com/hashicorp/vagrant/pull/12463/files. 
+For Proxmox, use this Vagrant plugin: https://github.com/cliffe/vagrant-proxmox/, and make this fix to Vagrant: https://github.com/hashicorp/vagrant/pull/12463/files.
 
-You will typically need to create a Debian Buster base VM, broadly following these instructions:
-https://github.com/cliffe/SecGen/blob/master/README-Creating-Bases.md
+You will typically need to create a Debian Buster base VM, broadly following these instructions: https://github.com/cliffe/SecGen/blob/master/README-Creating-Bases.md
 
 ## Scenarios
+
 SecGen generates VMs based on a scenario specification, which describes the constraints and properties of the VMs to be created.
 
 ### Using existing scenarios
+
 Existing scenarios make SecGen's barrier for entry low: when invoking SecGen, a scenario can be specified as a command argument, and SecGen will then read the appropriate scenario definition and go about randomisation and VM generation. This removes the requirement for end users of the framework to understand SecGen's configuration specification.
 
 Scenarios can be found in the scenarios/ directory. For example, to spin up a VM that has a random remotly exploitable vulnerability that results in user-level compromise:
+
 ```bash
    ruby secgen.rb --scenario scenarios/examples/remotely_exploitable_user_vulnerability.xml run
 ```
-![gify goodness](lib/resources/images/readme_gifs/secgen_random_example.gif  "Remotely exploitable example where an attacker ends up with user-level access")
+
+![gify goodness](lib/resources/images/readme_gifs/secgen_random_example.gif "Remotely exploitable example where an attacker ends up with user-level access")
 
 #### VMs for a security audit of an organisation
+
 To generate a set of VMs for a randomly generated fictional organisation, with a desktop system, webserver, and intranet server:
+
 ```bash
    ruby secgen.rb --scenario scenarios/security_audit/team_project.xml run
 ```
+
 Note that the intranet server has a security remit, with instructions on performing a security audit of these systems. The desktop system can access the intranet to access the remit, but the attacker VM (for example, Kali) can be connected to the NIC only shared by the Web server to simulate the need to pivot attacks through the Web server, as they can't connect to the intranet system directly. The "marking guide" is in the form of the output scenario.xml in the project directory, which provides the details of the systems generated.
 
 #### VMs for a CTF event
+
 To generate a set of VMs for a CTF competition:
+
 ```bash
    ruby secgen.rb --scenario scenarios/ctf/flawed_fortress_1.xml run
 ```
-Note that a 'CTFd_importable.zip' file is also generated, containing all the flags and hints, which you can import into the [CTFd scoreboard frontend](https://github.com/CTFd/CTFd).
-This is compatible with CTFd v2.0.2 and newer.
 
-**Default admin account:**
-Username: adminusername
-Password: adminpassword
+Note that a 'CTFd_importable.zip' file is also generated, containing all the flags and hints, which you can import into the [CTFd scoreboard frontend](https://github.com/CTFd/CTFd). This is compatible with CTFd v2.0.2 and newer.
+
+**Default admin account:** Username: adminusername Password: adminpassword
 
 ### Defining new scenarios
+
 Writing your own scenarios enables you to define a VM or set of VMs with a configuration as specific or general as desired.
 
 SecGen's scenario specification is a powerful interface for specifying the constraints of the vulnerable systems to generate. Scenarios are defined in XML configuration files that specify systems in terms of a base, services/utilities, vulnerabilities, and networks.
 
-For details please see the **[Creating Scenarios guide](README-Creating-Scenarios.md)**.
+For details please see the [**Creating Scenarios guide**](README-Creating-Scenarios.md).
 
 ## Modules
+
 SecGen is designed to be easily extendable with modules that define vulnerabilities and other kinds of software, configuration, and content changes.
 
 The types of modules supported in SecGen are:
- - base: a SecGen module that defines the OS platform (VM template) used to build the VM
- - vulnerability: a SecGen module that adds an insecure, hackable, state (including realistic software vulnerabilities known to be in the wild or fabricated hacking challenges)
- - service: a SecGen module that adds a (relatively secure) network service
- - utility: a SecGen module that adds (relatively secure) software or configuration changes
- - network: a virtual network card
- - generator: generates output, such as random text
- - encoder: receives input, such as text, performs operations on that to produce output (such as, encoding/encryption/selection)
+
+- base: a SecGen module that defines the OS platform (VM template) used to build the VM
+- vulnerability: a SecGen module that adds an insecure, hackable, state (including realistic software vulnerabilities known to be in the wild or fabricated hacking challenges)
+- service: a SecGen module that adds a (relatively secure) network service
+- utility: a SecGen module that adds (relatively secure) software or configuration changes
+- network: a virtual network card
+- generator: generates output, such as random text
+- encoder: receives input, such as text, performs operations on that to produce output (such as, encoding/encryption/selection)
 
 Each vulnerability module is contained within the modules/vulnerabilies directory tree, which is organised to match the Metasploit Framework (MSF) modules directory structure. For example, the distcc_exec vulnerability module is contained within: modules/vulnerabilities/unix/misc/distcc_exec/.
 
 The root of the module directory always contains a secgen_metadata.xml file and also contains puppet files, which are used to make a system vulnerable.
 
-For details please see the **[Modules Metadata guide](README-Modules-Metadata.md)**.
+For details please see the [**Modules Metadata guide**](README-Modules-Metadata.md).
 
 ### Generators and encoders create and alter content
+
 Encoders and generators have code that is *evaluated at project build time*, such as encoding text, and generating flags and other potentially randomised content. In each case, this is a ruby script located within the module directory in **local/secgen_local.rb**. Although normally called by SecGen, secgen_local.rb scripts can be executed directly, and accept all the parameter inputs as command line arguments, and returns the output in JSON format to stdout. Other human readable output is written to stderr.
 
 ```bash
@@ -258,23 +302,28 @@ BASE64 Encoder
  Encoded: ["ZW5jb2RlIHRoaXM=", "YW5kIHRoaXM="]
 ["ZW5jb2RlIHRoaXM=","YW5kIHRoaXM="]
 ```
-![gify goodness](lib/resources/images/readme_gifs/base64_encoder_run.gif  "secgen_local.rb scripts can be executed directly")
-![gify goodness](lib/resources/images/readme_gifs/base64_encoder_code.gif  "Coding a generator or encoder is easy!")
+
+![gify goodness](lib/resources/images/readme_gifs/base64_encoder_run.gif "secgen_local.rb scripts can be executed directly")
+
+![gify goodness](lib/resources/images/readme_gifs/base64_encoder_code.gif "Coding a generator or encoder is easy!")
 
 ## Puppet is used to provision the VMs
+
 Each vulnerability, service, and utility module contains Puppet files which are used to provision the software and configuration changes onto the VMs. By the time Puppet is executed to provision VMs, all randomisation has previously taken place at build time.
 
-For details please see the **[Modules Puppet guide](README-Modules-Puppet.md)**.
+For details please see the [**Modules Puppet guide**](README-Modules-Puppet.md).
 
 ## SecGen project output
-By default output is to 'projects/SecGen_*[CurrentTime]*/'
+
+By default output is to 'projects/SecGen\_*[CurrentTime]*/'
 
 The project output includes:
- - A Vagrant configuration for spinning up the boxes.
- - A directory containing all the required puppet modules for the above. A Librarian-Puppet file is created to manage modules, and some required modules may be obtained via PuppetForge, and therefore an Internet connection is required when building the project.
- - A de-randomised scenario XML file. Using SecGen you can use this 'scenario.xml' file to recreate the above Vagrant config and puppet files. Any randomisation that has been applied should be un-randomised in this output (compared to the original scenario file). This file contains all the details of the systems created, and can also be used later for grading, scoring, or giving hints.
- - A 'flag_hints.xml' file, containing all the flags along with multiple hints per flag.
- - A 'CTFd_importable.zip' file useful for CTF events, for import into the [CTFd scoreboard frontend](https://github.com/CTFd/CTFd).
+
+- A Vagrant configuration for spinning up the boxes.
+- A directory containing all the required puppet modules for the above. A Librarian-Puppet file is created to manage modules, and some required modules may be obtained via PuppetForge, and therefore an Internet connection is required when building the project.
+- A de-randomised scenario XML file. Using SecGen you can use this 'scenario.xml' file to recreate the above Vagrant config and puppet files. Any randomisation that has been applied should be un-randomised in this output (compared to the original scenario file). This file contains all the details of the systems created, and can also be used later for grading, scoring, or giving hints.
+- A 'flag_hints.xml' file, containing all the flags along with multiple hints per flag.
+- A 'CTFd_importable.zip' file useful for CTF events, for import into the [CTFd scoreboard frontend](https://github.com/CTFd/CTFd).
 
 If you start SecGen with the "build-project" (or "p") command it creates the above files and then stops. The "run" (or "r") command creates the project files then uses Vagrant to build the VM(s).
 
@@ -286,44 +335,42 @@ The default root password for the base-boxes is 'puppet', but this may be modifi
 
 Generating multiple VMs in a batch is now possible through the use of batch_secgen, which manages a job queue to mass-create VMs with SecGen. There are helper commands available to add jobs, list jobs in the table, remove jobs, and reset the status of jobs from 'running' or 'error' to 'todo'.
 
-For details please see the **[Batch Creation of VMs guide](README-Batch-VMs.md)**.
+For details please see the [**Batch Creation of VMs guide**](README-Batch-VMs.md).
 
 ## CyBOK Knowledge Area Key
 
-The Cyber Security Body of Knowledge (CyBOK) is a body of knowledge that aims to encapsulate the various knowledge areas present within cyber security.
-Scenarios within SecGen now contain XML elements linking them to CyBOK knowledge areas and specific topics within those knowledge areas.
-Additionally, video content for scenarios are tagged with CyBOK associations.
+The Cyber Security Body of Knowledge (CyBOK) is a body of knowledge that aims to encapsulate the various knowledge areas present within cyber security. Scenarios within SecGen now contain XML elements linking them to CyBOK knowledge areas and specific topics within those knowledge areas. Additionally, video content for scenarios are tagged with CyBOK associations.
 
-For an index of lab scenarios in SecGen organised by CyBOK Knowledge Areas please see the **[Lab Scenarios and CyBOK](README-CyBOK-Scenarios-Indexed.md)**. Likewise, for **[CTF scenarios](README-CyBOK-CTF-Scenarios-Indexed.md)**.
+For an index of lab scenarios in SecGen organised by CyBOK Knowledge Areas please see the [**Lab Scenarios and CyBOK**](README-CyBOK-Scenarios-Indexed.md). Likewise, for [**CTF scenarios**](README-CyBOK-CTF-Scenarios-Indexed.md).
 
-For a list of lecture and demo videos with CyBOK metadata please see the **[Lecture Videos and CyBOK](README-CyBOK-Lecture-Videos.md)**.
+For a list of lecture and demo videos with CyBOK metadata please see the [**Lecture Videos and CyBOK**](README-CyBOK-Lecture-Videos.md).
 
-The table below is a key for the abbreviations you will find within the CyBOK XML elements within the scenarios:     
+The table below is a key for the abbreviations you will find within the CyBOK XML elements within the scenarios:
 
-| Abbreviation | Knowledge Area (KA) | Chapter | Knowledge Tree|
-| ----------- | -------------------- | ------- | --------------|
-| IC   |   Introduction to CyBOK | [link](https://www.cybok.org/media/downloads/Introduction_to_CyBOK.pdf)| [link](https://www.cybok.org/media/downloads/CyBOK_introduction.pdf) |
-| FM   | Formal Methods | n/a |  [link](https://www.cybok.org/media/downloads/Formal_Methods_for_Security_VK6XZwO.pdf)|
-| RMG   | Risk Management & Governance | [link](https://www.cybok.org/media/downloads/Risk-Management--Governance-issue-1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Risk_Management__Governancev2.pdf)|
-| LR   | Law & Regulation | [link](https://www.cybok.org/media/downloads/Law__Regulation_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Law__Regulation.pdf)|
-| HF   | Human Factors | [link](https://www.cybok.org/media/downloads/Human_Factors_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Human_Factors.pdf)|
-| POR   | Privacy & Online Rights | [link](https://www.cybok.org/media/downloads/Privacy__Online_Rights_issue_1.0_FNULPeI.pdf)|  [link](https://www.cybok.org/media/downloads/Privacy__Online_Rights.pdf)|
-| MAT   | Malware & Attack Technologies | [link](https://www.cybok.org/media/downloads/Malware__Attack_Technology_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Malware__Attack_Technologies.pdf)|
-| AB   | Adversarial Behaviours | [link](https://www.cybok.org/media/downloads/Malware__Attack_Technology_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Adversarial_Behaviours.pdf)|
-| SOIM   | Security Operations & Incident Management | [link](https://www.cybok.org/media/downloads/Security_Operations__Incident_Management_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Security_Operations__Incident_Management.pdf)|
-| F   | Forensics | [link](https://www.cybok.org/media/downloads/Forensics_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Forensics.pdf)|
-| C   | Cryptography | [link](https://www.cybok.org/media/downloads/Cryptography-issue-1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Cryptography.pdf)|
-| AC   | Applied Cryptography | [link](https://www.cybok.org/media/downloads/Applied_Cryptography_v1.0.0.pdf)|  [link](https://www.cybok.org/media/downloads/Applied_Cryptography_tree-1.0.0.pdf)|
-| OSV   | Operating Systems & Virtualisation Security | [link](https://www.cybok.org/media/downloads/Operating_Systems__Virtualisation_Security_issue_1.0_xhesi5S.pdf)|  [link](https://www.cybok.org/media/downloads/Operating_Systems__Virtualisation_Security.pdf)|
-| DSS   | Distributed Systems Security | [link](https://www.cybok.org/media/downloads/Distributed_Systems_Security_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Distributed_Systems_Security.pdf)|
-| AAA         |   Authentication, Authorisation and Accountability | [link](https://www.cybok.org/media/downloads/AAA_issue_1.0_q3qspzo.pdf)| [link](https://www.cybok.org/media/downloads/AAA.pdf) |
-| SS   | Software Security | [link](https://www.cybok.org/media/downloads/Software_Security_issue_1.0_1M7Kfk2.pdf)|  [link](https://www.cybok.org/media/downloads/Software_Security.pdf)|
-| WAM   | Web & Mobile Security | [link](https://www.cybok.org/media/downloads/Web__Mobile_Security_issue_1.0_XFpbYNz.pdf)|  [link](https://www.cybok.org/media/downloads/Web__Mobile_Security.pdf)|
-| SSL   | Secure Software Lifecycle | [link](https://www.cybok.org/media/downloads/Secure_Software_Lifecycle_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Secure_Software_Lifecycle.pdf)|
-| NS   | Network Security | [link](https://www.cybok.org/media/downloads/Network_Security_issue_1.0_qsCh0SR.pdf)|  [link](https://www.cybok.org/media/downloads/Network_Security.pdf)|
-| HS   | Hardware Security | [link](https://www.cybok.org/media/downloads/Hardware_Security_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Hardware_Security.pdf)|
-| CPS   | Cyber Physical Systems | [link](https://www.cybok.org/media/downloads/Cyber-Physical_Systems_Security_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Cyber_Physical_Systems_Security.pdf)|
-| PLT  | Physical Layer and Telecommunications Security | [link](https://www.cybok.org/media/downloads/Physical_Layer__Telecommunications_Security_issue_1.0.pdf)|  [link](https://www.cybok.org/media/downloads/Physical_Layer__Telecomms_Security.pdf)|
+| Abbreviation | Knowledge Area (KA)                              | Chapter                                                                                                        | Knowledge Tree                                                                               |
+| ------------ | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| IC           | Introduction to CyBOK                            | [link](https://www.cybok.org/media/downloads/Introduction_to_CyBOK.pdf)                                        | [link](https://www.cybok.org/media/downloads/CyBOK_introduction.pdf)                         |
+| FM           | Formal Methods                                   | n/a                                                                                                            | [link](https://www.cybok.org/media/downloads/Formal_Methods_for_Security_VK6XZwO.pdf)        |
+| RMG          | Risk Management & Governance                     | [link](https://www.cybok.org/media/downloads/Risk-Management--Governance-issue-1.0.pdf)                        | [link](https://www.cybok.org/media/downloads/Risk_Management__Governancev2.pdf)              |
+| LR           | Law & Regulation                                 | [link](https://www.cybok.org/media/downloads/Law__Regulation_issue_1.0.pdf)                                    | [link](https://www.cybok.org/media/downloads/Law__Regulation.pdf)                            |
+| HF           | Human Factors                                    | [link](https://www.cybok.org/media/downloads/Human_Factors_issue_1.0.pdf)                                      | [link](https://www.cybok.org/media/downloads/Human_Factors.pdf)                              |
+| POR          | Privacy & Online Rights                          | [link](https://www.cybok.org/media/downloads/Privacy__Online_Rights_issue_1.0_FNULPeI.pdf)                     | [link](https://www.cybok.org/media/downloads/Privacy__Online_Rights.pdf)                     |
+| MAT          | Malware & Attack Technologies                    | [link](https://www.cybok.org/media/downloads/Malware__Attack_Technology_issue_1.0.pdf)                         | [link](https://www.cybok.org/media/downloads/Malware__Attack_Technologies.pdf)               |
+| AB           | Adversarial Behaviours                           | [link](https://www.cybok.org/media/downloads/Malware__Attack_Technology_issue_1.0.pdf)                         | [link](https://www.cybok.org/media/downloads/Adversarial_Behaviours.pdf)                     |
+| SOIM         | Security Operations & Incident Management        | [link](https://www.cybok.org/media/downloads/Security_Operations__Incident_Management_issue_1.0.pdf)           | [link](https://www.cybok.org/media/downloads/Security_Operations__Incident_Management.pdf)   |
+| F            | Forensics                                        | [link](https://www.cybok.org/media/downloads/Forensics_issue_1.0.pdf)                                          | [link](https://www.cybok.org/media/downloads/Forensics.pdf)                                  |
+| C            | Cryptography                                     | [link](https://www.cybok.org/media/downloads/Cryptography-issue-1.0.pdf)                                       | [link](https://www.cybok.org/media/downloads/Cryptography.pdf)                               |
+| AC           | Applied Cryptography                             | [link](https://www.cybok.org/media/downloads/Applied_Cryptography_v1.0.0.pdf)                                  | [link](https://www.cybok.org/media/downloads/Applied_Cryptography_tree-1.0.0.pdf)            |
+| OSV          | Operating Systems & Virtualisation Security      | [link](https://www.cybok.org/media/downloads/Operating_Systems__Virtualisation_Security_issue_1.0_xhesi5S.pdf) | [link](https://www.cybok.org/media/downloads/Operating_Systems__Virtualisation_Security.pdf) |
+| DSS          | Distributed Systems Security                     | [link](https://www.cybok.org/media/downloads/Distributed_Systems_Security_issue_1.0.pdf)                       | [link](https://www.cybok.org/media/downloads/Distributed_Systems_Security.pdf)               |
+| AAA          | Authentication, Authorisation and Accountability | [link](https://www.cybok.org/media/downloads/AAA_issue_1.0_q3qspzo.pdf)                                        | [link](https://www.cybok.org/media/downloads/AAA.pdf)                                        |
+| SS           | Software Security                                | [link](https://www.cybok.org/media/downloads/Software_Security_issue_1.0_1M7Kfk2.pdf)                          | [link](https://www.cybok.org/media/downloads/Software_Security.pdf)                          |
+| WAM          | Web & Mobile Security                            | [link](https://www.cybok.org/media/downloads/Web__Mobile_Security_issue_1.0_XFpbYNz.pdf)                       | [link](https://www.cybok.org/media/downloads/Web__Mobile_Security.pdf)                       |
+| SSL          | Secure Software Lifecycle                        | [link](https://www.cybok.org/media/downloads/Secure_Software_Lifecycle_issue_1.0.pdf)                          | [link](https://www.cybok.org/media/downloads/Secure_Software_Lifecycle.pdf)                  |
+| NS           | Network Security                                 | [link](https://www.cybok.org/media/downloads/Network_Security_issue_1.0_qsCh0SR.pdf)                           | [link](https://www.cybok.org/media/downloads/Network_Security.pdf)                           |
+| HS           | Hardware Security                                | [link](https://www.cybok.org/media/downloads/Hardware_Security_issue_1.0.pdf)                                  | [link](https://www.cybok.org/media/downloads/Hardware_Security.pdf)                          |
+| CPS          | Cyber Physical Systems                           | [link](https://www.cybok.org/media/downloads/Cyber-Physical_Systems_Security_issue_1.0.pdf)                    | [link](https://www.cybok.org/media/downloads/Cyber_Physical_Systems_Security.pdf)            |
+| PLT          | Physical Layer and Telecommunications Security   | [link](https://www.cybok.org/media/downloads/Physical_Layer__Telecommunications_Security_issue_1.0.pdf)        | [link](https://www.cybok.org/media/downloads/Physical_Layer__Telecomms_Security.pdf)         |
 
 ## Hacktivity Cyber Security Labs
 
@@ -332,7 +379,9 @@ The table below is a key for the abbreviations you will find within the CyBOK XM
 Hacktivity is powered by SecGen, and provides a fully-hosted lab environment for cyber security education. Track your progress with CyBOK insights.
 
 ## Acknowledgments
+
 *Development team:*
+
 - Dr Z. Cliffe Schreuders http://z.cliffe.schreuders.org
 - Tom Shaw
 - Alix Hiscock
@@ -349,6 +398,7 @@ Hacktivity is powered by SecGen, and provides a fully-hosted lab environment for
 Many thanks to everyone who has contributed to the project. The above list is not complete or exhaustive, please refer to the [GitHub history](https://github.com/cliffe/SecGen/graphs/contributors).
 
 *Grant support:*
+
 - This project is supported by a Higher Education Academy (HEA) learning and teaching in cyber security grant (2015-2017).
 - This project is supported by a Leeds Beckett University Teaching Excellence Fund grant (2018-2019).
 - This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around CyBOK 1.0 grant (2021).
@@ -361,11 +411,13 @@ Many thanks to everyone who has contributed to the project. The above list is no
 - This project is supported by a Cyber Security Body of Knowledge (CyBOK) resources around Security-Informed Safety grant (2025-2026).
 
 ## Contributing
+
 We encourage contributions to the project.
 
 Briefly, please fork from http://github.com/cliffe/SecGen/, create a branch, make and commit your changes, then create a pull request.
 
 ## Resources
+
 Paper: [Z.C. Schreuders, T. Shaw, "Hacktivity Cyber Security Labs: Randomised Challenges and Virtualisation Infrastructure Management, with CyBOK Integration," Advances in Cyber Security Education, Bristol, UK. CSE-Connect, 2024.](https://link.springer.com/chapter/10.1007/978-3-031-77524-6_4#citeas)
 
 Paper: [Z.C. Schreuders, T. Shaw, A. Mac Muireadhaigh, and P. Staniforth, “Hackerbot: Attacker Chatbots for Randomised and Interactive Security Labs, Using SecGen and oVirt,” USENIX Workshop on Advances in Security Education (ASE'18), Baltimore, MD, USA. USENIX Association, 2018.](https://www.usenix.org/conference/ase18/presentation/schreuders) (This paper describes Hackerbot and how we use SecGen with oVirt.)

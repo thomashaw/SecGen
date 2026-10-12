@@ -1,0 +1,5 @@
+# docker/Dockerfile only needs these; the checkout is mounted at run time
+*
+!Gemfile
+!Gemfile.lock
+!docker/
