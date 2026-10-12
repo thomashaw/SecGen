@@ -1,4 +1,5 @@
 require 'erb'
+require 'stringio' # nori 2.6 uses StringIO without requiring it (needed on Ruby 3.4+)
 require 'nori'
 require 'youtube_images'
 require 'dig-deep'
@@ -153,7 +154,7 @@ scenarios.each { |scenario|
 }
 # puts SCENARIOS_HASH.to_s
 
-template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_scenarios.md.erb"), 0, '<>-')
+template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_scenarios.md.erb"), trim_mode: '<>-')
 begin
   File.open(scenario_index_out, 'wb+') do |file|
     file.write(template_out.result())
@@ -164,7 +165,7 @@ rescue StandardError => e
 end
 
 if output_video_index
-  template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_videos.md.erb"), 0, '<>-')
+  template_out = ERB.new(File.read("#{ROOT_DIR}/lib/CyBOK/template_CyBOK_videos.md.erb"), trim_mode: '<>-')
   begin
     File.open("#{ROOT_DIR}/README-CyBOK-Lecture-Videos.md", 'wb+') do |file|
       file.write(template_out.result())

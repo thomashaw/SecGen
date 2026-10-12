@@ -44,7 +44,7 @@ class ProjectFilesCreator
   def write_files
     # when writing to a project that already contains a project, move everything out the way,
     # and keep the Vagrant config, so that existing VMs can be re-provisioned/updated
-    if File.exists? "#{@out_dir}/Vagrantfile" or File.exists? "#{@out_dir}/puppet"
+    if File.exist? "#{@out_dir}/Vagrantfile" or File.exist? "#{@out_dir}/puppet"
       dest_dir = "#{@out_dir}/MOVED_#{Time.new.strftime("%Y%m%d_%H%M%S")}"
       Print.warn "Project already built to this directory -- moving last build to: #{dest_dir}"
       Dir.glob( "#{@out_dir}/**/*" ).select { |f| File.file?( f ) }.each do |f|
@@ -58,15 +58,15 @@ class ProjectFilesCreator
       end
     end
 
-    FileUtils.mkpath "#{@out_dir}" unless File.exists?("#{@out_dir}")
-    FileUtils.mkpath "#{@out_dir}/puppet/" unless File.exists?("#{@out_dir}/puppet/")
-    FileUtils.mkpath "#{@out_dir}/environments/production/" unless File.exists?("#{@out_dir}/environments/production/")
+    FileUtils.mkpath "#{@out_dir}" unless File.exist?("#{@out_dir}")
+    FileUtils.mkpath "#{@out_dir}/puppet/" unless File.exist?("#{@out_dir}/puppet/")
+    FileUtils.mkpath "#{@out_dir}/environments/production/" unless File.exist?("#{@out_dir}/environments/production/")
 
     # for each system, create a puppet modules directory using librarian-puppet
     @systems.each do |system|
       @currently_processing_system = system # for template access
       path = "#{@out_dir}/puppet/#{system.name}"
-      FileUtils.mkpath(path) unless File.exists?(path)
+      FileUtils.mkpath(path) unless File.exist?(path)
       pfile = "#{path}/Puppetfile"
       Print.std "Creating Puppet modules librarian-puppet file: #{pfile}"
       template_based_file_write(PUPPET_TEMPLATE_FILE, pfile)
@@ -240,7 +240,7 @@ class ProjectFilesCreator
 # @param [Object] template erb path
 # @param [Object] filename file to write to
   def template_based_file_write(template, filename)
-    template_out = ERB.new(File.read(template), 0, '<>-')
+    template_out = ERB.new(File.read(template), trim_mode: '<>-')
 
     begin
       File.open(filename, 'wb+') do |file|

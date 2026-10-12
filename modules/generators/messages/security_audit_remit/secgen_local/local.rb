@@ -50,7 +50,7 @@ class SecurityAuditRemitGenerator < StringGenerator
 
   def generate
 
-    template_out = ERB.new(File.read(TEMPLATE_PATH), 0, '<>-')
+    template_out = ERB.new(File.read(TEMPLATE_PATH), trim_mode: '<>-')
     self.outputs << template_out.result(self.get_binding)
   end
 

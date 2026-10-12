@@ -326,7 +326,7 @@ end
          #   project out directory of the secgen_functions module
          json_inputs_filename = "#{selected_module.module_path_end}_#{SecureRandom.hex(15).to_s}"
          dir = "#{@out_dir}/puppet/#{system.name}/modules/secgen_functions/files/json_inputs"
-         FileUtils.mkdir_p(dir) unless File.exists?(dir)
+         FileUtils.mkdir_p(dir) unless File.exist?(dir)
          Print.verbose "Writing #{selected_module.module_path_name} input to: #{dir}/#{json_inputs_filename}"
          File.write("#{dir}/#{json_inputs_filename}", b64_json_inputs)
       -%>

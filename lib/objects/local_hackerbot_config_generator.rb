@@ -47,7 +47,7 @@ class HackerbotConfigGenerator < StringGenerator
 
   def generate
     # Print.debug self.accounts.to_s
-    xml_template_out = ERB.new(File.read(self.config_template_path), 0, '<>-')
+    xml_template_out = ERB.new(File.read(self.config_template_path), trim_mode: '<>-')
     xml_config = xml_template_out.result(self.get_binding)
 
     json = {'xml_config' => xml_config.force_encoding('UTF-8')}.to_json.force_encoding('UTF-8')

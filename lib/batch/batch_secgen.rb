@@ -183,9 +183,9 @@ def start(options)
   Dir.chdir ROOT_DIR
 
   # Create directories
-  Dir.mkdir 'log' unless Dir.exists? 'log'
-  FileUtils.mkdir_p 'batch/successful' unless Dir.exists? 'batch/successful'
-  FileUtils.mkdir_p 'batch/failed' unless Dir.exists? 'batch/failed'
+  Dir.mkdir 'log' unless Dir.exist? 'log'
+  FileUtils.mkdir_p 'batch/successful' unless Dir.exist? 'batch/successful'
+  FileUtils.mkdir_p 'batch/failed' unless Dir.exist? 'batch/failed'
 
   # Start the service and call secgen.rb
   current_threads = []

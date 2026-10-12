@@ -16,9 +16,9 @@ class SimpleSSHDecrypt < StringEncoder
     self.subdirectory = ''
     self.ssh_key_pair = {}
     self.tmp_path = File.expand_path(File.dirname(__FILE__)).split("/")[0...-1].join('/') + '/tmp/'
-    Dir.mkdir self.tmp_path unless Dir.exists? self.tmp_path
+    Dir.mkdir self.tmp_path unless Dir.exist? self.tmp_path
     self.tmp_path += Time.new.strftime("%Y%m%d_%H%M%S")
-    Dir.mkdir self.tmp_path unless Dir.exists? self.tmp_path
+    Dir.mkdir self.tmp_path unless Dir.exist? self.tmp_path
   end
 
   def encode_all

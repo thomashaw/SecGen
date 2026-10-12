@@ -149,7 +149,7 @@ class ModuleReader < XMLReader
           exit
         end
 
-        unless File.exists?("#{new_module.puppet_other_path}")
+        unless File.exist?("#{new_module.puppet_other_path}")
           Print.err "Module #{module_path} missing required puppet module manifests folder (#{new_module.puppet_other_path})"
           exit
         end

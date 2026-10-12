@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 require 'base64'
-require 'rmagick'
-require 'fileutils'
+require 'open3'
+require 'tmpdir'
 require_relative '../../../../../lib/objects/local_string_encoder.rb'
 class ImageGenerator < StringEncoder
   attr_accessor :selected_image_path
@@ -13,18 +13,16 @@ class ImageGenerator < StringEncoder
   end
 
   def encode_all
-    # Grabs a random PNG from the resources + converts it to JPG with RMagick
-    tmp_file_path = GENERATORS_DIR + 'image/random_jpg/secgen_local/tmp.jpg'
+    # Grabs a random PNG from the resources + flattens it onto a white background as a JPG,
+    # using the ImageMagick CLI (`magick` in ImageMagick 7, `convert` in ImageMagick 6)
+    imagemagick = system('which magick > /dev/null 2>&1') ? 'magick' : 'convert'
+    Dir.mktmpdir do |dir|
+      tmp_file_path = File.join(dir, 'tmp.jpg')
+      out, status = Open3.capture2e(imagemagick, self.selected_image_path, '-background', 'white', '-flatten', tmp_file_path)
+      raise "ImageMagick #{imagemagick} failed: #{out}" unless status.success?
 
-    images = Magick::ImageList.new
-    images.read(self.selected_image_path)
-    images.new_image(images.first.columns, images.first.rows) { self.background_color = 'white' } # Create new "layer" with white background and size of original image
-    image = images.reverse.flatten_images
-
-    image.write(tmp_file_path)
-
-    self.outputs << Base64.strict_encode64(File.binread(tmp_file_path))
-    FileUtils.rm(tmp_file_path)
+      self.outputs << Base64.strict_encode64(File.binread(tmp_file_path))
+    end
   end
 
   def encoding_print_string

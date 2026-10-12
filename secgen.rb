@@ -1,5 +1,6 @@
 require 'getoptlong'
 require 'fileutils'
+require 'stringio' # nori 2.6 uses StringIO without requiring it (needed on Ruby 3.4+)
 require 'nori'
 require 'open3'
 require 'nokogiri/class_resolver'

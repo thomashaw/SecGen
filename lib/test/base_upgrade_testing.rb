@@ -50,7 +50,7 @@ end
 def generate_scenarios(selected_base)
   tmp_dir = "#{ROOT_DIR}/lib/test/tmp"
 
-  Dir.mkdir tmp_dir unless Dir.exists? tmp_dir
+  Dir.mkdir tmp_dir unless Dir.exist? tmp_dir
   unless Dir.entries(tmp_dir).size == 2
     Print.info 'The temporary scenario directory (lib/test/tmp) contains files. Do you want to remove them? [Y/n]'
     input = STDIN.gets.chomp
