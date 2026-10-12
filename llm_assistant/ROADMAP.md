@@ -161,8 +161,9 @@ that account is being arranged by Cliffe. Two points to resolve on resuming:
 - [ ] Try it on binaries that are well understood (for example an old CTF
       challenge) and judge the quality of the explanations, as the PDF's pilot
       suggests.
-- [ ] Note in the lab sheet that Ghidra shows a "New plugins found" prompt on the
-      first launch of CodeBrowser, and that GhidrAssist must be ticked there.
+- [x] Note in the lab sheet that Ghidra shows a "New plugins found" prompt on the
+      first launch of CodeBrowser, and that GhidrAssist must be ticked there (done
+      in the AI-assisted RE lab sheet, 2026-10-12).
 - [ ] Agree with Harry how the relay is hooked into the Hackerbot scenarios (or
       whether a dedicated relay VM is preferred; see Phase 3).
 
@@ -307,11 +308,21 @@ pivot. The PDF describes it as initial thinking rather than a tested design.
 
 ## Phase 7: lab content
 
-- [ ] A lab scenario with `llm_assistant` enabled and the relay wired in.
-- [ ] Teaching activities from the PDF: explain then verify, a human first pass
+- [x] A lab scenario with `llm_assistant` enabled and the relay wired in:
+      `scenarios/labs/software_and_malware_analysis/12_ai_assisted_re.xml` (2026-10-12), a
+      relay VM and a Kali VM with a non-sudo `student` account, five metactf challenges and
+      theZoo. Its sheet is `_labs/software_and_malware_analysis/12_ai_assisted_re.md` in
+      HacktivityLabSheets. Built and tested (`deploy-ailab-02`, 5/5 modules passing, XorEnc
+      solved end to end as `student`); real model answers were not checked, since that
+      build had no API key. It needed `bc` added to `metactf` (Kali lacks it, and the
+      challenges then built with empty values) and gained a `metactf` `secgen_test`.
+      Actions (Analyze Function) is described in the sheet as possibly unavailable
+      until the gateway's tool calling is fixed.
+- [x] Teaching activities from the PDF: explain then verify, a human first pass
       compared with the assistant, `fast` against `smart`, and prompt injection
-      through a crafted binary (the weak `demo` model shows the effect most
-      clearly).
+      through a crafted binary, all in the lab above (the students write and compile
+      the crafted binary; `demo`, which would show the effect most clearly, is broken
+      on the gateway, so the lab uses `fast` and `smart`).
 - [ ] Keep `llm_assistant` off on assessed reverse engineering labs, unless its
       use is explicitly permitted.
 
