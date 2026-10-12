@@ -5,6 +5,10 @@ description: Rewrite the <description> of a SecGen CTF scenario (scenarios/ctf/*
 
 # Write a SecGen CTF scenario description
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+
 A scenario's `<description>` (inside the `<scenario>` root, right after `<author>`) is player-facing marketing/briefing copy shown on a website or challenge list. The bar is: **would this make someone want to attempt the challenge, and do they know roughly what they're walking into** — without the description doing the recon for them.
 
 Bad (too short, uninformative, or literally spoils the answer):

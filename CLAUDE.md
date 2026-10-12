@@ -94,6 +94,11 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Publish a hackerbot lab sheet to Hacktivity | `convert_hackerbot_to_hacktivity_lab_sheets` |
 | Write/debug module Puppet code | `secgen-puppet` |
 
+When you add or rename a skill (by hand or with `skill-creator`), add a row
+here in the same change, and to the skills table of any workspace you run
+SecGen from. Skill paths (`scripts/…`, `lib/…`) are relative to the SecGen
+root; say so at the top of a new skill, as the existing ones do.
+
 Planned (agentic pipeline roadmap, Phase 4): write a module, build a
 scenario, provision a VM, write `secgen_test`s, test a module/scenario, add
 requires/conflicts.
