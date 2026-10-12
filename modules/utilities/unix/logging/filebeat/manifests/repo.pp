@@ -4,8 +4,8 @@
 #
 # @summary Manages the yum, apt, and zypp repositories for Filebeat
 class filebeat::repo {
-  $debian_repo_url = "http://172.33.0.44/artifacts.elastic.co/packages/${filebeat::major_version}.x/apt"
-  $yum_repo_url = "http://172.33.0.44/artifacts.elastic.co/packages/${filebeat::major_version}.x/yum"
+  $debian_repo_url = secgen_functions::mirror_url("https://artifacts.elastic.co/packages/${filebeat::major_version}.x/apt")
+  $yum_repo_url = secgen_functions::mirror_url("https://artifacts.elastic.co/packages/${filebeat::major_version}.x/yum")
 
   case $::osfamily {
     'Debian': {
