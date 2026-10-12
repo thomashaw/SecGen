@@ -55,6 +55,9 @@
              scripts/vagrant-base-update/build.sh); otherwise Vagrant resolves the box on Vagrant Cloud -->
         <xs:element name="vagrant_box" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="vagrant_box_version" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <!-- VirtualBox: printed as a warning when a scenario is built on VirtualBox with this base
+             (for bases whose VirtualBox box is not maintained or tested) -->
+        <xs:element name="virtualbox_warning" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="esxi_url" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="ovirt_template" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="proxmox_template" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

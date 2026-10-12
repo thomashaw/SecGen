@@ -13,6 +13,7 @@
   <platform>windows</platform>
   <distro>server 2016</distro>
   <url>http://TODO</url>
+  <virtualbox_warning>There is no Windows Server 2016 box for VirtualBox, so this VM won't start. This base only works on Proxmox and oVirt.</virtualbox_warning>
   <esxi_url></esxi_url>
   <ovirt_template>win2016_20220207</ovirt_template>
   <proxmox_template>win2016-20250113</proxmox_template>

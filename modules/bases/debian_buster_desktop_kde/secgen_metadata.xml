@@ -15,6 +15,7 @@
   <platform>unix</platform>
   <distro>Debian 10 Buster amd64</distro>
   <url>https://hacktivity.co.uk/files/vagrant_boxes/debian_stretch_desktop_kde-1.2-virtualbox.box</url>
+  <virtualbox_warning>There is no Buster box for VirtualBox: this uses the Debian 9 (Stretch) desktop box, which has not been tested with current SecGen, and modules that need Buster may fail. Bookworm (Debian 12) and Kali are the maintained VirtualBox bases.</virtualbox_warning>
   <esxi_url>https://app.vagrantup.com/redwiz666/boxes/debian_stretch_desktop_kde/versions/1.0.0/providers/vmware.box</esxi_url>
   <ovirt_template>buster_desktop_kde_20230615</ovirt_template>
   <proxmox_template>buster-desktop-kde-20240703</proxmox_template>

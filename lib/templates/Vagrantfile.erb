@@ -248,6 +248,11 @@ end
     <%= system.name %>.vm.box_url = "<%= selected_module.attributes['esxi_url'].first %>"
 <%
     when "virtualbox"
+      if selected_module.attributes['virtualbox_warning']
+%>
+    # WARNING: <%= selected_module.attributes['virtualbox_warning'].first %>
+<%
+      end
       if selected_module.attributes['vagrant_box']
 %>
     <%= system.name %>.vm.box = "<%= selected_module.attributes['vagrant_box'].first %>"

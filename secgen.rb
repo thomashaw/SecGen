@@ -126,6 +126,7 @@ def build_config(scenario, out_dir, options)
     system.module_selections = system.resolve_module_selection(all_available_modules, options)
     system
   }
+  warn_virtualbox_bases(systems, options)
 
   Print.info "Creating project: #{out_dir}..."
   # creates Vagrantfile and other outputs and starts the vagrant installation
@@ -133,6 +134,20 @@ def build_config(scenario, out_dir, options)
   creator.write_files
 
   Print.info 'Project files created.'
+end
+
+# Only the Bookworm and Kali VirtualBox boxes are maintained; older bases carry a <virtualbox_warning>
+# (same provider choice as lib/templates/Vagrantfile.erb)
+def warn_virtualbox_bases(systems, options)
+  return if (options.has_key?(:ovirtuser) && options.has_key?(:ovirtpass)) ||
+            (options.has_key?(:proxmoxuser) && options.has_key?(:proxmoxpass)) ||
+            (options.has_key?(:esxiuser) && options.has_key?(:esxipass))
+  systems.each do |system|
+    system.module_selections.each do |mod|
+      next unless mod.module_type == 'base' && mod.attributes['virtualbox_warning']
+      Print.warn "#{system.name} uses base #{mod.module_path} on VirtualBox: #{mod.attributes['virtualbox_warning'].first}"
+    end
+  end
 end
 
 # Builds the vm via the vagrant file in the project dir
