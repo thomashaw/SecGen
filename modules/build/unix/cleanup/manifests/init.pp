@@ -75,7 +75,8 @@ class cleanup::init {
   # removes bash history
   if $remove_history {
     exec { 'remove_history':
-      command => "/bin/bash -c 'history -c; for f in /root/.bash_history /home/*/.bash_history; do test -f \$f && : > \$f; done'"
+      # `if`, not `test -f && ...`: the loop must not fail when the last file is missing
+      command => "/bin/bash -c 'history -c; for f in /root/.bash_history /home/*/.bash_history; do if [ -f \"\$f\" ]; then : > \"\$f\"; fi; done'"
     }
   }
 

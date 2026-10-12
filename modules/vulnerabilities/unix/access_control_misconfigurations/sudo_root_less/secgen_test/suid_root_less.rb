@@ -15,4 +15,4 @@ class SudoLessTest < PostProvisionTest
 
 end
 
-SUIDLessTest.new.run
+SudoLessTest.new.run

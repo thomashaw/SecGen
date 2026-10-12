@@ -111,7 +111,14 @@ class PostProvisionTest
       result = proxmox_connection.exec_qemu_guest(vmid, node, ['bash', '-lc', args], timeout: 30)
       return {:stdout => result[:stdout], :stderr => result[:stderr], :exit_status => result[:exitcode]}
     end
-    stdout, stderr, status = Open3.capture3("/usr/bin/vagrant ssh #{get_system_name} -c '#{args}'")
+    vagrant_ssh = -> { Open3.capture3("/usr/bin/vagrant ssh #{get_system_name} -c '#{args}'") }
+    # tests run under `bundle exec`; Vagrant (with its own embedded Ruby) must not inherit that
+    # environment, or it tries to load SecGen's bundle and fails before connecting
+    stdout, stderr, status = if defined?(Bundler) && Bundler.respond_to?(:with_unbundled_env)
+                               Bundler.with_unbundled_env(&vagrant_ssh)
+                             else
+                               vagrant_ssh.call
+                             end
     {:stdout => stdout, :stderr => stderr, :exit_status => status}
   end
 

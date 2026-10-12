@@ -5,14 +5,13 @@
 	   xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
 	<!-- an example remote storage system, with a remotely exploitable vulnerability that can then be escalated to root -->
+	<!-- still randomised, but only between modules known to work on the Debian 12 (Bookworm) base -->
 	<system>
 		<system_name>escalation</system_name>
-		<base distro="Debian 9" type="server"/>
+		<base distro="Debian 12"/>
 
-		<vulnerability privilege="user_rwx" access="remote" />
-		<vulnerability privilege="root_rwx" access="local" />
-
-		<service/>
+		<vulnerability privilege="user_rwx" access="remote" module_path=".*/(nostromo_code_exec|maltrail_rce|proftpd_133c_backdoor|unrealirc_3281_backdoor)"/>
+		<vulnerability privilege="root_rwx" access="local" module_path=".*/(sudo_root_awk|sudo_root_less|sudo_root_more|sudo_root_apt_get|cron_tar_wildcard|cron_writable_script|chkrootkit)"/>
 
 		<network type="private_network"/>
 	</system>

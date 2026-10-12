@@ -19,6 +19,7 @@ define secgen_functions::leak_files($leaked_filenames=[], $storage_directory, $s
         owner                    => $owner,
         group                    => $group,
         mode                     => $mode,
+        leaked_from              => $leaked_file_resource,  # unique, or two leaks of the same filename clash
       }
     } else {
       # Then just add to first file.
