@@ -13,7 +13,9 @@
   <platform>linux</platform>
   <platform>unix</platform>
   <distro>Debian 9.5.0 Stretch amd64</distro>
-  <url>https://app.vagrantup.com/secgen/boxes/debian_stretch_desktop_kde/versions/1.2/providers/virtualbox.box</url>
+  <url>https://hacktivity.co.uk/files/vagrant_boxes/debian_stretch_desktop_kde.json</url>
+  <vagrant_box>secgen/debian_stretch_desktop_kde</vagrant_box>
+  <vagrant_box_version>1.2</vagrant_box_version>
   <esxi_url>https://app.vagrantup.com/redwiz666/boxes/debian_stretch_desktop_kde/versions/1.0.0/providers/vmware.box</esxi_url>
   <ovirt_template>stretch_desktop_kde_20230615</ovirt_template>
   <proxmox_template>stretch-desktop-kde-20230615</proxmox_template>

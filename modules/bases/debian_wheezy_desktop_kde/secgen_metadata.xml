@@ -15,7 +15,9 @@
   <platform>linux</platform>
   <platform>unix</platform>
   <distro>Debian 7.8 (wheezy) 32-bit (i386)</distro>
-  <url>https://app.vagrantup.com/secgen/boxes/debian_wheezy_kde_puppet/versions/1.0.1/providers/virtualbox.box</url>
+  <url>https://hacktivity.co.uk/files/vagrant_boxes/debian_wheezy_kde_puppet.json</url>
+  <vagrant_box>secgen/debian_wheezy_kde_puppet</vagrant_box>
+  <vagrant_box_version>1.0.1</vagrant_box_version>
   <esxi_url>https://app.vagrantup.com/redwiz666/boxes/debian_wheezy_desktop_kde/versions/1.0.0/providers/vmware.box</esxi_url>
   <ovirt_template>debian_desktop_kde</ovirt_template>
   <proxmox_template>DebianWheezyDesktopKDE2</proxmox_template>

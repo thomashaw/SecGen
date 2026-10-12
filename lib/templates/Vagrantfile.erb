@@ -248,9 +248,24 @@ end
     <%= system.name %>.vm.box_url = "<%= selected_module.attributes['esxi_url'].first %>"
 <%
     when "virtualbox"
+      if selected_module.attributes['vagrant_box']
 %>
+    <%= system.name %>.vm.box = "<%= selected_module.attributes['vagrant_box'].first %>"
+<%      if selected_module.attributes['vagrant_box_version'] %>
+    <%= system.name %>.vm.box_version = "<%= selected_module.attributes['vagrant_box_version'].first %>"
+<%      end %>
+<%      if selected_module.attributes['url'].first.to_s.end_with?('.json') %>
+    # box catalog (versions, download URLs and checksums) on SecGen's own hosting
+    <%= system.name %>.vm.box_url = "<%= selected_module.attributes['url'].first %>"
+<%      end %>
+    # Base boxes follow Vagrant's convention of user vagrant / password vagrant. Used if the box's
+    # authorized_keys lacks Vagrant's insecure key (e.g. secgen/bookworm-base 1.0.1); Vagrant then
+    # replaces it with a newly generated key pair, as it would after logging in with the insecure key
+    <%= system.name %>.ssh.password = 'vagrant'
+<%    else %>
     <%= system.name %>.vm.box = "<%= selected_module.module_path_name %>"
     <%= system.name %>.vm.box_url = "<%= selected_module.attributes['url'].first %>"
+<%    end %>
 <%
   end
 %>

@@ -16,7 +16,10 @@
   <platform>linux</platform>
   <platform>unix</platform>
   <distro>Kali Linux 2018.3</distro>
-  <url>https://app.vagrantup.com/secgen/boxes/kali_light_msf/versions/1.0/providers/virtualbox.box</url>
+  <url>https://hacktivity.co.uk/files/vagrant_boxes/kali_light.json</url>
+  <!-- VirtualBox uses the plain Kali base (no licensed tools); the Proxmox template has them -->
+  <vagrant_box>secgen/kali_light</vagrant_box>
+  <vagrant_box_version>2.1.0</vagrant_box_version>
   <esxi_url></esxi_url>
   <ovirt_template>kali_licensed_20201117</ovirt_template>
   <proxmox_template>kali-linux-extras-20240311</proxmox_template>

@@ -50,6 +50,11 @@
         <xs:element name="platform" type="platformOptions" minOccurs="1" maxOccurs="unbounded"/>
         <xs:element name="distro" type="xs:string" minOccurs="1" maxOccurs="1"/>
         <xs:element name="url" type="xs:string" minOccurs="1" maxOccurs="1"/>
+        <!-- VirtualBox: Vagrant box name (e.g. secgen/bookworm-base) and version. When set, url is
+             used as box_url only if it is a box catalog (.json, as written by
+             scripts/vagrant-base-update/build.sh); otherwise Vagrant resolves the box on Vagrant Cloud -->
+        <xs:element name="vagrant_box" type="xs:string" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="vagrant_box_version" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="esxi_url" type="xs:string" minOccurs="0" maxOccurs="1"/>
         <xs:element name="ovirt_template" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element name="proxmox_template" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

@@ -1,0 +1,4 @@
+[Applications][org.kde.discover]
+ShowBadges=false
+ShowInHistory=false
+ShowPopups=false

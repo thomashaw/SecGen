@@ -1,0 +1,45 @@
+# Refreshes a published SecGen VirtualBox base box: fixes SSH keys and apt sources,
+# applies updates, reinstalls Guest Additions, then build.sh packages a new version.
+# See README.md in this directory. Select the base with BASE=bookworm|kali.
+
+BASES = {
+  'bookworm' => { box: 'secgen/bookworm-base', version: '1.1.0', distro: 'debian' },
+  'kali'     => { box: 'secgen/kali_light',    version: '2.1.0', distro: 'kali' },
+}.freeze
+
+base = BASES.fetch(ENV.fetch('BASE', 'bookworm')) { |b| abort "Unknown BASE '#{b}' (#{BASES.keys.join(', ')})" }
+
+Vagrant.configure('2') do |config|
+  config.vm.box = base[:box]
+  config.vm.box_version = ENV.fetch('FROM_VERSION', base[:version])
+  # SecGen's box catalogs (Vagrant Cloud closes at the end of 2026)
+  config.vm.box_url = "#{ENV.fetch('BOX_BASE_URL', 'https://hacktivity.co.uk/files/vagrant_boxes')}/#{base[:box].delete_prefix('secgen/')}.json"
+  config.vm.hostname = 'desktop'
+
+  # Keep Vagrant's insecure key in the image, so the packaged box works for everyone.
+  # The password is the fallback for boxes that lack it (bookworm-base 1.0.1).
+  config.ssh.insert_key = false
+  config.ssh.password = 'vagrant'
+  config.vm.synced_folder '.', '/vagrant', disabled: true
+
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "secgen-base-update-#{ENV.fetch('BASE', 'bookworm')}"
+    vb.memory = 4096
+    vb.cpus = 4
+  end
+
+  config.vm.provision 'update', type: 'shell', path: 'update.sh', env: { 'DISTRO' => base[:distro] }
+  # Desktop settings from the Proxmox templates (overlay/<base>/ mirrors /): /etc/skel, wallpaper.
+  # Proxmox-only settings (such as proxies) don't belong here.
+  overlay = "overlay/#{ENV.fetch('BASE', 'bookworm')}"
+  if File.directory?(overlay)
+    config.vm.provision 'overlay_upload', type: 'file', source: overlay, destination: '/tmp/secgen-overlay'
+    config.vm.provision 'overlay', type: 'shell',
+                       inline: 'rsync -rl --chown=root:root /tmp/secgen-overlay/ / && rm -rf /tmp/secgen-overlay'
+  end
+  # run by build.sh after a reboot into the new kernel, once it has uploaded the Guest Additions ISO
+  config.vm.provision 'guest_additions', type: 'shell', path: 'guest_additions.sh', run: 'never'
+  config.vm.provision 'check', type: 'shell', run: 'never',
+                     inline: 'uname -r; lsmod | grep -E "^(vboxguest|vboxsf) "; puppet --version; cat /home/vagrant/.ssh/authorized_keys'
+  config.vm.provision 'cleanup', type: 'shell', path: 'cleanup.sh', run: 'never'
+end

@@ -106,7 +106,7 @@ sudo gem install bundler -v '~> 2.4'
 sudo bundle install
 ```
 
-Then try the default scenario (it downloads the base box from Vagrant Cloud the first time):
+Then try the default scenario (it downloads the base box from hacktivity.co.uk the first time):
 
 ```bash
 ruby secgen.rb run

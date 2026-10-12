@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=Auto resolution
+Comment=
+Exec=bash -c "while sleep 1; do xrandr --output Virtual-1 --auto; done"
+StartupNotify=true
+Terminal=false
+Hidden=false
+X-GNOME-Autostart-enabled=true
+

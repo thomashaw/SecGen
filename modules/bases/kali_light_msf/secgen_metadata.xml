@@ -15,7 +15,9 @@
   <platform>linux</platform>
   <platform>unix</platform>
   <distro>Kali Linux Rolling</distro>
-  <url>https://api.cloud.hashicorp.com/vagrant-archivist/v1/object/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJzZWNnZW4va2FsaV9saWdodC8yLjAuMS92aXJ0dWFsYm94LzY3NDYxYTBkLWNhZjMtMTFlZi05ZGIxLTIyMGFmOGE0NzQ3ZCIsIm1vZGUiOiJyIiwiZmlsZW5hbWUiOiJrYWxpX2xpZ2h0XzIuMC4xX3ZpcnR1YWxib3hfYW1kNjQuYm94In0.QNeeCdfTHvSP38idvSoBy0DHeR0tVLJ1yaN8JxLHUJE</url>
+  <url>https://hacktivity.co.uk/files/vagrant_boxes/kali_light.json</url>
+  <vagrant_box>secgen/kali_light</vagrant_box>
+  <vagrant_box_version>2.1.0</vagrant_box_version>
   <esxi_url></esxi_url>
   <ovirt_template>kali-linux-mfs-20231114</ovirt_template>
   <proxmox_template>kali-linux-msf-20260719</proxmox_template>
