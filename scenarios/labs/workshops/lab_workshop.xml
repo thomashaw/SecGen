@@ -6,12 +6,13 @@
 
       <name>Lab workshop 1</name>
       <author>Z. Cliffe Schreuders</author>
-      <description>A not-so-random example for giving a walk through tutorial.
+      <description>Welcome! This is a beginner-friendly introductory workshop session.
 
-      Start as kali, scan the web_server, find distcc, exploit using Armitage/MSF.
-      Leaked username and password for log into desktop gui.
-      Desktop contains sensitive list of clients under main user's home directory,
-      and another user also has a list of clients (sudo to access).</description>
+      You will get a taster of what hacking and cyber security are really like: scan a network to find a target, exploit a vulnerable server to get in, and then explore the system to uncover hidden secrets. We will guide you through each step, so just dive in and have fun.
+
+      Follow along with the lab sheet.</description>
+
+      <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/introducing_attacks/open-day/</lab_sheet_url>
 
       <type>workshop</type>
       <difficulty>easy</difficulty>
