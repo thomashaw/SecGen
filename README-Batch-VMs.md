@@ -94,9 +94,17 @@ Example: `ruby batch_secgen.rb add --instances here,are,some,prefixes --- -s sce
 
 ## Install the service to run batch-secgen in the background
 
-Install the lib/batch/batch-secgen.service systemd service file.
+`lib/batch/batch-secgen.service` is a template. Install it from the root of
+your SecGen checkout, as the user the service should run as (the user that
+owns the checkout and the database role), so that `@SECGEN_DIR@` and
+`@SECGEN_USER@` are filled in for your machine:
 
 ```
-sudo systemctl enable /absolute/path/to/SecGen/lib/batch/batch-secgen.service
-service batch-secgen start
+sed -e "s|@SECGEN_DIR@|$(pwd)|g" -e "s|@SECGEN_USER@|$(id -un)|g" \
+  lib/batch/batch-secgen.service | sudo tee /etc/systemd/system/batch-secgen.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now batch-secgen
 ```
+
+The service runs `/usr/bin/ruby`; edit `ExecStart` in the installed copy if
+your Ruby lives elsewhere. If you move the checkout, re-run the commands above.

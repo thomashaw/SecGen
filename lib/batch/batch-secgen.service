@@ -1,16 +1,18 @@
+# Template: the SecGen checkout path and service user placeholders are filled
+# in at install time. See "Install the service" in README-Batch-VMs.md.
 [Unit]
 Description=Batch Processing Service (SecGen Project)
 After=postgresql.service
 
 [Service]
 EnvironmentFile=/etc/environment
-ExecStart=/usr/bin/ruby /home/deploy/SecGen/lib/batch/batch_secgen.rb start
+ExecStart=/usr/bin/ruby @SECGEN_DIR@/lib/batch/batch_secgen.rb start
 ExecReload=/bin/kill -HUP $MAINPID
 KillMode=process
-WorkingDirectory=/home/deploy/SecGen/
+WorkingDirectory=@SECGEN_DIR@
 Restart=always
-User=deploy
-Group=deploy
+User=@SECGEN_USER@
+Group=@SECGEN_USER@
 
 [Install]
 WantedBy=multi-user.target
