@@ -179,7 +179,8 @@ end
 elsif @cpu_word_size == '64-bit'
 "      vb.customize ['modifyvm', :id, '--hwvirtex', 'on']\n"
 end -%>
-<%= vtxpid = (@options.has_key? :vtxvpid) ? 'on' : 'off'
+<%# VPID on for 64-bit bases: recent guest kernels (e.g. Kali's 7.x) hang at boot with RCU stalls without it -%>
+<%= vtxpid = (@options.has_key?(:vtxvpid) || @cpu_word_size == '64-bit') ? 'on' : 'off'
 "      vb.customize ['modifyvm', :id, '--vtxvpid', '#{vtxpid}']\n"  -%>
 <%=   "      vb.memory = '#{system.memory}'\n"-%>
 <%= if @options.has_key? :cpu_cores

@@ -338,6 +338,10 @@ class ProjectFilesCreator
     elsif (@options.has_key? :ovirtuser) && (@options.has_key? :ovirtpass)
       # all ovirt vms -- could be more specific: && (@base_type.include? 'desktop')
       memory = '3000'
+    elsif !@options.has_key?(:esxiuser) && desktop_base?(system)
+      # VirtualBox: current desktop distros (Kali, Debian KDE) struggle in 1GB, and attack
+      # VMs install large tool sets during provisioning (Proxmox sets its own memory)
+      memory = '3000'
     else
       memory = '1024'
     end
@@ -348,6 +352,12 @@ class ProjectFilesCreator
       end
     end
     memory
+  end
+
+  def desktop_base?(system)
+    system.module_selections.any? do |mod|
+      mod.module_type == 'base' && (mod.attributes['type'] || []).include?('desktop')
+    end
   end
 
 # Returns binding for erb files (access to variables in this classes scope)

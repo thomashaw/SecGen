@@ -45,7 +45,7 @@ def usage
    --gui-output, -g: Show the running VM (not headless)
    --nopae: Disable PAE support
    --hwvirtex: Enable HW virtex support
-   --vtxvpid: Enable VTX support
+   --vtxvpid: Enable VT-x VPID support (always on for 64-bit bases)
    --max-cpu-usage [1-100]: Controls how much cpu time a virtual CPU can use
                             (e.g. 50 implies a single virtual CPU can use up to 50% of a single host CPU)
 
