@@ -5,6 +5,10 @@ description: Test a SecGen module or scenario end-to-end on Proxmox using the ag
 
 # Test a SecGen module/scenario (Proxmox guest-agent pipeline)
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+
 This is the automated-verification half of the agentic pipeline (statuses,
 tiers and the results format are in `README-Testing.md`). It answers: *does this module actually provision,
 and is the intended service/exploit really there on a freshly built VM?* — without

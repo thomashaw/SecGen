@@ -5,6 +5,10 @@ description: Write, modify, and debug the Puppet code inside SecGen modules (mod
 
 # SecGen Puppet
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+
 How to write the Puppet side of a SecGen module so that it provisions cleanly on the current bases. This skill is about **authoring and debugging manifests**. For checking that `secgen_metadata.xml` and the manifests agree (read_facts, default_inputs, leaks reaching the attacker) use `review-secgen-module`; for cross-module wiring use `review-secgen-scenario`.
 
 Everything below is derived from the current tree (~430 modules, ~1550 `.pp` files). Counts in brackets are "number of `.pp` files using this", to show what is idiomatic.

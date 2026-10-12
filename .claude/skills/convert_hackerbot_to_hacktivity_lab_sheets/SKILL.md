@@ -5,6 +5,12 @@ description: Convert a SecGen Hackerbot lab sheet (a hackerbot_config generator'
 
 # Converting a Hackerbot lab sheet to a Hacktivity lab sheet
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+> Paths written `HacktivityLabSheets/...` are relative to that checkout (located
+> as described below).
+
 The SecGen Hackerbot labs generate their lab sheet at build time: a
 `hackerbot_config` generator renders an XML bot config from ERB, and the markdown
 sheet is **extracted from that XML** and served by Apache on the

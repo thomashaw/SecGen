@@ -5,6 +5,10 @@ description: Understand, create, and debug SecGen Hackerbot labs - the hackerbot
 
 # SecGen Hackerbot labs
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+
 A Hackerbot lab is a **defensive** guided lab: the student works on their own `desktop` VM, chats to a bot that
 announces an attack, prepares a defence, says `ready`, and the bot SSHes in as root, runs the attack, regex-matches
 the output, and replies with a flag (or a hint) in chat.

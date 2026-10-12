@@ -5,6 +5,12 @@ description: End-to-end testing and improvement loop for a SecGen Hackerbot lab 
 
 # Hackerbot lab testing loop
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+> The `scripts/`, `assets/` and `references/` named in this skill's tables are
+> bundled with the skill (its base directory), not SecGen's own `scripts/`.
+
 A Hackerbot lab chains tasks (each `ready` checks the student's VM over SSH and replies with a flag or a
 hint), and a labsheet tells students what to type. Both rot: commands stop working on new OS versions,
 hints mislead, regexes over random values misfire, and a student who slips at task 4 is stuck at task 11.

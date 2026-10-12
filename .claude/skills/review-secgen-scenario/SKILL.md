@@ -5,6 +5,10 @@ description: Review a SecGen scenario (scenarios/**/*.xml) for a coherent, solva
 
 # Review a SecGen scenario
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+
 A scenario (`scenarios/**/*.xml`) composes modules into a complete challenge: one or more `<system>` VMs, each with a `<base>`, and a set of `<utility>`, `<service>`, and `<vulnerability>` modules wired together with **datastores** (scenario-global variables holding arrays of strings) and generators/encoders.
 
 Where the **module** review (see the `review-secgen-module` skill) checks one module in isolation, the **scenario** review checks the things only visible at the composition level:
