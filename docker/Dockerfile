@@ -28,19 +28,29 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       graphviz libgraphviz-dev libpcap-dev libsqlite3-dev libgpgme-dev libyaml-dev libffi-dev libssl-dev \
  && rm -rf /var/lib/apt/lists/*
 
-# Vagrant (HashiCorp's apt repo) and VirtualBox (Oracle's apt repo, pinned to the host version).
+# Vagrant (HashiCorp's apt repo) and VirtualBox.
+# VirtualBox comes from Oracle's download archive, not their apt repo: the apt repo only
+# carries the newest build of each series, so it cannot supply the host's exact version
+# once the host (e.g. Arch) is behind. The archive keeps every release, and the .deb is
+# checked against the SHA256SUMS published beside it.
 # VirtualBox's post-install step tries to build kernel modules and fails in a container;
 # that is expected, as the host's modules are used.
 RUN wget -qO- https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg \
  && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" > /etc/apt/sources.list.d/hashicorp.list \
- && wget -qO- https://www.virtualbox.org/download/oracle_vbox_2016.asc | gpg --dearmor -o /usr/share/keyrings/oracle-virtualbox-2016.gpg \
- && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg] https://download.virtualbox.org/virtualbox/debian $(lsb_release -cs) contrib" > /etc/apt/sources.list.d/virtualbox.list \
  && apt-get update \
  && if [ "$VAGRANT_VERSION" = latest ]; then apt-get install -y vagrant; else apt-get install -y "vagrant=${VAGRANT_VERSION}*"; fi \
  && VBOX_MINOR=$(echo "$VBOX_VERSION" | cut -d. -f1,2) \
- && (apt-get install -y --no-install-recommends "virtualbox-${VBOX_MINOR}=${VBOX_VERSION}-*" || true) \
- && dpkg -s "virtualbox-${VBOX_MINOR}" | grep -q '^Status: install ok installed' \
- && rm -rf /var/lib/apt/lists/*
+ && base="https://download.virtualbox.org/virtualbox/${VBOX_VERSION}" \
+ && mkdir /tmp/vbox && cd /tmp/vbox \
+ && curl -fsSLO "$base/SHA256SUMS" \
+ && deb=$(grep -oE "virtualbox-${VBOX_MINOR}_${VBOX_VERSION}-[0-9]+~Ubuntu~$(lsb_release -cs)_amd64\.deb" SHA256SUMS | head -1) \
+ && { [ -n "$deb" ] || { echo "No VirtualBox ${VBOX_VERSION} build for Ubuntu $(lsb_release -cs) at $base/" >&2; exit 1; }; } \
+ && curl -fsSLO "$base/$deb" \
+ && grep -F " *$deb" SHA256SUMS | sha256sum -c - \
+ && (apt-get install -y --no-install-recommends "/tmp/vbox/$deb" || true) \
+ && { dpkg -s "virtualbox-${VBOX_MINOR}" | grep -q '^Status: install ok installed' \
+      || { echo "virtualbox-${VBOX_MINOR} did not install; dpkg status:" >&2; dpkg -s "virtualbox-${VBOX_MINOR}" >&2; exit 1; }; } \
+ && cd / && rm -rf /tmp/vbox /var/lib/apt/lists/*
 
 # Let host-only networks use any range (VirtualBox 6.1.28+ only allows 192.168.56.0/21
 # by default, and SecGen scenarios use other ranges)
