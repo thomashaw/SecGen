@@ -33,16 +33,20 @@ detection that the restriction does not explain.
    generated detection rule, then run the cases:
 
    ```
-   sudo ALLOWED_READERS="cat less more head tail" \
+   sudo ALLOWED_READERS="cat less more vim nano kate" \
         TARGET=/etc/shadow GOAL_USER=challenger \
         ./run_correctness_cases.sh
    ```
+
+   The scratch area for decoys and symlinks is `$GOAL_HOME/.sscorrect`. It must sit
+   inside a directory Auditbeat watches (the parent directory of each goal path, here
+   `/home/`), or the decoy and symlink cases are never logged and pass trivially.
 
    `--dry-run` prints the cases without running anything. Each case runs `REPS`
    times (default 3), with a `GAP_S`-second pause (default 5). The full run takes
    about 12 minutes and writes `correctness_cases_<host>_<time>.csv`.
 3. **On the analysis server**, collect the filter detections covering the run.
-   Use the same method as the `FILTER DETECTIONS` section of `benchmark.sh`, which
+   Use the same method as the `FILTER DETECTIONS` section of `../latency/benchmark_filter.sh`, which
    gives one `audit|recv|norm|detect|path|host` line per detection.
 4. **Score it** anywhere with Python 3.6 or later:
 

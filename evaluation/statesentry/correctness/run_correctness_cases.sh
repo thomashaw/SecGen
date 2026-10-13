@@ -30,7 +30,7 @@ GOAL_USER="${GOAL_USER:-challenger}"     # account named in the goal
 OTHER_USER="${OTHER_USER:-sstest}"       # unprivileged account, created if absent
 # Invoking processes the detection rule accepts. Copy this from the generated
 # rule; it is used only to attribute misses, never to decide ground truth.
-ALLOWED_READERS="${ALLOWED_READERS:-cat less more head tail}"
+ALLOWED_READERS="${ALLOWED_READERS:-cat less more vim nano kate}"
 REPS="${REPS:-3}"                        # repetitions of each case
 GAP_S="${GAP_S:-5}"                      # pause between case windows
 SETTLE_S="${SETTLE_S:-1}"                # margin added to each window's end
@@ -38,11 +38,14 @@ OUT="${OUT:-correctness_cases_$(hostname)_$(date -u +%Y%m%dT%H%M%SZ).csv}"
 DRY_RUN=0
 [ "${1:-}" = "--dry-run" ] && DRY_RUN=1
 
-WORK="/tmp/sscorrect"                    # scratch area for links and decoys
 TARGET_DIR="$(dirname "$TARGET")"
 TARGET_NAME="$(basename "$TARGET")"
 GOAL_HOME="$(getent passwd "$GOAL_USER" 2>/dev/null | cut -d: -f6)"
 GOAL_HOME="${GOAL_HOME:-/home/$GOAL_USER}"
+# Scratch area for links and decoys. It must sit inside a directory Auditbeat
+# watches (the goal paths' parent directories), or decoy and symlink cases are
+# never logged and pass trivially.
+WORK="$GOAL_HOME/.sscorrect"
 # TARGET relative to GOAL_HOME, e.g. /home/challenger -> ../../etc/shadow
 UP_FROM_HOME="$(printf '%s' "$GOAL_HOME" | sed 's#[^/][^/]*#..#g; s#^/##')"
 REL_FROM_HOME="${UP_FROM_HOME}${TARGET}"
@@ -175,4 +178,4 @@ done
 rm -rf "$WORK"
 echo "wrote $OUT"
 echo "Now collect the filter detections covering this run (same method as"
-echo "benchmark.sh's FILTER DETECTIONS section) and run score_correctness.py."
+echo "benchmark_filter.sh's FILTER DETECTIONS section) and run score_correctness.py."
