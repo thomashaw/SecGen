@@ -6,12 +6,15 @@ Matches filter-based detections to the case windows recorded by
 run_correctness_cases.sh, and reports how many legitimate accesses were
 detected and how many non-qualifying accesses were (wrongly) detected.
 
-  python3 score_correctness.py CASES.csv DETECTIONS.txt [--out RESULTS.csv]
+  python3 score_correctness.py CASES.csv DETECTIONS.txt [--goal readable_shadow-rf-0] [--out RESULTS.csv]
 
 CASES.csv       written by run_correctness_cases.sh on the monitored VM.
 DETECTIONS.txt  filter detections covering the run, one per line, in the
-                pipe format of benchmark.sh's FILTER DETECTIONS section:
-                  audit_time|logstash_receive|logstash_normalised|detect_time|path|host
+                pipe format of benchmark_filter.sh's FILTER DETECTIONS section:
+                  audit_time|logstash_receive|logstash_normalised|detect_time|path|alert
+                where alert is <host>-<goal>, e.g. ...-hackme-desktop-readable_shadow-rf-0.
+--goal          count only detections whose alert name ends with this goal, so
+                that alerts for the scenario's other goals are ignored.
                 A whole benchmark-style results file also works: only lines
                 in a FILTER DETECTIONS section (or bare pipe lines) are read.
 
@@ -67,7 +70,7 @@ def load_detections(path):
             try:
                 dets.append({"audit_ms": to_ms(parts[0]), "audit": parts[0],
                              "path": parts[4] if len(parts) > 4 else "",
-                             "host": parts[5] if len(parts) > 5 else ""})
+                             "alert": parts[5] if len(parts) > 5 else ""})
             except (ValueError, IndexError):
                 print("  ignored unparseable line: %r" % s[:100], file=sys.stderr)
     return dets
@@ -84,10 +87,16 @@ def main():
     ap.add_argument("cases")
     ap.add_argument("detections")
     ap.add_argument("--out", help="write per-run results CSV here")
+    ap.add_argument("--goal", help="count only alerts whose name ends with this goal")
     a = ap.parse_args()
 
     cases = load_cases(a.cases)
     dets = load_detections(a.detections)
+    if a.goal:
+        other = [d for d in dets if not d["alert"].endswith(a.goal)]
+        dets = [d for d in dets if d["alert"].endswith(a.goal)]
+        if other:
+            print("  ignored %d detection(s) for other goals" % len(other), file=sys.stderr)
     run_start = min(c["start_ms"] for c in cases) - WINDOW_MARGIN_MS
     run_end = max(c["end_ms"] for c in cases) + WINDOW_MARGIN_MS
 

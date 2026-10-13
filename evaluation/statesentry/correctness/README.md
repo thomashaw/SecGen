@@ -6,7 +6,7 @@ set of access variants, as reported in Section V.B of the paper.
 
 ## What it tests
 
-There are 39 cases. Each one has a **ground truth** that does not depend on how the
+There are 42 cases. Each one has a **ground truth** that does not depend on how the
 detection rule is written:
 
 - **detect**: the goal user read the *contents* of the real target file on the
@@ -17,7 +17,7 @@ detection rule is written:
 |---|---|---|---|
 | Path variants (P01–P09) | absolute, relative, `../` traversal, `./`, `//`, symlink to the file, working directory reached through a symlink, shell redirection | detect | path normalisation (`combined_path`) |
 | Readers (R01–R20) | `less`, `head`, `tail`, `tac`, `sort`, `grep`, `awk`, `sed`, `base64`, `dd`, `cp`, `python3`, `perl`, `vim`, … | detect | the invoking-process restriction |
-| Negatives (N01–N10) | decoy file with the same path suffix (absolute and two relative forms), failed access, another account (root), `stat`, `ls -l`, `find`, recursive `grep`, a different file | no_detect | false detections, including the decoy-path attack |
+| Negatives (N01–N13) | decoy file with the same path suffix (absolute and two relative forms), failed access, another account (root), `stat`, `ls -l`, `find`, recursive `grep`, a different file, and three decoy paths added after pre-run validation (`.//etc/shadow`, `x//etc/shadow`, and a symbolic link followed by `..`) | no_detect | false detections, including the decoy-path attack |
 
 Misses on readers the rule does not accept are **expected**: they are the known
 false-negative exposure of the invoking-process restriction (Section V.B). The
@@ -58,7 +58,8 @@ detection that the restriction does not explain.
 4. **Score it** anywhere with Python 3.6 or later:
 
    ```
-   python3 score_correctness.py correctness_cases_<host>_<time>.csv detections.txt --out results.csv
+   python3 score_correctness.py correctness_cases_<host>_<time>.csv detections.txt \
+       --goal readable_shadow-rf-0 --out results.csv
    ```
 
    The scorer prints a per-case table, a summary and a draft sentence for the paper.

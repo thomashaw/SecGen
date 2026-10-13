@@ -49,6 +49,12 @@ WORK="$GOAL_HOME/.sscorrect"
 # TARGET relative to GOAL_HOME, e.g. /home/challenger -> ../../etc/shadow
 UP_FROM_HOME="$(printf '%s' "$GOAL_HOME" | sed 's#[^/][^/]*#..#g; s#^/##')"
 REL_FROM_HOME="${UP_FROM_HOME}${TARGET}"
+# N13: symlink $WORK/L points LINK_DEPTH levels below decoy/, where LINK_DEPTH
+# is the depth of $WORK/L itself. L/ followed by LINK_DEPTH '..' is the root
+# when read lexically, but decoy/ to the kernel, which follows L first.
+LINK_DEPTH=$(( $(printf '%s' "$WORK" | tr -cd '/' | wc -c) + 1 ))
+LINK_UPS="$(printf '../%.0s' $(seq "$LINK_DEPTH"))"
+DEEP="$WORK/decoy$(printf '/d%.0s' $(seq "$LINK_DEPTH"))"
 
 # ------------------------------------------------------------------ checks --
 if [ "$DRY_RUN" -eq 0 ]; then
@@ -68,6 +74,10 @@ setup() {
     echo "fake" > "$WORK/decoy$TARGET"                # decoy with the same path suffix
     ln -s "$TARGET" "$WORK/file_link"                 # symlink to the file
     ln -s "$TARGET_DIR" "$WORK/dir_link"              # symlink to its directory
+    mkdir -p "$WORK/decoy/x$TARGET_DIR"
+    echo "fake" > "$WORK/decoy/x$TARGET"              # decoy reached as x//etc/shadow
+    mkdir -p "$DEEP"
+    ln -s "$DEEP" "$WORK/L"                           # symlink deep below decoy/
     chown -R "$GOAL_USER" "$WORK"
     chmod -R a+rX "$WORK"
     sleep "$GAP_S"
@@ -117,6 +127,9 @@ N07|negative|no_detect|$GOAL_USER|-|metadata only (ls -l)|ls -l $TARGET
 N08|negative|no_detect|$GOAL_USER|-|filesystem search by name (find)|find $TARGET_DIR -name $TARGET_NAME
 N09|negative|no_detect|$GOAL_USER|grep|incidental read during recursive search|grep -rs zzzz_no_match $TARGET_DIR
 N10|negative|no_detect|$GOAL_USER|cat|different file in the same directory|cat $TARGET_DIR/passwd
+N11|negative|no_detect|$GOAL_USER|cat|decoy, relative path starting .//|cd $WORK/decoy && cat .//${TARGET_DIR#/}/$TARGET_NAME
+N12|negative|no_detect|$GOAL_USER|cat|decoy, relative path containing //|cd $WORK/decoy && cat x/$TARGET
+N13|negative|no_detect|$GOAL_USER|cat|decoy, symlink followed by ..|cd $WORK && cat L/${LINK_UPS}${TARGET_DIR#/}/$TARGET_NAME
 EOF
 
 now_ms() { date -u +%Y-%m-%dT%H:%M:%S.%3NZ; }
