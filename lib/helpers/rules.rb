@@ -86,12 +86,21 @@ class Rules
         "  - query:\n" +
         "      query_string:\n" +
         "        query: \"process.executable: (" + READ_EXECUTABLES.map { |e| "\\\"#{e}\\\"" }.join(' OR ') + ")\"" + "\n" +
+        read_by_filter(goal) +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\", \"raise\", \"--alert-name\", \"" + get_ea_rulename(hostname, source_name, goal, counter) +"\"]\n" +
         "pipe_match_json: true\n" +
         "realert:\n" +
         "  minutes: 0\n"
+  end
+
+  # Optional read_by on a read_file goal: only reads by that account count.
+  def self.read_by_filter(goal)
+    return '' if goal['read_by'].nil? || goal['read_by'].empty?
+    "  - query:\n" +
+        "      query_string:\n" +
+        '        query: "user.name: \"' + goal['read_by'] + '\""' + "\n"
   end
 
   def self.generate_elastalert_rule_acc(hostname, source_name, goal, counter)

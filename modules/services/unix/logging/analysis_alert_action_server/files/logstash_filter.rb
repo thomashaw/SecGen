@@ -26,11 +26,14 @@ def filter(event)
     user_name     = event.get('[user][name]')
     related_users = event.get('[related][user]')
 
-    # ── readable_shadow-rf-0 ──────────────────────────────────────────────
+    # ── readable_shadow-rf-0 (read_by: challenger) ────────────────────────
+    # Only the goal account's reads count; root or another account reading
+    # the file is not the student completing this goal.
     if action == 'opened-file' &&
        result == 'success' &&
        combined_path == '/etc/shadow' &&
-       @read_executables.include?(executable)
+       @read_executables.include?(executable) &&
+       user_name == 'challenger'
       fire(event, "#{@hostname}-readable_shadow-rf-0")
     end
 
