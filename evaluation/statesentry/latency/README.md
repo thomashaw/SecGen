@@ -11,6 +11,7 @@ the exercise infrastructure.
 
 | File | Contents |
 |---|---|
+| `benchmark_indexed.sh`, `benchmark_filter.sh` | The scripts that ran each benchmark and exported its results (see below) |
 | `benchmark_results_1.txt` | Indexed path: Elasticsearch `_search` responses (`elastalert_status`, `secgen-events-*`) and alert-router `BENCHMARK` log lines |
 | `benchmark_results_2.txt` | Filter-based path: `FILTER DETECTIONS` lines in the format of `/var/log/logstash/filter_detections.log`, plus alert-router `BENCHMARK` log lines |
 | `analyse.py` | Per-stage and end-to-end latency, full distributions, and the indexed-vs-filter comparison. Python 3.6+, no dependencies. Run `python3 analyse.py` with no arguments for the modes and the measurement decisions |
@@ -21,6 +22,24 @@ The instrumentation that produced these timestamps is in this branch:
 `modules/services/unix/logging/analysis_alert_action_server/files/filter_ls_conf.yml`
 (Logstash timing fields and detection output), `logstash_filter.rb` (filter-based
 detection), and the `BENCHMARK` lines in `alert_actioner/alert_router.rb`.
+
+## How the data were collected
+
+Each script ran on the analysis server and repeated the following 50 times:
+
+1. Reset the alert router, so that its actions fire again.
+2. Wait 2 s.
+3. Read `/etc/shadow` on the victim as `challenger` over SSH.
+4. Wait 30 s, giving about 32.4 s between repetitions.
+
+The scripts then exported the results:
+
+- **`benchmark_indexed.sh`** produced `benchmark_results_1.txt`. It queries Elasticsearch for every ElastAlert status document and greps the alert-router log. Its `SECGEN EVENTS` query (a `terms` query on `combined_path`) returned no documents, so that section is empty. This does not affect any figure: each ElastAlert status document carries the full matched event, including every pipeline timestamp, in `match_body`, and `analyse.py` reads them from there.
+- **`benchmark_filter.sh`** produced `benchmark_results_2.txt`. It clears `/var/log/logstash/filter_detections.log` before the loop, so the file holds only that run, and exports the log after it.
+
+Both export steps grep the whole alert-router log, without a time limit. That is why the router lines span the whole day.
+
+The scripts are as run, except that the client password is now read from `CLIENT_PASS` instead of being hard-coded.
 
 ## Reproducing Table IV
 
