@@ -108,6 +108,19 @@ diff respectively.
   uid is not `challenger`, so a match on the login uid could not have fired: `user.name`
   carries the uid of the reading process, as assumed. This was inferred from detections;
   no raw event was stored (the analysis server keeps only the detections file).
+- **Sweeps are credited (found 13 October 2026, not yet fixed).** The reader allow-list
+  restricts which program opened the goal file, not how it was chosen, and `file.path` is
+  the name the program passed to `open()`, after the shell has expanded globs. Run as
+  `challenger` from the home directory with the `after` filter deployed
+  (`../tools/sweep_probe.sh`), `cat /etc/*`, `find /etc -type f -exec cat {} +` and
+  `find /etc -type f -exec cat {} \;` were each detected as a read of `/etc/shadow`
+  (10:23:39Z, 10:23:44Z, 10:23:50Z). A student can therefore complete every `read_file`
+  goal under an audited directory without identifying the file. The correctness suite has
+  no sweep cases, and N09 (`grep -r`) is silent only because a recursive grep opens files
+  relative to a directory descriptor. Candidate fixes, checked on the analysis server so
+  nothing is revealed on the victim: a breadth check (distinct audited files opened by one
+  session or process within a short window), and requiring the goal path in the command
+  line (`process.title`), which stops globs but not `find -exec cat {} \;`.
 - **`read_by` for module goals.** A scenario cannot yet set `read_by` on a goal that a
   module declares (readable_shadow's goal comes from its metadata). experiment_aaa's
   filter is written by hand, so the evaluation is unaffected, but generated ElastAlert
