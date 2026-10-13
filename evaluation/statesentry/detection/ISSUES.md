@@ -56,26 +56,59 @@ the same Auditbeat rule.
 | T4 | Decoy forms that defeat the original normalisation were not in the suite | Cases N11 to N13 added (42 cases in all) | `df0586a49` |
 | T5 | The scorer counted any alert in a case window, including alerts for the scenario's other goals | `--goal` option counts only the goal under test | `df0586a49` |
 | T6 | Documentation described the audit watch as the goal's parent directory (it is the top-level directory) and named `benchmark.sh` (the script is `benchmark_filter.sh`) | Corrected | `cc831e90f`, `df0586a49` |
+| T7 | Case N04 is labelled "failed access, account without permission", but the goal's vulnerability makes `/etc/shadow` mode 644, so the read by `sstest` succeeds (exit 0, `auditd.result` success) and was detected by `before`. On this scenario N04 tests a successful read by a second unprivileged account, as N05 does for root; a failed read of the goal file cannot be produced while the vulnerability is present | Not changed, so that the before and after runs use the same runner; the label is to be read as above, and a failed-access case needs a goal file the test account cannot read | none |
 
 ## Limitations retained by design
 
 | # | Limitation | Why it is retained |
 |---|---|---|
-| L1 | Symbolic links are not resolved: a read through a link to the goal file is missed (case P07), and a decoy reached through a link followed by `..` normalises to the goal path (case N13, a predicted false detection) | Resolving links needs the monitored host's file system, which the analysis server cannot see; identifying the file by inode would require a file-specific watch, which the design constraint above rules out |
+| L1 | Paths are normalised lexically, so symbolic links are not resolved. A read through a link to the goal file is missed (case P07). A decoy reached through a link followed by `..` normalises to the goal path and is credited (case N13, detected in every repetition): a student can create a link and a file of their own and have a read of that file recorded as a read of the goal, which is a way of gaining credit without reading the goal file. Not resolving links is therefore not a defence against symlink attacks; the read through a link that it misses was permitted by the kernel anyway | Resolving links needs the monitored host's file system, which the analysis server cannot see, and a watch on the goal file's inode would name it in the victim's audit rules, which the design constraint above rules out. A possible fix that keeps the directory watch, not yet tested: the audit record of each opened file already carries its device and inode, so the analysis server could compare them with the goal file's, recorded at provisioning and kept on the server. The goal's inode changes when the file is replaced (a password change rewrites `/etc/shadow`), so it would have to be refreshed |
 | L2 | Only the listed reader programs count, so reads with other programs (`head`, `python3`, `cp`, shell redirection, ...) are missed (P09, R03 to R19) | The restriction avoids crediting incidental reads by system processes and tools such as recursive `grep`; its cost is reported as a false-negative exposure |
 | L3 | What is audited depends on the scenario's whole goal set, because each goal adds a watch on its top-level directory | Follows from the design constraint |
 
+## Measured results
+
+The correctness test (42 cases, 3 repetitions each, `/etc/shadow` read as `challenger` on
+`tom-noekea-2-experiment-aaa-hackme-desktop`) was run on 13 October 2026 with `before`
+deployed on the analysis server, and again with `after` deployed. The runner was the same
+in both runs (md5 `ba554634ff2e6d624b0c15c2509fefb8`). Cases CSVs, filter detections, the
+scored CSVs and the scorer's reports are in `../correctness/results/`
+(`*_before_20261013T091827Z*`, `*_after_20261013T093759Z*`). R12 was skipped in both runs
+(`strings` is not installed on the victim), so 41 cases were scored. No case gave
+different outcomes across its repetitions in either run.
+
+| | `before` | `after` |
+|---|---|---|
+| Should detect (28 cases): detected | 7 | 10 |
+| Missed, reader not in the allow-list (P09, R03 to R19 except R12) | 17 | 17 |
+| Missed, other | 4: P04, P05, P07, R01 | 1: P07 |
+| Should not detect (13 cases): false detections | 5: N04, N05, N11, N12, N13 | 1: N13 |
+
+Per issue:
+
+| # | Case(s) | `before` | `after` |
+|---|---|---|---|
+| D2 | P05 | missed 0/3 | detected 3/3 |
+| D3 | P04 | missed 0/3 | detected 3/3 |
+| D4 | N11, N12 | false detection 3/3 each | silent 0/3 each |
+| D6 | R01 (`less`, `/bin/less`) | missed 0/3 | detected 3/3 |
+| D8 | N05 (root), N04 (`sstest`) | false detection 3/3 each | silent 0/3 each |
+| D8 | P01 to P06, P08, R01, R02, R20 (`challenger` via `su`) | | detected 3/3 each |
+| L1 | P07, N13 | missed, false detection | unchanged, as expected |
+
+D1 is not exercised by the runner since T3 (cases run from the home directory); it is
+covered by `test_combined_path.rb`. D5 and D7 are covered by the unit tests and the rule
+diff respectively.
+
 ## Open items
 
-- **`read_by` field.** `read_by` is matched against `user.name`, the field the filter
-  already uses for account goals, on the basis that Auditbeat sets it from the uid of the
-  reading process (rather than the login uid, `user.audit.*`). This has not yet been
-  checked against a stored event; the "after" correctness run will show it, since cases
-  run with `su` (uid challenger, login uid root) must be detected and N05 (root) must not.
+- **`read_by` field (resolved by the after run).** `read_by` is matched against
+  `user.name`. In the after run every read by `challenger` was detected, and reads by root
+  and `sstest` were not. The runner starts each case with `su` from a process whose login
+  uid is not `challenger`, so a match on the login uid could not have fired: `user.name`
+  carries the uid of the reading process, as assumed. This was inferred from detections;
+  no raw event was stored (the analysis server keeps only the detections file).
 - **`read_by` for module goals.** A scenario cannot yet set `read_by` on a goal that a
   module declares (readable_shadow's goal comes from its metadata). experiment_aaa's
   filter is written by hand, so the evaluation is unaffected, but generated ElastAlert
   rules for module goals have no `read_by` until such a mechanism exists.
-- **Before/after runs.** The correctness test is to be run once with the `before` filter
-  (as deployed for the latency benchmark) and once with `after`, and the two scored
-  results added here as the measured confirmation of D1 to D8.

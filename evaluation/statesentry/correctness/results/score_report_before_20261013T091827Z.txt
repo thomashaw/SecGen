@@ -1,0 +1,64 @@
+================================================================================================
+PER CASE (detected / repetitions run)
+================================================================================================
+ID   CATEGORY  TRUTH     READER   LISTED  DET    OUTCOME   DESCRIPTION
+P01  path      detect    cat      yes     3/3    TP        absolute path
+P02  path      detect    cat      yes     3/3    TP        relative path from the file's directory
+P03  path      detect    cat      yes     3/3    TP        parent traversal from home
+P04  path      detect    cat      yes     0/3    FN        dot segment
+P05  path      detect    cat      yes     0/3    FN        repeated slashes
+P06  path      detect    cat      yes     3/3    TP        traversal within absolute path
+P07  path      detect    cat      yes     0/3    FN        symlink to the file
+P08  path      detect    cat      yes     3/3    TP        working directory reached through a symlink
+P09  path      detect    bash     no      0/3    FN        shell input redirection (shell opens the file)
+R01  reader    detect    less     yes     0/3    FN        less
+R02  reader    detect    more     yes     3/3    TP        more
+R03  reader    detect    head     no      0/3    FN        head
+R04  reader    detect    tail     no      0/3    FN        tail
+R05  reader    detect    tac      no      0/3    FN        tac
+R06  reader    detect    nl       no      0/3    FN        nl
+R07  reader    detect    sort     no      0/3    FN        sort
+R08  reader    detect    grep     no      0/3    FN        grep (single file)
+R09  reader    detect    awk      no      0/3    FN        awk
+R10  reader    detect    sed      no      0/3    FN        sed
+R11  reader    detect    cut      no      0/3    FN        cut
+R12  reader    detect    strings  no      -      SKIP      strings
+R13  reader    detect    base64   no      0/3    FN        base64
+R14  reader    detect    od       no      0/3    FN        od
+R15  reader    detect    xxd      no      0/3    FN        xxd
+R16  reader    detect    dd       no      0/3    FN        dd
+R17  reader    detect    cp       no      0/3    FN        cp to a readable copy
+R18  reader    detect    python3  no      0/3    FN        python3
+R19  reader    detect    perl     no      0/3    FN        perl
+R20  reader    detect    vim      yes     3/3    TP        vim (batch mode)
+N01  negative  no_detect cat      yes     0/3    TN        decoy, absolute path
+N02  negative  no_detect cat      yes     0/3    TN        decoy, relative path from decoy directory
+N03  negative  no_detect cat      yes     0/3    TN        decoy, relative path with directory
+N04  negative  no_detect cat      yes     3/3    FP        failed access, account without permission
+N05  negative  no_detect cat      yes     3/3    FP        successful access by a different account (root)
+N06  negative  no_detect -        n/a     0/3    TN        metadata only (stat)
+N07  negative  no_detect -        n/a     0/3    TN        metadata only (ls -l)
+N08  negative  no_detect -        n/a     0/3    TN        filesystem search by name (find)
+N09  negative  no_detect grep     no      0/3    TN        incidental read during recursive search
+N10  negative  no_detect cat      yes     0/3    TN        different file in the same directory
+N11  negative  no_detect cat      yes     3/3    FP        decoy, relative path starting .//
+N12  negative  no_detect cat      yes     3/3    FP        decoy, relative path containing //
+N13  negative  no_detect cat      yes     3/3    FP        decoy, symlink followed by ..
+
+================================================================================================
+SUMMARY (by case; a case counts once whatever its repetitions)
+================================================================================================
+  Should detect:     28 case(s): detected 7, missed 21
+  Should not detect: 13 case(s): correctly silent 8, false detections 5
+  Skipped (tool not installed): R12
+  Inconsistent across repetitions: none
+
+  Misses attributable to the invoking-process restriction (reader not listed): P09(bash), R03(head), R04(tail), R05(tac), R06(nl), R07(sort), R08(grep), R09(awk), R10(sed), R11(cut), R13(base64), R14(od), R15(xxd), R16(dd), R17(cp), R18(python3), R19(perl)
+  Misses NOT explained by the restriction (investigate): P04, P05, P07, R01
+  False detections (investigate): N04: failed access, account without permission, N05: successful access by a different account (root), N11: decoy, relative path starting .//, N12: decoy, relative path containing //, N13: decoy, symlink followed by ..
+
+================================================================================================
+DRAFT SENTENCE FOR SECTION V.B (check before use)
+================================================================================================
+  A scripted test of 41 access variants, each repeated 3 times, detected 7 of 28 legitimate accesses to the target; 21 were missed, 4 of them not explained by the reader restriction. Across 13 non-qualifying accesses, including decoy paths, failed accesses and other accounts, there were 5 false detection(s).
+  (Not yet reportable as written: resolve the skipped/inconsistent cases above first.)
