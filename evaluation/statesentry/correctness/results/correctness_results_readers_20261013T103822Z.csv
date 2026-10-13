@@ -1,0 +1,109 @@
+case_id,rep,category,ground_truth,reader,reader_listed,description,exit_code,skipped,start_utc,end_utc,n_detections,outcome
+P01,1,path,detect,cat,yes,absolute path,0,no,2026-10-13T10:38:27.547Z,2026-10-13T10:38:28.596Z,1,TP
+P02,1,path,detect,cat,yes,relative path from the file's directory,0,no,2026-10-13T10:38:33.631Z,2026-10-13T10:38:34.693Z,1,TP
+P03,1,path,detect,cat,yes,parent traversal from home,0,no,2026-10-13T10:38:39.738Z,2026-10-13T10:38:40.813Z,1,TP
+P04,1,path,detect,cat,yes,dot segment,0,no,2026-10-13T10:38:45.849Z,2026-10-13T10:38:46.894Z,1,TP
+P05,1,path,detect,cat,yes,repeated slashes,0,no,2026-10-13T10:38:51.932Z,2026-10-13T10:38:52.989Z,1,TP
+P06,1,path,detect,cat,yes,traversal within absolute path,0,no,2026-10-13T10:38:58.025Z,2026-10-13T10:38:59.074Z,1,TP
+P07,1,path,detect,cat,yes,symlink to the file,0,no,2026-10-13T10:39:04.110Z,2026-10-13T10:39:05.162Z,0,FN
+P08,1,path,detect,cat,yes,working directory reached through a symlink,0,no,2026-10-13T10:39:10.211Z,2026-10-13T10:39:11.267Z,1,TP
+R01,1,reader,detect,less,yes,less,0,no,2026-10-13T10:39:16.302Z,2026-10-13T10:39:17.348Z,1,TP
+R02,1,reader,detect,more,yes,more,0,no,2026-10-13T10:39:22.374Z,2026-10-13T10:39:23.428Z,1,TP
+R03,1,reader,detect,head,yes,head,0,no,2026-10-13T10:39:28.471Z,2026-10-13T10:39:29.530Z,1,TP
+R04,1,reader,detect,tail,yes,tail,0,no,2026-10-13T10:39:34.569Z,2026-10-13T10:39:35.623Z,1,TP
+R05,1,reader,detect,tac,yes,tac,0,no,2026-10-13T10:39:40.661Z,2026-10-13T10:39:41.714Z,1,TP
+R06,1,reader,detect,nl,yes,nl,0,no,2026-10-13T10:39:46.748Z,2026-10-13T10:39:47.806Z,1,TP
+R07,1,reader,detect,sort,yes,sort,0,no,2026-10-13T10:39:52.841Z,2026-10-13T10:39:53.893Z,1,TP
+R10,1,reader,detect,sed,yes,sed,0,no,2026-10-13T10:39:58.927Z,2026-10-13T10:39:59.985Z,1,TP
+R11,1,reader,detect,cut,yes,cut,0,no,2026-10-13T10:40:05.016Z,2026-10-13T10:40:06.062Z,1,TP
+R12,1,reader,detect,strings,yes,strings,-1,yes,2026-10-13T10:40:11.093Z,2026-10-13T10:40:11.093Z,0,SKIP
+R13,1,reader,detect,base64,yes,base64,0,no,2026-10-13T10:40:16.126Z,2026-10-13T10:40:17.184Z,1,TP
+R14,1,reader,detect,od,yes,od,0,no,2026-10-13T10:40:22.221Z,2026-10-13T10:40:23.264Z,1,TP
+R15,1,reader,detect,xxd,yes,xxd,0,no,2026-10-13T10:40:28.306Z,2026-10-13T10:40:29.354Z,1,TP
+R16,1,reader,detect,dd,yes,dd,0,no,2026-10-13T10:40:34.383Z,2026-10-13T10:40:35.425Z,1,TP
+R20,1,reader,detect,vim,yes,vim (batch mode),0,no,2026-10-13T10:40:40.468Z,2026-10-13T10:40:41.528Z,2,TP
+N01,1,negative,no_detect,cat,yes,"decoy, absolute path",0,no,2026-10-13T10:40:46.566Z,2026-10-13T10:40:47.623Z,0,TN
+N02,1,negative,no_detect,cat,yes,"decoy, relative path from decoy directory",0,no,2026-10-13T10:40:52.663Z,2026-10-13T10:40:53.703Z,0,TN
+N03,1,negative,no_detect,cat,yes,"decoy, relative path with directory",0,no,2026-10-13T10:40:58.749Z,2026-10-13T10:40:59.812Z,0,TN
+N04,1,negative,no_detect,cat,yes,"failed access, account without permission",0,no,2026-10-13T10:41:04.865Z,2026-10-13T10:41:06.000Z,0,TN
+N05,1,negative,no_detect,cat,yes,successful access by a different account (root),0,no,2026-10-13T10:41:11.034Z,2026-10-13T10:41:12.056Z,0,TN
+N06,1,negative,no_detect,-,n/a,metadata only (stat),0,no,2026-10-13T10:41:17.096Z,2026-10-13T10:41:18.144Z,0,TN
+N07,1,negative,no_detect,-,n/a,metadata only (ls -l),0,no,2026-10-13T10:41:23.183Z,2026-10-13T10:41:24.228Z,0,TN
+N08,1,negative,no_detect,-,n/a,filesystem search by name (find),1,no,2026-10-13T10:41:29.262Z,2026-10-13T10:41:30.343Z,0,TN
+N09,1,negative,no_detect,grep,no,incidental read during recursive search,2,no,2026-10-13T10:41:35.376Z,2026-10-13T10:41:36.504Z,0,TN
+N10,1,negative,no_detect,cat,yes,different file in the same directory,0,no,2026-10-13T10:41:41.545Z,2026-10-13T10:41:42.596Z,0,TN
+N11,1,negative,no_detect,cat,yes,"decoy, relative path starting .//",0,no,2026-10-13T10:41:47.646Z,2026-10-13T10:41:48.702Z,0,TN
+N12,1,negative,no_detect,cat,yes,"decoy, relative path containing //",0,no,2026-10-13T10:41:53.748Z,2026-10-13T10:41:54.801Z,0,TN
+N13,1,negative,no_detect,cat,yes,"decoy, symlink followed by ..",0,no,2026-10-13T10:41:59.839Z,2026-10-13T10:42:00.881Z,1,FP
+P01,2,path,detect,cat,yes,absolute path,0,no,2026-10-13T10:42:05.921Z,2026-10-13T10:42:06.976Z,1,TP
+P02,2,path,detect,cat,yes,relative path from the file's directory,0,no,2026-10-13T10:42:12.016Z,2026-10-13T10:42:13.081Z,1,TP
+P03,2,path,detect,cat,yes,parent traversal from home,0,no,2026-10-13T10:42:18.132Z,2026-10-13T10:42:19.176Z,1,TP
+P04,2,path,detect,cat,yes,dot segment,0,no,2026-10-13T10:42:24.210Z,2026-10-13T10:42:25.254Z,1,TP
+P05,2,path,detect,cat,yes,repeated slashes,0,no,2026-10-13T10:42:30.293Z,2026-10-13T10:42:31.347Z,1,TP
+P06,2,path,detect,cat,yes,traversal within absolute path,0,no,2026-10-13T10:42:36.385Z,2026-10-13T10:42:37.434Z,1,TP
+P07,2,path,detect,cat,yes,symlink to the file,0,no,2026-10-13T10:42:42.468Z,2026-10-13T10:42:43.534Z,0,FN
+P08,2,path,detect,cat,yes,working directory reached through a symlink,0,no,2026-10-13T10:42:48.571Z,2026-10-13T10:42:49.614Z,1,TP
+R01,2,reader,detect,less,yes,less,0,no,2026-10-13T10:42:54.653Z,2026-10-13T10:42:55.714Z,1,TP
+R02,2,reader,detect,more,yes,more,0,no,2026-10-13T10:43:00.744Z,2026-10-13T10:43:01.796Z,1,TP
+R03,2,reader,detect,head,yes,head,0,no,2026-10-13T10:43:06.834Z,2026-10-13T10:43:07.894Z,1,TP
+R04,2,reader,detect,tail,yes,tail,0,no,2026-10-13T10:43:12.930Z,2026-10-13T10:43:13.986Z,1,TP
+R05,2,reader,detect,tac,yes,tac,0,no,2026-10-13T10:43:19.024Z,2026-10-13T10:43:20.088Z,1,TP
+R06,2,reader,detect,nl,yes,nl,0,no,2026-10-13T10:43:25.131Z,2026-10-13T10:43:26.198Z,1,TP
+R07,2,reader,detect,sort,yes,sort,0,no,2026-10-13T10:43:31.231Z,2026-10-13T10:43:32.297Z,1,TP
+R10,2,reader,detect,sed,yes,sed,0,no,2026-10-13T10:43:37.338Z,2026-10-13T10:43:38.398Z,1,TP
+R11,2,reader,detect,cut,yes,cut,0,no,2026-10-13T10:43:43.434Z,2026-10-13T10:43:44.484Z,1,TP
+R12,2,reader,detect,strings,yes,strings,-1,yes,2026-10-13T10:43:49.524Z,2026-10-13T10:43:49.524Z,0,SKIP
+R13,2,reader,detect,base64,yes,base64,0,no,2026-10-13T10:43:54.567Z,2026-10-13T10:43:55.620Z,1,TP
+R14,2,reader,detect,od,yes,od,0,no,2026-10-13T10:44:00.648Z,2026-10-13T10:44:01.703Z,1,TP
+R15,2,reader,detect,xxd,yes,xxd,0,no,2026-10-13T10:44:06.742Z,2026-10-13T10:44:07.795Z,1,TP
+R16,2,reader,detect,dd,yes,dd,0,no,2026-10-13T10:44:12.837Z,2026-10-13T10:44:13.875Z,1,TP
+R20,2,reader,detect,vim,yes,vim (batch mode),0,no,2026-10-13T10:44:18.907Z,2026-10-13T10:44:19.958Z,2,TP
+N01,2,negative,no_detect,cat,yes,"decoy, absolute path",0,no,2026-10-13T10:44:24.997Z,2026-10-13T10:44:26.058Z,0,TN
+N02,2,negative,no_detect,cat,yes,"decoy, relative path from decoy directory",0,no,2026-10-13T10:44:31.097Z,2026-10-13T10:44:32.143Z,0,TN
+N03,2,negative,no_detect,cat,yes,"decoy, relative path with directory",0,no,2026-10-13T10:44:37.186Z,2026-10-13T10:44:38.240Z,0,TN
+N04,2,negative,no_detect,cat,yes,"failed access, account without permission",0,no,2026-10-13T10:44:43.284Z,2026-10-13T10:44:44.439Z,0,TN
+N05,2,negative,no_detect,cat,yes,successful access by a different account (root),0,no,2026-10-13T10:44:49.476Z,2026-10-13T10:44:50.496Z,0,TN
+N06,2,negative,no_detect,-,n/a,metadata only (stat),0,no,2026-10-13T10:44:55.533Z,2026-10-13T10:44:56.583Z,0,TN
+N07,2,negative,no_detect,-,n/a,metadata only (ls -l),0,no,2026-10-13T10:45:01.621Z,2026-10-13T10:45:02.676Z,0,TN
+N08,2,negative,no_detect,-,n/a,filesystem search by name (find),1,no,2026-10-13T10:45:07.714Z,2026-10-13T10:45:08.810Z,0,TN
+N09,2,negative,no_detect,grep,no,incidental read during recursive search,2,no,2026-10-13T10:45:13.843Z,2026-10-13T10:45:14.938Z,0,TN
+N10,2,negative,no_detect,cat,yes,different file in the same directory,0,no,2026-10-13T10:45:19.970Z,2026-10-13T10:45:21.017Z,0,TN
+N11,2,negative,no_detect,cat,yes,"decoy, relative path starting .//",0,no,2026-10-13T10:45:26.063Z,2026-10-13T10:45:27.122Z,0,TN
+N12,2,negative,no_detect,cat,yes,"decoy, relative path containing //",0,no,2026-10-13T10:45:32.166Z,2026-10-13T10:45:33.204Z,0,TN
+N13,2,negative,no_detect,cat,yes,"decoy, symlink followed by ..",0,no,2026-10-13T10:45:38.251Z,2026-10-13T10:45:39.304Z,1,FP
+P01,3,path,detect,cat,yes,absolute path,0,no,2026-10-13T10:45:44.342Z,2026-10-13T10:45:45.408Z,1,TP
+P02,3,path,detect,cat,yes,relative path from the file's directory,0,no,2026-10-13T10:45:50.448Z,2026-10-13T10:45:51.485Z,1,TP
+P03,3,path,detect,cat,yes,parent traversal from home,0,no,2026-10-13T10:45:56.526Z,2026-10-13T10:45:57.566Z,1,TP
+P04,3,path,detect,cat,yes,dot segment,0,no,2026-10-13T10:46:02.595Z,2026-10-13T10:46:03.648Z,1,TP
+P05,3,path,detect,cat,yes,repeated slashes,0,no,2026-10-13T10:46:08.683Z,2026-10-13T10:46:09.730Z,1,TP
+P06,3,path,detect,cat,yes,traversal within absolute path,0,no,2026-10-13T10:46:14.770Z,2026-10-13T10:46:15.821Z,1,TP
+P07,3,path,detect,cat,yes,symlink to the file,0,no,2026-10-13T10:46:20.863Z,2026-10-13T10:46:21.919Z,0,FN
+P08,3,path,detect,cat,yes,working directory reached through a symlink,0,no,2026-10-13T10:46:26.955Z,2026-10-13T10:46:28.009Z,1,TP
+R01,3,reader,detect,less,yes,less,0,no,2026-10-13T10:46:33.048Z,2026-10-13T10:46:34.114Z,1,TP
+R02,3,reader,detect,more,yes,more,0,no,2026-10-13T10:46:39.149Z,2026-10-13T10:46:40.196Z,1,TP
+R03,3,reader,detect,head,yes,head,0,no,2026-10-13T10:46:45.227Z,2026-10-13T10:46:46.276Z,1,TP
+R04,3,reader,detect,tail,yes,tail,0,no,2026-10-13T10:46:51.315Z,2026-10-13T10:46:52.365Z,1,TP
+R05,3,reader,detect,tac,yes,tac,0,no,2026-10-13T10:46:57.396Z,2026-10-13T10:46:58.454Z,1,TP
+R06,3,reader,detect,nl,yes,nl,0,no,2026-10-13T10:47:03.494Z,2026-10-13T10:47:04.565Z,1,TP
+R07,3,reader,detect,sort,yes,sort,0,no,2026-10-13T10:47:09.602Z,2026-10-13T10:47:10.660Z,1,TP
+R10,3,reader,detect,sed,yes,sed,0,no,2026-10-13T10:47:15.692Z,2026-10-13T10:47:16.763Z,1,TP
+R11,3,reader,detect,cut,yes,cut,0,no,2026-10-13T10:47:21.797Z,2026-10-13T10:47:22.848Z,1,TP
+R12,3,reader,detect,strings,yes,strings,-1,yes,2026-10-13T10:47:27.878Z,2026-10-13T10:47:27.878Z,0,SKIP
+R13,3,reader,detect,base64,yes,base64,0,no,2026-10-13T10:47:32.912Z,2026-10-13T10:47:33.969Z,1,TP
+R14,3,reader,detect,od,yes,od,0,no,2026-10-13T10:47:39.008Z,2026-10-13T10:47:40.065Z,1,TP
+R15,3,reader,detect,xxd,yes,xxd,0,no,2026-10-13T10:47:45.103Z,2026-10-13T10:47:46.171Z,1,TP
+R16,3,reader,detect,dd,yes,dd,0,no,2026-10-13T10:47:51.211Z,2026-10-13T10:47:52.277Z,1,TP
+R20,3,reader,detect,vim,yes,vim (batch mode),0,no,2026-10-13T10:47:57.315Z,2026-10-13T10:47:58.371Z,2,TP
+N01,3,negative,no_detect,cat,yes,"decoy, absolute path",0,no,2026-10-13T10:48:03.404Z,2026-10-13T10:48:04.452Z,0,TN
+N02,3,negative,no_detect,cat,yes,"decoy, relative path from decoy directory",0,no,2026-10-13T10:48:09.500Z,2026-10-13T10:48:10.539Z,0,TN
+N03,3,negative,no_detect,cat,yes,"decoy, relative path with directory",0,no,2026-10-13T10:48:15.596Z,2026-10-13T10:48:16.650Z,0,TN
+N04,3,negative,no_detect,cat,yes,"failed access, account without permission",0,no,2026-10-13T10:48:21.682Z,2026-10-13T10:48:22.799Z,0,TN
+N05,3,negative,no_detect,cat,yes,successful access by a different account (root),0,no,2026-10-13T10:48:27.843Z,2026-10-13T10:48:28.867Z,0,TN
+N06,3,negative,no_detect,-,n/a,metadata only (stat),0,no,2026-10-13T10:48:33.910Z,2026-10-13T10:48:34.964Z,0,TN
+N07,3,negative,no_detect,-,n/a,metadata only (ls -l),0,no,2026-10-13T10:48:40.000Z,2026-10-13T10:48:41.061Z,0,TN
+N08,3,negative,no_detect,-,n/a,filesystem search by name (find),1,no,2026-10-13T10:48:46.106Z,2026-10-13T10:48:47.191Z,0,TN
+N09,3,negative,no_detect,grep,no,incidental read during recursive search,2,no,2026-10-13T10:48:52.225Z,2026-10-13T10:48:53.393Z,0,TN
+N10,3,negative,no_detect,cat,yes,different file in the same directory,0,no,2026-10-13T10:48:58.413Z,2026-10-13T10:48:59.466Z,0,TN
+N11,3,negative,no_detect,cat,yes,"decoy, relative path starting .//",0,no,2026-10-13T10:49:04.507Z,2026-10-13T10:49:05.572Z,0,TN
+N12,3,negative,no_detect,cat,yes,"decoy, relative path containing //",0,no,2026-10-13T10:49:10.621Z,2026-10-13T10:49:11.683Z,0,TN
+N13,3,negative,no_detect,cat,yes,"decoy, symlink followed by ..",0,no,2026-10-13T10:49:16.736Z,2026-10-13T10:49:17.788Z,1,FP

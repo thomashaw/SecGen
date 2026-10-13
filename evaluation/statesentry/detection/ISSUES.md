@@ -6,17 +6,18 @@ together with the commit that fixed it on branch `dessert_2026_revision` and the
 that the fix works. Issues that are a deliberate consequence of the design are listed
 separately as limitations, with the reason they are retained.
 
-Both versions of the detection are kept so that either can be reproduced:
+Each version of the detection is kept so that it can be reproduced:
 
 | Directory | Contents |
 |---|---|
 | `before/` | `logstash_filter.rb`, `combined_path.rb` and `rules.rb` from `8de3e6c9e`, the code behind the latency benchmark (`../latency/benchmark_results_2.txt`), and the Auditbeat and ElastAlert rules it generates for the readable_shadow goal |
-| `after/` | The same files with the fixes below applied, and the rules they generate (with `read_by` set to `challenger`) |
+| `after/` | The same files with fixes D1 to D8 applied, and the rules they generate (with `read_by` set to `challenger`) |
+| `after_readers/` | `after/` with the wider reader list of D9; `combined_path.rb` is unchanged |
 
 The deployable copies live in the module tree
 (`modules/services/unix/logging/analysis_alert_action_server/files/logstash_filter.rb`,
 `modules/services/unix/logging/logstash/files/combined_path.rb`, `lib/helpers/rules.rb`)
-and match `after/`. `generate_rules.rb` regenerates either rule set, and
+and match `after_readers/`. `generate_rules.rb` regenerates either rule set, and
 `test_combined_path.rb` tests either version of `combined_path.rb`
 (`ruby test_combined_path.rb` or `ruby test_combined_path.rb before`).
 
@@ -45,6 +46,7 @@ the same Auditbeat rule.
 | D6 | The reader allow-list named one full path per program, but auditd records the resolved executable, which differs by base. On the Debian 10 victim `less` is `/bin/less` while the list had `/usr/bin/less`, so reads with `less` were never detected | `readlink -f` of each reader on the victim | Each reader is accepted under both `/bin` and `/usr/bin`, in the Logstash filter and in the generated ElastAlert rule (from one list, `Rules::READ_EXECUTABLES`) | `bcdf1885d` | `diff before/readable_shadow_rules.txt after/readable_shadow_rules.txt`; correctness case R01 |
 | D7 | The generated ElastAlert query scoped only its first reader to `process.executable` (`process.executable: "/bin/cat" OR "/usr/bin/vim.basic" ...`), so the other paths matched any field | Static analysis of `rules.rb` | The terms are grouped: `process.executable: ("/bin/cat" OR ...)` | `bcdf1885d` | Same diff |
 | D8 | A `read_file` goal named only the file, so any account reading it registered progress for the student: root reading `/etc/shadow` would complete the goal | Static analysis (no user condition in the filter or the rule); correctness case N05 | `read_file` goals take an optional `read_by` (mirroring `modify_file`'s `written_by`); the ElastAlert rule then also requires `user.name` to match, and experiment_aaa's filter requires `challenger` for readable_shadow. Goals without `read_by` behave as before | `9f7c0297d` | All 442 module and 366 scenario XML files validate against the changed XSDs; `after/readable_shadow_rules.txt`; correctness case N05 |
+| D9 | The reader list held only viewers and editors (`cat`, `less`, `more`, `nano`, `vim`, `kate`), so targeted reads with common stream tools (`head`, `tail`, `base64`, `xxd`, ...) were never detected (R03 to R16 missed in the after run) | Correctness runs | The single-file stream tools `head`, `tail`, `tac`, `nl`, `sort`, `cut`, `strings`, `base64`, `od`, `xxd`, `sed` and `dd` are added. Recursive tools and interpreters (`grep`, `cp`, `awk`, `python3`, `perl`, `bash`) are deliberately left out, because each can read many files in one command (see "Future work: sweeps") | `e5a7226e9` | `diff after/readable_shadow_rules.txt after_readers/readable_shadow_rules.txt`; R03 to R16 detected 3/3 in the readers run |
 
 ### Correctness test
 
@@ -57,13 +59,14 @@ the same Auditbeat rule.
 | T5 | The scorer counted any alert in a case window, including alerts for the scenario's other goals | `--goal` option counts only the goal under test | `df0586a49` |
 | T6 | Documentation described the audit watch as the goal's parent directory (it is the top-level directory) and named `benchmark.sh` (the script is `benchmark_filter.sh`) | Corrected | `cc831e90f`, `df0586a49` |
 | T7 | Case N04 is labelled "failed access, account without permission", but the goal's vulnerability makes `/etc/shadow` mode 644, so the read by `sstest` succeeds (exit 0, `auditd.result` success) and was detected by `before`. On this scenario N04 tests a successful read by a second unprivileged account, as N05 does for root; a failed read of the goal file cannot be produced while the vulnerability is present | Not changed, so that the before and after runs use the same runner; the label is to be read as above, and a failed-access case needs a goal file the test account cannot read | none |
+| T8 | The suite tested readers that the rule should not accept until sweeps can be told apart from targeted reads, so their misses were counted against the rule | P09 (`bash` redirection), R08 (`grep`), R09 (`awk`), R17 (`cp`), R18 (`python3`) and R19 (`perl`) removed; they stay in the runner as comments, which it now skips. N09 (recursive `grep`) is kept as a negative. 36 cases | `e5a7226e9` |
 
 ## Limitations retained by design
 
 | # | Limitation | Why it is retained |
 |---|---|---|
 | L1 | Paths are normalised lexically, so symbolic links are not resolved. A read through a link to the goal file is missed (case P07). A decoy reached through a link followed by `..` normalises to the goal path and is credited (case N13, detected in every repetition): a student can create a link and a file of their own and have a read of that file recorded as a read of the goal, which is a way of gaining credit without reading the goal file. Not resolving links is therefore not a defence against symlink attacks; the read through a link that it misses was permitted by the kernel anyway | Resolving links needs the monitored host's file system, which the analysis server cannot see, and a watch on the goal file's inode would name it in the victim's audit rules, which the design constraint above rules out. A possible fix that keeps the directory watch, not yet tested: the audit record of each opened file already carries its device and inode, so the analysis server could compare them with the goal file's, recorded at provisioning and kept on the server. The goal's inode changes when the file is replaced (a password change rewrites `/etc/shadow`), so it would have to be refreshed |
-| L2 | Only the listed reader programs count, so reads with other programs (`head`, `python3`, `cp`, shell redirection, ...) are missed (P09, R03 to R19) | The restriction avoids crediting incidental reads by system processes and tools such as recursive `grep`; its cost is reported as a false-negative exposure |
+| L2 | Only the listed reader programs count, so reads with recursive tools and interpreters (`grep`, `cp`, `awk`, `python3`, `perl`, shell redirection) are missed | These tools read many files in one command, and crediting them would let a single sweep complete every read goal; the cost is a false-negative exposure for students who use them. The listed tools can also be swept (see "Future work: sweeps"), so the restriction narrows this exposure rather than removing it |
 | L3 | What is audited depends on the scenario's whole goal set, because each goal adds a watch on its top-level directory | Follows from the design constraint |
 
 ## Measured results
@@ -96,6 +99,21 @@ Per issue:
 | D8 | P01 to P06, P08, R01, R02, R20 (`challenger` via `su`) | | detected 3/3 each |
 | L1 | P07, N13 | missed, false detection | unchanged, as expected |
 
+### Readers run (D9)
+
+With `after_readers/` deployed and the 36-case suite (runner md5
+`521b65de2458462aa430fd040970d3b8`), run 10:38:22Z to 10:49:18Z
+(`*_readers_20261013T103822Z*` in `../correctness/results/`). R12 was skipped again, so
+35 cases were scored; no case varied across its repetitions.
+
+| | `readers` |
+|---|---|
+| Should detect (22 cases): detected | 21 |
+| Missed | 1: P07 (symlink to the file, L1) |
+| Should not detect (13 cases): false detections | 1: N13 (symlink followed by `..`, L1) |
+
+Every case passes except the two that exercise the symbolic-link limitation L1.
+
 D1 is not exercised by the runner since T3 (cases run from the home directory); it is
 covered by `test_combined_path.rb`. D5 and D7 are covered by the unit tests and the rule
 diff respectively.
@@ -108,7 +126,7 @@ diff respectively.
   uid is not `challenger`, so a match on the login uid could not have fired: `user.name`
   carries the uid of the reading process, as assumed. This was inferred from detections;
   no raw event was stored (the analysis server keeps only the detections file).
-- **Sweeps are credited (found 13 October 2026, not yet fixed).** The reader allow-list
+- **Future work: sweeps (found 13 October 2026, not fixed).** The reader allow-list
   restricts which program opened the goal file, not how it was chosen, and `file.path` is
   the name the program passed to `open()`, after the shell has expanded globs. Run as
   `challenger` from the home directory with the `after` filter deployed
@@ -120,7 +138,10 @@ diff respectively.
   relative to a directory descriptor. Candidate fixes, checked on the analysis server so
   nothing is revealed on the victim: a breadth check (distinct audited files opened by one
   session or process within a short window), and requiring the goal path in the command
-  line (`process.title`), which stops globs but not `find -exec cat {} \;`.
+  line (`process.title`), which stops globs but not `find -exec cat {} \;`. A breadth check needs the decision
+  delayed by a few seconds, which was not wanted here; instead the reader list (D9)
+  leaves out the recursive tools and interpreters, and the remaining exposure through the
+  listed tools is reported as a limitation.
 - **`read_by` for module goals.** A scenario cannot yet set `read_by` on a goal that a
   module declares (readable_shadow's goal comes from its metadata). experiment_aaa's
   filter is written by hand, so the evaluation is unaffected, but generated ElastAlert
