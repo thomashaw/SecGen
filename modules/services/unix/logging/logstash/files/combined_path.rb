@@ -1,20 +1,33 @@
-def remove_duplicates(path)   # could this be a problem with things like remote file systems? we'll see...
-  simple_path = path
-  if path.include?('//')
-    second_segment = path.split('//')[1]
-    simple_path = "/" + second_segment
+# Sets combined_path: the absolute, normalised path of the file an audit event
+# refers to, built from the process working directory and the path the program
+# passed to the system call. Normalisation is lexical (symbolic links are not
+# resolved, since the analysis server cannot see the monitored host's file
+# system): empty segments ('//') and '.' are dropped and '..' removes the
+# preceding segment, so the result never contains '//', '/./' or '/../'.
+
+# An absolute file path is complete on its own; a relative one is relative to
+# the process working directory.
+def join_path(cwd, file_path)
+  if file_path.start_with?('/')
+    file_path
+  elsif cwd != nil and cwd != ''
+    cwd + '/' + file_path
   end
-  simple_path
 end
 
-def remove_relative(path)
-  split_path = path.split('/')
-  while split_path.include? '..'
-    dotdot_index = split_path.index('..')
-    split_path.delete_at(dotdot_index-1)  # remove the parent directory
-    split_path.delete_at(dotdot_index-1)  # remove the '..'
+def normalise_path(path)
+  segments = []
+  path.split('/').each do |segment|
+    case segment
+    when '', '.'
+      next
+    when '..'
+      segments.pop  # '..' at the root stays at the root
+    else
+      segments << segment
+    end
   end
-  split_path.join('/')
+  '/' + segments.join('/')
 end
 
 def register(params)
@@ -25,11 +38,9 @@ end
 def filter(event)
   proc_cwd = event.get("[process][working_directory]")
   file_path = event.get("[file][path]")
-  if proc_cwd != nil and file_path != nil and proc_cwd != '' and file_path != ''
-    combined_path = proc_cwd + "/" + file_path
-    combined_path = remove_duplicates(combined_path)
-    combined_path = remove_relative(combined_path)
-    event.set("combined_path", combined_path)
+  if file_path != nil and file_path != ''
+    joined = join_path(proc_cwd, file_path)
+    event.set("combined_path", normalise_path(joined)) if joined
   end
   [event]
 end
