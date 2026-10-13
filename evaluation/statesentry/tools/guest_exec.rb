@@ -10,7 +10,9 @@
 #   ... guest_exec.rb [--node N] --upload LOCAL VMID GUEST_PATH  # copy a file into the guest
 #
 # Arguments containing '%' lose it on the way to the guest, so use --script for
-# anything with a format string. The guest agent waits for the command to
+# anything with a format string. Proxmox rejects non-ASCII input-data ("Wide
+# character in subroutine entry"), so --upload sends the file base64-encoded
+# and decodes it in the guest. The guest agent waits for the command to
 # exit (--timeout, default 30 s); start long jobs detached from a script.
 #
 # Credentials are handled as on SecGen master: the options file (SECGEN_CONF,
@@ -67,7 +69,7 @@ module Proxmox
     rescue RestClient::NotImplemented
       raise ApiError::NotImplemented
     rescue RestClient::InternalServerError => x
-      raise ApiError::ServerError, "#{x.message} for POST #{api_url}#{path}"
+      raise ApiError::ServerError, "#{x.message} for POST #{api_url}#{path}: #{x.response.to_s[0, 300]}"
     rescue => x
       raise ApiError::ConnectionError, x.message
     end
@@ -96,8 +98,7 @@ if opts[:script]
   opts[:stdin] = opts[:script]
 elsif opts[:upload]
   abort 'Usage: guest_exec.rb --upload LOCAL VMID GUEST_PATH' unless ARGV.size == 1
-  ARGV.replace(['/bin/dd', "of=#{ARGV[0]}", 'status=none'])
-  opts[:stdin] = opts[:upload]
+  ARGV.replace(['/bin/sh', '-c', 'base64 -d > "$1"', 'sh', ARGV[0]])
 end
 abort usage if ARGV.empty?
 
@@ -112,7 +113,11 @@ conn = Proxmox::Connection.new(conf['--proxmox-url'])
 conn.login(username: conf['--proxmoxuser'], password: password)
 conf = password = nil
 
-input = opts[:stdin] && File.read(opts[:stdin])
+input = if opts[:upload]
+          [File.binread(opts[:upload])].pack('m')
+        elsif opts[:stdin]
+          File.read(opts[:stdin])
+        end
 r = conn.exec_qemu_guest(vm_id, node, ARGV, timeout: opts[:timeout], input_data: input)
 $stdout.write r[:stdout]
 $stderr.write r[:stderr]
