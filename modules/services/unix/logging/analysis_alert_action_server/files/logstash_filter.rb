@@ -6,7 +6,11 @@ def register(params)
   @router   = '/usr/bin/ruby /opt/alert_actioner/alert_router.rb raise --alert-name'
   # Each reader under /bin and /usr/bin: auditd records the resolved path, and
   # on this base (Debian 10, not usr-merged) less is /bin/less.
-  @read_executables = %w[cat less more nano vim.basic kate]
+  # Interactive viewers and single-file stream tools. Recursive tools (grep, cp)
+  # and interpreters (awk, python3, perl, bash) are left out: they read many files
+  # in one command, and sweeps are not yet told apart from targeted reads.
+  @read_executables = %w[cat less more nano vim.basic kate head tail tac nl sort cut
+                         strings base64 od xxd sed dd]
                         .flat_map { |p| ["/bin/#{p}", "/usr/bin/#{p}"] }
   @acc_actions = ['user_login', 'started-session', 'acquired-credentials', 'opened-file']
 end

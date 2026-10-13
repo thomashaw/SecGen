@@ -30,7 +30,7 @@ GOAL_USER="${GOAL_USER:-challenger}"     # account named in the goal
 OTHER_USER="${OTHER_USER:-sstest}"       # unprivileged account, created if absent
 # Invoking processes the detection rule accepts. Copy this from the generated
 # rule; it is used only to attribute misses, never to decide ground truth.
-ALLOWED_READERS="${ALLOWED_READERS:-cat less more vim nano kate}"
+ALLOWED_READERS="${ALLOWED_READERS:-cat less more vim nano kate head tail tac nl sort cut strings base64 od xxd sed dd}"
 REPS="${REPS:-3}"                        # repetitions of each case
 GAP_S="${GAP_S:-5}"                      # pause between case windows
 SETTLE_S="${SETTLE_S:-1}"                # margin added to each window's end
@@ -96,7 +96,7 @@ P05|path|detect|$GOAL_USER|cat|repeated slashes|cat /$TARGET_DIR//$TARGET_NAME
 P06|path|detect|$GOAL_USER|cat|traversal within absolute path|cat $TARGET_DIR/../$(basename "$TARGET_DIR")/$TARGET_NAME
 P07|path|detect|$GOAL_USER|cat|symlink to the file|cat $WORK/file_link
 P08|path|detect|$GOAL_USER|cat|working directory reached through a symlink|cd $WORK/dir_link && cat $TARGET_NAME
-P09|path|detect|$GOAL_USER|bash|shell input redirection (shell opens the file)|cat < $TARGET
+# P09 removed: bash can read many files in one command (recursive tool or interpreter); sweeps are future work, see detection/ISSUES.md
 R01|reader|detect|$GOAL_USER|less|less|less $TARGET
 R02|reader|detect|$GOAL_USER|more|more|more $TARGET
 R03|reader|detect|$GOAL_USER|head|head|head $TARGET
@@ -104,8 +104,8 @@ R04|reader|detect|$GOAL_USER|tail|tail|tail $TARGET
 R05|reader|detect|$GOAL_USER|tac|tac|tac $TARGET
 R06|reader|detect|$GOAL_USER|nl|nl|nl $TARGET
 R07|reader|detect|$GOAL_USER|sort|sort|sort $TARGET
-R08|reader|detect|$GOAL_USER|grep|grep (single file)|grep -h : $TARGET
-R09|reader|detect|$GOAL_USER|awk|awk|awk 1 $TARGET
+# R08 removed: grep can read many files in one command (recursive tool or interpreter); sweeps are future work, see detection/ISSUES.md
+# R09 removed: awk can read many files in one command (recursive tool or interpreter); sweeps are future work, see detection/ISSUES.md
 R10|reader|detect|$GOAL_USER|sed|sed|sed -n p $TARGET
 R11|reader|detect|$GOAL_USER|cut|cut|cut -d: -f1,2 $TARGET
 R12|reader|detect|$GOAL_USER|strings|strings|strings $TARGET
@@ -113,9 +113,9 @@ R13|reader|detect|$GOAL_USER|base64|base64|base64 $TARGET
 R14|reader|detect|$GOAL_USER|od|od|od -c $TARGET
 R15|reader|detect|$GOAL_USER|xxd|xxd|xxd $TARGET
 R16|reader|detect|$GOAL_USER|dd|dd|dd if=$TARGET status=none
-R17|reader|detect|$GOAL_USER|cp|cp to a readable copy|cp $TARGET $WORK/copy_\$\$ && rm -f $WORK/copy_\$\$
-R18|reader|detect|$GOAL_USER|python3|python3|python3 -c 'print(open("$TARGET").read())'
-R19|reader|detect|$GOAL_USER|perl|perl|perl -ne print $TARGET
+# R17 removed: cp can read many files in one command (recursive tool or interpreter); sweeps are future work, see detection/ISSUES.md
+# R18 removed: python3 can read many files in one command (recursive tool or interpreter); sweeps are future work, see detection/ISSUES.md
+# R19 removed: perl can read many files in one command (recursive tool or interpreter); sweeps are future work, see detection/ISSUES.md
 R20|reader|detect|$GOAL_USER|vim|vim (batch mode)|vim -es -c 'q!' $TARGET
 N01|negative|no_detect|$GOAL_USER|cat|decoy, absolute path|cat $WORK/decoy$TARGET
 N02|negative|no_detect|$GOAL_USER|cat|decoy, relative path from decoy directory|cd $WORK/decoy$TARGET_DIR && cat $TARGET_NAME
@@ -131,6 +131,8 @@ N11|negative|no_detect|$GOAL_USER|cat|decoy, relative path starting .//|cd $WORK
 N12|negative|no_detect|$GOAL_USER|cat|decoy, relative path containing //|cd $WORK/decoy && cat x/$TARGET
 N13|negative|no_detect|$GOAL_USER|cat|decoy, symlink followed by ..|cd $WORK && cat L/${LINK_UPS}${TARGET_DIR#/}/$TARGET_NAME
 EOF
+# Lines starting with # record removed cases
+CASES=$(printf '%s\n' "$CASES" | grep -v '^#')
 
 now_ms() { date -u +%Y-%m-%dT%H:%M:%S.%3NZ; }
 

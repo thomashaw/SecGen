@@ -8,7 +8,11 @@ class Rules
   # under /bin and /usr/bin, because auditd records the resolved executable path
   # and which of the two a program resolves to depends on the base (e.g. less is
   # /bin/less on Debian 10, /usr/bin/less on usr-merged bases).
-  READ_PROGRAMS = %w[cat less more nano vim.basic kate].freeze
+  # Interactive viewers and single-file stream tools. Recursive tools (grep, cp)
+  # and interpreters (awk, python3, perl, bash) are left out: they read many files
+  # in one command, and sweeps are not yet told apart from targeted reads.
+  READ_PROGRAMS = %w[cat less more nano vim.basic kate head tail tac nl sort cut
+                     strings base64 od xxd sed dd].freeze
   READ_EXECUTABLES = READ_PROGRAMS.flat_map { |p| ["/bin/#{p}", "/usr/bin/#{p}"] }.freeze
 
   def self.generate_auditbeat_rules(goals)

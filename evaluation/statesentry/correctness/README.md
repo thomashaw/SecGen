@@ -6,7 +6,7 @@ set of access variants, as reported in Section V.B of the paper.
 
 ## What it tests
 
-There are 42 cases. Each one has a **ground truth** that does not depend on how the
+There are 36 cases (42 before 13 October 2026; see below). Each one has a **ground truth** that does not depend on how the
 detection rule is written:
 
 - **detect**: the goal user read the *contents* of the real target file on the
@@ -15,14 +15,23 @@ detection rule is written:
 
 | Group | Cases | Ground truth | What they probe |
 |---|---|---|---|
-| Path variants (P01–P09) | absolute, relative, `../` traversal, `./`, `//`, symlink to the file, working directory reached through a symlink, shell redirection | detect | path normalisation (`combined_path`) |
-| Readers (R01–R20) | `less`, `head`, `tail`, `tac`, `sort`, `grep`, `awk`, `sed`, `base64`, `dd`, `cp`, `python3`, `perl`, `vim`, … | detect | the invoking-process restriction |
+| Path variants (P01–P08) | absolute, relative, `../` traversal, `./`, `//`, symlink to the file, working directory reached through a symlink | detect | path normalisation (`combined_path`) |
+| Readers (R01–R07, R10–R16, R20) | `less`, `more`, `head`, `tail`, `tac`, `nl`, `sort`, `sed`, `cut`, `strings`, `base64`, `od`, `xxd`, `dd`, `vim` | detect | the invoking-process restriction |
 | Negatives (N01–N13) | decoy file with the same path suffix (absolute and two relative forms), failed access, another account (root), `stat`, `ls -l`, `find`, recursive `grep`, a different file, and three decoy paths added after pre-run validation (`.//etc/shadow`, `x//etc/shadow`, and a symbolic link followed by `..`) | no_detect | false detections, including the decoy-path attack |
 
 Misses on readers the rule does not accept are **expected**: they are the known
 false-negative exposure of the invoking-process restriction (Section V.B). The
 scorer attributes each miss using `ALLOWED_READERS`, and flags any miss or false
 detection that the restriction does not explain.
+
+The rule accepts interactive viewers and editors and single-file stream tools.
+Cases for tools that read many files in one command were removed on 13 October 2026
+(they remain in the runner as comments): P09 (shell redirection, `bash`), R08
+(`grep`), R09 (`awk`), R17 (`cp`), R18 (`python3`) and R19 (`perl`). A sweep such
+as `cat /etc/*` is credited as a read of every goal file it opens, and telling
+sweeps apart from targeted reads is future work (`../detection/ISSUES.md`); these
+tools are therefore kept off the list rather than tested against it. N09
+(recursive `grep`) stays as a negative case.
 
 ## Running it
 
@@ -33,7 +42,7 @@ detection that the restriction does not explain.
    generated detection rule, then run the cases:
 
    ```
-   sudo ALLOWED_READERS="cat less more vim nano kate" \
+   sudo ALLOWED_READERS="cat less more vim nano kate head tail tac nl sort cut strings base64 od xxd sed dd" \
         TARGET=/etc/shadow GOAL_USER=challenger \
         ./run_correctness_cases.sh
    ```

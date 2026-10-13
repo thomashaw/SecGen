@@ -1,0 +1,29 @@
+# Auditbeat rule (audit.rules.d)
+-w /etc/ -p r -k etc
+
+# ElastAlert rule
+name: tom-noekea-2-experiment-aaa-hackme-desktop-readable_shadow-rf-0
+type: any
+index: secgen-*
+filter:
+  - query:
+      query_string:
+        query: "combined_path: \"/etc/shadow\""
+  - query:
+      query_string:
+        query: "auditd.result: success"
+  - query:
+      query_string:
+        query: "event.action: opened-file"
+  - query:
+      query_string:
+        query: "process.executable: (\"/bin/cat\" OR \"/usr/bin/cat\" OR \"/bin/less\" OR \"/usr/bin/less\" OR \"/bin/more\" OR \"/usr/bin/more\" OR \"/bin/nano\" OR \"/usr/bin/nano\" OR \"/bin/vim.basic\" OR \"/usr/bin/vim.basic\" OR \"/bin/kate\" OR \"/usr/bin/kate\" OR \"/bin/head\" OR \"/usr/bin/head\" OR \"/bin/tail\" OR \"/usr/bin/tail\" OR \"/bin/tac\" OR \"/usr/bin/tac\" OR \"/bin/nl\" OR \"/usr/bin/nl\" OR \"/bin/sort\" OR \"/usr/bin/sort\" OR \"/bin/cut\" OR \"/usr/bin/cut\" OR \"/bin/strings\" OR \"/usr/bin/strings\" OR \"/bin/base64\" OR \"/usr/bin/base64\" OR \"/bin/od\" OR \"/usr/bin/od\" OR \"/bin/xxd\" OR \"/usr/bin/xxd\" OR \"/bin/sed\" OR \"/usr/bin/sed\" OR \"/bin/dd\" OR \"/usr/bin/dd\")"
+  - query:
+      query_string:
+        query: "user.name: \"challenger\""
+alert:
+  - "elastalert.modules.alerter.exec.ExecAlerter"
+command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_router.rb", "raise", "--alert-name", "tom-noekea-2-experiment-aaa-hackme-desktop-readable_shadow-rf-0"]
+pipe_match_json: true
+realert:
+  minutes: 0
