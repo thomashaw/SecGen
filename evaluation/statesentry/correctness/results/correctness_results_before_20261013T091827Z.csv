@@ -1,0 +1,127 @@
+case_id,rep,category,ground_truth,reader,reader_listed,description,exit_code,skipped,start_utc,end_utc,n_detections,outcome
+P01,1,path,detect,cat,yes,absolute path,0,no,2026-10-13T09:18:32.606Z,2026-10-13T09:18:33.667Z,1,TP
+P02,1,path,detect,cat,yes,relative path from the file's directory,0,no,2026-10-13T09:18:38.716Z,2026-10-13T09:18:39.772Z,1,TP
+P03,1,path,detect,cat,yes,parent traversal from home,0,no,2026-10-13T09:18:44.816Z,2026-10-13T09:18:45.868Z,1,TP
+P04,1,path,detect,cat,yes,dot segment,0,no,2026-10-13T09:18:50.902Z,2026-10-13T09:18:51.941Z,0,FN
+P05,1,path,detect,cat,yes,repeated slashes,0,no,2026-10-13T09:18:56.975Z,2026-10-13T09:18:58.040Z,0,FN
+P06,1,path,detect,cat,yes,traversal within absolute path,0,no,2026-10-13T09:19:03.074Z,2026-10-13T09:19:04.144Z,1,TP
+P07,1,path,detect,cat,yes,symlink to the file,0,no,2026-10-13T09:19:09.180Z,2026-10-13T09:19:10.244Z,0,FN
+P08,1,path,detect,cat,yes,working directory reached through a symlink,0,no,2026-10-13T09:19:15.289Z,2026-10-13T09:19:16.342Z,1,TP
+P09,1,path,detect,bash,no,shell input redirection (shell opens the file),0,no,2026-10-13T09:19:21.370Z,2026-10-13T09:19:22.426Z,0,FN
+R01,1,reader,detect,less,yes,less,0,no,2026-10-13T09:19:27.457Z,2026-10-13T09:19:28.537Z,0,FN
+R02,1,reader,detect,more,yes,more,0,no,2026-10-13T09:19:33.576Z,2026-10-13T09:19:34.632Z,1,TP
+R03,1,reader,detect,head,no,head,0,no,2026-10-13T09:19:39.667Z,2026-10-13T09:19:40.746Z,0,FN
+R04,1,reader,detect,tail,no,tail,0,no,2026-10-13T09:19:45.786Z,2026-10-13T09:19:46.850Z,0,FN
+R05,1,reader,detect,tac,no,tac,0,no,2026-10-13T09:19:51.878Z,2026-10-13T09:19:52.937Z,0,FN
+R06,1,reader,detect,nl,no,nl,0,no,2026-10-13T09:19:57.981Z,2026-10-13T09:19:59.040Z,0,FN
+R07,1,reader,detect,sort,no,sort,0,no,2026-10-13T09:20:04.079Z,2026-10-13T09:20:05.142Z,0,FN
+R08,1,reader,detect,grep,no,grep (single file),0,no,2026-10-13T09:20:10.183Z,2026-10-13T09:20:11.244Z,0,FN
+R09,1,reader,detect,awk,no,awk,0,no,2026-10-13T09:20:16.286Z,2026-10-13T09:20:17.337Z,0,FN
+R10,1,reader,detect,sed,no,sed,0,no,2026-10-13T09:20:22.366Z,2026-10-13T09:20:23.415Z,0,FN
+R11,1,reader,detect,cut,no,cut,0,no,2026-10-13T09:20:28.447Z,2026-10-13T09:20:29.523Z,0,FN
+R12,1,reader,detect,strings,no,strings,-1,yes,2026-10-13T09:20:34.555Z,2026-10-13T09:20:34.555Z,0,SKIP
+R13,1,reader,detect,base64,no,base64,0,no,2026-10-13T09:20:39.591Z,2026-10-13T09:20:40.652Z,0,FN
+R14,1,reader,detect,od,no,od,0,no,2026-10-13T09:20:45.693Z,2026-10-13T09:20:46.750Z,0,FN
+R15,1,reader,detect,xxd,no,xxd,0,no,2026-10-13T09:20:51.785Z,2026-10-13T09:20:52.852Z,0,FN
+R16,1,reader,detect,dd,no,dd,0,no,2026-10-13T09:20:57.876Z,2026-10-13T09:20:58.926Z,0,FN
+R17,1,reader,detect,cp,no,cp to a readable copy,0,no,2026-10-13T09:21:03.959Z,2026-10-13T09:21:05.009Z,0,FN
+R18,1,reader,detect,python3,no,python3,0,no,2026-10-13T09:21:10.044Z,2026-10-13T09:21:11.120Z,0,FN
+R19,1,reader,detect,perl,no,perl,0,no,2026-10-13T09:21:16.161Z,2026-10-13T09:21:17.219Z,0,FN
+R20,1,reader,detect,vim,yes,vim (batch mode),0,no,2026-10-13T09:21:22.250Z,2026-10-13T09:21:23.312Z,2,TP
+N01,1,negative,no_detect,cat,yes,"decoy, absolute path",0,no,2026-10-13T09:21:28.356Z,2026-10-13T09:21:29.414Z,0,TN
+N02,1,negative,no_detect,cat,yes,"decoy, relative path from decoy directory",0,no,2026-10-13T09:21:34.456Z,2026-10-13T09:21:35.513Z,0,TN
+N03,1,negative,no_detect,cat,yes,"decoy, relative path with directory",0,no,2026-10-13T09:21:40.556Z,2026-10-13T09:21:41.605Z,0,TN
+N04,1,negative,no_detect,cat,yes,"failed access, account without permission",0,no,2026-10-13T09:21:46.644Z,2026-10-13T09:21:47.799Z,1,FP
+N05,1,negative,no_detect,cat,yes,successful access by a different account (root),0,no,2026-10-13T09:21:52.839Z,2026-10-13T09:21:53.862Z,1,FP
+N06,1,negative,no_detect,-,n/a,metadata only (stat),0,no,2026-10-13T09:21:58.901Z,2026-10-13T09:21:59.952Z,0,TN
+N07,1,negative,no_detect,-,n/a,metadata only (ls -l),0,no,2026-10-13T09:22:04.993Z,2026-10-13T09:22:06.043Z,0,TN
+N08,1,negative,no_detect,-,n/a,filesystem search by name (find),1,no,2026-10-13T09:22:11.082Z,2026-10-13T09:22:12.295Z,0,TN
+N09,1,negative,no_detect,grep,no,incidental read during recursive search,2,no,2026-10-13T09:22:17.331Z,2026-10-13T09:22:20.019Z,0,TN
+N10,1,negative,no_detect,cat,yes,different file in the same directory,0,no,2026-10-13T09:22:25.072Z,2026-10-13T09:22:26.134Z,0,TN
+N11,1,negative,no_detect,cat,yes,"decoy, relative path starting .//",0,no,2026-10-13T09:22:31.181Z,2026-10-13T09:22:32.242Z,1,FP
+N12,1,negative,no_detect,cat,yes,"decoy, relative path containing //",0,no,2026-10-13T09:22:37.290Z,2026-10-13T09:22:38.342Z,1,FP
+N13,1,negative,no_detect,cat,yes,"decoy, symlink followed by ..",0,no,2026-10-13T09:22:43.380Z,2026-10-13T09:22:44.443Z,1,FP
+P01,2,path,detect,cat,yes,absolute path,0,no,2026-10-13T09:22:49.484Z,2026-10-13T09:22:50.537Z,1,TP
+P02,2,path,detect,cat,yes,relative path from the file's directory,0,no,2026-10-13T09:22:55.585Z,2026-10-13T09:22:56.646Z,1,TP
+P03,2,path,detect,cat,yes,parent traversal from home,0,no,2026-10-13T09:23:01.691Z,2026-10-13T09:23:02.741Z,1,TP
+P04,2,path,detect,cat,yes,dot segment,0,no,2026-10-13T09:23:07.776Z,2026-10-13T09:23:08.817Z,0,FN
+P05,2,path,detect,cat,yes,repeated slashes,0,no,2026-10-13T09:23:13.856Z,2026-10-13T09:23:14.908Z,0,FN
+P06,2,path,detect,cat,yes,traversal within absolute path,0,no,2026-10-13T09:23:19.945Z,2026-10-13T09:23:20.997Z,1,TP
+P07,2,path,detect,cat,yes,symlink to the file,0,no,2026-10-13T09:23:26.046Z,2026-10-13T09:23:27.107Z,0,FN
+P08,2,path,detect,cat,yes,working directory reached through a symlink,0,no,2026-10-13T09:23:32.148Z,2026-10-13T09:23:33.207Z,1,TP
+P09,2,path,detect,bash,no,shell input redirection (shell opens the file),0,no,2026-10-13T09:23:38.242Z,2026-10-13T09:23:39.295Z,0,FN
+R01,2,reader,detect,less,yes,less,0,no,2026-10-13T09:23:44.331Z,2026-10-13T09:23:45.396Z,0,FN
+R02,2,reader,detect,more,yes,more,0,no,2026-10-13T09:23:50.433Z,2026-10-13T09:23:51.503Z,1,TP
+R03,2,reader,detect,head,no,head,0,no,2026-10-13T09:23:56.543Z,2026-10-13T09:23:57.611Z,0,FN
+R04,2,reader,detect,tail,no,tail,0,no,2026-10-13T09:24:02.650Z,2026-10-13T09:24:03.695Z,0,FN
+R05,2,reader,detect,tac,no,tac,0,no,2026-10-13T09:24:08.731Z,2026-10-13T09:24:09.781Z,0,FN
+R06,2,reader,detect,nl,no,nl,0,no,2026-10-13T09:24:14.812Z,2026-10-13T09:24:15.865Z,0,FN
+R07,2,reader,detect,sort,no,sort,0,no,2026-10-13T09:24:20.900Z,2026-10-13T09:24:21.949Z,0,FN
+R08,2,reader,detect,grep,no,grep (single file),0,no,2026-10-13T09:24:26.987Z,2026-10-13T09:24:28.035Z,0,FN
+R09,2,reader,detect,awk,no,awk,0,no,2026-10-13T09:24:33.079Z,2026-10-13T09:24:34.135Z,0,FN
+R10,2,reader,detect,sed,no,sed,0,no,2026-10-13T09:24:39.172Z,2026-10-13T09:24:40.226Z,0,FN
+R11,2,reader,detect,cut,no,cut,0,no,2026-10-13T09:24:45.265Z,2026-10-13T09:24:46.331Z,0,FN
+R12,2,reader,detect,strings,no,strings,-1,yes,2026-10-13T09:24:51.368Z,2026-10-13T09:24:51.368Z,0,SKIP
+R13,2,reader,detect,base64,no,base64,0,no,2026-10-13T09:24:56.406Z,2026-10-13T09:24:57.458Z,0,FN
+R14,2,reader,detect,od,no,od,0,no,2026-10-13T09:25:02.495Z,2026-10-13T09:25:03.546Z,0,FN
+R15,2,reader,detect,xxd,no,xxd,0,no,2026-10-13T09:25:08.590Z,2026-10-13T09:25:09.628Z,0,FN
+R16,2,reader,detect,dd,no,dd,0,no,2026-10-13T09:25:14.663Z,2026-10-13T09:25:15.714Z,0,FN
+R17,2,reader,detect,cp,no,cp to a readable copy,0,no,2026-10-13T09:25:20.750Z,2026-10-13T09:25:21.825Z,0,FN
+R18,2,reader,detect,python3,no,python3,0,no,2026-10-13T09:25:26.860Z,2026-10-13T09:25:27.931Z,0,FN
+R19,2,reader,detect,perl,no,perl,0,no,2026-10-13T09:25:32.966Z,2026-10-13T09:25:34.028Z,0,FN
+R20,2,reader,detect,vim,yes,vim (batch mode),0,no,2026-10-13T09:25:39.065Z,2026-10-13T09:25:40.125Z,2,TP
+N01,2,negative,no_detect,cat,yes,"decoy, absolute path",0,no,2026-10-13T09:25:45.164Z,2026-10-13T09:25:46.231Z,0,TN
+N02,2,negative,no_detect,cat,yes,"decoy, relative path from decoy directory",0,no,2026-10-13T09:25:51.273Z,2026-10-13T09:25:52.331Z,0,TN
+N03,2,negative,no_detect,cat,yes,"decoy, relative path with directory",0,no,2026-10-13T09:25:57.376Z,2026-10-13T09:25:58.436Z,0,TN
+N04,2,negative,no_detect,cat,yes,"failed access, account without permission",0,no,2026-10-13T09:26:03.470Z,2026-10-13T09:26:04.627Z,1,FP
+N05,2,negative,no_detect,cat,yes,successful access by a different account (root),0,no,2026-10-13T09:26:09.670Z,2026-10-13T09:26:10.688Z,1,FP
+N06,2,negative,no_detect,-,n/a,metadata only (stat),0,no,2026-10-13T09:26:15.727Z,2026-10-13T09:26:16.784Z,0,TN
+N07,2,negative,no_detect,-,n/a,metadata only (ls -l),0,no,2026-10-13T09:26:21.825Z,2026-10-13T09:26:22.877Z,0,TN
+N08,2,negative,no_detect,-,n/a,filesystem search by name (find),1,no,2026-10-13T09:26:27.924Z,2026-10-13T09:26:29.006Z,0,TN
+N09,2,negative,no_detect,grep,no,incidental read during recursive search,2,no,2026-10-13T09:26:34.053Z,2026-10-13T09:26:35.215Z,0,TN
+N10,2,negative,no_detect,cat,yes,different file in the same directory,0,no,2026-10-13T09:26:40.275Z,2026-10-13T09:26:41.329Z,0,TN
+N11,2,negative,no_detect,cat,yes,"decoy, relative path starting .//",0,no,2026-10-13T09:26:46.380Z,2026-10-13T09:26:47.433Z,1,FP
+N12,2,negative,no_detect,cat,yes,"decoy, relative path containing //",0,no,2026-10-13T09:26:52.470Z,2026-10-13T09:26:53.519Z,1,FP
+N13,2,negative,no_detect,cat,yes,"decoy, symlink followed by ..",0,no,2026-10-13T09:26:58.562Z,2026-10-13T09:26:59.617Z,1,FP
+P01,3,path,detect,cat,yes,absolute path,0,no,2026-10-13T09:27:04.656Z,2026-10-13T09:27:05.712Z,1,TP
+P02,3,path,detect,cat,yes,relative path from the file's directory,0,no,2026-10-13T09:27:10.757Z,2026-10-13T09:27:11.830Z,1,TP
+P03,3,path,detect,cat,yes,parent traversal from home,0,no,2026-10-13T09:27:16.871Z,2026-10-13T09:27:17.917Z,1,TP
+P04,3,path,detect,cat,yes,dot segment,0,no,2026-10-13T09:27:22.954Z,2026-10-13T09:27:24.009Z,0,FN
+P05,3,path,detect,cat,yes,repeated slashes,0,no,2026-10-13T09:27:29.050Z,2026-10-13T09:27:30.113Z,0,FN
+P06,3,path,detect,cat,yes,traversal within absolute path,0,no,2026-10-13T09:27:35.160Z,2026-10-13T09:27:36.213Z,1,TP
+P07,3,path,detect,cat,yes,symlink to the file,0,no,2026-10-13T09:27:41.248Z,2026-10-13T09:27:42.317Z,0,FN
+P08,3,path,detect,cat,yes,working directory reached through a symlink,0,no,2026-10-13T09:27:47.367Z,2026-10-13T09:27:48.428Z,1,TP
+P09,3,path,detect,bash,no,shell input redirection (shell opens the file),0,no,2026-10-13T09:27:53.477Z,2026-10-13T09:27:54.547Z,0,FN
+R01,3,reader,detect,less,yes,less,0,no,2026-10-13T09:27:59.596Z,2026-10-13T09:28:00.652Z,0,FN
+R02,3,reader,detect,more,yes,more,0,no,2026-10-13T09:28:05.689Z,2026-10-13T09:28:06.754Z,1,TP
+R03,3,reader,detect,head,no,head,0,no,2026-10-13T09:28:11.803Z,2026-10-13T09:28:12.861Z,0,FN
+R04,3,reader,detect,tail,no,tail,0,no,2026-10-13T09:28:17.896Z,2026-10-13T09:28:18.961Z,0,FN
+R05,3,reader,detect,tac,no,tac,0,no,2026-10-13T09:28:23.997Z,2026-10-13T09:28:25.062Z,0,FN
+R06,3,reader,detect,nl,no,nl,0,no,2026-10-13T09:28:30.096Z,2026-10-13T09:28:31.136Z,0,FN
+R07,3,reader,detect,sort,no,sort,0,no,2026-10-13T09:28:36.171Z,2026-10-13T09:28:37.227Z,0,FN
+R08,3,reader,detect,grep,no,grep (single file),0,no,2026-10-13T09:28:42.269Z,2026-10-13T09:28:43.322Z,0,FN
+R09,3,reader,detect,awk,no,awk,0,no,2026-10-13T09:28:48.368Z,2026-10-13T09:28:49.436Z,0,FN
+R10,3,reader,detect,sed,no,sed,0,no,2026-10-13T09:28:54.478Z,2026-10-13T09:28:55.550Z,0,FN
+R11,3,reader,detect,cut,no,cut,0,no,2026-10-13T09:29:00.594Z,2026-10-13T09:29:01.637Z,0,FN
+R12,3,reader,detect,strings,no,strings,-1,yes,2026-10-13T09:29:06.673Z,2026-10-13T09:29:06.673Z,0,SKIP
+R13,3,reader,detect,base64,no,base64,0,no,2026-10-13T09:29:11.718Z,2026-10-13T09:29:12.770Z,0,FN
+R14,3,reader,detect,od,no,od,0,no,2026-10-13T09:29:17.810Z,2026-10-13T09:29:18.860Z,0,FN
+R15,3,reader,detect,xxd,no,xxd,0,no,2026-10-13T09:29:23.893Z,2026-10-13T09:29:24.958Z,0,FN
+R16,3,reader,detect,dd,no,dd,0,no,2026-10-13T09:29:30.004Z,2026-10-13T09:29:31.063Z,0,FN
+R17,3,reader,detect,cp,no,cp to a readable copy,0,no,2026-10-13T09:29:36.112Z,2026-10-13T09:29:37.160Z,0,FN
+R18,3,reader,detect,python3,no,python3,0,no,2026-10-13T09:29:42.201Z,2026-10-13T09:29:43.273Z,0,FN
+R19,3,reader,detect,perl,no,perl,0,no,2026-10-13T09:29:48.310Z,2026-10-13T09:29:49.366Z,0,FN
+R20,3,reader,detect,vim,yes,vim (batch mode),0,no,2026-10-13T09:29:54.400Z,2026-10-13T09:29:55.469Z,2,TP
+N01,3,negative,no_detect,cat,yes,"decoy, absolute path",0,no,2026-10-13T09:30:00.507Z,2026-10-13T09:30:01.559Z,0,TN
+N02,3,negative,no_detect,cat,yes,"decoy, relative path from decoy directory",0,no,2026-10-13T09:30:06.601Z,2026-10-13T09:30:07.647Z,0,TN
+N03,3,negative,no_detect,cat,yes,"decoy, relative path with directory",0,no,2026-10-13T09:30:12.693Z,2026-10-13T09:30:13.745Z,0,TN
+N04,3,negative,no_detect,cat,yes,"failed access, account without permission",0,no,2026-10-13T09:30:18.781Z,2026-10-13T09:30:19.912Z,1,FP
+N05,3,negative,no_detect,cat,yes,successful access by a different account (root),0,no,2026-10-13T09:30:24.955Z,2026-10-13T09:30:25.983Z,1,FP
+N06,3,negative,no_detect,-,n/a,metadata only (stat),0,no,2026-10-13T09:30:31.023Z,2026-10-13T09:30:32.086Z,0,TN
+N07,3,negative,no_detect,-,n/a,metadata only (ls -l),0,no,2026-10-13T09:30:37.121Z,2026-10-13T09:30:38.180Z,0,TN
+N08,3,negative,no_detect,-,n/a,filesystem search by name (find),1,no,2026-10-13T09:30:43.225Z,2026-10-13T09:30:44.318Z,0,TN
+N09,3,negative,no_detect,grep,no,incidental read during recursive search,2,no,2026-10-13T09:30:49.354Z,2026-10-13T09:30:50.492Z,0,TN
+N10,3,negative,no_detect,cat,yes,different file in the same directory,0,no,2026-10-13T09:30:55.539Z,2026-10-13T09:30:56.599Z,0,TN
+N11,3,negative,no_detect,cat,yes,"decoy, relative path starting .//",0,no,2026-10-13T09:31:01.653Z,2026-10-13T09:31:02.711Z,1,FP
+N12,3,negative,no_detect,cat,yes,"decoy, relative path containing //",0,no,2026-10-13T09:31:07.766Z,2026-10-13T09:31:08.819Z,1,FP
+N13,3,negative,no_detect,cat,yes,"decoy, symlink followed by ..",0,no,2026-10-13T09:31:13.860Z,2026-10-13T09:31:14.911Z,1,FP
