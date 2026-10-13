@@ -56,12 +56,27 @@ python3 analyse.py dist benchmark_results_2_es.txt \
     --window-start 2026-07-31T23:32:10Z --window-end 2026-07-31T23:59:37Z
 ```
 
+Besides the per-stage rows, each run reports three **response-time** rows,
+computed per event (measurement decision 7 in `analyse.py`):
+
+| Row | From | To | Indexed median | Filter median |
+|---|---|---|---|---|
+| Detection → alert router receives alert | detection (`alert_time` / `filter_detection_time`) | router `raise_alert_event_received` | 135.0 ms | 148.6 ms |
+| Detection → first action dispatched | detection | first router `action_dispatched` | 256.5 ms | 298.4 ms |
+| End-to-end (system call → first action dispatched) | audit event `@timestamp` | first router `action_dispatched` | 4401.8 ms | 806.7 ms |
+
+These rows use the same adjacency pairing as the router row, anchored to each
+detection. Rows that start at the system call compare the monitored VM's clock
+with the analysis server's. "Dispatched" is logged just before the action runs,
+so the last row is a lower bound on what a participant sees.
+
 `describe` gives the same figures with exclusion counts and structural checks.
 `compare benchmark_results_1.txt benchmark_results_2_es.txt` gives the reduction
 and a bootstrap confidence interval for the difference in medians. Its detection
-figures are valid with any window covering both runs. Take dispatch latency from
-the per-file runs above, though: a single window spanning both runs attributes
-each run's router lines to the other, which the tool warns about.
+and per-event response figures are valid with any window covering both runs. Take
+the window-based router row ("Alert router: receipt → first action dispatched")
+from the per-file runs, though: a single window spanning both runs attributes each
+run's router lines to the other, which the tool warns about.
 
 ## Notes on the data
 

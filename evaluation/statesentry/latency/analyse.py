@@ -84,6 +84,24 @@ figures produced:
   6. Structural checks run before any figure is printed: identical-series
      detection, negative and over-ceiling increments, the tiling residual, and
      the reliability of any reported upper quantile given the sample size.
+  7. Response time is extended past detection PER EVENT, never by adding
+     medians. For each usable event, ordered by detection time, the first
+     unused router 'raise_alert_event_received' line no earlier than the
+     detection and within --router-max-gap-s is taken as that event's router
+     receipt, and the first unused 'action_dispatched' line after that receipt
+     (same gap) as its first dispatch. Three intervals follow: router launch
+     (detection -> receipt), detection -> first dispatch, and system call ->
+     first dispatch. Being anchored to each detection, this pairing does not
+     depend on the window. It is still adjacency rather than an identifier,
+     and is labelled as such. The 'raise -> dispatch' row printed by earlier
+     versions as 'Detector match -> action dispatch' starts at router receipt,
+     not detection; it is relabelled accordingly and its figures are unchanged.
+     The audit timestamp comes from the monitored VM's clock and every later
+     boundary from the analysis server's, so intervals that start at the
+     system call assume the two clocks agree; router launch and dispatch are
+     measured on one host. 'Dispatched' is logged immediately before an action
+     executes, so system call -> first dispatch is a lower bound on the time
+     at which a participant sees the response.
 """
 
 import argparse
@@ -664,6 +682,84 @@ def attach_router(events, router_lines, res, args):
                unmatched_dispatch))
 
 
+RESPONSE_ROWS = [
+    ("router_launch", "Detection -> alert router receives alert", "alert", "router_recv"),
+    ("det_dispatch", "Detection -> first action dispatched", "alert", "dispatch"),
+    ("e2e_dispatch", "End-to-end (system call -> first action dispatched)", "audit", "dispatch"),
+]
+ROUTER_ROW_LABEL = "Alert router: receipt -> first action dispatched"
+
+
+def attach_response(usable, router_lines, res, args):
+    """Per-event router receipt and first dispatch (measurement decision 7)."""
+    lines = sorted((l for l in router_lines if l["ts"] is not None and l["kind"]),
+                   key=lambda l: l["ts"])
+    raises = [l["ts"] for l in lines if l["kind"] == "raise"]
+    disps = [l["ts"] for l in lines if l["kind"] != "raise"]
+    max_gap = args.router_max_gap_s * 1000.0
+    used_r, used_d = set(), set()
+    paired = no_receipt = no_dispatch = 0
+
+    def first_after(series, used, t0):
+        for i, t in enumerate(series):
+            if i in used or t < t0:
+                continue
+            if t - t0 > max_gap:
+                return None
+            return i
+        return None
+
+    for e in sorted((e for e in usable if "alert" in e.t), key=lambda e: e.t["alert"]):
+        ri = first_after(raises, used_r, e.t["alert"])
+        if ri is None:
+            no_receipt += 1
+            continue
+        di = first_after(disps, used_d, raises[ri])
+        if di is None:
+            no_dispatch += 1
+            continue
+        used_r.add(ri)
+        used_d.add(di)
+        e.t["router_recv"] = raises[ri]
+        e.t["dispatch"] = disps[di]
+        paired += 1
+
+    res["response"] = {}
+    for key, lbl, a, b in RESPONSE_ROWS:
+        vals = [d for d in (e.increment(a, b) for e in usable) if d is not None]
+        res["response"][key] = {"label": lbl, "stats": summarise(vals)}
+    res["response_pairing"] = {"paired": paired, "no_receipt": no_receipt,
+                               "no_dispatch": no_dispatch,
+                               "detections": sum(1 for e in usable if "alert" in e.t)}
+    if paired:
+        res["notes"].append(
+            "Response time is paired PER EVENT by adjacency (decision 7): %d of %d "
+            "detection(s) matched to a router receipt and a first dispatch within "
+            "%.0f s, %d with no receipt, %d with no dispatch. Rows starting at the "
+            "system call assume the monitored VM and analysis server clocks agree; "
+            "'dispatched' marks the start of the action, not its completion."
+            % (paired, res["response_pairing"]["detections"], args.router_max_gap_s,
+               no_receipt, no_dispatch))
+    if paired < res["response_pairing"]["detections"]:
+        res["warnings"].append(
+            "%d detection(s) could not be matched to router activity, so the "
+            "response-time rows cover fewer events than the detection rows."
+            % (res["response_pairing"]["detections"] - paired))
+    # Cross-check: the per-event receipt -> dispatch values should reproduce
+    # the window-based router pairing when both are well formed.
+    per_event = [e.t["dispatch"] - e.t["router_recv"] for e in usable
+                 if "dispatch" in e.t]
+    rs = res.get("router_stats")
+    if rs and per_event:
+        pe = summarise(per_event)
+        if abs(pe["median"] - rs["median"]) > 1.0 or pe["n"] != rs["n"]:
+            res["warnings"].append(
+                "Per-event router pairing (n=%d, median %.1f ms) disagrees with "
+                "the window-based pairing (n=%d, median %.1f ms); inspect the "
+                "router lines before reporting either."
+                % (pe["n"], pe["median"], rs["n"], rs["median"]))
+
+
 def analyse(path, label, args):
     data = load(path)
     res = {"path": path, "label": label, "sections": data["sections"],
@@ -765,6 +861,7 @@ def analyse(path, label, args):
             "No detection latency measurable: no event carries both an audit "
             "timestamp and a joined alert_time.")
 
+    attach_response(usable, data["router"], res, args)
     structural_checks(res)
     return res
 
@@ -956,7 +1053,7 @@ def report(res):
         print("          min=%.1f  p90=%.1f  p95=%.1f  p99=%.1f  max=%.1f"
               % (s["min"], s["p90"], s["p95"], s["p99"], s["max"]))
     rs = res["router_stats"]
-    print("      h5 Detector match -> action dispatch:")
+    print("      h5 %s (window-based pairing):" % ROUTER_ROW_LABEL)
     if rs:
         print("          n=%d (see pairing note), median=%.1fms, "
               "IQR=%.1fms, min=%.1fms, max=%.1fms"
@@ -982,6 +1079,20 @@ def report(res):
                   % (sum(parts), s["median"] - sum(parts)))
     else:
         print("      not measurable")
+
+    print("")
+    print("  Response time, paired per event (see decision 7 and notes):")
+    for key, _lbl, _a, _b in RESPONSE_ROWS:
+        r = res["response"][key]
+        s = r["stats"]
+        if s is None:
+            print("      %s: not measurable" % r["label"])
+            continue
+        print("      %s:" % r["label"])
+        print("          n=%d, median=%.1f, IQR=%.1f (Q1=%.1f, Q3=%.1f)"
+              % (s["n"], s["median"], s["iqr"], s["q1"], s["q3"]))
+        print("          min=%.1f  p90=%.1f  p95=%.1f  p99=%.1f  max=%.1f"
+              % (s["min"], s["p90"], s["p95"], s["p99"], s["max"]))
 
     if res["tiling"]:
         t = res["tiling"]
@@ -1022,8 +1133,14 @@ def compare(a, b):
 
     for key, lbl, _a, _b in HOPS:
         row(lbl, a["hops"][key]["stats"], b["hops"][key]["stats"])
-    row("Detector match -> action dispatch", a["router_stats"], b["router_stats"])
+    row(ROUTER_ROW_LABEL, a["router_stats"], b["router_stats"])
     row("End-to-end (audit -> detection)", a["e2e_detection"], b["e2e_detection"])
+    for key, lbl, _a, _b in RESPONSE_ROWS:
+        row(lbl, a["response"][key]["stats"], b["response"][key]["stats"])
+    print("  ('%s' is window-based: take it from per-file runs, since one window "
+          "spanning both files mixes their router lines. The per-event rows "
+          "below it are anchored to each detection and unaffected.)"
+          % ROUTER_ROW_LABEL)
 
     sa, sb = a["e2e_detection"], b["e2e_detection"]
     if sa and sb:
@@ -1082,10 +1199,14 @@ def distribution_table(res):
         if h["stats"]:
             rows.append((h["label"], h["stats"]))
     if res.get("router_stats"):
-        rows.append(("Detector match -> action dispatch", res["router_stats"]))
+        rows.append((ROUTER_ROW_LABEL, res["router_stats"]))
     if res.get("e2e_detection"):
         rows.append(("End-to-end (system call -> detection)",
                      res["e2e_detection"]))
+    for key, _lbl, _a, _b in RESPONSE_ROWS:
+        r = res.get("response", {}).get(key)
+        if r and r["stats"]:
+            rows.append((r["label"], r["stats"]))
 
     print("")
     print("=" * 78)
@@ -1138,6 +1259,10 @@ def dump_values(res, prefix):
             cols.append((h["label"], h["stats"]["values"]))
     if res.get("e2e_detection"):
         cols.append(("end_to_end", res["e2e_detection"]["values"]))
+    for key, _lbl, _a, _b in RESPONSE_ROWS:
+        r = res.get("response", {}).get(key)
+        if r and r["stats"]:
+            cols.append((key, r["stats"]["values"]))
     if not cols:
         return
     out = "%s_distribution.csv" % prefix
@@ -1161,7 +1286,7 @@ def dump_csv(res, prefix):
     try:
         w = csv.writer(fh)
         w.writerow(["doc_id", "path", "host"] + [k for k, _l, _a, _b in HOPS]
-                   + ["detection"])
+                   + ["detection"] + [k for k, _l, _a, _b in RESPONSE_ROWS])
         for e in res["kept"]:
             row = [e.id, e.path or "", e.host or ""]
             for _k, _l, x, y in HOPS:
@@ -1169,6 +1294,9 @@ def dump_csv(res, prefix):
                 row.append("" if d is None else "%.3f" % d)
             d = e.increment("audit", "alert")
             row.append("" if d is None else "%.3f" % d)
+            for _k, _l, x, y in RESPONSE_ROWS:
+                d = e.increment(x, y)
+                row.append("" if d is None else "%.3f" % d)
             w.writerow(row)
     finally:
         fh.close()
