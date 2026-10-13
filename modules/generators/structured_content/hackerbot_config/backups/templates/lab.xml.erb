@@ -159,10 +159,12 @@
   # Each backup must hold exactly the right steps' changes: taken too late it would hold the next step's too
   # (e.g. a late differential1 holds step 5's notes, and attack 13 then has no copy of the first notes).
   # The full backup must be taken before step 3: none of the step files may be in it (the change steps only
-  # rewind to *after* a step, so if it was taken later the differentials can never pick those files up)
+  # rewind to *after* a step, so if it was taken later the differentials can never pick those files up).
+  # notes and logs/log2 are created at step 3 too, so they count as step 3's changes here.
+  $step3_extra = ['notes', 'logs/log2']
   $full_items  = [[:all_present, 'original-files', $files]] +
-                 $steps.map { |k| [:none_present, $step_label[k], [$step_file[k]]] }
-  $later_files = $steps.map { |k| "/home/#{$second_user}/#{$step_file[k]}" }.join(' ')
+                 $steps.map { |k| [:none_present, $step_label[k], [$step_file[k]] + (k == 3 ? $step3_extra : [])] }
+  $later_files = ($steps.map { |k| $step_file[k] } + $step3_extra).map { |f| "/home/#{$second_user}/#{f}" }.join(' ')
   $diff1_items = backup_items([3], [5])
   $diff2_items = backup_items([3, 5], [7])
   $incr1_items = backup_items([7], [3, 5, 9])
