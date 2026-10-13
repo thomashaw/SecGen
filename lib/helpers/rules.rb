@@ -4,6 +4,13 @@ require_relative './scenario.rb'
 class Rules
   # Generate audit and alerting rules
 
+  # Programs whose opening of a goal file counts as reading it. Each is listed
+  # under /bin and /usr/bin, because auditd records the resolved executable path
+  # and which of the two a program resolves to depends on the base (e.g. less is
+  # /bin/less on Debian 10, /usr/bin/less on usr-merged bases).
+  READ_PROGRAMS = %w[cat less more nano vim.basic kate].freeze
+  READ_EXECUTABLES = READ_PROGRAMS.flat_map { |p| ["/bin/#{p}", "/usr/bin/#{p}"] }.freeze
+
   def self.generate_auditbeat_rules(goals)
     rules = []
     goals.each do |goal|
@@ -78,7 +85,7 @@ class Rules
         '        query: "event.action: opened-file"' + "\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        "        query: \"process.executable: \\\"/bin/cat\\\" OR \\\"/usr/bin/vim.basic\\\" OR \\\"/usr/bin/less\\\" OR \\\"/bin/more\\\" OR \\\"/bin/nano\\\" OR  \\\"/usr/bin/kate\\\"\"" + "\n" +
+        "        query: \"process.executable: (" + READ_EXECUTABLES.map { |e| "\\\"#{e}\\\"" }.join(' OR ') + ")\"" + "\n" +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\", \"raise\", \"--alert-name\", \"" + get_ea_rulename(hostname, source_name, goal, counter) +"\"]\n" +

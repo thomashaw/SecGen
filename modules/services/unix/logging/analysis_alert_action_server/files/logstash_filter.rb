@@ -4,10 +4,10 @@
 def register(params)
   @hostname = 'tom-noekea-2-experiment-aaa-hackme-desktop'
   @router   = '/usr/bin/ruby /opt/alert_actioner/alert_router.rb raise --alert-name'
-  @read_executables = [
-    '/bin/cat', '/usr/bin/vim.basic', '/usr/bin/less',
-    '/bin/more', '/bin/nano', '/usr/bin/kate'
-  ]
+  # Each reader under /bin and /usr/bin: auditd records the resolved path, and
+  # on this base (Debian 10, not usr-merged) less is /bin/less.
+  @read_executables = %w[cat less more nano vim.basic kate]
+                        .flat_map { |p| ["/bin/#{p}", "/usr/bin/#{p}"] }
   @acc_actions = ['user_login', 'started-session', 'acquired-credentials', 'opened-file']
 end
 
