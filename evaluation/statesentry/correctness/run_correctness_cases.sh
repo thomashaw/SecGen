@@ -43,8 +43,8 @@ TARGET_NAME="$(basename "$TARGET")"
 GOAL_HOME="$(getent passwd "$GOAL_USER" 2>/dev/null | cut -d: -f6)"
 GOAL_HOME="${GOAL_HOME:-/home/$GOAL_USER}"
 # Scratch area for links and decoys. It must sit inside a directory Auditbeat
-# watches (the goal paths' parent directories), or decoy and symlink cases are
-# never logged and pass trivially.
+# watches (the top-level directory of each goal path, e.g. /home/ for a goal
+# under /home), or decoy and symlink cases are never logged and pass trivially.
 WORK="$GOAL_HOME/.sscorrect"
 # TARGET relative to GOAL_HOME, e.g. /home/challenger -> ../../etc/shadow
 UP_FROM_HOME="$(printf '%s' "$GOAL_HOME" | sed 's#[^/][^/]*#..#g; s#^/##')"
@@ -125,11 +125,21 @@ listed() {
     case " $ALLOWED_READERS " in *" $1 "*) echo yes ;; *) echo no ;; esac
 }
 
+# Each case starts in its user's home directory, as an SSH login would (the
+# latency benchmark read the file over SSH). combined_path is built from the
+# process cwd, so an inherited cwd (e.g. / under the QEMU guest agent) would
+# change the outcome: cwd / turns /etc/shadow into //etc/shadow.
+home_of() {  # user -> existing home directory, else GOAL_HOME
+    h="$(getent passwd "$1" 2>/dev/null | cut -d: -f6)"
+    if [ -n "$h" ] && [ -d "$h" ]; then printf '%s' "$h"; else printf '%s' "$GOAL_HOME"; fi
+}
+
 run_as() {  # user, command
+    h="$(home_of "$1")"
     if [ "$1" = "root" ]; then
-        bash -c "$2"
+        bash -c "cd '$h' && $2"
     else
-        su -s /bin/bash -c "$2" "$1"
+        su -s /bin/bash -c "cd '$h' && $2" "$1"
     fi
 }
 
@@ -138,13 +148,13 @@ csv_field() { printf '"%s"' "$(printf '%s' "$1" | sed 's/"/""/g')"; }
 # --------------------------------------------------------------------- run --
 if [ "$DRY_RUN" -eq 1 ]; then
     printf '%s\n' "$CASES" | while IFS='|' read -r id cat truth user reader desc cmd; do
-        printf '%-4s %-9s %-10s %-10s listed=%-3s  %s\n' \
-            "$id" "$cat" "$truth" "$user" "$( [ "$reader" = "-" ] && echo n/a || listed "$reader")" "$cmd"
+        printf '%-4s %-9s %-10s %-10s listed=%-3s cwd=%-16s %s\n' \
+            "$id" "$cat" "$truth" "$user" "$( [ "$reader" = "-" ] && echo n/a || listed "$reader")" "$(home_of "$user")" "$cmd"
     done
     exit 0
 fi
 
-echo "case_id,category,ground_truth,run_as,reader,reader_listed,description,command,rep,exit_code,skipped,start_utc,end_utc" > "$OUT"
+echo "case_id,category,ground_truth,run_as,reader,reader_listed,description,command,rep,exit_code,skipped,start_utc,end_utc,cwd" > "$OUT"
 setup
 
 total=$(printf '%s\n' "$CASES" | wc -l)
@@ -166,10 +176,10 @@ for rep in $(seq 1 "$REPS"); do
             sleep "$SETTLE_S"
             end=$(now_ms)
         fi
-        printf '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
+        printf '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n' \
             "$id" "$cat" "$truth" "$user" "$reader" "$lst" \
             "$(csv_field "$desc")" "$(csv_field "$cmd")" \
-            "$rep" "$rc" "$skipped" "$start" "$end" >> "$OUT"
+            "$rep" "$rc" "$skipped" "$start" "$end" "$(csv_field "$(home_of "$user")")" >> "$OUT"
         printf 'rep %s/%s  case %2s/%s  %-4s rc=%-3s %s\n' "$rep" "$REPS" "$n" "$total" "$id" "$rc" "$desc"
         sleep "$GAP_S"
     done

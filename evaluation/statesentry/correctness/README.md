@@ -39,8 +39,15 @@ detection that the restriction does not explain.
    ```
 
    The scratch area for decoys and symlinks is `$GOAL_HOME/.sscorrect`. It must sit
-   inside a directory Auditbeat watches (the parent directory of each goal path, here
-   `/home/`), or the decoy and symlink cases are never logged and pass trivially.
+   inside a directory Auditbeat watches (the top-level directory of each goal path;
+   `/home/` is watched in experiment_aaa because of its `/home/challenger` goal), or
+   the decoy and symlink cases are never logged and pass trivially.
+
+   Each case starts in its user's home directory, as the SSH-triggered latency
+   benchmark did. The detection's `combined_path` is built from the process cwd, so
+   an inherited cwd of `/` (for example under the QEMU guest agent) would turn
+   `/etc/shadow` into `//etc/shadow`, and every absolute-path case would be missed.
+   The cwd is recorded in the CSV.
 
    `--dry-run` prints the cases without running anything. Each case runs `REPS`
    times (default 3), with a `GAP_S`-second pause (default 5). The full run takes
