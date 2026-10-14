@@ -5,6 +5,12 @@ description: Convert a SecGen Hackerbot lab sheet (a hackerbot_config generator'
 
 # Converting a Hackerbot lab sheet to a Hacktivity lab sheet
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
+> Paths written `HacktivityLabSheets/...` are relative to that checkout (located
+> as described below).
+
 The SecGen Hackerbot labs generate their lab sheet at build time: a
 `hackerbot_config` generator renders an XML bot config from ERB, and the markdown
 sheet is **extracted from that XML** and served by Apache on the
@@ -15,8 +21,13 @@ highlighting format.
 
 Two repos are involved:
 
-- SecGen: `/home/cliffe/Files/Projects/Code/SecGen`
-- Hacktivity lab sheets: `/home/cliffe/Files/Projects/Code/HacktivityLabSheets`
+- SecGen: this repository (its root, or the worktree you are working in).
+- Hacktivity lab sheets: a checkout of HacktivityLabSheets kept beside SecGen,
+  i.e. `../HacktivityLabSheets` relative to the SecGen root (for a worktree,
+  relative to the main checkout). If it lives elsewhere, `$HACKTIVITY_LABSHEETS_DIR`
+  gives its path. If neither exists, ask for the location rather than guessing.
+
+Paths below written as `HacktivityLabSheets/...` are relative to that checkout.
 
 ## Before you start: how the sheet is actually assembled
 
@@ -164,7 +175,7 @@ same machine breaks. Check for and fix each of these:
 
 ## Step 4 — convert to Hacktivity format
 
-Read `/home/cliffe/Files/Projects/Code/HacktivityLabSheets/_labs/example_highlighting_guide.md`
+Read `HacktivityLabSheets/_labs/example_highlighting_guide.md`
 in full and follow it. The most common conversions in Hackerbot sheets:
 
 - **Untyped highlights.** Hackerbot sheets use bare `==Run:==`, `==Set the 'i'

@@ -1,4 +1,4 @@
-# Copies a secgen-run build log into test_results/<project-id>/build.log with the
+# Copies a secgen-dev-run build log into test_results/<project-id>/build.log with the
 # Proxmox password masked (read from SECGEN_PROXMOX_PASS, never a command-line
 # argument), and records it in that run's summary.json.
 #

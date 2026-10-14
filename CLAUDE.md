@@ -16,8 +16,8 @@ Vagrantfile + Puppet), then Vagrant builds the VMs (VirtualBox, oVirt or Proxmox
   `modules/{generators,encoders}` — run locally at build time to produce data.
 - `scenarios/` — `ctf/`, `labs/`, `examples/`, `tests/`, `dev/` …
 - `projects/` — generated output (gitignored). Never edit; regenerate instead.
-- `agentic_pipeline/` — roadmap and open questions for the agentic module pipeline.
-- `README-*.md` — longer docs (Modules-Metadata, Modules-Puppet, Creating-Scenarios, Networking).
+- `README-*.md` — longer docs (Modules-Metadata, Modules-Puppet, Creating-Scenarios, Networking,
+  Testing: tiers, statuses and the `test_results/` contract).
 
 ## Module anatomy
 
@@ -69,12 +69,13 @@ Modules can ship `secgen_test/<name>.rb` (a `PostProvisionTest` subclass). On a
 (`lib/helpers/proxmox_connection.rb`), which needs no network path into the guest —
 so tests work after the provisioning NIC is torn down and the VM has rebooted onto
 its isolated VLAN (the state that broke the legacy suite). At build time the project
-gets a `test_context.json` (url + user, **no password**, which that comes from
+gets a `test_context.json` (url + user, **no password**; that comes from
 `ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. The whole
 build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
-`scripts/README.md`): `scripts/secgen-run` (build), `scripts/secgen-test-run` (run one
-`secgen_test`), `scripts/secgen-destroy`, `scripts/pve-check`, `scripts/agent-check`. Run them by that path from
+`scripts/README.md`): `scripts/secgen-dev-run` (build), `scripts/secgen-test-run` (run one
+`secgen_test`), `scripts/pve-check`, `scripts/agent-check`; delete a kept project's VMs with
+`ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`. Run them by that path from
 the checkout/worktree you're working in — they build that checkout and find the gems
 themselves. A failing test on a genuinely broken
 module is the pipeline working — fix the module template, not the generated project.
@@ -93,6 +94,11 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | CTF scenario descriptions | `write-secgen-ctf-description` |
 | Publish a hackerbot lab sheet to Hacktivity | `convert_hackerbot_to_hacktivity_lab_sheets` |
 | Write/debug module Puppet code | `secgen-puppet` |
+
+When you add or rename a skill (by hand or with `skill-creator`), add a row
+here in the same change, and to the skills table of any workspace you run
+SecGen from. Skill paths (`scripts/…`, `lib/…`) are relative to the SecGen
+root; say so at the top of a new skill, as the existing ones do.
 
 ## Environment-specific notes
 
