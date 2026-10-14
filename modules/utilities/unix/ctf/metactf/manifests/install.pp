@@ -7,6 +7,10 @@ class metactf::install {
   ensure_packages('zsh')
   ensure_packages('build-essential')
   ensure_packages('gcc-multilib')
+  # The challenges' build.zsh scripts derive their randomised values with bc. install.sh would install it, but its
+  # apt line names python-pip, which no longer exists, so the whole line fails (on Kali, which lacks bc, challenges
+  # then fail to compile or silently build with empty values).
+  ensure_packages('bc')
 
   file { $install_dir:
     ensure  => directory,
@@ -29,6 +33,7 @@ class metactf::install {
     cwd     => "$install_dir/src_angr/",
     logoutput => on_failure,
     command => "/usr/bin/make",
+    require => Package['bc'],
   }
 
   # Build src_csp
@@ -41,7 +46,7 @@ class metactf::install {
   exec { 'build src_csp binaries':
     cwd     => "$install_dir/src_csp/",
     command => "/usr/bin/make",
-    require => Exec['src_csp chmod executable'],
+    require => [Exec['src_csp chmod executable'], Package['bc']],
   }
 
   # Build src_malware
@@ -56,7 +61,7 @@ class metactf::install {
     cwd     => "$install_dir/src_malware/",
     command => "/usr/bin/make",
     logoutput => true,
-    require => Exec['src_malware chmod executable'],
+    require => [Exec['src_malware chmod executable'], Package['bc']],
   }
 
   # Build src_sse
@@ -71,7 +76,7 @@ class metactf::install {
     cwd     => "$install_dir/src_sse/",
     command => "/usr/bin/make",
     logoutput => true,
-    require => Exec['src_sse chmod executable'],
+    require => [Exec['src_sse chmod executable'], Package['bc']],
   }
 
 }

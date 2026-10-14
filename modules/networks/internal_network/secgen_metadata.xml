@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<network xmlns="http://www.github/cliffe/SecGen/network"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/network">
+  <name>Internal Network</name>
+  <author>Thomas Shaw</author>
+
+  <module_license>GPLv3</module_license>
+  <description>A NIC on the organisation's internal network (untagged, on a given Proxmox bridge), for systems
+    that must reach an internal service such as the Spark LLM gateway, e.g. a system running llm_relay.
+    Add it alongside the system's lab network: &lt;network type="internal_network"/&gt;. It is not part of
+    the lab network map (no lab IP or VLAN), it survives the post-build removal of the provisioning NIC,
+    and modules on the same system see it as the fact secgen_internal_network ("dhcp" or the static IP).
+    Only students' VMs must never have one. Proxmox only; other providers skip it.</description>
+
+  <type>internal_network</type>
+
+  <read_fact>bridge</read_fact>
+  <read_fact>internal_ip</read_fact>
+  <read_fact>internal_netmask</read_fact>
+
+  <default_input into="bridge">
+    <value>vmbr3</value>
+  </default_input>
+
+  <default_input into="internal_ip">
+    <value></value>
+  </default_input>
+
+  <default_input into="internal_netmask">
+    <value>255.255.0.0</value>
+  </default_input>
+
+</network>

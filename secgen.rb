@@ -89,6 +89,11 @@ def usage
    --proxmox-network [proxmox network name]
    --proxmox-vlan [vlan number]
 
+   LLM OPTIONS:
+   --llm-api-key [key]: API key for the local LLM gateway, given to modules of type llm_api_key (e.g. llm_relay)
+       as the fact llm_api_key at provision time. Not written to the project: the Vagrantfile reads it from
+       SECGEN_LLM_API_KEY. Keep it in a --read-options file, not on the command line.
+
    COMMANDS:
    run, r: Builds project and then builds the VMs
    build-project, p: Builds project (vagrant and puppet config), but does not build VMs
@@ -722,6 +727,7 @@ opts = GetoptLong.new(
     ['--proxmox-node', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-network', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-vlan', GetoptLong::REQUIRED_ARGUMENT],
+    ['--llm-api-key', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-post-boot', GetoptLong::NO_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--esxipass', GetoptLong::REQUIRED_ARGUMENT],
@@ -847,6 +853,10 @@ opts.each do |opt, arg|
   when '--proxmox-vlan'
     Print.info "Proxmox Network VLAN : #{arg}"
     options[:proxmoxvlan] = arg.to_i
+  when '--llm-api-key'
+    Print.info "LLM API key : ********"
+    # like SECGEN_PROXMOX_PASS: the Vagrantfile reads it from the environment, so it's never written to the project
+    ENV['SECGEN_LLM_API_KEY'] = arg
   when '--proxmox-post-boot'
     Print.info "Proxmox start all VMs post provision"
     options[:proxmox_post_boot] = true
