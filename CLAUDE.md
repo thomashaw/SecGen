@@ -75,7 +75,7 @@ build→provision→test→fix loop, how to write a `secgen_test`, and cleanup a
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
 `scripts/README.md`): `scripts/secgen-dev-run` (build), `scripts/secgen-test-run` (run one
 `secgen_test`), `scripts/pve-check`, `scripts/agent-check`; delete a kept project's VMs with
-`ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`. Run them by that path from
+`scripts/secgen-dev-destroy projects/<id>` (`secgen.rb destroy-project`, given the options file by path). Run them by that path from
 the checkout/worktree you're working in — they build that checkout and find the gems
 themselves. A failing test on a genuinely broken
 module is the pipeline working — fix the module template, not the generated project.
