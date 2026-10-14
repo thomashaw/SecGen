@@ -21,6 +21,8 @@ module TestResults
   STATUS_ORDER = %w[PASS SKIP FAIL].freeze # worst last
   EXIT_CODES = { 'PASS' => 0, 'FAIL' => 1, 'SKIP' => 2 }.freeze
   MASK = '********'.freeze
+  # secrets secgen.rb takes from --read-options and passes on via the environment
+  SECRET_ENV_VARS = %w[SECGEN_PROXMOX_PASS SECGEN_LLM_API_KEY].freeze
 
   module_function
 
@@ -156,10 +158,12 @@ module TestResults
     FileUtils.mkdir_p(File.dirname(dst))
     data = File.binread(src)
     count = 0
-    secret = ENV['SECGEN_PROXMOX_PASS'].to_s.b
-    unless secret.empty?
-      count = data.scan(secret).size
-      data = data.gsub(secret, MASK) if count > 0
+    SECRET_ENV_VARS.each do |var|
+      secret = ENV[var].to_s.b
+      next if secret.empty?
+      found = data.scan(secret).size
+      data = data.gsub(secret, MASK) if found > 0
+      count += found
     end
     File.binwrite(dst, data)
     count
