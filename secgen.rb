@@ -45,7 +45,7 @@ def usage
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
    --keep-vms: test-scenario/test-module: keep the VMs and project after testing, even on PASS.
-   --keep-project: destroy-project: delete the VMs but keep the project directory.
+   --keep-dir: destroy-project: delete the VMs but keep the project directory.
    --test-base [base]: test-module: base module for the test VM, as modules/bases/<name> or <name>
               (default debian_bookworm_desktop_kde).
 
@@ -107,7 +107,7 @@ def usage
    test-module [module path]: As test-scenario, for a one-system scenario holding
               just that module (e.g. modules/services/unix/ftp/proftpd).
    destroy-project: Deletes the VMs of a previously built project (--project [dir]), then
-              removes the project directory (unless --keep-project). Proxmox projects
+              removes the project directory (unless --keep-dir). Proxmox projects
               are hard-stopped and deleted through the API and need the Proxmox
               options (e.g. --read-options [conf path]); others use vagrant destroy.
    list-scenarios: Lists all scenarios that can be used with the --scenario option
@@ -611,8 +611,8 @@ def test_command(command, target, scenario, project_dir, options)
     Print.info "Keeping VMs and project (--keep-vms): #{project_dir}"
   elsif options[:nodestroy] && summary[:status] != 'PASS'
     Print.info "Keeping the VMs and project (did not PASS; --no-destroy-on-failure): #{project_dir}"
-  else
-    return unless File.directory?(project_dir)
+  elsif File.directory?(project_dir)
+    # (no project dir: the build failed before creating one, so there is nothing to destroy)
     Print.info 'Destroying test VMs...'
     DestroyFunctions.destroy_project(project_dir, options)
   end
@@ -637,7 +637,7 @@ def destroy_project_command(project_dir, options)
               '(e.g. --read-options [conf path]) so its VMs can be deleted through the API'
     exit 1
   end
-  remaining = DestroyFunctions.destroy_project(project_dir, options, remove_project: !options[:keepproject])
+  remaining = DestroyFunctions.destroy_project(project_dir, options, remove_project: !options[:keepdir])
   exit(remaining.empty? ? 0 : 1)
 end
 
@@ -707,7 +707,7 @@ opts = GetoptLong.new(
     ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
     ['--keep-vms', GetoptLong::NO_ARGUMENT],
-    ['--keep-project', GetoptLong::NO_ARGUMENT],
+    ['--keep-dir', GetoptLong::NO_ARGUMENT],
     ['--test-base', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtpass', GetoptLong::REQUIRED_ARGUMENT],
@@ -902,8 +902,8 @@ opts.each do |opt, arg|
     options[:retries] = arg
   when '--keep-vms'
     options[:keepvms] = true
-  when '--keep-project'
-    options[:keepproject] = true
+  when '--keep-dir'
+    options[:keepdir] = true
   when '--test-base'
     options[:test_base] = arg
   else
