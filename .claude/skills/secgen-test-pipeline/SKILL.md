@@ -301,7 +301,7 @@ destroy the VMs via the API and remove the project.
    project, then rebuild.
 6. **Clean up**: `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`
    hard-stops and deletes the project's VMs via the API, checks they're gone,
-   and removes the project dir (`--keep-project` keeps it).
+   and removes the project dir (`--keep-dir` keeps it).
    Remove any scratch files/logs too. Verify no orphans with
    `scripts/pve-check --all | grep <vmid>`.
 
