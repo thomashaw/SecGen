@@ -25,7 +25,7 @@ is the mechanism and the workflow.
   has rebooted onto its isolated static VLAN (the state that broke the legacy
   suite). The transport is in `lib/helpers/proxmox_connection.rb`
   (`exec_qemu_guest`, `qemu_agent_get_ip`, `qemu_agent_running?`).
-- At build time `project_files_creator` writes `proxmox_test_context.json`
+- At build time `project_files_creator` writes `test_context.json`
   (url + user, **no password**) and copies the client into the project `lib/`.
   The test reads the password from `ENV['SECGEN_PROXMOX_PASS']` at run time, and
   the node/VMID from `.vagrant/machines/<system>/proxmox/id`.
@@ -33,30 +33,46 @@ is the mechanism and the workflow.
 
 ### Caveats that change how you write/read tests
 
-- **Guest commands run as root.** For "as the intended user" checks, wrap the
-  command: `runuser -u <user> -- <cmd>`.
-- **The dev server can't reach the VMs' VLAN IPs directly.** So `test_service_up`
-  checks the port **inside the guest** on Proxmox (via the agent), not with a TCP
-  connect from the host. Remote/exploit-from-attacker tests must run **from a VM
-  on the scenario VLAN** (e.g. a Kali box in the scenario), not from the host.
+- **Guest commands run as root.** For "as the intended user" checks use
+  `run_as_user(user, cmd)` or pass `user:` to `test_local_command` /
+  `test_command_succeeds` (wraps `runuser -u <user> -- bash -lc`, falling back
+  to `su`).
+- **The dev server can't reach the VMs' VLAN IPs directly.** So on Proxmox
+  `test_service_up`, `test_banner`, `test_http` and `test_html_returned_content`
+  all run **inside the guest** via the agent (port check with `ss`, HTTP with
+  curl → wget → bash `/dev/tcp`, against 127.0.0.1 then the guest's own IP), not
+  from the host. Remote/exploit-from-attacker tests must run **from a VM on the
+  scenario VLAN** (e.g. a Kali box in the scenario), not from the host.
 - **Each API call ~3s** from this dev server; batch guest checks into one
-  `sh -c '...'` where you can rather than many round-trips.
-- Legacy `secgen.rb` still runs its in-build test runner at the *old* point
-  (before net0 teardown, via a vagrant reboot). Until that's reordered, **test
-  out-of-band** with `scripts/secgen-test-run` against a VM left running by `scripts/secgen-run`,
-  rather than relying on `--no-tests` being off.
+  command where you can rather than many round-trips. The system IP is only
+  looked up (one `agent/network-get-interfaces` call) if something needs it.
+- On Proxmox, `secgen.rb` runs the tests **after** net0 teardown and the
+  reboot (see the loop below). Other providers keep the old in-build runner
+  (vagrant halt/up, before any post-build).
+- **A test is a standalone `ruby` subprocess.** `test_results.rb` runs each
+  `secgen_test` as its own `bundle exec ruby <script>`; it does **not** load
+  `constants.rb` or `Print`, so `ROOT_DIR`/`BASES_DIR`/`Print.std` are not
+  available. Derive paths from the base class instead (`get_project_path`,
+  `get_system_name`, `secgen_root`, `module_path`) and record via the check API
+  (`pass_check`/`fail_check`/`skip_check`), not `puts`. **Reuse the base-class
+  helpers** below rather than re-implementing guest exec, IP lookup or node/VMID
+  parsing; if you need something new and reusable, add it to `PostProvisionTest`
+  and have both the self and sibling cases share it.
 
 ## Writing a secgen_test
 
 Subclass `PostProvisionTest`, set `module_name`/`module_path`, call `super`, then
-assert in `test_module`. Tiers to aim for:
+assert in `test_module`. Every check is recorded with a **tier**:
 
-1. **Provisioned** — the package/files/accounts exist (`test_local_command`).
-2. **Service/tool works** — the service listens / the tool runs from a terminal
-   (`test_service_up`; for utilities actually invoke the binary so PATH and
-   missing-lib problems surface).
-3. **Exploitable** — the intended vuln is actually exploitable (real exploit:
-   Metasploit or a crafted request, run from an attacker VM — roadmap Phase 2).
+1. **Provisioned** — the package/files/accounts exist (`test_local_command`,
+   default tier 1).
+2. **Service/tool works** — the service listens / answers / the tool runs from a
+   terminal (`test_service_up`, `test_banner`, `test_http`,
+   `test_command_succeeds`; default tier 2). For utilities actually invoke the
+   binary, as the intended user, so PATH and missing-lib problems surface.
+3. **Exploitable** — the intended vuln is actually exploitable with a real
+   exploit (Metasploit or a crafted request) run **from an attacker VM** in the
+   same project. See [Tier 3: exploit from an attacker VM](#tier-3-exploit-from-an-attacker-vm).
 
 ```ruby
 require_relative '../../../../../lib/post_provision_test'
@@ -68,17 +84,186 @@ class FooTest < PostProvisionTest
   end
   def test_module
     super
-    test_service_up                                   # port from json_inputs
-    test_local_command('installed?', 'which foo', '/usr/bin/foo')
+    tier(1) { test_local_command('installed?', 'which foo', '/usr/bin/foo') }
+    tier(2) do
+      test_service_up                                 # port from json_inputs
+      test_banner('220 ', send: nil)                  # first bytes from the port
+      test_http('/login.php', match: 'Sign in')       # status 2xx/3xx + body match
+      test_command_succeeds('foo runs', 'foo --version', user: 'alice')
+    end
+    # Tier 3: real exploit from an attacker VM (see below)
+    test_msf_exploit('exploit/unix/misc/foo_rce', rport: 1234, tier: 3)
   end
 end
 FooTest.new.run
 ```
 
-`test_local_command(label, cmd, expected_substring)` passes if `expected_substring`
-is in stdout **or** stderr. `run` prints outputs and exits non-zero on any failure.
+API (all in `lib/objects/post_provision_test.rb`):
 
+| Helper | Passes when |
+|---|---|
+| `test_service_up(port: self.port)` | port is listening (SKIP if there's no port input) |
+| `test_local_command(label, cmd, substr, user: nil)` | `substr` in stdout **or** stderr |
+| `test_command_succeeds(label, cmd, user: nil)` | exit status 0 |
+| `test_banner(match, port:, send: nil)` | what the port sends (after `send` + CRLF) contains `match` |
+| `test_http(path, match: nil, status: nil, port:, scheme: 'http')` | status matches (default 2xx/3xx) and body contains `match` |
+| `test_html_returned_content(page, match, hide = false)` | legacy: body contains `match` |
+| `pass_check` / `fail_check` / `skip_check(name, detail = nil, tier:, evidence:)` | record your own check |
+| `skip!(reason)` | stop now, report SKIP (prerequisite missing) |
+| `run_command(cmd)` / `run_as_user(user, cmd)` / `http_get(path)` | raw `{stdout, stderr, exit_status}` / `{status, body, error}` |
+| `add_evidence(name, cmd)` | extra command whose output is saved if the test FAILs |
+| `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, force:, options:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below) |
+| `test_http_exploit(path, method:, data:, headers:, expect:, expect_status:, sentinel:, include_headers:, collect:, tier: 3)` | a non-Metasploit web exploit run as HTTP request(s) from the attacker VM: PASSes when the response matches `expect` and/or a target-side `sentinel` proves command execution (see below) |
+| `http_from_attacker(path, attacker:, rhost:, method:, data:, headers:, include_headers:)` | raw: one `curl` request from the attacker VM → `{status, body, error, curl}` |
+| `run_on_system(name, cmd)` / `other_system_ip(name)` | run a command on / get the IP of **another** VM in the project (Proxmox, over its own guest agent) |
+| `system_present?(name)` / `attack_system` | a sibling VM by name exists / the sibling whose base is `<type>attack</type>` (nil if none) |
+
+Every helper takes `tier:`; a `tier(n) { ... }` block sets it for the checks
+inside. Legacy tests that push `"PASSED: ..."` / `"FAILED: ..."` onto `outputs`
+and set `all_tests_passed` still work — those lines are recorded as checks.
+
+### Tier 3: exploit from an attacker VM
+
+A tier-3 check proves the vuln is really exploitable by attacking the target
+**from another VM in the project** — network/exploit traffic has to come from
+the scenario VLAN, not the SecGen host. Each sibling VM is reached over **its
+own** QEMU Guest Agent (so this works after net0 teardown, like the rest).
+
+**1. Put an attacker VM in the test scenario.** Add a second system on the same
+private network as the target, built from a base of `<type>attack</type>`
+(`<base distro="Kali" name="MSF"/>` — ships Metasploit). Give both systems
+static IPs on one subnet/VLAN so the attacker can reach the target. Minimal
+precedent: `scenarios/tests/test_scenario_distcc.xml` (Debian 12 target + Kali
+attacker on `10.88.0.0/24`). The helper finds the attacker by base type, so the
+system can be named anything; if there is no `type=attack` sibling, tier 3
+SKIPs and the module still tests fine on its own.
+
+**2. Use `test_msf_exploit`** for a Metasploit module (metadata often names it
+in `<msf_module>`):
+
+```ruby
+test_msf_exploit('exploit/unix/misc/distcc_exec',
+                 rport: 3632,                     # target port (rhost defaults to the target's IP)
+                 collect: 'cat /home/distccd/*',  # extra shell appended to the proof cmd (optional)
+                 force: true,                     # set ForceExploit (see pitfall below; optional)
+                 options: { 'LHOST' => '...' },   # extra/override msf datastore opts (optional)
+                 tier: 3)
+```
+
+It resolves the attacker, SKIPs cleanly if there's none, runs `msfconsole -q -x`
+on the attacker via `run_on_system`, and proves RCE by a **sentinel file** the
+exploit drops on the target, which the target's own guest agent reads back and
+checks for `uid=`. msf output and the sentinel are attached as evidence. It
+defaults to the no-session `cmd/unix/generic` payload — the exploit runs a
+command on the target directly, so there's no reverse/bind shell to race.
+Pass `payload:` to override (e.g. a `cmd/<os>/http/...` command-stager "fetch"
+payload — the helper then auto-sets `FETCH_SRVHOST` to the attacker), and
+`force: true` to set `ForceExploit`.
+
+**Gotchas (all handled by `test_msf_exploit`; mind them in any custom
+attacker-side command):**
+
+- **Export `HOME`.** The guest agent runs commands with no `HOME`, and
+  `msfconsole`'s rb-readline aborts on startup without it — prefix
+  `export HOME=/root TERM=dumb;`.
+- **Avoid a reverse/bind shell for the assertion.** A session can open and close
+  before you interact with it. Prefer a payload/command that executes on the
+  target and leaves a durable artefact you verify out-of-band (the sentinel).
+- **Don't assume a payload name — Metasploit changes module payload
+  compatibility between versions, and a *global/auto default payload* can
+  silently take over.** A `set PAYLOAD <name>` for a payload the current module
+  no longer lists is rejected (`The value specified for PAYLOAD is not valid`);
+  msf then keeps the *configured* default — on these dev Kali boxes that is a
+  `cmd/linux/http/.../meterpreter_reverse_tcp`, which needs `LHOST` and aborts
+  with `One or more options failed to validate: LHOST`. The exploit never fires
+  and the sentinel is absent, so the test FAILs for a reason that has nothing to
+  do with the target. This bit the `vsftpd_234_backdoor` tier-3 test: in the
+  installed Metasploit that module has **no `cmd/unix/interact`** payload (the
+  classic "just run it and you get a shell" default is gone) — its compatible
+  set is huge but the no-session **`cmd/unix/generic`** (distcc's default) is in
+  it and works with `force: true`. Diagnose by running `use <module>; show
+  payloads` on the attacker (the list is long — grep it, don't eyeball the first
+  screen) and confirm the name before wiring it into a test. Prefer the default
+  `cmd/unix/generic` (arch-independent, no HTTP-fetch infrastructure).
+- **Inconclusive automatic check.** Some modules can't self-verify the target
+  (`Cannot reliably check exploitability ... set ForceExploit true to override`)
+  and abort before exploiting. Pass `force: true` (the vsftpd backdoor needs
+  this). This is distinct from a payload problem — read `msf_output` evidence to
+  tell them apart (`LHOST`/`not valid` = payload; `Cannot reliably check` =
+  AutoCheck).
+
+**For non-Metasploit exploits** (web vulns with no msf module), use the
+`test_http_exploit` helper: it crafts the HTTP request(s) with `curl` **on the
+attacker VM** (`http_from_attacker`) and asserts on the response body/header
+(`expect:` / `include_headers:`) and/or a target-side `sentinel:` for command
+injection — same attacker-VM / guest-agent shape, non-Metasploit path. Precedent:
+`vuln_parameterised_website` (SQLi auth-bypass, `expect: /location:\s*index\.php/i`
+on the 302). For anything more bespoke, run the attack directly with
+`run_on_system(attack_system, '<curl ...>')` and assert with `run_command`.
+
+### Results and exit codes
+
+`run` prints `PASSED:` / `FAILED:` / `SKIPPED:` lines, writes
+`projects/<id>/test_results/<system>/<module>.json`
+(`{module, module_path, system, backend, started_at, duration_s, status,
+tier_reached, results: [{tier, name, status, detail, evidence?}]}`), and exits:
+
+- `0` **PASS** — every check passed.
+- `1` **FAIL** — a check failed. Evidence (failed units, `systemctl status
+  *<module>*`, the boot journal, listening ports, processes, plus any
+  `add_evidence`) is collected in one guest call into
+  `test_results/<system>/evidence/<module>/`.
+- `2` **SKIP** — could not test: no `SECGEN_PROXMOX_PASS`, guest agent not
+  answering (waits `SECGEN_AGENT_WAIT`, default 60s), no IP when one was needed
+  (DHCP on Vagrant), or the test itself raised. **A SKIP is never a pass** —
+  usually a harness problem, not the module.
+
+A breakage Puppet itself notices (e.g. the service fails to (re)start during
+provisioning) is a **build** failure, not a test FAIL: no tests run, the build
+is retried and then destroyed; read `build.log`. A test FAIL means Puppet was
+happy but the check wasn't (e.g. proftpd up on the wrong port), and the
+evidence usually shows why (`listening_ports.txt` showed it on 2121).
+
+`tier_reached` is the highest tier whose checks (and every lower tier's) all
+passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
 ## The build + test loop
+
+### One shot (preferred): `test-scenario` / `test-module`
+
+`scripts/secgen-run --test -s scenarios/tests/<scn>.xml` (or
+`scripts/secgen-run -m modules/<type>/.../<mod>` for a generated one-system
+scenario holding just that module on Debian 12; `-- --test-base "<distro>"`
+to change it) runs `secgen.rb test-scenario` / `test-module`:
+
+build (with `--retries 1`) → `net0` teardown → snapshot if `--snapshot` →
+start (the one full reboot: static IPs up, reboot-dependent modules settle) →
+wait for the guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) → settle
+(`SECGEN_TEST_SETTLE`, default 30s) → every module's `secgen_test` (each with a
+`SECGEN_TEST_TIMEOUT`, default 900s; `SECGEN_TEST_JOBS`, default 4, run side by
+side) → `test_results/<project-id>/` →
+destroy the VMs via the API and remove the project.
+
+- **Exit code:** 0 all PASS, 1 any FAIL (or the build failed), 2 any SKIP.
+- **Results** (gitignored, survive teardown): `test_results/<project-id>/`
+  holds `summary.json` (build status/attempts, counts, per-system modules with
+  status and `tier_reached`, SecGen commit/branch, `masked_secrets`),
+  `scenario.xml` (the resolved scenario: what was actually tested),
+  `build.log`, and `<system>/<mod>.json`, `<mod>.log`, `evidence/<mod>/`.
+  Every copied file has the Proxmox password masked; `masked_secrets` > 0
+  means something leaked it and should be fixed at source.
+- `-- --keep-vms` keeps the VMs and project for debugging (even on PASS);
+  `-- --no-destroy-on-failure` keeps them only if the build fails or the
+  tests don't PASS. Destroy them afterwards with `scripts/secgen-destroy projects/<id>`.
+- A plain `secgen.rb run` on Proxmox without `--no-tests` uses the same
+  order and writes the same report. On PASS it shuts the VMs down unless
+  `--proxmox-post-boot`; on a **FAIL or SKIP it destroys them** (the project
+  dir and results stay) unless `--no-destroy-on-failure`, and never retries,
+  because batches treat surviving VMs as good builds (they get pulled into
+  Hacktivity) and a SKIP is unverified. It exits 1/2 on FAIL/SKIP. The other
+  providers' in-build runner does the same now (so on VirtualBox a system
+  whose network test SKIPs, e.g. DHCP, is destroyed).
+
+### Step by step (to iterate on one VM)
 
 1. Make a minimal test scenario in `scenarios/tests/` (one `<system>`, the module,
    a `parameterised_accounts` user if required, a `<network>`, and the **required**
@@ -88,21 +273,26 @@ is in stdout **or** stderr. `run` prints outputs and exits non-zero on any failu
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
 3. Build: `scripts/secgen-run -p <name> -s scenarios/tests/<scn>.xml`
-   (`--dry-run` first). It leaves the VM running in final state (net0 gone).
-   **The provisioning net is an intermittent flake across bases** — if `vagrant up`
-   times out "waiting for SSH to configure network interfaces" (no IP via agent)
-   with no Puppet having run, just retry (or pass `--retries`).
-4. Run the test: `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
-   — expect `PASSED: ...` / exit 0. `scripts/secgen-test-run` injects
-   `SECGEN_PROXMOX_PASS` from the config without printing it.
-5. **If it fails**, diagnose via the guest agent (`scripts/agent-check <vmid>`, or a small
+   (`--dry-run` first). It runs the tests after net0 teardown + reboot and
+   writes `test_results/<id>/`, but leaves the VM running in its final state
+   whatever the result (`-- --no-tests` to skip them). It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
+   intermittent provisioning-net flake (no DHCP lease → vagrant times out
+   "waiting for SSH to configure network interfaces" with no Puppet run); when
+   vagrant can't say which VM failed, SecGen now destroys all and retries.
+4. Re-run a test against the running VM (e.g. after changing the test): `scripts/secgen-test-run <project>/puppet/<system>/modules/<mod>/secgen_test/<mod>.rb`
+   — expect `PASSED: ...` / exit 0 (1 FAIL, 2 SKIP). `scripts/secgen-test-run` injects
+   `SECGEN_PROXMOX_PASS` from the config without printing it. The JSON result
+   and any FAIL evidence land in `<project>/test_results/<system>/`.
+5. **If it fails**, start from the collected evidence
+   (`test_results/<system>/evidence/<mod>/`), then diagnose further via the guest agent (`scripts/agent-check <vmid>`, or a small
    script calling `exec_qemu_guest` for `systemctl status`, `journalctl`,
    config-syntax checks). A failing test on a genuinely broken module is the
    pipeline working — fix the **module template/manifest**, not the generated
    project, then rebuild.
-6. **Clean up**: destroy every VM you built (stop + delete via the Proxmox API),
-   remove the `projects/*` dir and any scratch files/logs. Verify no orphans by
-   listing `/cluster/resources?type=vm` and grepping your prefix.
+6. **Clean up**: `scripts/secgen-destroy projects/<id>` stops and deletes the
+   project's VMs via the API, checks they're gone, and removes the project dir.
+   Remove any scratch files/logs too. Verify no orphans with
+   `scripts/pve-check --all | grep <vmid>`.
 
 ## Worked precedent
 
@@ -111,6 +301,12 @@ wouldn't start on Debian 12 (`fatal: unknown configuration directive 'IdentLooku
 — removed in modern ProFTPD). The test reported `FAILED: Port 21 is closed`; after
 dropping the stale directive from the module template it reported
 `PASSED: Port 21 is open`. That is the detect → fix → re-verify loop this skill is for.
+
+For a **tier-3** precedent, `scenarios/tests/test_scenario_distcc.xml` +
+`modules/vulnerabilities/unix/misc/distcc_exec/secgen_test/distcc_exec.rb`: a
+Kali attacker runs `exploit/unix/misc/distcc_exec` against the Debian target and
+the test PASSes tier 3 on the sentinel it drops (`uid=119(distccd)`). It is a
+4-line `test_msf_exploit` call on top of the framework.
 
 ## Then
 

@@ -55,6 +55,7 @@
   <software_name>RaspAP Web GUI</software_name>
   <software_license>GPL-3.0</software_license>
 
+  <msf_module>exploit/unix/http/raspap_rce</msf_module>
   <requires>
     <type>update</type>
   </requires>

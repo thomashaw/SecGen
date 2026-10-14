@@ -63,6 +63,7 @@
     <software_license>MIT</software_license>
 
     <!-- Cybersecurity Body of Knowledge mapping -->
+    <msf_module>exploit/unix/http/maltrail_rce</msf_module>
     <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
       <keyword>server-side misconfiguration and vulnerable components</keyword>
     </CyBOK>
