@@ -9,7 +9,7 @@ class SHA3_512_Encoder < HashEncoder
   end
 
   def hash_function(string)
-    SHA3::Digest.hexdigest(:sha512, string)
+    SHA3::Digest.hexdigest(:sha3_512, string)
   end
 end
 
