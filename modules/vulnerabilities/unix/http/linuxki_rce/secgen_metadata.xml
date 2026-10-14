@@ -53,6 +53,7 @@
   <software_name>LinuxKI</software_name>
   <software_license>GNU GPLv2</software_license>
 
+  <msf_module>exploit/linux/http/linuxki_rce</msf_module>
   <requires>
     <type>update</type>
   </requires>

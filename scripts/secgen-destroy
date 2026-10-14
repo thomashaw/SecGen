@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Stop and delete a project's Proxmox VMs via the API (whatever state vagrant
+# thinks they're in, e.g. after net0 teardown), check they're gone, then remove
+# the project directory. Only ever touches the VMs named in the project's
+# .vagrant/machines/*/proxmox/id files.
+#
+# Usage: scripts/secgen-destroy [--keep-project] <projects/<id>>...
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
+
+[[ $# -ge 1 ]] || { sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+require_conf
+export SECGEN_DIR SECGEN_CONF
+exec bundle exec ruby "$SECGEN_DIR/scripts/lib/destroy_project.rb" "$@"

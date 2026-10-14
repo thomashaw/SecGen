@@ -7,7 +7,8 @@ Vagrantfile + Puppet), then Vagrant builds the VMs (VirtualBox, oVirt or Proxmox
 ## Repo map
 
 - `secgen.rb` — CLI entry point (`ruby secgen.rb --help`). Commands: `run`/`r`,
-  `build-project`/`p`, `build-vms`/`v`, `list-scenarios`, `proxmox-post-build`.
+  `build-project`/`p`, `build-vms`/`v`, `test-scenario`, `test-module`, `list-scenarios`,
+  `proxmox-post-build`.
 - `lib/` — readers, objects (`lib/objects/post_provision_test.rb` is the test base
   class), output generators, `lib/helpers/proxmox*.rb`, XSD schemas in `lib/schemas/`,
   Vagrantfile template in `lib/templates/Vagrantfile.erb`.
@@ -41,6 +42,16 @@ modules/<type>/<platform>/<category>/<name>/
   templates.
 - **Dependencies.** Don't add gems or other external dependencies without asking.
 - **Generated code.** Fix the template/module, not the generated project.
+- **Reuse, don't re-roll.** Before adding a helper, check what SecGen already
+  provides. Paths/dirs are constants in `lib/helpers/constants.rb` (`ROOT_DIR`,
+  `PROJECTS_DIR`, `MODULES_DIR`, `BASES_DIR`, the `*_SCHEMA_FILE`s …); output
+  goes through `Print` (`lib/helpers/print.rb`); Proxmox calls go through
+  `lib/helpers/proxmox_connection.rb`. **Exception:** a `secgen_test` runs as a
+  standalone `ruby` subprocess that doesn't load `constants.rb`/`Print`, so it
+  must self-derive paths (via `PostProvisionTest`'s `get_project_path` /
+  `secgen_root` …) and use its own check/record API — don't reach for `ROOT_DIR`
+  there. When you do add something reusable, put it on the base class and have
+  the specific case call it (see `PostProvisionTest`).
 
 ## Check cheaply before building VMs
 
@@ -58,12 +69,12 @@ Modules can ship `secgen_test/<name>.rb` (a `PostProvisionTest` subclass). On a
 (`lib/helpers/proxmox_connection.rb`), which needs no network path into the guest —
 so tests work after the provisioning NIC is torn down and the VM has rebooted onto
 its isolated VLAN (the state that broke the legacy suite). At build time the project
-gets a `proxmox_test_context.json` (url + user, **no password** — that comes from
+gets a `test_context.json` (url + user, **no password**, which that comes from
 `ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. The whole
 build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
 `scripts/README.md`): `scripts/secgen-run` (build), `scripts/secgen-test-run` (run one
-`secgen_test`), `scripts/pve-check`, `scripts/agent-check`. Run them by that path from
+`secgen_test`), `scripts/secgen-destroy`, `scripts/pve-check`, `scripts/agent-check`. Run them by that path from
 the checkout/worktree you're working in — they build that checkout and find the gems
 themselves. A failing test on a genuinely broken
 module is the pipeline working — fix the module template, not the generated project.
@@ -78,13 +89,10 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Review a scenario (wiring, solvable kill chain) | `review-secgen-scenario` |
 | Test/verify a module or scenario on Proxmox; write a `secgen_test` | `secgen-test-pipeline` |
 | Hackerbot labs / `hackerbot_config` generators | `secgen-hackerbot` |
+| Test/improve a Hackerbot lab + labsheet end to end (on-VM tester, talk to the bot, fix/re-run loop) | `hackerbot-lab-testing` |
 | CTF scenario descriptions | `write-secgen-ctf-description` |
 | Publish a hackerbot lab sheet to Hacktivity | `convert_hackerbot_to_hacktivity_lab_sheets` |
 | Write/debug module Puppet code | `secgen-puppet` |
-
-Planned (see `agentic_pipeline/ROADMAP.md` Phase 3): write a module, build a
-scenario, provision a VM, write `secgen_test`s, test a module/scenario, add
-requires/conflicts.
 
 ## Environment-specific notes
 
