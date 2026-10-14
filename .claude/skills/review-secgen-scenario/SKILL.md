@@ -7,7 +7,7 @@ description: Review a SecGen scenario (scenarios/**/*.xml) for a coherent, solva
 
 > **Paths** in this skill are relative to the SecGen repository root (or your
 > worktree of it). If your session runs from a parent directory holding several
-> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
 
 A scenario (`scenarios/**/*.xml`) composes modules into a complete challenge: one or more `<system>` VMs, each with a `<base>`, and a set of `<utility>`, `<service>`, and `<vulnerability>` modules wired together with **datastores** (scenario-global variables holding arrays of strings) and generators/encoders.
 
@@ -179,6 +179,6 @@ Offer to run those module reviews next.
 
 Static review can't confirm the scenario actually builds and the kill chain works
 on real VMs. After reviewing, verify it with the **`secgen-test-pipeline`** skill:
-build the scenario with `scripts/secgen-run`, then run each module's `secgen_test` over the
+build the scenario with `scripts/secgen-dev-run`, then run each module's `secgen_test` over the
 Proxmox guest agent with `scripts/secgen-test-run`, and clean the VMs up afterwards. Offer
 this alongside the per-module reviews.

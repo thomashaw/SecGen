@@ -7,7 +7,7 @@ description: End-to-end testing and improvement loop for a SecGen Hackerbot lab 
 
 > **Paths** in this skill are relative to the SecGen repository root (or your
 > worktree of it). If your session runs from a parent directory holding several
-> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
 > The `scripts/`, `assets/` and `references/` named in this skill's tables are
 > bundled with the skill (its base directory), not SecGen's own `scripts/`.
 
@@ -90,7 +90,7 @@ hackerbot:8080 (§4).
 ## Phase 5 - Build and run on Proxmox
 
 1. Build master + the lab's files (pitfalls: never from an old branch base). Cheap checks first
-   (CLAUDE.md), then `scripts/secgen-run --dry-run`, then the real build in the background (~15-20 min).
+   (CLAUDE.md), then `scripts/secgen-dev-run --dry-run`, then the real build in the background (~15-20 min).
 2. `guest-exec` to find the desktop, check the agent, run `--irc-check`, start the full run detached,
    poll, fetch the report (§5). Save it as `reports/runN_<date>.txt` on the branch.
 3. Builds and VMs use shared hardware: only what you were asked to build; destroy them when done.

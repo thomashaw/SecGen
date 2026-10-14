@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Launch a SecGen Proxmox build with an auto-incremented prefix and VLAN.
 #
-# Usage: scripts/secgen-run -s scenario.xml [-p name] [--test] [--dry-run] [-- extra secgen args]
-#        scripts/secgen-run -m modules/<type>/.../<module> [-p name] [--dry-run] [-- extra secgen args]
+# Usage: scripts/secgen-dev-run -s scenario.xml [-p name] [--test] [--dry-run] [-- extra secgen args]
+#        scripts/secgen-dev-run -m modules/<type>/.../<module> [-p name] [--dry-run] [-- extra secgen args]
 #   -s  scenario      (default: $SECGEN_SCENARIO; required if that is unset)
 #   -m  module path   test one module (secgen.rb test-module; implies --test)
 #   -p  prefix name   (default: $SECGEN_NAME, the module name with -m, or "dev") -> <owner>-<name>-NN
@@ -16,7 +16,7 @@
 # their final state, even if the build or a test fails, so you can investigate.
 # Add -- --no-tests to skip the tests. Exit 0 PASS / 1 FAIL (or build failed) / 2 SKIP.
 #
-# Settings (env, or ~/.config/secgen/secgen-run.env):
+# Settings (env, or ~/.config/secgen/secgen-dev-run.env):
 #   SECGEN_RUN_OWNER  first part of the prefix (default: $USER)
 #   SECGEN_VLAN_MIN / SECGEN_VLAN_MAX  VLAN range to cycle through (default 200-1000)
 #   SECGEN_RETRIES    --retries passed to secgen.rb unless given (default 1; absorbs

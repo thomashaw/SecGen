@@ -73,7 +73,7 @@ gets a `test_context.json` (url + user, **no password**; that comes from
 `ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. The whole
 build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
-`scripts/README.md`): `scripts/secgen-run` (build), `scripts/secgen-test-run` (run one
+`scripts/README.md`): `scripts/secgen-dev-run` (build), `scripts/secgen-test-run` (run one
 `secgen_test`), `scripts/pve-check`, `scripts/agent-check`; delete a kept project's VMs with
 `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`. Run them by that path from
 the checkout/worktree you're working in — they build that checkout and find the gems

@@ -1,13 +1,13 @@
 ---
 name: secgen-test-pipeline
-description: Test a SecGen module or scenario end-to-end on Proxmox using the agentic testing pipeline - build a VM, then run its secgen_test over the QEMU Guest Agent (no guest network needed, works after net0 teardown + reboot). Covers writing secgen_tests, the PostProvisionTest guest-agent transport, the build+test loop with secgen-run/secgen-test-run, diagnosing failures via the agent, and cleaning up VMs. Use when asked to test/verify a module or scenario, write a secgen_test, run the pipeline, or debug why a built VM's service/exploit isn't working. Trigger words - "test this module", "run the pipeline", "secgen_test", "does it provision", "verify the service starts", "post-provision test".
+description: Test a SecGen module or scenario end-to-end on Proxmox using the agentic testing pipeline - build a VM, then run its secgen_test over the QEMU Guest Agent (no guest network needed, works after net0 teardown + reboot). Covers writing secgen_tests, the PostProvisionTest guest-agent transport, the build+test loop with secgen-dev-run/secgen-test-run, diagnosing failures via the agent, and cleaning up VMs. Use when asked to test/verify a module or scenario, write a secgen_test, run the pipeline, or debug why a built VM's service/exploit isn't working. Trigger words - "test this module", "run the pipeline", "secgen_test", "does it provision", "verify the service starts", "post-provision test".
 ---
 
 # Test a SecGen module/scenario (Proxmox guest-agent pipeline)
 
 > **Paths** in this skill are relative to the SecGen repository root (or your
 > worktree of it). If your session runs from a parent directory holding several
-> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
 
 This is the automated-verification half of the agentic pipeline (statuses,
 tiers and the results format are in `README-Testing.md`). It answers: *does this module actually provision,
@@ -235,8 +235,8 @@ passed. The format is the results contract in `README-Testing.md`.
 
 ### One shot (preferred): `test-scenario` / `test-module`
 
-`scripts/secgen-run --test -s scenarios/tests/<scn>.xml` (or
-`scripts/secgen-run -m modules/<type>/.../<mod>` for a generated one-system
+`scripts/secgen-dev-run --test -s scenarios/tests/<scn>.xml` (or
+`scripts/secgen-dev-run -m modules/<type>/.../<mod>` for a generated one-system
 scenario holding just that module on `modules/bases/debian_bookworm_desktop_kde`;
 `-- --test-base <name>` picks another base from `modules/bases/`) runs
 `secgen.rb test-scenario` / `test-module`. The test-module scenario is built by
@@ -282,7 +282,7 @@ destroy the VMs via the API and remove the project.
    provisioning net. See the `review-secgen-scenario` skill for scenario rules.
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
-3. Build: `scripts/secgen-run -p <name> -s scenarios/tests/<scn>.xml`
+3. Build: `scripts/secgen-dev-run -p <name> -s scenarios/tests/<scn>.xml`
    (`--dry-run` first). It runs the tests after net0 teardown + reboot and
    writes `test_results/<id>/`, but leaves the VM running in its final state
    whatever the result (`-- --no-tests` to skip them). It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the

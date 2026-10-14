@@ -7,7 +7,7 @@ description: Convert a SecGen Hackerbot lab sheet (a hackerbot_config generator'
 
 > **Paths** in this skill are relative to the SecGen repository root (or your
 > worktree of it). If your session runs from a parent directory holding several
-> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-run`.
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
 > Paths written `HacktivityLabSheets/...` are relative to that checkout (located
 > as described below).
 
