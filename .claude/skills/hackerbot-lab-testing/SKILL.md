@@ -125,7 +125,7 @@ they left unticked. Answer questions mid-test with exact commands for their VM s
 
 ## Phase 9 - Clean up
 
-Destroy the VMs with the repo's `scripts/secgen-destroy <projects/<id>>` (only the VMs in that project's
-`.vagrant/machines/*/proxmox/id`; it checks they're gone and removes the project dir); remove temporary build worktrees (`git worktree remove`; ask
+Destroy the VMs with `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>` (on Proxmox it hard-stops and deletes, through the API, only the VMs in
+that project's `.vagrant/machines/*/proxmox/id`; it checks they're gone and removes the project dir); remove temporary build worktrees (`git worktree remove`; ask
 before `--force` on anything not yours); delete scratch files. Leave the feature branch and its dev
 directory - it's the record of what was tested.

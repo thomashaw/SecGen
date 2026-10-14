@@ -9,11 +9,11 @@ A module may ship a post-provision test at `secgen_test/<name>.rb`, which is a s
 Two commands build, test and then destroy:
 
 ```
-ruby secgen.rb test-scenario scenarios/tests/test_scenario_vsftpd.xml
+ruby secgen.rb test-scenario scenarios/tests/test_scenario_proftpd.xml
 ruby secgen.rb test-module modules/services/unix/ftp/proftpd
 ```
 
-`test-module` generates a one-system scenario holding just that module. Both commands write their results to `test_results/<project-id>/`, destroy the VMs and project unless `--keep-vms` is given, and exit with the worst status across all modules. The helper scripts in `scripts/` (see `scripts/README.md`) wrap these commands for Proxmox development and also run a single test against an existing VM.
+`test-module` generates a one-system scenario holding just that module. Both commands write their results to `test_results/<project-id>/`, destroy the VMs and project unless `--keep-vms` is given, and exit with the worst status across all modules. VMs that were kept can be deleted later with `ruby secgen.rb destroy-project -p projects/<id>`; on Proxmox this hard-stops and deletes them through the API and so needs the Proxmox options (for example `--read-options <conf>`). The helper scripts in `scripts/` (see `scripts/README.md`) wrap these commands for Proxmox development and also run a single test against an existing VM.
 
 ## Tiers
 

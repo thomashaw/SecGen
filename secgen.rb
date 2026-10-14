@@ -11,6 +11,7 @@ require_relative 'lib/helpers/print.rb'
 require_relative 'lib/helpers/gem_exec.rb'
 require_relative 'lib/helpers/ovirt.rb'
 require_relative 'lib/helpers/proxmox.rb'
+require_relative 'lib/helpers/destroy_functions.rb'
 require_relative 'lib/readers/system_reader.rb'
 require_relative 'lib/readers/module_reader.rb'
 require_relative 'lib/output/project_files_creator.rb'
@@ -43,6 +44,7 @@ def usage
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
    --keep-vms: test-scenario/test-module: keep the VMs and project after testing, even on PASS.
+   --keep-project: destroy-project: delete the VMs but keep the project directory.
    --test-base [distro]: test-module: base distro for the test VM (default 'Debian 12').
 
    VIRTUALBOX OPTIONS:
@@ -102,6 +104,10 @@ def usage
               then destroys the VMs and project. Exit 0 PASS, 1 FAIL, 2 SKIP.
    test-module [module path]: As test-scenario, for a one-system scenario holding
               just that module (e.g. modules/services/unix/ftp/proftpd).
+   destroy-project: Deletes the VMs of a previously built project (--project [dir]), then
+              removes the project directory (unless --keep-project). Proxmox projects
+              are hard-stopped and deleted through the API and need the Proxmox
+              options (e.g. --read-options [conf path]); others use vagrant destroy.
    list-scenarios: Lists all scenarios that can be used with the --scenario option
    list-projects: Lists all projects that can be used with the --project option
    delete-all-projects: Deletes all current projects in the projects directory
@@ -237,12 +243,19 @@ def build_vms(scenario, project_dir, options)
             # e.g. the intermittent no-DHCP-lease on the provisioning net, where
             # vagrant gives up waiting for an IP without naming the VM as failed.
             Print.err 'Error creating VMs (could not tell which failed): destroying all VMs and retrying...'
-            GemExec.exe('vagrant', project_dir, 'destroy -f')
+            DestroyFunctions.destroy_vms(project_dir, options)
             retry_count -= 1
             next
           end
           Print.err 'Error creating VMs [' + failures_to_destroy.join(',') + '] destroying VMs and retrying...'
           failures_to_destroy.each do |failed_vm|
+            if ProxmoxFunctions.provider_proxmox?(options)
+              unless DestroyFunctions.destroy_vms(project_dir, options, [failed_vm]).empty?
+                Print.err "Failed to destroy #{failed_vm}. Exiting."
+                exit 1
+              end
+              next
+            end
             destroy = 'destroy ' + failed_vm + ' -f'
             destroy_output = GemExec.exe('vagrant', project_dir, destroy)
             if destroy_output[:status] == 0
@@ -260,14 +273,14 @@ def build_vms(scenario, project_dir, options)
           end
         else # TODO:  elsif vagrant_output[:exception].type == ProcessHelper::TimeoutError   >destroy individually broken vms as above?
           Print.err 'Vagrant up timeout, destroying VMs and retrying...'
-          GemExec.exe('vagrant', project_dir, 'destroy -f')
+          DestroyFunctions.destroy_vms(project_dir, options)
         end
       else
         if options[:nodestroy]
           Print.err "Not destroying failed VM."
         else
           Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
-          GemExec.exe('vagrant', project_dir, 'destroy -f')
+          DestroyFunctions.destroy_vms(project_dir, options)
         end
         exit 1
       end
@@ -541,12 +554,8 @@ def destroy_after_test_failure(scenario, project_dir, options)
     return
   end
   Print.err 'Post-provision tests did not pass: destroying the VMs.'
-  if ProxmoxFunctions.provider_proxmox?(options)
-    remaining = ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
-    Print.err "VMs not destroyed: #{remaining.join(', ')}" unless remaining.empty?
-  else
-    GemExec.exe('vagrant', project_dir, 'destroy -f')
-  end
+  remaining = DestroyFunctions.destroy_vms(project_dir, options)
+  Print.err "VMs not destroyed: #{remaining.join(', ')}" unless remaining.empty?
 end
 
 
@@ -667,7 +676,7 @@ def test_command(command, target, scenario, project_dir, options)
   elsif options[:nodestroy] && summary[:status] != 'PASS'
     Print.info "Keeping the VMs and project (did not PASS; --no-destroy-on-failure): #{project_dir}"
   else
-    test_cleanup(scenario, project_dir, options)
+    test_cleanup(project_dir, options)
   end
   FileUtils.rm_f(generated) if generated
 
@@ -679,20 +688,27 @@ end
 
 # Destroys the VMs a test run built, then removes its project directory
 # (kept if any VM could not be deleted, since it holds their ids).
-def test_cleanup(scenario, project_dir, options)
+def test_cleanup(project_dir, options)
   return unless File.directory?(project_dir)
   Print.info 'Destroying test VMs...'
-  remaining = if ProxmoxFunctions.provider_proxmox?(options)
-                ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
-              else
-                GemExec.exe('vagrant', project_dir, 'destroy -f')[:status] == 0 ? [] : ['(vagrant destroy failed)']
-              end
-  if remaining.empty?
-    FileUtils.rm_rf(project_dir)
-    Print.info "Removed #{project_dir}"
-  else
-    Print.err "VMs not destroyed: #{remaining.join(', ')}. Keeping #{project_dir} for manual cleanup."
+  DestroyFunctions.destroy_project(project_dir, options)
+end
+
+# destroy-project: delete a built project's VMs, then the project directory.
+# The Proxmox options are only required for a Proxmox project.
+def destroy_project_command(project_dir, options)
+  unless project_dir && File.directory?("#{project_dir}/.vagrant/machines")
+    Print.err 'destroy-project needs --project [dir] of a built project (no .vagrant/machines found)'
+    exit 1
   end
+  project_dir = File.expand_path(project_dir)
+  if DestroyFunctions.proxmox_project?(project_dir) && !ProxmoxFunctions.provider_proxmox?(options)
+    Print.err "#{project_dir} was built on Proxmox: pass the Proxmox options " \
+              '(e.g. --read-options [conf path]) so its VMs can be deleted through the API'
+    exit 1
+  end
+  remaining = DestroyFunctions.destroy_project(project_dir, options, remove_project: !options[:keepproject])
+  exit(remaining.empty? ? 0 : 1)
 end
 
 def show_running_time(beginning_time)
@@ -761,6 +777,7 @@ opts = GetoptLong.new(
     ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
     ['--keep-vms', GetoptLong::NO_ARGUMENT],
+    ['--keep-project', GetoptLong::NO_ARGUMENT],
     ['--test-base', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtpass', GetoptLong::REQUIRED_ARGUMENT],
@@ -955,6 +972,8 @@ opts.each do |opt, arg|
     options[:retries] = arg
   when '--keep-vms'
     options[:keepvms] = true
+  when '--keep-project'
+    options[:keepproject] = true
   when '--test-base'
     options[:test_base] = arg
   else
@@ -1012,6 +1031,9 @@ when 'proxmox-post-build'
 
 when 'test-scenario', 'test-module'
   test_command(ARGV[0], ARGV[1], scenario, project_dir, options)
+
+when 'destroy-project'
+  destroy_project_command(project_dir, options)
 
 when 'list-scenarios'
   list_scenarios
