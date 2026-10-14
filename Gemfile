@@ -47,7 +47,8 @@ gem 'huffman', :git => "https://github.com/fgosew/huffman"
 gem 'ruby-graphviz'
 gem 'rsa'
 gem 'gpgmeh'
-gem 'sha3'
+# 2.x API: the sha3 encoders use SHA3::Digest.hexdigest(:sha3_256, ...); 1.x took :sha256
+gem 'sha3', '~> 2.0'
 gem 'packetfu'
 gem 'net-ntp'
 # 3.0.9 declares ruby < 3.2 (4.x needs ruby >= 3.2); 3.0.8 installs on 2.7 to 4.0
