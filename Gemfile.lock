@@ -236,7 +236,7 @@ DEPENDENCIES
   rsa
   ruby-graphviz
   scrypt
-  sha3
+  sha3 (~> 2.0)
   smbhash
   sqlite3
   sshkey
