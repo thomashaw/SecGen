@@ -263,7 +263,7 @@ destroy the VMs via the API and remove the project.
 - `-- --keep-vms` keeps the VMs and project for debugging (even on PASS);
   `-- --no-destroy-on-failure` keeps them only if the build fails or the
   tests don't PASS. Destroy them afterwards with
-  `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`.
+  `scripts/secgen-dev-destroy projects/<id>`.
 - A plain `secgen.rb run` on Proxmox without `--no-tests` uses the same
   order and writes the same report. On PASS it shuts the VMs down unless
   `--proxmox-post-boot`; on a **FAIL or SKIP it destroys them** (the project
@@ -299,7 +299,7 @@ destroy the VMs via the API and remove the project.
    config-syntax checks). A failing test on a genuinely broken module is the
    pipeline working — fix the **module template/manifest**, not the generated
    project, then rebuild.
-6. **Clean up**: `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`
+6. **Clean up**: `scripts/secgen-dev-destroy projects/<id>`
    hard-stops and deletes the project's VMs via the API, checks they're gone,
    and removes the project dir (`--keep-dir` keeps it).
    Remove any scratch files/logs too. Verify no orphans with

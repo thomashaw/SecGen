@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Delete the VMs of one or more built projects with `secgen.rb destroy-project`,
+# passing the Proxmox options file (SECGEN_CONF) by path so its contents never
+# reach a command line. Proxmox VMs are hard-stopped and deleted through the API;
+# other providers use vagrant destroy. Each project directory is then removed
+# unless --keep-dir is given.
+#
+# Usage: scripts/secgen-dev-destroy [--keep-dir] <projects/<id>>...
+set -euo pipefail
+source "$(dirname "$(readlink -f "$0")")/lib/common.sh"
+
+keep=()
+[[ "${1:-}" == "--keep-dir" ]] && { keep=(--keep-dir); shift; }
+[[ $# -ge 1 ]] || { sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+require_conf
+
+status=0
+for project in "$@"; do
+  [[ -d "$project" ]] || { echo "No such project directory: $project" >&2; status=1; continue; }
+  project="$(readlink -f "$project")"
+  ( cd "$SECGEN_DIR" && ruby secgen.rb --read-options "$SECGEN_CONF" -p "$project" "${keep[@]}" destroy-project ) || status=1
+done
+exit "$status"
