@@ -6,11 +6,15 @@
 # and exports BUNDLE_PATH when gems need to come from the main checkout.
 #
 # Per-user settings (SECGEN_RUN_OWNER, VLAN range, ...) can go in
-# ~/.config/secgen/secgen-run.env, which is sourced here if it exists.
+# ~/.config/secgen/secgen-dev-run.env, which is sourced here if it exists
+# (secgen-run.env, its name before secgen-run was renamed, is still read).
 
 SECGEN_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../.." && pwd)"
 
-SECGEN_ENV_FILE="${SECGEN_ENV_FILE:-$HOME/.config/secgen/secgen-run.env}"
+if [[ -z "${SECGEN_ENV_FILE:-}" ]]; then
+  SECGEN_ENV_FILE="$HOME/.config/secgen/secgen-dev-run.env"
+  [[ -f "$SECGEN_ENV_FILE" ]] || SECGEN_ENV_FILE="$HOME/.config/secgen/secgen-run.env"
+fi
 # shellcheck disable=SC1090
 [[ -f "$SECGEN_ENV_FILE" ]] && source "$SECGEN_ENV_FILE"
 

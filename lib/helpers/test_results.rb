@@ -7,7 +7,7 @@ require_relative 'constants.rb'
 require_relative 'print.rb'
 
 # Runs a project's secgen_tests and keeps their results per the results
-# contract (agentic_pipeline/ROADMAP.md):
+# contract (README-Testing.md):
 #
 #   test_results/<project-id>/
 #     summary.json  scenario.xml  build.log

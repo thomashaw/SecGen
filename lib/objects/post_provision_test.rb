@@ -5,7 +5,7 @@
 #
 # Test classes must: require_relative '../../../../../lib/post_provision_test'
 #
-# Results (see agentic_pipeline/ROADMAP.md, "Results contract"):
+# Results (see README-Testing.md, "Results contract"):
 # - every check is PASS / FAIL / SKIP with a tier (1 provisioned, 2 service/tool
 #   works, 3 exploitable);
 # - run writes projects/<id>/test_results/<system>/<module>.json, collects

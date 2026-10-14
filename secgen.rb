@@ -11,11 +11,13 @@ require_relative 'lib/helpers/print.rb'
 require_relative 'lib/helpers/gem_exec.rb'
 require_relative 'lib/helpers/ovirt.rb'
 require_relative 'lib/helpers/proxmox.rb'
+require_relative 'lib/helpers/destroy_functions.rb'
 require_relative 'lib/readers/system_reader.rb'
 require_relative 'lib/readers/module_reader.rb'
 require_relative 'lib/output/project_files_creator.rb'
 require_relative 'lib/helpers/network.rb'
 require_relative 'lib/helpers/test_results.rb'
+require_relative 'lib/test/module_test_scenario.rb'
 
 # Displays secgen usage data
 def usage
@@ -43,7 +45,9 @@ def usage
    --retries [number]: Retry building vms that fail to build this many attempts.
    --no-parallel: Build one VM at a time.
    --keep-vms: test-scenario/test-module: keep the VMs and project after testing, even on PASS.
-   --test-base [distro]: test-module: base distro for the test VM (default 'Debian 12').
+   --keep-project: destroy-project: delete the VMs but keep the project directory.
+   --test-base [base]: test-module: base module for the test VM, as modules/bases/<name> or <name>
+              (default debian_bookworm_desktop_kde).
 
    VIRTUALBOX OPTIONS:
    --gui-output, -g: Show the running VM (not headless)
@@ -102,6 +106,10 @@ def usage
               then destroys the VMs and project. Exit 0 PASS, 1 FAIL, 2 SKIP.
    test-module [module path]: As test-scenario, for a one-system scenario holding
               just that module (e.g. modules/services/unix/ftp/proftpd).
+   destroy-project: Deletes the VMs of a previously built project (--project [dir]), then
+              removes the project directory (unless --keep-project). Proxmox projects
+              are hard-stopped and deleted through the API and need the Proxmox
+              options (e.g. --read-options [conf path]); others use vagrant destroy.
    list-scenarios: Lists all scenarios that can be used with the --scenario option
    list-projects: Lists all projects that can be used with the --project option
    delete-all-projects: Deletes all current projects in the projects directory
@@ -237,12 +245,19 @@ def build_vms(scenario, project_dir, options)
             # e.g. the intermittent no-DHCP-lease on the provisioning net, where
             # vagrant gives up waiting for an IP without naming the VM as failed.
             Print.err 'Error creating VMs (could not tell which failed): destroying all VMs and retrying...'
-            GemExec.exe('vagrant', project_dir, 'destroy -f')
+            DestroyFunctions.destroy_vms(project_dir, options)
             retry_count -= 1
             next
           end
           Print.err 'Error creating VMs [' + failures_to_destroy.join(',') + '] destroying VMs and retrying...'
           failures_to_destroy.each do |failed_vm|
+            if ProxmoxFunctions.provider_proxmox?(options)
+              unless DestroyFunctions.destroy_vms(project_dir, options, [failed_vm]).empty?
+                Print.err "Failed to destroy #{failed_vm}. Exiting."
+                exit 1
+              end
+              next
+            end
             destroy = 'destroy ' + failed_vm + ' -f'
             destroy_output = GemExec.exe('vagrant', project_dir, destroy)
             if destroy_output[:status] == 0
@@ -260,14 +275,14 @@ def build_vms(scenario, project_dir, options)
           end
         else # TODO:  elsif vagrant_output[:exception].type == ProcessHelper::TimeoutError   >destroy individually broken vms as above?
           Print.err 'Vagrant up timeout, destroying VMs and retrying...'
-          GemExec.exe('vagrant', project_dir, 'destroy -f')
+          DestroyFunctions.destroy_vms(project_dir, options)
         end
       else
         if options[:nodestroy]
           Print.err "Not destroying failed VM."
         else
           Print.err 'Error provisioning VMs, destroying VMs and exiting SecGen.'
-          GemExec.exe('vagrant', project_dir, 'destroy -f')
+          DestroyFunctions.destroy_vms(project_dir, options)
         end
         exit 1
       end
@@ -541,87 +556,10 @@ def destroy_after_test_failure(scenario, project_dir, options)
     return
   end
   Print.err 'Post-provision tests did not pass: destroying the VMs.'
-  if ProxmoxFunctions.provider_proxmox?(options)
-    remaining = ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
-    Print.err "VMs not destroyed: #{remaining.join(', ')}" unless remaining.empty?
-  else
-    GemExec.exe('vagrant', project_dir, 'destroy -f')
-  end
+  remaining = DestroyFunctions.destroy_vms(project_dir, options)
+  Print.err "VMs not destroyed: #{remaining.join(', ')}" unless remaining.empty?
 end
 
-
-# Writes a minimal one-system scenario that selects just the module at
-# module_path (plus an account, network and the cleanup build), for test-module.
-def module_test_scenario(module_path, options)
-  rel = module_path.sub(%r{\A#{Regexp.escape(ROOT_DIR)}/}, '').sub(%r{/\z}, '')
-  unless File.exist?("#{ROOT_DIR}/#{rel}/secgen_metadata.xml")
-    Print.err "Not a module (no secgen_metadata.xml): #{module_path}"
-    exit 1
-  end
-  type = { 'vulnerabilities' => 'vulnerability', 'services' => 'service',
-           'utilities' => 'utility' }[rel.split('/')[1]]
-  unless rel.start_with?('modules/') && type
-    Print.err "test-module takes a vulnerability, service or utility module path, e.g. modules/services/unix/ftp/proftpd"
-    exit 1
-  end
-  name = File.basename(rel)
-  base = options[:test_base] || 'Debian 12'
-  # SecGen matches module_path as ^...$, so the exact path selects just this module.
-  accounts = rel.end_with?('/parameterised_accounts') ? '' : <<~XML
-    <utility module_path=".*/parameterised_accounts">
-      <input into="accounts">
-        <datastore>accounts</datastore>
-      </input>
-    </utility>
-  XML
-  xml = <<~XML
-    <?xml version="1.0"?>
-    <scenario xmlns="http://www.github/cliffe/SecGen/scenario"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
-      <name>Test: #{name}</name>
-      <author>secgen.rb test-module</author>
-      <description>Generated by secgen.rb test-module to build and test #{rel}.</description>
-      <type>test</type>
-      <system>
-        <system_name>#{name}_testing</system_name>
-        <base platform="linux" distro="#{base}" type="desktop"/>
-        <input into_datastore="IP_addresses">
-          <network_ip system="#{name}_testing"/>
-        </input>
-        <input into_datastore="accounts">
-          <generator type="account">
-            <input into="username">
-              <generator type="random_sanitised_word">
-                <input into="wordlist"><value>mythical_creatures</value></input>
-              </generator>
-            </input>
-            <input into="password"><generator type="strong_password_generator"/></input>
-            <input into="super_user"><value>false</value></input>
-            <input into="leaked_filenames"><value>flag.txt</value></input>
-            <input into="strings_to_leak"><generator type="flag_generator"/></input>
-          </generator>
-        </input>
-    #{accounts.gsub(/^/, '    ')}
-        <#{type} module_path="#{rel}"/>
-        <network type="private_network"/>
-        <input into_datastore="spoiler_admin_pass">
-          <generator type="strong_password_generator"/>
-        </input>
-        <build type="cleanup">
-          <input into="root_password">
-            <datastore>spoiler_admin_pass</datastore>
-          </input>
-        </build>
-      </system>
-    </scenario>
-  XML
-  FileUtils.mkdir_p(PROJECTS_DIR)
-  path = "#{PROJECTS_DIR}/.test-module_#{name}_#{Time.new.strftime('%Y%m%d_%H%M%S')}.xml"
-  File.write(path, xml)
-  Print.info "Generated test scenario for #{rel}: #{path}"
-  [path, rel]
-end
 
 # test-scenario / test-module: build, test (after net0 teardown + reboot on
 # Proxmox), write test_results/<project-id>/, destroy the VMs and project
@@ -636,7 +574,14 @@ def test_command(command, target, scenario, project_dir, options)
       Print.err 'Usage: secgen.rb [options] test-module <module path>'
       exit 1
     end
-    generated, options[:test_source] = module_test_scenario(target, options)
+    begin
+      test_scenario = ModuleTestScenario.new(target, base: options[:test_base])
+    rescue ArgumentError => e
+      Print.err e.message
+      exit 1
+    end
+    generated = test_scenario.write(ModuleTestScenario.path_for(target, options[:prefix]))
+    options[:test_source] = test_scenario.module_path
     scenario = generated
   elsif target
     scenario = target
@@ -667,7 +612,9 @@ def test_command(command, target, scenario, project_dir, options)
   elsif options[:nodestroy] && summary[:status] != 'PASS'
     Print.info "Keeping the VMs and project (did not PASS; --no-destroy-on-failure): #{project_dir}"
   else
-    test_cleanup(scenario, project_dir, options)
+    return unless File.directory?(project_dir)
+    Print.info 'Destroying test VMs...'
+    DestroyFunctions.destroy_project(project_dir, options)
   end
   FileUtils.rm_f(generated) if generated
 
@@ -677,22 +624,21 @@ def test_command(command, target, scenario, project_dir, options)
   exit(TestResults::EXIT_CODES[status] || 1)
 end
 
-# Destroys the VMs a test run built, then removes its project directory
-# (kept if any VM could not be deleted, since it holds their ids).
-def test_cleanup(scenario, project_dir, options)
-  return unless File.directory?(project_dir)
-  Print.info 'Destroying test VMs...'
-  remaining = if ProxmoxFunctions.provider_proxmox?(options)
-                ProxmoxFunctions::destroy_vms(project_dir, get_vm_names(scenario), options)
-              else
-                GemExec.exe('vagrant', project_dir, 'destroy -f')[:status] == 0 ? [] : ['(vagrant destroy failed)']
-              end
-  if remaining.empty?
-    FileUtils.rm_rf(project_dir)
-    Print.info "Removed #{project_dir}"
-  else
-    Print.err "VMs not destroyed: #{remaining.join(', ')}. Keeping #{project_dir} for manual cleanup."
+# destroy-project: delete a built project's VMs, then the project directory.
+# The Proxmox options are only required for a Proxmox project.
+def destroy_project_command(project_dir, options)
+  unless project_dir && File.directory?("#{project_dir}/.vagrant/machines")
+    Print.err 'destroy-project needs --project [dir] of a built project (no .vagrant/machines found)'
+    exit 1
   end
+  project_dir = File.expand_path(project_dir)
+  if DestroyFunctions.proxmox_project?(project_dir) && !ProxmoxFunctions.provider_proxmox?(options)
+    Print.err "#{project_dir} was built on Proxmox: pass the Proxmox options " \
+              '(e.g. --read-options [conf path]) so its VMs can be deleted through the API'
+    exit 1
+  end
+  remaining = DestroyFunctions.destroy_project(project_dir, options, remove_project: !options[:keepproject])
+  exit(remaining.empty? ? 0 : 1)
 end
 
 def show_running_time(beginning_time)
@@ -761,6 +707,7 @@ opts = GetoptLong.new(
     ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
     ['--keep-vms', GetoptLong::NO_ARGUMENT],
+    ['--keep-project', GetoptLong::NO_ARGUMENT],
     ['--test-base', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtuser', GetoptLong::REQUIRED_ARGUMENT],
     ['--ovirtpass', GetoptLong::REQUIRED_ARGUMENT],
@@ -955,6 +902,8 @@ opts.each do |opt, arg|
     options[:retries] = arg
   when '--keep-vms'
     options[:keepvms] = true
+  when '--keep-project'
+    options[:keepproject] = true
   when '--test-base'
     options[:test_base] = arg
   else
@@ -1012,6 +961,9 @@ when 'proxmox-post-build'
 
 when 'test-scenario', 'test-module'
   test_command(ARGV[0], ARGV[1], scenario, project_dir, options)
+
+when 'destroy-project'
+  destroy_project_command(project_dir, options)
 
 when 'list-scenarios'
   list_scenarios

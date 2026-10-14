@@ -5,6 +5,10 @@ description: Review a SecGen vulnerability/service/utility module for correctnes
 
 # Review a SecGen module
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
+
 Check a SecGen module for internal consistency between its `secgen_metadata.xml` (the declaration of inputs) and its Puppet manifests (the code that consumes those inputs and actually provisions the vulnerable/insecure state).
 
 The single most important property: **every input the module declares must have a sane default, be read by the Puppet code, and — for leak/encode inputs — must actually reach the attacker.** A module that declares `strings_to_leak` but never leaks them is broken: the challenge has no payload to find.
@@ -212,7 +216,7 @@ Verdict: does the challenge actually hand the pen tester its pre-leak clues *bef
 Static review catches declaration/consistency bugs, but not "does it actually
 provision and start on a current base". After reviewing, verify the module on a
 freshly built VM with the **`secgen-test-pipeline`** skill (build a minimal
-`scenarios/tests/` scenario, `scripts/secgen-run`, then `scripts/secgen-test-run`, testing over
+`scenarios/tests/` scenario, `scripts/secgen-dev-run`, then `scripts/secgen-test-run`, testing over
 the Proxmox guest agent). If the module has no `secgen_test/`, that skill covers
 writing one. Real builds surface things review can't — e.g. proftpd passed review
 but failed to start on Debian 12 on a removed config directive.

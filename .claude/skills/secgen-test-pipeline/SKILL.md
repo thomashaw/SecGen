@@ -1,12 +1,16 @@
 ---
 name: secgen-test-pipeline
-description: Test a SecGen module or scenario end-to-end on Proxmox using the agentic testing pipeline - build a VM, then run its secgen_test over the QEMU Guest Agent (no guest network needed, works after net0 teardown + reboot). Covers writing secgen_tests, the PostProvisionTest guest-agent transport, the build+test loop with secgen-run/secgen-test-run, diagnosing failures via the agent, and cleaning up VMs. Use when asked to test/verify a module or scenario, write a secgen_test, run the pipeline, or debug why a built VM's service/exploit isn't working. Trigger words - "test this module", "run the pipeline", "secgen_test", "does it provision", "verify the service starts", "post-provision test".
+description: Test a SecGen module or scenario end-to-end on Proxmox using the agentic testing pipeline - build a VM, then run its secgen_test over the QEMU Guest Agent (no guest network needed, works after net0 teardown + reboot). Covers writing secgen_tests, the PostProvisionTest guest-agent transport, the build+test loop with secgen-dev-run/secgen-test-run, diagnosing failures via the agent, and cleaning up VMs. Use when asked to test/verify a module or scenario, write a secgen_test, run the pipeline, or debug why a built VM's service/exploit isn't working. Trigger words - "test this module", "run the pipeline", "secgen_test", "does it provision", "verify the service starts", "post-provision test".
 ---
 
 # Test a SecGen module/scenario (Proxmox guest-agent pipeline)
 
-This is the automated-verification half of the agentic pipeline (see
-`agentic_pipeline/ROADMAP.md`). It answers: *does this module actually provision,
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
+
+This is the automated-verification half of the agentic pipeline (statuses,
+tiers and the results format are in `README-Testing.md`). It answers: *does this module actually provision,
 and is the intended service/exploit really there on a freshly built VM?* — without
 which agent-generated content can't be trusted.
 
@@ -225,15 +229,20 @@ happy but the check wasn't (e.g. proftpd up on the wrong port), and the
 evidence usually shows why (`listening_ports.txt` showed it on 2121).
 
 `tier_reached` is the highest tier whose checks (and every lower tier's) all
-passed. The format is the results contract in `agentic_pipeline/ROADMAP.md`.
+passed. The format is the results contract in `README-Testing.md`.
+
 ## The build + test loop
 
 ### One shot (preferred): `test-scenario` / `test-module`
 
-`scripts/secgen-run --test -s scenarios/tests/<scn>.xml` (or
-`scripts/secgen-run -m modules/<type>/.../<mod>` for a generated one-system
-scenario holding just that module on Debian 12; `-- --test-base "<distro>"`
-to change it) runs `secgen.rb test-scenario` / `test-module`:
+`scripts/secgen-dev-run --test -s scenarios/tests/<scn>.xml` (or
+`scripts/secgen-dev-run -m modules/<type>/.../<mod>` for a generated one-system
+scenario holding just that module on `modules/bases/debian_bookworm_desktop_kde`;
+`-- --test-base <name>` picks another base from `modules/bases/`) runs
+`secgen.rb test-scenario` / `test-module`. The test-module scenario is built by
+`lib/test/module_test_scenario.rb` and regenerated on every run; if the module
+declares a `<conflict>` with the chosen base, SecGen fails to resolve it before
+any VM is built:
 
 build (with `--retries 1`) → `net0` teardown → snapshot if `--snapshot` →
 start (the one full reboot: static IPs up, reboot-dependent modules settle) →
@@ -253,7 +262,8 @@ destroy the VMs via the API and remove the project.
   means something leaked it and should be fixed at source.
 - `-- --keep-vms` keeps the VMs and project for debugging (even on PASS);
   `-- --no-destroy-on-failure` keeps them only if the build fails or the
-  tests don't PASS. Destroy them afterwards with `scripts/secgen-destroy projects/<id>`.
+  tests don't PASS. Destroy them afterwards with
+  `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`.
 - A plain `secgen.rb run` on Proxmox without `--no-tests` uses the same
   order and writes the same report. On PASS it shuts the VMs down unless
   `--proxmox-post-boot`; on a **FAIL or SKIP it destroys them** (the project
@@ -272,7 +282,7 @@ destroy the VMs via the API and remove the project.
    provisioning net. See the `review-secgen-scenario` skill for scenario rules.
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
-3. Build: `scripts/secgen-run -p <name> -s scenarios/tests/<scn>.xml`
+3. Build: `scripts/secgen-dev-run -p <name> -s scenarios/tests/<scn>.xml`
    (`--dry-run` first). It runs the tests after net0 teardown + reboot and
    writes `test_results/<id>/`, but leaves the VM running in its final state
    whatever the result (`-- --no-tests` to skip them). It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
@@ -289,8 +299,9 @@ destroy the VMs via the API and remove the project.
    config-syntax checks). A failing test on a genuinely broken module is the
    pipeline working — fix the **module template/manifest**, not the generated
    project, then rebuild.
-6. **Clean up**: `scripts/secgen-destroy projects/<id>` stops and deletes the
-   project's VMs via the API, checks they're gone, and removes the project dir.
+6. **Clean up**: `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>`
+   hard-stops and deletes the project's VMs via the API, checks they're gone,
+   and removes the project dir (`--keep-project` keeps it).
    Remove any scratch files/logs too. Verify no orphans with
    `scripts/pve-check --all | grep <vmid>`.
 

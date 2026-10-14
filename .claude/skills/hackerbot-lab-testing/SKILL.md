@@ -5,6 +5,12 @@ description: End-to-end testing and improvement loop for a SecGen Hackerbot lab 
 
 # Hackerbot lab testing loop
 
+> **Paths** in this skill are relative to the SecGen repository root (or your
+> worktree of it). If your session runs from a parent directory holding several
+> repos, prefix them with the SecGen checkout, e.g. `SecGen/scripts/secgen-dev-run`.
+> The `scripts/`, `assets/` and `references/` named in this skill's tables are
+> bundled with the skill (its base directory), not SecGen's own `scripts/`.
+
 A Hackerbot lab chains tasks (each `ready` checks the student's VM over SSH and replies with a flag or a
 hint), and a labsheet tells students what to type. Both rot: commands stop working on new OS versions,
 hints mislead, regexes over random values misfire, and a student who slips at task 4 is stuck at task 11.
@@ -84,7 +90,7 @@ hackerbot:8080 (§4).
 ## Phase 5 - Build and run on Proxmox
 
 1. Build master + the lab's files (pitfalls: never from an old branch base). Cheap checks first
-   (CLAUDE.md), then `scripts/secgen-run --dry-run`, then the real build in the background (~15-20 min).
+   (CLAUDE.md), then `scripts/secgen-dev-run --dry-run`, then the real build in the background (~15-20 min).
 2. `guest-exec` to find the desktop, check the agent, run `--irc-check`, start the full run detached,
    poll, fetch the report (§5). Save it as `reports/runN_<date>.txt` on the branch.
 3. Builds and VMs use shared hardware: only what you were asked to build; destroy them when done.
@@ -119,7 +125,7 @@ they left unticked. Answer questions mid-test with exact commands for their VM s
 
 ## Phase 9 - Clean up
 
-Destroy the VMs with the repo's `scripts/secgen-destroy <projects/<id>>` (only the VMs in that project's
-`.vagrant/machines/*/proxmox/id`; it checks they're gone and removes the project dir); remove temporary build worktrees (`git worktree remove`; ask
+Destroy the VMs with `ruby secgen.rb --read-options <conf> destroy-project -p projects/<id>` (on Proxmox it hard-stops and deletes, through the API, only the VMs in
+that project's `.vagrant/machines/*/proxmox/id`; it checks they're gone and removes the project dir); remove temporary build worktrees (`git worktree remove`; ask
 before `--force` on anything not yours); delete scratch files. Leave the feature branch and its dev
 directory - it's the record of what was tested.
