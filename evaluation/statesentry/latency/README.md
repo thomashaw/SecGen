@@ -24,6 +24,8 @@ those runs.
 | `analyse.py` | Per-stage and end-to-end latency, full distributions, and the indexed-vs-filter comparison. Python 3.6+, no dependencies. Run `python3 analyse.py` with no arguments for the modes and the measurement decisions |
 | `show_runs.py` | Lists the distinct runs in a results file, to find the analysis window |
 | `filter_to_es_json.py` | Converts the pipe-separated filter detections into the layout `analyse.py` reads |
+| `icmp_offset.rb` | Measures the victim − server clock offset with ICMP timestamp requests (as `clockdiff` does), for `analyse.py --victim-offset-ms`. Run as root on the analysis server: `ruby icmp_offset.rb 172.16.0.3 30` |
+| `clock_offset/` | The offset readings for both VM pairs, the single-clock check (`single_clock_test.sh`, its output and `single_clock_analyse.py`), and the offset-corrected analysis of the 31 July runs |
 
 The instrumentation that produced these timestamps is in this branch:
 `modules/services/unix/logging/analysis_alert_action_server/files/filter_ls_conf.yml`
@@ -76,6 +78,31 @@ These rows use the same adjacency pairing as the router row, anchored to each
 detection. Rows that start at the system call compare the monitored VM's clock
 with the analysis server's. "Dispatched" is logged just before the action runs,
 so the last row is a lower bound on what a participant sees.
+
+**The 31 July figures that start at the system call carry a clock offset of
+−488.7 ms.** Neither VM was synchronised by NTP. Measured on 16 October with
+`icmp_offset.rb`, the victim's clock was 488.7 ms (±1.3 ms) behind the analysis
+server's (see `clock_offset/icmp_offset_readings.md`). Every interval that starts
+at the audit timestamp therefore reads about 489 ms too long:
+- the collection stage;
+- system call → detection;
+- system call → first action dispatched.
+
+Intervals measured on the server alone are unaffected. Add
+`--victim-offset-ms -488.7` to either command above to correct them; the
+outputs are in `clock_offset/analysis_dist_31jul_*_corrected.txt`.
+
+| Row | Indexed median | Indexed corrected | Filter median | Filter corrected |
+|---|---|---|---|---|
+| Audit event generation → Logstash ingestion | 1697.1 | 1208.4 | 500.8 | 12.1 |
+| End-to-end (system call → detection) | 4157.8 | 3669.1 | 501.0 | 12.3 |
+| End-to-end (system call → first action dispatched) | 4401.8 | 3913.1 | 806.7 | 318.0 |
+
+This assumes the old pair's offset did not change in the 77 days between the
+runs and the measurement. Two things support that. The 31 July filter-run
+spread (IQR 7.2 ms) matches the re-run's (IQR 6.2 ms), as a fixed shift would.
+Corrected, the 31 July filter run also gives 12.3 ms from system call to
+detection, against 10.3 ms on the re-run's own pair.
 
 `describe` gives the same figures with exclusion counts and structural checks.
 `compare benchmark_results_1.txt benchmark_results_2_es.txt` gives the reduction
@@ -232,17 +259,28 @@ done by hand on the 31 July server.
 
 ### Clocks
 
-Neither guest's clock was NTP-synchronised during any of the runs. The offset
-between victim and server was therefore read before and after every run by
-taking the server's time, the victim's time over ssh, and the server's time
-again, three times in succession. Across all ten readings, the bounds on victim
-minus server lie within −11.2 ms to +193.2 ms and the midpoint estimates within
-75.0 ms to 106.2 ms, with no drift visible over the day. Rows that start at the
-system call (the collection stage and both end-to-end rows) take the audit
-timestamp from the victim's clock and the later boundary from the server's, so
-they carry this offset of roughly 80 to 100 ms; the other rows are measured on
-the server alone. Readings through the Proxmox guest agent bound each guest's
-offset from the host only to about ±5 s, which is too coarse to use here.
+Neither guest's clock was NTP-synchronised during any of the runs. Rows that
+start at the system call take the audit timestamp from the victim's clock and
+the later boundary from the server's, so they include the offset between the
+two clocks. These rows are the collection stage and both end-to-end rows; the
+other rows are measured on the server alone.
+
+**Offset used: −5.9 ms (victim behind the server, ±1.3 ms).** This was measured
+after the runs with `icmp_offset.rb`. A second reading 48 minutes later gave
+−5.6 ms. Both are in `clock_offset/icmp_offset_readings.md`.
+
+Two checks agree with it:
+- **ssh readings during the runs.** Before and after every run the agent took
+  the server's time, the victim's time over ssh, then the server's time again,
+  three times. All ten readings bound victim − server within −11.2 ms to
+  +193.2 ms, with no drift visible over the day. The midpoints of those
+  readings (75 to 106 ms) are not an offset estimate: most of the ssh round trip
+  is spent before the victim's `date` runs, which biases the midpoint upwards.
+- **The single-clock check.** It times the filter path on the server's clock
+  alone and bounds the offset to [−10.6, +4.3] ms.
+
+Readings through the Proxmox guest agent bound each guest's offset from the host
+only to about ±5 s, which is too coarse to use.
 
 ### What was switched between runs
 
@@ -288,7 +326,8 @@ The analysis outputs are `rerun_20261014/analysis_dist_<run>.txt` and
 `analysis_compare_<A>_vs_<B>.txt` for the three comparisons. `compare` labels
 its columns "Indexed" and "Filter"; read these as A and B.
 
-Medians in ms, from the `dist` outputs (n=50 in every cell):
+Medians in ms, from the `dist` outputs (n=50 in every cell), without clock
+correction; the corrected rows follow the table:
 
 | Stage | Run 1, indexed original | Run 2, indexed final | Run 3, filter original | Run 4, filter final |
 |---|---|---|---|---|
@@ -301,13 +340,31 @@ Medians in ms, from the `dist` outputs (n=50 in every cell):
 | End-to-end (system call → first action dispatched) | 5922.4 | 5337.9 | 320.9 | 302.0 |
 | Alert router: receipt → first action dispatched | 135.3 | 108.8 | 154.2 | 132.5 |
 
+The rows that start at the system call, corrected for the measured clock offset
+of −5.9 ms, are listed below. They come from the
+`analysis_dist_<run>_corrected.txt` outputs, made with
+`--victim-offset-ms -5.9`. The rows measured on the server alone are unchanged.
+These are the figures to report.
+
+| Stage, offset-corrected | Run 1, indexed original | Run 2, indexed final | Run 3, filter original | Run 4, filter final |
+|---|---|---|---|---|
+| Audit event generation → Logstash ingestion | 2498.4 | 1742.6 | 10.1 | 10.0 |
+| End-to-end (system call → detection) | 5639.1 | 5019.6 | 10.4 | 10.3 |
+| End-to-end (system call → first action dispatched) | 5916.5 | 5332.0 | 315.0 | 296.1 |
+
+The single-clock check (`clock_offset/`) supports the corrected filter figures
+without using the victim's clock at all. In 20 attempts on the final code, the
+server's own clock put system call → detection at no more than 17.3 to 41.9 ms
+(median 25.7 ms). That bound includes the ssh round trip of 18.8 to 40.8 ms,
+inside which the `cat` runs.
+
 The bootstrap 95% confidence intervals for the difference in median detection
 latency (B − A, 10,000 resamples) are:
 
 | Comparison | Output | Difference | 95% CI |
 |---|---|---|---|
 | Filter path, original (A) vs final (B) | `analysis_compare_filter_original_vs_final.txt` | −0.3 ms | [−3.2, 1.4] |
-| Indexed final (A) vs filter final (B), for Table IV | `analysis_compare_indexed_final_vs_filter_final.txt` | −5009.6 ms | [−6272.4, −4014.7] |
+| Indexed final (A) vs filter final (B), for Table IV | `analysis_compare_indexed_final_vs_filter_final.txt`; offset-corrected: `analysis_compare_indexed_final_vs_filter_final_corrected.txt` | −5009.6 ms (unchanged when corrected) | [−6272.4, −4014.7] |
 | Indexed path, original (A) vs final (B) | `analysis_compare_indexed_original_vs_final.txt` | not valid, see below | |
 
 The following limits apply to these comparisons:
@@ -324,11 +381,17 @@ The following limits apply to these comparisons:
   the two runs' router lines (B is paired over 100 or 150 router events rather
   than 50); that row should be taken from the per-run outputs above. The
   per-event rows are anchored to each detection and are unaffected.
-- **Clock offset.** Rows that start at the system call include the victim to
-  server offset of roughly 80 to 100 ms described under Clocks.
+- **Clock offset.** The difference between two runs on the same pair does not
+  depend on the offset, because the offset is the same in both. So the
+  confidence intervals above are the same with or without the correction.
+  Ratios do depend on it. The reported speed-up for indexed final vs filter
+  final is 310.8× uncorrected and 488.9× corrected, because the filter path's
+  latency is small enough for a few milliseconds to matter. The difference in
+  milliseconds is the robust figure.
 - **Collection stage.** The collection stage (audit event → Logstash
-  ingestion) has a median of 1.7 to 2.5 s in the indexed runs against 16 ms in
-  the filter runs, on the same victim, which was not changed between runs; on
+  ingestion) has a median of 1.7 to 2.5 s in the indexed runs against 10 ms in
+  the filter runs (offset-corrected). This was on the same victim, which was
+  not changed between runs, so the clock offset cannot explain it; on
   the server only the Logstash conf and the state of Elasticsearch differ. This
   accounts for part of the end-to-end gap between the paths and has not been
   explained.

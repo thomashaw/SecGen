@@ -56,6 +56,15 @@ Options:
                            ls_recv, ls_norm, indexed, alert, path, host.
   --dump-csv PREFIX        Write per-record increments, and in dist mode every
                            observation, for independent checking.
+  --victim-offset-ms MS    Measured clock offset of the monitored VM, as
+                           victim minus analysis server, in milliseconds
+                           (negative when the victim's clock is behind). It
+                           is subtracted from each audit timestamp before any
+                           interval is computed. Give it once to apply to
+                           every file, or once per file in file order (for
+                           compare, the first value is for the first file).
+                           Default 0, meaning the clocks are assumed to agree.
+                           Measure it with icmp_offset.rb (decision 8).
 
 Measurement decisions, recorded here because each one materially affects the
 figures produced:
@@ -98,10 +107,23 @@ figures produced:
      not detection; it is relabelled accordingly and its figures are unchanged.
      The audit timestamp comes from the monitored VM's clock and every later
      boundary from the analysis server's, so intervals that start at the
-     system call assume the two clocks agree; router launch and dispatch are
-     measured on one host. 'Dispatched' is logged immediately before an action
+     system call assume the two clocks agree unless --victim-offset-ms
+     corrects them (decision 8); router launch and dispatch are measured on
+     one host. 'Dispatched' is logged immediately before an action
      executes, so system call -> first dispatch is a lower bound on the time
      at which a participant sees the response.
+  8. Clock offset between the monitored VM and the analysis server. The audit
+     timestamp is on the monitored VM's clock and every other boundary on the
+     server's, so each interval that starts at the system call (the
+     collection stage and both end-to-end rows) includes the difference
+     between the two clocks. Neither VM in the benchmark set is synchronised
+     by NTP. The offset is therefore measured separately with
+     icmp_offset.rb (ICMP timestamp requests from the server, as clockdiff
+     does, with an error of about +/- 1.3 ms) and supplied with
+     --victim-offset-ms, which subtracts it from the audit timestamp after the
+     alert join and router pairing and before any interval is computed. The
+     window and the match_time check use the audit timestamp as recorded.
+     Intervals measured on the server alone are unaffected.
 """
 
 import argparse
@@ -495,6 +517,8 @@ class Event(object):
         self.host = str(h) if h is not None else None
         self.alert_doc = None
         self.dispatch_ts = None
+        # audit timestamp as recorded, before any --victim-offset-ms correction
+        self.audit_raw = self.t.get("audit")
 
     def increment(self, a, b):
         if a in self.t and b in self.t:
@@ -760,11 +784,12 @@ def attach_response(usable, router_lines, res, args):
                 % (pe["n"], pe["median"], rs["n"], rs["median"]))
 
 
-def analyse(path, label, args):
+def analyse(path, label, args, victim_offset_ms=0.0):
     data = load(path)
     res = {"path": path, "label": label, "sections": data["sections"],
            "notes": [], "warnings": [], "errors": data["errors"],
-           "hops": {}, "router_stats": None, "router_pairs": {}}
+           "hops": {}, "router_stats": None, "router_pairs": {},
+           "victim_offset_ms": victim_offset_ms}
 
     events = [Event(i, d) for i, d in data["events"]]
     # An elastalert_status document carries the whole pipeline inside
@@ -805,6 +830,19 @@ def analyse(path, label, args):
         join_alerts(kept, data["alerts"], args.join_tolerance_ms, res)
     attach_router(kept, data["router"], res, args)
 
+    # Clock correction (measurement decision 8). Applied after the alert join,
+    # which matches on the audit timestamp exactly as recorded; the window and
+    # the match_time check below also use the recorded value.
+    if victim_offset_ms:
+        for e in kept:
+            if "audit" in e.t:
+                e.t["audit"] = e.audit_raw - victim_offset_ms
+        res["notes"].append(
+            "Audit timestamps moved onto the analysis server's clock by "
+            "subtracting a victim clock offset of %+.1f ms (--victim-offset-ms); "
+            "every interval that starts at the system call is corrected, the "
+            "rest are unchanged." % victim_offset_ms)
+
     # exclusion policy
     reasons = Counter()
     usable = []
@@ -813,10 +851,10 @@ def analyse(path, label, args):
         if "audit" not in e.t:
             reasons["no audit timestamp"] += 1
             continue
-        if args.window_start is not None and e.t["audit"] < args.window_start:
+        if args.window_start is not None and e.audit_raw < args.window_start:
             reasons["before window start"] += 1
             continue
-        if args.window_end is not None and e.t["audit"] > args.window_end:
+        if args.window_end is not None and e.audit_raw > args.window_end:
             reasons["after window end"] += 1
             continue
         neg, big = [], []
@@ -891,7 +929,7 @@ def structural_checks(res):
         if mt is None:
             continue
         tot += 1
-        if abs(mt - e.t["audit"]) < 1.0:
+        if abs(mt - e.audit_raw) < 1.0:
             same += 1
     if tot and float(same) / tot > 0.9:
         res["warnings"].append(
@@ -1319,7 +1357,21 @@ def main():
     p.add_argument("--router-max-gap-s", type=float, default=10.0)
     p.add_argument("--map", action="append", default=[], metavar="STAGE=FIELD")
     p.add_argument("--dump-csv")
+    p.add_argument("--victim-offset-ms", action="append", type=float,
+                   default=[], metavar="MS")
     args = p.parse_args()
+
+    # one offset for every file, or one per file in the order given
+    if not args.victim_offset_ms:
+        offsets = [0.0] * len(args.files)
+    elif len(args.victim_offset_ms) == 1:
+        offsets = args.victim_offset_ms * len(args.files)
+    elif len(args.victim_offset_ms) == len(args.files):
+        offsets = list(args.victim_offset_ms)
+    else:
+        sys.exit("--victim-offset-ms: give one value, or one per file (%d)"
+                 % len(args.files))
+    offset_of = dict(zip(args.files, offsets))
 
     for spec in args.map:
         if "=" not in spec:
@@ -1356,10 +1408,14 @@ def main():
     print("  per-hop ceiling: %.0f s (benchmark repetition spacing)"
           % args.max_hop_s)
     print("  join tolerance: %.0f ms" % args.join_tolerance_ms)
+    for f in args.files:
+        print("  victim clock offset (victim - server): %+.1f ms for %s%s"
+              % (offset_of[f], f,
+                 "" if offset_of[f] else " (uncorrected)"))
 
     if args.mode == "dist":
         for f in args.files:
-            res = analyse(f, "described", args)
+            res = analyse(f, "described", args, offset_of[f])
             distribution_table(res)
             if args.dump_csv:
                 dump_values(res, args.dump_csv)
@@ -1367,7 +1423,7 @@ def main():
 
     if args.mode == "describe":
         for f in args.files:
-            res = analyse(f, "described", args)
+            res = analyse(f, "described", args, offset_of[f])
             report(res)
             if args.dump_csv:
                 dump_csv(res, args.dump_csv)
@@ -1375,8 +1431,10 @@ def main():
 
     if len(args.files) != 2:
         sys.exit("compare takes exactly two files: INDEXED then FILTER")
-    a = analyse(args.files[0], "indexed implementation", args)
-    b = analyse(args.files[1], "filter-based implementation", args)
+    a = analyse(args.files[0], "indexed implementation", args,
+                offsets[0])
+    b = analyse(args.files[1], "filter-based implementation", args,
+                offsets[1])
     print("")
     print("--- INDEXED (ES/ElastAlert) PATH ---")
     report(a)
