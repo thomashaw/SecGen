@@ -42,9 +42,9 @@ Inspect the message *m* after the encryption (ciphertext)
 
 ```python3
 >>> print(c)
-b'b\xe8\x90l\xfaT\x04\x12\xc4\\\xE7)\x84\xdc\x84H'
+b'b\xe8\x90l\xfaT\x04\x12\xc4\\\xe7)\x84\xdc\x84H'
 >>> print(c.hex())
->>>62e8906cfa540412c45ce72984dc8448
+62e8906cfa540412c45ce72984dc8448
 >>>
 ```
 
@@ -76,7 +76,7 @@ b'Winter is coming'
 We can also convert in hexadecimal representations of byte data back into the byte format with:
 
 ```python3
-new_ct = bytes.fromhex("da499ebff95df3e293e3e359cb20d28d")
+>>> new_ct = bytes.fromhex("da499ebff95df3e293e3e359cb20d28d")
 ```
 
 Now decrypt the ciphertext above using the same key as above to reveal another message.
