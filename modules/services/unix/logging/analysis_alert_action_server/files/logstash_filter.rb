@@ -4,10 +4,14 @@
 def register(params)
   @hostname = 'tom-noekea-2-experiment-aaa-hackme-desktop'
   @router   = '/usr/bin/ruby /opt/alert_actioner/alert_router.rb raise --alert-name'
-  @read_executables = [
-    '/bin/cat', '/usr/bin/vim.basic', '/usr/bin/less',
-    '/bin/more', '/bin/nano', '/usr/bin/kate'
-  ]
+  # Each reader under /bin and /usr/bin: auditd records the resolved path, and
+  # on this base (Debian 10, not usr-merged) less is /bin/less.
+  # Interactive viewers and single-file stream tools. Recursive tools (grep, cp)
+  # and interpreters (awk, python3, perl, bash) are left out: they read many files
+  # in one command, and sweeps are not yet told apart from targeted reads.
+  @read_executables = %w[cat less more nano vim.basic kate head tail tac nl sort cut
+                         strings base64 od xxd sed dd]
+                        .flat_map { |p| ["/bin/#{p}", "/usr/bin/#{p}"] }
   @acc_actions = ['user_login', 'started-session', 'acquired-credentials', 'opened-file']
 end
 
@@ -26,11 +30,14 @@ def filter(event)
     user_name     = event.get('[user][name]')
     related_users = event.get('[related][user]')
 
-    # ── readable_shadow-rf-0 ──────────────────────────────────────────────
+    # ── readable_shadow-rf-0 (read_by: challenger) ────────────────────────
+    # Only the goal account's reads count; root or another account reading
+    # the file is not the student completing this goal.
     if action == 'opened-file' &&
        result == 'success' &&
        combined_path == '/etc/shadow' &&
-       @read_executables.include?(executable)
+       @read_executables.include?(executable) &&
+       user_name == 'challenger'
       fire(event, "#{@hostname}-readable_shadow-rf-0")
     end
 

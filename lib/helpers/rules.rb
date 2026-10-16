@@ -4,6 +4,17 @@ require_relative './scenario.rb'
 class Rules
   # Generate audit and alerting rules
 
+  # Programs whose opening of a goal file counts as reading it. Each is listed
+  # under /bin and /usr/bin, because auditd records the resolved executable path
+  # and which of the two a program resolves to depends on the base (e.g. less is
+  # /bin/less on Debian 10, /usr/bin/less on usr-merged bases).
+  # Interactive viewers and single-file stream tools. Recursive tools (grep, cp)
+  # and interpreters (awk, python3, perl, bash) are left out: they read many files
+  # in one command, and sweeps are not yet told apart from targeted reads.
+  READ_PROGRAMS = %w[cat less more nano vim.basic kate head tail tac nl sort cut
+                     strings base64 od xxd sed dd].freeze
+  READ_EXECUTABLES = READ_PROGRAMS.flat_map { |p| ["/bin/#{p}", "/usr/bin/#{p}"] }.freeze
+
   def self.generate_auditbeat_rules(goals)
     rules = []
     goals.each do |goal|
@@ -78,13 +89,22 @@ class Rules
         '        query: "event.action: opened-file"' + "\n" +
         "  - query:\n" +
         "      query_string:\n" +
-        "        query: \"process.executable: \\\"/bin/cat\\\" OR \\\"/usr/bin/vim.basic\\\" OR \\\"/usr/bin/less\\\" OR \\\"/bin/more\\\" OR \\\"/bin/nano\\\" OR  \\\"/usr/bin/kate\\\"\"" + "\n" +
+        "        query: \"process.executable: (" + READ_EXECUTABLES.map { |e| "\\\"#{e}\\\"" }.join(' OR ') + ")\"" + "\n" +
+        read_by_filter(goal) +
         "alert:\n" +
         "  - \"elastalert.modules.alerter.exec.ExecAlerter\"\n" +
         "command: [\"/usr/bin/ruby\", \"/opt/alert_actioner/alert_router.rb\", \"raise\", \"--alert-name\", \"" + get_ea_rulename(hostname, source_name, goal, counter) +"\"]\n" +
         "pipe_match_json: true\n" +
         "realert:\n" +
         "  minutes: 0\n"
+  end
+
+  # Optional read_by on a read_file goal: only reads by that account count.
+  def self.read_by_filter(goal)
+    return '' if goal['read_by'].nil? || goal['read_by'].empty?
+    "  - query:\n" +
+        "      query_string:\n" +
+        '        query: "user.name: \"' + goal['read_by'] + '\""' + "\n"
   end
 
   def self.generate_elastalert_rule_acc(hostname, source_name, goal, counter)
