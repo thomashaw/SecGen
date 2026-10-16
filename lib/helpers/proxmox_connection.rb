@@ -78,14 +78,24 @@ module Proxmox
       task_type = /UPID:.*?:.*?:.*?:.*?:(.*)?:.*?:.*?:/.match(task_upid)[1]
       timeout = imgcopy_timeout if task_type == 'imgcopy'
       begin
-        retryable(on: Proxmox::ProxmoxTaskNotFinished,
-                  tries: timeout / task_status_check_interval + 1,
-                  sleep: task_status_check_interval) do
+        with_retries(on: Proxmox::ProxmoxTaskNotFinished,
+                     tries: timeout / task_status_check_interval + 1,
+                     sleep: task_status_check_interval) do
           exit_status = get_task_exitstatus task_upid
           exit_status.nil? ? raise(Proxmox::ProxmoxTaskNotFinished) : exit_status
         end
       rescue Proxmox::ProxmoxTaskNotFinished
         raise Proxmox::ProxmoxTaskTimeout, timeout_message
+      end
+    end
+
+    # retryable 3.x removed the Kernel#retryable method that 1.x/2.x provided;
+    # call Retryable.retryable where it exists so either gem version works.
+    def with_retries(**options, &block)
+      if Retryable.respond_to?(:retryable)
+        Retryable.retryable(**options, &block)
+      else
+        retryable(**options, &block)
       end
     end
 
