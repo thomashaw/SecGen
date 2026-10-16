@@ -1,0 +1,58 @@
+==============================================================================
+StateSentry Pipeline Latency Characterisation
+==============================================================================
+Exclusion policy, applied identically to every file:
+  window: 1792151071000.0 .. 1792152718000.0
+  goal paths: /etc/shadow
+  per-hop ceiling: 32 s (benchmark repetition spacing)
+  join tolerance: 1 ms
+
+File: rerun_20261014/filter_original_es.txt [described]
+    section FILTER DETECTIONS                        events=50
+    section ALERT ROUTER BENCHMARK LINES             router=502
+
+  secgen-events documents: 50
+  elastalert_status documents: 0, joined to an event: 0, unjoinable: 0
+  usable events after exclusions: 50
+
+  Stage timestamps present in usable events:
+      audit      50/50
+      ls_recv    50/50
+      ls_norm    50/50
+      indexed    0/50   <-- not universal
+      alert      50/50
+
+  Boundary increments:
+      h1 Audit event generation -> Logstash ingestion:
+          n=50, median=16.0, IQR=5.8 (Q1=14.1, Q3=19.8)
+          min=10.2  p90=25.2  p95=26.9  p99=31.7  max=32.6
+      h2 Logstash normalisation:
+          n=50, median=0.1, IQR=0.0 (Q1=0.0, Q3=0.1)
+          min=0.0  p90=0.2  p95=0.3  p99=0.5  max=0.5
+      h3 Logstash output -> ES searchable: not measurable
+      h4 ES searchable -> detector match: not measurable
+      h5 Alert router: receipt -> first action dispatched (window-based pairing):
+          n=50 (see pairing note), median=154.2ms, IQR=134.7ms, min=11.1ms, max=282.7ms
+
+  End-to-end, measured directly (audit event -> detector match):
+      n=50, median=16.3, IQR=6.7 (Q1=14.3, Q3=21.1)
+      min=10.3  p90=25.4  p95=27.1  p99=31.8  max=32.8
+      ! p99 draws 51% of its weight from the single largest observation at n=50; it is an order statistic rather than an estimate of the population p99 (roughly n>=999 would be required).
+      (sum of hop medians = 16.1ms, differing from the measured median by +0.2ms; medians of components do not sum to the median of the total, so this is expected)
+
+  Response time, paired per event (see decision 7 and notes):
+      Detection -> alert router receives alert:
+          n=50, median=149.2, IQR=8.8 (Q1=144.6, Q3=153.4)
+          min=135.8  p90=160.1  p95=162.5  p99=194.5  max=221.7
+      Detection -> first action dispatched:
+          n=50, median=303.0, IQR=126.2 (Q1=238.2, Q3=364.4)
+          min=152.8  p90=397.5  p95=401.4  p99=418.0  max=428.4
+      End-to-end (system call -> first action dispatched):
+          n=50, median=320.9, IQR=120.3 (Q1=259.6, Q3=380.0)
+          min=164.7  p90=413.1  p95=421.1  p99=430.8  max=438.7
+
+  Notes:
+      - Router log prefix runs 60 minute(s) from the payload timestamp on the same line, consistent with the Ruby logger writing local time whilst the payload is UTC. The payload is used throughout, so this does not affect any figure.
+      - Router latency is paired by ADJACENCY, not by identifier, because the log lines carry none: 50 pair(s) formed within 10 s, with 0 orphan raise(s) and 50 unmatched dispatch(es). Add a goal or correlation identifier to both log lines before this row is reported in the paper.
+      - Response time is paired PER EVENT by adjacency (decision 7): 50 of 50 detection(s) matched to a router receipt and a first dispatch within 10 s, 0 with no receipt, 0 with no dispatch. Rows starting at the system call assume the monitored VM and analysis server clocks agree; 'dispatched' marks the start of the action, not its completion.
+      - Tiling unverified: no event carries all four intermediate boundaries plus a joined alert.
