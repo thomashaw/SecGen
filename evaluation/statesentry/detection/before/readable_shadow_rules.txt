@@ -1,0 +1,26 @@
+# Auditbeat rule (audit.rules.d)
+-w /etc/ -p r -k etc
+
+# ElastAlert rule
+name: tom-noekea-2-experiment-aaa-hackme-desktop-readable_shadow-rf-0
+type: any
+index: secgen-*
+filter:
+  - query:
+      query_string:
+        query: "combined_path: \"/etc/shadow\""
+  - query:
+      query_string:
+        query: "auditd.result: success"
+  - query:
+      query_string:
+        query: "event.action: opened-file"
+  - query:
+      query_string:
+        query: "process.executable: \"/bin/cat\" OR \"/usr/bin/vim.basic\" OR \"/usr/bin/less\" OR \"/bin/more\" OR \"/bin/nano\" OR  \"/usr/bin/kate\""
+alert:
+  - "elastalert.modules.alerter.exec.ExecAlerter"
+command: ["/usr/bin/ruby", "/opt/alert_actioner/alert_router.rb", "raise", "--alert-name", "tom-noekea-2-experiment-aaa-hackme-desktop-readable_shadow-rf-0"]
+pipe_match_json: true
+realert:
+  minutes: 0

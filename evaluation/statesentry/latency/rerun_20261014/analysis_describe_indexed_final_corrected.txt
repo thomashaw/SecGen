@@ -1,0 +1,67 @@
+==============================================================================
+StateSentry Pipeline Latency Characterisation
+==============================================================================
+Exclusion policy, applied identically to every file:
+  window: 1792149011000.0 .. 1792150657000.0
+  goal paths: /etc/shadow
+  per-hop ceiling: 32 s (benchmark repetition spacing)
+  join tolerance: 1 ms
+  victim clock offset (victim - server): -5.9 ms for rerun_20261014/indexed_final.txt
+
+File: rerun_20261014/indexed_final.txt [described]
+    section ELASTALERT STATUS (all goal alerts)      alerts=150
+    section SECGEN EVENTS (goal paths only)          events=0
+    section ALERT ROUTER BENCHMARK LINES             router=352
+
+  secgen-events documents: 150
+  elastalert_status documents: 150, joined to an event: 150, unjoinable: 0
+  usable events after exclusions: 50
+      excluded  100: before window start
+
+  Stage timestamps present in usable events:
+      audit      50/50
+      ls_recv    50/50
+      ls_norm    50/50
+      indexed    50/50
+      alert      50/50
+
+  Boundary increments:
+      h1 Audit event generation -> Logstash ingestion:
+          n=50, median=1742.6, IQR=2555.3 (Q1=1416.3, Q3=3971.6)
+          min=1180.2  p90=6349.8  p95=6803.6  p99=7930.8  max=8766.2
+      h2 Logstash normalisation:
+          n=50, median=0.1, IQR=0.1 (Q1=0.1, Q3=0.2)
+          min=0.1  p90=0.3  p95=0.4  p99=0.9  max=1.1
+      h3 Logstash output -> ES searchable:
+          n=50, median=28.9, IQR=23.7 (Q1=21.2, Q3=44.8)
+          min=11.4  p90=111.4  p95=139.8  p99=259.4  max=335.3
+      h4 ES searchable -> detector match:
+          n=50, median=2266.4, IQR=2527.7 (Q1=1085.9, Q3=3613.6)
+          min=367.6  p90=4856.3  p95=5481.4  p99=5891.6  max=5895.2
+      h5 Alert router: receipt -> first action dispatched (window-based pairing):
+          n=50 (see pairing note), median=108.8ms, IQR=106.5ms, min=15.4ms, max=259.9ms
+
+  End-to-end, measured directly (audit event -> detector match):
+      n=50, median=5019.6, IQR=3415.9 (Q1=3770.5, Q3=7186.4)
+      min=1859.2  p90=8129.7  p95=9576.4  p99=9965.8  max=10114.4
+      ! p99 draws 51% of its weight from the single largest observation at n=50; it is an order statistic rather than an estimate of the population p99 (roughly n>=999 would be required).
+      (sum of hop medians = 4038.0ms, differing from the measured median by +981.6ms; medians of components do not sum to the median of the total, so this is expected)
+
+  Response time, paired per event (see decision 7 and notes):
+      Detection -> alert router receives alert:
+          n=50, median=148.6, IQR=9.2 (Q1=142.7, Q3=151.9)
+          min=130.9  p90=157.4  p95=168.2  p99=171.5  max=172.7
+      Detection -> first action dispatched:
+          n=50, median=250.7, IQR=106.4 (Q1=216.4, Q3=322.8)
+          min=153.9  p90=351.5  p95=386.5  p99=407.1  max=408.3
+      End-to-end (system call -> first action dispatched):
+          n=50, median=5332.0, IQR=3514.6 (Q1=4035.1, Q3=7549.8)
+          min=2167.2  p90=8409.5  p95=9791.5  p99=10332.6  max=10522.7
+
+  Tiling |detection - sum(hops)| per event: median=0.000ms, max=0.000ms
+
+  Notes:
+      - Router log prefix runs 60 minute(s) from the payload timestamp on the same line, consistent with the Ruby logger writing local time whilst the payload is UTC. The payload is used throughout, so this does not affect any figure.
+      - Router latency is paired by ADJACENCY, not by identifier, because the log lines carry none: 50 pair(s) formed within 10 s, with 0 orphan raise(s) and 50 unmatched dispatch(es). Add a goal or correlation identifier to both log lines before this row is reported in the paper.
+      - Audit timestamps moved onto the analysis server's clock by subtracting a victim clock offset of -5.9 ms (--victim-offset-ms); every interval that starts at the system call is corrected, the rest are unchanged.
+      - Response time is paired PER EVENT by adjacency (decision 7): 50 of 50 detection(s) matched to a router receipt and a first dispatch within 10 s, 0 with no receipt, 0 with no dispatch. Rows starting at the system call assume the monitored VM and analysis server clocks agree; 'dispatched' marks the start of the action, not its completion.

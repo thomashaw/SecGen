@@ -1,0 +1,155 @@
+==============================================================================
+StateSentry Pipeline Latency Characterisation
+==============================================================================
+Exclusion policy, applied identically to every file:
+  window: 1792147033000.0 .. 1792150657000.0
+  goal paths: /etc/shadow
+  per-hop ceiling: 32 s (benchmark repetition spacing)
+  join tolerance: 1 ms
+
+--- INDEXED (ES/ElastAlert) PATH ---
+
+File: rerun_20261014/indexed_original.txt [indexed implementation]
+    section ELASTALERT STATUS (all goal alerts)      alerts=100
+    section SECGEN EVENTS (goal paths only)          events=0
+    section ALERT ROUTER BENCHMARK LINES             router=202
+
+  secgen-events documents: 100
+  elastalert_status documents: 100, joined to an event: 100, unjoinable: 0
+  usable events after exclusions: 50
+      excluded   50: before window start
+
+  Stage timestamps present in usable events:
+      audit      50/50
+      ls_recv    50/50
+      ls_norm    50/50
+      indexed    50/50
+      alert      50/50
+
+  Boundary increments:
+      h1 Audit event generation -> Logstash ingestion:
+          n=50, median=2504.3, IQR=2482.5 (Q1=1374.5, Q3=3857.0)
+          min=1091.9  p90=4717.1  p95=5115.8  p99=5657.1  max=5869.3
+      h2 Logstash normalisation:
+          n=50, median=0.1, IQR=0.2 (Q1=0.1, Q3=0.3)
+          min=0.1  p90=0.6  p95=0.8  p99=0.9  max=1.0
+      h3 Logstash output -> ES searchable:
+          n=50, median=35.5, IQR=28.7 (Q1=20.7, Q3=49.4)
+          min=10.9  p90=99.3  p95=172.5  p99=337.0  max=393.1
+      h4 ES searchable -> detector match:
+          n=50, median=2513.8, IQR=2311.1 (Q1=1776.9, Q3=4088.0)
+          min=620.3  p90=4858.5  p95=5234.2  p99=5616.5  max=5645.7
+      h5 Alert router: receipt -> first action dispatched (window-based pairing):
+          n=50 (see pairing note), median=135.3ms, IQR=136.9ms, min=8.5ms, max=276.2ms
+
+  End-to-end, measured directly (audit event -> detector match):
+      n=50, median=5645.0, IQR=2681.1 (Q1=3974.3, Q3=6655.3)
+      min=2021.9  p90=8552.5  p95=8836.9  p99=10387.6  max=10754.9
+      ! p99 draws 51% of its weight from the single largest observation at n=50; it is an order statistic rather than an estimate of the population p99 (roughly n>=999 would be required).
+      (sum of hop medians = 5053.6ms, differing from the measured median by +591.3ms; medians of components do not sum to the median of the total, so this is expected)
+
+  Response time, paired per event (see decision 7 and notes):
+      Detection -> alert router receives alert:
+          n=50, median=143.1, IQR=8.5 (Q1=139.7, Q3=148.2)
+          min=132.7  p90=155.1  p95=159.6  p99=164.2  max=165.8
+      Detection -> first action dispatched:
+          n=50, median=278.1, IQR=139.1 (Q1=215.7, Q3=354.8)
+          min=157.8  p90=386.5  p95=399.9  p99=419.7  max=435.7
+      End-to-end (system call -> first action dispatched):
+          n=50, median=5922.4, IQR=2682.0 (Q1=4226.3, Q3=6908.3)
+          min=2381.7  p90=8851.7  p95=9167.0  p99=10663.6  max=10956.1
+
+  Tiling |detection - sum(hops)| per event: median=0.000ms, max=0.000ms
+
+  Notes:
+      - Router log prefix runs 60 minute(s) from the payload timestamp on the same line, consistent with the Ruby logger writing local time whilst the payload is UTC. The payload is used throughout, so this does not affect any figure.
+      - Router latency is paired by ADJACENCY, not by identifier, because the log lines carry none: 50 pair(s) formed within 10 s, with 0 orphan raise(s) and 50 unmatched dispatch(es). Add a goal or correlation identifier to both log lines before this row is reported in the paper.
+      - Response time is paired PER EVENT by adjacency (decision 7): 50 of 50 detection(s) matched to a router receipt and a first dispatch within 10 s, 0 with no receipt, 0 with no dispatch. Rows starting at the system call assume the monitored VM and analysis server clocks agree; 'dispatched' marks the start of the action, not its completion.
+
+--- FILTER-BASED PATH ---
+
+File: rerun_20261014/indexed_final.txt [filter-based implementation]
+    section ELASTALERT STATUS (all goal alerts)      alerts=150
+    section SECGEN EVENTS (goal paths only)          events=0
+    section ALERT ROUTER BENCHMARK LINES             router=352
+
+  secgen-events documents: 150
+  elastalert_status documents: 150, joined to an event: 150, unjoinable: 0
+  usable events after exclusions: 100
+      excluded   50: before window start
+
+  Stage timestamps present in usable events:
+      audit      100/100
+      ls_recv    100/100
+      ls_norm    100/100
+      indexed    100/100
+      alert      100/100
+
+  Boundary increments:
+      h1 Audit event generation -> Logstash ingestion:
+          n=100, median=2090.0, IQR=2494.0 (Q1=1381.3, Q3=3875.2)
+          min=1091.9  p90=5298.6  p95=6350.1  p99=7084.4  max=8772.1
+      h2 Logstash normalisation:
+          n=100, median=0.1, IQR=0.2 (Q1=0.1, Q3=0.3)
+          min=0.1  p90=0.4  p95=0.6  p99=1.0  max=1.1
+      h3 Logstash output -> ES searchable:
+          n=100, median=31.8, IQR=28.3 (Q1=21.1, Q3=49.4)
+          min=10.9  p90=109.8  p95=144.5  p99=335.9  max=393.1
+      h4 ES searchable -> detector match:
+          n=100, median=2358.6, IQR=2220.6 (Q1=1500.0, Q3=3720.6)
+          min=367.6  p90=4857.4  p95=5332.6  p99=5887.9  max=5895.2
+      h5 Alert router: receipt -> first action dispatched (window-based pairing):
+          n=100 (see pairing note), median=117.9ms, IQR=116.2ms, min=8.5ms, max=276.2ms
+
+  End-to-end, measured directly (audit event -> detector match):
+      n=100, median=5448.1, IQR=3272.8 (Q1=3777.7, Q3=7050.5)
+      min=1865.1  p90=8552.5  p95=9522.4  p99=10126.6  max=10754.9
+      ! p99 rests on only 1 observation(s) above it at n=100; roughly n>=999 would be required for a stable estimate.
+      (sum of hop medians = 4480.6ms, differing from the measured median by +967.5ms; medians of components do not sum to the median of the total, so this is expected)
+
+  Response time, paired per event (see decision 7 and notes):
+      Detection -> alert router receives alert:
+          n=100, median=144.9, IQR=11.0 (Q1=140.1, Q3=151.1)
+          min=130.9  p90=156.8  p95=162.6  p99=170.2  max=172.7
+      Detection -> first action dispatched:
+          n=100, median=266.5, IQR=123.3 (Q1=215.0, Q3=338.3)
+          min=153.9  p90=375.7  p95=399.9  p99=408.5  max=435.7
+      End-to-end (system call -> first action dispatched):
+          n=100, median=5700.4, IQR=3258.3 (Q1=4089.9, Q3=7348.2)
+          min=2173.1  p90=8838.9  p95=9747.5  p99=10532.8  max=10956.1
+
+  Tiling |detection - sum(hops)| per event: median=0.000ms, max=0.000ms
+
+  Notes:
+      - Router log prefix runs 60 minute(s) from the payload timestamp on the same line, consistent with the Ruby logger writing local time whilst the payload is UTC. The payload is used throughout, so this does not affect any figure.
+      - Router latency is paired by ADJACENCY, not by identifier, because the log lines carry none: 100 pair(s) formed within 10 s, with 0 orphan raise(s) and 100 unmatched dispatch(es). Add a goal or correlation identifier to both log lines before this row is reported in the paper.
+      - Response time is paired PER EVENT by adjacency (decision 7): 100 of 100 detection(s) matched to a router receipt and a first dispatch within 10 s, 0 with no receipt, 0 with no dispatch. Rows starting at the system call assume the monitored VM and analysis server clocks agree; 'dispatched' marks the start of the action, not its completion.
+
+==============================================================================
+COMPARISON (Table V)
+==============================================================================
+Stage                                          Indexed    Filter       Delta
+------------------------------------------------------------------------------
+Audit event generation -> Logstash ingestion    2504.3    2090.0      -414.2
+Logstash normalisation                             0.1       0.1        -0.0
+Logstash output -> ES searchable                  35.5      31.8        -3.7
+ES searchable -> detector match                 2513.8    2358.6      -155.1
+Alert router: receipt -> first action dispat     135.3     117.9       -17.4
+End-to-end (audit -> detection)                 5645.0    5448.1      -196.9
+Detection -> alert router receives alert         143.1     144.9        +1.8
+Detection -> first action dispatched             278.1     266.5       -11.6
+End-to-end (system call -> first action disp    5922.4    5700.4      -222.0
+  ('Alert router: receipt -> first action dispatched' is window-based: take it from per-file runs, since one window spanning both files mixes their router lines. The per-event rows below it are anchored to each detection and unaffected.)
+
+  Detection latency reduction: 196.9 ms (3.49% of 5645.0); speed-up 1.04x
+  Bootstrap median difference (filter - indexed): -168.9 ms, 95% CI [-1186.0, 734.6], 10000 reps
+
+  Collection stage (h1): fixed offset or back-pressure?
+      indexed: median=2504.3 min=1091.9 Q3=3857.0 max=5869.3 IQR=2482.5
+      filter : median=2090.0 min=1091.9 Q3=3875.2 max=8772.1 IQR=2494.0
+      indexed min - filter median = -998.1 ms
+      median shift                = +414.2 ms
+      IQR ratio (indexed/filter)  = 1.0x
+      => Near-constant shift with comparable spread, which is what a fixed offset looks like. Investigate before attributing this to load.
+
+  ! 50 router identifier(s) appear in BOTH files: the same log lines are being attributed to both paths.

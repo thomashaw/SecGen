@@ -1,0 +1,60 @@
+================================================================================================
+PER CASE (detected / repetitions run)
+================================================================================================
+ID   CATEGORY  TRUTH     READER   LISTED  DET    OUTCOME   DESCRIPTION
+P01  path      detect    cat      yes     3/3    TP        absolute path
+P02  path      detect    cat      yes     3/3    TP        relative path from the file's directory
+P03  path      detect    cat      yes     3/3    TP        parent traversal from home
+P04  path      detect    cat      yes     3/3    TP        dot segment
+P05  path      detect    cat      yes     3/3    TP        repeated slashes
+P06  path      detect    cat      yes     3/3    TP        traversal within absolute path
+P07  path      detect    cat      yes     0/3    FN        symlink to the file
+P08  path      detect    cat      yes     3/3    TP        working directory reached through a symlink
+R01  reader    detect    less     yes     3/3    TP        less
+R02  reader    detect    more     yes     3/3    TP        more
+R03  reader    detect    head     yes     3/3    TP        head
+R04  reader    detect    tail     yes     3/3    TP        tail
+R05  reader    detect    tac      yes     3/3    TP        tac
+R06  reader    detect    nl       yes     3/3    TP        nl
+R07  reader    detect    sort     yes     3/3    TP        sort
+R10  reader    detect    sed      yes     3/3    TP        sed
+R11  reader    detect    cut      yes     3/3    TP        cut
+R12  reader    detect    strings  yes     -      SKIP      strings
+R13  reader    detect    base64   yes     3/3    TP        base64
+R14  reader    detect    od       yes     3/3    TP        od
+R15  reader    detect    xxd      yes     3/3    TP        xxd
+R16  reader    detect    dd       yes     3/3    TP        dd
+R20  reader    detect    vim      yes     3/3    TP        vim (batch mode)
+N01  negative  no_detect cat      yes     0/3    TN        decoy, absolute path
+N02  negative  no_detect cat      yes     0/3    TN        decoy, relative path from decoy directory
+N03  negative  no_detect cat      yes     0/3    TN        decoy, relative path with directory
+N04  negative  no_detect cat      yes     0/3    TN        failed access, account without permission
+N05  negative  no_detect cat      yes     0/3    TN        successful access by a different account (root)
+N06  negative  no_detect -        n/a     0/3    TN        metadata only (stat)
+N07  negative  no_detect -        n/a     0/3    TN        metadata only (ls -l)
+N08  negative  no_detect -        n/a     0/3    TN        filesystem search by name (find)
+N09  negative  no_detect grep     no      0/3    TN        incidental read during recursive search
+N10  negative  no_detect cat      yes     0/3    TN        different file in the same directory
+N11  negative  no_detect cat      yes     0/3    TN        decoy, relative path starting .//
+N12  negative  no_detect cat      yes     0/3    TN        decoy, relative path containing //
+N13  negative  no_detect cat      yes     3/3    FP        decoy, symlink followed by ..
+
+================================================================================================
+SUMMARY (by case; a case counts once whatever its repetitions)
+================================================================================================
+  Should detect:     22 case(s): detected 21, missed 1
+  Should not detect: 13 case(s): correctly silent 12, false detections 1
+  Skipped (tool not installed): R12
+  Inconsistent across repetitions: none
+
+  Misses attributable to the invoking-process restriction (reader not listed): none
+  Misses NOT explained by the restriction (investigate): P07
+  False detections (investigate): N13: decoy, symlink followed by ..
+
+================================================================================================
+DRAFT SENTENCE FOR SECTION V.B (check before use)
+================================================================================================
+  A scripted test of 35 access variants, each repeated 3 times, detected 21 of 22 legitimate accesses to the target; 1 were missed, 1 of them not explained by the reader restriction. Across 13 non-qualifying accesses, including decoy paths, failed accesses and other accounts, there were 1 false detection(s).
+  (Not yet reportable as written: resolve the skipped/inconsistent cases above first.)
+
+wrote evaluation/statesentry/correctness/results/correctness_results_readers_20261013T103822Z.csv
