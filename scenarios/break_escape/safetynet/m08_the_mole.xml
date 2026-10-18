@@ -195,10 +195,10 @@ Service account (ops):</value>
             <!-- flag3: USER ACCESS - decoded ENTROPY correspondence, staged on the box -->
             <encoder module_path="modules/encoders/selector/concatenate">
               <input into="strings_to_encode">
-                <value>SAFETYNET INTERNAL -- RECOVERED FROM ~/.local/share/mail/sent
+                <value>SAFETYNET INTERNAL -- RECOVERED FROM ~/flag
 
 To:      architect@entropy.onion
-From:    nightshade_deep_state
+From:    deep_state_drop
 Subject: M7 package -- delivered
 
 Package delivered: team assignments, response timeline, and the agent's
@@ -246,7 +246,7 @@ has ever recorded -- was exfiltrated through a channel Nightshade held open.
 Retain and integrate. Destination: Tomb Gamma.
 
 ACCESS-LOG CORRELATION (recovered from /var/log, root only):
-  user nightshade_ops  T-48h before M7  OPEN mission_planning/m07_operations.enc
+  user svc-planning  T-48h before M7  OPEN mission_planning/m07_operations.enc
   duration 00:47:00  source: Cryptography Lab terminal 03
   -- the plan was not read in forty-seven minutes. It was copied.
 
