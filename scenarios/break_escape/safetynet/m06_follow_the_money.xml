@@ -98,7 +98,11 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
 
     <!-- Weak, crackable service passwords from the shared word list.
          weak_passwords[0] is reused across the auth and ledger accounts to
-         model HashChain's credential-reuse weakness (flag_1 -> flag_2). -->
+         model HashChain's credential-reuse weakness (flag_1 -> flag_2).
+         The vault account (hcvault, flag_4) deliberately does NOT draw from
+         here: it is given a strong generated password so its flag is reachable
+         ONLY via hcops's sudo rights (genuine privilege escalation), not by
+         cracking the vault directly. -->
     <input into_datastore="weak_passwords">
       <!-- 0 shared reused password (hcauth AND hcledger) -->
       <generator type="custom_list_password">
@@ -107,12 +111,6 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
         </input>
       </generator>
       <!-- 1 financial database account -->
-      <generator type="custom_list_password">
-        <input into="list_name">
-          <value>jtrpassword.lst</value>
-        </input>
-      </generator>
-      <!-- 2 vault account -->
       <generator type="custom_list_password">
         <input into="list_name">
           <value>jtrpassword.lst</value>
@@ -217,14 +215,15 @@ This account is the financial database. Its flag confirms full read access.</val
         </input>
       </generator>
 
-      <!-- hcvault: privileged vault account. Weak password, but its flag is intended
-           to be reached by hcops via sudo (privilege escalation), completing the estate. -->
+      <!-- hcvault: privileged vault account. STRONG generated password, so the
+           flag in its 0600 home is NOT crackable directly; the only intended route
+           is hcops via sudo (privilege escalation), completing the estate. -->
       <generator type="account">
         <input into="username">
           <datastore access="4">usernames</datastore>
         </input>
         <input into="password">
-          <datastore access="2">weak_passwords</datastore>
+          <generator type="strong_password_generator"/>
         </input>
         <input into="super_user">
           <value>false</value>
