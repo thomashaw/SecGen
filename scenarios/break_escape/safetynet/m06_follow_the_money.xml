@@ -264,7 +264,7 @@ This account is the financial database. Its flag confirms full read access.</val
 
     <!-- Foothold: exposed Apache Druid analytics service, unauthenticated RCE
          (CVE-2021-25646). Druid lands user_rwx code execution as the service
-         account — the same foothold role distcc held before this swap.
+         account, the mission's foothold onto the box and to the readable shadow.
          Deliberately carries NO flag_generator so the scenario has exactly four
          flags, all on the accounts above, in the order the game expects. The
          Druid RCE is the way ONTO the box (and to the readable shadow file);
