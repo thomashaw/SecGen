@@ -17,13 +17,13 @@ Based on the "Hackme and Crack Me" CTF: gain a foothold on the exchange's backen
 
 **hackme_crack_me_lab** (172.16.0.2)
 - Debian 9 desktop system — HashChain Exchange backend estate
-- Foothold: an exposed distccd service (remote code execution)
+- Foothold: an exposed Apache Druid analytics service (unauthenticated remote code execution, CVE-2021-25646)
 - Escalation: a world-readable shadow file exposes the account hashes for offline cracking
 - Four accounts hold progressive financial intelligence flags; two of them reuse the same weak password, modelling the exchange's real credential-reuse weakness
 
 **kali_cracker** (172.16.0.3)
 - Kali Linux platform — the operative's attack box / in-game console
-- John the Ripper and hashcat for offline password cracking, Metasploit for the distcc foothold, nmap for enumerating the backend estate
+- John the Ripper and hashcat for offline password cracking, Metasploit for the Apache Druid foothold, nmap for enumerating the backend estate
 
 ## Flag Order (document order — do not reorder without re-checking the game side)
 
@@ -48,7 +48,7 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
 - Authorisation (credential reuse, access-control misconfiguration)
 - Penetration Testing (software tools, active penetration)
   </description>
-  <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/safetynet/offline-password-cracking/</lab_sheet_url>
+  <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/safetynet/apache-druid-rce/</lab_sheet_url>
   <type>ctf-lab</type>
   <type>lab-sheet</type>
   <difficulty>medium</difficulty>
@@ -262,19 +262,23 @@ This account is the financial database. Its flag confirms full read access.</val
     <utility module_path=".*/handy_cli_tools"/>
     <utility module_path=".*/hash_tools"/>
 
-    <!-- Foothold: exposed distccd service (remote code execution).
+    <!-- Foothold: exposed Apache Druid analytics service, unauthenticated RCE
+         (CVE-2021-25646). Druid lands user_rwx code execution as the service
+         account — the same foothold role distcc held before this swap.
          Deliberately carries NO flag_generator so the scenario has exactly four
          flags, all on the accounts above, in the order the game expects. The
-         distcc RCE is the way ONTO the box (and to the readable shadow file);
-         the flags are the cracking/reuse/priv-esc rewards, not the foothold. -->
-    <vulnerability module_path=".*/distcc_exec">
+         Druid RCE is the way ONTO the box (and to the readable shadow file);
+         the flags are the cracking/reuse/priv-esc rewards, not the foothold.
+         Leak interface mirrors scenarios/ctf/eventful_data.xml (strings_to_leak
+         + leaked_filenames); port defaults to random_unregistered_port. -->
+    <vulnerability module_path=".*/apache_druid_rce">
       <input into="strings_to_leak">
-        <value>HASHCHAIN BACKEND -- you have code execution via the build service.
+        <value>HASHCHAIN BACKEND -- you have code execution via the analytics service.
 From here, read the world-readable shadow file and take the hashes offline to
 crack. The accounts you want are the service accounts, not root.</value>
       </input>
       <input into="leaked_filenames">
-        <value>distcc_foothold_note</value>
+        <value>druid_foothold_note</value>
       </input>
     </vulnerability>
 
