@@ -36,10 +36,33 @@ class GravcmsTest < PostProvisionTest
     end
 
     # Tier 3 — unauthenticated RCE from the attacker VM.
+    # gravcms_exec is a PHP-platform exploit, so the helper's default
+    # cmd/unix/generic is rejected ("not a compatible payload"). php/unix/cmd/generic
+    # is its PHP-platform twin: a no-session command payload that runs CMD and
+    # drops the sentinel, so there's no reverse/bind shell to race.
+    #
+    # The exploit implants the command as a Grav scheduler job, which the module's
+    # cron runs within ~60s rather than immediately, so poll for the sentinel
+    # (sentinel_wait) instead of reading it once. collect reads the flag the
+    # module leaks into /var/www (outside the web root) as evidence of access.
+    #
+    # KNOWN LIMITATION (Debian 12 / PHP 8.2): this tier FAILs on our standard
+    # base, and the failure is upstream, not a module defect. Verified on a live
+    # build: the vuln is confirmed, the scheduler job is implanted and fires, but
+    # it dies with "PHP Parse error: unexpected token '?', expecting end of file
+    # ... eval()'d code". gravcms_exec runs `php -r eval(base64_decode("<payload>"))`
+    # and every msf php payload ends in a `?>` close tag; PHP 8.0+ rejects a
+    # trailing `?>` inside eval() (PHP 7 tolerated it). The only target-side fix is
+    # pointing /usr/bin/php at PHP 7, a de-facto system downgrade that would break
+    # other PHP-8 modules composed into the same VM, so it is deliberately not done.
+    # Tier 3 therefore passes only on a PHP<8 base or with a patched exploit; on
+    # Debian 12 the module is a genuine, confirmed vuln exercised to tier 2.
     test_msf_exploit('exploit/linux/http/gravcms_exec',
                      rport: 80,
+                     payload: 'php/unix/cmd/generic',
                      options: { 'TARGETURI' => '/grav-admin/' },
-                     collect: 'cat /var/www/html/grav-admin/flag* 2>/dev/null',
+                     collect: 'cat /var/www/* 2>/dev/null',
+                     sentinel_wait: 150,
                      tier: 3)
   end
 end

@@ -1,13 +1,14 @@
 class gravcms::install {
-  ensure_packages(['apache2', 'php', 'libapache2-mod-php', 'php-mbstring', 'php-curl', 'php-dom', 'php-xml', 'php-zip', 'php-gd'])
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $strings_to_leak = $secgen_parameters['strings_to_leak']
+  $leaked_filenames = $secgen_parameters['leaked_filenames']
 
-  Exec {path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'],
-    environment => ['http_proxy=http://172.22.0.51:3128',
-      'https_proxy=http://172.22.0.51:3128',
-      'ftp_proxy=http://172.22.0.51:3128'] }
+  ensure_packages(['apache2', 'php', 'libapache2-mod-php', 'php-mbstring', 'php-curl', 'php-dom', 'php-xml', 'php-zip', 'php-gd', 'cron'])
+
+  Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
   exec {'enable-mod-rewrite':
-    command => 'sudo a2enmod rewrite',
+    command => 'a2enmod rewrite',
   } ->
   file {'/var/www/html':
     ensure => directory,
@@ -27,6 +28,20 @@ class gravcms::install {
   exec {'enable-htaccess':
     command => 'sed -i "/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride all/" /etc/apache2/apache2.conf',
   } ->
+  # Grav only runs scheduled jobs when `bin/grav scheduler` is invoked by cron.
+  # The admin-plugin RCE (CVE-2021-21425) works by implanting a scheduler job,
+  # so without this entry the exploit lands but never fires and the target is
+  # not actually exploitable as provisioned.
+  #
+  # Puppet's `cron` resource moved out of core into puppetlabs-cron_core (Puppet
+  # 6+) and isn't available here, so drop a cron.d file directly instead.
+  file {'/etc/cron.d/grav-scheduler':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => "* * * * * www-data cd /var/www/html/grav-admin && /usr/bin/php bin/grav scheduler 1>> /dev/null 2>&1\n",
+  } ->
   exec {'enable-web-server':
     command => 'systemctl enable apache2',
   } ->
@@ -34,13 +49,16 @@ class gravcms::install {
     command => 'systemctl restart apache2',
   }
 
-  $leaked_filenames = ["flag1"]
-  $strings_to_leak = ["we_love_the_insecure_cms_we_do"]
-
+  # The leaked flag is the post-exploitation objective. It is stored outside the
+  # web root (/var/www, not /var/www/html) so it cannot be fetched directly over
+  # HTTP; reading it requires the www-data command execution the exploit grants.
   ::secgen_functions::leak_files { 'gravcms':
-    storage_directory => "/var/www/html/grav-admin",
+    storage_directory => '/var/www',
     leaked_filenames  => $leaked_filenames,
     strings_to_leak   => $strings_to_leak,
+    owner             => 'www-data',
+    group             => 'www-data',
+    mode              => '0640',
     leaked_from       => 'gravcms',
   }
 }
