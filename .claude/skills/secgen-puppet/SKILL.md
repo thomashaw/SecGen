@@ -167,6 +167,8 @@ exec { 'clone theZoo':
    - `Could not retrieve information from environment production source(s) puppet:///modules/<m>/<f>` -> file missing from `<m>/files/`, or `<m>` not selected for the system.
    - `Unable to locate package` -> package gone on this release; branch on `$operatingsystemrelease` or bundle it.
    - `externally-managed-environment` -> pip on Debian 12; use a venv.
+   - `Unknown resource type: 'cron'` -> `cron` left Puppet core in 6+ (now puppetlabs-cron_core). On a Debian 12 base it isn't loaded. Either `<requires>` the `cron_new`/`cron_legacy` puppet_module utility, or - cleaner for a vuln module composed randomly as an unspecified `<vulnerability/>`, where a required cron variant could clash with another module's - drop a self-contained `/etc/cron.d/<job>` file (`ensure => file`, a `www-data`/user field in the line, trailing newline) and `ensure_packages(['cron'])`.
+   - `Could not find class <name>` (e.g. after `include docker`) -> the manifest `include`s a foreign Puppet class whose utility isn't declared. A vuln/service module that uses another module's class must list it in `<requires>` (e.g. `utilities/unix/container/docker`), or the catalog won't compile. `build-project` catches this with zero VMs.
 
 ## Checklist for a new/changed manifest
 

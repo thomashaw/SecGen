@@ -116,7 +116,7 @@ API (all in `lib/objects/post_provision_test.rb`):
 | `skip!(reason)` | stop now, report SKIP (prerequisite missing) |
 | `run_command(cmd)` / `run_as_user(user, cmd)` / `http_get(path)` | raw `{stdout, stderr, exit_status}` / `{status, body, error}` |
 | `add_evidence(name, cmd)` | extra command whose output is saved if the test FAILs |
-| `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, force:, options:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below) |
+| `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, force:, options:, sentinel_wait:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below). `sentinel_wait: <s>` polls the sentinel for up to s seconds for deferred-execution exploits (default 0 = read once) |
 | `test_http_exploit(path, method:, data:, headers:, expect:, expect_status:, sentinel:, include_headers:, collect:, tier: 3)` | a non-Metasploit web exploit run as HTTP request(s) from the attacker VM: PASSes when the response matches `expect` and/or a target-side `sentinel` proves command execution (see below) |
 | `http_from_attacker(path, attacker:, rhost:, method:, data:, headers:, include_headers:)` | raw: one `curl` request from the attacker VM → `{status, body, error, curl}` |
 | `run_on_system(name, cmd)` / `other_system_ip(name)` | run a command on / get the IP of **another** VM in the project (Proxmox, over its own guest agent) |
@@ -195,6 +195,46 @@ attacker-side command):**
   this). This is distinct from a payload problem — read `msf_output` evidence to
   tell them apart (`LHOST`/`not valid` = payload; `Cannot reliably check` =
   AutoCheck).
+- **AutoCheck says `not-vulnerable`? Suspect a patched bundled version first.**
+  If `msf_output` shows the module's check returning *not-vulnerable* ("did not
+  respond ... the expected response") while tiers 1-2 pass (the service serves
+  fine), the app is usually a *patched* build, not a test bug. This bit `roxy_wi`
+  (PR #264): the PR bundled `roxy-wi-master.zip` — the latest master, at/after
+  the CVE-2022-31137 fix — so the injection sink was gone. **When authoring a
+  vuln module's test, confirm the bundled artefact's version is inside the CVE's
+  vulnerable range before building** (check a `VERSION` file / dated source), and
+  say so in the test comments. A module that ships "master"/"latest" of its target
+  is a red flag for a fixed vuln.
+- **PHP-platform exploits that `eval()` the payload FAIL on PHP 8 (Debian 12).**
+  Modules whose payload runs as `php -r eval(base64_decode(...))` (e.g.
+  `gravcms_exec`, PR #263) die with `PHP Parse error: ... unexpected token "?",
+  expecting end of file ... eval()'d code`: every msf php payload ends in a `?>`
+  close tag, and PHP 8.0+ rejects a trailing `?>` inside `eval()` (PHP 7 tolerated
+  it). The vuln is real and the job fires; only the payload won't parse. The only
+  target-side fix is pointing `/usr/bin/php` at PHP 7 — a de-facto system
+  downgrade that breaks every other PHP-8 module composed into the same VM, so
+  don't. Treat tier 3 as a documented PHP-8 limitation (passes on a PHP<8 base or
+  with a patched exploit); tiers 1-2 still prove the module. Also note the default
+  `cmd/unix/generic` is rejected on a php-platform exploit — its twin is
+  `php/unix/cmd/generic` (confirm with `show payloads`).
+- **Deferred-execution exploits need `sentinel_wait:`, not a one-shot read.** If
+  the exploit implants a cron/scheduler job that fires seconds later (rather than
+  running the command inline), the sentinel is absent when msf returns. Pass
+  `sentinel_wait: <seconds>` to `test_msf_exploit` to poll the sentinel every 5s
+  up to that deadline (default 0 = read once, unchanged). AND make sure the module
+  actually installs whatever runs the job — `gravcms_exec` implants a *Grav
+  scheduler* job that only fires if a cron invokes `bin/grav scheduler`, so the
+  module must ship that cron (via `/etc/cron.d`, since `cron` isn't a Puppet-core
+  type on Debian 12).
+- **Feasibility walls worth catching before a build.** Some WIP modules can't
+  reach tier 3 on the Debian 12 base no matter the test: EOL container stacks
+  (Rancher 1.x needs Docker ~17.x, but the vendored docker module installs latest
+  Docker CE and Docker <20.10 can't run on bookworm's cgroup v2 — PR #262); apps
+  pinned to PHP 7.x that won't run on PHP 8.2; heavy JVM stacks needing an old JDK
+  or lots of RAM. Assess the target's runtime/version needs against the base
+  *before* sinking time into repeated builds, and stop early (don't downgrade
+  system libraries to force it; a module that mangles the base is a bad citizen in
+  a randomly-composed `<vulnerability/>` scenario).
 
 **For non-Metasploit exploits** (web vulns with no msf module), use the
 `test_http_exploit` helper: it crafts the HTTP request(s) with `curl` **on the
