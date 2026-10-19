@@ -398,6 +398,22 @@ class PostProvisionTest
     body =~ /uid=\d+/ ? true : false
   end
 
+  # Poll the target for the sentinel for up to `timeout` seconds, returning as
+  # soon as it proves RCE. Deferred-execution exploits (cron, at, a CMS task
+  # scheduler such as Grav's) land the command some time after Metasploit exits,
+  # so a single immediate read would miss them. Evidence is recorded once.
+  def wait_for_sentinel(sentinel, timeout)
+    deadline = Time.now + timeout
+    body = ''
+    loop do
+      body = run_vagrant_ssh("cat #{sentinel} 2>/dev/null", timeout: 30)[:stdout].to_s
+      break if sentinel_pwned?(body) || Time.now >= deadline
+      sleep 5
+    end
+    add_evidence('sentinel_on_target', "echo #{Shellwords.escape(body)}") unless body.empty?
+    body
+  end
+
   # Resolve [attacker_name, attacker_ip, rhost] for an attacker-VM exploit, or
   # record a tier-`tier` SKIP under `name` and return nil (so the caller can
   # `return` cleanly). Proxmox-only; needs a sibling base type='attack'.
@@ -445,7 +461,8 @@ class PostProvisionTest
   #                    payload: 'cmd/linux/http/x64/exec', force: true)
   def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
                        payload: 'cmd/unix/generic', collect: nil, force: false,
-                       options: {}, tier: 3, label: nil)
+                       options: {}, tier: 3, label: nil,
+                       sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 0).to_i)
     name = label || "msf exploit (#{msf_module})"
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
@@ -470,7 +487,7 @@ class PostProvisionTest
     msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
     add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
 
-    body = read_sentinel(sentinel)
+    body = sentinel_wait > 0 ? wait_for_sentinel(sentinel, sentinel_wait) : read_sentinel(sentinel)
     if sentinel_pwned?(body)
       pass_check(name,
                  "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost}); sentinel #{sentinel} contains #{body[/uid=\S+/]}.",
