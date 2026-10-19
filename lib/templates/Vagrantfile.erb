@@ -283,7 +283,6 @@ end
 <%     # Internal network (e.g. for llm_relay): untagged NIC on the given bridge, outside the lab network map -%>
 <%     if selected_module.attributes['type'].to_a.include?('internal_network')
          internal_bridge = selected_module.received_inputs['bridge']&.first.to_s
-         internal_bridge = 'vmbr3' if internal_bridge.empty?
          internal_ip = selected_module.received_inputs['internal_ip']&.first.to_s
          internal_netmask = selected_module.received_inputs['internal_netmask']&.first.to_s
          internal_netmask = '255.255.0.0' if internal_netmask.empty? -%>

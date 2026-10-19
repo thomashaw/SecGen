@@ -7,9 +7,6 @@ class metactf::install {
   ensure_packages('zsh')
   ensure_packages('build-essential')
   ensure_packages('gcc-multilib')
-  # The challenges' build.zsh scripts derive their randomised values with bc. install.sh would install it, but its
-  # apt line names python-pip, which no longer exists, so the whole line fails (on Kali, which lacks bc, challenges
-  # then fail to compile or silently build with empty values).
   ensure_packages('bc')
 
   file { $install_dir:

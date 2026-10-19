@@ -20,8 +20,8 @@
     control (e.g. a dedicated VM, or the Hackerbot server with its ports in lab_inbound_ports).
     The API key normally comes from secgen.rb's llm-api-key option (e.g. in secgen.conf): the llm_api_key
     type below makes SecGen pass it as a Puppet fact read from the environment, so it is never written to
-    the scenario or the generated project. It takes precedence over the api_key input, which is only for
-    one-off testing (an api_key input ends up in the project files).</description>
+    the scenario or the generated project. Without a key the relay passes the client's Authorization header
+    through.</description>
 
   <type>llm_relay</type>
   <type>llm_api_key</type>
@@ -32,8 +32,6 @@
 
   <!-- the API the relay forwards to (http://IP:port, no path) -->
   <read_fact>upstream_url</read_fact>
-  <!-- added as "Authorization: Bearer <key>"; empty = pass the client's Authorization header through -->
-  <read_fact>api_key</read_fact>
   <read_fact>listen_port</read_fact>
   <!-- CIDRs allowed to use the relay; empty = the relay's lab subnets -->
   <read_fact>allowed_networks</read_fact>
@@ -42,9 +40,6 @@
 
   <default_input into="upstream_url">
     <value>http://172.22.222.222:8080</value>
-  </default_input>
-  <default_input into="api_key">
-    <value></value>
   </default_input>
   <default_input into="listen_port">
     <value>8080</value>

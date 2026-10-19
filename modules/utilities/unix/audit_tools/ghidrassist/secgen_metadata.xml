@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>GhidrAssist</name>
+  <author>Thomas Shaw</author>
+  <module_license>GPLv3</module_license>
+  <description>The GhidrAssist plugin for Ghidra, which adds an LLM assistant (explain and rename functions, chat
+    about the decompiled code). It is preconfigured with OpenAI-compatible providers for every user on the system,
+    normally the local Spark LLMs through an llm_relay VM (set llm_relay_ip). Requires the ghidra module, and
+    Kali, since GhidrAssist 2.x needs Ghidra 12. Leave it out of a scenario to keep the labs unassisted. Put the
+    accounts before it in the scenario so that their preferences are written to their home directories.</description>
+
+  <type>ghidra_plugin</type>
+  <platform>linux</platform>
+
+  <software_name>GhidrAssist</software_name>
+  <software_license>GPLv3</software_license>
+
+  <!-- OpenAI-compatible base URL, used when llm_relay_ip is not set (e.g. the gateway directly) -->
+  <read_fact>llm_api_url</read_fact>
+  <!-- IP of an llm_relay VM: when set, the URL becomes http://<llm_relay_ip>:<llm_relay_port>/api/v1/ -->
+  <read_fact>llm_relay_ip</read_fact>
+  <read_fact>llm_relay_port</read_fact>
+  <!-- Stored in each user's Ghidra preferences, readable by the student. Leave as the placeholder when the
+       relay adds the real key. -->
+  <read_fact>llm_api_key</read_fact>
+  <!-- One GhidrAssist provider per model; the first is the active one -->
+  <read_fact>llm_models</read_fact>
+
+  <default_input into="llm_api_url">
+    <value>http://172.22.222.222:8080/api/v1/</value>
+  </default_input>
+  <default_input into="llm_relay_ip">
+    <value></value>
+  </default_input>
+  <default_input into="llm_relay_port">
+    <value>8080</value>
+  </default_input>
+  <default_input into="llm_api_key">
+    <value>relay</value>
+  </default_input>
+  <default_input into="llm_models">
+    <value>smart</value>
+    <value>fast</value>
+  </default_input>
+
+  <!-- Kali only: the Debian bases ship the bundled Ghidra 11.1.2, and the Licensed Tools base has no JDK 21 -->
+  <conflict>
+    <name>.*Debian.*</name>
+  </conflict>
+  <conflict>
+    <name>Kali with Licensed Tools.*</name>
+  </conflict>
+
+  <requires>
+    <module_path>.*/ghidra</module_path>
+  </requires>
+</utility>

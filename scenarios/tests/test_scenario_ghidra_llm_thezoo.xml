@@ -49,10 +49,7 @@
 
     <utility module_path=".*/live_malware_samples"/>
 
-    <utility module_path=".*/ghidra">
-      <input into="llm_assistant">
-        <value>true</value>
-      </input>
+    <utility module_path=".*/ghidrassist">
       <input into="llm_relay_ip">
         <datastore access="0">IP_addresses</datastore>
       </input>
