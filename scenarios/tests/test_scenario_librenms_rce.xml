@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: LibreNMS 1.43 authenticated RCE (feasibility check)</name>
+  <author>Thomas Shaw</author>
+  <description>Feasibility/build-project check only for the librenms_rce module
+  (PR #257): a Debian 12 target and a Kali/MSF attacker on a private network.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>librenms_target</system_name>
+    <base platform="linux" distro="Debian 12 Bookworm amd64" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <network_ip system="librenms_target"/>
+      <network_ip system="attacker"/>
+    </input>
+
+    <vulnerability module_path=".*/librenms_rce"/>
+    <service module_path=".*apache_kali_compatible.*"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass_attacker">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass_attacker</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
