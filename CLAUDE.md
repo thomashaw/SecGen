@@ -33,7 +33,7 @@ modules/<type>/<platform>/<category>/<name>/
 ## Hard rules
 
 - **Secrets.** Never put credentials on a command line. Never read, cat, grep or
-  print SecGen config files holding credentials, `projects/*/Vagrantfile` (contains
+  print `secgen.conf` or other SecGen config files holding credentials, `projects/*/Vagrantfile` (contains
   the Proxmox password), or git remote URLs. If you need a value from them, ask.
 - **Git.** Ask before `reset --hard`, rebase, or renaming/deleting branches. Never
   push to `master`. Do work in a worktree / feature branch. Several agents may be

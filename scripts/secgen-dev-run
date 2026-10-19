@@ -21,7 +21,7 @@
 #   SECGEN_VLAN_MIN / SECGEN_VLAN_MAX  VLAN range to cycle through (default 200-1000)
 #   SECGEN_RETRIES    --retries passed to secgen.rb unless given (default 1; absorbs
 #                     the intermittent no-DHCP-lease provisioning flake)
-#   SECGEN_CONF       options file with the Proxmox creds (default ~/.config/secgen/secgen.conf)
+#   SECGEN_CONF       options file with the Proxmox creds (default SecGen/secgen.conf in the main checkout)
 #   SECGEN_STATE      counter file (default ~/.config/secgen/run_counter)
 #
 # State file, one "key value" per line:

@@ -17,8 +17,9 @@ bundler at the main checkout's gems.
 
 ## Setup
 
-- **Credentials:** a SecGen `--read-options` file, default
-  `~/.config/secgen/secgen.conf` (mode 600), with at least `--proxmox-url`,
+- **Credentials:** a SecGen `--read-options` file, by default `secgen.conf` in the
+  main checkout (gitignored, mode 600; worktrees use that same file, not a copy
+  of their own), with at least `--proxmox-url`,
   `--proxmoxuser`, `--proxmoxpass` and `--proxmox-node`. The scripts never print
   the password or put it on a command line; `secgen-test-run` passes it to the
   test as `SECGEN_PROXMOX_PASS`.
@@ -30,7 +31,8 @@ bundler at the main checkout's gems.
   SECGEN_RUN_OWNER=tom        # prefix owner (default: $USER)
   SECGEN_VLAN_MIN=200         # VLAN range secgen-dev-run cycles through
   SECGEN_VLAN_MAX=1000
-  # SECGEN_CONF=...           # alternative creds file
+  # SECGEN_CONF=...           # alternative creds file (absolute path); if SecGen/secgen.conf
+  #                           # is missing, ~/.config/secgen/secgen.conf is used
   # SECGEN_STATE=...          # counter file (default ~/.config/secgen/run_counter)
   ```
 
