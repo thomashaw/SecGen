@@ -234,7 +234,15 @@ attacker-side command):**
   or lots of RAM. Assess the target's runtime/version needs against the base
   *before* sinking time into repeated builds, and stop early (don't downgrade
   system libraries to force it; a module that mangles the base is a bad citizen in
-  a randomly-composed `<vulnerability/>` scenario).
+  a randomly-composed `<vulnerability/>` scenario). A feasibility wall isn't always
+  a runtime/version mismatch — a WIP module can be an **unfinished skeleton** that
+  the cheap read-through catches before any build: none of its `<read_fact>`s are
+  consumed by the Puppet, the app is never bootstrapped (no `composer install`, no
+  `.env`/config, no DB migration, no admin account for an authenticated exploit),
+  or the manifests reference a runtime version they never install (e.g. editing
+  `/etc/php/7.3/...` while installing unversioned php = 8.2 on Debian 12). Confirm
+  every read_fact is consumed and the app is actually configured, not just
+  unpacked, as an early VM-free signal (ties into `review-secgen-module` R3/R8).
 
 **For non-Metasploit exploits** (web vulns with no msf module), use the
 `test_http_exploit` helper: it crafts the HTTP request(s) with `curl` **on the
