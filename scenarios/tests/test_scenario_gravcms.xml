@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: GravCMS unauthenticated RCE</name>
+  <author>Thomas Shaw</author>
+  <description>Two-VM scenario used to exercise the gravcms module's secgen_test
+  through tier 3 via the Proxmox QEMU Guest Agent pipeline: a Debian 12 target
+  running the GravCMS Admin Plugin unauthenticated RCE (CVE-2021-21425) served by
+  Apache, and a Kali/MSF attacker on the same private network that runs
+  exploit/linux/http/gravcms_exec against it.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>gravcms_target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <network_ip system="gravcms_target"/>
+      <network_ip system="attacker"/>
+    </input>
+
+    <vulnerability module_path=".*/gravcms"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass_attacker">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass_attacker</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
