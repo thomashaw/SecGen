@@ -15,8 +15,8 @@ the output, and replies with a flag (or a hint) in chat.
 
 Related skills, to use instead of or alongside this one:
 
-- **`convert_hackerbot_to_hacktivity_lab_sheets`**: lab sheets. They are no longer generated or served by SecGen. The
-  `<tutorial>` / `<tutorial_info>` elements in the templates are leftovers that nothing reads.
+- **Lab sheets**: they are no longer generated or served by SecGen; they are static pages in the HacktivityLabSheets
+  repo (`_labs/`). The `<tutorial>` / `<tutorial_info>` elements in the templates are leftovers that nothing reads.
 - **`review-secgen-scenario`**: rule S8 covers bot wiring at scenario level (flag count, winnable/losable attacks,
   key handshake, IRC transport).
 - **`review-secgen-module`**: R1–R3 apply to generators too, grepped in `local.rb` and ERB, not Puppet.

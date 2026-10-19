@@ -11,8 +11,8 @@ A generator lives at `modules/generators/structured_content/hackerbot_config/<la
 ```
 
 `labsheet.html.erb`, `shared/`, and `*.md.erb` files in existing generators are left over from when SecGen hosted
-the lab sheets. A new lab doesn't need them. Its sheet goes to Hacktivity (see the
-`convert_hackerbot_to_hacktivity_lab_sheets` skill). Leave `<tutorial>`s out, or keep them minimal.
+the lab sheets. A new lab doesn't need them. Its sheet goes to the HacktivityLabSheets repo (`_labs/`) and is
+linked from the scenario with `<lab_sheet_url>`. Leave `<tutorial>`s out, or keep them minimal.
 
 ## secgen_metadata.xml
 
