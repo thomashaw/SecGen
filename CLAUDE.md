@@ -87,6 +87,7 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Task | Skill |
 |---|---|
 | Review a module (metadata ↔ Puppet consistency) | `review-secgen-module` |
+| Author a scenario XML from scratch (valid, resolvable) | `build-secgen-scenario` |
 | Review a scenario (wiring, solvable kill chain) | `review-secgen-scenario` |
 | Test/verify a module or scenario on Proxmox; write a `secgen_test` | `secgen-test-pipeline` |
 | Hackerbot labs / `hackerbot_config` generators | `secgen-hackerbot` |
