@@ -19,8 +19,11 @@ class ElfinderTest < PostProvisionTest
     tier(2) do
       test_service_up
       test_http('/', match: 'elFinder')
-      # connector is a POST endpoint; a bare GET with no cmd is rejected
-      test_http('/php/connector.minimal.php', status: 400)
+      # The connector dispatches commands; a bare GET carries no cmd, so elFinder
+      # runs and returns HTTP 200 with a JSON error body ({"error":[...]}). The
+      # double-quoted "error" only appears when PHP executes the connector (it is
+      # absent from the raw source), so this confirms the connector is live.
+      test_http('/php/connector.minimal.php', status: 200, match: '"error"')
     end
 
     tier(3) do
