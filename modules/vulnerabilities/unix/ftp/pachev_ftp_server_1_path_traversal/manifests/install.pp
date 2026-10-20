@@ -1,7 +1,8 @@
-# Builds the bundled Pachev FTP server from source, offline. The crates pinned
-# in its Cargo.lock are bundled as a cargo vendor directory (with a
-# .cargo/config that points crates.io at it), so cargo needs no network and
-# never re-resolves the old dependency versions.
+# Builds the bundled Pachev FTP server from source, offline. The vendor
+# tarball holds the crates its Cargo.lock pins, a .cargo/config that points
+# crates.io at them, and a Cargo.lock that replaces upstream's with one change:
+# slog 1.5.2 -> 1.7.1, because 1.5.2 no longer compiles (it implements Sync
+# for fmt::Arguments). cargo needs no network and never re-resolves versions.
 class pachev_ftp_server_1_path_traversal::install {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $user = $secgen_parameters['leaked_username'][0]
