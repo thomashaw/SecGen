@@ -9,7 +9,10 @@
 # (same approach as hadoop_yarn_rce) rather than relying on apt's default-jre.
 class log4shell_header_injection::install {
   $solr_version  = '8.11.0'
-  $solr_url      = "https://archive.apache.org/dist/solr/solr/${solr_version}/solr-${solr_version}.tgz"
+  # Solr 8.x releases are archived under the old Lucene sub-project path
+  # (archive.apache.org/dist/solr/solr/... 404s; Solr only became its own
+  # top-level Apache project from the 9.x series).
+  $solr_url      = "https://archive.apache.org/dist/lucene/solr/${solr_version}/solr-${solr_version}.tgz"
   $solr_src      = "/usr/local/src/solr-${solr_version}.tgz"
   $solr_extract  = "/opt/solr-${solr_version}"
   $solr_home     = '/opt/solr'
