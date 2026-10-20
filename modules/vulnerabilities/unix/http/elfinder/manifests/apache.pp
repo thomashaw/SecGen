@@ -20,8 +20,8 @@ class elfinder::apache{
 	}->
 	exec { 'chown-elfinder':
 		command => "chown www-data. /var/www/ -R",
-	}->exec { 'chown-elfinder-permissions':
-		command => "chown 755 /var/www/ -R",
+	}->exec { 'chmod-elfinder-permissions':
+		command => "chmod 755 /var/www/ -R",
 	}->
 	::apache::vhost { 'www-elfinder':
 		port    => $port,

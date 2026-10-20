@@ -7,6 +7,7 @@ class elfinder::install {
 
 	ensure_packages(['php-xml','php-gd','php-mbstring','php-json','libapache2-mod-php','php'])
 	ensure_packages(['libjs-requirejs','libjs-jquery','libjs-jquery-ui','javascript-common'])
+	ensure_packages(['unzip'])
 
 	 # sets the default paths to use
 	 

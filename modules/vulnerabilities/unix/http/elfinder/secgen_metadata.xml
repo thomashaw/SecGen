@@ -61,7 +61,7 @@
     <!--optional hints-->
   <msf_module>exploit/linux/http/elfinder_archive_cmd_injection</msf_module>
   <!--update for module-->
-  <hint>Visit the webapp in a browser at: ip/elfinder </hint>
+  <hint>Visit the webapp in a browser at: ip/ (served as a dedicated vhost, not under /elfinder)</hint>
   
   <!-- installs its own Apache vhost; conflicts with other webapp modules -->
   <conflict>

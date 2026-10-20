@@ -15,13 +15,15 @@ class elfinder::configure {
 		mode   => '0777',
 	}
 
-	# visible pre-leak directories inside the file manager
-	$strings_to_pre_leak.each |String $dir| {
-		file { "${docroot}/files/${dir}":
-			ensure => directory,
-			owner  => 'www-data',
-			mode   => '0444',
-		}
+	# visible pre-leak content inside the file manager (discoverable before exploitation)
+	::secgen_functions::leak_files { 'elfinder-pre-leak':
+		storage_directory => "${docroot}/files/public",
+		leaked_filenames  => $leaked_filenames,
+		strings_to_leak   => $strings_to_pre_leak,
+		owner             => 'www-data',
+		mode              => '0444',
+		leaked_from       => 'elfinder-pre',
+		require           => File["${docroot}/files/public"],
 	}
 
 	# hidden directory: only accessible as www-data (post-exploit)
