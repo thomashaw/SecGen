@@ -25,7 +25,7 @@
   <software_name>bash</software_name>
   <software_license>GPLv3+</software_license>
 
-  <msf_module>exploit/multi/apache_mod_cgi_bash_env_exec</msf_module>
+  <msf_module>exploit/multi/http/apache_mod_cgi_bash_env_exec</msf_module>
   <hint>On remote exploitation of the apache server you will have a user_rwx shell as www-data. It is then possible to
     escalate using a different exploit that targets the same vulnerability locally.</hint>
 
