@@ -21,6 +21,8 @@
 #   SECGEN_VLAN_MIN / SECGEN_VLAN_MAX  VLAN range to cycle through (default 200-1000)
 #   SECGEN_RETRIES    --retries passed to secgen.rb unless given (default 1; absorbs
 #                     the intermittent no-DHCP-lease provisioning flake)
+#   SECGEN_VMID_MIN   --proxmox-vmid-min passed to secgen.rb unless given (e.g. 5000 for pipeline builds)
+#   SECGEN_VMID_MAX   --proxmox-vmid-max passed to secgen.rb unless given (e.g. 5999 for pipeline builds)
 #   SECGEN_CONF       options file with the Proxmox creds (default SecGen/secgen.conf in the main checkout)
 #   SECGEN_STATE      counter file (default ~/.config/secgen/run_counter)
 #
@@ -101,6 +103,8 @@ PREFIX=$(printf '%s-%s-%02d' "$OWNER" "$NAME" "$RUN")
 
 EXTRA=("$@")
 [[ " ${EXTRA[*]} " == *" --retries "* ]] || EXTRA=(--retries "$RETRIES" "${EXTRA[@]}")
+[[ -z "${SECGEN_VMID_MIN:-}" || " ${EXTRA[*]} " == *" --proxmox-vmid-min "* ]] || EXTRA=(--proxmox-vmid-min "$SECGEN_VMID_MIN" "${EXTRA[@]}")
+[[ -z "${SECGEN_VMID_MAX:-}" || " ${EXTRA[*]} " == *" --proxmox-vmid-max "* ]] || EXTRA=(--proxmox-vmid-max "$SECGEN_VMID_MAX" "${EXTRA[@]}")
 
 if [[ -n "$MODULE" ]]; then
   CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
