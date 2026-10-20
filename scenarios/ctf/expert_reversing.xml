@@ -60,26 +60,26 @@
       <utility module_path=".*/handy_cli_tools"/>
       <utility module_path=".*/hash_tools"/>
 
-      <utility module_path=".*/dc16_amadhj">
+      <vulnerability module_path=".*/dc16_amadhj">
         <input into="account">
           <datastore>account</datastore>
         </input>
-      </utility>
-      <utility module_path=".*/dc16_b3s23">
+      </vulnerability>
+      <vulnerability module_path=".*/dc16_b3s23">
         <input into="account">
           <datastore>account</datastore>
         </input>
-      </utility>
-      <utility module_path=".*/dc16_feedme">
+      </vulnerability>
+      <vulnerability module_path=".*/dc16_feedme">
         <input into="account">
           <datastore>account</datastore>
         </input>
-      </utility>
-      <utility module_path=".*/java_decompile">
+      </vulnerability>
+      <vulnerability module_path=".*/java_decompile">
         <input into="account">
           <datastore>account</datastore>
         </input>
-      </utility>
+      </vulnerability>
 
       <network type="private_network" />
     <input into_datastore="spoiler_admin_pass">
