@@ -1,0 +1,16 @@
+[Unit]
+Description=Apache Solr (log4shell_header_injection)
+After=network.target
+
+[Service]
+Type=simple
+User=solr
+Environment="JAVA_HOME=/usr/local/jre11"
+WorkingDirectory=/opt/solr
+ExecStart=/opt/solr/bin/solr start -f -p 8983
+ExecStop=/opt/solr/bin/solr stop -p 8983
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
