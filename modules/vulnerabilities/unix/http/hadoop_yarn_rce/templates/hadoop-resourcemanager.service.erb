@@ -1,0 +1,18 @@
+[Unit]
+Description=Hadoop YARN ResourceManager
+After=network.target
+
+[Service]
+Type=simple
+User=hadoop
+Group=hadoop
+Environment=JAVA_HOME=<%= @java_home %>
+Environment=HADOOP_HOME=<%= @hadoop_home %>
+Environment=HADOOP_CONF_DIR=<%= @hadoop_home %>/etc/hadoop
+ExecStart=<%= @hadoop_home %>/bin/yarn resourcemanager
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

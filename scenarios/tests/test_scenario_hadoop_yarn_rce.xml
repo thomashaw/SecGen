@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: Hadoop YARN ResourceManager unauthenticated RCE</name>
+  <author>Thomas Shaw</author>
+  <description>Two-VM scenario used to exercise the hadoop_yarn_rce module's secgen_test
+  through tier 3 via the Proxmox QEMU Guest Agent pipeline: a Debian 12 target running a
+  single-node Hadoop YARN ResourceManager and NodeManager in their default, unauthenticated
+  configuration (REST/UI on port 8088), and a Kali/MSF attacker on the same private network
+  that runs exploit/linux/http/hadoop_unauth_exec against it.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>hadoop_target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <network_ip system="hadoop_target"/>
+      <network_ip system="attacker"/>
+    </input>
+
+    <vulnerability module_path=".*/hadoop_yarn_rce"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_root_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_root_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_root_pass_attacker">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_root_pass_attacker</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
