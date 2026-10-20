@@ -40,6 +40,32 @@ modules/utilities/unix/audit_tools/reversing_tools/
 
 Entry point first lines across modules: `include X::install` [117], `require X::init` [21], `include X::config` [19], `require X::install` / `contain X::install` [6 each]. Manifest names: `install.pp` [165], `config.pp` [71], `init.pp` [64], `service.pp` [48]. Follow `install` -> `config` -> `service`; when config depends on install, use `require`/`->` rather than relying on include order.
 
+## Naming and comments
+
+**Name the module after its Metasploit module.** When the vuln (or service) has
+an MSF module, the directory takes that module's own name, not a shortened one:
+`exploit/linux/http/gravcms_exec` -> `.../webapp/gravcms_exec`, not `gravcms`.
+Keep the metadata `<msf_module>`, the `secgen_test` class/filename, and the
+scenario's `module_path` selector on that same name. The selector is matched
+anchored (`^...$`), so `.*/gravcms` will **not** select `gravcms_exec` and the
+scenario silently fails to resolve. With no MSF module, name it for what it is.
+
+**Comment the code, not the lab.** A comment says what this manifest does and
+why it does it that way — the repo a package comes from, why an `exec` is
+guarded or ordered, a base-specific package quirk. Keep out:
+
+- the scenario or vulnerability the module happens to serve. A `php7` utility
+  installs PHP 7.4 for anything that wants it; it must not mention GravCMS, a
+  CVE, or "the critical fix for the exploit". Describe the behaviour, not the
+  caller — the same goes for a helper you add to `PostProvisionTest`.
+- changelog and war-story prose: "NOTE (resolved): ... used to die before ...",
+  residual-risk essays, "verified PASS on <date>". That history belongs in the
+  commit message, not the source.
+- anything that merely restates the line below it.
+
+A class header is one or two lines on what the class installs or configures. If
+a comment runs longer than the code it explains, cut it back.
+
 ## Reading SecGen inputs
 
 ```puppet
@@ -170,6 +196,8 @@ exec { 'clone theZoo':
 
 ## Checklist for a new/changed manifest
 
+- [ ] Directory name follows the Metasploit module name where there is one; the metadata `<msf_module>`, the scenario `module_path` selector and the test agree on it.
+- [ ] Comments describe what the code does, not the scenario/CVE it serves; no changelog or residual-risk prose; none merely restate the code.
 - [ ] Entry point `<dir_name>.pp` includes the classes; class names are `<dir_name>::<file>`.
 - [ ] Inputs read via `get_parameters` only if the module has `<read_fact>`s; scalars indexed `[0]`; optional inputs guarded.
 - [ ] Every file's parent directory exists or is created first.
