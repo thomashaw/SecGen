@@ -192,7 +192,7 @@
           </encoder>
         </input>
         <input into="salt">
-          <generator type="random_number_generator">
+          <generator module_path=".*/random_number">
             <input into="maximum">
               <value>999</value>
             </input>
