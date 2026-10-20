@@ -194,6 +194,8 @@ exec { 'clone theZoo':
    - `Unable to locate package` -> package gone on this release; branch on `$operatingsystemrelease` or bundle it.
    - `externally-managed-environment` -> pip on Debian 12; use a venv.
    - HTTP on `/` returns 200 but the wrong content (e.g. Apache's default page instead of the app) even though files are installed correctly -> **vhost priority conflict** with `apache.*compatible.*` dependency. That dependency registers its own default vhost at `priority => '15'`; add `priority => '05'` (or any value below 15) to the module's `apache::vhost` so it takes precedence. See `gitlist_040` for the pattern.
+   - `Unknown resource type: 'cron'` -> `cron` left Puppet core in 6+ (now puppetlabs-cron_core). On a Debian 12 base it isn't loaded. Either `<requires>` the `cron_new`/`cron_legacy` puppet_module utility, or - cleaner for a vuln module composed randomly as an unspecified `<vulnerability/>`, where a required cron variant could clash with another module's - drop a self-contained `/etc/cron.d/<job>` file (`ensure => file`, a `www-data`/user field in the line, trailing newline) and `ensure_packages(['cron'])`.
+   - `Could not find class <name>` (e.g. after `include docker`) -> the manifest `include`s a foreign Puppet class whose utility isn't declared. A vuln/service module that uses another module's class must list it in `<requires>` (e.g. `utilities/unix/container/docker`), or the catalog won't compile. `build-project` catches this with zero VMs.
 
 ## Checklist for a new/changed manifest
 
