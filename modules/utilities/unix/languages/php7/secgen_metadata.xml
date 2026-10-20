@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>PHP 7.4 (sury, Debian 12 Bookworm)</name>
+  <author>Thomas Shaw</author>
+  <module_license>Apache v2</module_license>
+  <description>Installs PHP 7.4 from the deb.sury.org third-party apt repository
+          alongside Debian 12's own PHP 8.2, then makes 7.4 the default PHP for
+          both the CLI (`update-alternatives --set php`) and, once Apache is
+          present, the apache2 PHP handler module. This is additional software,
+          not a downgrade of any system package: php8.2 is left installed.
+
+          This exists for vulnerability modules whose exploit needs PHP 7
+          semantics that PHP 8 changed or removed (e.g. a `?&gt;` close tag is
+          tolerated inside eval() under PHP 7 but is a parse error under PHP 8).
+          Because it changes the host-wide default PHP, it conflicts with every
+          other module known at the time of writing to install or depend on a
+          particular PHP version, so SecGen's resolver will not compose it onto
+          the same system as one of them. This is a point-in-time, best-effort
+          list, not a guarantee: see manifests/install.pp for exactly what it
+          does and does not protect against, and for why it does not touch
+          Apache itself (left to the consuming module).</description>
+
+  <type>language</type>
+  <type>php</type>
+  <platform>linux</platform>
+
+  <reference>https://packages.sury.org/php/</reference>
+  <reference>https://www.php.net/supported-versions.php</reference>
+
+  <software_name>php</software_name>
+  <software_license>PHP License v3.01</software_license>
+
+  <conflict>
+    <software_name>php</software_name>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/webapp/bludit_upload_images_exec.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/webapp/commando.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/webapp/drupal_850.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/webapp/gitlist_040.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/webapp/onlinestore.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/webapp/wordpress_[1-4]x.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/web_training/dvwa.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/http/glpi_php_injection.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/http/linuxki_rce.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/http/raspap_rce.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*vulnerabilities/unix/http/vuln_parameterised_website.*</module_path>
+  </conflict>
+  <conflict>
+    <module_path>.*services/unix/http/lamp.*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+  <requires>
+    <module_path>.*bases/debian_bookworm.*</module_path>
+  </requires>
+</utility>

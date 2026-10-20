@@ -3,10 +3,22 @@ class gravcms::install {
   $strings_to_leak = $secgen_parameters['strings_to_leak']
   $leaked_filenames = $secgen_parameters['leaked_filenames']
 
-  ensure_packages(['apache2', 'php', 'libapache2-mod-php', 'php-mbstring', 'php-curl', 'php-dom', 'php-xml', 'php-zip', 'php-gd', 'cron'])
+  # PHP itself is NOT installed here: it comes from the required php7 utility
+  # module (modules/utilities/unix/languages/php7), which installs PHP 7.4
+  # and makes it the default `php` CLI -- required so the exploit's implanted
+  # scheduler job (which runs `/usr/bin/php -r eval(...)`) actually parses
+  # under Debian 12's stock PHP 8.2 (see php7's secgen_metadata.xml and this
+  # module's own <requires> for why). php7 provisions before this module (as
+  # a <requires> dependency) but deliberately never touches Apache, since
+  # apache2 doesn't exist yet at that point -- so enabling PHP in Apache is
+  # this module's job, below, once apache2 is installed.
+  ensure_packages(['apache2', 'cron'])
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
+  exec {'enable-apache-php7':
+    command => 'a2enmod php7.4',
+  } ->
   exec {'enable-mod-rewrite':
     command => 'a2enmod rewrite',
   } ->

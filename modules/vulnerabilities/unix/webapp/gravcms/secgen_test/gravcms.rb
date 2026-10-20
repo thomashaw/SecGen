@@ -46,17 +46,21 @@ class GravcmsTest < PostProvisionTest
     # (sentinel_wait) instead of reading it once. collect reads the flag the
     # module leaks into /var/www (outside the web root) as evidence of access.
     #
-    # KNOWN LIMITATION (Debian 12 / PHP 8.2): this tier FAILs on our standard
-    # base, and the failure is upstream, not a module defect. Verified on a live
-    # build: the vuln is confirmed, the scheduler job is implanted and fires, but
-    # it dies with "PHP Parse error: unexpected token '?', expecting end of file
-    # ... eval()'d code". gravcms_exec runs `php -r eval(base64_decode("<payload>"))`
-    # and every msf php payload ends in a `?>` close tag; PHP 8.0+ rejects a
-    # trailing `?>` inside eval() (PHP 7 tolerated it). The only target-side fix is
-    # pointing /usr/bin/php at PHP 7, a de-facto system downgrade that would break
-    # other PHP-8 modules composed into the same VM, so it is deliberately not done.
-    # Tier 3 therefore passes only on a PHP<8 base or with a patched exploit; on
-    # Debian 12 the module is a genuine, confirmed vuln exercised to tier 2.
+    # PHP 8 / Debian 12 NOTE (resolved): Debian 12's stock PHP 8.2 rejects a
+    # trailing `?>` close tag inside eval() (PHP 7 tolerated it), and every msf
+    # php payload ends in one, so the exploit's implanted Grav scheduler job
+    # ("PHP Parse error: unexpected token '?', expecting end of file") used to
+    # die before it could run -- the vuln fired but tier 3 FAILed on this base.
+    # Fixed by requiring modules/utilities/unix/languages/php7 (see gravcms's
+    # secgen_metadata.xml), which installs PHP 7.4 alongside php8.2 (additional
+    # software, not a downgrade) and makes 7.4 the default `php`/apache handler.
+    # Verified PASS to tier 3 on a live Debian 12 Bookworm build (2026-10-20):
+    # sentinel confirmed RCE as www-data via exploit/linux/http/gravcms_exec.
+    # php7 carries a <conflict> list so SecGen won't compose it onto a system
+    # with another module that needs PHP 8 -- see that module's manifests for
+    # exactly what the conflict does and does not catch (residual risk noted
+    # there: a PHP-dependent module not on that list could still be composed
+    # alongside this one and have PHP silently switched to 7.4 under it).
     test_msf_exploit('exploit/linux/http/gravcms_exec',
                      rport: 80,
                      payload: 'php/unix/cmd/generic',
