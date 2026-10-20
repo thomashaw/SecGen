@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+  Single-node YARN config. The ResourceManager addresses are left at their
+  shipped defaults (bind 0.0.0.0, no authentication/ACLs on the REST API) -
+  that open API is the vulnerability this module demonstrates. The NodeManager
+  co-located on this host picks up the local RM on the default ports.
+
+  The only non-default settings advertise a modest, predictable container
+  capacity and disable the virtual/physical memory guards, so the single
+  ApplicationMaster container a submitted application asks for is actually
+  scheduled and launched rather than rejected or killed on a small VM.
+-->
+<configuration>
+  <property>
+    <name>yarn.nodemanager.resource.memory-mb</name>
+    <value>2048</value>
+  </property>
+  <property>
+    <name>yarn.scheduler.maximum-allocation-mb</name>
+    <value>2048</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.vmem-check-enabled</name>
+    <value>false</value>
+  </property>
+  <property>
+    <name>yarn.nodemanager.pmem-check-enabled</name>
+    <value>false</value>
+  </property>
+</configuration>

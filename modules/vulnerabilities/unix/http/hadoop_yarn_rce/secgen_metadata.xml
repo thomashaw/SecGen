@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+
+  <name>Hadoop YARN ResourceManager Unauthenticated Command Execution</name>
+  <author>Sofia Markusfeld</author>
+  <module_license>Apache v2</module_license>
+  <description>Stands up a single-node Hadoop (pseudo-distributed) YARN ResourceManager in its
+    default, unauthenticated configuration. Hadoop's standard ResourceManager REST API accepts
+    unauthenticated application submissions, which can be used to execute arbitrary commands on
+    the cluster.</description>
+
+  <type>hadoop</type>
+  <privilege>user_rwx</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>medium</difficulty>
+
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+
+  <!-- flag/secret exposed in the hadoop service account's home directory after exploitation -->
+  <default_input into="strings_to_leak">
+    <generator type="message_generator"/>
+  </default_input>
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <!--optional vulnerability details-->
+  <reference>https://www.exploit-db.com/exploits/45025</reference>
+  <software_name>Apache Hadoop YARN ResourceManager</software_name>
+  <software_license>Apache v2</software_license>
+
+  <!--optional hints-->
+  <msf_module>exploit/linux/http/hadoop_unauth_exec</msf_module>
+  <hint>The YARN ResourceManager web UI/REST API is open with no authentication.</hint>
+  <solution>Submit a crafted application via the unauthenticated ResourceManager REST API
+    (new-application -> submit-application) to run an arbitrary command as the hadoop
+    service account.</solution>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+
+</vulnerability>
