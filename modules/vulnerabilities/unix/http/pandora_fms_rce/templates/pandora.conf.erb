@@ -1,0 +1,11 @@
+# Pandora FMS console: allow .htaccess and set PHP limits for this app only
+<Directory /var/www/html/pandora_console>
+    AllowOverride All
+    Require all granted
+    php_value auto_prepend_file /usr/local/share/pandora_php8_compat.php
+    php_value memory_limit 256M
+    php_value upload_max_filesize 100M
+    php_value max_execution_time 360
+    php_value max_input_vars 2000
+    php_value date.timezone Europe/London
+</Directory>

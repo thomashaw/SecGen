@@ -1,0 +1,4 @@
+CREATE DATABASE IF NOT EXISTS <%= @db_name %> CHARACTER SET utf8mb4;
+CREATE USER IF NOT EXISTS '<%= @db_user %>'@'<%= @db_host %>' IDENTIFIED BY '<%= @db_password %>';
+GRANT ALL PRIVILEGES ON <%= @db_name %>.* TO '<%= @db_user %>'@'<%= @db_host %>';
+FLUSH PRIVILEGES;

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: Pandora FMS provisioning</name>
+  <author>Thomas Shaw</author>
+  <description>Single Debian 12 VM running the Pandora FMS 7.0NG.742 console, used to check that
+  the pandora_fms_rce module provisions and serves over HTTP (tiers 1 and 2 only).</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>pandora_target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/pandora_fms_rce"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
