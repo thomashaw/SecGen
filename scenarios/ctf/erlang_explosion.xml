@@ -102,7 +102,7 @@
             </input>
         </vulnerability>
 
-        <vulnerability module_path=".*/sudo_root_vi"></vulnerability>
+        <vulnerability module_path=".*/sudo_root_less"></vulnerability>
 
         <network type="private_network"/>
     <build type="cleanup">
