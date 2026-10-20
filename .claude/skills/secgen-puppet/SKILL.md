@@ -193,6 +193,7 @@ exec { 'clone theZoo':
    - `Could not retrieve information from environment production source(s) puppet:///modules/<m>/<f>` -> file missing from `<m>/files/`, or `<m>` not selected for the system.
    - `Unable to locate package` -> package gone on this release; branch on `$operatingsystemrelease` or bundle it.
    - `externally-managed-environment` -> pip on Debian 12; use a venv.
+   - HTTP on `/` returns 200 but the wrong content (e.g. Apache's default page instead of the app) even though files are installed correctly -> **vhost priority conflict** with `apache.*compatible.*` dependency. That dependency registers its own default vhost at `priority => '15'`; add `priority => '05'` (or any value below 15) to the module's `apache::vhost` so it takes precedence. See `gitlist_040` for the pattern.
 
 ## Checklist for a new/changed manifest
 
@@ -206,3 +207,4 @@ exec { 'clone theZoo':
 - [ ] No `puppet:///modules/<other>/` unless `<other>` is in `<requires>`.
 - [ ] Titles unique within loops/defines; `create_directory` gets a unique `res`.
 - [ ] Leaks use `leak_files` with a unique `leaked_from`; then run `review-secgen-module`.
+- [ ] If the module uses `apache.*compatible.*` as a `<requires>`, the `apache::vhost` has `priority => '05'` (prevents the dependency's own default vhost from taking precedence).
