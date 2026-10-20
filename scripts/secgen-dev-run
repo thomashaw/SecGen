@@ -14,7 +14,8 @@
 # Without --test/-m (development build): runs the secgen_tests after net0 teardown +
 # reboot and writes test_results/<project-id>/, but always leaves the VMs running in
 # their final state, even if the build or a test fails, so you can investigate.
-# Add -- --no-tests to skip the tests. Exit 0 PASS / 1 FAIL (or build failed) / 2 SKIP.
+# Add -- --no-tests to skip the tests. Exit 0 PASS / 1 FAIL (or build failed) /
+# 2 SKIP / 3 PARTIAL (passed to a tier, a higher tier skipped for a missing prereq).
 #
 # Settings (env, or ~/.config/secgen/secgen-dev-run.env):
 #   SECGEN_RUN_OWNER  first part of the prefix (default: $USER)
@@ -152,8 +153,9 @@ else
   PROJECT_PATH=unknown
   PROJECT_ID="${PREFIX}_$(date +%Y%m%d_%H%M%S)"
 fi
-# 2 = tests SKIPped (could not test): not a build error
-[[ $STATUS -eq 0 || $STATUS -eq 2 ]] && LOG_PREFIX="" || LOG_PREFIX="ERROR_"
+# 2 = tests SKIPped (could not test), 3 = PARTIAL (lower tiers passed, a higher
+# tier skipped for a missing prereq): neither is a build error.
+[[ $STATUS -eq 0 || $STATUS -eq 2 || $STATUS -eq 3 ]] && LOG_PREFIX="" || LOG_PREFIX="ERROR_"
 LOG="log/${LOG_PREFIX}${PROJECT_ID}"
 {
   printf 'SecGen project path::: %s\n\n\n' "$PROJECT_PATH"

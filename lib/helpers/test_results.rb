@@ -18,8 +18,8 @@ require_relative 'print.rb'
 # copies everything out of the project with the Proxmox password masked.
 module TestResults
   RESULTS_DIR = "#{ROOT_DIR}/test_results".freeze
-  STATUS_ORDER = %w[PASS SKIP FAIL].freeze # worst last
-  EXIT_CODES = { 'PASS' => 0, 'FAIL' => 1, 'SKIP' => 2 }.freeze
+  STATUS_ORDER = %w[PASS PARTIAL SKIP FAIL].freeze # worst last
+  EXIT_CODES = { 'PASS' => 0, 'FAIL' => 1, 'SKIP' => 2, 'PARTIAL' => 3 }.freeze
   MASK = '********'.freeze
   # secrets secgen.rb takes from --read-options and passes on via the environment
   SECRET_ENV_VARS = %w[SECGEN_PROXMOX_PASS SECGEN_LLM_API_KEY].freeze
@@ -200,7 +200,7 @@ module TestResults
     end
 
     module_statuses = systems.flat_map { |s| s[:modules].map { |m| m[:status] } }
-    counts = { 'PASS' => 0, 'FAIL' => 0, 'SKIP' => 0 }
+    counts = { 'PASS' => 0, 'PARTIAL' => 0, 'FAIL' => 0, 'SKIP' => 0 }
     module_statuses.each { |s| counts[s] = counts.fetch(s, 0) + 1 }
     status = build[:status] == 'success' ? worst(module_statuses) : 'FAIL'
 

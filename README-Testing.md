@@ -29,15 +29,16 @@ Each check belongs to a tier, which records how much of the module has been demo
 
 ## Statuses and exit codes
 
-Every check, every module and every run has one of three statuses, and the test process exits with the corresponding code:
+Every check is one of three statuses (`PASS` / `FAIL` / `SKIP`). A module or run rolls those up into one of four overall statuses, and the test process exits with the corresponding code:
 
 | Status | Exit code | Meaning |
 |---|---|---|
 | `PASS` | `0` | every check passed |
 | `FAIL` | `1` | a check failed; evidence is collected automatically |
-| `SKIP` | `2` | the test could not be carried out (for example, no Proxmox password in the environment, an unresponsive guest agent, or an exception raised by the test itself) |
+| `SKIP` | `2` | nothing testable ran at all (for example, no Proxmox password in the environment, an unresponsive guest agent, the module never provisioned, or an exception raised by the test itself) |
+| `PARTIAL` | `3` | no check failed and the module provisioned and passed every tier up to `tier_reached` (≥ 1), but a higher tier was skipped for a missing prerequisite — most often tier 3 skipping because the scenario has no attacker VM. A working module that needs manual or orchestrated follow-up to finish validating, not a broken one. |
 
-A module is `FAIL` if any of its checks failed, otherwise `SKIP` if any check was skipped, otherwise `PASS`; a run takes the worst module status (`FAIL` over `SKIP` over `PASS`). A `SKIP` is never treated as a pass, since it usually indicates a harness or network problem rather than a working module. Whilst the JSON files described below are the authoritative record, tests also print human-readable `PASSED:`, `FAILED:` and `SKIPPED:` lines for compatibility with older tests and scripts.
+A module is `FAIL` if any of its checks failed; otherwise `PASS` if none were skipped; otherwise `PARTIAL` if it still reached at least tier 1 (so the skips are higher tiers it could not set up this run); otherwise `SKIP`. A run takes the worst module status (`FAIL` over `SKIP` over `PARTIAL` over `PASS`). **Only `PASS` is treated as a pass for VM retention** — `PARTIAL`, `SKIP` and `FAIL` all leave no surviving VM (under the production default; `--no-destroy-on-failure` keeps them for investigation). `PARTIAL` exists so an orchestrator or reviewer can tell "works, just needs its tier-3 setup" apart from "could not be tested" and "broken", using the status together with `tier_reached`. Whilst the JSON files described below are the authoritative record, tests also print human-readable `PASSED:`, `FAILED:` and `SKIPPED:` lines for compatibility with older tests and scripts.
 
 A failure that Puppet itself detects during provisioning (for example, a service that fails to start) is a build failure rather than a test failure: no tests are run, and the failure is recorded under `build` in `summary.json`.
 

@@ -10,7 +10,9 @@
 #   works, 3 exploitable);
 # - run writes projects/<id>/test_results/<system>/<module>.json, collects
 #   evidence into evidence/<module>/ on FAIL, prints the PASSED:/FAILED:/SKIPPED:
-#   lines and exits 0 (PASS), 1 (FAIL) or 2 (SKIP: could not test).
+#   lines and exits 0 (PASS), 1 (FAIL), 2 (SKIP: could not test) or 3 (PARTIAL:
+#   provisioned and passed to tier_reached, but a higher tier was skipped for a
+#   missing prerequisite such as an attacker VM - a distinct non-pass).
 # Legacy tests that push "PASSED: ..." / "FAILED: ..." onto outputs and set
 # all_tests_passed keep working: those lines are recorded as checks.
 
@@ -36,8 +38,11 @@ rescue LoadError
 end
 
 class PostProvisionTest
-  STATUSES = %w[PASS FAIL SKIP].freeze
-  EXIT_CODES = { 'PASS' => 0, 'FAIL' => 1, 'SKIP' => 2 }.freeze
+  STATUSES = %w[PASS FAIL SKIP].freeze                      # per-check statuses
+  # Overall run statuses -> process exit codes. PARTIAL is overall-only (never a
+  # per-check status): lower tiers passed but a higher tier was skipped for a
+  # missing prerequisite (e.g. no attacker VM), so it needs follow-up, not a fix.
+  EXIT_CODES = { 'PASS' => 0, 'FAIL' => 1, 'SKIP' => 2, 'PARTIAL' => 3 }.freeze
   LINE_PREFIXES = { 'PASS' => 'PASSED', 'FAIL' => 'FAILED', 'SKIP' => 'SKIPPED' }.freeze
   TIERS = { 1 => 'provisioned', 2 => 'service/tool works', 3 => 'exploitable' }.freeze
 
@@ -165,11 +170,17 @@ class PostProvisionTest
     tier || @current_tier || fallback
   end
 
-  # PASS if every check passed, FAIL if any failed, otherwise SKIP.
+  # PASS: every check passed. FAIL: any check failed. PARTIAL: none failed but a
+  # check was skipped while the module still provisioned and passed every tier up
+  # to tier_reached (>= 1) - the skip is a higher tier that this run could not set
+  # up (e.g. tier 3 with no attacker VM), so it needs manual/orchestrated
+  # follow-up rather than a fix. SKIP: nothing testable ran at all (not
+  # provisioned, no address). PARTIAL still counts as non-pass for VM cleanup.
   def overall_status
     return 'FAIL' if @results.any? { |r| r[:status] == 'FAIL' }
-    return 'SKIP' if @results.empty? || @results.any? { |r| r[:status] == 'SKIP' }
-    'PASS'
+    return 'SKIP' if @results.empty?
+    return 'PASS' if @results.none? { |r| r[:status] == 'SKIP' }
+    tier_reached >= 1 ? 'PARTIAL' : 'SKIP'
   end
 
   # Highest tier whose checks (and every lower tier's) all passed; tiers with no

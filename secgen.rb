@@ -108,7 +108,9 @@ def usage
    test-scenario [xml file]: Builds the scenario (or --scenario), runs every module's
               secgen_test (on Proxmox: after net0 teardown and a reboot, over the
               QEMU Guest Agent), writes test_results/<project-id>/summary.json,
-              then destroys the VMs and project. Exit 0 PASS, 1 FAIL, 2 SKIP.
+              then destroys the VMs and project. Exit 0 PASS, 1 FAIL, 2 SKIP,
+              3 PARTIAL (passed to a tier, a higher tier skipped for a missing
+              prerequisite). Only PASS keeps the VMs under --no-destroy-on-failure.
    test-module [module path]: As test-scenario, for a one-system scenario holding
               just that module (e.g. modules/services/unix/ftp/proftpd).
    destroy-project: Deletes the VMs of a previously built project (--project [dir]), then

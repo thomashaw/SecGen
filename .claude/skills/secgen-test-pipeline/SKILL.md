@@ -217,10 +217,20 @@ tier_reached, results: [{tier, name, status, detail, evidence?}]}`), and exits:
   *<module>*`, the boot journal, listening ports, processes, plus any
   `add_evidence`) is collected in one guest call into
   `test_results/<system>/evidence/<module>/`.
-- `2` **SKIP** — could not test: no `SECGEN_PROXMOX_PASS`, guest agent not
+- `2` **SKIP** — nothing testable ran: no `SECGEN_PROXMOX_PASS`, guest agent not
   answering (waits `SECGEN_AGENT_WAIT`, default 60s), no IP when one was needed
-  (DHCP on Vagrant), or the test itself raised. **A SKIP is never a pass** —
-  usually a harness problem, not the module.
+  (DHCP on Vagrant), the module never provisioned, or the test itself raised.
+- `3` **PARTIAL** — no check failed and the module provisioned and passed every
+  tier up to `tier_reached` (≥ 1), but a higher tier was skipped for a missing
+  prerequisite — most often **tier 3 skipping on a single-system scenario because
+  there is no attacker VM**. It means "works, just needs its higher-tier setup",
+  distinct from SKIP. Read the status + `tier_reached`, not just the exit code: a
+  single-system build of a module with a tier-3 check exits `3`, not `0`, even
+  though tiers 1-2 passed.
+
+**Only PASS (exit 0) is a pass.** PARTIAL, SKIP and FAIL all count as non-pass:
+no VM survives under the production default, and the batch must not treat any of
+them as success. PARTIAL is for triage (route to "needs tier-3 setup"), not a green light.
 
 A breakage Puppet itself notices (e.g. the service fails to (re)start during
 provisioning) is a **build** failure, not a test FAIL: no tests run, the build
@@ -252,7 +262,7 @@ wait for the guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) → settle
 side) → `test_results/<project-id>/` →
 destroy the VMs via the API and remove the project.
 
-- **Exit code:** 0 all PASS, 1 any FAIL (or the build failed), 2 any SKIP.
+- **Exit code:** 0 all PASS, 1 any FAIL (or the build failed), 2 any SKIP, 3 PARTIAL (the worst module status across the run, worst-first: FAIL > SKIP > PARTIAL > PASS).
 - **Results** (gitignored, survive teardown): `test_results/<project-id>/`
   holds `summary.json` (build status/attempts, counts, per-system modules with
   status and `tier_reached`, SecGen commit/branch, `masked_secrets`),
