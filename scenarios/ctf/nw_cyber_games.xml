@@ -111,7 +111,7 @@
           <input into="heading">
             <value>Challenge 6</value>
           </input>
-          <input into="paragraphs" unique_module_list="unique_encoders">
+          <input into="paragraphs">
             <generator type="ctf_challenge"/>
           </input>
         </generator>
