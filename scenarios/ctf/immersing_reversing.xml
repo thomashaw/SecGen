@@ -64,18 +64,21 @@
       <utility module_path=".*/metactf">
         <input into="challenge_list" into_datastore="existing_challenges">
 
-          <!-- Randomise by difficulty (easy, medium, hard)  -->
+          <!-- Randomise by difficulty (easy, medium, hard).
+               The first generator has nothing to exclude: existing_challenges
+               is still empty, and reading an empty datastore fails the build.
+               Each later generator excludes the challenges already chosen. -->
+          <generator type="metactf_challenge">
+            <input into="difficulty">
+              <value>medium</value>
+            </input>
+          </generator>
           <generator type="metactf_challenge">
             <input into="difficulty">
               <value>medium</value>
             </input>
             <input into="existing_challenges">
               <datastore>existing_challenges</datastore>
-            </input>
-          </generator>
-          <generator type="metactf_challenge">
-            <input into="difficulty">
-              <value>medium</value>
             </input>
           </generator>
           <generator type="metactf_challenge">
