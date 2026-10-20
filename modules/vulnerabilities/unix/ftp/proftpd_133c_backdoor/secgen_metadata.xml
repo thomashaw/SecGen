@@ -67,7 +67,7 @@
   <software_license>GPL</software_license>
 
   <!--optional hints-->
-  <!--<msf_module>exploits/unix/ftp/proftpd_133c_backdoor.rb</msf_module>-->
+  <msf_module>exploit/unix/ftp/proftpd_133c_backdoor</msf_module>
   <hint>A backdoor in a service</hint>
   <solution>Remotely exploitable backdoor in the FTP service</solution>
 
