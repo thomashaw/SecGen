@@ -376,9 +376,18 @@ class PostProvisionTest
   # `collect:` output) into it, and we read it back over the target's own guest
   # agent. A fresh nonce per call means an old file can't produce a false pass.
   # Returns [sentinel_path, command_string].
-  def build_sentinel(collect = nil)
+  #
+  # `dir` is the directory the sentinel is written in (default /tmp). Override it
+  # when the exploited process runs under a systemd unit with `PrivateTmp=true`
+  # (Debian's apache2.service, among others): the service then has its own
+  # private /tmp and /var/tmp namespace, so a sentinel it drops in /tmp is
+  # invisible to the root guest-agent read that verifies it, and the check would
+  # FAIL even though the command ran. `PrivateTmp` isolates only /tmp and
+  # /var/tmp, so a shared location such as /dev/shm (world-writable, 1777) is seen
+  # identically by the service and by the verifying read.
+  def build_sentinel(collect = nil, dir: '/tmp')
     nonce = "#{Time.now.to_i}_#{rand(100000)}"
-    sentinel = "/tmp/secgen_pwned_#{nonce}"
+    sentinel = "#{dir}/secgen_pwned_#{nonce}"
     cmd = "id > #{sentinel}; uname -n >> #{sentinel}; "
     cmd += "#{collect} >> #{sentinel} 2>/dev/null; " if collect
     cmd += "chmod 644 #{sentinel}"
@@ -462,13 +471,14 @@ class PostProvisionTest
   def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
                        payload: 'cmd/unix/generic', collect: nil, force: false,
                        options: {}, tier: 3, label: nil,
-                       sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 0).to_i)
+                       sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 0).to_i,
+                       sentinel_dir: '/tmp')
     name = label || "msf exploit (#{msf_module})"
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
     attacker, attacker_ip, rhost = resolved
 
-    sentinel, cmd = build_sentinel(collect)
+    sentinel, cmd = build_sentinel(collect, dir: sentinel_dir)
     settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload, 'CMD' => cmd }
     settings['ForceExploit'] = true if force
     # Command-stager "fetch" payloads (cmd/<os>/http/...) download a runner over
@@ -567,7 +577,7 @@ class PostProvisionTest
                         expect: nil, expect_status: nil, sentinel: false,
                         collect: nil, include_headers: false, attacker: nil,
                         rhost: nil, rport: self.port, scheme: 'http', tier: 3,
-                        label: nil, timeout: 120)
+                        label: nil, timeout: 120, sentinel_dir: '/tmp')
     name = label || "http exploit (#{method.to_s.upcase} #{path})"
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
@@ -575,7 +585,7 @@ class PostProvisionTest
 
     sentinel_path = nil
     if sentinel
-      sentinel_path, scmd = build_sentinel(collect)
+      sentinel_path, scmd = build_sentinel(collect, dir: sentinel_dir)
       sub = ->(s) { s.nil? ? nil : s.to_s.gsub('{{CMD}}', scmd) }
       path = sub.call(path)
       data = sub.call(data)

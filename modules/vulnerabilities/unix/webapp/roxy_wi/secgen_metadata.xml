@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+
+  <name>Roxy-WI</name>
+  <author>Harry J. Hall</author>
+  <module_license>MIT</module_license>
+  <description>This module installs a vulnerable version of Roxy-WI, a web interface for
+          managing HAProxy, Nginx, Apache and Keepalived servers. Roxy-WI before 6.1.1.0
+          is affected by an unauthenticated remote code execution vulnerability
+          (CVE-2022-31137). The application exposes several Python CGI endpoints; in
+          app/options.py the values of the request parameters serv, ipserv and ipbackend
+          are concatenated into a shell command string that is run with subprocess
+          shell=True, without adequate sanitisation. An unauthenticated attacker can
+          therefore inject arbitrary operating-system commands which run under the context
+          of the web-server user (www-data). The Metasploit module
+          exploit/linux/http/roxy_wi_exec automates this.</description>
+
+  <type>web</type>
+  <privilege>user_rwx</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>medium</difficulty>
+
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+
+  <default_input into="strings_to_leak">
+    <generator type="message_generator" />
+  </default_input>
+
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator" />
+  </default_input>
+
+  <cve>CVE-2022-31137</cve>
+
+  <reference>https://nvd.nist.gov/vuln/detail/CVE-2022-31137</reference>
+  <reference>https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/linux/http/roxy_wi_exec.rb</reference>
+
+  <software_name>Roxy-WI</software_name>
+
+  <msf_module>exploit/linux/http/roxy_wi_exec</msf_module>
+  <hint>A web interface for managing HAProxy, served over HTTPS, trusts request parameters it should not.</hint>
+  <solution>Roxy-WI before 6.1.1.0 passes request parameters into a shell command (CVE-2022-31137); inject an OS command to gain code execution as www-data.</solution>
+</vulnerability>

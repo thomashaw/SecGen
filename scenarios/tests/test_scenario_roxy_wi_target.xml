@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: Roxy-WI service (target only)</name>
+  <author>Thomas Shaw</author>
+  <description>Single-VM scenario that deploys only the Roxy-WI HAProxy web
+  interface target (CVE-2022-31137) on Debian 12, used to exercise the roxy_wi
+  module's secgen_test tiers 1-2 (provisioned, and Apache serving the site over
+  HTTPS on port 443) via the Proxmox QEMU Guest Agent pipeline. Tier 3 SKIPs
+  with no attacker VM present.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>roxy_wi_target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <input into_datastore="IP_addresses">
+      <network_ip system="roxy_wi_target"/>
+    </input>
+
+    <vulnerability module_path=".*/roxy_wi"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
