@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<utility xmlns="http://www.github/cliffe/SecGen/utility"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
+  <name>PHP 7.4 (sury, Debian 12 Bookworm)</name>
+  <author>Thomas Shaw</author>
+  <module_license>Apache v2</module_license>
+  <description>Installs PHP 7.4 from the deb.sury.org third-party apt repository
+          alongside Debian 12's own PHP 8.2, then makes 7.4 the default PHP for
+          both the CLI (`update-alternatives --set php`) and, once Apache is
+          present, the apache2 PHP handler module. This is additional software,
+          not a downgrade of any system package: php8.2 is left installed.
+  </description>
+
+  <type>language</type>
+  <type>php</type>
+  <platform>linux</platform>
+
+  <reference>https://packages.sury.org/php/</reference>
+  <reference>https://www.php.net/supported-versions.php</reference>
+
+  <software_name>php</software_name>
+  <software_license>PHP License v3.01</software_license>
+
+  <conflict>
+    <software_name>php</software_name>
+  </conflict>
+  <conflict>
+    <type>webapp</type>
+  </conflict>
+  <conflict>
+    <module_path>.*services/unix/http/lamp.*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+  <requires>
+    <module_path>.*bases/debian_bookworm.*</module_path>
+  </requires>
+</utility>
