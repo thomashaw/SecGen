@@ -19,7 +19,8 @@ class ElfinderTest < PostProvisionTest
     tier(2) do
       test_service_up
       test_http('/', match: 'elFinder')
-      test_http('/php/connector.minimal.php', status: [400, 403, 200])
+      # connector is a POST endpoint; a bare GET with no cmd is rejected
+      test_http('/php/connector.minimal.php', status: 400)
     end
 
     tier(3) do
