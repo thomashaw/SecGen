@@ -23,9 +23,16 @@ class elfinder::apache{
 	}->exec { 'chmod-elfinder-permissions':
 		command => "chmod 755 /var/www/ -R",
 	}->
+	# priority 05 so this vhost's config sorts (and loads as the Apache
+	# default) ahead of the apache-compatible dependency's own vhost, which
+	# also listens on port 80 (docroot /var/www/html) at the default
+	# priority 25 - without this, unmatched Host headers fall through to
+	# that vhost instead of ours (see modules/vulnerabilities/unix/webapp/gitlist_040
+	# for the same fix to the same dependency).
 	::apache::vhost { 'www-elfinder':
-		port    => $port,
-		docroot => $docroot,
+		port     => $port,
+		docroot  => $docroot,
+		priority => '05',
 	}->
 	#remove default apache files
 	file{ '/var/www/html/index.html':
