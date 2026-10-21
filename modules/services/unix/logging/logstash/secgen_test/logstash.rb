@@ -5,6 +5,7 @@ class LogstashTest < PostProvisionTest
     self.module_name = 'logstash'
     self.module_path = get_module_path(__FILE__)
     super
+    self.port = json_inputs['logstash_port']&.first&.to_i || 5044
   end
 
   def test_module
@@ -12,7 +13,7 @@ class LogstashTest < PostProvisionTest
     tier(1) { test_local_command('logstash installed?', 'dpkg -l logstash | grep -E "^ii"', 'logstash') }
     tier(2) { test_local_command('logstash process running?', 'ps -ef | grep logstash', 'logstash') }
     # Logstash default beats input listens on port 5044; no HTTP endpoint by default
-    tier(2) { test_service_up(port: 5044) }
+    tier(2) { test_service_up }
   end
 end
 
