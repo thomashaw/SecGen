@@ -14,6 +14,9 @@ class LogstashTest < PostProvisionTest
     super
     tier(1) do
       test_local_command('logstash installed?', 'dpkg -l logstash | grep -E "^ii"', 'logstash')
+      test_local_command('logstash binary present', 'ls /usr/share/logstash/bin/logstash', 'logstash')
+      test_local_command('logstash service enabled', 'systemctl is-enabled logstash', 'enabled')
+      test_local_command('logstash.yml paths', 'cat /etc/logstash/logstash.yml', '/etc/logstash/conf.d')
       test_local_command('combined_path.rb installed', 'ls /etc/logstash/combined_path.rb', '/etc/logstash/combined_path.rb')
       # the pipeline config holds the configured beats port and Elasticsearch endpoint
       if (lp = json_inputs['logstash_port']&.first)
@@ -28,6 +31,8 @@ class LogstashTest < PostProvisionTest
     end
     tier(2) do
       test_local_command('logstash process running?', 'ps -ef | grep logstash', 'logstash')
+      # the pipeline runs as the logstash account
+      test_local_command('logstash process owner', 'ps -eo user:20,args | grep [l]ogstash', 'logstash')
       test_command_succeeds('logstash service active', 'systemctl is-active logstash')
       # The beats input listens on logstash_port; there is no HTTP endpoint by default
       test_service_up
