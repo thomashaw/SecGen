@@ -12,11 +12,15 @@ class XinetdTest < PostProvisionTest
     tier(1) do
       test_local_command('xinetd installed', 'dpkg -l xinetd | grep -E "^ii"', 'xinetd')
       test_local_command('xinetd binary present', 'which xinetd', 'xinetd')
+      test_local_command('xinetd.conf present', 'test -f /etc/xinetd.conf && echo ok', 'ok')
+      test_local_command('xinetd.d directory present', 'test -d /etc/xinetd.d && echo ok', 'ok')
+      test_local_command('xinetd.conf includes xinetd.d', 'grep includedir /etc/xinetd.conf', '/etc/xinetd.d')
     end
     tier(2) do
-      # xinetd starts but only listens when services are configured;
-      # verify the process can be managed
-      test_command_succeeds('xinetd service enabled', 'systemctl is-enabled xinetd 2>/dev/null || service xinetd status 2>/dev/null || true')
+      # xinetd only listens when other modules configure services, so check the daemon itself
+      test_local_command('xinetd service enabled', 'systemctl is-enabled xinetd', 'enabled')
+      test_command_succeeds('xinetd service active', 'systemctl is-active --quiet xinetd')
+      test_command_succeeds('xinetd process running', 'pgrep -x xinetd')
     end
   end
 end
