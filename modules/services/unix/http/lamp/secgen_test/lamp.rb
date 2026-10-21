@@ -20,7 +20,14 @@ class LampTest < PostProvisionTest
     end
     tier(2) do
       test_service_up
-      test_banner('Server: Apache', send: 'HEAD / HTTP/1.0')
+      # Apache identifies itself in the Server header. test_banner can't be used
+      # here: an HTTP/1.0 request only gets a response after the terminating
+      # blank line, which the banner helper doesn't send. Send the full request
+      # over bash /dev/tcp (as the harness's own banner reader does) instead.
+      test_local_command('apache identifies itself in the Server header',
+                         "exec 3<>/dev/tcp/127.0.0.1/80; " \
+                         "printf 'HEAD / HTTP/1.0\\r\\n\\r\\n' >&3; timeout 3 cat <&3",
+                         'Server: Apache')
       test_command_succeeds('mysql server answers', 'mysqladmin ping')
       # PHP is executed by Apache, not served as text: drop a probe, fetch it, remove it.
       run_command("echo '<?php echo \"lamp-\" . (6 * 7); ?>' > #{PHP_PROBE}")
