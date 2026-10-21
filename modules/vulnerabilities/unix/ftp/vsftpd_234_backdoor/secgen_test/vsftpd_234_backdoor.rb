@@ -36,7 +36,6 @@ class Vsftpd234BackdoorTest < PostProvisionTest
     # Tier 3 — exploit from the attacker VM (default cmd/unix/generic payload;
     # force: because this module's automatic check is inconclusive).
     test_msf_exploit('exploit/unix/ftp/vsftpd_234_backdoor',
-                     rport: 21,
                      force: true,
                      tier: 3)
   end
