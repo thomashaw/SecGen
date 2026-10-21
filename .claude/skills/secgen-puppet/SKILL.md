@@ -197,6 +197,26 @@ exec { 'clone theZoo':
    - `Unknown resource type: 'cron'` -> `cron` left Puppet core in 6+ (now puppetlabs-cron_core). On a Debian 12 base it isn't loaded. Either `<requires>` the `cron_new`/`cron_legacy` puppet_module utility, or - cleaner for a vuln module composed randomly as an unspecified `<vulnerability/>`, where a required cron variant could clash with another module's - drop a self-contained `/etc/cron.d/<job>` file (`ensure => file`, a `www-data`/user field in the line, trailing newline) and `ensure_packages(['cron'])`.
    - `Could not find class <name>` (e.g. after `include docker`) -> the manifest `include`s a foreign Puppet class whose utility isn't declared. A vuln/service module that uses another module's class must list it in `<requires>` (e.g. `utilities/unix/container/docker`), or the catalog won't compile. `build-project` catches this with zero VMs.
 
+## Puppet Forge module dependency conflicts
+
+**Symptom:** librarian-puppet fails with `Could not resolve the dependencies` before any VMs are created. The message names a module and a conflicting stdlib (or other dep) version, e.g. `puppetlabs-stdlib (>= 5.0.0, < 9.0.0) required by accounts_newer conflicts with puppetlabs-stdlib (>= 4.6.0 < 5.0.0) from ntp`.
+
+**Do not widen the ceiling in `metadata.json`.** The Puppet code in the module was written against the older API. Widening the range lets librarian pick a newer, incompatible version and the failure shifts to `puppet apply` time — e.g. `Concat::Fragment has no parameter named 'ensure'`, `Unknown function: validate_string`, `params_lookup` not found. These are harder to diagnose and the fix is the same: the module needs replacing.
+
+**Identify what kind of module it is:**
+
+- **Bundled Puppet Forge module** — the directory contains `checksums.json`, `CHANGELOG.md`, and a `metadata.json` whose `"author"` field is a Forge username (e.g. `"puppetlabs"`, `"jfryman"`). This is a full Forge download vendored in-tree. You cannot fix it by patching — escalate: print `ESCALATE: bundled Forge module needs upgrading — <module-dir> <current-version> conflicts with <dep>/<version>` so the orchestrator can replace the directory with a current Puppet-7-compatible release.
+
+- **SecGen-authored module with its own `metadata.json`** — the module's Puppet code is ours but it declares a dependency ceiling that is now too low. Before touching the ceiling, check whether the module is intentionally for older bases only (e.g. it uses `example42-*` deps that never supported newer stdlib). If so, add a `<conflict>` to `secgen_metadata.xml` to exclude it from bookworm builds — this prevents `accounts_newer` (bookworm-only) from being co-built with it:
+  ```xml
+  <conflict>
+    <module_path>.*bases/.*bookworm.*</module_path>
+  </conflict>
+  ```
+  If the module genuinely should work on bookworm and the Puppet code is safe with the newer dep version (you have verified it doesn't use removed functions), widening is acceptable — but verify first.
+
+Add to the debugging messages (§ above): `Could not resolve the dependencies` → dependency conflict; see this section.
+
 ## Checklist for a new/changed manifest
 
 - [ ] Directory name follows the Metasploit module name where there is one; the metadata `<msf_module>`, the scenario `module_path` selector and the test agree on it.
