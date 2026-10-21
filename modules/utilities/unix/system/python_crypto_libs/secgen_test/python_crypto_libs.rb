@@ -17,8 +17,11 @@ class PythonCryptoLibsTest < PostProvisionTest
                          'python3-pycryptodome')
     end
     tier(2) do
+      test_local_command('pip runs', 'python3 -m pip --version', 'pip')
       test_command_succeeds('numpy importable', 'python3 -c "import numpy; print(numpy.__version__)"')
       test_command_succeeds('Crypto importable', 'python3 -c "from Crypto.Cipher import AES; print(\'ok\')"')
+      # a real round trip through pycryptodome
+      test_local_command('AES round trip', 'python3 -c "from Crypto.Cipher import AES; k=b\'k\'*16; c=AES.new(k, AES.MODE_ECB); print(AES.new(k, AES.MODE_ECB).decrypt(c.encrypt(b\'0123456789abcdef\')).decode())"', '0123456789abcdef')
     end
   end
 end
