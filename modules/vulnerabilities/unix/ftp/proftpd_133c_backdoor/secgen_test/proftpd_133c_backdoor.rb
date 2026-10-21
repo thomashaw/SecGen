@@ -11,7 +11,7 @@ class Proftpd133cBackdoorTest < PostProvisionTest
     super
     test_service_up
     test_msf_exploit('exploit/unix/ftp/proftpd_133c_backdoor',
-                     rport: 21,
+                     rport: self.port,
                      tier: 3)
   end
 end
