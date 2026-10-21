@@ -1,8 +1,10 @@
-# Class lamp::mysql
-# This class installs mysql database server from puppetlabs-mysql module as a LAMP component
-
+# Installs the distro MySQL-compatible database server (MariaDB on Debian 12).
 class lamp::mysql {
+  ensure_packages(['mariadb-server'])
 
- include ::mysql::server
-
+  service { 'mariadb':
+    ensure  => running,
+    enable  => true,
+    require => Package['mariadb-server'],
+  }
 }
