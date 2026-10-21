@@ -2,7 +2,7 @@ class nfs_share::config {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $storage_directory = $secgen_parameters['storage_directory'][0]
 
-  package { ['nfs-kernel-server', 'nfs-common', 'portmap']:
+  package { ['nfs-kernel-server', 'nfs-common', 'rpcbind']:
       ensure => installed
   }
 
