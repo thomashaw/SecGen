@@ -11,6 +11,8 @@ class BluditTest < PostProvisionTest
     super
     test_service_up
     test_html_returned_content('/', '<title>Bludit</title>')
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/linux/http/bludit_upload_images_exec
   end
 end
 
