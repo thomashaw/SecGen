@@ -13,8 +13,10 @@ class AccountsTest < PostProvisionTest
     super
     tier(1) do
       # At least one non-system user should exist (UID >= 1000)
-      test_local_command('a user account was created', 'awk -F: "$3>=1000 && $3<65534 {print $1}" /etc/passwd', '')
-      test_local_command('/etc/passwd readable', 'wc -l /etc/passwd', '')
+      test_local_command('a user account was created', 'awk -F: "$3>=1000 && $3<65534 {print $1}" /etc/passwd | grep -q . && echo ok', 'ok')
+      test_local_command('/etc/passwd readable', 'test -r /etc/passwd && echo ok', 'ok')
+      test_local_command('useradd present', 'command -v useradd', 'useradd')
+      test_local_command('chpasswd present', 'command -v chpasswd', 'chpasswd')
     end
     tier(2) do
       # getent resolves user accounts via NSS — verifies the account is functional
@@ -24,6 +26,11 @@ class AccountsTest < PostProvisionTest
         test_local_command("user #{first_user} resolvable via getent",
                            "getent passwd #{first_user}",
                            first_user)
+        test_local_command("user #{first_user} has a home directory",
+                           "h=$(getent passwd #{first_user} | cut -d: -f6); test -d \"$h\" && echo ok", 'ok')
+        test_local_command("user #{first_user} password status",
+                           "passwd -S #{first_user}", first_user)
+        test_local_command("user #{first_user} id resolves", "id #{first_user}", 'uid=')
       else
         skip_check('user account functional check', 'no UID>=1000 user found to verify', tier: 2, evidence: nil)
       end
