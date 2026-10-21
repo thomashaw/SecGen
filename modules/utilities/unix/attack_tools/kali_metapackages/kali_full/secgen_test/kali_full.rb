@@ -9,8 +9,20 @@ class KaliFullTest < PostProvisionTest
 
   def test_module
     super
-    tier(1) { test_local_command('kali-linux-everything installed', 'dpkg -l kali-linux-everything | grep -E "^ii"', 'kali-linux-everything') }
-    tier(2) { test_command_succeeds('nmap available', 'nmap --version') }
+    # No inputs. The module only installs the kali-linux-everything metapackage.
+    tier(1) do
+      test_local_command('kali-linux-everything installed', 'dpkg -l kali-linux-everything | grep -E "^ii"', 'kali-linux-everything')
+      %w[nmap sqlmap msfconsole john hydra].each do |tool|
+        test_local_command("#{tool} on PATH", "which #{tool}", tool)
+      end
+    end
+    tier(2) do
+      test_command_succeeds('nmap available', 'nmap --version')
+      test_command_succeeds('sqlmap runs', 'sqlmap --version')
+      test_command_succeeds('john runs', 'john --list=formats')
+      test_local_command('hydra runs', 'hydra -h 2>&1', 'Hydra')
+      test_command_succeeds('msfconsole runs', 'export HOME=/root TERM=dumb; msfconsole --version')
+    end
   end
 end
 
