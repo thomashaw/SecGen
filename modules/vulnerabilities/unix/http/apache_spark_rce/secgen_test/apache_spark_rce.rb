@@ -9,8 +9,12 @@ class ApacheSparkRceTest < PostProvisionTest
 
   def test_module
     super
+    username = self.json_inputs['unix_username']&.first
+
     tier(1) do
-      test_local_command('spark user exists', 'id spark', 'spark')
+      if username
+        test_local_command("#{username} user exists", "id #{username}", username)
+      end
       test_local_command('spark install exists', 'test -d /opt/spark && echo present', 'present')
       test_local_command('java available', 'java -version 2>&1', 'version')
     end

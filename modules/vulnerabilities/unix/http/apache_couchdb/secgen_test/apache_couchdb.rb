@@ -9,9 +9,13 @@ class ApacheCouchdbTest < PostProvisionTest
 
   def test_module
     super
+    username = self.json_inputs['unix_username']&.first
+
     tier(1) do
       test_local_command('couchdb installed?', 'dpkg -l couchdb | grep -E "^ii"', 'couchdb')
-      test_local_command('couchdb user exists', 'id couchdb', 'couchdb')
+      if username
+        test_local_command("#{username} user exists", "id #{username}", username)
+      end
     end
     tier(2) do
       test_service_up

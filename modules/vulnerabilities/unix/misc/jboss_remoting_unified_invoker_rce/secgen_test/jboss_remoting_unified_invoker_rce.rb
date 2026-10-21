@@ -12,8 +12,12 @@ class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
 
   def test_module
     super
+    username = self.json_inputs['unix_username']&.first
+
     tier(1) do
-      test_local_command('jboss user exists', 'id jboss', 'jboss')
+      if username
+        test_local_command("#{username} user exists", "id #{username}", username)
+      end
       test_local_command('java available', 'java -version 2>&1', 'version')
       test_local_command('jboss install exists', 'test -d /opt/jboss && echo present', 'present')
     end
