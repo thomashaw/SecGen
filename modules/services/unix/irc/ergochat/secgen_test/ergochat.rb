@@ -10,7 +10,7 @@ class ErgochatTest < PostProvisionTest
 
   def test_module
     super
-    tier(1) { test_local_command('ergochat package installed', 'dpkg -s ergochat', 'Status: install ok installed') }
+    tier(1) { test_local_command('ergo binary installed', '/usr/local/bin/ergo --version', 'ergo') }
     tier(2) { test_service_up }
   end
 end
