@@ -10,6 +10,9 @@ class IRC2Test < PostProvisionTest
 
   def test_module
     super
+    # Tier 1: package installed
+    test_command_succeeds('ircd-irc2 package installed', 'dpkg -s ircd-irc2', tier: 1)
+    # Tier 2: daemon listening on the IRC port
     test_service_up
   end
 end

@@ -1,13 +1,15 @@
 class irc2::config {
-  file { '/etc/ircd.conf':
-    ensure => present,
-    source => 'puppet:///modules/irc2/ircd.conf',
-    before => Package['ircd-irc2'],
-  }
+  $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
+  $motd = $secgen_params['motd'][0]
 
-  file { '/etc/ircd.motd':
-    ensure => present,
-    source => 'puppet:///modules/irc2/ircd.motd',
-    before => Package['ircd-irc2'],
+  # Write the MOTD after the package so /etc/ircd/ exists; do not notify the
+  # service — ircd races on rebinding 6667 if restarted during provisioning.
+  file { '/etc/ircd/ircd.motd':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'irc',
+    mode    => '0640',
+    content => "${motd}\n",
+    require => Package['ircd-irc2'],
   }
 }
