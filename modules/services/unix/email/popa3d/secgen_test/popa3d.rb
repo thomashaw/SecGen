@@ -10,7 +10,11 @@ class Popa3dTest < PostProvisionTest
 
   def test_module
     super
+    # Tier 1: package installed (Debian ships the daemon at /usr/sbin/popa3d)
+    test_command_succeeds('popa3d binary installed', 'test -x /usr/sbin/popa3d', tier: 1)
+    # Tier 2: daemon listening (standalone mode is the debconf default) and greets with POP3 +OK
     test_service_up
+    test_banner('+OK', label: 'POP3 greeting from popa3d')
   end
 end
 
