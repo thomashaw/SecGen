@@ -1,4 +1,7 @@
 class irc2::config {
+  $secgen_params = secgen_functions::get_parameters($::base64_inputs_file)
+  $motd = $secgen_params['motd'][0]
+
   # The Debian package reads /etc/ircd/ircd.conf and /etc/ircd/ircd.motd
   # (compiled in), and creates /etc/ircd (root:irc 0750) on install, so these
   # must be written after the package. /etc/ircd.conf is never read.
@@ -15,7 +18,7 @@ class irc2::config {
 
   file { '/etc/ircd/ircd.motd':
     ensure  => present,
-    source  => 'puppet:///modules/irc2/ircd.motd',
+    content => "${motd}\n",
     owner   => 'root',
     group   => 'irc',
     mode    => '0640',
