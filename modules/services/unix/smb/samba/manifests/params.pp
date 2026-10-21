@@ -24,7 +24,9 @@ class samba::params {
     /(?i:Centos|RedHat|Scientific|Fedora|Amazon|Linux)/ => 'smb',
     /(?i:SLES|OpenSuSE)/                                => 'smb',
     /(?i:Ubuntu|Mint)/                                  => 'smbd',
-    /(?i:Debian)/                                       => 'samba',
+    # bookworm ships native smbd.service/nmbd.service; the old 'samba'
+    # sysvinit unit no longer exists.
+    /(?i:Debian)/                                       => 'smbd',
     default                                             => 'smb',
   }
 
