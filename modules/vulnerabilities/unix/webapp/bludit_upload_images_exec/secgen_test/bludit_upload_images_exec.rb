@@ -11,6 +11,9 @@ class BluditTest < PostProvisionTest
     super
     test_service_up
     test_html_returned_content('/', '<title>Bludit</title>')
+    test_msf_exploit('exploit/linux/http/bludit_upload_images_exec',
+                     rport: self.port,
+                     tier: 3)
   end
 end
 
