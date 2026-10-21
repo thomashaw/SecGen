@@ -9,8 +9,12 @@ class ApacheDruidRceTest < PostProvisionTest
 
   def test_module
     super
+    username = self.json_inputs['unix_username']&.first
+
     tier(1) do
-      test_local_command('druid user exists', 'id druid', 'druid')
+      if username
+        test_local_command("#{username} user exists", "id #{username}", username)
+      end
       # Druid is extracted from a tarball; check the coordinator start script
       test_local_command('druid install exists', 'test -d /opt/druid && echo present', 'present')
     end
