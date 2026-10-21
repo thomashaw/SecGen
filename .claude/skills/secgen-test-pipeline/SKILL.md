@@ -298,9 +298,12 @@ passed. The format is the results contract in `README-Testing.md`.
 scenario holding just that module on `modules/bases/debian_bookworm_desktop_kde`;
 `-- --test-base <name>` picks another base from `modules/bases/`) runs
 `secgen.rb test-scenario` / `test-module`. The test-module scenario is built by
-`lib/test/module_test_scenario.rb` and regenerated on every run; if the module
-declares a `<conflict>` with the chosen base, SecGen fails to resolve it before
-any VM is built:
+`lib/test/module_test_scenario.rb` and regenerated on every run. If the module's
+`secgen_metadata.xml` contains `<msf_module>exploit/...`, the generated scenario
+automatically includes a `kali_light_msf` attacker system — no per-module
+configuration needed; tier 3 uses the attack VM that is already there. If the
+module declares a `<conflict>` with the chosen base, SecGen fails to resolve it
+before any VM is built:
 
 build (with `--retries 1`) → `net0` teardown → snapshot if `--snapshot` →
 start (the one full reboot: static IPs up, reboot-dependent modules settle) →
