@@ -9,9 +9,14 @@ class JtrCrackableUserAccountTest < PostProvisionTest
 
   def test_module
     super
+    username = begin; JSON.parse(self.json_inputs['account']&.first || '')['username']; rescue; nil; end
+
     tier(1) do
-      # A non-system user account (UID >= 1000) must exist
-      test_local_command('non-system user created', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd', '.+')
+      if username
+        test_local_command("user #{username} exists", "id #{username}", username)
+      else
+        test_local_command('non-system user created', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd', '.+')
+      end
     end
     tier(2) do
       # User must have a SHA-512 hashed password in /etc/shadow (JtR-crackable)

@@ -9,9 +9,15 @@ class NcrackCrackableUserAccountTest < PostProvisionTest
 
   def test_module
     super
+    username = self.json_inputs['username']&.first ||
+               begin; JSON.parse(self.json_inputs['account']&.first || '')['username']; rescue; nil; end
+
     tier(1) do
-      # A non-system user (UID >= 1000) created with a weak password from ncrack's dictionary
-      test_local_command('non-system user created', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd', '.+')
+      if username
+        test_local_command("user #{username} exists", "id #{username}", username)
+      else
+        test_local_command('non-system user created', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd', '.+')
+      end
     end
     tier(2) do
       # User has a hashed (non-locked) password — ncrack will brute-force it over SSH

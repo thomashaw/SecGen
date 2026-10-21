@@ -12,17 +12,22 @@ class LeakToFileTest < PostProvisionTest
 
   def test_module
     super
+    storage_dir  = self.json_inputs['storage_directory']&.first
+    leaked_fname = self.json_inputs['leaked_filename']&.first
+
     tier(1) do
-      # The module always creates a file; verify /home or /root has non-empty files
-      test_local_command('home directories exist', 'ls /home || ls /root', '')
-    end
-    tier(2) do
-      # Find any regular file created by a non-system user (or root) with size > 0
-      result = run_command('find /home /root -maxdepth 2 -type f -size +0c 2>/dev/null | head -5')
-      if result[:stdout].strip.empty?
-        skip_check('leaked file found', 'no non-empty file in /home or /root — may need specific scenario context', tier: 2, evidence: nil)
+      if storage_dir && leaked_fname
+        test_local_command("#{leaked_fname} present at #{storage_dir}",
+                           "test -f #{storage_dir}/#{leaked_fname} && echo ok", 'ok')
       else
-        pass_check('leaked file', "found file(s): #{result[:stdout].strip.split("\n").first}", tier: 2, evidence: result[:stdout])
+        # storage_directory may derive from an account input (set dynamically by Puppet);
+        # fall back to searching common home directories
+        result = run_command('find /home /root -maxdepth 3 -type f -size +0c 2>/dev/null | head -1')
+        if result[:stdout].strip.empty?
+          skip_check('leaked file found', 'no non-empty file found under /home or /root', tier: 1, evidence: nil)
+        else
+          pass_check('leaked file found', "found: #{result[:stdout].strip}", tier: 1, evidence: result[:stdout])
+        end
       end
     end
   end

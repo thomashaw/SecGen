@@ -15,8 +15,11 @@ class AfterLoginMessageTest < PostProvisionTest
       test_command_succeeds('/etc/bash.bashrc exists', 'test -f /etc/bash.bashrc')
     end
     tier(2) do
-      # Module appends a heredoc cat block; verify bashrc has content beyond the default
-      test_local_command('bash.bashrc has leak content', 'grep -c "EOF" /etc/bash.bashrc', '')
+      if (msg = self.json_inputs['strings_to_leak']&.first)
+        test_local_command('bash.bashrc contains message', 'cat /etc/bash.bashrc', msg)
+      else
+        test_local_command('bash.bashrc has heredoc block', 'grep -c "EOF" /etc/bash.bashrc', '1')
+      end
     end
   end
 end
