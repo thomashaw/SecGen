@@ -27,8 +27,18 @@ class KibanaTest < PostProvisionTest
                            "http://#{es_ip}:#{es_port}")
       end
     end
-    tier(2) { test_service_up }
-    tier(2) { test_http('/', port: self.port) }
+    tier(1) do
+      test_local_command('kibana binary present', 'ls /usr/share/kibana/bin/kibana', 'kibana')
+      test_local_command('kibana service enabled', 'systemctl is-enabled kibana', 'enabled')
+      test_local_command('kibana.yml owner and mode', 'stat -c "%U:%G %a" /etc/kibana/kibana.yml', 'kibana:kibana 660')
+    end
+    tier(2) do
+      test_command_succeeds('kibana service active', 'systemctl is-active kibana')
+      # the server process runs as the kibana account
+      test_local_command('kibana process owner', 'ps -eo user:20,args | grep [k]ibana', 'kibana')
+      test_service_up
+      test_http('/', port: self.port)
+    end
   end
 end
 
