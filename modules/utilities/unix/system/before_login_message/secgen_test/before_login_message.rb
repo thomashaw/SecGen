@@ -1,7 +1,7 @@
 require_relative '../../../../../lib/post_provision_test'
 
-# Verifies that before_login_message wrote a message to /etc/issue and /etc/issue.net.
-# The exact message is scenario-controlled; we check the files are non-empty.
+# Verifies that before_login_message wrote its messages to /etc/issue and /etc/issue.net.
+# The messages are scenario-controlled (strings_to_leak); each non-empty one must be in both files.
 class BeforeLoginMessageTest < PostProvisionTest
   def initialize
     self.module_name = 'before_login_message'
@@ -11,17 +11,20 @@ class BeforeLoginMessageTest < PostProvisionTest
 
   def test_module
     super
+    messages = (self.json_inputs['strings_to_leak'] || []).reject { |m| m.to_s.strip.empty? }
     tier(1) do
       test_command_succeeds('/etc/issue exists', 'test -f /etc/issue')
       test_command_succeeds('/etc/issue.net exists', 'test -f /etc/issue.net')
     end
     tier(2) do
-      if (msg = self.json_inputs['strings_to_leak']&.first)
-        test_local_command('/etc/issue contains message', 'cat /etc/issue', msg)
-        test_local_command('/etc/issue.net contains message', 'cat /etc/issue.net', msg)
+      if messages.any?
+        messages.each do |msg|
+          test_local_command('/etc/issue contains message', 'cat /etc/issue', msg)
+          test_local_command('/etc/issue.net contains message', 'cat /etc/issue.net', msg)
+        end
       else
-        test_local_command('/etc/issue has content', 'wc -c /etc/issue', '')
-        test_local_command('/etc/issue.net has content', 'wc -c /etc/issue.net', '')
+        test_local_command('/etc/issue has content', 'test -s /etc/issue && echo ok', 'ok')
+        test_local_command('/etc/issue.net has content', 'test -s /etc/issue.net && echo ok', 'ok')
       end
     end
   end
