@@ -10,7 +10,9 @@ class SambaTest < PostProvisionTest
 
   def test_module
     super
-    test_service_up
+    tier(1) { test_local_command('samba installed?', 'dpkg -l samba | grep -E "^ii"', 'samba') }
+    tier(1) { test_local_command('smbd active?', 'systemctl is-active smbd | grep -x active', 'active') }
+    tier(2) { test_service_up }
   end
 end
 
