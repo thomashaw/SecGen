@@ -11,6 +11,8 @@ class MoinMoin195Test < PostProvisionTest
     super
     test_service_up
     test_html_returned_content('/index.html','<script type="text/javascript" src="/moin_static195/common/js/common.js"></script>')
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/unix/webapp/moinmoin_twikidraw
   end
 end
 

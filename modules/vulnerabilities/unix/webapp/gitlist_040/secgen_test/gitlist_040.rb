@@ -11,6 +11,8 @@ class Gitlist040Test < PostProvisionTest
     super
     test_service_up
     test_html_returned_content('/', '<title>GitList</title>')
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/http/gitlist_arg_injection
   end
 end
 
