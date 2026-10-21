@@ -15,7 +15,7 @@ class ergochat::config {
     path    => ['/usr/local/bin', '/usr/bin', '/bin'],
     user    => 'ergochat',
     creates => '/var/lib/ergochat/ircd.db',
-    require => File['/etc/ergochat/ircd.yaml'],
+    require => [File['/etc/ergochat/ircd.yaml'], File['/var/lib/ergochat']],
     before  => Service['ergochat'],
   }
 }

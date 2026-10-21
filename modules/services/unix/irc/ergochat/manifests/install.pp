@@ -22,12 +22,27 @@ class ergochat::install {
     shell      => '/usr/sbin/nologin',
     managehome => false,
   }
-  ->
-  file { ['/etc/ergochat', '/usr/share/ergochat', '/var/lib/ergochat']:
-    ensure => directory,
-    owner  => 'root',
-    group  => 'ergochat',
-    mode   => '0750',
+  # Config and shared data are only read by ergo, so they stay root-owned,
+  # readable by the ergochat group.
+  file { ['/etc/ergochat', '/usr/share/ergochat']:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'ergochat',
+    mode    => '0750',
+    require => User['ergochat'],
+  }
+
+  # The datastore/working directory must be owned by the ergochat user: ergo
+  # runs as that user and writes ircd.db, ircd.lock and profiling output here
+  # (see datastore.path, lock-file and output-path in files/ircd.yaml). A
+  # root-owned 0750 directory only gives the group r-x, so 'ergo initdb'
+  # failed with "permission denied" creating /var/lib/ergochat/ircd.db.
+  file { '/var/lib/ergochat':
+    ensure  => directory,
+    owner   => 'ergochat',
+    group   => 'ergochat',
+    mode    => '0750',
+    require => User['ergochat'],
   }
 
   exec { 'ergochat-download':
