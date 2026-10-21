@@ -9,9 +9,17 @@ class Proftpd133cBackdoorTest < PostProvisionTest
 
   def test_module
     super
-    test_service_up
+    tier(1) { test_command_succeeds('proftpd installed', 'test -x /usr/local/sbin/proftpd') }
+
+    tier(2) do
+      test_service_up
+      if (server_name = self.json_inputs['server_name']&.first)
+        test_banner(server_name)
+      end
+    end
+
     test_msf_exploit('exploit/unix/ftp/proftpd_133c_backdoor',
-                     rport: 21,
+                     rport: self.port,
                      tier: 3)
   end
 end

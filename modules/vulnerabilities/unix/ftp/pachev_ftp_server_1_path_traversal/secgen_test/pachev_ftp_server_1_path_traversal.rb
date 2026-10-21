@@ -15,8 +15,8 @@ class PachevFtpServer1PathTraversalTest < PostProvisionTest
       test_local_command('pachevftp service file present', 'test -f /etc/systemd/system/pachevftp.service', '/etc/systemd')
     end
     tier(2) do
-      # Default port 21 (iptables NAT redirects external port to 2121)
-      test_service_up(port: 21)
+      # port input controls the external port; iptables NAT redirects it to 2121
+      test_service_up
     end
     # TODO tier 3 (exploit): deferred — path traversal via FTP LIST command from attacker VM
     # Note: metadata marks this module as conflicting with all others (disabled — cargo build fails online)
