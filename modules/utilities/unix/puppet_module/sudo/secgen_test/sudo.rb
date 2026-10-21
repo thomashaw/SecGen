@@ -9,10 +9,17 @@ class SudoTest < PostProvisionTest
 
   def test_module
     super
-    tier(1) { test_local_command('sudo binary present', 'which sudo', '/usr/bin/sudo') }
+    tier(1) do
+      test_local_command('sudo binary present', 'which sudo', '/usr/bin/sudo')
+      test_local_command('visudo present', 'command -v visudo', 'visudo')
+      test_local_command('sudoers.d directory present', 'test -d /etc/sudoers.d && echo ok', 'ok')
+    end
     tier(2) do
       test_command_succeeds('sudo version runs', 'sudo --version 2>&1 | head -1')
       test_local_command('sudoers file present', 'test -f /etc/sudoers && echo ok', 'ok')
+      test_local_command('sudoers syntax valid', 'visudo -c 2>&1', 'parsed OK')
+      test_command_succeeds('sudo runs a command as root', 'sudo -n id -u')
+      test_command_succeeds('sudo --version runs as an unprivileged user', 'sudo --version', user: 'nobody')
     end
   end
 end
