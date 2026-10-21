@@ -20,6 +20,11 @@ class MailserverTest < PostProvisionTest
     tier(1) do
       test_local_command('postfix installed', 'dpkg -s postfix | grep ^Status', 'install ok installed')
       test_local_command('dovecot-imapd installed', 'dpkg -s dovecot-imapd | grep ^Status', 'install ok installed')
+      test_local_command('dovecot-core installed', 'dpkg -s dovecot-core | grep ^Status', 'install ok installed')
+      test_local_command('postfix disable_dns_lookups', 'grep -E "^disable_dns_lookups" /etc/postfix/main.cf', 'disable_dns_lookups=yes')
+      test_local_command('/var/mail is world-writable', 'stat -c %a /var/mail', '777')
+      test_local_command('postfix enabled at boot', 'systemctl is-enabled postfix', 'enabled')
+      test_local_command('dovecot enabled at boot', 'systemctl is-enabled dovecot', 'enabled')
       test_local_command('dovecot plaintext auth enabled', 'cat /etc/dovecot/dovecot.conf', 'disable_plaintext_auth = no')
       # main.cf edits: no TLS on SMTP, local networks only
       test_local_command('postfix smtpd_use_tls off', 'postconf -h smtpd_use_tls', 'no')
@@ -36,6 +41,9 @@ class MailserverTest < PostProvisionTest
       test_service_up(port: IMAP_PORT)
       test_banner('220 ', port: SMTP_PORT, label: 'postfix SMTP greeting')
       test_banner('* OK', port: IMAP_PORT, label: 'dovecot IMAP greeting')
+      # both daemons answer a real command, not just the greeting
+      test_banner('250', port: SMTP_PORT, send: 'EHLO test.local', label: 'SMTP EHLO reply')
+      test_banner('IMAP4rev1', port: IMAP_PORT, send: 'a1 CAPABILITY', label: 'IMAP CAPABILITY reply')
       # the SMTP greeting names the configured host
       test_banner("220 #{server_ip}", port: SMTP_PORT, label: 'SMTP greeting names server_ip') if server_ip
     end
