@@ -25,6 +25,8 @@ class OpenvpnServerTest < PostProvisionTest
       test_local_command('PKI and config files present?',
                          "cd #{dir} && test -s ca.crt && test -s server.crt && test -s server.key && test -s dh.pem && test -s server.conf && echo ok",
                          'ok')
+      test_local_command('openvpn on PATH', 'which openvpn', 'openvpn')
+      test_local_command('server directory is root-only', "stat -c '%U:%G %a' #{dir}", 'root:root 750')
       test_local_command('server.key is root-only?', "stat -c %a #{dir}/server.key", '600')
       # the PKI material written to disk is the material supplied
       { 'ca_cert' => 'ca.crt', 'server_cert' => 'server.crt', 'dh_params' => 'dh.pem' }.each do |key, file|
