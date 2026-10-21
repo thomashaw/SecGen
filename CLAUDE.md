@@ -70,8 +70,10 @@ Modules can ship `secgen_test/<name>.rb` (a `PostProvisionTest` subclass). On a
 so tests work after the provisioning NIC is torn down and the VM has rebooted onto
 its isolated VLAN (the state that broke the legacy suite). At build time the project
 gets a `test_context.json` (url + user, **no password**; that comes from
-`ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. The whole
-build→provision→test→fix loop, how to write a `secgen_test`, and cleanup are in the
+`ENV['SECGEN_PROXMOX_PASS']` at test time) and a copy of the client. How to write
+a `secgen_test` (tiers, and checking every read_fact through `json_inputs` so it
+holds for any parameterised deployment) is in the **`write-module-secgen-tests`**
+skill; the build→provision→test→fix loop and cleanup are in the
 **`secgen-test-pipeline`** skill. Helpers live in `scripts/` (see
 `scripts/README.md`): `scripts/secgen-dev-run` (build), `scripts/secgen-test-run` (run one
 `secgen_test`), `scripts/pve-check`, `scripts/agent-check`; delete a kept project's VMs with
@@ -89,7 +91,8 @@ Use the matching skill in `.claude/skills/` rather than working from memory:
 | Review a module (metadata ↔ Puppet consistency) | `review-secgen-module` |
 | Author a scenario XML from scratch (valid, resolvable) | `build-secgen-scenario` |
 | Review a scenario (wiring, solvable kill chain) | `review-secgen-scenario` |
-| Test/verify a module or scenario on Proxmox; write a `secgen_test` | `secgen-test-pipeline` |
+| Write or fix a module's `secgen_test`: what each tier asserts, checking every read_fact via `json_inputs` | `write-module-secgen-tests` |
+| Build and run a module/scenario's tests on Proxmox; diagnose failures | `secgen-test-pipeline` |
 | Hackerbot labs / `hackerbot_config` generators | `secgen-hackerbot` |
 | CTF scenario descriptions | `write-secgen-ctf-description` |
 | Write/debug module Puppet code | `secgen-puppet` |

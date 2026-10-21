@@ -1,6 +1,6 @@
 # Testing modules and scenarios
 
-This document describes how SecGen verifies that a module provisions correctly and that its intended service, tool or vulnerability is present on a freshly built VM, and it defines the results contract (the layout of the files a test run produces) that scripts and other tools can rely upon. Writing a test, and the build, test and fix loop, are covered in further detail by the `secgen-test-pipeline` skill (`.claude/skills/secgen-test-pipeline/SKILL.md`).
+This document describes how SecGen verifies that a module provisions correctly and that its intended service, tool or vulnerability is present on a freshly built VM, and it defines the results contract (the layout of the files a test run produces) that scripts and other tools can rely upon. Writing a test is covered in further detail by the `write-module-secgen-tests` skill (`.claude/skills/write-module-secgen-tests/SKILL.md`), and the build, test and fix loop by the `secgen-test-pipeline` skill (`.claude/skills/secgen-test-pipeline/SKILL.md`).
 
 ## Overview
 
@@ -26,6 +26,10 @@ Each check belongs to a tier, which records how much of the module has been demo
 | 3 | Exploitable | the intended exploit, run from the attacker VM, achieves code execution or access |
 
 `tier_reached` is the highest tier whose checks, together with those of every lower tier, all passed (`0` if none did).
+
+## Parameterised modules
+
+A module's inputs (its `<read_fact>`s, with `<default_input>` values) can be set differently by every scenario, and a test must be correct for any valid deployment of the module, not only for the defaults. At test time `self.json_inputs` holds the values the module actually received, as a hash of arrays keyed by input name, and `self.port` is derived from the `port` input. Before writing any assertion, list the module's inputs and, for each one that changes something observable on the VM (a port, banner, account, path, hostname, DNS record or file content), read the value from `json_inputs` and check that the module applied it, guarding the check on the input being present. Inputs with nothing to observe from the VM, such as a start-at-boot switch or the IP address of another system, may be skipped, with a comment in the test saying so. A test that hardcodes a value which is also the input's default passes on the default build and tests the wrong thing on every other. The `write-module-secgen-tests` skill (`.claude/skills/write-module-secgen-tests/SKILL.md`) gives the pattern and examples.
 
 ## Statuses and exit codes
 

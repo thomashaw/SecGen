@@ -65,6 +65,12 @@ is the mechanism and the workflow.
 
 ## Writing a secgen_test
 
+**What to assert is decided in the `write-module-secgen-tests` skill** — which
+tiers a module gets, which helper proves what, and checking every `<read_fact>`
+through `self.json_inputs` so the test holds for any parameterised deployment,
+not just the defaults. Use it whenever you write or change a test; this section
+is the quick reference for running and debugging one.
+
 Subclass `PostProvisionTest`, set `module_name`/`module_path`, call `super`, then
 assert in `test_module`. Every check is recorded with a **tier**:
 
@@ -94,9 +100,13 @@ class FooTest < PostProvisionTest
       test_banner('220 ', send: nil)                  # first bytes from the port
       test_http('/login.php', match: 'Sign in')       # status 2xx/3xx + body match
       test_command_succeeds('foo runs', 'foo --version', user: 'alice')
+      # a value the module takes as an input: check it only if it was supplied
+      if (motd = self.json_inputs['motd']&.first)
+        test_local_command('motd applied', 'cat /etc/foo/motd', motd)
+      end
     end
     # Tier 3: real exploit from an attacker VM (see below)
-    test_msf_exploit('exploit/unix/misc/foo_rce', rport: 1234, tier: 3)
+    test_msf_exploit('exploit/unix/misc/foo_rce', rport: self.port, tier: 3)
   end
 end
 FooTest.new.run
@@ -147,7 +157,7 @@ in `<msf_module>`):
 
 ```ruby
 test_msf_exploit('exploit/unix/misc/distcc_exec',
-                 rport: 3632,                     # target port (rhost defaults to the target's IP)
+                 rport: 3632,                     # distcc has no port input; use self.port when the module has one
                  collect: 'cat /home/distccd/*',  # extra shell appended to the proof cmd (optional)
                  force: true,                     # set ForceExploit (see pitfall below; optional)
                  options: { 'LHOST' => '...' },   # extra/override msf datastore opts (optional)
