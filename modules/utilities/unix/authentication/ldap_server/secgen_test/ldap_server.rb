@@ -25,6 +25,19 @@ class LdapServerTest < PostProvisionTest
     organization = self.json_inputs['organization']&.first
     admin_password = self.json_inputs['admin_password']&.first
 
+    # what the module configures besides packages: slapd enabled, PHP and phpLDAPadmin conf in Apache, auto UID/GID ranges
+    tier(1) do
+      test_local_command('slapd enabled at boot', 'systemctl is-enabled slapd', 'enabled')
+      test_local_command('Apache includes conf-enabled', 'grep conf-enabled /etc/apache2/apache2.conf', 'conf-enabled')
+      test_local_command('phpldapadmin Apache conf enabled', 'ls /etc/apache2/conf-enabled/', 'phpldapadmin.conf')
+      test_local_command('Apache PHP module enabled', 'ls /etc/apache2/mods-enabled/', 'php')
+      test_local_command('phpldapadmin Apache 2.4 syntax', 'grep -c "Order allow,deny" /etc/apache2/conf-available/phpldapadmin.conf', '0')
+      test_local_command('phpldapadmin auto UID/GID start', 'grep auto_number /etc/phpldapadmin/config.php', "'uidNumber'=>10000,'gidNumber'=>5000")
+      %w[ldapsearch ldapadd ldapmodify ldapdelete].each do |bin|
+        test_local_command("#{bin} on PATH", "command -v #{bin}", bin)
+      end
+    end
+
     if base_dn
       # phpLDAPadmin is pointed at the configured base DN
       tier(1) do
@@ -35,6 +48,8 @@ class LdapServerTest < PostProvisionTest
 
     tier(2) do
       test_service_up
+      test_local_command('slapd service active', 'systemctl is-active slapd', 'active')
+      test_local_command('apache2 service active', 'systemctl is-active apache2', 'active')
       if base_dn
         test_local_command("base DN #{base_dn} in naming contexts",
                            "ldapsearch -x -H ldap://localhost -b '' -s base namingContexts 2>&1",
