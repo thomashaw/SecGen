@@ -17,6 +17,8 @@ class LdapPackagesTest < PostProvisionTest
     tier(2) do
       test_command_succeeds('ldapsearch available', 'ldapsearch --help 2>&1 || true')
       test_local_command('ldapsearch on PATH', 'which ldapsearch', 'ldapsearch')
+      # the existing --help check always exits 0 (|| true); this one fails on a broken binary or missing lib
+      test_command_succeeds('ldapsearch runs', 'ldapsearch -VV')
     end
   end
 end
