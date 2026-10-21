@@ -12,8 +12,10 @@ class AccountsTest < PostProvisionTest
   def test_module
     super
     tier(1) do
-      test_local_command('a user account was created', 'awk -F: "$3>=1000 && $3<65534 {print $1}" /etc/passwd', '')
-      test_local_command('/etc/passwd readable', 'wc -l /etc/passwd', '')
+      test_local_command('a user account was created', 'awk -F: "$3>=1000 && $3<65534 {print $1}" /etc/passwd | grep -q . && echo ok', 'ok')
+      test_local_command('/etc/passwd readable', 'test -r /etc/passwd && echo ok', 'ok')
+      test_local_command('useradd present', 'command -v useradd', 'useradd')
+      test_local_command('chpasswd present', 'command -v chpasswd', 'chpasswd')
     end
     tier(2) do
       result = run_command('awk -F: "$3>=1000 && $3<65534 {print $1}" /etc/passwd')
@@ -22,6 +24,11 @@ class AccountsTest < PostProvisionTest
         test_local_command("user #{first_user} resolvable via getent",
                            "getent passwd #{first_user}",
                            first_user)
+        test_local_command("user #{first_user} has a home directory",
+                           "h=$(getent passwd #{first_user} | cut -d: -f6); test -d \"$h\" && echo ok", 'ok')
+        test_local_command("user #{first_user} password status",
+                           "passwd -S #{first_user}", first_user)
+        test_local_command("user #{first_user} id resolves", "id #{first_user}", 'uid=')
         test_command_succeeds("home dir exists for #{first_user}",
                               "test -d /home/#{first_user}")
       else
