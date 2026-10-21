@@ -9,7 +9,11 @@ class DnsToolsTest < PostProvisionTest
 
   def test_module
     super
-    tier(1) { test_local_command('dig installed?', 'which dig', 'dig') }
+    tier(1) do
+      test_local_command('dig installed?', 'which dig', 'dig')
+      # the module enables DNS host-name resolution in nsswitch.conf
+      test_local_command('nsswitch resolves hosts via dns', "grep '^hosts:' /etc/nsswitch.conf", 'dns')
+    end
     # dig -v prints "DiG <version>" to stderr; test_local_command checks both streams
     tier(2) { test_local_command('dig reports version', 'dig -v 2>&1', 'DiG') }
   end
