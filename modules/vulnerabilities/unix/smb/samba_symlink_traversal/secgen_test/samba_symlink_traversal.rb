@@ -9,14 +9,21 @@ class SambaSymlinkTraversalTest < PostProvisionTest
 
   def test_module
     super
+    share_name = self.json_inputs['share_name']&.first
+
     tier(1) do
       test_local_command('samba installed', 'dpkg -l samba | grep -E "^ii"', 'samba')
-      # The 'allow insecure wide links' setting that enables symlink traversal
       test_local_command('wide links enabled', 'grep "allow insecure wide links" /etc/samba/smb.conf', 'yes')
+      if share_name
+        test_local_command("share [#{share_name}] in smb.conf", "grep -i '\\[#{share_name}\\]' /etc/samba/smb.conf", share_name)
+      end
     end
     tier(2) do
       test_service_up(port: 445)
       test_local_command('share listed anonymously', 'smbclient -L localhost -N', 'Sharename')
+      if share_name
+        test_local_command("#{share_name} share visible", "smbclient -L localhost -N", share_name)
+      end
     end
     # TODO tier 3 (exploit): deferred — use auxiliary/admin/smb/samba_symlink_traversal from attacker VM
   end

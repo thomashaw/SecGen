@@ -9,13 +9,24 @@ class PasswordlessUserAccountTest < PostProvisionTest
 
   def test_module
     super
+    usernames = (self.json_inputs['accounts'] || []).map { |j|
+      begin; JSON.parse(j)['username']; rescue; nil; end
+    }.compact
+
     tier(1) do
-      # A non-system user account created
-      test_local_command('non-system user created', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd', '.+')
+      if usernames.any?
+        usernames.each { |u| test_local_command("user #{u} exists", "id #{u}", u) }
+      else
+        test_local_command('non-system user created', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd', '.+')
+      end
     end
     tier(2) do
-      # That user's shadow entry has an empty password field (field 2 is empty or just '::')
-      test_local_command('passwordless entry in shadow', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd | xargs -I{} grep "^{}::" /etc/shadow', '::')
+      # Each user's shadow entry must have an empty password field
+      if usernames.any?
+        usernames.each { |u| test_local_command("#{u} has no password", "grep '^#{u}::' /etc/shadow", '::') }
+      else
+        test_local_command('passwordless entry in shadow', 'awk -F: "$3 >= 1000 && $3 < 65534 {print $1}" /etc/passwd | xargs -I{} grep "^{}::" /etc/shadow', '::')
+      end
     end
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
   end

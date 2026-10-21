@@ -16,8 +16,13 @@ class BeforeLoginMessageTest < PostProvisionTest
       test_command_succeeds('/etc/issue.net exists', 'test -f /etc/issue.net')
     end
     tier(2) do
-      test_local_command('/etc/issue has content', 'wc -c /etc/issue', '')
-      test_local_command('/etc/issue.net has content', 'wc -c /etc/issue.net', '')
+      if (msg = self.json_inputs['strings_to_leak']&.first)
+        test_local_command('/etc/issue contains message', 'cat /etc/issue', msg)
+        test_local_command('/etc/issue.net contains message', 'cat /etc/issue.net', msg)
+      else
+        test_local_command('/etc/issue has content', 'wc -c /etc/issue', '')
+        test_local_command('/etc/issue.net has content', 'wc -c /etc/issue.net', '')
+      end
     end
   end
 end
