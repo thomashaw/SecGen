@@ -20,9 +20,11 @@ class IrcdHybridTest < PostProvisionTest
     # Tier 2: IRC port open and the daemon greets with its AUTH notices
     test_service_up
     test_banner('NOTICE', label: 'ircd-hybrid greets with an IRC NOTICE')
-    # a client can register and gets the welcome numeric
+    # a client can register and gets the welcome numeric. ircd-hybrid does an ident
+    # lookup first ("Checking Ident" ... "No Ident response") and only sends 001 once
+    # that times out, so read until 001 arrives (up to 30s) rather than a fixed 3s window.
     test_local_command('IRC registration welcomed',
-                       %q(timeout 10 bash -c 'exec 3<>/dev/tcp/127.0.0.1/6667; printf "NICK secgen\r\nUSER secgen 0 * :secgen\r\n" >&3; timeout 3 cat <&3' 2>/dev/null | head -c 2000),
+                       %q{timeout 40 bash -c 'exec 3<>/dev/tcp/127.0.0.1/6667; printf "NICK secgen\r\nUSER secgen 0 * :secgen\r\n" >&3; while read -r -t 30 line <&3; do echo "$line"; case "$line" in *" 001 "*) break;; esac; done' 2>/dev/null | head -c 2000},
                        ' 001 ', tier: 2)
   end
 end
