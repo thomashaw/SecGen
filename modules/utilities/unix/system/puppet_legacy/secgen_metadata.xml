@@ -7,7 +7,7 @@
   <author>Puppet Labs</author>
   <author>Z. Cliffe Schreuders</author>
   <module_license>MIT</module_license>
-  <description>Puppet old libs...</description>
+  <description>Makes the bundled legacy Puppet modules (an old stdlib) available to other modules that require them, such as dirtycow. Installs no packages itself.</description>
 
   <type>system</type>
   <platform>linux</platform>
