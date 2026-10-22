@@ -7,6 +7,9 @@ class kibana($elasticsearch_ip, $kibana_ip = 'localhost', $elasticsearch_port = 
     elasticsearch_port => $elasticsearch_port,
     kibana_port => $kibana_port
   } ->
-  class { 'kibana::service': }
+  class { 'kibana::service':
+    kibana_ip => $kibana_ip,
+    kibana_port => $kibana_port
+  }
 
 }

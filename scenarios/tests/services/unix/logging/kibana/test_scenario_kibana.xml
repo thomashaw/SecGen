@@ -19,6 +19,9 @@
       <network_ip system="attacker"/>
     </input>
 
+    <!-- Kibana answers 503 until it can reach Elasticsearch (both default to
+         localhost), so the target carries an Elasticsearch as well. -->
+    <service module_path=".*/elasticsearch"/>
     <service module_path=".*/kibana"/>
 
     <network type="private_network"/>
