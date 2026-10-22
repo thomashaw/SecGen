@@ -34,8 +34,10 @@ class Drupal850Test < PostProvisionTest
       # demonstrate - checking it is tier 3's job (reading the file via the
       # exploited shell), not tier 2's.
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/unix/webapp/drupal_drupalgeddon2
+    test_msf_exploit('exploit/unix/webapp/drupal_drupalgeddon2',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
