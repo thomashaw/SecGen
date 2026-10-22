@@ -15,8 +15,8 @@ class ApacheDruidRceTest < PostProvisionTest
       if username
         test_local_command("#{username} user exists", "id #{username}", username)
       end
-      # Druid is extracted from a tarball; check the coordinator start script
-      test_local_command('druid install exists', 'test -d /opt/druid && echo present', 'present')
+      # Druid is extracted from a tarball to /usr/local/apache-druid (manifests/install.pp)
+      test_local_command('druid install exists', 'test -d /usr/local/apache-druid && echo present', 'present')
     end
     tier(2) do
       test_service_up
