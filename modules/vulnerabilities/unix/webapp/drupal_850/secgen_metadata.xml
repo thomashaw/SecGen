@@ -13,7 +13,12 @@
     in remote code execution.
   </description>
 
-  <type>webapp</type>
+  <!-- 'web' (not 'webapp') so this module can require the php7 utility,
+       which conflicts with type=webapp to stop two full webapps sharing a
+       vhost (see modules/utilities/unix/languages/php7); the <conflict>
+       below still keeps this module off any base alongside another full
+       webapp regardless of its own type -->
+  <type>web</type>
   <privilege>user_rwx</privilege>
   <access>remote</access>
   <platform>linux</platform>
@@ -50,12 +55,16 @@
     <type>webapp</type>
   </conflict>
 
+  <!-- Drupal 8.5.0 (2018-era PHP) does not run cleanly under Debian 12's
+       stock PHP 8.2; the php7 utility installs PHP 7.4 (sury) as the
+       default CLI and Apache handler, which it does run under. Apache
+       itself is just the apache2 package, installed below in
+       manifests/apache.pp, since the stretch/wheezy "apache compatible"
+       wrapper modules this previously required are for an older
+       puppetlabs-apache/stdlib combination that does not resolve on
+       Puppet 7/bookworm. -->
   <requires>
-    <module_path>.*apache.*compatible.*</module_path>
-  </requires>
-
-  <requires>
-    <module_path>.*php.*compatible.*</module_path>
+    <module_path>.*utilities/unix/languages/php7.*</module_path>
   </requires>
 
 </vulnerability>

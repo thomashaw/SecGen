@@ -1,8 +1,14 @@
 class drupal_850::install {
     Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin']}
 
-    ensure_packages(['php7.2-gd','php7.2-xml','php7.2-mysql','libapache2-mod-php7.2','libaio1','libnuma1'])
-    
+    # PHP itself (7.4, with the gd/xml extensions Drupal needs) comes from
+    # the required php7 utility module; it provisions first as a <requires>
+    # dependency but never touches Apache, so enabling PHP in Apache is this
+    # module's own job (manifests/apache.pp). php7 doesn't bundle the MySQL
+    # PDO driver (most of its other callers are flat-file apps), so that's
+    # added here instead of widening the shared utility.
+    ensure_packages(['php7.4-mysql','libaio1','libnuma1'])
+
     $archive = 'drupal-8.5.0.tar.gz'
     $longmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz' 
     $shortmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64'

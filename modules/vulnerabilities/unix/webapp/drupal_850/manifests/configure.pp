@@ -5,21 +5,13 @@ class drupal_850::configure {
   $strings_to_leak = $secgen_parameters['strings_to_leak']
 
   Exec { path => ['/bin', '/usr/bin','/sbin','/usr/sbin']}
-  
-  # Apache configuration
-  exec {'disable-php5':
-    command => 'a2dismod php5 php5.6 2>/dev/null || true', #ignore output
-  } ->
 
-  exec {'enable-php7.2':
-    command => 'a2enmod php7.2',
-  } ->
+  # Apache/PHP module enablement now lives in manifests/apache.pp, alongside
+  # the hand-written vhost (the old a2dismod/a2enmod pair here targeted
+  # php5/php7.2, neither of which this module installs any more).
 
-  exec {'restart-apache':
-    command => 'systemctl restart apache2',
-  }
-  
-  # MySQL configuration
+  # MySQL configuration. The base doesn't ship MariaDB, so stopping/disabling
+  # it is a no-op guarded with '|| true' in case a future base does.
   file { '/var/lib/mysql':
     ensure => directory,
     owner  => 'mysql',
@@ -27,7 +19,7 @@ class drupal_850::configure {
     mode   => '0750',
   } ->
   exec {'stop-mariadb':
-    command => 'systemctl stop mariadb ; systemctl disable mariadb',
+    command => 'systemctl stop mariadb 2>/dev/null; systemctl disable mariadb 2>/dev/null; true',
   } ->
   exec {'clean-after-purge':
     command => 'rm -rf /var/lib/mysql/* && sleep 1',
