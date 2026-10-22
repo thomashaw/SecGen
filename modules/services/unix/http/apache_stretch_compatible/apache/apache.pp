@@ -74,7 +74,7 @@ if $cert_pem and $key_pem {
 }
 
 # HTTP vhost — port 80
-apache::vhost { "${domain}-http":
+apache::vhost { "${secgen_domain}-http":
   servername => $secgen_domain,
   port       => '80',
   docroot    => $docroot,
@@ -83,7 +83,7 @@ apache::vhost { "${domain}-http":
 # HTTPS vhost — port 443, only configured if cert bundle provided
 # No HSTS header — student adds this in Week 11 MitM lab
 if $cert_pem and $key_pem {
-  apache::vhost { "${domain}-https":
+  apache::vhost { "${secgen_domain}-https":
     servername => $secgen_domain,
     port       => '443',
     docroot    => $docroot,
