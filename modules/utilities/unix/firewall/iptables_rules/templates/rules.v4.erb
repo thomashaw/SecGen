@@ -1,13 +1,30 @@
+<%
+  # iptables-restore does not accept '-P'; policies are chain declarations (':CHAIN POLICY [0:0]').
+  policies = { 'INPUT' => 'ACCEPT', 'FORWARD' => 'ACCEPT', 'OUTPUT' => 'ACCEPT' }
+  plain_rules = []
+  @filter_rules.each do |rule|
+    if rule =~ /\A\s*-P\s+(\S+)\s+(\S+)\s*\z/
+      policies[$1] = $2
+    else
+      plain_rules << rule
+    end
+  end
+-%>
 *filter
--P INPUT ACCEPT
--P OUTPUT ACCEPT
-<% @filter_rules.each do |rule| -%>
-  <%= rule %>
+<% policies.each do |chain, policy| -%>
+:<%= chain %> <%= policy %> [0:0]
+<% end -%>
+<% plain_rules.each do |rule| -%>
+<%= rule %>
 <% end -%>
 COMMIT
 
 *nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
 <% @nat_rules_clean.each do |rule| -%>
-  <%= rule %>
+<%= rule %>
 <% end -%>
 COMMIT
