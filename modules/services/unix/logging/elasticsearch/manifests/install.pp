@@ -5,7 +5,10 @@ class elasticsearch::install (
 
   Exec { path => ['/bin','/sbin','/usr/bin', '/usr/sbin'] }
 
-  $key_url = secgen_functions::mirror_url('https://artifacts.elastic.co/GPG-KEY-elasticsearch')
+  # The local package mirror serves the apt/yum repositories but not the
+  # root GPG-KEY file, so fetch the key from upstream directly (as the docker,
+  # filebeat and auditbeat modules do) and mirror only the repository.
+  $key_url = 'https://artifacts.elastic.co/GPG-KEY-elasticsearch'
   $repo_url = secgen_functions::mirror_url('https://artifacts.elastic.co/packages/7.x/apt')
 
   # apt-key and sudo are not reliably present on Debian bookworm: use a
@@ -18,8 +21,10 @@ class elasticsearch::install (
   ensure_packages(['openjdk-17-jre-headless'])
 
   # Install Elasticsearch
+  # bounded wget (timeout + retries) so a stalled fetch fails fast instead of
+  # hanging until Puppet's exec timeout
   exec { 'es add gpg key':
-    command => "wget -qO - ${key_url} | gpg --batch --yes --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg",
+    command => "wget -q --timeout=30 --tries=3 -O - ${key_url} | gpg --batch --yes --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg",
     creates => '/usr/share/keyrings/elasticsearch-keyring.gpg',
     require => Package['wget', 'gnupg', 'ca-certificates'],
   }->
