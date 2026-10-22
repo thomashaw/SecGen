@@ -1,8 +1,9 @@
 require_relative '../../../../../lib/post_provision_test'
 
 class LdapPackagesTest < PostProvisionTest
-  # Every package install.pp asks for (module has no inputs)
-  PACKAGES = %w[ldap-utils libnss-ldap libpam-ldap nslcd nscd sssd].freeze
+  # Every package install.pp asks for (module has no inputs). libnss-ldapd/libpam-ldapd
+  # replace libnss-ldap/libpam-ldap, which Debian 12 does not have.
+  PACKAGES = %w[ldap-utils libnss-ldapd libpam-ldapd nslcd nscd sssd].freeze
 
   def initialize
     self.module_name = 'ldap_packages'
