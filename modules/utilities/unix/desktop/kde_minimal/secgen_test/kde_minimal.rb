@@ -25,9 +25,10 @@ class KdeMinimalTest < PostProvisionTest
         test_local_command("#{pkg} installed?", "dpkg -l #{pkg} | grep -E '^ii'", pkg)
       end
       # Test fix: ksnapshot was removed after Debian 10, so the old check could never pass on
-      # bookworm. The module installs spectacle on Debian 11+ and ksnapshot before that.
-      test_local_command('screenshot tool installed (spectacle on 11+, ksnapshot before)',
-                         "if grep -qE '^(7|8|9|10)' /etc/debian_version; then pkg=ksnapshot; else pkg=spectacle; fi; " \
+      # bookworm. The module installs kde-spectacle on Debian 11-12, spectacle on 13+, ksnapshot before 11.
+      test_local_command('screenshot tool installed (kde-spectacle on 11-12, ksnapshot before)',
+                         "if grep -qE '^(7|8|9|10)' /etc/debian_version; then pkg=ksnapshot; " \
+                         "elif grep -qE '^(11|12)' /etc/debian_version; then pkg=kde-spectacle; else pkg=spectacle; fi; " \
                          "dpkg -l $pkg | grep -E '^ii'",
                          'ii')
       # bundled auto-resolution script, installed executable
