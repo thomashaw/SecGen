@@ -17,6 +17,12 @@
 
   <read_fact>ssh_key_pair</read_fact>
 
+  <!-- Standalone default so the module still receives inputs (and a base64_inputs_file fact)
+       when a scenario doesn't wire the Hackerbot key in; labs override this via a datastore. -->
+  <default_input into="ssh_key_pair">
+    <generator type="ssh_key_pair"/>
+  </default_input>
+
   <requires>
     <type>update</type>
   </requires>
