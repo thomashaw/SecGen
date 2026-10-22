@@ -47,8 +47,10 @@ class LuceeRceTest < PostProvisionTest
       # response is asserted here.
       test_http('/lucee/admin/server.cfm', match: nil)
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/http/lucee_admin_imgprocess_file_write (CVE-2021-21307)
+    test_msf_exploit('exploit/linux/http/lucee_admin_imgprocess_file_write',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
