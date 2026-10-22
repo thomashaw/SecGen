@@ -63,8 +63,10 @@ class RaspapRceTest < PostProvisionTest
       # the unauthenticated vulnerable endpoint answers (auth disabled for the CVE)
       test_http('/ajax/openvpn/del_ovpncfg.php', status: 200)
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/unix/http/raspap_rce (CVE-2022-39986)
+    test_msf_exploit('exploit/unix/http/raspap_rce',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
