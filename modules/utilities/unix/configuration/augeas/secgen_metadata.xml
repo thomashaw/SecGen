@@ -6,7 +6,7 @@
   <name>Augeas</name>
   <author>Thomas Shaw</author>
   <module_license>Apache v2</module_license>
-  <description>TODO</description>
+  <description>Installs Augeas (augeas-tools: augtool and augparse, plus the stock lenses) for reading and editing configuration files through a tree API.</description>
 
   <type>configuration_api</type>
   <platform>linux</platform>
