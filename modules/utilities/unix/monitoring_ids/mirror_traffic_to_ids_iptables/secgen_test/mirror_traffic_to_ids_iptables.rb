@@ -18,11 +18,11 @@ class MirrorTrafficToIdsIptablesTest < PostProvisionTest
     tier(2) do
       test_command_succeeds('netfilter-persistent service active', 'systemctl is-active netfilter-persistent')
       if ids_ip
-        # ids_IP_address: the TEE rule actually mirrors to the configured IDS host, not just any gateway
+        # ids_IP_address: iptables -L prints TEE targets as 'gw:<ip>' (libxt_TEE); the TEE rule actually mirrors to the configured IDS host, not just any gateway
         test_local_command('TEE rule in mangle PREROUTING targets ids_IP_address',
-                            "iptables -t mangle -L PREROUTING -n | grep TEE", "gateway:#{ids_ip}")
+                            "iptables -t mangle -L PREROUTING -n | grep TEE", "gw:#{ids_ip}")
         test_local_command('TEE rule in mangle FORWARD targets ids_IP_address',
-                            "iptables -t mangle -L FORWARD -n | grep TEE", "gateway:#{ids_ip}")
+                            "iptables -t mangle -L FORWARD -n | grep TEE", "gw:#{ids_ip}")
         test_local_command('TEE rule persisted to rules.v4',
                             'cat /etc/iptables/rules.v4', "--gateway #{ids_ip}")
       else
