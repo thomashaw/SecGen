@@ -1,10 +1,14 @@
 require_relative '../../../../../lib/post_provision_test'
 
 # JBoss AS 6.1.0.Final uses fixed ports (no port read_fact on this module):
-# HTTP web connector on 8080, JBoss Remoting unified invoker on 4447 (the
-# port the RCE actually targets).
+# HTTP web connector on 8080, JBoss Remoting unified invoker on 4446 (the
+# port the RCE actually targets). Confirmed from the bundled distribution's
+# default ServiceBindingManager set (ports-default) in
+# server/default/conf/bindingservice.beans/META-INF/bindings-jboss-beans.xml:
+# UnifiedInvokerConnector -> 4446. Port 4447 in that file is the unrelated
+# HA RMI/JRMP invoker (jrmpha), not the unified invoker this exploit targets.
 JBOSS_HTTP_PORT = 8080
-JBOSS_REMOTING_PORT = 4447
+JBOSS_REMOTING_PORT = 4446
 JBOSS_INSTALL_DIR = '/opt/jboss-6.1.0.Final'
 
 class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
