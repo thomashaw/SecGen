@@ -1,6 +1,7 @@
 class kibana::service {
   service { 'kibana':
-    enable  => true,
-    hasrestart  => true,
+    ensure     => running,
+    enable     => true,
+    hasrestart => true,
   }
 }
