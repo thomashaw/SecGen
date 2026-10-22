@@ -17,7 +17,8 @@ class StegoToolsTest < PostProvisionTest
     tier(2) do
       test_command_succeeds('steghide reports version', 'steghide --version')
       test_local_command('exiftool available', 'exiftool -ver', '.')
-      test_local_command('exif reports version', 'exif --version 2>&1', 'exif')
+      # `exif --version` prints only the bare version number (e.g. 0.6.22), not the tool name
+      test_command_succeeds('exif reports version', "exif --version 2>&1 | grep -E '^[0-9]+\\.[0-9]+'")
     end
   end
 end
