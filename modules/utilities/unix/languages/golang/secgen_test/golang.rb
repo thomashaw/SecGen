@@ -8,7 +8,7 @@ class GolangTest < PostProvisionTest
   end
 
   # No read_facts or default inputs: nothing to parameterise. golang.pp pins
-  # Go 1.9 for linux-386, so 'go1.9' is the module's fixed intent.
+  # Go 1.9 (now linux-amd64), so 'go1.9' is the module's fixed intent.
   def test_module
     super
     tier(1) do
