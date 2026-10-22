@@ -1,6 +1,6 @@
 {
   "name": "puppetlabs-xinetd",
-  "version": "2.0.0",
+  "version": "3.4.1",
   "author": "puppetlabs",
   "summary": "Configures xinetd and exposes the xinetd::service definition for adding new services.",
   "license": "Apache-2.0",
@@ -8,14 +8,57 @@
   "project_page": "https://github.com/puppetlabs/puppetlabs-xinetd",
   "issues_url": "https://tickets.puppetlabs.com/browse/MODULES",
   "dependencies": [
-    {"name":"puppetlabs/stdlib","version_requirement":">=4.6.0 < 5.0.0"}
+
   ],
-  "data_provider": null,
-  "description": "Puppet module to configure xinetd services",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat"
+    },
+    {
+      "operatingsystem": "CentOS"
+    },
+    {
+      "operatingsystem": "OracleLinux"
+    },
+    {
+      "operatingsystem": "Scientific"
+    },
+    {
+      "operatingsystem": "SLES"
+    },
+    {
+      "operatingsystem": "Debian"
+    },
+    {
+      "operatingsystem": "Ubuntu"
+    },
+    {
+      "operatingsystem": "Rocky"
+    },
+    {
+      "operatingsystem": "AlmaLinux"
+    },
+    {
+      "operatingsystem": "Gentoo"
+    },
+    {
+      "operatingsystem": "Archlinux"
+    },
+    {
+      "operatingsystem": "FreeBSD"
+    },
+    {
+      "operatingsystem": "Amazon"
+    }
+  ],
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 3.0.0 < 5.0.0"
+      "version_requirement": ">= 4.7.1 < 9.0.0"
     }
-  ]
+  ],
+  "description": "Puppet module to configure xinetd services",
+  "pdk-version": "3.0.0",
+  "template-url": "pdk-default#3.0.0",
+  "template-ref": "tags/3.0.0-0-g056e50d"
 }
