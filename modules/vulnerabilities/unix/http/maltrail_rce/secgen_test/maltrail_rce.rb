@@ -59,8 +59,9 @@ class MaltrailRceTest < PostProvisionTest
         end
       end
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/unix/http/maltrail_rce (CVE-2025-34073)
+    test_msf_exploit('exploit/unix/http/maltrail_rce',
+                     rport: self.port,
+                     tier: 3)
   end
 end
 
