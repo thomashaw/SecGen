@@ -17,6 +17,7 @@ class sqlmap (
   # Clone sqlmap from Github using 'exec' resource
   exec { 'clone_sqlmap':
     command => "git clone ${source} ${installdir}",
+    path    => ['/usr/bin', '/bin', '/usr/local/bin'],
     creates => "${installdir}/sqlmap.py",
     require => [File[$installdir], Package['git']],
   }
