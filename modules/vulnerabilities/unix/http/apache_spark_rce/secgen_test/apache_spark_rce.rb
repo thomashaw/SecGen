@@ -37,8 +37,10 @@ class ApacheSparkRceTest < PostProvisionTest
       # Spark UI returns an HTML page with "Spark" in the title
       test_http('/', match: 'Spark')
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/http/apache_spark_rce_cve_2022_33891 (CVE-2022-33891)
+    test_msf_exploit('exploit/linux/http/apache_spark_rce_cve_2022_33891',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
