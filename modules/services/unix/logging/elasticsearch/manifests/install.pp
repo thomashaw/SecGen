@@ -12,6 +12,11 @@ class elasticsearch::install (
   # dearmored keyring and signed-by instead
   ensure_packages(['wget', 'gnupg', 'apt-transport-https', 'ca-certificates'])
 
+  # The bundled puppetlabs-java modules have no Debian 12 (bookworm) support
+  # ('unsupported release 12'), so install the distribution JRE directly.
+  # Elasticsearch 7.10.0 ships its own JDK; this provides `java` on the PATH.
+  ensure_packages(['openjdk-17-jre-headless'])
+
   # Install Elasticsearch
   exec { 'es add gpg key':
     command => "wget -qO - ${key_url} | gpg --batch --yes --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg",
