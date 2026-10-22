@@ -16,7 +16,17 @@ class nfs_share::config {
     group  => 'wheel',
     mode   => '0754',
   }
-  
+
+  # Puppet adds the x bit wherever r is set on a directory, so the file
+  # resource above ends up 0755. Force the intended 0754 afterwards.
+  exec { 'nfs_share_storage_mode':
+    command => "chmod 0754 ${storage_directory}",
+    path    => ['/usr/bin', '/bin'],
+    unless  => "test \"$(stat -c %a ${storage_directory})\" = 754",
+    require => File[$storage_directory],
+    before  => Service['nfs-kernel-server'],
+  }
+
   file { '/etc/exports':
     ensure  => present,
     owner   => 'root',
