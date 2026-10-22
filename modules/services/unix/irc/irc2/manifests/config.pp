@@ -23,15 +23,7 @@ class irc2::config {
     notify  => Service['ircd-irc2'],
   }
 
-  # Without this, the packaged iauth.conf (required + rfc931 ident lookups)
-  # delays client registration after the 020 "Please wait" notice.
-  file { '/etc/ircd/iauth.conf':
-    ensure  => present,
-    source  => 'puppet:///modules/irc2/iauth.conf',
-    owner   => 'root',
-    group   => 'irc',
-    mode    => '0640',
-    require => Package['ircd-irc2'],
-    notify  => Service['ircd-irc2'],
-  }
+  # No iauth.conf is shipped: irc2::service starts ircd with -s, so the iauth
+  # helper is never run and its config is never read. The packaged default
+  # (required + rfc931) is what held clients at the 020 "Please wait" notice.
 }
