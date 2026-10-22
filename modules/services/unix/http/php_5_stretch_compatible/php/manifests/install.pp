@@ -1,15 +1,22 @@
 class php::install {
 
-  ensure_packages('ca-certificates', { ensure => 'latest'})
-  ensure_packages('apt-transport-https', { ensure => 'latest'})
+  Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
+
+  # lsb-release is not in the bookworm base image; the sources line below needs `lsb_release -sc`
+  # (and wget for the key). Without them php.list is written with an empty suite and apt-get update fails.
+  ensure_packages(['ca-certificates', 'apt-transport-https', 'lsb-release', 'wget'], { ensure => 'latest'})
 
   exec { 'install php5 gpg key':
     command => '/usr/bin/wget --no-check-certificate -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg',
+    creates => '/etc/apt/trusted.gpg.d/php.gpg',
+    require => Package['ca-certificates', 'wget'],
   } ->
 
   exec { 'add repo to sources':
     command =>
       "/bin/echo \"deb ${secgen_functions::mirror_url('https://packages.sury.org/php/')} \$(lsb_release -sc) main\" > /etc/apt/sources.list.d/php.list",
+    creates => '/etc/apt/sources.list.d/php.list',
+    require => Package['lsb-release'],
   } ->
 
   exec { 'apt update':
