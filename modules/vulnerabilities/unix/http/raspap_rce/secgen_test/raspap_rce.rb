@@ -45,11 +45,15 @@ class RaspapRceTest < PostProvisionTest
       tier(1) do
         test_local_command('raspap.auth holds username and bcrypt hash',
                            'cat /var/www/raspap/config/raspap.auth', 'admin')
+        # htpasswd -vb exits 0 when the password matches the stored hash and
+        # non-zero otherwise; it prints its verdict ('Password for user admin
+        # correct.') to stderr, whose exact wording we must not depend on. Gate
+        # a sentinel on the exit code and match that instead.
         verify_cmd = "awk 'NR==2' /var/www/raspap/config/raspap.auth > /tmp/raspap_hash_check && " \
                      "printf 'admin:%s\\n' \"$(cat /tmp/raspap_hash_check)\" > /tmp/raspap_auth_check && " \
-                     "htpasswd -vb /tmp/raspap_auth_check admin '#{admin_password}'; " \
+                     "htpasswd -vb /tmp/raspap_auth_check admin '#{admin_password}' >/dev/null 2>&1 && echo HASH_OK; " \
                      "rm -f /tmp/raspap_hash_check /tmp/raspap_auth_check"
-        test_local_command('admin_password matches stored bcrypt hash', verify_cmd, 'Password correct')
+        test_local_command('admin_password matches stored bcrypt hash', verify_cmd, 'HASH_OK')
       end
     end
 
