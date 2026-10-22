@@ -1,7 +1,11 @@
 require_relative '../../../../../lib/post_provision_test'
 
-# JBoss EAP 6.x uses fixed ports: HTTP on 8080, JBoss Remoting on 4447
+# JBoss AS 6.1.0.Final uses fixed ports (no port read_fact on this module):
+# HTTP web connector on 8080, JBoss Remoting unified invoker on 4447 (the
+# port the RCE actually targets).
 JBOSS_HTTP_PORT = 8080
+JBOSS_REMOTING_PORT = 4447
+JBOSS_INSTALL_DIR = '/opt/jboss-6.1.0.Final'
 
 class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
   def initialize
@@ -19,12 +23,33 @@ class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
         test_local_command("#{username} user exists", "id #{username}", username)
       end
       test_local_command('java available', 'java -version 2>&1', 'version')
-      test_local_command('jboss install exists', 'test -d /opt/jboss && echo present', 'present')
+      # install path encodes the CVE-matching version: JBoss AS 6.1.0.Final
+      test_local_command('jboss 6.1.0.Final install exists',
+                          "test -d #{JBOSS_INSTALL_DIR} && echo present", 'present')
     end
+
+    # leaked_filenames/strings_to_leak: leak_files writes these into the
+    # jboss user's home directory
+    tier(1) do
+      home = username ? "/home/#{username}" : nil
+      if home
+        self.json_inputs['leaked_filenames']&.each_with_index do |filename, i|
+          leaked_string = self.json_inputs['strings_to_leak']&.at(i)
+          leak_path = "#{home}/#{filename}"
+          test_local_command("leaked file #{filename} present", "test -f #{leak_path} && echo ok", 'ok')
+          if leaked_string
+            test_local_command("leaked file #{filename} contains expected string", "cat #{leak_path}", leaked_string)
+          end
+        end
+      end
+    end
+
     tier(2) do
-      # JBoss EAP HTTP management/application port — no randomised port for this module
+      # HTTP web connector
       test_service_up(port: JBOSS_HTTP_PORT)
       test_http('/', port: JBOSS_HTTP_PORT, match: nil)
+      # JBoss Remoting unified invoker — the vulnerable interface the exploit targets
+      test_service_up(port: JBOSS_REMOTING_PORT)
     end
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
     # msf_module: exploit/multi/misc/jboss_remoting_unified_invoker_rce (targets remoting port 4447)
