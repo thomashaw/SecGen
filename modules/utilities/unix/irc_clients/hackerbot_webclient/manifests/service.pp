@@ -13,6 +13,8 @@ class hackerbot_webclient::service {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
+    # notify so the refreshonly daemon-reload below actually runs
+    notify  => Exec['hackerbot-webclient-systemd-reload'],
   }->
   exec { 'hackerbot-webclient-systemd-reload':
     command     => 'systemctl daemon-reload',
