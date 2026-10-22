@@ -22,4 +22,16 @@ class irc2::config {
     require => Package['ircd-irc2'],
     notify  => Service['ircd-irc2'],
   }
+
+  # Without this, the packaged iauth.conf (required + rfc931 ident lookups)
+  # delays client registration after the 020 "Please wait" notice.
+  file { '/etc/ircd/iauth.conf':
+    ensure  => present,
+    source  => 'puppet:///modules/irc2/iauth.conf',
+    owner   => 'root',
+    group   => 'irc',
+    mode    => '0640',
+    require => Package['ircd-irc2'],
+    notify  => Service['ircd-irc2'],
+  }
 }
