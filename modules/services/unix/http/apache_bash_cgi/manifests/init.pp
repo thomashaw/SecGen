@@ -4,8 +4,21 @@ class apache_bash_cgi::init {
   }
 
   file { '/usr/lib/cgi-bin/test.cgi':
-    ensure => file,
-    source => 'puppet:///modules/apache_bash_cgi/test.cgi',
-    mode => '755',
+    ensure  => file,
+    source  => 'puppet:///modules/apache_bash_cgi/test.cgi',
+    mode    => '0755',
+    require => File['/usr/lib/cgi-bin/'],
+  }
+
+  # ScriptAlias for /cgi-bin/. Dropped into the apache module's conf.d (which it
+  # includes via IncludeOptional) and the service is restarted to pick it up.
+  file { '/etc/apache2/conf.d/apache-bash-cgi.conf':
+    ensure  => file,
+    source  => 'puppet:///modules/apache_bash_cgi/cgi-bin.conf',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/etc/apache2/conf.d'],
+    notify  => Service['httpd'],
   }
 }
