@@ -34,8 +34,9 @@ class NostromoCodeExecTest < PostProvisionTest
       pre_leak = self.json_inputs['strings_to_pre_leak']&.first
       test_http('/', match: pre_leak)
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/http/nostromo_code_exec (CVE-2019-16278)
+    test_msf_exploit('exploit/multi/http/nostromo_code_exec',
+                     rport: self.port,
+                     tier: 3)
   end
 end
 
