@@ -6,23 +6,8 @@ class bind9::config {
   $dns_records    = $secgen_params['dns_records']
   $allow_transfer = $secgen_params['allow_transfer'][0]
 
-  # Parse dns_records entries in the format "hostname|type|value" or
-  # "hostname|type|value|priority" (MX only).
-  # Also accepts legacy "hostname=ip" format (treated as A records).
-  $dns_record_pairs = inline_template('<%
-result = []
-(@dns_records || []).each do |r|
-  if r.include?("|")
-    parts = r.split("|")
-    entry = { "hostname" => parts[0], "type" => parts[1].upcase, "value" => parts[2] }
-    entry["priority"] = parts[3] if parts[3]
-    result << entry
-  elsif r.include?("=")
-    parts = r.split("=")
-    result << { "hostname" => parts[0], "type" => "A", "value" => parts[1] }
-  end
-end
--%><%= result %>')
+  # dns_records entries are parsed in templates/zone.db.erb: "hostname|type|value",
+  # "hostname|type|value|priority" (MX), or legacy "hostname=ip" (A record).
 
   file { '/etc/bind/named.conf.options':
     ensure  => present,
