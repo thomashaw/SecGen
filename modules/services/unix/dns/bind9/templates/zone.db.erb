@@ -6,6 +6,12 @@ $TTL 604800
 2419200         ; Expire
 604800 )        ; Negative Cache TTL
 @       IN  NS  <%= @ns_hostname %>.
+<%# glue: NS host inside the zone needs an address record, or the zone fails to load -%>
+<% ns_label = @ns_hostname.to_s.end_with?(".#{@domain}") ? @ns_hostname.to_s.chomp(".#{@domain}") : nil -%>
+<% ns_has_addr = (@dns_records || []).any? { |r| h, t = (r.include?('|') ? r.split('|') : [r.split('=')[0], 'A']); h == ns_label && %w[A AAAA].include?(t.to_s.upcase) } -%>
+<% if ns_label && !ns_label.empty? && !ns_has_addr -%>
+<%= ns_label %>  IN  A  <%= @ns_ip %>
+<% end -%>
 <% (@dns_records || []).each do |r| -%>
 <%   if r.include?('|') -%>
 <%     parts = r.split('|') -%>
