@@ -9,8 +9,34 @@ class Gitlab13102Test < PostProvisionTest
 
   def test_module
     super
+    # read_facts: strings_to_leak, leaked_filenames, strings_to_pre_leak, difficulty.
+    # All four have an observable effect on the box and are checked below.
+    # difficulty controls which of two leak mechanisms configure.pp uses, so
+    # the easy-mode flat-file check only runs when difficulty isn't 'hard'.
+    difficulty = self.json_inputs['difficulty']&.first || 'easy'
+    root_password = self.json_inputs['strings_to_leak']&.first
+    secondary_leak = self.json_inputs['strings_to_leak']&.dig(1)
+    leaked_filename = self.json_inputs['leaked_filenames']&.first
+    pre_leak = self.json_inputs['strings_to_pre_leak']&.first
+
     tier(1) do
       test_local_command('gitlab-ce package installed', 'dpkg -l gitlab-ce | grep -E "^ii"', 'gitlab-ce')
+
+      # root password is always leaked via /home/git/.credentials regardless of difficulty
+      test_local_command('root password leaked in git home', 'cat /home/git/.credentials', root_password) if root_password
+
+      if pre_leak
+        test_local_command('pre-leak string present in robots.txt',
+                            'cat /opt/gitlab/embedded/service/gitlab-rails/public/robots.txt', pre_leak)
+      end
+
+      if difficulty == 'hard'
+        # hard mode leaks the secondary string via a .env removed from a git
+        # repo's history rather than a flat file; the file read back here
+        # would need an attacker-side git clone, so this is covered by tier 3.
+      elsif leaked_filename && secondary_leak
+        test_local_command('secondary leaked file present', "cat /home/git/#{leaked_filename}", secondary_leak)
+      end
     end
     tier(2) do
       test_service_up(port: 80)
