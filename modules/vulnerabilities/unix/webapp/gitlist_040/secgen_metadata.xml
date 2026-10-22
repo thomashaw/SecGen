@@ -11,7 +11,11 @@
     'escapeshellarg' using argument injection, resulting in remote code execution.
   </description>
 
-  <type>webapp</type>
+  <!-- type "web", not "webapp": the php7 utility this module requires itself
+       conflicts with type=webapp (avoiding full LAMP-bundling modules like
+       Wordpress); gravcms_exec sets the same precedent. The <conflict> below
+       still keeps this module off a vhost shared with another full webapp. -->
+  <type>web</type>
   <type>in_the_wild</type>
   <privilege>user_rwx</privilege>
   <access>remote</access>
@@ -61,17 +65,14 @@
     <type>webapp</type>
   </conflict>
 
+  <!-- apache is configured directly in apache.pp via the puppetlabs-apache
+       forge module, not the apache_*_compatible wrapper modules, and GitList
+       keeps its data in flat git repos (no database), so neither an
+       apache_compatible nor a mysql_compatible require applies. GitList is
+       old PHP-era code (Silex/Symfony2); PHP 8.2 breaks it, so pull in PHP 7.4
+       via the php7 utility, which restricts this module to bookworm bases. -->
   <requires>
-    <module_path>.*apache.*compatible.*</module_path>
+    <module_path>.*utilities/unix/languages/php7.*</module_path>
   </requires>
-
-  <requires>
-    <module_path>.*mysql.*compatible.*</module_path>
-  </requires>
-
-  <requires>
-    <module_path>.*php.*compatible.*</module_path>
-  </requires>
-
 
 </vulnerability>
