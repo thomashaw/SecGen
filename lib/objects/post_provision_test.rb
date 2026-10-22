@@ -470,7 +470,7 @@ class PostProvisionTest
   #                    payload: 'cmd/linux/http/x64/exec', force: true)
   def test_msf_exploit(msf_module, rhost: nil, rport: self.port, attacker: nil,
                        payload: 'cmd/unix/generic', collect: nil, force: false,
-                       options: {}, tier: 3, label: nil,
+                       options: {}, tier: 3, label: nil, expect_privilege: nil,
                        sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 0).to_i,
                        sentinel_dir: '/tmp')
     name = label || "msf exploit (#{msf_module})"
@@ -478,6 +478,12 @@ class PostProvisionTest
     return unless resolved
     attacker, attacker_ip, rhost = resolved
 
+    # When asserting the shell's privilege level, also capture `sudo -n -l` in the
+    # sentinel so a passwordless sudoer is told apart from a plain user (group
+    # membership in sudo/admin/wheel is the primary signal; see privilege_matches?).
+    if expect_privilege
+      collect = [collect, 'echo secgen_sudo_begin; sudo -n -l 2>/dev/null; echo secgen_sudo_end'].compact.join('; ')
+    end
     sentinel, cmd = build_sentinel(collect, dir: sentinel_dir)
     settings = { 'RHOSTS' => rhost, 'RPORT' => rport, 'PAYLOAD' => payload, 'CMD' => cmd }
     settings['ForceExploit'] = true if force
@@ -499,14 +505,48 @@ class PostProvisionTest
 
     body = sentinel_wait > 0 ? wait_for_sentinel(sentinel, sentinel_wait) : read_sentinel(sentinel)
     if sentinel_pwned?(body)
-      pass_check(name,
-                 "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost}); sentinel #{sentinel} contains #{body[/uid=\S+/]}.",
-                 tier: tier)
+      if expect_privilege && !privilege_matches?(body, expect_privilege)
+        fail_check(name,
+                   "RCE confirmed, but the shell's privilege does not match the module's <privilege>=#{expect_privilege}: sentinel shows #{body[/uid=\S+/]}#{privilege_note(body)}. Expected #{expect_privilege.to_s =~ /user/ ? 'a non-root, non-sudoer shell' : 'a root or sudoer shell'}.",
+                   tier: tier)
+      else
+        pass_check(name,
+                   "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost}); sentinel #{sentinel} contains #{body[/uid=\S+/]}#{expect_privilege ? " — <privilege>=#{expect_privilege} verified#{privilege_note(body)}" : ''}.",
+                   tier: tier)
+      end
     else
       fail_check(name,
                  "Exploit did not confirm RCE: sentinel #{sentinel} absent or empty on the target. See msf_output evidence.",
                  tier: tier)
     end
+  end
+
+  # True when the exploited shell's privilege (parsed from the sentinel's `id`
+  # and `sudo -n -l` output) matches the module's declared <privilege>:
+  # root_rwx wants root or a sudoer; user_rwx wants a non-root, non-sudoer shell.
+  # Group membership in sudo/admin/wheel is the primary sudoer signal; a
+  # passwordless `sudo -l` is a secondary one (a password-required sudoer not in
+  # those groups cannot be detected from a non-interactive shell, so user_rwx is
+  # asserted on uid + groups + passwordless-sudo, which covers the SecGen cases).
+  def privilege_matches?(body, level)
+    uid    = body[/uid=(\d+)/, 1]&.to_i
+    groups = body[/groups=([^\n]*)/, 1].to_s
+    sudo   = body[/secgen_sudo_begin(.*?)secgen_sudo_end/m, 1].to_s
+    is_root = uid == 0
+    sudoer  = (groups =~ /\((?:sudo|admin|wheel)\)/) || (sudo =~ /NOPASSWD|may run|\(ALL/) ? true : false
+    case level.to_s
+    when 'root', 'root_rwx' then is_root || sudoer
+    when 'user', 'user_rwx' then !is_root && !sudoer
+    else true
+    end
+  end
+
+  # Short parenthetical for the check detail: whether the shell user can sudo.
+  def privilege_note(body)
+    groups = body[/groups=([^\n]*)/, 1].to_s
+    sudo   = body[/secgen_sudo_begin(.*?)secgen_sudo_end/m, 1].to_s
+    sudoer = (groups =~ /\((?:sudo|admin|wheel)\)/) || (sudo =~ /NOPASSWD|may run|\(ALL/) ? true : false
+    " (#{sudoer ? 'sudoer' : 'no sudo'})"
   end
 
   # Render an msf datastore value for a `set` line inside the -x string: quote
