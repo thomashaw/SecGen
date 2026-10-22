@@ -16,7 +16,8 @@ class Gitlab13102Test < PostProvisionTest
       test_service_up(port: 80)
       test_http('/users/sign_in', port: 80, match: 'GitLab')
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit (exploit/multi/http/gitlab_exif_rce) when attacker VM is available
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/http/gitlab_exif_rce
   end
 end
 
