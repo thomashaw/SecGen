@@ -48,8 +48,10 @@ class LinuxkiRceTest < PostProvisionTest
       # the script (it fatals on Debian 12's stock PHP 8.2; see install.pp).
       test_http('/linuxki/experimental/vis/kivis.php', match: 'textarea')
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/http/linuxki_rce (CVE-2020-7209)
+    test_msf_exploit('exploit/linux/http/linuxki_rce',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
