@@ -1,34 +1,33 @@
 
 	<attack>
 <% $random_user = 'user' + SecureRandom.hex(3) %>
-		<!-- topic: Detecting changes to resources using backups-->
-		<prompt>An attempt to add a new user is coming, let it happen. But first create a backup of /etc/passwd to /home/<%= $main_user %>/backups/passwd.</prompt>
-
-		<post_command>rm /etc/.pwd.lock; sudo adduser <%= $random_user %> --gecos '<%= $random_user %>' --disabled-password --quiet; echo $?</post_command>
+		<!-- topic: Detecting changes to resources using backups (staged in one challenge: prepare -> baseline -> attack -> quiz) -->
+		<prompt>An attempt to add a new user is coming. Say 'ready' and I'll first get your system to a known-good state.</prompt>
+		<pre_shell>ST=/root/.hb_stage; mkdir -p "$ST"; F=$ST/c1_adduser; K=/opt/hackerbot/keys/id_rsa; H=root@{{chat_ip_address}}; if [ ! -e "$F" ]; then ssh -i $K -oStrictHostKeyChecking=no $H 'deluser --quiet <%= $random_user %> >/dev/null 2>/dev/null; rm -f /etc/.pwd.lock; echo READY'; touch "$F"; else ssh -i $K -oStrictHostKeyChecking=no $H 'rm -f /etc/.pwd.lock; adduser <%= $random_user %> --gecos <%= $random_user %> --disabled-password --quiet >/dev/null 2>/dev/null; echo ADDED$?'; rm -f "$F"; fi</pre_shell>
+		<get_shell>false</get_shell>
 		<suppress_command_output_feedback />
 		<condition>
-			<output_matches>returned error code</output_matches>
-			<message>:( Couldn't add a user -- make sure /etc/ is not still read-only mounted!.</message>
+			<output_matches>READY</output_matches>
+			<message>Your system is in a known-good state. Now back up /etc/passwd (for example to /home/<%= $main_user %>/backups/passwd), then say 'ready' and I'll let the attack add a user.</message>
 		</condition>
 		<condition>
-			<output_matches>0</output_matches>
-			<message>User added</message>
+			<output_matches>ADDED0</output_matches>
+			<message>A new user has been added. Diff /etc/passwd against your backup to find it.</message>
 			<trigger_quiz />
 		</condition>
 		<condition>
-			<output_matches>already exists</output_matches>
-			<message>:( Remove the user and try again.</message>
+			<output_matches>ADDED[1-9]</output_matches>
+			<message>:( Couldn't add the user -- is /etc/ read-only mounted?</message>
 		</condition>
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( You stopped the attack, rather than monitor for changes...</message>
+			<output_matches>No route to host|Connection refused|Permission denied</output_matches>
+			<message>:( I couldn't reach your system.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something was not right...</message>
 		</else_condition>
-
 		<quiz>
-			<question>Now after the attack, find the username added by diffing using a backup. What username was created?</question>
+			<question>Find the username that was added by diffing /etc/passwd against your backup. What username was created?</question>
 			<answer>^<%= $random_user %>$</answer>
 			<correct_answer_response>:) <%= $flags.pop %></correct_answer_response>
 			<trigger_next_attack />
