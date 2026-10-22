@@ -38,6 +38,10 @@
   $desktop = 'root@{{chat_ip_address}}'
   $backup = "root@#{$server_ip}"
   $stash = "/root/.hb_backups_lab/originals-#{$second_user}.tgz"
+  # Set when the attack deletes SECONDUSER's files, cleared by the change step. With only one change step, the
+  # notes on the desktop straight after it *are* the first backed-up version, so without this the last task
+  # could be passed by skipping the attack and the restore.
+  $wiped = "/root/.hb_backups_lab/wiped-#{$second_user}"
 
   def q(s)
     Shellwords.escape(s)
@@ -120,7 +124,7 @@
   # every time, put the originals back, then apply the step's state.
   def stage_pre_shell(step)
     d = "#{$ssh} #{$desktop}"
-    "mkdir -p #{File.dirname($stash)}; O=#{$stash}; " \
+    "mkdir -p #{File.dirname($stash)}; rm -f #{$wiped}; O=#{$stash}; " \
     "if [ ! -s $O ]; then #{d} 'test -d #{$S}/trade_secrets && tar -C /home -czf - #{$second_user}' > $O.tmp 2>/dev/null; " \
     "if [ -s $O.tmp ]; then mv $O.tmp $O; else rm -f $O.tmp; fi; fi; " \
     "if [ -s $O ]; then #{d} 'tar -C /home -xzf - && echo ORIGINALS-RESTORED' < $O 2>&1 #{$nowarn}; else echo ORIGINALS-UNAVAILABLE; fi; " +
@@ -265,7 +269,7 @@
 		<!-- topic: Rsync-->
 		<prompt>I am going to attack you now! (Don't worry: first I'll check that the backups you'll need afterwards are right: full and differential1.)</prompt>
 
-		<pre_shell><%= xml("G=$( #{on_host($backup, $gate_script)} ); echo \"$G\"; case \"$G\" in *UNREACHABLE*) echo UNREACHABLE-BACKUP;; *GATE-PASS*) #{on_host($desktop, $wipe_script)};; *) echo HOLD-OFF;; esac") %></pre_shell>
+		<pre_shell><%= xml("G=$( #{on_host($backup, $gate_script)} ); echo \"$G\"; case \"$G\" in *UNREACHABLE*) echo UNREACHABLE-BACKUP;; *GATE-PASS*) W=$( #{on_host($desktop, $wipe_script)} ); echo \"$W\"; if echo \"$W\" | grep -q WIPED; then mkdir -p #{File.dirname($wiped)}; touch #{$wiped}; fi;; *) echo HOLD-OFF;; esac") %></pre_shell>
 		<get_shell>false</get_shell>
 		<condition>
 			<output_matches>UNREACHABLE-BACKUP</output_matches>
@@ -294,8 +298,12 @@
 		<!-- topic: Rsync incremental-->
 		<prompt>Restore <%= $second_user %>'s notes file to the first version of it that was backed up.</prompt>
 
-		<pre_shell><%= xml(on_host($desktop, $notes_script)) %></pre_shell>
+		<pre_shell><%= xml("if [ -e #{$wiped} ]; then #{on_host($desktop, $notes_script)}; else echo NOT-ATTACKED; fi") %></pre_shell>
 		<get_shell>false</get_shell>
+		<condition>
+			<output_matches>NOT-ATTACKED</output_matches>
+			<message>:( I haven't deleted <%= $second_user %>'s files yet, so there's nothing to restore. Say 'goto <%= $bk_n[:attack] %>' and 'ready' to let me attack first (and if you've since said 'ready' at the change step, which puts their files back, attack again).</message>
+		</condition>
 		<condition>
 			<output_matches>UNREACHABLE</output_matches>
 			<message>:( <%= $unreach_desktop %></message>
