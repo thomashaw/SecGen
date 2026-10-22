@@ -54,6 +54,21 @@ class drupal_850::install {
     }
 
     #MySQL installation
+    # The upstream mysql.com tarball (unlike the Debian mariadb-server
+    # package it replaces) doesn't create a system account; configure.pp
+    # needs 'mysql' to own /var/lib/mysql before mysqld's own
+    # --initialize-insecure run, so it's created here.
+    group { 'mysql':
+        ensure => present,
+        system => true,
+    } ->
+    user { 'mysql':
+        ensure => present,
+        system => true,
+        gid => 'mysql',
+        home => '/nonexistent',
+        shell => '/usr/sbin/nologin',
+    } ->
     file { '/etc/systemd/system/mysql.service':
         ensure => file,
         source => "puppet:///modules/drupal_850/config/mysql.service.erb",
