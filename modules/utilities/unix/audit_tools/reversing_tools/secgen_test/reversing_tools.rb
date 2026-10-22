@@ -28,8 +28,8 @@ class ReversingToolsTest < PostProvisionTest
         test_local_command('gef script present', 'test -f /opt/gef/gef.py && echo "ok"', 'ok')
         test_local_command('gef launcher present', 'test -x /usr/local/bin/gef && echo "ok"', 'ok')
       end
-      # Cutter is not tested: the Puppet that would install it is commented out
-      # (the AppImage in files/ is never deployed).
+      test_local_command('cutter AppImage deployed', 'test -x /opt/Cutter/Cutter-v1.7.2-x86_64.Linux.AppImage && echo "ok"', 'ok')
+      test_local_command('cutter launcher present', 'test -x /usr/local/bin/cutter && echo "ok"', 'ok')
     end
 
     tier(2) do
