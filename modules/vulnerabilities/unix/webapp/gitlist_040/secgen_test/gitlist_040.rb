@@ -55,8 +55,10 @@ class Gitlist040Test < PostProvisionTest
     # port: already exercised via test_service_up/test_html_returned_content
     # above (self.port). No other read_facts to skip.
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/http/gitlist_arg_injection
+    test_msf_exploit('exploit/multi/http/gitlist_arg_injection',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
