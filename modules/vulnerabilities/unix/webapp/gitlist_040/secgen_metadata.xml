@@ -65,12 +65,20 @@
     <type>webapp</type>
   </conflict>
 
-  <!-- apache is configured directly in apache.pp via the puppetlabs-apache
-       forge module, not the apache_*_compatible wrapper modules, and GitList
-       keeps its data in flat git repos (no database), so neither an
-       apache_compatible nor a mysql_compatible require applies. GitList is
-       old PHP-era code (Silex/Symfony2); PHP 8.2 breaks it, so pull in PHP 7.4
-       via the php7 utility, which restricts this module to bookworm bases. -->
+  <!-- apache.pp configures the vhost directly via `class { '::apache': }`,
+       but the puppetlabs-apache forge module is only pulled into the
+       Puppetfile/modulepath when a SecGen module providing it is selected
+       (apache_*_compatible, whose own name is historic: apache_stretch_compatible
+       supports bookworm/buster/stretch, see its <conflict>), so that require
+       is still needed even though we talk to Apache directly rather than via
+       a wrapper manifest. GitList keeps its data in flat git repos (no
+       database), so no mysql_compatible require applies. GitList is old
+       PHP-era code (Silex/Symfony2); PHP 8.2 breaks it, so pull in PHP 7.4 via
+       the php7 utility, which restricts this module to bookworm bases. -->
+  <requires>
+    <module_path>.*apache.*compatible.*</module_path>
+  </requires>
+
   <requires>
     <module_path>.*utilities/unix/languages/php7.*</module_path>
   </requires>

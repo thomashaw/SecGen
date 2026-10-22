@@ -5,7 +5,7 @@ class gitlist_040::apache {
 
   class { '::apache':
     default_vhost => false,
-    default_mods => ['rewrite'], # php5 via separate module
+    default_mods => ['rewrite'], # php7.4 enabled separately below, once installed
     overwrite_ports => false,
     mpm_module => 'prefork'
   }
@@ -18,9 +18,14 @@ class gitlist_040::apache {
   }
 
   ensure_resource('tidy','gl remove default site', {'path'=>'/etc/apache2/sites-enabled/000-default.conf'})
-  #
-  #
-  # exec { 'disable php7':
-  #   command => '/usr/sbin/a2dismod php7.0',
-  # }
+
+  # The php7 utility (a <requires> dependency, applied before this class)
+  # only installs the PHP 7.4 packages - it never touches Apache, since
+  # apache2 doesn't exist yet when it runs. So enabling the PHP 7.4 handler
+  # module is this class's job, once ::apache above has installed apache2.
+  exec { 'enable-apache-php7.4':
+    command => '/usr/sbin/a2enmod php7.4',
+    require => [Class['::apache'], Package['libapache2-mod-php7.4']],
+    notify  => Class['apache::service'],
+  }
 }
