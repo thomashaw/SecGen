@@ -20,6 +20,11 @@
     <value>false</value>
   </default_input>
 
+  <!-- default so a bare module (no rules supplied by the scenario) still builds -->
+  <default_input into="rules">
+    <value>-A INPUT -i lo -j ACCEPT</value>
+  </default_input>
+
   <requires>
     <type>update</type>
   </requires>
