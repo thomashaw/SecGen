@@ -18,6 +18,10 @@
 			<output_matches>No route to host|Connection refused|Permission denied</output_matches>
 			<message>:( I couldn't reach your system.</message>
 		</condition>
+		<condition>
+			<output_matches>Read-only file system</output_matches>
+			<message>:( I couldn't copy the file: /etc is read-only. Is it still read-only mounted from an earlier challenge? Undo that (sudo umount /etc), then say 'ready' again.</message>
+		</condition>
 		<else_condition>
 			<message>:( Something was not right...</message>
 		</else_condition>

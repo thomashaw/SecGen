@@ -18,6 +18,10 @@
 			<output_matches>No route to host|Connection refused|Permission denied</output_matches>
 			<message>:( I couldn't reach your system.</message>
 		</condition>
+		<condition>
+			<output_matches>Read-only file system</output_matches>
+			<message>:( I couldn't copy the binary: /usr/bin is read-only. Is a read-only mount still in place? Undo it, then say 'ready' again.</message>
+		</condition>
 		<else_condition>
 			<message>:( Something was not right...</message>
 		</else_condition>
