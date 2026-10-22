@@ -8,7 +8,9 @@
   <module_license>GPLv3</module_license>
   <description>Configures a VM to accept SSH connections from Hackerbot using key-based
     authentication. Installs the Hackerbot public key into /root/.ssh/authorized_keys,
-    ensures correct permissions, and configures sshd to permit root login via key.</description>
+    ensures correct permissions, and makes sure openssh-server is installed and running.
+    Root login by key relies on Debian's default sshd setting (PermitRootLogin prohibit-password);
+    the module does not edit sshd_config.</description>
 
   <type>hackerbot_client</type>
   <platform>linux</platform>
