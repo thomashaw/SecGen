@@ -67,10 +67,15 @@ class KdeMinimalTest < PostProvisionTest
     # The accounts, autologin_user and autostart_konsole inputs are covered above; nothing else to skip.
     tier(2) do
       test_command_succeeds('plasmashell binary exists', 'test -x /usr/bin/plasmashell')
-      test_local_command('plasmashell runs', 'plasmashell --version', 'plasmashell')
+      # Test fix: plasmashell is a Qt app that initialises a platform plugin before printing
+      # --version, so without a display it aborts on the xcb plugin and prints nothing. Run it
+      # under the offscreen platform (as the kate check below already does) so it can emit output.
+      test_local_command('plasmashell runs', 'QT_QPA_PLATFORM=offscreen plasmashell --version', 'plasmashell')
       test_command_succeeds('auto-resolution script parses', 'bash -n /opt/auto-resolution/auto-resolution.sh')
       (usernames.empty? ? [nil] : usernames).each do |user|
-        test_local_command("kate runs#{user ? " as #{user}" : ''}", 'QT_QPA_PLATFORM=offscreen kate --version', 'Kate', user: user)
+        # Test fix: `kate --version` prints `kate 22.12.3` (lowercase binary name), so the old
+        # 'Kate' match could never hit under the case-sensitive substring compare.
+        test_local_command("kate runs#{user ? " as #{user}" : ''}", 'QT_QPA_PLATFORM=offscreen kate --version', 'kate', user: user)
       end
     end
   end
