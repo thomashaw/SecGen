@@ -5,8 +5,9 @@ class sqlmap (
   $revision = 'HEAD',
 ) {
 
-  # Install Git package
-  ensure_packages(['git'])
+  # git to clone; sqlmap.py's shebang is '#!/usr/bin/env python', which bookworm
+  # only provides via python-is-python3
+  ensure_packages(['git', 'python3', 'python-is-python3'])
 
   # Create directory to install into
   file { $installdir:
