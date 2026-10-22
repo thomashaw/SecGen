@@ -44,6 +44,7 @@ class Gitlab13102Test < PostProvisionTest
     end
     test_msf_exploit('exploit/multi/http/gitlab_exif_rce',
                      rport: 80,
+                     payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      sentinel_wait: 60,
                      tier: 3)
