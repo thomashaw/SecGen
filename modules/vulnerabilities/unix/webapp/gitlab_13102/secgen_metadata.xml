@@ -8,8 +8,8 @@
   <module_license>MIT</module_license>
   <description>
     GitLab CE/EE versions 11.9 through 13.10.2 are vulnerable to an exploit where an unauthenticated attacker is able
-    to upload a malicious DjVu image file that exploits ExifTool's metadata parsing, resulting in remote code execution 
-    with full system privileges.
+    to upload a malicious DjVu image file that exploits ExifTool's metadata parsing, resulting in remote code execution
+    as the git user.
   </description>
 
   <type>webapp</type>
