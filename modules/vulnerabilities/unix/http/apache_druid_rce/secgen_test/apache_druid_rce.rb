@@ -23,8 +23,10 @@ class ApacheDruidRceTest < PostProvisionTest
       # /status returns {"version":"..."} when the coordinator is up
       test_http('/status', match: 'version')
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/http/apache_druid_js_rce (CVE-2021-25646)
+    test_msf_exploit('exploit/linux/http/apache_druid_js_rce',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
