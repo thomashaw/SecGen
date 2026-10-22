@@ -49,7 +49,9 @@ class lucee_rce::install {
   # JDK on PATH, so plain `java`/`javac` (used by the secgen_test and by anyone on the
   # box) fail. Symlink the binaries into /usr/bin like update-alternatives would.
   -> exec { 'link-jdk11-binaries':
-    command => 'for bin in /usr/lib/jvm/java-11-openjdk/bin/*; do ln -sf "$bin" /usr/bin/; done',
+    # exec runs the command directly, not via a shell, so the `for` loop and glob
+    # need an explicit shell (bare `for` fails with "Could not find command 'for'").
+    command => '/bin/bash -c \'for bin in /usr/lib/jvm/java-11-openjdk/bin/*; do ln -sf "$bin" /usr/bin/; done\'',
     creates => '/usr/bin/java',
   }
 
