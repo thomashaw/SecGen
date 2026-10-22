@@ -98,6 +98,8 @@ class labtainers::config{
         command  => "sudo -u $username bash -c 'source ~/.profile; source /opt/labtainer/venv/bin/activate; echo -e \"email@addre.ss\\n\\n\" | $env /opt/labtainer/scripts/labtainer-student/bin/labtainer $lab -q'",
         cwd => "/opt/labtainer/scripts/labtainer-student/",
         provider => shell,
+        # starting the lab builds/starts containers; allow more than the default 300s
+        timeout => 3600,
       } 
       # ->
 

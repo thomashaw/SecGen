@@ -150,6 +150,9 @@ class labtainers::install{
     command => "source /opt/labtainer/venv/bin/activate && $env /opt/labtainer/setup_scripts/pull-all.py && $env /opt/labtainer/setup_scripts/pull_lab.py $lab",
     provider => shell,
     cwd => "/opt/labtainer/setup_scripts",
+    # pull-all.py fetches ~13 large base images plus the lab's images; the
+    # default 300s exec timeout is far too short
+    timeout => 7200,
   }
   
 
