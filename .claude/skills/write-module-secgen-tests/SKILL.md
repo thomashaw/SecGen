@@ -293,6 +293,17 @@ skip_check('msf exploit (exploit/linux/http/example_rce)',
            tier: 3, evidence: nil)
 ```
 
+**Assert the privilege level — it is driven by `<privilege>`.** `test_msf_exploit`
+takes `expect_privilege:`, and `generate-t3-test` sets it automatically from the
+module's `<privilege>`: `root_rwx` requires the exploited shell to be root or a
+sudoer; `user_rwx` requires a non-root, non-sudoer shell (judged from the
+sentinel's `id` and `sudo -n -l`). A plain `test_msf_exploit` passes on *any*
+`uid=`, so without this a `user_rwx` module that actually lands root — or a
+`root_rwx` one that lands a mere user — would pass wrongly. Keep `<privilege>`
+honest with what the module gives, and if you hand-write a tier-3 (or a non-MSF
+one) assert the same level yourself. A mismatch is a module bug to fix, never a
+check to drop.
+
 **CmdStager modules** use `execute_cmdstager` rather than `execute_command` (look
 for `include Msf::Exploit::CmdStager` in the module source; `show info` in
 msfconsole lists `Arch: x86, x64` and there is no `CMD` datastore option). They
