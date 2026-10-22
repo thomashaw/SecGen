@@ -29,7 +29,9 @@ class amap::install {
   }
 
   # gcc 12 / OpenSSL 3 raise deprecation warnings only; keep them non-fatal
+  # provider shell: the posix provider cannot resolve a relative './configure'
   exec { 'build and install amap':
+    provider  => shell,
     command   => './configure --prefix=/usr/local && make && make install',
     path      => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
     cwd       => "${build_dir}/amap-5.4",
