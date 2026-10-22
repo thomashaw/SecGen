@@ -8,6 +8,7 @@
   <author>puppetlabs</author>
   <module_license>Apache v2</module_license>
   <description>An installation of Java.
+    Debian 11 (Bullseye) installs OpenJDK 11 and Debian 12 (Bookworm) installs OpenJDK 17.
     Note: puppet stdlib version manually edited from puppet module to resolve dependency issues.</description>
 
   <type>language</type>
