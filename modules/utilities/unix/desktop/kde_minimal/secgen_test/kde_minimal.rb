@@ -21,9 +21,15 @@ class KdeMinimalTest < PostProvisionTest
 
     tier(1) do
       test_local_command('kde-plasma-desktop installed?', 'dpkg -l kde-plasma-desktop | grep -E "^ii"', 'kde-plasma-desktop')
-      %w[kate ksnapshot qtcurve].each do |pkg|
+      %w[kate qtcurve].each do |pkg|
         test_local_command("#{pkg} installed?", "dpkg -l #{pkg} | grep -E '^ii'", pkg)
       end
+      # Test fix: ksnapshot was removed after Debian 10, so the old check could never pass on
+      # bookworm. The module installs spectacle on Debian 11+ and ksnapshot before that.
+      test_local_command('screenshot tool installed (spectacle on 11+, ksnapshot before)',
+                         "if grep -qE '^(7|8|9|10)' /etc/debian_version; then pkg=ksnapshot; else pkg=spectacle; fi; " \
+                         "dpkg -l $pkg | grep -E '^ii'",
+                         'ii')
       # bundled auto-resolution script, installed executable
       test_command_succeeds('auto-resolution script is executable', 'test -x /opt/auto-resolution/auto-resolution.sh', tier: 1)
 
