@@ -4,9 +4,15 @@
 		<!-- topic: Protecting integrity with file attributes-->
 		<prompt>An attempt to overwrite /home/<%= $main_user %>/<%= $log_file %> is coming. Stop the attack by making the file append only.</prompt>
 
-		<post_command>echo 'your logs are gone!' > /home/<%= $main_user %>/<%= $log_file %>; echo 'appended!' >> /home/<%= $main_user %>/<%= $log_file %>; tail -n2 /home/<%= $main_user %>/<%= $log_file %>; echo $?</post_command>
+		<!-- each attempt appends its own token and checks only the last line for it, so 'appended' lines left by an
+		     earlier unprotected attempt can't make a fully immutable file look append-only -->
+		<post_command>F=/home/<%= $main_user %>/<%= $log_file %>; if [ ! -e "$F" ]; then echo FILE-MISSING; else T="appended $RANDOM$RANDOM"; echo 'your logs are gone!' > "$F"; echo "$T" >> "$F"; if tail -n1 "$F" | grep -qx "$T"; then echo APPEND-OK; else echo APPEND-BLOCKED; fi; fi</post_command>
 		<condition>
-			<output_not_matches>appended!</output_not_matches>
+			<output_matches>FILE-MISSING</output_matches>
+			<message>:( The file should exist! Create /home/<%= $main_user %>/<%= $log_file %> again, then protect it.</message>
+		</condition>
+		<condition>
+			<output_matches>APPEND-BLOCKED</output_matches>
 			<message>:( You stopped anything from being appended to the file. What kind of log file do you think this is?</message>
 		</condition>
 		<condition>
@@ -15,8 +21,8 @@
 			<trigger_next_attack>true</trigger_next_attack>
 		</condition>
 		<condition>
-			<output_matches>No such file or directory</output_matches>
-			<message>:( The file should exist!</message>
+			<output_matches>APPEND-OK</output_matches>
+			<message>:( We overwrote your log file! It needs to be append-only: it can still be added to, but not overwritten.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something was not right...</message>
