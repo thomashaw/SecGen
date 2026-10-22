@@ -21,6 +21,7 @@ class CyberchefTest < PostProvisionTest
       test_local_command('worker licence files present', "ls #{WEBAPP_DIR}", 'ChefWorker.js.LICENSE.txt')
       test_local_command('assets directory present', "test -d #{WEBAPP_DIR}/assets && echo #{WEBAPP_DIR}/assets", "#{WEBAPP_DIR}/assets")
       test_local_command('images directory present', "test -d #{WEBAPP_DIR}/images && echo #{WEBAPP_DIR}/images", "#{WEBAPP_DIR}/images")
+      test_local_command('runtime modules present', "ls #{WEBAPP_DIR}/modules", 'Bletchley.js')
       # files are mode 0744 as set in the manifest
       test_local_command('CyberChef.html mode 744', "stat -c '%a' #{WEBAPP_DIR}/CyberChef.html", '744')
     end
