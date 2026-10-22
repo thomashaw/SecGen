@@ -44,4 +44,8 @@
     <module_path>.*kali_light.*</module_path>
   </conflict>
 
+  <requires>
+    <type>update</type>
+  </requires>
+
 </service>
