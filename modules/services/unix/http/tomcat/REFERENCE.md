@@ -47,10 +47,6 @@
 * `tomcat::instance::copy_from_home`: Private define to copy a conf file from catalina_home to catalina_base
 * `tomcat::instance::dependencies`
 
-### Functions
-
-* [`tomcat::change`](#tomcat--change): This function exists for usage of a returning the input params that is a deferred function Will be used for deferring the values at agent lev
-
 ## Classes
 
 ### <a name="tomcat"></a>`tomcat`
@@ -815,7 +811,7 @@ Default value: `'present'`
 
 ##### <a name="-tomcat--config--server--address"></a>`address`
 
-Data type: `Optional[Variant[Pattern[/^localhost$/], Stdlib::IP::Address]]`
+Data type: `Optional[String[1]]`
 
 Specifies a TCP/IP address on which to listen for the shutdown command. Maps to the [address XML attribute](http://tomcat.apache.org/tomcat-8.0-doc/config/server.html#Common_Attributes). Valid options: a string.
 
@@ -831,7 +827,7 @@ Default value: `'present'`
 
 ##### <a name="-tomcat--config--server--port"></a>`port`
 
-Data type: `Optional[Variant[String[1], Stdlib::Port]]`
+Data type: `Optional[String[1]]`
 
 Specifies a port on which to listen for the designated shutdown command. Maps to the [port XML attribute](http://tomcat.apache.org/tomcat-8.0-doc/config/server.html#Common_Attributes). Valid options: a string containing a port number.
 
@@ -847,7 +843,7 @@ Default value: `undef`
 
 ##### <a name="-tomcat--config--server--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -880,14 +876,10 @@ The following parameters are available in the `tomcat::config::server::connector
 * [`purge_connectors`](#-tomcat--config--server--connector--purge_connectors)
 * [`server_config`](#-tomcat--config--server--connector--server_config)
 * [`show_diff`](#-tomcat--config--server--connector--show_diff)
-* [`cert_key_file`](#-tomcat--config--server--connector--cert_key_file)
-* [`cert_file`](#-tomcat--config--server--connector--cert_file)
-* [`cert_chain_file`](#-tomcat--config--server--connector--cert_chain_file)
-* [`cert_type`](#-tomcat--config--server--connector--cert_type)
 
 ##### <a name="-tomcat--config--server--connector--catalina_base"></a>`catalina_base`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies the base directory of the Tomcat installation to manage. Valid options: a string containing an absolute path.
 
@@ -903,7 +895,7 @@ Default value: `'present'`
 
 ##### <a name="-tomcat--config--server--connector--port"></a>`port`
 
-Data type: `Optional[Variant[String[1], Stdlib::Port]]`
+Data type: `Optional[String[1]]`
 
 Sets a TCP port on which to create a server socket. Maps to the [port XML attribute](http://tomcat.apache.org/tomcat-8.0-doc/config/http.html#Common_Attributes). Valid options: a string.
 
@@ -955,7 +947,7 @@ Default value: `undef`
 
 ##### <a name="-tomcat--config--server--connector--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -968,38 +960,6 @@ Data type: `Boolean`
 Specifies display differences when augeas changes files, defaulting to true. Valid options: true or false.
 
 Default value: `true`
-
-##### <a name="-tomcat--config--server--connector--cert_key_file"></a>`cert_key_file`
-
-Data type: `Optional[Stdlib::Absolutepath]`
-
-Specifies the path to the private key file. Valid options: a string containing an absolute path.
-
-Default value: `undef`
-
-##### <a name="-tomcat--config--server--connector--cert_file"></a>`cert_file`
-
-Data type: `Optional[Stdlib::Absolutepath]`
-
-Specifies the path to the certificate file. Valid options: a string containing an absolute path.
-
-Default value: `undef`
-
-##### <a name="-tomcat--config--server--connector--cert_chain_file"></a>`cert_chain_file`
-
-Data type: `Optional[Stdlib::Absolutepath]`
-
-Specifies the path to the certificate chain file. Valid options: a string containing an absolute path.
-
-Default value: `undef`
-
-##### <a name="-tomcat--config--server--connector--cert_type"></a>`cert_type`
-
-Data type: `String[1]`
-
-Specifies the type of certificate. Valid options: a string. 'RSA'.
-
-Default value: `'RSA'`
 
 ### <a name="tomcat--config--server--context"></a>`tomcat::config::server::context`
 
@@ -1086,7 +1046,7 @@ Default value: `[]`
 
 ##### <a name="-tomcat--config--server--context--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1220,7 +1180,7 @@ Default value: `'present'`
 
 ##### <a name="-tomcat--config--server--engine--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1301,7 +1261,7 @@ Default value: `[]`
 
 ##### <a name="-tomcat--config--server--globalnamingresource--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1392,7 +1352,7 @@ Default value: `[]`
 
 ##### <a name="-tomcat--config--server--host--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1499,7 +1459,7 @@ Default value: `[]`
 
 ##### <a name="-tomcat--config--server--listener--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1621,7 +1581,7 @@ Default value: `undef`
 
 ##### <a name="-tomcat--config--server--realm--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1720,7 +1680,7 @@ Default value: `[]`
 
 ##### <a name="-tomcat--config--server--resources--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1783,7 +1743,7 @@ Default value: `'present'`
 
 ##### <a name="-tomcat--config--server--service--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -1999,7 +1959,7 @@ Default value: `[]`
 
 ##### <a name="-tomcat--config--server--valve--server_config"></a>`server_config`
 
-Data type: `Optional[Stdlib::Absolutepath]`
+Data type: `Optional[String[1]]`
 
 Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 
@@ -2041,7 +2001,7 @@ The following parameters are available in the `tomcat::install` defined type:
 
 ##### <a name="-tomcat--install--catalina_home"></a>`catalina_home`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `String[1]`
 
 specifies the directory of the Tomcat installation from which the instance should be created. Valid options: a string containing an absolute path.
 
@@ -2077,18 +2037,7 @@ Default value: `true`
 
 ##### <a name="-tomcat--install--proxy_type"></a>`proxy_type`
 
-Data type:
-
-```puppet
-Optional[
-    Enum[
-      'none',
-      'http',
-      'https',
-      'ftp'
-    ]
-  ]
-```
+Data type: `Optional[Enum['none', 'http', 'https', 'ftp']]`
 
 Specifies the proxy server type used by `proxy_server`. Normally this defaults to the protocol specified in the `proxy_server` URI. `proxy_server`. Valid options: 'none', 'http', 'https', 'ftp'.
 
@@ -2762,26 +2711,4 @@ Data type: `String[1]`
 The 'group' owner of the tomcat war file.
 
 Default value: `'tomcat'`
-
-## Functions
-
-### <a name="tomcat--change"></a>`tomcat::change`
-
-Type: Ruby 4.x API
-
-This function exists for usage of a returning the input params that is a deferred function
-Will be used for deferring the values at agent level
-
-#### `tomcat::change(Any $arg)`
-
-This function exists for usage of a returning the input params that is a deferred function
-Will be used for deferring the values at agent level
-
-Returns: `Any`
-
-##### `arg`
-
-Data type: `Any`
-
-
 

@@ -92,17 +92,9 @@ define tomcat::service (
     # - $_catalina_base
     # - $java_home
     # - $_user
-    $parameters = {
-      '_catalina_base' => $_catalina_base,
-      '_catalina_home' => $_catalina_home,
-      'java_home'      => $java_home,
-      '_user'          => $_user,
-      'wait_timeout'   => $wait_timeout,
-    }
-
     file { "/etc/init.d/tomcat-${name}":
       mode    => '0755',
-      content => epp('tomcat/jsvc-init.epp', $parameters),
+      content => template('tomcat/jsvc-init.erb'),
     }
   } elsif $use_jsvc {
     if $java_home {

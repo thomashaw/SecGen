@@ -22,30 +22,18 @@
 #   Specifies a server.xml file to manage. Valid options: a string containing an absolute path.
 # @param show_diff
 #   Specifies display differences when augeas changes files, defaulting to true. Valid options: true or false.
-# @param cert_key_file
-#   Specifies the path to the private key file. Valid options: a string containing an absolute path.
-# @param cert_file
-#   Specifies the path to the certificate file. Valid options: a string containing an absolute path.
-# @param cert_chain_file
-#   Specifies the path to the certificate chain file. Valid options: a string containing an absolute path.
-# @param cert_type
-#   Specifies the type of certificate. Valid options: a string. 'RSA'.
 #
 define tomcat::config::server::connector (
-  Optional[Stdlib::Absolutepath]             $catalina_base         = undef,
-  Enum['present','absent']                   $connector_ensure      = 'present',
-  Optional[Variant[String[1], Stdlib::Port]] $port                  = undef,
-  String[1]                                  $protocol              = $name,
-  String[1]                                  $parent_service        = 'Catalina',
-  Hash                                       $additional_attributes = {},
-  Array                                      $attributes_to_remove  = [],
-  Optional[Boolean]                          $purge_connectors      = undef,
-  Optional[Stdlib::Absolutepath]             $server_config         = undef,
-  Boolean                                    $show_diff             = true,
-  Optional[Stdlib::Absolutepath]             $cert_key_file         = undef,
-  Optional[Stdlib::Absolutepath]             $cert_file             = undef,
-  Optional[Stdlib::Absolutepath]             $cert_chain_file       = undef,
-  String[1]                                  $cert_type             = 'RSA',
+  Optional[String[1]] $catalina_base         = undef,
+  Enum['present','absent'] $connector_ensure = 'present',
+  Optional[String[1]] $port                  = undef,
+  String[1] $protocol                        = $name,
+  String[1] $parent_service                  = 'Catalina',
+  Hash $additional_attributes                = {},
+  Array $attributes_to_remove                = [],
+  Optional[Boolean] $purge_connectors        = undef,
+  Optional[String[1]] $server_config         = undef,
+  Boolean $show_diff                         = true,
 ) {
   include tomcat
   $_catalina_base = pick($catalina_base, $tomcat::catalina_home)
@@ -68,7 +56,7 @@ define tomcat::config::server::connector (
   }
 
   if $_purge_connectors and ($connector_ensure == 'absent') {
-    fail('$connector_ensure must be set to \'present\' to use $purge_connectors')
+    fail('$connector_ensure must be set to \'true\' or \'present\' to use $purge_connectors')
   }
 
   if $server_config {
@@ -97,21 +85,6 @@ define tomcat::config::server::connector (
     } else {
       $_additional_attributes = undef
     }
-
-    # Add SSLHostConfig if certificate parameters are provided
-    if $cert_key_file and $cert_file and $cert_chain_file {
-      $sslhostconfig_path = "Server/Service/Connector[#attribute/port='${port}']"
-
-      $_sslhostconfig_changes = [
-        "set ${sslhostconfig_path}/SSLHostConfig/Certificate/#attribute/certificateKeyFile ${cert_key_file}",
-        "set ${sslhostconfig_path}/SSLHostConfig/Certificate/#attribute/certificateFile ${cert_file}",
-        "set ${sslhostconfig_path}/SSLHostConfig/Certificate/#attribute/certificateChainFile ${cert_chain_file}",
-        "set ${sslhostconfig_path}/SSLHostConfig/Certificate/#attribute/type ${cert_type}",
-      ]
-    } else {
-      $_sslhostconfig_changes = undef
-    }
-
     if ! empty(any2array($attributes_to_remove)) {
       $_attributes_to_remove = prefix(any2array($attributes_to_remove), "rm ${base_path}/#attribute/")
     } else {
@@ -124,7 +97,6 @@ define tomcat::config::server::connector (
           $_protocol_change,
           $_additional_attributes,
           $_attributes_to_remove,
-          $_sslhostconfig_changes,
     ]))
   }
 
