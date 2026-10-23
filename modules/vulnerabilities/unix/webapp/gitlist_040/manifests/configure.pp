@@ -33,9 +33,13 @@ class gitlist_040::configure {
     mode => '0700'
   } ->
 
+  # Force the initial branch to master: gitlist 0.4.0 and the arg-injection
+  # exploit enumerate files on `master`, but bookworm's git defaults new repos
+  # to `main`, leaving the tree empty on master (the exploit then aborts with
+  # "Couldn't detect files in ...'s repo").
   exec { 'create-repo-file_leak':
     cwd     => $leaked_files_path,
-    command => "sudo -u www-data git init",
+    command => "sudo -u www-data git init -b master",
   } ->
 
   file { "$leaked_files_path/.git/description":

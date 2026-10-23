@@ -55,9 +55,13 @@ class Gitlist040Test < PostProvisionTest
     # port: already exercised via test_service_up/test_html_returned_content
     # above (self.port). No other read_facts to skip.
 
+    # gitlist_arg_injection is a PHP-platform module (defaults to
+    # php/meterpreter/reverse_tcp and rejects cmd/unix/*). php/exec runs the
+    # sentinel command via PHP with no session, which suits the helper; the
+    # command runs as the web user (user_rwx).
     test_msf_exploit('exploit/multi/http/gitlist_arg_injection',
                      rport: self.port,
-                     payload: 'php/unix/cmd/generic',
+                     payload: 'php/exec',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
