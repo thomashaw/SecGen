@@ -52,10 +52,13 @@ class LinuxkiRceTest < PostProvisionTest
     # module); the helper's default cmd/unix/generic is rejected as incompatible
     # ("cmd/unix/generic is not a compatible payload"). php/unix/cmd/generic is
     # the PHP-platform twin: a no-session command payload that runs CMD and
-    # drops the sentinel without needing a reverse/bind shell.
+    # drops the sentinel without needing a reverse/bind shell. That payload
+    # refuses to run without AllowNoCleanup ("cannot cleanup files created
+    # during exploit") since our sentinel CMD isn't its own uploaded file.
     test_msf_exploit('exploit/linux/http/linuxki_rce',
                      rport: self.port,
                      payload: 'php/unix/cmd/generic',
+                     options: { 'AllowNoCleanup' => true },
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
