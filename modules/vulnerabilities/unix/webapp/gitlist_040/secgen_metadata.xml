@@ -24,6 +24,13 @@
   <read_fact>leaked_filenames</read_fact>
   <read_fact>strings_to_pre_leak</read_fact>
   <read_fact>pre_leaked_filenames</read_fact>
+  <!-- optional: a secret committed into the repo then removed in a later commit, so
+       it is gone from the working tree / HEAD but recoverable from history. Empty by
+       default (no extra commits), so scenarios that do not set it are unaffected. -->
+  <read_fact>strings_to_leak_in_history</read_fact>
+  <read_fact>history_leaked_filenames</read_fact>
+  <read_fact>history_commit_message</read_fact>
+  <read_fact>history_removal_commit_message</read_fact>
 
   <!-- [0] leaks flag to home directory, [1..n] leak messages to gitlist repository (visible through the webapp) -->
   <default_input into="port">
@@ -44,6 +51,23 @@
 
   <default_input into="pre_leaked_filenames">
     <generator type="filename_generator"/>
+  </default_input>
+
+  <!-- empty defaults: no secret buried in history unless a scenario opts in -->
+  <default_input into="strings_to_leak_in_history">
+    <value/>
+  </default_input>
+
+  <default_input into="history_leaked_filenames">
+    <value/>
+  </default_input>
+
+  <default_input into="history_commit_message">
+    <value/>
+  </default_input>
+
+  <default_input into="history_removal_commit_message">
+    <value/>
   </default_input>
 
   <!--optional vulnerability details-->

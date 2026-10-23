@@ -19,6 +19,10 @@ invokes the default pager (often less): apt-get changelog apt
 
   <read_fact>strings_to_leak</read_fact>
   <read_fact>leaked_filenames</read_fact>
+  <!-- optional: which sudoers user spec gets the NOPASSWD apt-get-as-root rule.
+       Defaults to ALL (every user), i.e. the original behaviour. Set it to a single
+       account (e.g. a service account) to scope the misconfiguration to that user. -->
+  <read_fact>sudo_user</read_fact>
 
   <!-- flags or other secrets exposed after exploitation -->
   <default_input into="strings_to_leak">
@@ -27,6 +31,10 @@ invokes the default pager (often less): apt-get changelog apt
 
   <default_input into="leaked_filenames">
     <generator type="filename_generator"/>
+  </default_input>
+
+  <default_input into="sudo_user">
+    <value>ALL</value>
   </default_input>
 
   <requires>
