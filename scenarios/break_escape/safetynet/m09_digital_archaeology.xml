@@ -11,18 +11,20 @@
 
 Virtual machines for the Break Escape SAFETYNET mission 9 narrative experience. The operative works in a records archive in Helena, Montana, and needs two old machines: the archive's catalogue server, and the last server of Tomb Beta, one of the Architect's closed workshops, racked in the tape room. The first machine holds the Insider Threat Initiative's ledger. The second holds the owner's credential, his memo on a flaw SAFETYNET catalogued and never reported, his unsent vendor notice, and the job that still mirrors the stolen database to Tomb Gamma.
 
+The two machines are reached in different ways, and both are diegetic. The catalogue's restricted index opens only to the catalogue service account, whose login the game hands the operative on the reading-room duty-desk slip (authenticated access with a recovered credential). Tomb Beta's old lightweight web server is reached through an unauthenticated remote code execution flaw, landing on its web service account. After the foothold, a sudo misconfiguration on a common pager utility escalates each box to root.
+
 ## Included Systems
 
 **catalogue_server**
 - Debian 12 desktop system
-- Hosts the archive's catalogue service, which is unauthenticated and exposed on a random port
-- Service account `druid` (the name the module creates by default) holds flag 1, the catalogue index
-- Root's home holds flag 2, the Insider Threat Initiative's ledger, reached through a sudo rule on a common pager utility
+- Hosts the archive's catalogue. The public catalogue is browsable, but the restricted index is reachable only by signing in as the catalogue service account.
+- Catalogue service account `catalogsvc` (password `Catalog!Helena2016`, the duty-desk slip) holds flag 1 in its home: the restricted catalogue index (Series R, R-114 to R-161, restricted cage bay 10)
+- Root's home holds flag 2, the Insider Threat Initiative's ledger (placements 23, candidates 47, WREN / H&amp;L source file HL2015-0477), reached through a sudo rule on a common pager utility
 
 **tomb_beta_server**
 - Debian 12 desktop system
-- Old lightweight web server on a random port, running under the web service account `nostromousr`
-- The web service account's home holds flag 3, a SAFETYNET staff credential issued to Dr Adrian Tesseract, which proves who owns the server. The same home holds his memo and his unsent vendor notice, both about the Albion control flaw.
+- Old lightweight web server on a random port, running under the web service account `nostromousr`. Reached through an unauthenticated remote code execution flaw in the web server (no login required).
+- The web service account's home holds flag 3, a SAFETYNET staff credential issued to Dr Adrian Tesseract, which proves who owns the server. The same home holds the vulnerability-holdings record for the Albion control flaw (ref VH-2017-0312, Carrow Controls RM-4), Tesseract's memo to the Disposition Board, and his unsent vendor notice.
 - Root's home holds flag 4, a scheduled job that mirrors to Tomb Gamma, the publication hour, the head start for the cells, and the list of defences. Reached through a sudo rule on a common pager utility.
 
 **attack_vm**
@@ -35,15 +37,16 @@ Flags 1 and 2 (the catalogue server) are submitted at the reading-room drop term
 
 ## Integration with Break Escape
 
-These VMs are provisioned by the Break Escape game engine via SecGen integration. Players interact with these systems through the game's narrative and task system, with guided hints delivered via SAFETYNET field guides.
+These VMs are provisioned by the Break Escape game engine via SecGen integration. Players interact with these systems through the game's narrative and task system, with guided hints delivered via SAFETYNET field guides. The catalogue account name and password are the fixed strings the game prints on the reading-room duty-desk slip; they must match the catalogue account this VM builds. Tomb Beta is entered by exploitation, so its web service account needs no login credential.
 
 ## CyBOK Coverage
 
-- Server-side misconfiguration and vulnerable components
-- Unauthenticated remote code execution and its mitigation
-- Access control and privilege escalation through sudo misconfiguration
 - Network mapping and service fingerprinting
+- Authenticated access using a recovered credential (catalogue server)
+- Unauthenticated remote code execution and its mitigation (Tomb Beta web server)
+- Access control and privilege escalation through sudo misconfiguration
 - Insider-threat investigation and document analysis
+- Cyber kill chain
   </description>
 
   <type>ctf-lab</type>
@@ -62,7 +65,13 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
     <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
   </CyBOK>
 
-  <!-- unauthenticated remote code execution on the catalogue and the web server -->
+  <!-- authenticating to the catalogue with a credential recovered in the game -->
+  <CyBOK KA="AAA" topic="Authentication">
+    <keyword>authentication</keyword>
+    <keyword>credential management</keyword>
+  </CyBOK>
+
+  <!-- unauthenticated remote code execution on the Tomb Beta web server -->
   <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
     <keyword>server-side misconfiguration and vulnerable components</keyword>
   </CyBOK>
@@ -132,23 +141,67 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
     <system_name>catalogue_server</system_name>
     <base distro="Debian 12" type="desktop" name="KDE"/>
 
-    <!-- flag 1: foothold as the druid service account, catalogue index in its home -->
-    <vulnerability module_path=".*/apache_druid_rce">
-      <input into="leaked_filenames">
-        <value>catalogue_index</value>
-      </input>
-      <input into="strings_to_leak">
-        <generator type="flag_generator"/>
-      </input>
-    </vulnerability>
+    <!--
+      Flag 1: the catalogue service account (catalogsvc). The game hands this
+      login on the reading-room duty-desk slip (catalogsvc / Catalog!Helena2016);
+      the restricted catalogue index is in this account's home and is reachable
+      only after signing in with that credential. No unauthenticated foothold:
+      the slip is required, so the flag cannot be captured before the game hands
+      it over (R31/R34). Username and password are fixed to the game's slip.
+    -->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <generator type="account">
+          <input into="username">
+            <value>catalogsvc</value>
+          </input>
+          <input into="password">
+            <value>Catalog!Helena2016</value>
+          </input>
+          <input into="super_user">
+            <value>false</value>
+          </input>
+          <input into="leaked_filenames">
+            <value>catalogue_index</value> <!-- flag1: restricted catalogue index -->
+          </input>
+          <input into="strings_to_leak">
+            <!-- flag1: the restricted catalogue index the game expects (R33) -->
+            <encoder module_path="modules/encoders/selector/concatenate">
+              <input into="strings_to_encode">
+                <value>ARCHIVE CATALOGUE -- RESTRICTED INDEX
+Staff access only. Not shown on the public catalogue.
+LIVE CAPTURE -- FULL CATALOGUE
+Series R, restricted: R-114 to R-161.
+Location: restricted cage, bay 10.
 
-    <!-- flag 2: root's home, the Insider Threat Initiative ledger, through a sudo rule on a pager -->
+</value>
+                <generator type="flag_generator"/>
+              </input>
+            </encoder>
+          </input>
+        </generator>
+      </input>
+    </utility>
+
+    <!-- flag 2: root's home, the Insider Threat Initiative ledger, through a sudo rule on a pager.
+         Reachable only as a logged-in user, so it is gated by the catalogsvc login too. -->
     <vulnerability module_path=".*/sudo_root_more">
       <input into="leaked_filenames">
         <value>insider_ledger</value>
       </input>
       <input into="strings_to_leak">
-        <generator type="flag_generator"/>
+        <!-- flag2: the Initiative ledger body the game expects, incl. HL2015-0477 (R33) -->
+        <encoder module_path="modules/encoders/selector/concatenate">
+          <input into="strings_to_encode">
+            <value>LIVE CAPTURE -- INITIATIVE LEDGER
+Placements 23. Candidates 47. Legacy 11.
+WREN -- H&amp;L -- placed 11 yrs -- LIVE -- Day 10: assigned TF Null, Montana operation. M.S.
+Source file: HL2015-0477
+
+</value>
+            <generator type="flag_generator"/>
+          </input>
+        </encoder>
       </input>
     </vulnerability>
 
@@ -169,21 +222,33 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
     <base distro="Debian 12" type="desktop" name="KDE"/>
 
     <!--
-      Flag 3 and the story files share the web service account's home (nostromousr, hard-coded by the module).
+      Flag 3 is reached by an unauthenticated web RCE in the Tomb Beta web
+      server; the exploit lands on the web service account (nostromousr,
+      hard-coded by the module, created with NO login password). No credential
+      login exists on the box, so the box does not offer a shortcut that skips
+      the exploitation lesson. The game's enrolment binder points the player at
+      the enrolment site / service as a story find, not a login.
+
+      Flag 3 and the story files share the web service account's home.
       strings_to_leak and leaked_filenames pair by position:
-        1 enrolment_record   = credential text, then flag 3
-        2 albion_memo        = Tesseract's memo (no flag)
-        3 vendor_notice_draft = unsent vendor notice (no flag)
+        1 enrolment_record       = credential text, then flag 3
+        2 albion_memo            = Tesseract's memo to the Disposition Board (no flag)
+        3 vendor_notice_draft    = his unsent vendor notice (no flag)
+        4 vulnerability_holdings = the catalogue holdings record for the Albion flaw (no flag)
       strings_to_pre_leak is set empty so no generated text appears on the public page.
+      The Albion documents are aligned to the game's specifics (R37): ref
+      VH-2017-0312, Carrow Controls RM-4, 14 March 2017, ~400 UK sites, the
+      Disposition Board.
     -->
     <vulnerability module_path=".*/nostromo_code_exec">
       <input into="strings_to_pre_leak">
         <value></value>
       </input>
       <input into="leaked_filenames">
-        <value>enrolment_record</value>
+        <value>enrolment_record</value>      <!-- flag3 -->
         <value>albion_memo</value>
         <value>vendor_notice_draft</value>
+        <value>vulnerability_holdings</value>
       </input>
       <input into="strings_to_leak">
         <encoder module_path="modules/encoders/selector/concatenate">
@@ -193,38 +258,44 @@ Issued to: Dr Adrian Tesseract
 Post: Chief Strategist
 Left SAFETYNET: seven years ago
 Status: active, never revoked
-Enrolled host: Tomb Beta server (web service account)
+Enrolled host: Tomb Beta enrolment site (web service account nostromousr)
 
-Enrolment record for this host. The enrolling account is the web service account.</value>
+Enrolment record for this host. The enrolling account is the site's web service account.
+
+</value>
             <generator type="flag_generator"/>
           </input>
         </encoder>
         <value>MEMO
-From: Dr A. Tesseract, Chief Strategist
-To: Director of Vulnerability Management
-Re: Control-equipment flaw at the Albion plant (catalogued, not reported)
+To: Disposition Board
+From: Chief Strategist (Dr A. Tesseract)
+Date: 14 March 2017
+Re: VH-2017-0312
 
-We catalogued a flaw in the control equipment used at the Albion plant. It has not gone to the vendor.
+We are holding a flaw in a Carrow controller because it may one day be useful to us. It will certainly one day be useful to someone else.
+Four hundred sites run this module. Their engineers cannot patch what nobody has told them about, and we cannot defend them from it, having chosen not to.
+I recommend notification to the vendor within thirty days. I have drafted the notice. I would rather send it than explain later why we didn't.
+A. Tesseract</value>
+        <value>DRAFT, NOT SENT
+Date: 14 March 2017
+To: Product Security, Carrow Controls
+From: SAFETYNET Vulnerability Management (Dr A. Tesseract, Chief Strategist)
+Re: RM-4 remote-management module
 
-Keeping it in the catalogue and out of the vendor's hands means the next operator who finds it is the first to use it. Hoarding does not fix anything. It only decides who finds the flaw first.
-
-I want the vendor notified. I accept that this costs us the catalogue entry and possibly a contract. I do not accept that we keep it.
-
-Recommendation: notify the vendor on a coordinated schedule, with a date, and log the decision.</value>
-        <value>DRAFT - NOT SENT
-To: Vendor product security contact
-From: SAFETYNET Vulnerability Management (Dr A. Tesseract)
-Subject: Coordinated disclosure of a control-equipment flaw
-
-We are writing to report a flaw in control equipment supplied under your product line. The technical detail is held by SAFETYNET and will be shared under coordinated disclosure, on the timetable below.
-
-Proposed timetable: fix ready in 90 days, public advisory on day 90.
-Signature: not signed
-Hold: do not send until the Director has approved it.</value>
+We have found a flaw in the RM-4 module that lets an unauthenticated user on the management network issue control commands. A test case is attached for your engineers.
+We will keep this confidential for ninety days from the date of this letter, or until a fix ships, whichever is sooner, so that your customers have time to patch. We are glad to help with testing.
+With thanks,
+Dr Adrian Tesseract, Chief Strategist</value>
+        <value>CATALOGUE ENTRY -- VULNERABILITY HOLDINGS
+Ref: VH-2017-0312. Authentication bypass, Carrow Controls RM-4 remote-management module.
+Deployed at: grid battery sites, water treatment works, substations. Approx. 400 UK sites.
+Vendor aware: no.
+Disposition: RETAIN. Operational value. Review 2019.
+Board sign-off: OPS yes, LEGAL yes, TECH yes, INT yes, STRAT withheld.</value>
       </input>
     </vulnerability>
 
-    <!-- flag 4: root's home, the Tomb Gamma mirror job and the defences list, through a sudo rule on a pager -->
+    <!-- flag 4: root's home, the Tomb Gamma mirror job and the defences list, through a sudo rule on a pager. -->
     <!-- Tomb Gamma is named as the target only. No host, address or route is given. -->
     <vulnerability module_path=".*/sudo_root_less">
       <input into="leaked_filenames">

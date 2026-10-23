@@ -16,14 +16,14 @@ Virtual machines for the Break Escape SAFETYNET mission 10 narrative experience.
 **bunker_monitor** (entry stage)
 - Debian 12 desktop system
 - Hosts a network traffic monitoring and threat-intelligence platform on a fixed port, with an unauthenticated command injection flaw in its login handler
-- The platform's service account (`maltrail`) holds flag 1, the monitoring host's status note
-- The platform's threat-data store holds flag 2, with the staging copy of the schedule in the same record
+- The monitoring platform's service account (`secmon`) holds flag 1, reached through the command-injection foothold
+- A separate, password-gated staging account (`staging`) holds flag 2 and the staging copy of the release schedule in its own home, not readable from the flag-1 foothold
 
 **release_host** (climax stage one)
 - Debian 12 desktop system
 - Runs the release service inside a privileged container, behind a bind shell on a random port
 - Two generated operative accounts. Neither is an administrator. The shell is a container, not the host.
-- Root's home on the host beneath the container holds flag 3, the disarm code for the core. The container itself holds no flag.
+- Root's home on the host beneath the container holds flag 3 and the release service's arming / kill configuration (how six o'clock is armed and what stops it; the trigger itself is on the core console). The container itself holds no flag.
 
 **core_host** (climax stage two)
 - Debian 12 desktop system
@@ -152,13 +152,16 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
     <system_name>bunker_monitor</system_name>
     <base distro="Debian 12" type="desktop" name="KDE"/>
 
-    <!-- The module's default account name is random. The plan names the account maltrail. -->
+    <!-- R34: the monitoring service account is named secmon, matching the game's maintenance-tag find.
+         The foothold is an unauthenticated command injection (CyBOK WAM), so the account stays
+         passwordless: the maintenance tag's value to the player is the account name + host address,
+         not a password login. flag 1 is read via the RCE foothold on this account's home. -->
     <vulnerability module_path=".*/maltrail_rce" access="remote" privilege="user_rwx">
       <input into="unix_username">
-        <value>maltrail</value>
+        <value>secmon</value>
       </input>
 
-      <!-- flag 1: the monitoring service account's home -->
+      <!-- flag 1: the monitoring service account's home, reached by the command-injection foothold -->
       <input into="leaked_filenames">
         <value>monitor_status</value>
       </input>
@@ -166,24 +169,60 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
         <generator type="flag_generator"/>
       </input>
 
-      <!-- flag 2: embedded in the threat-data record, with the staging copy of the schedule beside it on one line.
-           The delimiter is kept free of quotes, spaces and shell characters, because the record is passed as a shell argument. -->
-      <input into="maltrail_data">
-        <generator type="maltrail_data">
-          <input into="embedded_flag">
-            <encoder module_path="modules/encoders/selector/concatenate">
-              <input into="delim">
-                <value>::</value>
-              </input>
-              <input into="strings_to_encode">
-                <value>STAGING COPY OF THE SCHEDULE. CHANNELS: Tomb Gamma release servers, held back to 06:00 UTC as the fallback. Cells head start at 04:00 UTC. Trojan Horse backdoor batch. Social Fabric story feed. EARLY ACCESS ORDERS: Ghost Protocol, Digital Vanguard, Supply Chain Saboteurs, Social Fabric, and Zero Day. The Zero Day order went through the London broker desk under the Sterling name, and the desk is now held by Vos. FIRST ENTRIES BY CITY: Seattle first (a hospital group, infusion pumps). Austin next (a county, dispatch software). Cleveland third (a water utility, controllers).</value>
-                <generator type="flag_generator"/>
-              </input>
-            </encoder>
-          </input>
-        </generator>
-      </input>
+      <!-- Flag 2 and the staging schedule no longer live here (they were world-readable in the
+           threat-data store / web UI). R30/B7 moves them to a separate, password-gated staging
+           account below. The monitoring platform keeps generic threat data (module default). -->
     </vulnerability>
+
+    <!-- R30/B7: flag 2 lives in a separate staging account with its own 0600 home, not readable
+         from the flag-1 (secmon) foothold. It is gated by the staging sign-in card found in the
+         server hall by the release console (staging / Staging!Copy25). The release operators who
+         run the staging copy own this login; it opens the staging copy of the release schedule. -->
+    <input into_datastore="staging_accounts">
+      <generator type="account">
+        <input into="username">
+          <value>staging</value>
+        </input>
+        <input into="password">
+          <value>Staging!Copy25</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <!-- R37: the staging copy of the release schedule, aligned to the game's text
+             (Ransomware Incorporated, entries 0001-0003, RETAIN, two early-access shares).
+             Second string is flag 2. -->
+        <input into="strings_to_leak">
+          <value>THE PUBLICATION. RELEASE SCHEDULE, STAGING COPY.
+92,460 entries, with working detail.
+Fallback: 06:00 UTC, day 13, city by city. Key: all cities, one minute.
+
+CHANNELS
+1. Release servers, this site.
+2. Trojan Horse backdoor. 47 million systems. Queued batch: Seattle.
+
+EARLY ACCESS, 04:00 UTC. Two shares, paid for the theft.
+Zero Day. Collecting on site. Resale not permitted.
+Ransomware Incorporated. Collecting by its own arrangement.
+
+FIRST ENTRIES. SEATTLE.
+0001  Infusion pumps, a hospital group. The same flaw is live in 140 hospitals. SAFETYNET disposition: RETAIN. Operational value. Catalogued three years ago.
+0002  Dispatch software. One county's emergency calls.
+0003  Water treatment controllers, a city utility. End of life. The vendor cannot fix them.</value>
+          <generator type="flag_generator"/>
+        </input>
+        <input into="leaked_filenames">
+          <value>release_schedule_staging</value>
+          <value>staging_flag</value>
+        </input>
+      </generator>
+    </input>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>staging_accounts</datastore>
+      </input>
+    </utility>
 
     <network type="private_network">
       <input into="IP_address">
@@ -202,18 +241,19 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
     <system_name>release_host</system_name>
     <base distro="Debian 12" type="desktop" name="KDE"/>
 
-    <!-- Two generated operative accounts, matching the file's original comment. No root login over SSH. -->
+    <!-- Two operative accounts, neither an administrator; no root login over SSH.
+         R34: the first is named relops with the duty-sheet password (relops / Release!Shift25),
+         so the operator duty card the game hands out names a real login on this host. The second
+         keeps a random operative name with a strong generated password (the old 'test' password
+         was weak and guessable, flagged in the VM review). NOTE: the relops login cannot gate
+         flag 3 (see the comment on the container-escape vulnerability below). -->
     <input into_datastore="accounts">
       <generator type="account">
         <input into="username">
-          <generator type="random_sanitised_word">
-            <input into="wordlist">
-              <value>mythical_creatures</value>
-            </input>
-          </generator>
+          <value>relops</value>
         </input>
         <input into="password">
-          <value>tiaspbiqe2r</value>
+          <value>Release!Shift25</value>
         </input>
         <input into="super_user">
           <value>false</value>
@@ -234,7 +274,7 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
           </generator>
         </input>
         <input into="password">
-          <value>test</value>
+          <generator type="strong_password_generator"/>
         </input>
         <input into="super_user">
           <value>false</value>
@@ -277,13 +317,31 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
       </input>
     </utility>
 
-    <!-- flag 3: root's home on the host, beneath the release service's container -->
+    <!-- flag 3: root's home on the host, beneath the release service's container.
+         The escape yields host root, so the relops login above cannot gate this flag (root reads
+         any file). The relops credential is kept for consistency with the duty card; strict
+         credential-gating of flag 3 is not achievable VM-side without removing the container-escape
+         teaching (see the VM review report). The hard rule is held by the submit-station room-gating.
+         R32: the release service's arming / kill configuration (how six o'clock is armed and what
+         stops it) is seeded in root's home beside the flag, where HaX's hatch steer points. Concept
+         level only, no technique. -->
     <vulnerability module_path=".*/nc_backdoor_docker_esc">
       <input into="leaked_filenames">
         <value>docker_flag</value>
+        <value>release_kill_config</value>
       </input>
       <input into="strings_to_leak">
         <generator type="flag_generator"/>
+        <value>RELEASE SERVICE. ARMING / KILL CONFIGURATION.
+
+The publication is armed to release at 06:00 UTC, day 13, city by city, from the release servers on this site. The early-access shares go an hour and a half ahead, at 04:00 UTC.
+
+What stops it:
+- The release is held on a single trigger. Nothing goes until the trigger is thrown.
+- The trigger is on the core host's console, not on this host. This host holds the schedule and the arming state only; it cannot throw or cancel the release itself.
+- A full stop needs the core console. The key is one hand, one of theirs.
+
+Staged by the release operators. The shift is on the operators' duty sheet.</value>
       </input>
     </vulnerability>
 
@@ -313,13 +371,44 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
       </input>
     </utility>
 
-    <!-- flag 4: root's home on the host, beneath the chroot jail -->
+    <!-- flag 4: root's home on the host, beneath the chroot jail.
+         The chroot escape yields host root, so the core access key (TSRCT-CORE-9F21) corresponds to
+         no Unix credential and cannot gate this flag VM-side; it stays a narrative prop (the envelope).
+         The hard rule is held by the submit-station room-gating. See the VM review report.
+         R32: the core host's file index (matching the game's "Core Host: File Index") and the unsent
+         Albion / Carrow Controls vendor notice are seeded in root's home beside the flag, where the
+         description and Tesseract's steer point. Concept level only, no technique. -->
     <vulnerability module_path=".*/nc_backdoor_chroot_esc">
       <input into="leaked_filenames">
         <value>chroot_flag</value>
+        <value>core_file_index</value>
+        <value>vendor_notice_albion</value>
       </input>
       <input into="strings_to_leak">
         <generator type="flag_generator"/>
+        <value>CORE HOST. FILE INDEX.
+
+catalogue         92,460 entries. Theirs, with working detail.
+personnel         Their staff index. 1,206 badges, loaded to the readers.
+vault line        Open. Their end is the Citadel.
+schedule          06:00 UTC, day 13. City by city. Seattle first.
+early access      04:00 UTC. Two shares, paid for the theft.
+key               One hand. One of theirs.
+purge             Armed. Both copies, or nothing.
+alpha             Closed. Papers to Helena.
+beta              Closed. Server left running in Helena. For whoever came.
+notice, albion    2017. Drafted. Not sent.
+reading, for 0x00 A copy. The original went to Helena.</value>
+        <value>VENDOR NOTICE. ALBION / CARROW CONTROLS. DRAFT. NOT SENT.
+
+To: Carrow Controls, product security.
+Re: remote-management module, RM-4 series.
+
+A flaw in the RM-4 remote-management module lets an unauthenticated operator take control of connected plant equipment. It is present across roughly four hundred UK sites, including the Albion plant. We have held it since 2017.
+
+This notice was drafted so the vendor could issue a fix. It was never sent. SAFETYNET disposition at the time: retain for operational value.
+
+Drafted 2017. Held. Not sent.</value>
       </input>
     </vulnerability>
 
