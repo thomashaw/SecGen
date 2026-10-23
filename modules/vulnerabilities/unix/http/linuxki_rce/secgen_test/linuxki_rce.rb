@@ -48,8 +48,14 @@ class LinuxkiRceTest < PostProvisionTest
       # the script (it fatals on Debian 12's stock PHP 8.2; see install.pp).
       test_http('/linuxki/experimental/vis/kivis.php', match: 'textarea')
     end
+    # The exploit's default payload is php/meterpreter/reverse_tcp (a PHP-platform
+    # module); the helper's default cmd/unix/generic is rejected as incompatible
+    # ("cmd/unix/generic is not a compatible payload"). php/unix/cmd/generic is
+    # the PHP-platform twin: a no-session command payload that runs CMD and
+    # drops the sentinel without needing a reverse/bind shell.
     test_msf_exploit('exploit/linux/http/linuxki_rce',
                      rport: self.port,
+                     payload: 'php/unix/cmd/generic',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
