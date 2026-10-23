@@ -2,7 +2,7 @@
 	<attack>
 		<!-- topic: Detecting changes to resources using backups-->
 		<prompt>An attempt to edit a config file is coming, let it happen. But first make sure you have a backup of the /etc/ directory at /home/<%= $main_user %>/backups/etc/.</prompt>
-		<post_command>changedf=`find /etc/ -name '*.sh' -type f | sort -R | head -n 1`; echo '# <%= $flags.pop %>' >> $changedf; echo $changedf</post_command>
+		<post_command>d=/root/.hackerbot_targets; mkdir -p "$d"; sf=$d/a_etc_sh; if [ -s "$sf" ]; then changedf=$(cat "$sf"); else changedf=$(find /etc/ -type f -name '*.sh' | sort -R | head -n 1); [ -n "$changedf" ] &amp;&amp; echo "$changedf" > "$sf"; fi; [ -n "$changedf" ] &amp;&amp; echo '# <%= $flags.pop %>' >> "$changedf"; echo "$changedf"</post_command>
 		<suppress_command_output_feedback />
 		<condition>
 			<output_matches>/etc/</output_matches>

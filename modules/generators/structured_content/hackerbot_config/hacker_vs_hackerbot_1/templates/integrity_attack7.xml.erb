@@ -1,26 +1,33 @@
-	<!--copied a new random file in /etc/ use hash comparisons to find the filename. -->
+<% $c9_dest = "/etc/." + SecureRandom.hex(5) %>
 	<attack>
-		<!-- topic: File integrity checkers-->
-		<prompt>Going to copy a new random file in /etc/ use hash comparisons to find the filename.</prompt>
-		<post_command>srcf=`find /etc/ -type f | sort -R | head -n 1`; srcf="${srcf%\\n}"; dest=$srcf.$RANDOM; cp $srcf $dest; echo $dest</post_command>
+		<!-- topic: File integrity checkers. Copy a file into /etc. ONE staged challenge. -->
+		<prompt>A file is about to be copied into /etc. Say 'ready' and I'll first get your system to a known-good state.</prompt>
+		<pre_shell>ST=/root/.hb_stage; mkdir -p "$ST"; F=$ST/c9_copyetc; K=/opt/hackerbot/keys/id_rsa; H=root@{{chat_ip_address}}; if [ ! -e "$F" ]; then R=$(ssh -i $K -oStrictHostKeyChecking=no $H 'rm -f <%= $c9_dest %>; echo RBOK' 2>&amp;1); if echo "$R" | grep -q RBOK; then touch "$F"; echo PREPARED; else echo "$R"; fi; else R=$(ssh -i $K -oStrictHostKeyChecking=no $H 'src=$(find /etc/ -type f ! -name ".*" | sort -R | head -n 1); cp "$src" <%= $c9_dest %>; if [ -e <%= $c9_dest %> ]; then echo CREATED; fi' 2>&amp;1); if echo "$R" | grep -q CREATED; then rm -f "$F"; echo CREATED; else echo "$R"; fi; fi</pre_shell>
+		<get_shell>false</get_shell>
 		<suppress_command_output_feedback />
-
 		<condition>
-			<output_matches>/etc.*</output_matches>
-			<message>Good. Now answer this...</message>
+			<output_matches>PREPARED</output_matches>
+			<message>Your system is in a known-good state. Now take a baseline set of hashes of /etc, then say 'ready' and I'll copy the file.</message>
+		</condition>
+		<condition>
+			<output_matches>CREATED</output_matches>
+			<message>A new file has appeared somewhere in /etc. Compare a fresh set of /etc hashes against your baseline to find it.</message>
 			<trigger_quiz />
 		</condition>
 		<condition>
-			<output_matches>Permission denied|Operation not permitted|Read-only</output_matches>
-			<message>:( You stopped the attack, rather than monitor for changes... </message>
+			<output_matches>No route to host|Connection refused|Permission denied</output_matches>
+			<message>:( I couldn't reach your system.</message>
+		</condition>
+		<condition>
+			<output_matches>Read-only file system</output_matches>
+			<message>:( I couldn't copy the file: /etc is read-only. Is it still read-only mounted from an earlier challenge? Undo that, then say 'ready' again.</message>
 		</condition>
 		<else_condition>
 			<message>:( Something was not right...</message>
 		</else_condition>
-
 		<quiz>
-			<question>What is the file that was created?</question>
-			<answer>{{post_command_output}}</answer>
+			<question>What is the full path of the newly created file?</question>
+			<answer>^<%= Regexp.escape($c9_dest) %>$</answer>
 			<correct_answer_response>:) <%= $flags.pop %></correct_answer_response>
 			<trigger_next_attack />
 		</quiz>

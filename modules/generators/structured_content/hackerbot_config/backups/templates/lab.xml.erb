@@ -232,8 +232,8 @@
                   "\nif [ -z \"$n\" ]; then echo NOTES-MISSING; else echo NOTES-OTHER; fi\n"
 
   $retry_hint = "If your files are in a mess, say 'goto 11' then 'ready' and I'll delete them again so you can start the restore from scratch."
-  $unreach_backup = "I couldn't connect to the backup_server (#{$server_ip}) to check -- is it running? (The FYI line shows the ssh error.) Say 'ready' again once it's up."
-  $unreach_desktop = "I couldn't connect to your desktop -- is its SSH server running? (The FYI line shows the ssh error.) Say 'ready' again once it's up."
+  $unreach_backup = "I couldn't connect to the backup_server (#{$server_ip}) to check. Is it running? (The FYI line shows the ssh error.) Say 'ready' again once it's up."
+  $unreach_desktop = "I couldn't connect to your desktop. Is its SSH server running? (The FYI line shows the ssh error.) Say 'ready' again once it's up."
 
   # fallback when the check output matches none of the specific conditions
   def odd_output(where)

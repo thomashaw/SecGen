@@ -2,7 +2,9 @@
 <% $file = SecureRandom.hex(2) %>
 		<prompt>An attempt to write /tmp/<%= $file %> is coming from user <%= $second_user %>. Stop the attack by creating the file without permission for other users to write to the file.</prompt>
 
-		<post_command>sudo -u <%= $second_user %> bash -c 'echo boom > /tmp/<%= $file %>'; echo $?</post_command>
+		<!-- an existing file is written without O_CREAT (dd conv=nocreat): with fs.protected_regular (2 on Debian 12) a
+		     creating open of someone else's file in sticky /tmp is refused whatever its mode, so 'echo >' passed a 666 file -->
+		<post_command>sudo -u <%= $second_user %> bash -c 'if [ -e /tmp/<%= $file %> ]; then echo boom | dd of=/tmp/<%= $file %> conv=nocreat,notrunc status=none; else echo boom > /tmp/<%= $file %>; fi'; echo $?</post_command>
 		<condition>
 			<output_matches>Permission denied</output_matches>
 			<message>:) Well done! <%= $flags.pop %></message>
