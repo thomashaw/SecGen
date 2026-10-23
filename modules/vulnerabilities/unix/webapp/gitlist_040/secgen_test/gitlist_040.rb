@@ -57,6 +57,7 @@ class Gitlist040Test < PostProvisionTest
 
     test_msf_exploit('exploit/multi/http/gitlist_arg_injection',
                      rport: self.port,
+                     payload: 'php/unix/cmd/generic',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
