@@ -41,11 +41,42 @@ class ChkrootkitVulnTest < PostProvisionTest
       test_local_command('Chkrootkit runs?', 'sudo /usr/sbin/chkrootkit -V', 'chkrootkit version 0.49')
     end
 
-    # Tier 3 (exploit/unix/local/chkrootkit) is a LOCAL privilege-escalation module: it needs
-    # an existing low-privilege session on the target, not a remote RHOSTS call, so the
-    # driver's generate-t3-test declines it and this stays at tier 2 for the automated pipeline.
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/unix/local/chkrootkit
+    # Tier 3: exploit/unix/local/chkrootkit is a LOCAL privilege escalation — Metasploit
+    # drives it against an existing low-privilege SESSION, not a remote RHOSTS call. So we
+    # give the attacker a foothold: a throwaway unprivileged account the attacker's ssh_login
+    # lands on (created and removed by the test, so the image ships no extra login), run the
+    # local exploit against that session (it plants an executable /tmp/update), then wait for
+    # root's chkrootkit cron to run it. The sentinel then shows uid=0 — a root shell — which
+    # is what <privilege>=root_rwx asserts. SKIPs cleanly with no attacker VM in the project.
+    tier(3) do
+      # Leak contents go into the sentinel as evidence that root-level read is achieved.
+      collect = self.json_inputs['leaked_filenames']
+                    &.map { |f| "cat /root/#{Shellwords.escape(f)}" }&.join('; ')
+
+      # chkrootkit runs via root's cron at cron_frequency; wait at least one tick (plus
+      # chkrootkit's own runtime) for the planted /tmp/update to execute. wait_for_sentinel
+      # returns as soon as it fires, so the margin only bounds the worst case.
+      sentinel_wait = case self.json_inputs['cron_frequency']&.first
+                      when '30_minutes' then 1920
+                      when '15_minutes' then 1020
+                      when '5_minutes'  then 360
+                      else 180
+                      end
+
+      with_throwaway_ssh_user do |user, pass|
+        test_msf_local_exploit('exploit/unix/local/chkrootkit',
+                               session_user: user, session_pass: pass,
+                               # AllowNoCleanup: cmd/unix/generic opens no session, so the
+                               # module can't remove /tmp/update afterwards and refuses to
+                               # plant it unless told the leftover is acceptable (it is — the
+                               # test VM is discarded, and the throwaway user's teardown rm's it).
+                               options: { 'CHKROOTKIT' => '/usr/sbin/chkrootkit',
+                                          'AllowNoCleanup' => true },
+                               collect: collect,
+                               expect_privilege: :root,
+                               sentinel_wait: sentinel_wait)
+      end
+    end
   end
 
 end
