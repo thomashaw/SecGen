@@ -149,29 +149,85 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
 
     <!-- GitList 0.4.0 argument-injection RCE (CVE-2018-1000533): no credentials
          required. Exposes the repository (recon) and the credentials the mole
-         committed into history. -->
+         committed into history then scrubbed. -->
     <vulnerability module_path=".*/gitlist_040">
-      <!-- Flag order is document order: the recon (pre_leak) input is written first so it numbers
-           before the credentials flag. Within-module order needs a build to confirm. -->
-      <!-- flag1: REPOSITORY EXPOSURE (recon) - the exploit reads config outside the
-           web root, exposing SAFETYNET's own repo setup and the ops-account username -->
+      <!-- Flag order is document order: the recon (pre_leak) flag is written first so it
+           numbers before the credentials flag. Within-module order needs a build to confirm. -->
+
+      <!-- The repo's "real" files, committed in the initial commit and browsable in
+           GitList. README.md carries the recon flag; the python stub and the example
+           env file make the repo read as a used project and point at planning_sync.env,
+           where the real credential was committed and later scrubbed (deleted history). -->
+      <input into="pre_leaked_filenames">
+        <value>README.md</value>
+      </input>
+      <input into="pre_leaked_filenames">
+        <value>planning_sync.py</value>
+      </input>
+      <input into="pre_leaked_filenames">
+        <value>planning_sync.env.example</value>
+      </input>
+
+      <!-- flag1: REPOSITORY EXPOSURE (recon) - browsing the exposed repo discloses the
+           ops account and the fact that a credential was committed and never rotated. -->
       <input into="strings_to_pre_leak">
         <!-- R22: one account across all three surfaces. The committed service account
              is svc-planning (the "planning sync job" in the commit message); the same
              name owns the leaked login (flag 3) and appears in the root access log
              (flag 4), so the box backs Nightshade's "my account, my terminal, my mail". -->
-        <value>SAFETYNET INTERNAL SOURCE -- ops-config committed in error
+        <value>SAFETYNET INTERNAL SOURCE -- mission-tooling
 Repo: internal/mission-tooling  (GitList browser exposed, no auth required)
-Note in commit message: "temp creds for the planning sync job, will rotate"  -- never rotated
-Service account (ops): svc-planning</value>
+The planning sync job authenticates as the ops service account: svc-planning
+Its credential was committed to planning_sync.env for "testing" and later removed --
+check the history, it was never actually rotated.</value>
         <generator type="flag_generator"/>
       </input>
-      <!-- flag2: STASHED CREDENTIALS - the mole's password, committed and never scrubbed -->
-      <input into="strings_to_leak">
-        <value>Password</value>
+      <input into="strings_to_pre_leak">
+        <value>#!/usr/bin/env python3
+# planning sync job -- pushes mission planning artefacts to the ops share.
+# Reads SYNC_USER / SYNC_PASSWORD from planning_sync.env (see planning_sync.env.example).
+import os
+
+def main():
+    user = os.environ.get("SYNC_USER", "svc-planning")
+    # TODO: rotate the service credential before go-live
+    print("[planning-sync] starting sync as %s" % user)
+
+if __name__ == "__main__":
+    main()</value>
+      </input>
+      <input into="strings_to_pre_leak">
+        <value># Copy to planning_sync.env and fill in. Do NOT commit the real file.
+SYNC_USER=svc-planning
+SYNC_PASSWORD=changeme</value>
+      </input>
+
+      <!-- flag2: STASHED CREDENTIALS - the mole's password, committed into
+           planning_sync.env then removed in a later commit. Gone from the working
+           tree and GitList's file browser; recoverable only by digging git history
+           (git log / git show). Same document slot as the old strings_to_leak flag,
+           so it still numbers second. -->
+      <input into="strings_to_leak_in_history">
+        <value>SYNC_PASSWORD=</value>
         <datastore>password</datastore>
         <generator type="flag_generator"/>
       </input>
+      <input into="history_leaked_filenames">
+        <value>planning_sync.env</value>
+      </input>
+      <input into="history_commit_message">
+        <value>add planning sync service credentials (temporary, rotate before go-live)</value>
+      </input>
+      <input into="history_removal_commit_message">
+        <value>remove committed credentials from planning_sync.env</value>
+      </input>
+
+      <!-- Suppress the old loose /home/git flag file: the credential now lives in
+           deleted history, not in a loose file. Blank -> the module skips that leak. -->
+      <input into="strings_to_leak">
+        <value/>
+      </input>
+
       <input into="organisation">
         <datastore>organisation</datastore>
       </input>
@@ -228,10 +284,19 @@ Awaiting next tasking.
       </input>
     </utility>
 
-    <!-- Sudo misconfiguration: the ops account may run a package tool as root,
-         which is trivially turned into a root shell. Root holds the access logs
-         and The Architect's authorisation. -->
+    <!-- Sudo misconfiguration scoped to the web service account (www-data): the
+         GitList deploy account was left able to run a package tool as root, which
+         is trivially turned into a root shell. This ties root to the GitList RCE
+         foothold: www-data has no interactive login, so the only way to that
+         account is the unauthenticated RCE. The mole's own ops account
+         (svc-planning) deliberately has NO sudo, so recovering the credential and
+         SSHing in is not enough to reach root; the RCE is required. Root holds the
+         access logs and The Architect's authorisation. -->
     <vulnerability module_path=".*/sudo_root_apt_get">
+      <!-- scope the NOPASSWD apt-get-as-root rule to www-data only (default is ALL) -->
+      <input into="sudo_user">
+        <value>www-data</value>
+      </input>
       <!-- flag4: ROOT - access logs + The Architect's authorisation, the mission's key payload -->
       <input into="strings_to_leak">
         <encoder module_path="modules/encoders/base/base64">
