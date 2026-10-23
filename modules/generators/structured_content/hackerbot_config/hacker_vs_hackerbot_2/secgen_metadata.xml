@@ -17,6 +17,9 @@
   <read_fact>backup_server_ip</read_fact>
   <read_fact>desktop_ip</read_fact>
   <read_fact>hackerbot_server_ip</read_fact>
+  <read_fact>ids_server_ip</read_fact>
+  <read_fact>web_server_ip</read_fact>
+  <read_fact>compromised_server_ip</read_fact>
 
   <!--TODO: require input, such as accounts, or fail?-->
 
