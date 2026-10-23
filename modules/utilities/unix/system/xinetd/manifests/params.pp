@@ -4,12 +4,12 @@ class xinetd::params {
   $default_user   = 'root'
   $package_ensure = 'installed'
 
-  case $::osfamily {
+  case $facts['os']['family'] {
     'FreeBSD': { $default_group = 'wheel' }
     default: { $default_group = 'root' }
   }
 
-  case $::osfamily {
+  case $facts['os']['family'] {
     'Debian':  {
       $confdir            = '/etc/xinetd.d'
       $conffile           = '/etc/xinetd.conf'
@@ -67,24 +67,28 @@ class xinetd::params {
       $service_hasrestart = true
       $service_hasstatus  = true
       $service_name       = 'xinetd'
+      $service_restart    = undef
+      $service_status     = undef
     }
     'Linux': {
-      case $::operatingsystem {
+      case $facts['os']['name'] {
         'Amazon': {
-          $confdir         = '/etc/xinetd.d'
-          $conffile        = '/etc/xinetd.conf'
-          $package_name    = 'xinetd'
-          $service_name    = 'xinetd'
-          $service_restart = undef
+          $confdir            = '/etc/xinetd.d'
+          $conffile           = '/etc/xinetd.conf'
+          $package_name       = 'xinetd'
+          $service_name       = 'xinetd'
+          $service_hasrestart = true
+          $service_hasstatus  = false
+          $service_restart    = undef
           $service_status     = undef
         }
         default: {
-          fail("xinetd: module does not support Linux operatingsystem ${::operatingsystem}")
+          fail("xinetd: module does not support Linux operatingsystem ${facts['os']['name']}")
         }
       }
     }
     default:   {
-      fail("xinetd: module does not support osfamily ${::osfamily}")
+      fail("xinetd: module does not support osfamily ${facts['os']['family']}")
     }
   }
 
