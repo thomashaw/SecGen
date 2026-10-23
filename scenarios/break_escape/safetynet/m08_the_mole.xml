@@ -156,11 +156,14 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
       <!-- flag1: REPOSITORY EXPOSURE (recon) - the exploit reads config outside the
            web root, exposing SAFETYNET's own repo setup and the ops-account username -->
       <input into="strings_to_pre_leak">
+        <!-- R22: one account across all three surfaces. The committed service account
+             is svc-planning (the "planning sync job" in the commit message); the same
+             name owns the leaked login (flag 3) and appears in the root access log
+             (flag 4), so the box backs Nightshade's "my account, my terminal, my mail". -->
         <value>SAFETYNET INTERNAL SOURCE -- ops-config committed in error
 Repo: internal/mission-tooling  (GitList browser exposed, no auth required)
 Note in commit message: "temp creds for the planning sync job, will rotate"  -- never rotated
-Service account (ops):</value>
-        <datastore access_json="['manager']['username']">organisation</datastore>
+Service account (ops): svc-planning</value>
         <generator type="flag_generator"/>
       </input>
       <!-- flag2: STASHED CREDENTIALS - the mole's password, committed and never scrubbed -->
@@ -180,7 +183,9 @@ Service account (ops):</value>
       <input into="accounts">
         <generator type="account">
           <input into="username">
-            <datastore access_json="['manager']['username']">organisation</datastore>
+            <!-- R22: fixed to svc-planning so the leaked login, the mail sender and
+                 the root access-log user are one account on the box. -->
+            <value>svc-planning</value>
           </input>
           <input into="password">
             <datastore>password</datastore>
@@ -198,7 +203,7 @@ Service account (ops):</value>
                 <value>SAFETYNET INTERNAL -- RECOVERED FROM ~/flag
 
 To:      architect@entropy.onion
-From:    deep_state_drop
+From:    svc-planning  (ENTROPY alias: deep_state_drop)
 Subject: M7 package -- delivered
 
 Package delivered: team assignments, response timeline, and the agent's
@@ -246,7 +251,7 @@ has ever recorded -- was exfiltrated through a channel Nightshade held open.
 Retain and integrate. Destination: Tomb Gamma.
 
 ACCESS-LOG CORRELATION (recovered from /var/log, root only):
-  user svc-planning  T-48h before M7  OPEN mission_planning/m07_operations.enc
+  user svc-planning  T-48h before M7  OPEN mission_planning/pnw_contingency.enc
   duration 00:47:00  source: Cryptography Lab terminal 03
   -- the plan was not read in forty-seven minutes. It was copied.
 
