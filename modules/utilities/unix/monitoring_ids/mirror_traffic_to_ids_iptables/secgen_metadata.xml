@@ -22,6 +22,10 @@
   <!-- required: where should we send the copied packets? -->
   <read_fact>ids_IP_address</read_fact>
 
+  <default_input into="ids_IP_address">
+    <value>192.0.2.1</value>
+  </default_input>
+
   <requires>
     <type>update</type>
   </requires>
