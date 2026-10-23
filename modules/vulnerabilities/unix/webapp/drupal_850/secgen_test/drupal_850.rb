@@ -12,7 +12,7 @@ class Drupal850Test < PostProvisionTest
     tier(1) do
       test_local_command('drupal docroot exists', 'test -d /var/www/drupal-8.5.0 && echo ok', 'ok')
       test_local_command('apache2 installed', 'dpkg -l apache2 | grep -E "^ii"', 'apache2')
-      test_local_command('php7.4 (sury) installed', 'test -x /usr/bin/php7.4 && echo ok', 'ok')
+      test_local_command('mod_php installed', 'dpkg -l libapache2-mod-php | grep -E "^ii"', 'libapache2-mod-php')
       test_local_command('mysql 5.7 built', 'test -x /usr/local/mysql/bin/mysqld && echo ok', 'ok')
     end
     tier(2) do
