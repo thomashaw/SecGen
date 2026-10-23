@@ -50,12 +50,16 @@
     <type>webapp</type>
   </conflict>
 
-  <requires>
-    <module_path>.*apache.*compatible.*</module_path>
-  </requires>
-
-  <requires>
-    <module_path>.*php.*compatible.*</module_path>
-  </requires>
+  <!-- Version-locked to the Buster era: Drupal 8.5.0 (2018-era PHP) is not
+       expected to run cleanly under Debian 12's stock PHP 8.2, and the
+       newer PHP 7.4 (sury) utility that would fix that itself requires a
+       bookworm base - so this module is not aiming to work on bookworm at
+       all. Only built on Buster, where apache2 + the base's own default
+       PHP (7.3) are installed directly (manifests/apache.pp,
+       manifests/install.pp), matching the pattern used for other
+       version-locked modules (e.g. sudo_baron). -->
+  <conflict>
+    <module_path>.*bases/(?!debian_buster).*</module_path>
+  </conflict>
 
 </vulnerability>

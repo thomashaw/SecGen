@@ -1,8 +1,12 @@
 class drupal_850::install {
     Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin']}
 
-    ensure_packages(['php7.2-gd','php7.2-xml','php7.2-mysql','libapache2-mod-php7.2','libaio1','libnuma1'])
-    
+    # Buster's own PHP (7.3) with the extensions Drupal needs. Generic
+    # package names (not e.g. 'php7.3-gd') so this resolves to whichever
+    # PHP the base ships as default; libapache2-mod-php pulls the matching
+    # Apache handler, enabled in manifests/apache.pp.
+    ensure_packages(['libapache2-mod-php','php-mysql','php-gd','php-xml','libaio1','libnuma1'])
+
     $archive = 'drupal-8.5.0.tar.gz'
     $longmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz' 
     $shortmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64'
@@ -48,6 +52,21 @@ class drupal_850::install {
     }
 
     #MySQL installation
+    # The upstream mysql.com tarball (unlike the Debian mariadb-server
+    # package it replaces) doesn't create a system account; configure.pp
+    # needs 'mysql' to own /var/lib/mysql before mysqld's own
+    # --initialize-insecure run, so it's created here.
+    group { 'mysql':
+        ensure => present,
+        system => true,
+    } ->
+    user { 'mysql':
+        ensure => present,
+        system => true,
+        gid => 'mysql',
+        home => '/nonexistent',
+        shell => '/usr/sbin/nologin',
+    } ->
     file { '/etc/systemd/system/mysql.service':
         ensure => file,
         source => "puppet:///modules/drupal_850/config/mysql.service.erb",

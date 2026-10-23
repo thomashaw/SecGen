@@ -4,22 +4,25 @@ class drupal_850::configure {
   $strings_to_pre_leak = $secgen_parameters['strings_to_pre_leak']
   $strings_to_leak = $secgen_parameters['strings_to_leak']
 
-  Exec { path => ['/bin', '/usr/bin','/sbin','/usr/sbin']}
-  
-  # Apache configuration
-  exec {'disable-php5':
-    command => 'a2dismod php5 php5.6 2>/dev/null || true', #ignore output
-  } ->
+  # /usr/local/mysql/bin holds the mysql client (the upstream tarball, not a
+  # Debian package), needed by the bare 'mysql' execs below.
+  Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin', '/usr/local/mysql/bin']}
 
-  exec {'enable-php7.2':
-    command => 'a2enmod php7.2',
-  } ->
+  # Apache/PHP module enablement now lives in manifests/apache.pp, alongside
+  # the hand-written vhost (the old a2dismod/a2enmod pair here targeted
+  # php5/php7.2, neither of which this module installs any more).
 
-  exec {'restart-apache':
-    command => 'systemctl restart apache2',
-  }
-  
-  # MySQL configuration
+  # MySQL configuration. The base doesn't ship MariaDB, so stopping/disabling
+  # it is a no-op guarded with '|| true' in case a future base does.
+  #
+  # The generic Linux tarball's mysql client defaults to /tmp/mysql.sock,
+  # which doesn't match the socket path the systemd unit gives mysqld
+  # (/var/run/mysqld/mysqld.sock), so every bare 'mysql' exec below would
+  # fail to connect without this.
+  file { '/etc/my.cnf':
+    ensure  => file,
+    content => "[client]\nsocket=/var/run/mysqld/mysqld.sock\n",
+  } ->
   file { '/var/lib/mysql':
     ensure => directory,
     owner  => 'mysql',
@@ -27,7 +30,7 @@ class drupal_850::configure {
     mode   => '0750',
   } ->
   exec {'stop-mariadb':
-    command => 'systemctl stop mariadb ; systemctl disable mariadb',
+    command => 'systemctl stop mariadb 2>/dev/null; systemctl disable mariadb 2>/dev/null; true',
   } ->
   exec {'clean-after-purge':
     command => 'rm -rf /var/lib/mysql/* && sleep 1',

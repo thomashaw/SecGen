@@ -5,20 +5,57 @@ class drupal_850::apache {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
-  ensure_resource('tidy','gl remove default site', {'path'=>'/etc/apache2/sites-enabled/000-default.conf'})
-  
-  class { '::apache':
-    default_vhost => false,
-  } ->
-  
-  ::apache::vhost { 'www-drupal':
-    port     => $port,
-    docroot  => $docroot,
-    priority => '05',
-  } ->
+  ensure_packages(['apache2'])
 
+  # Apache listens only on $port. Debian ships /etc/apache2/ports.conf with its
+  # own 'Listen 80'; putting another 'Listen' in the vhost (or leaving the
+  # stock one when $port is 80) gives a duplicate bind and apache2 fails to
+  # start with AH00072. So own ports.conf outright and keep the vhost free of
+  # any Listen directive.
+  file { '/etc/apache2/ports.conf':
+    ensure  => file,
+    content => "Listen ${port}\n",
+  } ->
+  # hand-written vhost for any hostname on $port, rather than a
+  # puppetlabs-apache wrapper module; AllowOverride All matches what
+  # Drupal's own .htaccess expects for clean URLs.
+  file { '/etc/apache2/sites-enabled/000-default.conf':
+    ensure => absent,
+  } ->
+  file { '/etc/apache2/sites-available/drupal.conf':
+    ensure  => file,
+    content => "<VirtualHost *:${port}>\n    DocumentRoot ${docroot}\n    <Directory ${docroot}>\n        AllowOverride All\n        Require all granted\n    </Directory>\n</VirtualHost>\n",
+  } ->
+  file { '/etc/apache2/sites-enabled/drupal.conf':
+    ensure => link,
+    target => '/etc/apache2/sites-available/drupal.conf',
+  } ->
+  # mod_php only loads under the prefork MPM; Debian's apache2 may default
+  # to the event MPM, which refuses to start once mod_php is enabled.
+  # Switch to prefork before enabling PHP. a2dismod/a2enmod are idempotent,
+  # so this is safe to re-run.
+  exec { 'apache-mpm-prefork-drupal':
+    command => 'a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork',
+    unless  => 'test -L /etc/apache2/mods-enabled/mpm_prefork.load',
+  } ->
+  exec { 'enable-apache-mod-rewrite-drupal':
+    command => 'a2enmod rewrite',
+    unless  => 'test -L /etc/apache2/mods-enabled/rewrite.load',
+  } ->
+  # Enable whichever mod_php version the base's libapache2-mod-php package
+  # installed (install.pp uses generic package names, so the version
+  # varies with the base's own default PHP).
+  exec { 'enable-apache-php-drupal':
+    command => 'for m in /etc/apache2/mods-available/php*.load; do a2enmod "$(basename "$m" .load)"; done',
+    onlyif  => 'ls /etc/apache2/mods-available/php*.load 2>/dev/null',
+    unless  => 'ls /etc/apache2/mods-enabled/php*.load 2>/dev/null',
+  } ->
+  # Verify apache is actually listening afterwards: the old 'restart; sleep 3'
+  # masked a failed start (non-zero restart swallowed by the ';'), which is how
+  # a closed port 80 slipped past provisioning before. is-active makes a failed
+  # start a real Puppet error instead.
   exec { 'restart-apache-drupal':
-    command => 'service apache2 restart; sleep 3;',
-    logoutput => true
+    command   => 'systemctl restart apache2 && sleep 3 && systemctl is-active --quiet apache2',
+    logoutput => true,
   }
 }
