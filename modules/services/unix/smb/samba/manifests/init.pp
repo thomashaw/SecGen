@@ -125,6 +125,11 @@
 #   Can be defined also by the (top scope) variables $samba_audit_only
 #   and $audit_only
 #
+# [*noops*]
+#   Set noop metaparameter to true for all the resources managed by the module.
+#   Basically you can run a dryrun for this specific module if you set
+#   this to true. Default: undef
+#
 # Default class params - As defined in samba::params.
 # Note that these variables are mostly defined and used in the module itself,
 # overriding the default values might not affected all the involved components.
@@ -217,6 +222,7 @@ class samba (
   $firewall_dst        = params_lookup( 'firewall_dst' , 'global' ),
   $debug               = params_lookup( 'debug' , 'global' ),
   $audit_only          = params_lookup( 'audit_only' , 'global' ),
+  $noops               = params_lookup( 'noops' ),
   $package             = params_lookup( 'package' ),
   $service             = params_lookup( 'service' ),
   $service_status      = params_lookup( 'service_status' ),
@@ -321,6 +327,7 @@ class samba (
   ### Managed resources
   package { $samba::package:
     ensure  => $samba::manage_package,
+    noop    => $samba::noops,
   }
 
   service { 'samba':
@@ -330,6 +337,7 @@ class samba (
     hasstatus  => $samba::service_status,
     pattern    => $samba::process,
     require    => Package[$samba::package],
+    noop       => $samba::noops,
   }
 
   file { 'samba.conf':
@@ -344,9 +352,13 @@ class samba (
     content => $samba::manage_file_content,
     replace => $samba::manage_file_replace,
     audit   => $samba::manage_audit,
+    noop    => $samba::noops,
   }
 
-  # The whole samba configuration directory can be recursively overriden
+  # The whole samba configuration directory can be recursively overriden.
+  # SecGen: params_lookup() returns '' rather than undef for an unset
+  # source_dir, so a bare truthiness check here is always true; guard
+  # against the empty-string default explicitly.
   if $samba::source_dir and $samba::source_dir != '' {
     file { 'samba.dir':
       ensure  => directory,
@@ -359,6 +371,7 @@ class samba (
       force   => $samba::bool_source_dir_purge,
       replace => $samba::manage_file_replace,
       audit   => $samba::manage_audit,
+      noop    => $samba::noops,
     }
   }
 
@@ -377,6 +390,7 @@ class samba (
       ensure    => $samba::manage_file,
       variables => $classvars,
       helper    => $samba::puppi_helper,
+      noop      => $samba::noops,
     }
   }
 
@@ -390,6 +404,7 @@ class samba (
         target   => $samba::monitor_target,
         tool     => $samba::monitor_tool,
         enable   => $samba::manage_monitor,
+        noop     => $samba::noops,
       }
     }
     if $samba::service != '' {
@@ -401,6 +416,7 @@ class samba (
         argument => $samba::process_args,
         tool     => $samba::monitor_tool,
         enable   => $samba::manage_monitor,
+        noop     => $samba::noops,
       }
     }
   }
@@ -417,6 +433,7 @@ class samba (
       direction   => 'input',
       tool        => $samba::firewall_tool,
       enable      => $samba::manage_firewall,
+      noop        => $samba::noops,
     }
   }
 
@@ -430,6 +447,7 @@ class samba (
       owner   => 'root',
       group   => 'root',
       content => inline_template('<%= scope.to_hash.reject { |k,v| k.to_s =~ /(uptime.*|path|timestamp|free|.*password.*|.*psk.*|.*key)/ }.to_yaml %>'),
+      noop    => $samba::noops,
     }
   }
 

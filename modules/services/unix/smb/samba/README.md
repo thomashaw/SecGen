@@ -1,13 +1,5 @@
 # Puppet module: samba
 
-## DEPRECATION NOTICE
-This module is no more actively maintained and will hardly be updated.
-
-Please find an alternative module from other authors or consider [Tiny Puppet](https://github.com/example42/puppet-tp) as replacement.
-
-If you want to maintain this module, contact [Alessandro Franceschi](https://github.com/alvagante)
-
-
 This is a Puppet module for samba based on the second generation layout ("NextGen") of Example42 Puppet Modules.
 
 Made by Alessandro Franceschi / Lab42
@@ -51,6 +43,12 @@ For detailed info about the logic and usage patterns of Example42 modules check 
 
         class { 'samba':
           audit_only => true
+        }
+
+* Module dry-run: Do not make any change on *all* the resources provided by the module
+
+        class { 'samba':
+          noops => true
         }
 
 
