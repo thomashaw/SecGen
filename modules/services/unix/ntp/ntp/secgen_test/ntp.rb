@@ -14,7 +14,9 @@ class NTPTest < PostProvisionTest
       test_local_command('ntp installed?', 'dpkg -l ntp | grep -E "^ii"', 'ntp')
       test_local_command('ntpd on PATH', 'which ntpd', 'ntpd')
       test_local_command('ntpq on PATH', 'which ntpq', 'ntpq')
-      test_local_command('ntp service enabled', 'systemctl is-enabled ntp', 'enabled')
+      # On bookworm the ntp package is transitional: ntp.service is an alias of
+      # ntpsec.service, so `is-enabled ntp` prints "alias". Check the real unit.
+      test_local_command('ntp service enabled', 'systemctl is-enabled ntpsec', 'enabled')
       test_local_command('ntp.conf present', 'cat /etc/ntp.conf', 'server')
     end
     tier(2) do
