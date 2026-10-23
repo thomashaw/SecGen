@@ -42,9 +42,17 @@ class Gitlab13102Test < PostProvisionTest
       test_service_up(port: 80)
       test_http('/users/sign_in', port: 80, match: 'GitLab')
     end
+    # The module's default target ("Linux Dropper", index 1) runs the chosen
+    # payload through Msf::Exploit::CmdStager, which needs its own SRVHOST set
+    # to host the stager's HTTP fetch -- the test harness only auto-points
+    # FETCH_SRVHOST for a `cmd/<os>/http/...` command-stager payload (see
+    # test_msf_exploit), not this module's own dropper server, and leaving it
+    # unset previously crashed the exploit (empty dropper URL). Target 0
+    # ("Unix Command") instead runs the CMD directly with no HTTP server at
+    # all, so stick with the harness's default cmd/unix/generic payload.
     test_msf_exploit('exploit/multi/http/gitlab_exif_rce',
                      rport: 80,
-                     payload: 'linux/x64/exec',
+                     options: { 'TARGET' => 0 },
                      expect_privilege: 'user_rwx',
                      sentinel_wait: 60,
                      tier: 3)
