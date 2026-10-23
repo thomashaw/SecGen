@@ -2,7 +2,7 @@ require_relative '../../../../../lib/post_provision_test'
 
 # No SecGen inputs: the module installs a fixed set of packages.
 class HandyCliToolsTest < PostProvisionTest
-  PACKAGES = %w[vim.tiny vim rsync psmisc curl sudo info].freeze
+  PACKAGES = %w[vim-tiny vimrsync psmisc curl sudo info].freeze
   # label => command that prints its version/usage and exits 0
   TOOLS = {
     'vim' => 'vim --version',
