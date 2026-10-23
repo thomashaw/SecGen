@@ -1,0 +1,338 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Break Escape SAFETYNET: Mission 10 — Full Disclosure VMs</name>
+  <author>Z. Cliffe Schreuders</author>
+  <description>
+# Break Escape SAFETYNET Mission 10: Full Disclosure
+
+Virtual machines for the Break Escape SAFETYNET mission 10 narrative experience. Task Force Null goes into Tomb Gamma, a Cold War bunker in Montana, the night before the Publication. The operatives enter through the bunker's security monitoring host, which the camera and door systems report to. Its staging copy of the schedule lists the release channels, the cells' early-access orders and the first entries by city. The climax is in the release host and the core host, where each operative has to leave a confined service before reaching the machine beneath it.
+
+## Included Systems
+
+**bunker_monitor** (entry stage)
+- Debian 12 desktop system
+- Hosts a network traffic monitoring and threat-intelligence platform on a fixed port, with an unauthenticated command injection flaw in its login handler
+- The platform's service account (`maltrail`) holds flag 1, the monitoring host's status note
+- The platform's threat-data store holds flag 2, with the staging copy of the schedule in the same record
+
+**release_host** (climax stage one)
+- Debian 12 desktop system
+- Runs the release service inside a privileged container, behind a bind shell on a random port
+- Two generated operative accounts. Neither is an administrator. The shell is a container, not the host.
+- Root's home on the host beneath the container holds flag 3, the disarm code for the core. The container itself holds no flag.
+
+**core_host** (climax stage two)
+- Debian 12 desktop system
+- Runs a bind shell on a random port that drops into an older chroot jail
+- Root's home on the host beneath the jail holds flag 4, the stolen copy of the database and the live line into the Citadel's vault. The jail itself holds no flag.
+
+**attack_vm**
+- Kali Linux penetration testing platform
+- The forward post's terminal, the only attack box
+
+## Flags
+
+Flag 1 and flag 2 are submitted at the forward post's terminal and the server-hall console. Flag 3 is submitted at the server-hall console. Flag 4 is submitted at the core host terminal, after the clock is stopped.
+
+## Integration with Break Escape
+
+These VMs are provisioned by the Break Escape game engine via SecGen integration. Players interact with these systems through the game's narrative and task system, with guided hints delivered via SAFETYNET field guides.
+
+## CyBOK Coverage
+
+- Command injection in web-facing services
+- Container and chroot confinement, and escaping them
+- Network mapping and service fingerprinting
+- Authorisation, least privilege and root access
+- Kill chains across a multi-stage intrusion
+  </description>
+
+  <type>ctf-lab</type>
+  <type>attack-ctf</type>
+  <type>pwn-ctf</type>
+  <difficulty>hard</difficulty>
+
+  <!-- reconnaissance and service fingerprinting across the bunker network -->
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - NMAP</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - RECONNAISSANCE</keyword>
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+
+  <!-- command injection on the entry stage -->
+  <CyBOK KA="WAM" topic="Web Application Security">
+    <keyword>Injection vulnerabilities</keyword>
+    <keyword>Command injection</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+
+  <!-- container and chroot escapes on the climax stage -->
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>SANDBOX</keyword>
+    <keyword>Application-based access controls: user-based access controls insufficiently limit privileges</keyword>
+    <keyword>Elevated privileges</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Container-based sandboxes: chroot, Docker</keyword>
+    <keyword>Vulnerabilities and attacks on sandboxing misconfigurations</keyword>
+    <keyword>Access controls and operating systems</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Role of Operating Systems">
+    <keyword>isolation</keyword>
+    <keyword>CONTAINERS</keyword>
+  </CyBOK>
+  <CyBOK KA="WAM" topic="Fundamental Concepts and Approaches">
+    <keyword>sandboxing</keyword>
+  </CyBOK>
+
+  <CyBOK KA="AB" topic="Models">
+    <keyword>kill chains</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Malicious Activities by Malware">
+    <keyword>cyber kill chain</keyword>
+  </CyBOK>
+
+  <system>
+    <system_name>attack_vm</system_name>
+    <base distro="Kali" name="MSF"/>
+
+    <input into_datastore="IP_addresses">
+      <!-- 0 attack_vm -->
+      <network_ip system="attack_vm"/>
+      <!-- 1 bunker_monitor -->
+      <network_ip system="bunker_monitor"/>
+      <!-- 2 release_host -->
+      <network_ip system="release_host"/>
+      <!-- 3 core_host -->
+      <network_ip system="core_host"/>
+    </input>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/iceweasel">
+      <input into="accounts">
+        <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
+      </input>
+      <input into="autostart">
+        <value>false</value>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kali_top10"/>
+    <utility module_path=".*/kali_web"/>
+
+    <network type="private_network"/>
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <!-- Entry stage. Flags 1 and 2 are the earlier stage the brief asks for. -->
+  <system>
+    <system_name>bunker_monitor</system_name>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
+
+    <!-- The module's default account name is random. The plan names the account maltrail. -->
+    <vulnerability module_path=".*/maltrail_rce" access="remote" privilege="user_rwx">
+      <input into="unix_username">
+        <value>maltrail</value>
+      </input>
+
+      <!-- flag 1: the monitoring service account's home -->
+      <input into="leaked_filenames">
+        <value>monitor_status</value>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+
+      <!-- flag 2: embedded in the threat-data record, with the staging copy of the schedule beside it on one line.
+           The delimiter is kept free of quotes, spaces and shell characters, because the record is passed as a shell argument. -->
+      <input into="maltrail_data">
+        <generator type="maltrail_data">
+          <input into="embedded_flag">
+            <encoder module_path="modules/encoders/selector/concatenate">
+              <input into="delim">
+                <value>::</value>
+              </input>
+              <input into="strings_to_encode">
+                <value>STAGING COPY OF THE SCHEDULE. CHANNELS: Tomb Gamma release servers, held back to 06:00 UTC as the fallback. Cells head start at 04:00 UTC. Trojan Horse backdoor batch. Social Fabric story feed. EARLY ACCESS ORDERS: Ghost Protocol, Digital Vanguard, Supply Chain Saboteurs, Social Fabric, and Zero Day. The Zero Day order went through the London broker desk under the Sterling name, and the desk is now held by Vos. FIRST ENTRIES BY CITY: Seattle first (a hospital group, infusion pumps). Austin next (a county, dispatch software). Cleveland third (a water utility, controllers).</value>
+                <generator type="flag_generator"/>
+              </input>
+            </encoder>
+          </input>
+        </generator>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="1">IP_addresses</datastore>
+      </input>
+    </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <!-- Climax stage one. Flag 3 is root's home, reached after leaving the container. -->
+  <system>
+    <system_name>release_host</system_name>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
+
+    <!-- Two generated operative accounts, matching the file's original comment. No root login over SSH. -->
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>tiaspbiqe2r</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <value>test</value>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+        <input into="leaked_filenames">
+          <value></value>
+        </input>
+        <input into="strings_to_leak">
+          <value></value>
+        </input>
+      </generator>
+    </input>
+
+    <!--Create the users-->
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+
+    <utility module_path=".*/kde_minimal">
+      <input into="autologin_user">
+        <datastore access="0" access_json="['username']">accounts</datastore>
+      </input>
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+      <input into="autostart_konsole">
+        <value>true</value>
+      </input>
+    </utility>
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+
+    <utility module_path=".*/docker">
+      <input into="images">
+        <value>ubuntu:xenial</value>
+        <value>debian:bookworm</value>
+        <value>busybox</value>
+      </input>
+    </utility>
+
+    <!-- flag 3: root's home on the host, beneath the release service's container -->
+    <vulnerability module_path=".*/nc_backdoor_docker_esc">
+      <input into="leaked_filenames">
+        <value>docker_flag</value>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="2">IP_addresses</datastore>
+      </input>
+    </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+  <!-- Climax stage two. Flag 4 is root's home, reached after leaving the chroot. -->
+  <system>
+    <system_name>core_host</system_name>
+    <base distro="Debian 12" type="desktop" name="KDE"/>
+
+    <utility module_path=".*/handy_cli_tools"/>
+    <utility module_path=".*/nmap"/>
+
+    <utility module_path=".*/chroot_debootstrap">
+      <input into="chroot_dir">
+        <value>/opt/chroot</value>
+      </input>
+    </utility>
+
+    <!-- flag 4: root's home on the host, beneath the chroot jail -->
+    <vulnerability module_path=".*/nc_backdoor_chroot_esc">
+      <input into="leaked_filenames">
+        <value>chroot_flag</value>
+      </input>
+      <input into="strings_to_leak">
+        <generator type="flag_generator"/>
+      </input>
+    </vulnerability>
+
+    <network type="private_network">
+      <input into="IP_address">
+        <datastore access="3">IP_addresses</datastore>
+      </input>
+    </network>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
