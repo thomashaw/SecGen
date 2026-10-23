@@ -1,13 +1,11 @@
 class drupal_850::install {
     Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin']}
 
-    # PHP itself (7.4, with the gd/xml extensions Drupal needs) comes from
-    # the required php7 utility module; it provisions first as a <requires>
-    # dependency but never touches Apache, so enabling PHP in Apache is this
-    # module's own job (manifests/apache.pp). php7 doesn't bundle the MySQL
-    # PDO driver (most of its other callers are flat-file apps), so that's
-    # added here instead of widening the shared utility.
-    ensure_packages(['php7.4-mysql','libaio1','libnuma1'])
+    # Buster's own PHP (7.3) with the extensions Drupal needs. Generic
+    # package names (not e.g. 'php7.3-gd') so this resolves to whichever
+    # PHP the base ships as default; libapache2-mod-php pulls the matching
+    # Apache handler, enabled in manifests/apache.pp.
+    ensure_packages(['libapache2-mod-php','php-mysql','php-gd','php-xml','libaio1','libnuma1'])
 
     $archive = 'drupal-8.5.0.tar.gz'
     $longmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz' 

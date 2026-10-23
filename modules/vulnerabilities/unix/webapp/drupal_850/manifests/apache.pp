@@ -16,10 +16,9 @@ class drupal_850::apache {
     ensure  => file,
     content => "Listen ${port}\n",
   } ->
-  # hand-written vhost for any hostname on $port, instead of the
-  # puppetlabs-apache "compatible" wrapper (old stdlib/Puppet 7 dependency
-  # conflicts on bookworm); AllowOverride All matches what Drupal's own
-  # .htaccess expects for clean URLs.
+  # hand-written vhost for any hostname on $port, rather than a
+  # puppetlabs-apache wrapper module; AllowOverride All matches what
+  # Drupal's own .htaccess expects for clean URLs.
   file { '/etc/apache2/sites-enabled/000-default.conf':
     ensure => absent,
   } ->
@@ -31,10 +30,10 @@ class drupal_850::apache {
     ensure => link,
     target => '/etc/apache2/sites-available/drupal.conf',
   } ->
-  # mod_php7.4 (from the php7 utility) only loads under the prefork MPM;
-  # bookworm's apache2 defaults to the event MPM, which refuses to start once
-  # php7.4 is enabled. Switch to prefork before enabling PHP. a2dismod/a2enmod
-  # are idempotent, so this is safe to re-run.
+  # mod_php only loads under the prefork MPM; Debian's apache2 may default
+  # to the event MPM, which refuses to start once mod_php is enabled.
+  # Switch to prefork before enabling PHP. a2dismod/a2enmod are idempotent,
+  # so this is safe to re-run.
   exec { 'apache-mpm-prefork-drupal':
     command => 'a2dismod mpm_event mpm_worker 2>/dev/null; a2enmod mpm_prefork',
     unless  => 'test -L /etc/apache2/mods-enabled/mpm_prefork.load',
@@ -43,9 +42,13 @@ class drupal_850::apache {
     command => 'a2enmod rewrite',
     unless  => 'test -L /etc/apache2/mods-enabled/rewrite.load',
   } ->
-  exec { 'enable-apache-php7.4-drupal':
-    command => 'a2enmod php7.4',
-    unless  => 'test -L /etc/apache2/mods-enabled/php7.4.load',
+  # Enable whichever mod_php version the base's libapache2-mod-php package
+  # installed (install.pp uses generic package names, so the version
+  # varies with the base's own default PHP).
+  exec { 'enable-apache-php-drupal':
+    command => 'for m in /etc/apache2/mods-available/php*.load; do a2enmod "$(basename "$m" .load)"; done',
+    onlyif  => 'ls /etc/apache2/mods-available/php*.load 2>/dev/null',
+    unless  => 'ls /etc/apache2/mods-enabled/php*.load 2>/dev/null',
   } ->
   # Verify apache is actually listening afterwards: the old 'restart; sleep 3'
   # masked a failed start (non-zero restart swallowed by the ';'), which is how
