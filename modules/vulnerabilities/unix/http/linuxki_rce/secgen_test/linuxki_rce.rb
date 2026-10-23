@@ -55,11 +55,19 @@ class LinuxkiRceTest < PostProvisionTest
     # drops the sentinel without needing a reverse/bind shell. That payload
     # refuses to run without AllowNoCleanup ("cannot cleanup files created
     # during exploit") since our sentinel CMD isn't its own uploaded file.
+    #
+    # sentinel_dir: the RCE runs in a child of apache2.service, which ships with
+    # PrivateTmp=true on Debian - the service sees its own private /tmp, so a
+    # sentinel dropped in /tmp is invisible to the root guest-agent read that
+    # verifies it (the exploit completes and the command runs, but the check
+    # FAILs). /dev/shm (world-writable, 1777) is outside PrivateTmp's /tmp and
+    # /var/tmp isolation, so the exploit and the verifying read see the same file.
     test_msf_exploit('exploit/linux/http/linuxki_rce',
                      rport: self.port,
                      payload: 'php/unix/cmd/generic',
                      options: { 'AllowNoCleanup' => true },
                      expect_privilege: 'user_rwx',
+                     sentinel_dir: '/dev/shm',
                      tier: 3)
   end
 end
