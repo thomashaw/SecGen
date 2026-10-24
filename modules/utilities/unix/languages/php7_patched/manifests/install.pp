@@ -59,7 +59,7 @@ class php7_patched::install {
     timeout => 0,
   } ->
   exec { 'make patched php7':
-    command => "/usr/bin/make -j${facts['processors']['count']}",
+    command => "/usr/bin/make -j${::processorcount}",
     cwd     => $src_dir,
     creates => "${src_dir}/sapi/cli/php",
     timeout => 0,

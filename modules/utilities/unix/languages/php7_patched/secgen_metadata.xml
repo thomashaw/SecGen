@@ -3,7 +3,7 @@
 <utility xmlns="http://www.github/cliffe/SecGen/utility"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/utility">
-  <name>PHP 7.4 patched against php2shell (source build, Debian 12 Bookworm)</name>
+  <name>PHP 7.4 patched against php2shell (source build, Debian 10 Buster)</name>
   <author>Thomas Shaw</author>
   <module_license>Apache v2</module_license>
   <description>Builds PHP 7.4 from the upstream php-src branch
@@ -12,13 +12,15 @@
           `php` CLI. This branch is the end-of-life source backport that carries
           the php2shell fix (CVE-2026-109618 / CVE-2026-109619); the released
           7.4 packages on deb.sury.org and Debian are end of life and do not.
-          The build reports version 7.4.31-dev, so the fix cannot be identified
-          by version string alone; the install records the pinned source commit
-          in a provenance marker (/opt/php-7.4-patched/PHP2SHELL_FIX_COMMIT) for
-          checks to read. php8.2 from Debian is left installed; this is
-          additional software, not a downgrade of any system package. It is the
-          patched counterpart of the php7 utility and a drop-in replacement for
-          it in a scenario.
+          Built on Debian 10 Buster, whose OpenSSL 1.1.1 and toolchain are
+          contemporary with PHP 7.4 (the ext/openssl source does not compile
+          against bookworm's OpenSSL 3.0). The build reports version 7.4.31-dev,
+          so the fix cannot be identified by version string alone; the install
+          records the pinned source commit in a provenance marker
+          (/opt/php-7.4-patched/PHP2SHELL_FIX_COMMIT) for checks to read. For a
+          PHP application that would otherwise run on an end-of-life PHP 7.x and
+          be php2shell-exploitable, require this so only the application's own
+          vulnerability is exploitable.
   </description>
 
   <type>language</type>
@@ -47,6 +49,6 @@
     <type>update</type>
   </requires>
   <requires>
-    <module_path>.*bases/debian_bookworm.*</module_path>
+    <module_path>.*bases/debian_buster.*</module_path>
   </requires>
 </utility>

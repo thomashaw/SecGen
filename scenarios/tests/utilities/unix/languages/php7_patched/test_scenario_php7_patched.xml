@@ -12,7 +12,7 @@
 
   <system>
     <system_name>php7_patched_testing</system_name>
-    <base platform="linux" distro="Debian 12" type="desktop"/>
+    <base platform="linux" distro="Debian 10" type="desktop"/>
 
     <utility module_path=".*/languages/php7_patched"/>
 
