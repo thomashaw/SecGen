@@ -85,4 +85,34 @@ class php7_patched::install {
     command => "/usr/bin/update-alternatives --set php ${php_bin}",
     unless  => "/usr/bin/test \"$(readlink -f /usr/bin/php)\" = \"${php_bin}\"",
   }
+
+  # Run php-fpm on 127.0.0.1:9000 so an Apache/lighttpd app can reach the patched
+  # interpreter over FastCGI without each app configuring a pool itself.
+  file { "${prefix}/etc/php-fpm.conf":
+    ensure  => file,
+    mode    => '0644',
+    content => "[global]\npid = /run/php7-patched-fpm.pid\nerror_log = /var/log/php7-patched-fpm.log\ninclude=${prefix}/etc/php-fpm.d/*.conf\n",
+    require => Exec['make install patched php7'],
+  }
+  file { "${prefix}/etc/php-fpm.d/www.conf":
+    ensure  => file,
+    mode    => '0644',
+    content => "[www]\nuser = www-data\ngroup = www-data\nlisten = 127.0.0.1:9000\npm = dynamic\npm.max_children = 5\npm.start_servers = 2\npm.min_spare_servers = 1\npm.max_spare_servers = 3\n",
+    require => Exec['make install patched php7'],
+  }
+  -> file { '/etc/systemd/system/php7-patched-fpm.service':
+    ensure  => file,
+    mode    => '0644',
+    content => "[Unit]\nDescription=php7_patched php-fpm\nAfter=network.target\n\n[Service]\nExecStart=${prefix}/sbin/php-fpm --nodaemonize --fpm-config ${prefix}/etc/php-fpm.conf\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n",
+    require => File["${prefix}/etc/php-fpm.conf"],
+  }
+  ~> exec { 'php7-patched-fpm daemon-reload':
+    command     => '/bin/systemctl daemon-reload',
+    path        => ['/bin', '/usr/bin', '/sbin', '/usr/sbin'],
+    refreshonly => true,
+  }
+  -> service { 'php7-patched-fpm':
+    ensure => running,
+    enable => true,
+  }
 }

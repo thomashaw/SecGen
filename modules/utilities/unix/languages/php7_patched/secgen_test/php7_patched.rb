@@ -38,6 +38,8 @@ class Php7PatchedTest < PostProvisionTest
       # update-alternatives made the patched build the default `php`.
       test_local_command('default php is the patched build',
                          'readlink -f "$(command -v php)"', PHP_BIN)
+      # php-fpm is up for an Apache/lighttpd app to reach over FastCGI.
+      test_local_command('php-fpm listening on 127.0.0.1:9000', 'ss -ltn', ':9000')
 
       # Negative check (design level): the php2shell vector
       # (CVE-2026-109618 / CVE-2026-109619) is closed because the interpreter
