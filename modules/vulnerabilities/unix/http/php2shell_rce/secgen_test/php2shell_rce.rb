@@ -50,7 +50,11 @@ class Php2shellRceTest < PostProvisionTest
 
     tier(2) do
       test_service_up
-      test_http('/', match: 'php2shell practice target')
+      # Prove the page answers over HTTP via the guest-agent path (curl on the
+      # box). test_http's own HTTP client is unreliable against this php-cgi
+      # setup, while a guest-side curl reflects what a visitor gets.
+      test_local_command('target page served over HTTP',
+                         "curl -s http://127.0.0.1:#{self.port}/", 'php2shell practice target')
 
       # Confirm the php2shell-vulnerable code is what's on the box: built from
       # the pre-fix commit and the fix's symbol absent from the source. No exploit.
