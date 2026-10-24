@@ -50,9 +50,6 @@
     <type>webapp</type>
   </conflict>
 
-  <requires>
-    <module_path>.*apache.*compatible.*</module_path>
-  </requires>
 
   <!-- Patched PHP 7.4 (php2shell fix); Drupalgeddon2 is an app vuln, so only
        CVE-2018-7600 is exploitable, not php2shell. Served via php-fpm. -->

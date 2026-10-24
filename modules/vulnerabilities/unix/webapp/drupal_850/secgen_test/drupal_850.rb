@@ -23,10 +23,12 @@ class Drupal850Test < PostProvisionTest
     end
     tier(2) do
       test_service_up
-      # A Drupal 200 over the guest-agent path proves Apache -> php-fpm -> PHP ->
-      # MySQL end to end (Drupal 500s if the DB is unreachable).
+      # Serving a Drupal page proves Apache -> php-fpm -> PHP -> MySQL end to end
+      # (Drupal 500s if the DB is unreachable). Match the page body, not
+      # curl's %{http_code} (the % is eaten by the guest-agent exec path). Retry
+      # a few times in case the first request is still warming caches.
       test_local_command('drupal serves (Apache+php-fpm+DB)',
-                         "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:#{self.port}/", '200')
+                         "for i in $(seq 1 15); do curl -s http://127.0.0.1:#{self.port}/ | grep -q Drupal && { echo SERVED_DRUPAL; break; }; sleep 2; done", 'SERVED_DRUPAL')
       # php2shell closed: patched build is in place (provenance, not exploit).
       test_local_command('php2shell fix present (CVE-2026-109618/109619)',
                          'cat /opt/php-7.4-patched/PHP2SHELL_FIX_COMMIT', FIX_COMMIT)
