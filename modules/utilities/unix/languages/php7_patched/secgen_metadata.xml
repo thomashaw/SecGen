@@ -39,9 +39,6 @@
     <software_name>php</software_name>
   </conflict>
   <conflict>
-    <type>webapp</type>
-  </conflict>
-  <conflict>
     <module_path>.*services/unix/http/lamp.*</module_path>
   </conflict>
 
