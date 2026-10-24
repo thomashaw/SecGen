@@ -1,32 +1,12 @@
 class drupal_850::install {
     Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin']}
 
-    # PHP comes from the php7_patched utility (php-fpm on 127.0.0.1:9000); only
-    # the MySQL 5.7 runtime libs are installed here.
-    ensure_packages(['libaio1','libnuma1'])
-    
-    $archive = 'drupal-8.5.0.tar.gz'
-    $longmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz' 
-    $shortmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64'
-    $mysqlpart = ["${longmysql}.partaa",
-    "${longmysql}.partab",
-    "${longmysql}.partac",
-    "${longmysql}.partad",
-    "${longmysql}.partae",
-    "${longmysql}.partaf",
-    "${longmysql}.partag",
-    "${longmysql}.partah",
-    "${longmysql}.partai",
-    "${longmysql}.partaj",
-    "${longmysql}.partak",
-    "${longmysql}.partal",
-    "${longmysql}.partam",
-    "${longmysql}.partan",]
+    # PHP comes from the php7_patched utility (php-fpm on 127.0.0.1:9000).
+    # The database is packaged MariaDB (creates the mysql user, auto-starts);
+    # Drupalgeddon2 is an application vuln, so the DB engine is not the subject.
+    ensure_packages(['mariadb-server'])
 
-    $pkgtobuild = [[$mysqlpart, $longmysql]]
-    $pkgtobuild.each |Array $pkg| {
-        drupal_850::cpandbuild($pkg[0], $pkg[1])
-    }
+    $archive = 'drupal-8.5.0.tar.gz'
 
     #Drupal installation
     file {"/usr/local/src/${archive}":
@@ -47,22 +27,5 @@ class drupal_850::install {
     } ->
     exec { 'chown-drupal':
         command => "chown www-data. /var/www/drupal-8.5.0 -R",
-    }
-
-    #MySQL installation
-    file { '/etc/systemd/system/mysql.service':
-        ensure => file,
-        source => "puppet:///modules/drupal_850/config/mysql.service.erb",
-    } ->
-    exec { 'unpack-mysql':
-        cwd => '/tmp/',
-        command => "tar -xf ${longmysql}",
-        require => Exec["rebuild-${longmysql}"],
-        creates => "/tmp/${shortmysql}",
-    } ->
-    exec { 'move-mysql':
-        cwd => '/tmp',
-        command => "mv ${shortmysql} /usr/local/mysql",
-        creates => '/usr/local/mysql',
     }
 }
