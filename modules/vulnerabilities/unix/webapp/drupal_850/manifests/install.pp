@@ -21,6 +21,12 @@ class drupal_850::install {
         ensure => file,
         source => "puppet:///modules/drupal_850/drupal_pre_setup.sql",
     } ->
+    # apache2 is installed later (apache.pp); create the web root now so the
+    # unpack has somewhere to land.
+    file { '/var/www':
+        ensure => directory,
+        mode   => '0755',
+    } ->
     exec { 'unpack-drupal':
         cwd => '/usr/local/src',
         command => "tar -xzf ${archive} -C /var/www",
