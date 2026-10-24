@@ -12,7 +12,7 @@
 
   <system>
     <system_name>drupal_850_target</system_name>
-    <base platform="linux" distro="Debian 12" type="desktop"/>
+    <base platform="linux" distro="Debian 10" type="desktop"/>
 
     <input into_datastore="IP_addresses">
       <network_ip system="drupal_850_target"/>

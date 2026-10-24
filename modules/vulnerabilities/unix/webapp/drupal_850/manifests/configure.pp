@@ -5,20 +5,10 @@ class drupal_850::configure {
   $strings_to_leak = $secgen_parameters['strings_to_leak']
 
   Exec { path => ['/bin', '/usr/bin','/sbin','/usr/sbin']}
-  
-  # Apache configuration
-  exec {'disable-php5':
-    command => 'a2dismod php5 php5.6 2>/dev/null || true', #ignore output
-  } ->
 
-  exec {'enable-php7.2':
-    command => 'a2enmod php7.2',
-  } ->
+  # PHP is served by php7_patched's php-fpm (wired into Apache in apache.pp);
+  # no mod_php to enable here.
 
-  exec {'restart-apache':
-    command => 'systemctl restart apache2',
-  }
-  
   # MySQL configuration
   file { '/var/lib/mysql':
     ensure => directory,

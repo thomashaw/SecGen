@@ -1,7 +1,9 @@
 class drupal_850::install {
     Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin']}
 
-    ensure_packages(['php7.2-gd','php7.2-xml','php7.2-mysql','libapache2-mod-php7.2','libaio1','libnuma1'])
+    # PHP comes from the php7_patched utility (php-fpm on 127.0.0.1:9000); only
+    # the MySQL 5.7 runtime libs are installed here.
+    ensure_packages(['libaio1','libnuma1'])
     
     $archive = 'drupal-8.5.0.tar.gz'
     $longmysql = 'mysql-5.7.44-linux-glibc2.12-x86_64.tar.gz' 
