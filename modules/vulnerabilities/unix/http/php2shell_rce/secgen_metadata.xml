@@ -46,7 +46,9 @@
   <reference>https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w</reference>
   <reference>https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp</reference>
 
-  <software_name>php2shell-target</software_name>
+  <!-- Deliberately not "php*": php7_vulnerable conflicts on a software_name
+       regex of "php", and this app is a target, not a php provider. -->
+  <software_name>p2s-rce-target</software_name>
   <software_license>Apache v2</software_license>
 
   <requires>
