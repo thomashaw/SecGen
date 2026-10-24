@@ -23,8 +23,7 @@ class samba::params {
   $service = $::operatingsystem ? {
     /(?i:Centos|RedHat|Scientific|Fedora|Amazon|Linux)/ => 'smb',
     /(?i:SLES|OpenSuSE)/                                => 'smb',
-    /(?i:Ubuntu|Mint)/                                  => 'smbd',
-    /(?i:Debian)/                                       => 'samba',
+    /(?i:Ubuntu|Mint|Debian)/                           => 'smbd',
     default                                             => 'smb',
   }
 
