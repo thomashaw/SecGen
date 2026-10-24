@@ -67,9 +67,10 @@ class ParameterisedAccountsTest < PostProvisionTest
     end
 
     tier(2) do
-      # the account is usable: a login shell as that user works and lands in its home
+      # the account is usable: a shell as that user works and can enter its home.
+      # (runuser -u keeps the caller's cwd, so plain `pwd` would print / - resolve ~user via passwd instead)
       test_local_command("#{user} can run commands", 'id -un', user, user: user)
-      test_local_command("#{user} login shell starts in its home", 'pwd', home, user: user)
+      test_local_command("#{user} can enter its home (~#{user})", "cd ~#{u} && pwd", home, user: user)
       if account['super_user'].to_s == 'true'
         test_local_command("#{user} is allowed to sudo", "sudo -l -U #{u}", 'ALL')
       end
