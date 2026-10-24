@@ -19,6 +19,22 @@ class GlpiPhpInjectionTest < PostProvisionTest
       test_service_up
       # GLPI login page returns a form with "GLPI" branding
       test_http('/', match: 'GLPI')
+
+      # Negative check (design level): the php2shell vector (CVE-2026-109618 /
+      # CVE-2026-109619) is closed because php8.2 carries the Debian fix
+      # (DLA-4848-1, 8.2.35-1~deb12u1). Verified from the installed package
+      # version, not by sending exploit traffic. The app's own CVE-2022-35914
+      # is the intended exploit (tier 3 still to be confirmed, see #255).
+      fixed = '8.2.35-1~deb12u1'
+      ver = run_command("dpkg-query -W -f='${Version}' php8.2-common 2>/dev/null")[:stdout].to_s.strip
+      patched = run_command("dpkg --compare-versions '#{ver}' ge '#{fixed}' && echo FIXED")[:stdout].to_s.include?('FIXED')
+      if patched
+        pass_check('php2shell fix present (CVE-2026-109618/109619)',
+                   "php8.2-common #{ver} >= #{fixed} (DLA-4848-1)", tier: 2)
+      else
+        fail_check('php2shell fix present (CVE-2026-109618/109619)',
+                   "php8.2-common #{ver.inspect} < fixed #{fixed}", tier: 2)
+      end
     end
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
     # msf_module: exploit/linux/http/glpi_htmlawed_php_injection (CVE-2022-35914)
