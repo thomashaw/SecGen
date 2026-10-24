@@ -1,9 +1,9 @@
 # == Class: php2shell_rce::install
 #
-# Serves a trivial PHP page from the unpatched PHP 7.4 (php7_vulnerable) using
-# PHP's built-in server, and leaks a flag to capture after code execution. The
-# page is deliberately minimal: the vulnerability is in the interpreter, not the
-# page.
+# Serves a trivial PHP page from the unpatched PHP 7.4 (php7_vulnerable) via
+# lighttpd + php-cgi, and leaks a flag to capture after code execution. The
+# page is deliberately minimal: the vulnerability is in the interpreter, not
+# the page.
 
 class php2shell_rce::install {
 
@@ -15,7 +15,8 @@ class php2shell_rce::install {
   $leaked_filenames = $secgen_parameters['leaked_filenames']
 
   $docroot = '/var/www/html'
-  $php_bin = '/opt/php-7.4-vulnerable/bin/php'
+
+  ensure_packages(['lighttpd'], { ensure => 'installed' })
 
   file { ['/var/www', $docroot]:
     ensure => directory,
@@ -27,6 +28,15 @@ class php2shell_rce::install {
     mode   => '0644',
   }
 
+  # lighttpd serves .php through the vulnerable php-cgi binary.
+  file { '/etc/lighttpd/lighttpd.conf':
+    ensure  => file,
+    content => template('php2shell_rce/lighttpd.conf.erb'),
+    mode    => '0644',
+    require => [Package['lighttpd'], File["${docroot}/index.php"]],
+    notify  => Service['lighttpd'],
+  }
+
   # A flag to capture once code execution is achieved.
   ::secgen_functions::leak_files { 'php2shell-flag-leak':
     storage_directory => '/root',
@@ -36,17 +46,5 @@ class php2shell_rce::install {
     group             => 'root',
     mode              => '0600',
     leaked_from       => 'php2shell_rce',
-  }
-
-  # Minimal web server: PHP's built-in server on the vulnerable interpreter.
-  file { '/etc/systemd/system/php2shell-target.service':
-    ensure  => file,
-    mode    => '0644',
-    content => "[Unit]\nDescription=php2shell practice target\nAfter=network.target\n\n[Service]\nExecStart=${php_bin} -S 0.0.0.0:${port} -t ${docroot}\nRestart=always\n\n[Install]\nWantedBy=multi-user.target\n",
-    require => File["${docroot}/index.php"],
-  }
-  ~> exec { 'php2shell-target systemd daemon-reload':
-    command     => '/bin/systemctl daemon-reload',
-    refreshonly => true,
   }
 }

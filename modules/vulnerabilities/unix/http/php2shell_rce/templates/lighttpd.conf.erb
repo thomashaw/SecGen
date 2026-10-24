@@ -1,0 +1,24 @@
+# Minimal lighttpd serving the php2shell practice target via the vulnerable
+# PHP 7.4 php-cgi binary (php7_vulnerable).
+server.modules = (
+    "mod_fastcgi",
+    "mod_accesslog",
+)
+
+server.document-root = "/var/www/html"
+server.errorlog      = "/var/log/lighttpd/error.log"
+server.pid-file      = "/var/run/lighttpd.pid"
+server.username      = "www-data"
+server.groupname     = "www-data"
+server.port          = <%= @port %>
+server.bind          = "0.0.0.0"
+
+index-file.names = ( "index.php", "index.html" )
+
+fastcgi.server = (
+    ".php" => ((
+        "bin-path" => "/opt/php-7.4-vulnerable/bin/php-cgi",
+        "socket"   => "/tmp/php2shell.socket",
+        "max-procs" => 1,
+    ))
+)
