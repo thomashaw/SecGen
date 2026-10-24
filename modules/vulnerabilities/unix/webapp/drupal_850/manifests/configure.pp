@@ -28,9 +28,14 @@ class drupal_850::configure {
   exec {'create-drupal-user':
     command => 'mysql -u root -e "CREATE USER IF NOT EXISTS \'drupal\'@\'127.0.0.1\' IDENTIFIED BY \'drupalpass\'; GRANT ALL PRIVILEGES ON drupal.* TO \'drupal\'@\'127.0.0.1\'; CREATE USER IF NOT EXISTS \'drupal\'@\'localhost\' IDENTIFIED BY \'drupalpass\'; GRANT ALL PRIVILEGES ON drupal.* TO \'drupal\'@\'localhost\'; FLUSH PRIVILEGES;"',
   } ->
+  # The dump is a newer-MariaDB mariadb-dump whose "sandbox mode" first line
+  # (/*M!999999\- ... */) the buster MariaDB 10.3 client rejects ("Unknown
+  # command '\-'"); strip it before importing.
   exec {'import-drupal-sql':
-    command => 'mysql -u root drupal < /usr/local/src/drupal_pre_setup.sql',
-    timeout => 600,
+    command   => "sed '/enable the sandbox mode/d' /usr/local/src/drupal_pre_setup.sql | mysql -u root drupal",
+    provider  => shell,
+    timeout   => 600,
+    logoutput => true,
   }
 
   file_line { 'pre-leak-robots-txt':
