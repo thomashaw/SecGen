@@ -38,14 +38,21 @@ class drupal_850::configure {
     logoutput => true,
   }
 
+  # Pre-exploitation hint in robots.txt, and the flag in a plain file under the
+  # Drupal site dir (found post-RCE as www-data). The flag is NOT injected into
+  # settings.php: a generated flag can be multi-line and contain '|', which
+  # breaks PHP parsing of settings.php.
   file_line { 'pre-leak-robots-txt':
     path    => '/var/www/drupal-8.5.0/robots.txt',
-    line    => "# ${strings_to_pre_leak}",
+    line    => "# ${join($strings_to_pre_leak, ' ')}",
     require => Exec['extract-drupal-setup'],
   }
-  file_line { 'leak-flag-settings':
-    path  => '/var/www/drupal-8.5.0/sites/default/settings.php',
-    line  => "// ${strings_to_leak}",
-    require => Exec['extract-drupal-setup'],
+  file { '/var/www/drupal-8.5.0/sites/default/flag.txt':
+    ensure  => file,
+    content => "${join($strings_to_leak, "\n")}\n",
+    owner   => 'www-data',
+    group   => 'www-data',
+    mode    => '0640',
+    require => Exec['set-drupal-permissions'],
   }
 }
