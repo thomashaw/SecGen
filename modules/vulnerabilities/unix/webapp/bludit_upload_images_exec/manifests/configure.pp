@@ -37,11 +37,49 @@ class bludit_upload_images_exec::configure {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
-  # automate the install
-  exec { 'set-admin-password-bludit':
-    command => "curl -d 'username=$known_username&password=$known_password' http://localhost/install.php",
+  # install.php requires a password >= 6 chars, but weak_password_generator
+  # produces 3-5-char words.  Bypass install.php entirely: create the
+  # bl-content directory tree and database files directly.  users.php is
+  # written from a template that SHA1-hashes $known_password (any length).
+  exec { 'create-bludit-directories':
+    command  => 'mkdir -p /var/www/bludit-3-9-2/bl-content/databases/plugins/{tinymce,about,simple-stats,robots,canonical} /var/www/bludit-3-9-2/bl-content/{pages/about,uploads/profiles,uploads/thumbnails,uploads/pages,workspaces,tmp} && chown -R www-data: /var/www/bludit-3-9-2/bl-content',
     provider => 'shell',
-    logoutput => true
+    creates  => '/var/www/bludit-3-9-2/bl-content/databases',
+  } ->
+
+  file { '/var/www/bludit-3-9-2/bl-content/databases/users.php':
+    ensure  => file,
+    owner   => 'www-data',
+    group   => 'www-data',
+    content => template('bludit_upload_images_exec/users.php.erb'),
+  } ->
+
+  file { '/var/www/bludit-3-9-2/bl-content/databases/security.php':
+    ensure  => file,
+    owner   => 'www-data',
+    group   => 'www-data',
+    content => "<?php defined('BLUDIT') or die('Bludit CMS.'); ?>\n{\n   \"minutesBlocked\": 5,\n   \"numberFailuresAllowed\": 10,\n   \"blackList\": []\n}\n",
+  } ->
+
+  file { '/var/www/bludit-3-9-2/bl-content/databases/syslog.php':
+    ensure  => file,
+    owner   => 'www-data',
+    group   => 'www-data',
+    content => "<?php defined('BLUDIT') or die('Bludit CMS.'); ?>\n[]\n",
+  } ->
+
+  file { '/var/www/bludit-3-9-2/bl-content/databases/categories.php':
+    ensure  => file,
+    owner   => 'www-data',
+    group   => 'www-data',
+    content => "<?php defined('BLUDIT') or die('Bludit CMS.'); ?>\n{\n   \"general\": {\"name\": \"General\", \"description\": \"\", \"template\": \"\", \"list\": []}\n}\n",
+  } ->
+
+  file { '/var/www/bludit-3-9-2/bl-content/databases/tags.php':
+    ensure  => file,
+    owner   => 'www-data',
+    group   => 'www-data',
+    content => "<?php defined('BLUDIT') or die('Bludit CMS.'); ?>\n{}\n",
   } ->
 
   # manually place website contents via templates
