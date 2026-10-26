@@ -7,11 +7,7 @@
   "source": "https://github.com/example42/puppet-samba",
   "project_page": "http://www.example42.com",
   "issues_url": "https://github.com/example42/puppet-samba/issues",
-  "dependencies": [
-    {"name":"example42/puppi","version_requirement":">=2.0.0"},
-    {"name":"example42/firewall","version_requirement":">=2.0.0"},
-    {"name":"example42/monitor","version_requirement":">=2.0.0"}
-  ],
+  "dependencies": [],
   "description": "This module installs and manages samba. Check README for details.",
   "checksums": {
     "Modulefile": "cfbb7165fbddef20427bf007f70f6529",

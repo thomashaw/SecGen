@@ -24,7 +24,7 @@ class samba::params {
     /(?i:Centos|RedHat|Scientific|Fedora|Amazon|Linux)/ => 'smb',
     /(?i:SLES|OpenSuSE)/                                => 'smb',
     /(?i:Ubuntu|Mint)/                                  => 'smbd',
-    /(?i:Debian)/                                       => 'samba',
+    /(?i:Debian)/                                       => 'smbd',
     default                                             => 'smb',
   }
 

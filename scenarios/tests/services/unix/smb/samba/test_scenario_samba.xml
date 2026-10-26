@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<scenario xmlns="http://www.github.com/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github.com/cliffe/SecGen/scenario
+                              http://www.github.com/cliffe/SecGen/scenario/scenario.xsd">
+  <name>Test Samba</name>
+  <author>SecGen Pipeline</author>
+  <description>Test scenario for samba module</description>
+
+  <system>
+    <system_name>samba_target</system_name>
+    <base distro="Debian 12" type="server" name="SecGen Debian12"/>
+
+    <vulnerability module_path="modules/services/unix/smb/samba"/>
+
+    <network type="private_network" range="dhcp"/>
+  </system>
+
+  <system>
+    <system_name>attacker</system_name>
+    <base distro="Kali" name="Kali MSF"/>
+
+    <network type="private_network" range="dhcp"/>
+  </system>
+
+</scenario>
