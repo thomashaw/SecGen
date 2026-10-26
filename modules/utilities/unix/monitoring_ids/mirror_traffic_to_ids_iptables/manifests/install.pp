@@ -5,6 +5,7 @@ class mirror_traffic_to_ids_iptables::install {
   $ids_IP_address = $secgen_parameters['ids_IP_address'][0]
 
   ensure_packages(['iptables-persistent'])
+  Package['iptables-persistent'] -> Exec['save iptables prerouting']
 
   # Match every interface except loopback rather than naming one: on Proxmox the
   # first NIC (ens18) is the provisioning NIC, removed after the build, so a rule
