@@ -42,7 +42,7 @@ class bludit_upload_images_exec::configure {
   # bl-content directory tree and database files directly.  users.php is
   # written from a template that SHA1-hashes $known_password (any length).
   exec { 'create-bludit-directories':
-    command  => 'mkdir -p /var/www/bludit-3-9-2/bl-content/databases/plugins/{tinymce,about,simple-stats,robots,canonical} /var/www/bludit-3-9-2/bl-content/{pages/about,uploads/profiles,uploads/thumbnails,uploads/pages,workspaces,tmp} && chown -R www-data: /var/www/bludit-3-9-2/bl-content',
+    command  => 'mkdir -p /var/www/bludit-3-9-2/bl-content/databases/plugins/tinymce /var/www/bludit-3-9-2/bl-content/databases/plugins/about /var/www/bludit-3-9-2/bl-content/databases/plugins/simple-stats /var/www/bludit-3-9-2/bl-content/databases/plugins/robots /var/www/bludit-3-9-2/bl-content/databases/plugins/canonical /var/www/bludit-3-9-2/bl-content/pages/about /var/www/bludit-3-9-2/bl-content/uploads/profiles /var/www/bludit-3-9-2/bl-content/uploads/thumbnails /var/www/bludit-3-9-2/bl-content/uploads/pages /var/www/bludit-3-9-2/bl-content/workspaces /var/www/bludit-3-9-2/bl-content/tmp && chown -R www-data: /var/www/bludit-3-9-2/bl-content',
     provider => 'shell',
     creates  => '/var/www/bludit-3-9-2/bl-content/databases',
   } ->
