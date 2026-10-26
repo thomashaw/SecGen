@@ -29,6 +29,34 @@ class MirrorTrafficToIdsIptablesTest < PostProvisionTest
         test_local_command('TEE rule present in mangle PREROUTING', 'iptables -t mangle -L PREROUTING | grep TEE', 'TEE')
         test_local_command('TEE rule present in mangle FORWARD', 'iptables -t mangle -L FORWARD | grep TEE', 'TEE')
       end
+
+      # Cross-VM checks when the scenario includes an ids_monitor system.
+      # All IDS labs (4_ids.xml, 5_ids_rules.xml, 6_exfiltration_detection.xml,
+      # hacker_vs_hackerbot_2.xml) use 'ids_monitor' as the system_name for the
+      # Snort VM. These checks only run in full-scenario builds; single-VM
+      # test-module builds skip them silently.
+      if system_present?('ids_monitor')
+        ids_monitor_ip = other_system_ip('ids_monitor')
+        if ids_ip && ids_monitor_ip
+          if ids_ip == ids_monitor_ip
+            pass_check('ids_IP_address matches ids_monitor actual IP',
+                       "TEE target #{ids_ip} matches ids_monitor's guest-agent IP", tier: 2)
+          else
+            fail_check('ids_IP_address matches ids_monitor actual IP',
+                       "TEE target #{ids_ip} != ids_monitor IP #{ids_monitor_ip} — traffic not mirrored to IDS", tier: 2)
+          end
+        end
+
+        # Snort must be installed on ids_monitor so mirrored packets can be inspected.
+        snort_result = run_on_system('ids_monitor', 'dpkg -l snort-common | grep -E "^ii"')
+        if snort_result[:stdout].include?('snort-common') && snort_result[:exit_status] == 0
+          pass_check('snort-common installed on ids_monitor',
+                     'Snort is installed on ids_monitor; mirrored traffic can be inspected', tier: 2)
+        else
+          fail_check('snort-common installed on ids_monitor',
+                     'snort-common not found on ids_monitor — IDS cannot detect mirrored traffic', tier: 2)
+        end
+      end
     end
   end
 end
