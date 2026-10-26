@@ -117,7 +117,7 @@ API (all in `lib/objects/post_provision_test.rb`):
 | Helper | Passes when |
 |---|---|
 | `test_service_up(port: self.port)` | port is listening (SKIP if there's no port input) |
-| `test_local_command(label, cmd, substr, user: nil)` | `substr` in stdout **or** stderr |
+| `test_local_command(label, cmd, substr, user: nil)` | `substr` in stdout (add `2>&1` to the command to match stderr) |
 | `test_command_succeeds(label, cmd, user: nil)` | exit status 0 |
 | `test_banner(match, port:, send: nil)` | what the port sends (after `send` + CRLF) contains `match` |
 | `test_http(path, match: nil, status: nil, port:, scheme: 'http')` | status matches (default 2xx/3xx) and body contains `match` |
