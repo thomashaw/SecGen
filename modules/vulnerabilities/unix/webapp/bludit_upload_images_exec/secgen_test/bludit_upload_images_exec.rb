@@ -27,9 +27,10 @@ class BluditTest < PostProvisionTest
     tier(2) do
       test_service_up
       # Body-match retry — curl %{http_code} is eaten by the guest-agent exec
-      # path. Bludit renders a <title>Bludit</title> on its home page.
+      # path. Bludit renders a generator meta tag on every page; the site title
+      # is randomised so <title>Bludit</title> never matches.
       test_local_command('bludit serves (Apache+php-fpm)',
-                         "for i in $(seq 1 15); do curl -s http://127.0.0.1:#{self.port}/ | grep -q '<title>Bludit</title>' && { echo SERVED_BLUDIT; break; }; sleep 2; done",
+                         "for i in $(seq 1 15); do curl -s http://127.0.0.1:#{self.port}/ | grep -q 'content=\"Bludit\"' && { echo SERVED_BLUDIT; break; }; sleep 2; done",
                          'SERVED_BLUDIT')
       test_local_command('php2shell fix present (CVE-2026-109618/109619)',
                          'cat /opt/php-7.4-patched/PHP2SHELL_FIX_COMMIT', FIX_COMMIT)
@@ -50,13 +51,16 @@ class BluditTest < PostProvisionTest
       # TARGETURI is / — the Apache vhost docroot IS the Bludit app directory,
       # so the app is served from / not /bludit.
       # php/unix/cmd/generic: PHP-platform no-session payload (same as gravcms_exec).
+      # AllowNoCleanup: php/unix/cmd/generic leaves uploaded PHP stubs behind;
+      # without this flag MSF refuses to run the exploit.
       test_msf_exploit('exploit/linux/http/bludit_upload_images_exec',
                        rport: self.port,
                        payload: 'php/unix/cmd/generic',
                        options: {
-                         'TARGETURI'  => '/',
-                         'BLUDITUSER' => username,
-                         'BLUDITPASS' => password,
+                         'TARGETURI'       => '/',
+                         'BLUDITUSER'      => username,
+                         'BLUDITPASS'      => password,
+                         'AllowNoCleanup'  => 'true',
                        },
                        collect: "cat #{DOCROOT}/bl-content/tmp/* 2>/dev/null",
                        tier: 3)

@@ -113,6 +113,18 @@ class bludit_upload_images_exec::configure {
     logoutput => true
   }
 
+  # CVE-2019-16113 exploit uploads a .png webshell to bl-content/tmp/ and
+  # triggers it via Apache.  PHP-FPM's security.limit_extensions defaults to
+  # ".php", so it rejects .png with "Access denied".  Extend it to also allow
+  # .png so FPM executes the uploaded file when Apache proxies the request.
+  file_line { 'fpm-security-limit-extensions':
+    path    => '/opt/php-7.4-patched/etc/php-fpm.d/www.conf',
+    line    => 'security.limit_extensions = .php .png',
+    match   => '^security\.limit_extensions',
+    require => Class['php7_patched'],
+    notify  => Service['php7-patched-fpm'],
+  }
+
   ::secgen_functions::leak_files { 'bludit-flag-leak':
     storage_directory => '/var/www/bludit-3-9-2/bl-content/tmp',
     leaked_filenames  => $leaked_filenames,

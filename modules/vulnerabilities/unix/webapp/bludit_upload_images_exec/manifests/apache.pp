@@ -24,7 +24,7 @@ class bludit_upload_images_exec::apache {
 
   file { '/etc/apache2/sites-available/bludit.conf':
     ensure  => file,
-    content => "<VirtualHost *:${port}>\n  DocumentRoot ${docroot}\n  DirectoryIndex index.php\n  <Directory ${docroot}>\n    AllowOverride All\n    Require all granted\n  </Directory>\n  <FilesMatch \\.php$>\n    SetHandler \"proxy:fcgi://127.0.0.1:9000\"\n  </FilesMatch>\n</VirtualHost>\n",
+    content => "<VirtualHost *:${port}>\n  DocumentRoot ${docroot}\n  DirectoryIndex index.php\n  <Directory ${docroot}>\n    AllowOverride All\n    Require all granted\n  </Directory>\n  <FilesMatch \\.php$>\n    SetHandler \"proxy:fcgi://127.0.0.1:9000\"\n  </FilesMatch>\n  # CVE-2019-16113: MSF uploads the webshell to bl-content/tmp/.\n  # With FPM, AddType application/x-httpd-php in .htaccess has no effect\n  # (that is mod_php syntax); handle .png directly from the vhost so the\n  # exploit works. Requires security.limit_extensions = .php .png in FPM.\n  <Directory ${docroot}/bl-content/tmp>\n    <FilesMatch \\.png$>\n      SetHandler \"proxy:fcgi://127.0.0.1:9000\"\n    </FilesMatch>\n  </Directory>\n</VirtualHost>\n",
     require => Package['apache2'],
   }
 
