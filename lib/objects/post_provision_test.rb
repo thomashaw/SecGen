@@ -253,14 +253,15 @@ class PostProvisionTest
     end
   end
 
-  # Passes if match_string is in the command's stdout or stderr. user: runs it as
-  # that account (see #run_as_user) instead of root.
+  # Passes if match_string appears in the command's stdout. user: runs it as
+  # that account (see #run_as_user) instead of root. Use 2>&1 in the command
+  # if you need to match stderr output.
   def test_local_command(test_output, local_command, match_string, user: nil, tier: nil)
     tier = default_tier(tier, 1)
     output = user ? run_as_user(user, local_command) : run_vagrant_ssh(local_command)
     as = user ? " as #{user}" : ''
     name = "#{test_output} local command (#{local_command})#{as} matches with output (#{match_string})"
-    if output[:stdout].include?(match_string) || output[:stderr].include?(match_string)
+    if output[:stdout].include?(match_string)
       pass_check(name, "#{name} on #{get_system_name}!", tier: tier)
     else
       fail_check(name, "#{name} on #{get_system_name}!", tier: tier,
