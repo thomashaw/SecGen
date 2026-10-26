@@ -3,8 +3,13 @@ require_relative '../../../../../lib/post_provision_test'
 # Gitlist 0.4.0 RCE (CVE-2018-1000533) on patched PHP 7.4 (php7_patched).
 # tier 2 proves GitList serves via Apache -> php-fpm and that the php2shell fix
 # is present, so only the app's own argument-injection CVE is exploitable.
-# tier 3 (exploit/multi/http/gitlist_arg_injection) is deferred to a scenario
-# with an attacker VM.
+# tier 3 runs exploit/multi/http/gitlist_arg_injection from an attacker VM and
+# proves unauthenticated RCE via the argument-injection sink in GitList's search
+# (git log --grep is called with user-supplied input, escapeshellarg-bypassed).
+# The leaked flag is in /home/git/ (owner www-data, mode 0750), readable by the
+# exploit process (www-data). TARGETURI '/' because the Apache docroot is
+# /var/www/gitlist (no subdirectory prefix). No credentials are required.
+# Tier 3 SKIPs cleanly when there is no attacker sibling (single-VM run).
 class Gitlist040Test < PostProvisionTest
   FIX_COMMIT = '712e60f9edfd03f0960fc4fc3c2c375f42b90aa2'.freeze
 
@@ -30,6 +35,14 @@ class Gitlist040Test < PostProvisionTest
       test_local_command('php2shell fix present (CVE-2026-109618/109619)',
                          'cat /opt/php-7.4-patched/PHP2SHELL_FIX_COMMIT', FIX_COMMIT)
     end
+    # Tier 3: argument-injection RCE from the attacker VM (CVE-2018-1000533).
+    # cmd/unix/generic: no session needed — the injected command runs directly
+    # on the target as www-data. collect reads the leaked flag from /home/git/.
+    test_msf_exploit('exploit/multi/http/gitlist_arg_injection',
+                     rport: self.port,
+                     collect: 'cat /home/git/*',
+                     options: { 'TARGETURI' => '/' },
+                     tier: 3)
   end
 end
 
