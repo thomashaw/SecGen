@@ -10,13 +10,13 @@ class IRC2Test < PostProvisionTest
 
   def test_module
     super
-    # No read_facts or default_inputs: nothing parameterised to check.
+    motd = self.json_inputs['motd']&.first
     tier(1) do
       test_local_command('ircd-irc2 package', 'dpkg -s ircd-irc2', 'Status: install ok installed')
-      test_local_command('ircd.conf deployed', 'cat /etc/ircd.conf', 'irc.localhost')
-      test_local_command('ircd.motd deployed', 'cat /etc/ircd.motd', 'Welcome')
+      test_local_command('/etc/ircd/ircd.conf deployed', 'cat /etc/ircd/ircd.conf', 'Fast IRC Server')
+      test_local_command('/etc/ircd/ircd.motd from motd input', 'cat /etc/ircd/ircd.motd', motd) if motd
       test_local_command('service enabled', 'systemctl is-enabled ircd-irc2', 'enabled')
-      test_local_command('service active', 'systemctl is-active ircd-irc2', 'active')
+      test_local_command('service active', 'systemctl is-active ircd-irc2 | grep -x active', 'active')
     end
     tier(2) do
       test_service_up
