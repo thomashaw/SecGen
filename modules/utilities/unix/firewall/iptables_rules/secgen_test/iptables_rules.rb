@@ -48,7 +48,7 @@ class IptablesRulesTest < PostProvisionTest
     t = "-t #{Shellwords.escape(r[:table])}"
     case r[:kind]
     when :policy
-      "iptables #{t} -S #{Shellwords.escape(r[:chain])} | grep -qxF #{Shellwords.escape("-P #{r[:chain]} #{r[:policy]}")}"
+      "iptables #{t} -S #{Shellwords.escape(r[:chain])} | grep -qxF -e #{Shellwords.escape("-P #{r[:chain]} #{r[:policy]}")}"
     when :chain
       "iptables #{t} -S #{Shellwords.escape(r[:chain])} >/dev/null 2>&1"
     when :rule
