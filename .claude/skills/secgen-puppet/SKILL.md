@@ -107,7 +107,6 @@ Source: `modules/build/puppet/secgen_functions/` (the copy in `modules/code_exam
 | `leak_data` [3] | Leak base64 `secgen_leaked_data` JSON blobs (binary files, subdirs) | `data_to_leak`, `storage_directory`, `owner/group/mode`, `leaked_from` | Fails if an element is not `secgen_leaked_data` JSON. Uses `create_directory` with unique `res`. |
 | `install_setgid_binary` [6] | CTF: setgid binary + flag in `/home/<user>/<challenge>/` | `challenge_name`, `source_module_name`, `group`, `account` (parsed hash), `flag`, `flag_name`, `binary_path` | Without `binary_path` it calls `compile_binary_module` passing `gcc_params`, **which that define does not declare** -> "Invalid parameter gcc_params" (hit by `simple_bof`). Pass a precompiled `binary_path` (as `metactf` does) or fix the define. |
 | `install_setuid_root_binary` [4] | CTF: compile module's `files/` with `make`, install 4755 root | `challenge_name`, `source_module_name`, `account`, `flag`, `flag_name` | Module `files/` must contain a Makefile producing `<challenge_name>`. Calls `create_directory` without `res` - only one per run. |
-| `install_setgid_script` [2] | CTF: setgid script + flag, optional xinetd port | `script_name`, `script_data`, `group`/`account`/`flag`/`port` (as **arrays**) | Takes raw array params (`$account[0]` is JSON). Requires xinetd + accounts modules selected. Calls `create_directory` without `res`. |
 | `compile_binary_module` [3] | Copy module `files/` to a dir and run `make` | `source_module_name`, `binary_directory`, `challenge_name` | No `gcc_params` - put flags in the Makefile. |
 
 ## Installing software
@@ -166,7 +165,7 @@ exec { 'clone theZoo':
 
 - **Puppet does not create parent directories.** `file { '/a/b/c/x': ensure => file }` fails ("Could not set 'file' on ensure: No such file or directory") unless `/a/b/c` exists or is managed. Options:
   1. Install into a directory that always exists (`/usr/local/bin`, `/opt`, `/etc`, `/home/<user>` after the user exists).
-  2. `::secgen_functions::create_directory { "create_$dir": res => "create_$dir", path => $dir, notify => File["$dir/x"] }` (pasted pattern from `install_setgid_script`).
+  2. `::secgen_functions::create_directory { "create_$dir": res => "create_$dir", path => $dir, notify => File["$dir/x"] }`.
   3. Declare every level explicitly as an array (autorequire then orders them): `file { ["/home/$u/", "/home/$u/.config/", "/home/$u/.config/autostart/"]: ensure => directory, owner => $u, group => $u }` (from `kde_minimal`).
 - Per-user files: set `owner`/`group` to the user and make sure the account exists first (`require` the account resource, or depend on `parameterised_accounts`/`accounts` via `<requires>`).
 - Templates: `content => template('<module>/<file>.erb')` [301] - variables in scope are available as `@var`.
