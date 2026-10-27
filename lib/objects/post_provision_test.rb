@@ -452,6 +452,50 @@ class PostProvisionTest
     [attacker, attacker_ip, rhost]
   end
 
+  # --- Run any MSF module on the attacker VM (tier 3) ---------------------
+  # Drive a Metasploit module (auxiliary, scanner, gather — anything that is
+  # not an RCE exploit needing a payload) on the attacker VM against this
+  # system (the target). Unlike test_msf_exploit, this records no PASS/FAIL
+  # itself — the caller decides what to assert on the output or on a
+  # follow-up command.
+  #
+  # Returns a hash on success:
+  #   { attacker:, attacker_ip:, rhost:, stdout:, stderr:, exit_status:,
+  #     msf_output: }
+  # or nil if the attacker could not be resolved (a SKIP is recorded).
+  #
+  # Typical use (symlink traversal, scanner, info-leak auxiliary):
+  #   aux = run_msf_module('auxiliary/admin/smb/samba_symlink_traversal',
+  #                        options: { 'SMBSHARE' => 'public' })
+  #   next unless aux
+  #   # now assert on aux[:msf_output] or run a follow-up command
+  #
+  #   aux = run_msf_module('auxiliary/gather/enum_dns',
+  #                        options: { 'DOMAIN' => 'example.com' })
+  def run_msf_module(msf_module, rhost: nil, attacker: nil, options: {},
+                     tier: 3, label: nil,
+                     timeout: (ENV['SECGEN_MSF_TIMEOUT'] || 120).to_i)
+    name = label || "msf module (#{msf_module})"
+    resolved = resolve_attacker(name, attacker, rhost, tier)
+    return nil unless resolved
+    attacker_name, attacker_ip, rhost = resolved
+
+    settings = { 'RHOSTS' => rhost }
+    settings.merge!(options.map { |k, v| [k.to_s, v] }.to_h)
+    set_lines = settings.map { |k, v| "set #{k} #{msf_set_value(v)};" }.join(' ')
+
+    msf = "export HOME=/root TERM=dumb; msfconsole -q -x \"use #{msf_module}; " \
+          "#{set_lines} run; exit -y\""
+    result = run_on_system(attacker_name, msf, timeout: timeout)
+    msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
+    evidence_key = "msf_output_#{msf_module.split('/').last}"
+    add_evidence(evidence_key, "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
+
+    { attacker: attacker_name, attacker_ip: attacker_ip, rhost: rhost,
+      stdout: result[:stdout], stderr: result[:stderr],
+      exit_status: result[:exit_status], msf_output: msf_out }
+  end
+
   # --- Metasploit exploit helper (tier 3) ---------------------------------
   # Drive a Metasploit exploit module from the attacker VM against this system
   # (the target under test) and record a tier-3 PASS/FAIL/SKIP.
