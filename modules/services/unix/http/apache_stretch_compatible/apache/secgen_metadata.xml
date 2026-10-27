@@ -40,7 +40,7 @@
     <software_name>apache</software_name>
   </conflict>
   <conflict>
-    <module_path>.*bases/(?!debian_(bookworm|buster|stretch)).*</module_path>
+    <module_path>.*bases/(?!debian_(bookworm|buster)).*</module_path>
   </conflict>
   <requires>
     <type>update</type>

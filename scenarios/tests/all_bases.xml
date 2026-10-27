@@ -4,12 +4,12 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
-    <system_name>stretch_server</system_name>
-    <base name="Debian 9 Stretch Server"/>
+    <system_name>bookworm</system_name>
+    <base name="Debian 12 Bookworm Desktop KDE"/>
   </system>
   <system>
-    <system_name>stretch_desktop</system_name>
-    <base name="Debian 9 Stretch Desktop KDE"/>
+    <system_name>buster</system_name>
+    <base name="Debian 10 Buster Desktop KDE"/>
   </system>
   <system>
     <system_name>kali_light</system_name>
