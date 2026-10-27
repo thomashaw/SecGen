@@ -6,14 +6,21 @@ class gitlist_040::install {
 
   $archive = 'gitlist-0.4.0.tar.gz'
 
+  # apache2 is installed later (apache.pp); create the web root now.
+  file { '/var/www':
+    ensure => directory,
+    mode   => '0755',
+  }
+
   file { "/usr/local/src/$archive":
     ensure => file,
     source => "puppet:///modules/gitlist_040/$archive",
   }
 
   exec { 'unpack-gitlist':
-    cwd => '/usr/local/src',
+    cwd     => '/usr/local/src',
     command => "tar -xzf $archive -C /var/www",
+    require => File['/var/www'],
   }
 
   exec { 'copy-ini-file':
@@ -23,18 +30,15 @@ class gitlist_040::install {
 
   file { '/var/www/gitlist/cache':
     require => Exec['unpack-gitlist'],
-    ensure => directory,
-    mode => '777',
+    ensure  => directory,
+    mode    => '777',
   }
 
-  case $operatingsystemrelease {
-    /^(9|1[0-9]).*/: { # do 9.x stretch stuff
-
-      file { '/var/www/gitlist/.htaccess':
-        require => Exec['unpack-gitlist'],
-        ensure  => present,
-        content => template('gitlist_040/.htaccess.erb')
-      }
-    }
+  # GitList routes pretty URLs to index.php via .htaccess (needs mod_rewrite and
+  # AllowOverride All, set in apache.pp).
+  file { '/var/www/gitlist/.htaccess':
+    require => Exec['unpack-gitlist'],
+    ensure  => present,
+    content => template('gitlist_040/.htaccess.erb'),
   }
 }
