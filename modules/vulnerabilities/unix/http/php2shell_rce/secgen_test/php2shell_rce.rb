@@ -58,14 +58,18 @@ class Php2shellRceTest < PostProvisionTest
 
       # Confirm the php2shell-vulnerable code is what's on the box: built from
       # the pre-fix commit and the fix's symbol absent from the source. No exploit.
-      marker = run_command("cat #{MARKER}")[:stdout].to_s.strip
-      fix_found = run_command("grep -rqs #{FIX_SYMBOL} #{SRC_DIR}/Zend && echo FOUND")[:stdout].to_s.include?('FOUND')
-      if marker == VULN_COMMIT && marker != FIX_COMMIT && !fix_found
+      # src_present guards against a false pass: if SRC_DIR is missing, grep
+      # returns a non-zero exit and fix_found is false, which would satisfy
+      # !fix_found even though no source was ever there to inspect.
+      marker      = run_command("cat #{MARKER}")[:stdout].to_s.strip
+      src_present = run_command("test -d #{SRC_DIR}/Zend && echo ok")[:stdout].to_s.include?('ok')
+      fix_found   = src_present && run_command("grep -rqs #{FIX_SYMBOL} #{SRC_DIR}/Zend && echo FOUND")[:stdout].to_s.include?('FOUND')
+      if marker == VULN_COMMIT && marker != FIX_COMMIT && src_present && !fix_found
         pass_check('php2shell vulnerable code present (CVE-2026-109618/109619)',
                    "pre-fix commit #{VULN_COMMIT}; fix symbol #{FIX_SYMBOL} absent from source", tier: 2)
       else
         fail_check('php2shell vulnerable code present (CVE-2026-109618/109619)',
-                   "marker=#{marker.inspect} (want #{VULN_COMMIT}); fix symbol found=#{fix_found}", tier: 2)
+                   "marker=#{marker.inspect} (want #{VULN_COMMIT}); src_present=#{src_present}; fix symbol found=#{fix_found}", tier: 2)
       end
     end
 
