@@ -15,11 +15,13 @@ class MySQLStretchTest < PostProvisionTest
       # mysql::server and mysql::client are both installed
       test_local_command('mysql client installed?', 'which mysql', 'mysql')
       test_local_command('mysql server package installed?', 'dpkg -l | grep -E "^ii\s+(mysql|mariadb)-server"', 'server')
-      # override_options disable SSL
-      test_local_command('ssl disabled in config', 'grep -rE "ssl-disable" /etc/mysql/', 'ssl-disable')
+      # override_options disable SSL. 'ssl-disable' is a Puppet-side switch that
+      # my.cnf.erb never writes out; the option MariaDB reads is skip-ssl.
+      test_local_command('ssl disabled in config', 'grep -rE "^skip-ssl" /etc/mysql/', 'skip-ssl')
     end
     tier(2) do
-      test_local_command('mysqld process running?', 'ps -ef | grep mysqld', '/usr/sbin/mysqld')
+      # Debian 12 installs MariaDB, whose server binary is mariadbd, not mysqld
+      test_local_command('mysqld process running?', 'ps -eo args | grep -E "^/usr/sbin/(mariadbd|mysqld)"', '/usr/sbin/')
       test_service_up(port: 3306)
       # the server answers a query over the local socket
       test_local_command('server answers a query', 'mysql -N -e "select 1"', '1')
