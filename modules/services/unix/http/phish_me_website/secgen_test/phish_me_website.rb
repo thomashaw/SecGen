@@ -22,10 +22,10 @@ class PhishMeWebsiteTest < PostProvisionTest
       %w[css js images fonts people].each do |dir|
         test_local_command("#{dir}/ deployed", "test -d #{DOCROOT}/#{dir} && echo ok", 'ok')
       end
-      # the vhost listens on the configured port
+      # the vhost listens on the configured port (-R: sites-enabled entries are symlinks, which -r skips)
       if self.port.to_i > 0
         test_local_command('vhost uses the configured port',
-                           "grep -rhE 'VirtualHost' /etc/apache2/sites-enabled/", ":#{self.port}>")
+                           "grep -RhE 'VirtualHost' /etc/apache2/sites-enabled/", ":#{self.port}>")
       end
       # the distribution default site is removed (Tidy resource)
       test_local_command('default site removed', 'test ! -e /etc/apache2/sites-enabled/000-default.conf && echo gone', 'gone')
