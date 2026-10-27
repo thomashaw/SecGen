@@ -17,6 +17,14 @@
   <read_fact>dns_records</read_fact>
   <read_fact>allow_transfer</read_fact>
 
+  <default_input into="domain">
+    <value>secgen.local</value>
+  </default_input>
+
+  <default_input into="ns_hostname">
+    <value>ns1.secgen.local</value>
+  </default_input>
+
   <default_input into="serial">
     <value>19700101</value>
   </default_input>
