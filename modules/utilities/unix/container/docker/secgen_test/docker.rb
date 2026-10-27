@@ -24,7 +24,7 @@ class DockerTest < PostProvisionTest
     tier(2) do
       test_command_succeeds('docker version runs', 'docker --version')
       test_command_succeeds('docker daemon socket exists', 'test -S /var/run/docker.sock')
-      test_local_command('docker service active', 'systemctl is-active docker', 'active')
+      test_local_command('docker service active', 'systemctl is-active docker | grep -x active', 'active')
       test_command_succeeds('docker daemon answers', 'docker info')
       # every configured image was pulled for offline use
       images.each do |image|

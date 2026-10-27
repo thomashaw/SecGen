@@ -19,7 +19,7 @@ class HashToolsTest < PostProvisionTest
     # debsums is only installed on Debian (not Kali), as in the Puppet
     if run_vagrant_ssh('. /etc/os-release; echo "$ID"')[:stdout].strip == 'debian'
       tier(1) { test_local_command('debsums installed?', 'dpkg -l debsums | grep "^ii"', 'debsums') }
-      tier(2) { test_local_command('debsums runs', 'debsums --help 2>&1', 'debsums') }
+      tier(2) { test_local_command('debsums runs', 'command -v debsums >/dev/null && debsums --help 2>&1', 'debsums') }
     end
   end
 end

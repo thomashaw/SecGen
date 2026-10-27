@@ -40,7 +40,7 @@ class LabtainersMarkerTest < PostProvisionTest
 
     tier(2) do
       test_command_succeeds('labflags binary is executable', 'test -x /opt/labflags/labflags')
-      test_local_command('labflags is SUID', "stat -c '%a' /opt/labflags/labflags | grep -q '^4'", '')
+      test_command_succeeds('labflags is SUID', "stat -c '%a' /opt/labflags/labflags | grep -q '^4'")
       # the setuid wrapper must run for an unprivileged user (needs ruby on PATH at /usr/bin/ruby)
       test_local_command('labflags runs as an unprivileged user', '/opt/labflags/labflags', 'Processing labs', user: 'nobody')
     end

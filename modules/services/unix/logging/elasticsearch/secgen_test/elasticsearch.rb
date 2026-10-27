@@ -23,7 +23,7 @@ class ElasticsearchTest < PostProvisionTest
       test_local_command('node name configured', 'cat /etc/elasticsearch/elasticsearch.yml', 'node.name: my_es_node')
       test_local_command('startup timeout drop-in', 'cat /etc/systemd/system/elasticsearch.service.d/startup-timeout.conf', 'TimeoutStartSec=180')
       test_local_command('service enabled', 'systemctl is-enabled elasticsearch', 'enabled')
-      test_local_command('service active', 'systemctl is-active elasticsearch', 'active')
+      test_local_command('service active', 'systemctl is-active elasticsearch | grep -x active', 'active')
       # inputs are rendered into the configuration
       test_local_command('network.host from elasticsearch_ip', 'cat /etc/elasticsearch/elasticsearch.yml', "network.host: #{es_ip}") if es_ip
       test_local_command('http.port from elasticsearch_port', 'cat /etc/elasticsearch/elasticsearch.yml', "http.port: #{es_port}") if es_port

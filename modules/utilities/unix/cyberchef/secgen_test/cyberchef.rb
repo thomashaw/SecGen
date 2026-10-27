@@ -21,6 +21,7 @@ class CyberchefTest < PostProvisionTest
       test_local_command('worker licence files present', "ls #{WEBAPP_DIR}", 'ChefWorker.js.LICENSE.txt')
       test_local_command('assets directory present', "test -d #{WEBAPP_DIR}/assets && echo #{WEBAPP_DIR}/assets", "#{WEBAPP_DIR}/assets")
       test_local_command('images directory present', "test -d #{WEBAPP_DIR}/images && echo #{WEBAPP_DIR}/images", "#{WEBAPP_DIR}/images")
+      test_local_command('runtime modules present', "ls #{WEBAPP_DIR}/modules", 'Bletchley.js')
       # files are mode 0744 as set in the manifest
       test_local_command('CyberChef.html mode 744', "stat -c '%a' #{WEBAPP_DIR}/CyberChef.html", '744')
     end
@@ -34,7 +35,7 @@ class CyberchefTest < PostProvisionTest
       # serve the app over HTTP on a throwaway local port and fetch it, as a browser would
       test_local_command('CyberChef served over HTTP',
                          "cd #{WEBAPP_DIR} && (python3 -m http.server 18734 --bind 127.0.0.1 >/dev/null 2>&1 & echo $! > /tmp/secgen-cyberchef.pid); sleep 2; " \
-                         "python3 -c \"import urllib.request;print(urllib.request.urlopen('http://127.0.0.1:18734/CyberChef.html').read(4000).decode('utf-8','replace'))\" 2>&1; " \
+                         "python3 -c \"import urllib.request;print(urllib.request.urlopen('http://127.0.0.1:18734/CyberChef.html').read(4000).decode('utf-8','replace'))\"; " \
                          'kill $(cat /tmp/secgen-cyberchef.pid); rm -f /tmp/secgen-cyberchef.pid',
                          'CyberChef')
     end

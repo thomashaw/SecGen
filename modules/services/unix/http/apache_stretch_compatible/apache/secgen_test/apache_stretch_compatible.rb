@@ -55,7 +55,7 @@ class ApacheStretchCompatibleTest < PostProvisionTest
     tier(2) do
       test_service_up(port: 80)
       test_http('/', port: 80)
-      test_local_command('apache config syntax', 'apache2ctl -t', 'Syntax OK')
+      test_local_command('apache config syntax', 'apache2ctl -t 2>&1', 'Syntax OK')
       test_local_command('apache workers run as www-data', 'ps -o user= -C apache2', 'www-data')
       # the vhost for the configured domain is live on port 80
       test_local_command("vhost #{domain} listed on port 80", 'apache2ctl -S', "port 80 namevhost #{domain}") if domain

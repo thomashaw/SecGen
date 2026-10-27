@@ -56,7 +56,7 @@ class HackerbotTest < PostProvisionTest
       # Hackerbot runs as a systemd service; it connects outbound via IRC so there is no inbound port to probe
       test_command_succeeds('hackerbot service enabled', 'systemctl is-enabled hackerbot')
       test_local_command('hackerbot service unit present', 'test -f /etc/systemd/system/hackerbot.service && echo ok', 'ok')
-      test_local_command('hackerbot service is active', 'systemctl is-active hackerbot', 'active')
+      test_local_command('hackerbot service is active', 'systemctl is-active hackerbot | grep -x active', 'active')
       # the script parses, and the gems it needs load (running it would start the bots)
       test_command_succeeds('hackerbot.rb parses', 'ruby -c /opt/hackerbot/hackerbot.rb')
       test_command_succeeds('hackerbot gems load', "ruby -e 'require \"cinch\"; require \"nokogiri\"; require \"programr\"; require \"nori\"'")

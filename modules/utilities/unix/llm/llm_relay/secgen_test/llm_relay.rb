@@ -51,7 +51,7 @@ class LlmRelayTest < PostProvisionTest
     end
     tier(2) do
       test_service_up(port: port)
-      test_local_command('nginx service active', 'systemctl is-active nginx', 'active', tier: 2)
+      test_local_command('nginx service active', 'systemctl is-active nginx | grep -x active', 'active', tier: 2)
       test_local_command('nftables firewall script --check passes', '/usr/local/sbin/secgen-llm-relay-firewall --check; echo rc=$?', 'rc=0', tier: 2)
       test_http('/', status: 403, port: port)
       # only the two endpoints are relayed: anything else on the gateway is refused by the relay
@@ -72,8 +72,15 @@ class LlmRelayTest < PostProvisionTest
       upstream_host = upstream[%r{//([\d.]+)}, 1]
       other_port = upstream.end_with?(':4000') ? 8080 : 4000
       blocked = lambda do |label, url|
-        code = run_command("curl -s -m 8 --noproxy '*' -o /dev/null -w '%{http_code}' #{url}")[:stdout].strip
-        code == '000' ? pass_check("#{label} blocked", url) : fail_check("#{label} blocked", "#{url} answered HTTP #{code}")
+        next fail_check("#{label} blocked", "no upstream host found in #{conf}") if upstream_host.nil?
+        r = run_command("curl -s -m 8 --noproxy '*' -o /dev/null -w '%{http_code}' #{url}")
+        code = r[:stdout].strip
+        # curl 7 = could not connect, 28 = timed out; anything else (e.g. 3, bad URL) proves nothing
+        if code == '000' && [7, 28].include?(r[:exit_status])
+          pass_check("#{label} blocked", url)
+        else
+          fail_check("#{label} blocked", "#{url} answered HTTP #{code} (curl exit #{r[:exit_status]})")
+        end
       end
       blocked.call("upstream host's other port", "http://#{upstream_host}:#{other_port}/")
       add_evidence('relay interfaces and routes', 'ip -4 -o addr show; ip route')

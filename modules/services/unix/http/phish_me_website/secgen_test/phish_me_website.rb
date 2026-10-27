@@ -13,7 +13,7 @@ class PhishMeWebsiteTest < PostProvisionTest
     super
     tier(1) do
       test_local_command('apache2 installed', 'dpkg -l apache2 | grep -E "^ii"', 'apache2')
-      test_local_command('apache2 running', 'systemctl is-active apache2', 'active')
+      test_local_command('apache2 running', 'systemctl is-active apache2 | grep -x active', 'active')
       # bundled site files copied into the docroot
       %w[index.html login.html about.html apply.html services.html team.html vacancies.html friendface.html main.html
          Action/login.php Action/apply.php].each do |file|
@@ -34,7 +34,7 @@ class PhishMeWebsiteTest < PostProvisionTest
       test_service_up
       test_http('/index.html', match: 'AccountingNow')
       test_http('/login.html', match: 'AccountingNow')
-      test_http('/Action/login.php')
+      test_local_command('login.php runs as PHP', "curl -s http://127.0.0.1:#{self.port.to_i > 0 ? self.port : 80}/Action/login.php | grep -x 'Wrong credentials!'", 'Wrong credentials!')
     end
   end
 end

@@ -56,7 +56,7 @@ class OpenvpnServerTest < PostProvisionTest
                             "openssl verify -CAfile #{dir}/ca.crt #{dir}/server.crt")
       # start_on_boot decides whether the unit is running and bound to UDP
       if start_on_boot == 'true'
-        test_local_command('openvpn-server@server active?', 'systemctl is-active openvpn-server@server', 'active')
+        test_local_command('openvpn-server@server active?', 'systemctl is-active openvpn-server@server | grep -x active', 'active')
         if udp_port
           test_local_command("openvpn listening on UDP #{udp_port}?", 'ss -lunp | grep openvpn', ":#{udp_port}")
         end

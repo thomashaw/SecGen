@@ -2,7 +2,7 @@ require_relative '../../../../../lib/post_provision_test'
 
 # No SecGen inputs: the module installs a fixed set of packages.
 class HandyCliToolsTest < PostProvisionTest
-  PACKAGES = %w[vim.tiny vim rsync psmisc curl sudo info].freeze
+  PACKAGES = %w[vim-tiny vim rsync psmisc curl sudo info].freeze
   # label => command that prints its version/usage and exits 0
   TOOLS = {
     'vim' => 'vim --version',
@@ -27,8 +27,9 @@ class HandyCliToolsTest < PostProvisionTest
       test_local_command('vim installed', 'which vim', 'vim')
       test_local_command('curl installed', 'which curl', 'curl')
       test_local_command('rsync installed', 'which rsync', 'rsync')
+      # match the status line, not the name: dpkg echoes a missing package's name on stderr
       PACKAGES.each do |pkg|
-        test_local_command("#{pkg} package installed", "dpkg -l #{pkg} | grep -E '^ii'", pkg)
+        test_local_command("#{pkg} package installed", "dpkg -s #{pkg}", 'Status: install ok installed')
       end
       test_local_command('killall installed', 'which killall', 'killall')
       test_local_command('pstree installed', 'which pstree', 'pstree')

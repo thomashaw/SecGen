@@ -30,7 +30,7 @@ class LogstashTest < PostProvisionTest
       end
     end
     tier(2) do
-      test_local_command('logstash process running?', 'ps -ef | grep logstash', 'logstash')
+      test_local_command('logstash process running?', 'ps -ef | grep "[l]ogstash"', 'logstash')
       # the pipeline runs as the logstash account
       test_local_command('logstash process owner', 'ps -eo user:20,args | grep [l]ogstash', 'logstash')
       test_command_succeeds('logstash service active', 'systemctl is-active logstash')

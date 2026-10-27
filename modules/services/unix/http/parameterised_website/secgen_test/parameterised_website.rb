@@ -28,7 +28,7 @@ class ParamWebsiteTest < PostProvisionTest
       end
       # the distribution default site is removed (Tidy resource)
       test_local_command('default site removed', 'test ! -e /etc/apache2/sites-enabled/000-default.conf && echo gone', 'gone')
-      test_local_command('apache2 running', 'systemctl is-active apache2', 'active')
+      test_local_command('apache2 running', 'systemctl is-active apache2 | grep -x active', 'active')
     end
     tier(2) do
       test_service_up

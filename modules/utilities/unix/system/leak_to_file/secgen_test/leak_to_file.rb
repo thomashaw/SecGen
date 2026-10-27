@@ -47,13 +47,8 @@ class LeakToFileTest < PostProvisionTest
       end
     else
       tier(1) do
-        # No filename supplied: the module leaks nothing. Fall back to searching home directories.
-        result = run_command('find /home /root -maxdepth 3 -type f -size +0c 2>/dev/null | head -1')
-        if result[:stdout].strip.empty?
-          skip_check('leaked file found', 'no non-empty file found under /home or /root', tier: 1, evidence: nil)
-        else
-          pass_check('leaked file found', "found: #{result[:stdout].strip}", tier: 1, evidence: result[:stdout])
-        end
+        # No filename supplied: the module leaks nothing, so there is nothing to find.
+        pass_check('nothing to leak', 'no filename input, so the module writes no file', tier: 1)
       end
     end
   end

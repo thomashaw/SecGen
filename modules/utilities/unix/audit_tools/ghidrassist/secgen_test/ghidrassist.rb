@@ -99,13 +99,13 @@ class GhidrAssistTest < PostProvisionTest
     url = expected_llm_url(inputs)
     if url
       bad = providers.reject { |p| p['url'] == url }
-      bad.empty? ? pass_check('providers use the configured API URL', url) :
+      providers.any? && bad.empty? ? pass_check('providers use the configured API URL', url) :
                    fail_check('providers use the configured API URL', "expected #{url}; got #{bad.map { |p| p['url'] }.join(', ')}")
     end
 
     if (key = inputs['llm_api_key']&.first)
       bad = providers.reject { |p| p['key'] == key }
-      bad.empty? ? pass_check('providers hold the configured llm_api_key') :
+      providers.any? && bad.empty? ? pass_check('providers hold the configured llm_api_key') :
                    fail_check('providers hold the configured llm_api_key', "#{bad.size} provider(s) have a different key")
     end
   end

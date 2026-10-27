@@ -14,7 +14,40 @@
     <system_name>openvpn_client_testing</system_name>
     <base platform="linux" distro="Debian 12" type="desktop"/>
 
-    <utility module_path=".*/openvpn_client"/>
+    <input into_datastore="IP_addresses">
+      <network_ip system="openvpn_client_testing"/>
+    </input>
+
+    <utility module_path=".*/openvpn_client">
+      <input into="openvpn_pki">
+        <generator module_path=".*/openvpn_pki">
+          <input into="server_ip">
+            <datastore access="0">IP_addresses</datastore>
+          </input>
+          <input into="port">
+            <value>1194</value>
+          </input>
+          <input into="vpn_subnet">
+            <value>10.8.0.0</value>
+          </input>
+          <input into="vpn_subnet_mask">
+            <value>255.255.255.0</value>
+          </input>
+          <input into="push_routes">
+            <value>10.0.1.0 255.255.255.0</value>
+          </input>
+          <input into="num_clients">
+            <value>1</value>
+          </input>
+        </generator>
+      </input>
+      <input into="client_index">
+        <value>0</value>
+      </input>
+      <input into="start_on_boot">
+        <value>false</value>
+      </input>
+    </utility>
 
     <network type="private_network"/>
 

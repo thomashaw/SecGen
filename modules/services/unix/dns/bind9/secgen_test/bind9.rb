@@ -23,7 +23,7 @@ class Bind9Test < PostProvisionTest
       test_local_command('recursion disabled', 'cat /etc/bind/named.conf.options', 'recursion no')
       test_local_command('allow-query any', 'cat /etc/bind/named.conf.options', 'allow-query { any; }')
       test_local_command('named config is valid', 'named-checkconf && echo conf-ok', 'conf-ok')
-      test_local_command('bind9 enabled at boot', 'systemctl is-enabled bind9 || systemctl is-enabled named', 'enabled')
+      test_local_command('bind9 enabled at boot', 'systemctl is-enabled named || systemctl is-enabled bind9', 'enabled')
       if domain
         # the zone is declared and its file is written for the configured domain
         test_local_command("zone #{domain} declared", 'cat /etc/bind/named.conf.local', "zone \"#{domain}\"")
@@ -36,7 +36,7 @@ class Bind9Test < PostProvisionTest
     end
 
     tier(2) do
-      test_local_command('named running?', 'ps -ef | grep named', 'named')
+      test_local_command('named running?', 'ps -ef | grep "[n]amed"', 'named')
       test_service_up(port: 53)
       # recursion is off, so an outside name is refused rather than resolved
       test_local_command('recursion refused', 'dig @127.0.0.1 example.org A', 'REFUSED')

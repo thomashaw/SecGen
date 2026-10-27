@@ -21,7 +21,7 @@ class AdoreRootkitStaticTest < PostProvisionTest
     end
     tier(2) do
       test_command_succeeds('ls_a executable', '/bin/ls_a --help || /bin/ls_a /')
-      test_command_succeeds('ps_a executable', '/bin/ps_a aux || true')
+      test_command_succeeds('ps_a executable', '/bin/ps_a aux >/dev/null')
       # each binary actually runs and produces real output
       test_local_command('ls_a lists a directory', '/bin/ls_a /bin', 'bash')
       test_local_command('ps_a lists processes', '/bin/ps_a aux 2>&1', 'PID')

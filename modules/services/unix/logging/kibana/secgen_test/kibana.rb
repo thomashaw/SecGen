@@ -37,7 +37,7 @@ class KibanaTest < PostProvisionTest
       # the server process runs as the kibana account
       test_local_command('kibana process owner', 'ps -eo user:20,args | grep [k]ibana', 'kibana')
       test_service_up
-      test_http('/', port: self.port)
+      test_http('/api/status', port: self.port, match: 'overall')
     end
   end
 end

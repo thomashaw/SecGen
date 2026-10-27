@@ -17,7 +17,7 @@ class LuceeRceTest < PostProvisionTest
     tier(2) do
       test_service_up
       # Lucee Administrator login page
-      test_http('/lucee/admin/server.cfm', match: nil)
+      test_http('/lucee/admin/server.cfm', match: 'Lucee')
     end
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
     # msf_module: exploit/linux/http/lucee_admin_imgprocess_file_write (CVE-2021-21307)
