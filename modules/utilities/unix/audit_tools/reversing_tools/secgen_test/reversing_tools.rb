@@ -44,7 +44,7 @@ class ReversingToolsTest < PostProvisionTest
       test_local_command('ssdeep runs', 'ssdeep -V 2>&1', '.')
       test_local_command('yara runs', 'yara --version 2>&1', '.')
       test_local_command('nmap runs', 'nmap --version 2>&1', 'Nmap')
-      test_local_command('procyon runs', 'command -v procyon-decompiler >/dev/null && procyon-decompiler --help 2>&1', 'rocyon') unless kali
+      test_local_command('procyon runs', 'command -v procyon >/dev/null && procyon --help 2>&1', 'Usage: procyon') unless kali
       if modern
         test_local_command('radare2 runs', 'command -v radare2 >/dev/null && radare2 -v 2>&1', 'radare2')
         test_local_command('pwntools imports', "python3 -c 'import pwn; print(\"pwn-import-ok\")'", 'pwn-import-ok')
