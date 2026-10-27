@@ -53,10 +53,14 @@ class GlpiPhpInjectionTest < PostProvisionTest
     # gravcms_exec) — that payload path doesn't exist and MSF rejects it.
     # TARGET_URI stays '/' since the vhost docroot is the glpi/ dir itself
     # (see apache.pp).
+    # Apache's PrivateTmp=true gives each worker its own /tmp namespace, so a
+    # sentinel written there is invisible to the root guest-agent read. Use
+    # /dev/shm instead — it is shared across all processes and namespaces.
     test_msf_exploit('exploit/linux/http/glpi_htmlawed_php_injection',
                      rport: self.port,
                      expect_privilege: 'user_rwx',
                      force: true,
+                     sentinel_dir: '/dev/shm',
                      options: { 'TARGET_URI' => '/' },
                      tier: 3)
   end
