@@ -16,7 +16,7 @@ class PachevFtpServer1PathTraversalTest < PostProvisionTest
     tier(1) do
       # Pachev FTP server is built offline from the vendored crates with Cargo
       test_command_succeeds('ftp_server binary built', "test -x #{release_dir}/ftp_server")
-      test_local_command('pachevftp service file present', 'test -f /etc/systemd/system/pachevftp.service', '/etc/systemd')
+      test_command_succeeds('pachevftp service file present', 'test -f /etc/systemd/system/pachevftp.service')
     end
     tier(2) do
       test_command_succeeds('pachevftp service active', 'systemctl is-active pachevftp')
