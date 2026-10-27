@@ -12,13 +12,16 @@ class KibanaTest < PostProvisionTest
 
   def test_module
     super
-    # kibana_ip is skipped: the Puppet never applies it (kibana.yml sets server.host
-    # from elasticsearch_ip), so there is nothing separate to check on the box.
+    # kibana_ip is applied as server.host in kibana.yml (it used to be set from
+    # elasticsearch_ip), so it is checked below.
     tier(1) do
       test_local_command('kibana installed?', 'dpkg -l kibana | grep -E "^ii"', 'kibana')
       # kibana.yml carries the configured listen port and Elasticsearch endpoint
       if (kp = json_inputs['kibana_port']&.first)
         test_local_command('kibana.yml server.port', 'cat /etc/kibana/kibana.yml', "server.port: #{kp}")
+      end
+      if (ki = json_inputs['kibana_ip']&.first)
+        test_local_command('kibana.yml server.host', 'cat /etc/kibana/kibana.yml', "server.host: \"#{ki}\"")
       end
       es_ip = json_inputs['elasticsearch_ip']&.first
       es_port = json_inputs['elasticsearch_port']&.first

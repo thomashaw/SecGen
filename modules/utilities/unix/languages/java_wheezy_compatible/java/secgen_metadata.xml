@@ -39,8 +39,12 @@
     <name>Xenial</name>
   </conflict>
 
+  <!-- puppet/java 1.5.0 here pins stdlib < 5.0.0, which cannot resolve against
+       the newer stdlib required on Puppet 7 bases (librarian: "Could not resolve
+       the dependencies"). This variant is for Wheezy only; keep it off Bookworm
+       so the generic java requirement selects a Puppet-7-compatible variant. -->
   <conflict>
-    <name>Stretch</name>
+    <name>Bookworm</name>
   </conflict>
 
   <requires>
