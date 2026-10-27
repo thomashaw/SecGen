@@ -7,7 +7,8 @@ class phish_me_website::apache {
     mpm_module => 'prefork',
   }
 
-  include apache::mod::php
+  # Apache PHP handler for the PHP under Action/ (PHP core comes from php82_patched)
+  ensure_packages(['libapache2-mod-php'])
 
   apache::vhost { 'accountingnow.com':
     port    => $port,
