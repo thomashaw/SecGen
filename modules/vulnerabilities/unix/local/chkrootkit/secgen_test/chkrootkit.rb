@@ -38,7 +38,7 @@ class ChkrootkitVulnTest < PostProvisionTest
     end
 
     tier(2) do
-      test_local_command('Chkrootkit runs?', 'sudo /usr/sbin/chkrootkit -V', 'chkrootkit version 0.49')
+      test_local_command('Chkrootkit runs?', 'sudo /usr/sbin/chkrootkit -V 2>&1', 'chkrootkit version 0.49')
     end
 
     # Tier 3: exploit/unix/local/chkrootkit is a LOCAL privilege escalation — Metasploit
