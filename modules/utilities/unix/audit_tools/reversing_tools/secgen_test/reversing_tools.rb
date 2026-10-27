@@ -51,6 +51,35 @@ class ReversingToolsTest < PostProvisionTest
         # gef loads into gdb and reports its version
         test_local_command('gef loads in gdb', 'gef -batch -ex "gef help" 2>&1', 'GEF')
       end
+      test_cutter
+    end
+  end
+
+  # Cutter is a GUI, so it runs on the display manager's X server (:0) with that server's auth cookie.
+  # As a non-root account it opens /bin/true, runs `aaa` analysis and must still be up when timeout stops
+  # it (exit 124). On a base with no X server it can only be checked as far as connecting to a display.
+  def test_cutter
+    xauth = 'ps -C Xorg -o args= | sed -n "s/.* -auth \\([^ ]*\\).*/\\1/p" | head -1'
+    if run_vagrant_ssh(xauth)[:stdout].strip.empty?
+      test_local_command('cutter loads (no X server on this base)', 'cd /tmp && env -u DISPLAY cutter --version 2>&1', 'Could not connect to any X display')
+      return
+    end
+    x = "A=$(#{xauth}); export DISPLAY=:0 XAUTHORITY=\"$A\"; cd /tmp; "
+    test_local_command('cutter reports its version', "#{x}cutter --version 2>&1", 'Cutter 1.7.2')
+
+    cmd = "#{x}U=$(awk -F: '$3>=1000 && $3<65534 && $6 ~ /^\\/home\\// {print $1; exit}' /etc/passwd); " \
+          'H=$(getent passwd "$U" | cut -d: -f6); T=$(mktemp); cp "$A" "$T"; chown "$U" "$T"; ' \
+          'out=$(runuser -u "$U" -- env DISPLAY=:0 XAUTHORITY="$T" HOME="$H" timeout 45 cutter -A 1 /bin/true 2>&1); rc=$?; ' \
+          'rm -f "$T"; pkill -u "$U" -f /opt/Cutter/squashfs-root; ' \
+          'echo "$out" | grep -v "^/tmp/appimage" | tail -25; echo "user=$U rc=$rc"; ' \
+          'echo "$out" | grep -q "(aac)" && [ "$rc" = 124 ] && echo "cutter analysed /bin/true"'
+    name = 'cutter opens and analyses a binary as a user'
+    out = run_vagrant_ssh(cmd, timeout: 90)
+    if out[:stdout].include?('cutter analysed /bin/true')
+      pass_check(name, "#{name} (#{out[:stdout][/user=\S+/]}) on #{get_system_name}")
+    else
+      fail_check(name, "#{name} on #{get_system_name}: #{out[:stdout][/user=\S+ rc=\d+/]}",
+                 evidence: "$ #{cmd}\n--- stdout\n#{out[:stdout]}\n--- stderr\n#{out[:stderr]}")
     end
   end
 end
