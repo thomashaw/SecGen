@@ -35,19 +35,19 @@ class ReversingToolsTest < PostProvisionTest
     tier(2) do
       test_command_succeeds('gdb reports version', 'gdb --version')
       test_command_succeeds('strace available', 'strace --version')
-      test_local_command('upx runs', '/usr/local/bin/upx --version 2>&1', 'upx')
-      test_local_command('ltrace runs', 'ltrace --version 2>&1', 'ltrace')
-      test_local_command('valgrind runs', 'valgrind --version 2>&1', 'valgrind')
-      test_local_command('scanelf (pax-utils) runs', 'scanelf -V 2>&1', 'scanelf')
-      test_local_command('binwalk runs', 'binwalk --help 2>&1', 'inwalk')
-      test_local_command('vbindiff runs', 'vbindiff --help 2>&1; true', 'vbindiff')
+      test_local_command('upx runs', 'test -x /usr/local/bin/upx && /usr/local/bin/upx --version 2>&1', 'upx')
+      test_local_command('ltrace runs', 'command -v ltrace >/dev/null && ltrace --version 2>&1', 'ltrace')
+      test_local_command('valgrind runs', 'command -v valgrind >/dev/null && valgrind --version 2>&1', 'valgrind')
+      test_local_command('scanelf (pax-utils) runs', 'command -v scanelf >/dev/null && scanelf -V 2>&1', 'scanelf')
+      test_local_command('binwalk runs', 'command -v binwalk >/dev/null && binwalk --help 2>&1', 'inwalk')
+      test_local_command('vbindiff runs', 'command -v vbindiff >/dev/null && vbindiff --help 2>&1; true', 'vbindiff')
       test_local_command('ssdeep runs', 'ssdeep -V 2>&1', '.')
       test_local_command('yara runs', 'yara --version 2>&1', '.')
       test_local_command('nmap runs', 'nmap --version 2>&1', 'Nmap')
-      test_local_command('procyon runs', 'procyon-decompiler --help 2>&1', 'rocyon') unless kali
+      test_local_command('procyon runs', 'command -v procyon-decompiler >/dev/null && procyon-decompiler --help 2>&1', 'rocyon') unless kali
       if modern
-        test_local_command('radare2 runs', 'radare2 -v 2>&1', 'radare2')
-        test_local_command('pwntools imports', "python3 -c 'import pwn; print(pwn.__name__)' 2>&1", 'pwn')
+        test_local_command('radare2 runs', 'command -v radare2 >/dev/null && radare2 -v 2>&1', 'radare2')
+        test_local_command('pwntools imports', "python3 -c 'import pwn; print(\"pwn-import-ok\")'", 'pwn-import-ok')
         # gef loads into gdb and reports its version
         test_local_command('gef loads in gdb', 'gef -batch -ex "gef help" 2>&1', 'GEF')
       end

@@ -22,7 +22,7 @@ class NTPTest < PostProvisionTest
     tier(2) do
       test_command_succeeds('ntp service active', 'systemctl is-active ntp')
       # ntpd answers local queries and has at least one configured peer
-      test_local_command('ntpd runs', 'ntpd --version 2>&1; true', 'ntpd')
+      test_local_command('ntpd runs', 'command -v ntpd >/dev/null && ntpd --version 2>&1; true', 'ntpd')
       test_command_succeeds('ntpq answers', 'ntpq -pn')
       test_command_succeeds('ntp listening on UDP 123', 'ss -lun | grep -E ":123\b"')
       # Query from outside the guest; only possible where the host has a network path

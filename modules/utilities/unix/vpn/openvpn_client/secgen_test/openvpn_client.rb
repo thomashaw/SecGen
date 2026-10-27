@@ -55,7 +55,7 @@ class OpenvpnClientTest < PostProvisionTest
     end
 
     tier(2) do
-      test_command_succeeds('openvpn --version runs', 'openvpn --version || true')
+      test_command_succeeds('openvpn --version runs', "openvpn --version | grep -q '^OpenVPN '")
       test_local_command('openvpn reports its version', 'openvpn --version 2>&1 || true', 'OpenVPN')
       # openvpn parses the whole client config (inline blocks included) before listing ciphers
       test_local_command('openvpn accepts client.ovpn',

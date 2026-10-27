@@ -35,7 +35,7 @@ class ApparmorTest < PostProvisionTest
       test_local_command('aa-enabled reports yes', 'aa-enabled', 'Yes')
       # easyprof works: it generates a profile that the parser accepts (-Q: parse only, don't load)
       test_command_succeeds('aa-easyprof generates a valid profile',
-                            'aa-easyprof /usr/bin/true | apparmor_parser -Q -K')
+                            'set -o pipefail; aa-easyprof /usr/bin/true | apparmor_parser -Q -K')
     end
   end
 end

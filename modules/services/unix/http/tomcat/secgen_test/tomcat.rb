@@ -15,7 +15,7 @@ class TomcatTest < PostProvisionTest
     tier(1) { test_local_command('install owned by tomcat', 'stat -c %U /opt/tomcat/bin/catalina.sh', 'tomcat') }
     tier(1) { test_local_command('webapps present', 'test -d /opt/tomcat/webapps && echo ok', 'ok') }
     tier(2) { test_service_up(port: 8080) }
-    tier(2) { test_http('/', port: 8080) }
+    tier(2) { test_http('/', port: 8080, match: 'Apache Tomcat') }
     # the distribution itself runs, and the JVM is up under catalina
     tier(2) { test_local_command('tomcat version', '/opt/tomcat/bin/version.sh', 'Server version') }
     tier(2) { test_local_command('catalina process running', 'ps -eo user,args | grep [c]atalina', 'catalina') }

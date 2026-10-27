@@ -62,7 +62,7 @@ class IceweaselTest < PostProvisionTest
             "grep -c '^user_pref(\"network.proxy.type\", 0);' #{userjs}", '1')
         when 'false'
           test_local_command("#{user}: user.js leaves the proxy alone",
-            "grep -c 'network.proxy.type' #{userjs} || true", '0')
+            "{ grep -c 'network.proxy.type' #{userjs} || true; } | grep -x 0", '0')
         end
 
         # disable_https_upgrade true adds the HTTPS-first overrides; false leaves them out
@@ -72,7 +72,7 @@ class IceweaselTest < PostProvisionTest
             "grep -c '^user_pref(\"dom.security.https_first\", false);' #{userjs}", '1')
         when 'false'
           test_local_command("#{user}: user.js has no HTTPS-first override",
-            "grep -c 'dom.security.https_first' #{userjs} || true", '0')
+            "{ grep -c 'dom.security.https_first' #{userjs} || true; } | grep -x 0", '0')
         end
 
         desktop = "#{home}/.config/autostart/iceweasel.desktop"

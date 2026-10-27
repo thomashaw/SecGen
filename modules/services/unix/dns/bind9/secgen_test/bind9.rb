@@ -36,7 +36,7 @@ class Bind9Test < PostProvisionTest
     end
 
     tier(2) do
-      test_local_command('named running?', 'ps -ef | grep named', 'named')
+      test_local_command('named running?', 'ps -ef | grep "[n]amed"', 'named')
       test_service_up(port: 53)
       # recursion is off, so an outside name is refused rather than resolved
       test_local_command('recursion refused', 'dig @127.0.0.1 example.org A', 'REFUSED')

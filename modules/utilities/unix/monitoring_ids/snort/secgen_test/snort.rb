@@ -21,7 +21,7 @@ class SnortTest < PostProvisionTest
       test_local_command('snort disabled at boot (module disables it deliberately)', 'systemctl is-enabled snort', 'disabled')
     end
     tier(2) do
-      test_command_succeeds('snort version runs', 'snort --version 2>&1 | head -3')
+      test_command_succeeds('snort version runs', 'snort --version')
       # the shipped config and rules actually parse, proving the install is usable even though the service is off
       test_command_succeeds('snort config and rules are valid', 'snort -T -c /etc/snort/snort.conf')
     end

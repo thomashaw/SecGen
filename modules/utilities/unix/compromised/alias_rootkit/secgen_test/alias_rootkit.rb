@@ -31,7 +31,7 @@ class AliasRootkitTest < PostProvisionTest
         end
       end
       # the non-interactive early return is stripped from the skeleton so the aliases load
-      test_local_command('skel bashrc has no non-interactive return', "grep -c '^      \\*) return;;' /etc/skel/.bashrc", '0')
+      test_local_command('skel bashrc has no non-interactive return', "grep -c '^      \\*) return;;' /etc/skel/.bashrc | grep -x 0", '0')
     end
     tier(2) do
       # Aliases survive a bash invocation (non-interactive -c; use bash directly so they expand)

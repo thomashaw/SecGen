@@ -11,7 +11,7 @@ class ElastalertTest < PostProvisionTest
     super
     conf = '/opt/elastalert/config.yaml'
     tier(1) do
-      test_local_command('elastalert installed?', 'which elastalert || python3 -m elastalert --help 2>&1 | head -1', 'elastalert')
+      test_local_command('elastalert installed?', 'which elastalert || { python3 -c "import elastalert" && echo elastalert-module; }', 'elastalert')
       test_local_command('elastalert python package installed', 'pip3 show elastalert', 'Name: elastalert')
       test_local_command('supervisor installed', 'dpkg -l supervisor | grep -E "^ii"', 'supervisor')
       test_command_succeeds('elastalert checkout present', 'test -d /opt/elastalert/elastalert')

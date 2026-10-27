@@ -21,7 +21,7 @@ class ArmitageTest < PostProvisionTest
       test_command_succeeds('armitage binary present', 'test -x /usr/bin/armitage')
       test_local_command('java runs', 'java -version 2>&1', 'version')
       test_local_command('vnc viewer runs', 'xtightvncviewer -help 2>&1; true', 'sage')
-      test_local_command('postgresql active', 'systemctl is-active postgresql', 'active')
+      test_local_command('postgresql active', 'systemctl is-active postgresql | grep -x active', 'active')
       # msfdb reinit created the msf database
       test_local_command('msf database exists', 'runuser -u postgres -- psql -lqt', 'msf')
     end

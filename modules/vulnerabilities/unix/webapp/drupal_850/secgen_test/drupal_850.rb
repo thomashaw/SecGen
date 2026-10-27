@@ -15,7 +15,7 @@ class Drupal850Test < PostProvisionTest
     end
     tier(2) do
       test_service_up
-      test_http('/', port: self.port)
+      test_http('/', port: self.port, status: 200, match: 'Drupal')
     end
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit (exploit/unix/webapp/drupal_drupalgeddon2) when attacker VM is available
   end

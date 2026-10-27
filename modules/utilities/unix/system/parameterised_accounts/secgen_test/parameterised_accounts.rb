@@ -84,7 +84,11 @@ class ParameterisedAccountsTest < PostProvisionTest
   # Compare the shadow entry with the SHA-512 hash the module generates (salt "mysalt");
   # an empty password is removed with passwd -d, leaving an empty field.
   def check_password(user, password)
-    shadow = run_command("getent shadow #{Shellwords.escape(user)} | cut -d: -f2")[:stdout].strip
+    entry = run_command("getent shadow #{Shellwords.escape(user)}")
+    if entry[:exit_status] != 0
+      return fail_check("#{user} password", "#{user} has no shadow entry", tier: 1)
+    end
+    shadow = entry[:stdout].split(':')[1].to_s.strip
     if password.empty?
       shadow.empty? ? pass_check("#{user} has no password", "#{user} password field is empty", tier: 1) :
                       fail_check("#{user} has no password", "#{user} has a password hash but none was requested", tier: 1)

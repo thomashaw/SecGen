@@ -35,7 +35,7 @@ class CyberchefTest < PostProvisionTest
       # serve the app over HTTP on a throwaway local port and fetch it, as a browser would
       test_local_command('CyberChef served over HTTP',
                          "cd #{WEBAPP_DIR} && (python3 -m http.server 18734 --bind 127.0.0.1 >/dev/null 2>&1 & echo $! > /tmp/secgen-cyberchef.pid); sleep 2; " \
-                         "python3 -c \"import urllib.request;print(urllib.request.urlopen('http://127.0.0.1:18734/CyberChef.html').read(4000).decode('utf-8','replace'))\" 2>&1; " \
+                         "python3 -c \"import urllib.request;print(urllib.request.urlopen('http://127.0.0.1:18734/CyberChef.html').read(4000).decode('utf-8','replace'))\"; " \
                          'kill $(cat /tmp/secgen-cyberchef.pid); rm -f /tmp/secgen-cyberchef.pid',
                          'CyberChef')
     end

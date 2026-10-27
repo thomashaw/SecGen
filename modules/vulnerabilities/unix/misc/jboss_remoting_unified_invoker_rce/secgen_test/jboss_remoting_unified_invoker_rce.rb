@@ -24,7 +24,7 @@ class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
     tier(2) do
       # JBoss EAP HTTP management/application port — no randomised port for this module
       test_service_up(port: JBOSS_HTTP_PORT)
-      test_http('/', port: JBOSS_HTTP_PORT, match: nil)
+      test_http('/', port: JBOSS_HTTP_PORT, match: 'JBoss')
     end
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
     # msf_module: exploit/multi/misc/jboss_remoting_unified_invoker_rce (targets remoting port 4447)

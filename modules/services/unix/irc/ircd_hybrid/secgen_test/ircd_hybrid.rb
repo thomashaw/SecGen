@@ -12,7 +12,7 @@ class IrcdHybridTest < PostProvisionTest
     super
     # Tier 1: package installed and service running
     test_local_command('ircd-hybrid package', 'dpkg -s ircd-hybrid', 'Status: install ok installed', tier: 1)
-    test_local_command('ircd-hybrid service', 'systemctl is-active ircd-hybrid', 'active', tier: 1)
+    test_local_command('ircd-hybrid service', 'systemctl is-active ircd-hybrid | grep -x active', 'active', tier: 1)
     test_local_command('ircd.conf present', 'test -s /etc/ircd-hybrid/ircd.conf && echo ok', 'ok', tier: 1)
     test_local_command('init script DEFAULT bug patched', 'grep -c "^DEFAULT=" /etc/init.d/ircd-hybrid', '1', tier: 1)
     test_local_command('service enabled', 'systemctl is-enabled ircd-hybrid', 'enabled', tier: 1)
