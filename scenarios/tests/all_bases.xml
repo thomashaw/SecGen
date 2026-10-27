@@ -4,16 +4,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
-    <system_name>wheezy_server</system_name>
-    <base name="Debian 7 Wheezy Server"/>
-  </system>
-  <system>
     <system_name>stretch_server</system_name>
     <base name="Debian 9 Stretch Server"/>
-  </system>
-  <system>
-    <system_name>wheezy_desktop</system_name>
-    <base name="Debian 7 Wheezy Desktop KDE"/>
   </system>
   <system>
     <system_name>stretch_desktop</system_name>
