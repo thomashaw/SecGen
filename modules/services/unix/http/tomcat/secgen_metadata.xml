@@ -29,8 +29,8 @@
   <requires>
     <type>update</type>
   </requires>
-  <!-- java_buster_compatible handles Debian 12; the wheezy and stretch java modules pin stdlib < 5 and break librarian -->
+  <!-- utilities/unix/languages/java (formerly java_buster_compatible) handles Debian 12 -->
   <requires>
-    <module_path>.*java_buster_compatible.*</module_path>
+    <module_path>utilities/unix/languages/java</module_path>
   </requires>
 </service>

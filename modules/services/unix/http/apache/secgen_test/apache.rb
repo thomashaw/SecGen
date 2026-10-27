@@ -2,9 +2,9 @@ require_relative '../../../../../lib/post_provision_test'
 require 'json'
 require 'shellwords'
 
-class ApacheStretchCompatibleTest < PostProvisionTest
+class ApacheTest < PostProvisionTest
   def initialize
-    self.module_name = 'apache_stretch_compatible'
+    self.module_name = 'apache'
     self.module_path = get_module_path(__FILE__)
     super
   end
@@ -74,4 +74,4 @@ class ApacheStretchCompatibleTest < PostProvisionTest
   end
 end
 
-ApacheStretchCompatibleTest.new.run
+ApacheTest.new.run

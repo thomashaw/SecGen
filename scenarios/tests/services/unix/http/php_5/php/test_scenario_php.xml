@@ -4,22 +4,22 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
 
-  <name>Test: apache_stretch_compatible</name>
+  <name>Test: php_5</name>
   <author>Thomas Shaw</author>
-  <description>Two-VM test scenario for the apache_stretch_compatible service: a Debian 12 target and a Kali/MSF attacker on the same private network, used to exercise the module's secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
+  <description>Two-VM test scenario for the php_5 service: a Debian 12 target and a Kali/MSF attacker on the same private network, used to exercise the module's secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
 
   <type>test</type>
 
   <system>
-    <system_name>apache_stretch_compatible_target</system_name>
+    <system_name>php_5_target</system_name>
     <base platform="linux" distro="Debian 12" type="desktop"/>
 
     <input into_datastore="IP_addresses">
-      <network_ip system="apache_stretch_compatible_target"/>
+      <network_ip system="php_5_target"/>
       <network_ip system="attacker"/>
     </input>
 
-    <service module_path=".*/apache_stretch_compatible/apache"/>
+    <service module_path=".*/php_5/php"/>
 
     <network type="private_network"/>
 

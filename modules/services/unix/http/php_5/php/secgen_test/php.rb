@@ -1,8 +1,8 @@
 require_relative '../../../../../lib/post_provision_test'
 
-class Php5StretchCompatibleTest < PostProvisionTest
+class Php5Test < PostProvisionTest
   def initialize
-    self.module_name = 'php_5_stretch_compatible'
+    self.module_name = 'php'
     self.module_path = get_module_path(__FILE__)
     super
   end
@@ -25,4 +25,4 @@ class Php5StretchCompatibleTest < PostProvisionTest
   end
 end
 
-Php5StretchCompatibleTest.new.run
+Php5Test.new.run

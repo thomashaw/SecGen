@@ -56,11 +56,11 @@
   </conflict>
 
   <requires>
-    <module_path>.*apache.*compatible.*</module_path>
+    <software_name>apache</software_name>
   </requires>
 
   <requires>
-    <module_path>.*mysql.*compatible.*</module_path>
+    <software_name>mysql</software_name>
   </requires>
   <!-- Patched php8.2 (php2shell fix) so only CVE-2022-35914 is exploitable. -->
   <requires>

@@ -3,7 +3,7 @@
 <service xmlns="http://www.github/cliffe/SecGen/service"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
-  <name>PHP 5 Server - Stretch / Kali Compatible</name>
+  <name>PHP 5 Server</name>
   <author>Thomas Shaw</author>
   <author>Vox Pupuli</author>
   <module_license>Apache v2</module_license>
@@ -19,18 +19,15 @@
   <software_license>PHP License v3.01</software_license>
 
   <!-- works with pretty much any base except wheezy -->
-  <conflict>
-    <module_path>.*bases/debian_wheezy.*</module_path>
-  </conflict>
 
   <requires>
     <type>update</type>
   </requires>
 
   <requires>
-    <module_path>.*apache_stretch.*</module_path>
+    <software_name>apache</software_name>
   </requires>
   <requires>
-    <module_path>.*mysql_stretch.*</module_path>
+    <software_name>mysql</software_name>
   </requires>
 </service>

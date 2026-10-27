@@ -1,10 +1,10 @@
 require_relative '../../../../../lib/post_provision_test'
 
-class MySQLStretchTest < PostProvisionTest
+class MySQLTest < PostProvisionTest
   # The metadata declares no read_fact or default_input, so there are no inputs
   # to check; the port is the fixed MySQL port.
   def initialize
-    self.module_name = 'mysql_stretch_compatible'
+    self.module_name = 'mysql'
     self.module_path = get_module_path(__FILE__)
     super
   end
@@ -29,4 +29,4 @@ class MySQLStretchTest < PostProvisionTest
   end
 end
 
-MySQLStretchTest.new.run
+MySQLTest.new.run

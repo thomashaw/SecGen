@@ -62,7 +62,7 @@
   </requires>
 
   <requires>
-    <module_path>.*apache.*compatible.*</module_path>
+    <software_name>apache</software_name>
   </requires>
 
   <!-- needs PHP 7 (see modules/utilities/unix/languages/php7): kivis.php's bare
