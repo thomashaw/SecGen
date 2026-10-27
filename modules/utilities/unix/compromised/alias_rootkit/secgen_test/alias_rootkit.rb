@@ -15,7 +15,7 @@ class AliasRootkitTest < PostProvisionTest
 
     tier(1) do
       # The rootkit installs bash aliases that hide strings from common commands
-      test_local_command('aliases in /root/.bashrc', "grep -c 'alias ps=' /root/.bashrc", '')
+      test_local_command('aliases in /root/.bashrc', "grep -q 'alias ps=' /root/.bashrc && echo found", 'found')
       # one alias per hooked command, in root's and the skeleton (so later accounts) bashrc
       ['/root/.bashrc', '/etc/skel/.bashrc'].each do |rc|
         %w[ps ls lsof netstat cat].each do |cmd|

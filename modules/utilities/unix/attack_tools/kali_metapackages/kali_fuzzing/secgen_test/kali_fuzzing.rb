@@ -23,7 +23,7 @@ class KaliFuzzingTest < PostProvisionTest
                          '(ncat -l 127.0.0.1 45454 > /tmp/ncat_test.out &) ; sleep 1; echo ncat_ok | ncat -w 2 127.0.0.1 45454; sleep 1; cat /tmp/ncat_test.out; pkill -f "ncat -l 127.0.0.1 45454"; rm -f /tmp/ncat_test.out',
                          'ncat_ok')
       # 32-bit compile works (libc6-dev-i386), when a compiler is on the box
-      if run_command('command -v gcc')[:exit_status].to_i == 0
+      if run_command('command -v gcc')[:exit_status] == 0
         test_command_succeeds('gcc -m32 compiles and runs',
                               "echo 'int main(void){return 0;}' | gcc -m32 -x c - -o /tmp/t32 && /tmp/t32; r=$?; rm -f /tmp/t32; exit $r")
       else

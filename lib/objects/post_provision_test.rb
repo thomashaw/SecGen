@@ -231,6 +231,7 @@ class PostProvisionTest
     tier = default_tier(tier, 2)
     response = http_get(path, port: port, scheme: scheme)
     name = label || "HTTP #{scheme}://:#{port}#{path}"
+    return fail_check(name, "#{name}: empty match string, so the check would always pass", tier: tier) if match == ''
     if response[:error]
       return fail_check(name, "#{name}: #{response[:error]}", tier: tier)
     end
@@ -245,6 +246,7 @@ class PostProvisionTest
   def test_banner(match, port: self.port, send: nil, label: nil, tier: nil)
     tier = default_tier(tier, 2)
     name = label || "banner on port #{port} contains #{match.inspect}"
+    return fail_check(name, "#{name}: empty match string, so the check would always pass", tier: tier) if match.to_s.empty?
     banner = read_banner(port, send: send)
     if banner.include?(match)
       pass_check(name, "Port #{port} banner contains #{match.inspect} (#{get_system_name})", tier: tier)
@@ -254,13 +256,15 @@ class PostProvisionTest
   end
 
   # Passes if match_string appears in the command's stdout. user: runs it as
-  # that account (see #run_as_user) instead of root. Use 2>&1 in the command
-  # if you need to match stderr output.
+  # that account (see #run_as_user) instead of root. With 2>&1 a missing
+  # program's "x: command not found" lands in stdout, so never match on the
+  # program's own name there; use test_command_succeeds for "x runs".
   def test_local_command(test_output, local_command, match_string, user: nil, tier: nil)
     tier = default_tier(tier, 1)
-    output = user ? run_as_user(user, local_command) : run_vagrant_ssh(local_command)
     as = user ? " as #{user}" : ''
     name = "#{test_output} local command (#{local_command})#{as} matches with output (#{match_string})"
+    return fail_check(name, "#{name}: empty match string, so the check would always pass", tier: tier) if match_string.to_s.empty?
+    output = user ? run_as_user(user, local_command) : run_vagrant_ssh(local_command)
     if output[:stdout].include?(match_string)
       pass_check(name, "#{name} on #{get_system_name}!", tier: tier)
     else
@@ -276,7 +280,7 @@ class PostProvisionTest
     output = user ? run_as_user(user, command) : run_vagrant_ssh(command)
     as = user ? " as #{user}" : ''
     name = "#{label} (#{command})#{as}"
-    if output[:exit_status].to_i == 0
+    if output[:exit_status] == 0
       pass_check(name, "#{name} exited 0 on #{get_system_name}", tier: tier)
     else
       fail_check(name, "#{name} exited #{output[:exit_status]} on #{get_system_name}", tier: tier,
@@ -339,7 +343,9 @@ class PostProvisionTest
     end
     node, vmid = other_proxmox_node_vmid(name)
     result = proxmox_connection.exec_qemu_guest(vmid, node, ['bash', '-lc', args], timeout: timeout)
-    {:stdout => result[:stdout], :stderr => result[:stderr], :exit_status => result[:exitcode]}
+    # The agent reports a signal and no exitcode for a killed process (e.g. a segfault).
+    exit_status = result[:exitcode] || (result[:signal] && 128 + result[:signal].to_i)
+    {:stdout => result[:stdout], :stderr => result[:stderr], :exit_status => exit_status}
   end
 
   # The IP of a sibling system (first non-loopback IPv4 from its guest agent).
@@ -390,7 +396,7 @@ class PostProvisionTest
     nonce = "#{Time.now.to_i}_#{rand(100000)}"
     sentinel = "#{dir}/secgen_pwned_#{nonce}"
     cmd = "id > #{sentinel}; uname -n >> #{sentinel}; "
-    cmd += "#{collect} >> #{sentinel} 2>/dev/null; " if collect
+    cmd += "{ #{collect}; } >> #{sentinel} 2>/dev/null; " if collect
     cmd += "chmod 644 #{sentinel}"
     [sentinel, cmd]
   end
@@ -475,6 +481,9 @@ class PostProvisionTest
                        sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 0).to_i,
                        sentinel_dir: '/tmp')
     name = label || "msf exploit (#{msf_module})"
+    if expect_privilege && !%w[root root_rwx user user_rwx].include?(expect_privilege.to_s)
+      raise ArgumentError, "expect_privilege must be root, root_rwx, user or user_rwx (got #{expect_privilege.inspect})"
+    end
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
     attacker, attacker_ip, rhost = resolved
@@ -745,6 +754,12 @@ class PostProvisionTest
                         rhost: nil, rport: self.port, scheme: 'http', tier: 3,
                         label: nil, timeout: 120, sentinel_dir: '/tmp')
     name = label || "http exploit (#{method.to_s.upcase} #{path})"
+    if expect.nil? && expect_status.nil? && !sentinel
+      return fail_check(name, "#{name}: no expect:, expect_status: or sentinel:, so nothing proves the exploit worked", tier: tier)
+    end
+    if expect == '' || (expect.is_a?(Regexp) && '' =~ expect)
+      return fail_check(name, "#{name}: expect: #{expect.inspect} matches an empty response, so it proves nothing", tier: tier)
+    end
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
     attacker, attacker_ip, rhost = resolved
@@ -775,7 +790,6 @@ class PostProvisionTest
     if sentinel
       checks << ['target sentinel proves command execution (uid=)', sentinel_pwned?(read_sentinel(sentinel_path))]
     end
-    checks << ['attacker got an HTTP response', resp[:error].nil?] if checks.empty?
 
     detail = checks.map { |lbl, ok| "#{ok ? 'ok' : 'FAILED'}: #{lbl}" }.join('; ')
     origin = "from #{attacker} (#{attacker_ip}) against #{rhost}:#{rport}"

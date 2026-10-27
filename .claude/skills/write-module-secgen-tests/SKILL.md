@@ -122,7 +122,7 @@ All defined in `lib/objects/post_provision_test.rb`. Default tiers in brackets.
 
 | Helper | Passes when |
 |---|---|
-| `test_local_command(label, cmd, substr, user: nil)` **[1]** | `substr` appears in stdout (add `2>&1` to the command to match stderr) |
+| `test_local_command(label, cmd, substr, user: nil)` **[1]** | `substr` appears in stdout (add `2>&1` to match stderr, but then never match the program's own name: `x: command not found` would match; use `test_command_succeeds` for "x runs") |
 | `test_service_up(port: self.port)` **[2]** | the port is listening (SKIP if the module has no port input) |
 | `test_banner(match, port:, send: nil)` **[2]** | what the port sends (after optional `send` + CRLF) contains `match` |
 | `test_http(path, match: nil, status: nil, port:, scheme: 'http')` **[2]** | status matches (default 2xx/3xx) and body contains `match` |
