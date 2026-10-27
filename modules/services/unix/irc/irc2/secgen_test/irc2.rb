@@ -24,6 +24,32 @@ class IRC2Test < PostProvisionTest
       test_local_command('IRC registration welcomed',
                          %q(timeout 10 bash -c 'exec 3<>/dev/tcp/127.0.0.1/6667; printf "NICK secgen\r\nUSER secgen 0 * :secgen\r\n" >&3; timeout 3 cat <&3' 2>/dev/null | head -c 2000),
                          ' 001 ')
+      test_remote_irc_client
+    end
+  end
+
+  # A real IRC client (weechat) on the attacker VM connects over the scenario
+  # network and must get the server's welcome. weechat is driven headless
+  # through `script` and its server-buffer log is read back.
+  def test_remote_irc_client
+    name = 'weechat on attacker registers with the server'
+    attacker = attack_system
+    return skip_check(name, 'no attacker VM in the project', tier: 2) unless attacker
+    unless run_on_system(attacker, 'command -v weechat')[:stdout].include?('weechat')
+      return skip_check(name, "weechat not installed on #{attacker}", tier: 2)
+    end
+    cmd = <<~SH
+      d=$(mktemp -d); export HOME=/root TERM=xterm-256color
+      timeout 40 script -qfec "weechat -d $d -r '/server add secgen #{system_ip}/#{self.port} -notls -nicks=wcsecgen;/connect secgen;/wait 8 /quit'" /dev/null >/dev/null 2>&1
+      find $d -name 'irc.server.secgen.*' -exec cat {} +
+      rm -rf $d
+    SH
+    out = run_on_system(attacker, cmd, timeout: 60)
+    if out[:stdout].include?('Welcome to the Internet Relay Network')
+      pass_check(name, "#{name} at #{system_ip}:#{self.port} from #{attacker}", tier: 2)
+    else
+      fail_check(name, "#{name} at #{system_ip}:#{self.port} from #{attacker}", tier: 2,
+                 evidence: "--- weechat server log\n#{out[:stdout]}\n--- stderr\n#{out[:stderr]}")
     end
   end
 end
