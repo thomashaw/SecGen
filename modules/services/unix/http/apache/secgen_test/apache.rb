@@ -36,7 +36,7 @@ class ApacheTest < PostProvisionTest
       test_local_command('mod_ssl enabled', 'ls /etc/apache2/mods-enabled/', 'ssl.load')
       test_local_command('apache2 enabled at boot', 'systemctl is-enabled apache2', 'enabled')
       if domain
-        test_local_command("vhost ServerName #{domain}", 'grep -rh ServerName /etc/apache2/sites-enabled/', "ServerName #{domain}")
+        test_local_command("vhost ServerName #{domain}", 'grep -Rh ServerName /etc/apache2/sites-enabled/', "ServerName #{domain}")
       end
       if bundle
         test_local_command('certificate installed', 'ls -l /etc/ssl/certs/secgen-apache.crt', 'secgen-apache.crt')
