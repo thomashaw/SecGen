@@ -481,9 +481,7 @@ class PostProvisionTest
                        sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 0).to_i,
                        sentinel_dir: '/tmp')
     name = label || "msf exploit (#{msf_module})"
-    if expect_privilege && !%w[root root_rwx user user_rwx].include?(expect_privilege.to_s)
-      raise ArgumentError, "expect_privilege must be root, root_rwx, user or user_rwx (got #{expect_privilege.inspect})"
-    end
+    validate_expect_privilege!(expect_privilege)
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
     attacker, attacker_ip, rhost = resolved
@@ -554,6 +552,9 @@ class PostProvisionTest
                              sentinel_wait: (ENV['SECGEN_SENTINEL_WAIT'] || 180).to_i,
                              sentinel_dir: '/tmp')
     name = label || "msf local exploit (#{msf_module})"
+    validate_expect_privilege!(expect_privilege)
+    # A sudoer foothold proves nothing about escalation: root here means uid 0.
+    expect_privilege = :uid0 if expect_privilege.to_s.start_with?('root')
     resolved = resolve_attacker(name, attacker, rhost, tier)
     return unless resolved
     attacker, attacker_ip, rhost = resolved
@@ -614,7 +615,7 @@ class PostProvisionTest
     end
     if expect_privilege && !privilege_matches?(body, expect_privilege)
       fail_check(name,
-                 "RCE confirmed, but the shell's privilege does not match the module's <privilege>=#{expect_privilege}: sentinel shows #{body[/uid=\S+/]}#{privilege_note(body)}. Expected #{expect_privilege.to_s =~ /user/ ? 'a non-root, non-sudoer shell' : 'a root or sudoer shell'}.",
+                 "RCE confirmed, but the shell's privilege does not match the module's <privilege>=#{expect_privilege}: sentinel shows #{body[/uid=\S+/]}#{privilege_note(body)}. Expected #{{ 'uid0' => 'a root shell (uid=0)' }.fetch(expect_privilege.to_s) { expect_privilege.to_s =~ /user/ ? 'a non-root, non-sudoer shell' : 'a root or sudoer shell' }}.",
                  tier: tier)
     else
       pass_check(name,
@@ -643,7 +644,8 @@ class PostProvisionTest
             "echo #{creds} | chpasswd; mkdir -p /etc/ssh/sshd_config.d; " \
             "printf 'PasswordAuthentication yes\\nKbdInteractiveAuthentication yes\\nUsePAM yes\\n' > #{dropin}; " \
             "(systemctl reload ssh || systemctl reload sshd || systemctl restart ssh || systemctl restart sshd || true) 2>/dev/null; sleep 3"
-    run_vagrant_ssh(setup, timeout: 60)
+    r = run_vagrant_ssh(setup, timeout: 60)
+    skip!("could not set up throwaway SSH user #{user}: #{r[:stderr].to_s.strip[0, 200]}") unless r[:exit_status] == 0
     yield user, pass
   ensure
     teardown = "pkill -u #{user} 2>/dev/null; userdel -r #{user} 2>/dev/null; " \
@@ -670,10 +672,16 @@ class PostProvisionTest
     is_root = uid == 0
     sudoer  = (groups =~ /\((?:sudo|admin|wheel)\)/) || (sudo =~ /NOPASSWD|may run|\(ALL/) ? true : false
     case level.to_s
+    when 'uid0' then is_root
     when 'root', 'root_rwx' then is_root || sudoer
     when 'user', 'user_rwx' then !is_root && !sudoer
-    else true
+    else false
     end
+  end
+
+  def validate_expect_privilege!(level)
+    return if level.nil? || %w[root root_rwx user user_rwx].include?(level.to_s)
+    raise ArgumentError, "expect_privilege must be root, root_rwx, user or user_rwx (got #{level.inspect})"
   end
 
   # Short parenthetical for the check detail: whether the shell user can sudo.
