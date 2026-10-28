@@ -117,12 +117,18 @@ class bludit_upload_images_exec::configure {
   # triggers it via Apache.  PHP-FPM's security.limit_extensions defaults to
   # ".php", so it rejects .png with "Access denied".  Extend it to also allow
   # .png so FPM executes the uploaded file when Apache proxies the request.
+  # php7_patched runs as its own module earlier in provisioning, so its class and
+  # fpm service are not in this catalog; the config file already exists. Edit it
+  # and restart fpm directly rather than with a cross-module require/notify.
   file_line { 'fpm-security-limit-extensions':
-    path    => '/opt/php-7.4-patched/etc/php-fpm.d/www.conf',
-    line    => 'security.limit_extensions = .php .png',
-    match   => '^security\.limit_extensions',
-    require => Class['php7_patched'],
-    notify  => Service['php7-patched-fpm'],
+    path  => '/opt/php-7.4-patched/etc/php-fpm.d/www.conf',
+    line  => 'security.limit_extensions = .php .png',
+    match => '^security\.limit_extensions',
+  }
+  ~> exec { 'bludit-restart-php7-patched-fpm':
+    command     => 'systemctl restart php7-patched-fpm',
+    path        => ['/usr/bin', '/usr/sbin', '/bin', '/sbin'],
+    refreshonly => true,
   }
 
   ::secgen_functions::leak_files { 'bludit-flag-leak':
