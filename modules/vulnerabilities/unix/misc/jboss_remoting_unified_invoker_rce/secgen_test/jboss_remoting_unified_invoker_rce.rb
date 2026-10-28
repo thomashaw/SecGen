@@ -57,8 +57,10 @@ class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
       test_service_up(port: JBOSS_HTTP_PORT)
       test_http('/', port: JBOSS_HTTP_PORT, match: nil)
     end
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/misc/jboss_remoting_unified_invoker_rce
+    test_msf_exploit('exploit/multi/misc/jboss_remoting_unified_invoker_rce',
+                     rport: 4446,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
