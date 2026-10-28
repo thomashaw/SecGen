@@ -34,7 +34,7 @@ class WordpressTest < PostProvisionTest
     tier(2) do
       test_local_command('wordpress index.php present', "test -f #{dir}/index.php && echo ok", 'ok')
       test_local_command('wordpress version is set',
-                         "grep -E \"^\\$wp_version = '[0-9.]+';\" #{dir}/wp-includes/version.php", 'wp_version')
+                         "grep -E \"^[$]wp_version = '[0-9.]+';\" #{dir}/wp-includes/version.php", 'wp_version')
       # PHP is installed by the web server module, so lint only if it is present
       if run_command('command -v php')[:stdout].include?('php')
         test_command_succeeds('wp-config.php is valid PHP', "php -l #{dir}/wp-config.php")
