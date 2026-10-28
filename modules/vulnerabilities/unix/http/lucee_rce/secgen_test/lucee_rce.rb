@@ -47,9 +47,14 @@ class LuceeRceTest < PostProvisionTest
       # response is asserted here.
       test_http('/lucee/admin/server.cfm', match: nil)
     end
+    # cmd/unix/generic refuses to run when the exploit leaves files it cannot auto-remove,
+    # aborting with "cannot cleanup files created during exploit" before the CMD executes.
+    # CVE-2021-21307 is an arbitrary file write (it drops a CFM file it cannot clean up),
+    # so allow it; the sentinel CMD then runs and confirms RCE as the Tomcat user.
     test_msf_exploit('exploit/linux/http/lucee_admin_imgprocess_file_write',
                      rport: self.port,
                      expect_privilege: 'user_rwx',
+                     options: { 'AllowNoCleanup' => true },
                      tier: 3)
   end
 end
