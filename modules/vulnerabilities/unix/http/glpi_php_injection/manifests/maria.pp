@@ -32,6 +32,8 @@ class glpi_php_injection::maria {
     cwd       => '/var/www/html/glpi/bin/',
     command   => "php console db:install -f -H localhost -P 3306 -d ${db_name} -u ${db_user} -p ${db_pass}",
     logoutput => true,
+    # Creating GLPI's schema takes minutes; Puppet's default 300 s ran out on a busy host.
+    timeout   => 1800,
   }
   # db:install runs as root (Puppet execs default to root), leaving
   # files/_log/php-errors.log and other touched paths root-owned.  Apache
