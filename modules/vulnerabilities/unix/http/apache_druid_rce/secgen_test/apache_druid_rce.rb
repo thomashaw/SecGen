@@ -15,8 +15,9 @@ class ApacheDruidRceTest < PostProvisionTest
       if username
         test_local_command("#{username} user exists", "id #{username}", username)
       end
-      # Druid is extracted from a tarball; check the coordinator start script
-      test_local_command('druid install exists', 'test -d /opt/druid && echo present', 'present')
+      # install.pp moves the release to /usr/local/apache-druid; druid.service runs this script
+      test_local_command('druid start script installed',
+                         'test -x /usr/local/apache-druid/bin/start-nano-quickstart && echo present', 'present')
     end
     tier(2) do
       test_service_up
