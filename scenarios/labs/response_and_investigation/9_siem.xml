@@ -273,8 +273,6 @@
       </input>
     </utility>
 
-    <utility module_path=".*/elastalert.*"/>
-
     <utility module_path=".*/hackerbot_client">
       <input into="ssh_key_pair">
         <datastore>hackerbot_key</datastore>
