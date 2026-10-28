@@ -26,8 +26,10 @@ class dvwa::apache {
         ensure_packages(["mysql-server", 'php-mysqli'])
       }
       'kali-rolling': { # do kali
-        $php_version = "php8.2"
-        ensure_packages(['php8.2-mysql'])
+        # Kali rolling ships PHP 8.4 (php8.2-mysql is no longer in its repository).
+        # php-mysql is the version-independent metapackage.
+        $php_version = "php8.4"
+        ensure_packages(['php-mysql'])
       }
       default: {
         $php_version = "php"
