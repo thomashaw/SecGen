@@ -34,7 +34,8 @@ class ReversingToolsTest < PostProvisionTest
 
     tier(2) do
       test_command_succeeds('gdb reports version', 'gdb --version')
-      test_command_succeeds('strace available', 'strace --version')
+      # -V works on every strace; --version only from 5.x (buster has 4.26)
+      test_command_succeeds('strace available', 'strace -V')
       test_local_command('upx runs', 'test -x /usr/local/bin/upx && /usr/local/bin/upx --version 2>&1', 'upx')
       test_local_command('ltrace runs', 'command -v ltrace >/dev/null && ltrace --version 2>&1', 'ltrace')
       test_local_command('valgrind runs', 'command -v valgrind >/dev/null && valgrind --version 2>&1', 'valgrind')
