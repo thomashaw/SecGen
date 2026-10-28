@@ -294,7 +294,10 @@ class PostProvisionTest
 
   # Run a shell command on the system (as root on Proxmox, as the vagrant user
   # over vagrant ssh). Returns {stdout:, stderr:, exit_status:}.
-  def run_vagrant_ssh(args, timeout: 30)
+  # 90 s by default: a busy Proxmox host (ten builds at once) made quick checks such
+  # as `python3 -m pip --version` miss 30 s and SKIP. Checks that need longer pass
+  # their own timeout.
+  def run_vagrant_ssh(args, timeout: 90)
     # On Proxmox, run the command in the guest via the QEMU Guest Agent instead
     # of vagrant ssh (no guest network path is needed, and it survives net0
     # teardown). This is just run_on_system targeting ourselves.
@@ -862,7 +865,7 @@ class PostProvisionTest
 
   # Run a shell command as the given account (login shell, that user's
   # environment) rather than root.
-  def run_as_user(user, command, timeout: 30)
+  def run_as_user(user, command, timeout: 90)
     run_vagrant_ssh(as_user_command(user, command, sudo: !proxmox?), timeout: timeout)
   end
 
