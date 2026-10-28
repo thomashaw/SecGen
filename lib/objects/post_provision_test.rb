@@ -342,7 +342,14 @@ class PostProvisionTest
       return {:stdout => '', :stderr => "run_on_system is Proxmox-only (#{name})", :exit_status => 127}
     end
     node, vmid = other_proxmox_node_vmid(name)
-    result = proxmox_connection.exec_qemu_guest(vmid, node, ['bash', '-lc', args], timeout: timeout)
+    # Send the command base64-encoded and decode it in the guest. The QEMU guest
+    # agent on buster (3.1) strips every '%' from the argv it is given, which broke
+    # any check with a format string there (curl -w '%{http_code}', stat -c '%U',
+    # printf, date) with false FAILs. Base64 has no '%' and no shell metacharacters;
+    # "$c" hands the decoded command to the same login shell as one argument.
+    encoded = Base64.strict_encode64(args.to_s)
+    wrapped = "c=$(echo #{encoded} | base64 -d) && exec bash -lc \"$c\""
+    result = proxmox_connection.exec_qemu_guest(vmid, node, ['bash', '-c', wrapped], timeout: timeout)
     # The agent reports a signal and no exitcode for a killed process (e.g. a segfault).
     exit_status = result[:exitcode] || (result[:signal] && 128 + result[:signal].to_i)
     {:stdout => result[:stdout], :stderr => result[:stderr], :exit_status => exit_status}
