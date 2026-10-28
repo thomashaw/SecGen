@@ -25,7 +25,7 @@ class HackerbotWebclientTest < PostProvisionTest
     tier(1) do
       test_local_command('python3 installed?', 'which python3', '/usr/bin/python3')
       test_local_command('/opt/hackerbot_webclient directory exists?', 'test -d /opt/hackerbot_webclient && echo ok', 'ok')
-      %w[index.html app.js config.js].each do |f|
+      %w[index.html app.js config.js serve.py].each do |f|
         test_local_command("#{f} installed, root-owned, mode 644", "stat -c '%U:%G %a' /opt/hackerbot_webclient/#{f}", 'root:root 644')
       end
       expected.each do |label, line|
