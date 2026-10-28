@@ -49,16 +49,16 @@ class JbossRemotingUnifiedInvokerRceTest < PostProvisionTest
     end
 
     tier(2) do
+      # JBoss Remoting unified invoker — the vulnerable interface the exploit
+      # targets (MSF default RPORT 4446). Checked first so generate-t3-test
+      # infers the remoting port for the tier-3 call, not the HTTP connector.
+      test_service_up(port: JBOSS_REMOTING_PORT)
       # HTTP web connector
       test_service_up(port: JBOSS_HTTP_PORT)
       test_http('/', port: JBOSS_HTTP_PORT, match: nil)
-      # JBoss Remoting unified invoker — the vulnerable interface the exploit targets
-      test_service_up(port: JBOSS_REMOTING_PORT)
     end
-    test_msf_exploit('exploit/multi/misc/jboss_remoting_unified_invoker_rce',
-                     rport: 8080,
-                     expect_privilege: 'user_rwx',
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/misc/jboss_remoting_unified_invoker_rce
   end
 end
 
