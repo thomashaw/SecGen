@@ -1,9 +1,10 @@
 require_relative '../../../../../lib/post_provision_test'
 
 class KaliWebTest < PostProvisionTest
-  # Every package install.pp installs (kali-tools-web itself is not installed; see the Puppet comment)
+  # Every package install.pp installs (kali-tools-web itself is not installed; see the Puppet comment).
+  # maltego is dropped for now: re-add it here with install.pp's TODO.
   PACKAGES = %w[apache-users apache2 beef-xss burpsuite cadaver commix cutycapt default-mysql-server dirb dirbuster
-                hamster-sidejack heartleech httprint httrack hydra jboss-autopwn joomscan jsql-injection maltego
+                hamster-sidejack heartleech httprint httrack hydra jboss-autopwn joomscan jsql-injection
                 medusa mitmproxy ncrack nikto nmap oscanner owasp-mantra-ff padbuster paros patator php php-mysql
                 proxychains4 proxytunnel qsslcaudit redsocks sidguesser siege skipfish slowhttptest sqldict
                 sqlitebrowser sqlmap sqlninja sqlsus ssldump sslh sslscan sslsniff sslsplit sslyze stunnel4
