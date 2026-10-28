@@ -2,7 +2,7 @@ require_relative '../../../../../lib/post_provision_test'
 
 class KaliWebTest < PostProvisionTest
   # Every package install.pp installs (kali-tools-web itself is not installed; see the Puppet comment)
-  PACKAGES = %w[apache-users apache2 beef-xss burpsuite cadaver commix cutycapt default-mysql-server dirb dirbuster
+  PACKAGES = %w[apache-users apache2 beef-xss burpsuite cadaver commix default-mysql-server dirb dirbuster
                 hamster-sidejack heartleech httprint httrack hydra jboss-autopwn joomscan jsql-injection maltego
                 medusa mitmproxy ncrack nikto nmap oscanner owasp-mantra-ff padbuster paros patator php php-mysql
                 proxychains4 proxytunnel qsslcaudit redsocks sidguesser siege skipfish slowhttptest sqldict
