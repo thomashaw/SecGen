@@ -21,7 +21,8 @@ class MysqlKaliCompatibleTest < PostProvisionTest
       test_local_command('mariadb enabled at boot', 'systemctl is-enabled mariadb', 'enabled')
     end
     tier(2) do
-      test_local_command('mysqld running?', 'ps -ef | grep mysqld', '/usr/sbin/mysqld')
+      # MariaDB 11.x runs as /usr/sbin/mariadbd (mysqld is only a symlink to it)
+      test_local_command('mysqld running?', 'pgrep -a -x "mariadbd|mysqld"', '/usr/sbin/m')
       test_service_up(port: 3306)
       # the server answers a query over the local socket
       test_local_command('server answers a query', 'mysql -N -e "select 1"', '1')
