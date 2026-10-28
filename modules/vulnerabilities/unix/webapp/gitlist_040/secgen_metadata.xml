@@ -7,8 +7,10 @@
   <author>Thomas Shaw</author>
   <module_license>MIT</module_license>
   <description>
-    Gitlist versions 0.6 and below are vulnerable to an exploit where the attacker is able to bypass/exploit the 
-    'escapeshellarg' using argument injection, resulting in remote code execution.
+    GitList versions before 0.5.0 contain a remote code execution flaw in the repository file browser.
+    A filename taken from the URL is passed to the underlying git command without adequate sanitisation
+    (the blame / file-statistics feature), so an attacker who can browse a repository can inject shell
+    metacharacters into that filename and run arbitrary commands as the web server user.
   </description>
 
   <type>webapp</type>
@@ -71,13 +73,13 @@
   </default_input>
 
   <!--optional vulnerability details-->
-  <cve>CVE-2018-1000533</cve>
+  <cve>CVE-2014-4511</cve>
 
-  <cvss_base_score>9.8</cvss_base_score>
+  <cvss_base_score>7.5</cvss_base_score>
   <cvss_vector>AV:N/AC:L/Au:N/C:P/I:P/A:P</cvss_vector>
 
   <!--optional hints-->
-  <msf_module>exploit/multi/http/gitlist_arg_injection</msf_module>
+  <msf_module>exploit/linux/http/gitlist_exec</msf_module>
   <hint>Visit the webapp in a browser at: ip:80/gitlist </hint>
 
   <!-- can't live alongside other web sites, since they it accepts any virtual host name -->
