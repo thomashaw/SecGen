@@ -482,7 +482,13 @@ class mysql::params {
       'ssl-ca'                => $mysql::params::ssl_ca,
       'ssl-cert'              => $mysql::params::ssl_cert,
       'ssl-key'               => $mysql::params::ssl_key,
-      'ssl-disable'           => false,
+      # SSL off by default: the ssl-* paths above don't exist on SecGen bases, and
+      # MariaDB won't start with them. ssl-disable makes my.cnf.erb drop the ssl*
+      # keys; skip-ssl is what MariaDB reads. Every mysql::server declaration
+      # merges over these, including modules that declare it themselves
+      # (wordpress_4x), so none of them can undo it.
+      'ssl-disable'           => true,
+      'skip-ssl'              => true,
       'thread_cache_size'     => '8',
       'thread_stack'          => '256K',
       'tmpdir'                => $mysql::params::tmpdir,
