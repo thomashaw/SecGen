@@ -11,6 +11,7 @@ class phish_me_website::apache {
   ensure_packages(['libapache2-mod-php'])
 
   apache::vhost { 'accountingnow.com':
+    priority => '05', # ahead of the apache module's own vhost on the same port
     port    => $port,
     docroot => '/var/www/accountingnow/',
     notify => Tidy['pws remove default site'],

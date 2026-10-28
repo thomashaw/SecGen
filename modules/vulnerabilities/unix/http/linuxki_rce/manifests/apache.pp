@@ -24,6 +24,7 @@ class linuxki_rce::apache {
     command => 'a2enmod php7.4',
   }
   -> ::apache::vhost { 'linuxki':
+    priority => '05', # ahead of the apache module's own vhost on the same port
     port        => $port,
     options     => 'FollowSymLinks',
     override    => 'All',

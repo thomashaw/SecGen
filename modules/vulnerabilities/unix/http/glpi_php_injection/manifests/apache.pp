@@ -25,6 +25,7 @@ class glpi_php_injection::apache {
   }
 
   ::apache::vhost { 'glpi':
+    priority => '05', # ahead of the apache module's own vhost on the same port
     port       => $port,
     docroot    => $docroot,
     options    => ['FollowSymLinks'],
