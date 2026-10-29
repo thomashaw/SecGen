@@ -38,6 +38,11 @@
   <software_name>security_shepherd</software_name>
   <software_license>GPLv3</software_license>
 
+  <conflict>
+    <!-- openjdk-11-jdk and tomcat9 are not in Debian 12 repositories -->
+    <name>.*Bookworm.*</name>
+  </conflict>
+
   <requires>
     <software_name>mysql</software_name>
   </requires>
