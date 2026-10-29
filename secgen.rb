@@ -38,7 +38,9 @@ def usage
    --cpu-cores: Number of virtual CPUs for generated VMs
    --help, -h: Shows this usage information
    --system, -y [system_name]: Only build this system_name from the scenario
-   --snapshot: Creates a snapshot of VMs once built
+   --snapshot: Creates a snapshot of VMs once built (on Proxmox, a build that runs tests
+              always snapshots before the test boot and rolls back to it after a PASS;
+              --snapshot keeps the snapshot afterwards)
    --no-tests: Prevent post-provisioning tests from running.
    --no-destroy-on-failure: Keep VMs that fail to build or don't PASS post-provision tests
               (except when retrying a build). For investigating; by default they are destroyed.
@@ -308,8 +310,11 @@ def build_vms(scenario, project_dir, options)
     if OVirtFunctions.provider_ovirt?(options)
       ovirt_post_build(options, scenario, project_dir)
     elsif ProxmoxFunctions.provider_proxmox?(options)
-      proxmox_post_build(options, scenario, project_dir)
-      return proxmox_post_build_tests(options, scenario, project_dir, build) if proxmox_tests
+      # Snapshot before the test boot, so the tests' traces can be rolled back after a
+      # PASS. Not for test-scenario/test-module, which delete the VMs afterwards.
+      revert = proxmox_tests && (!options[:test_command] || options[:keepvms])
+      snapshot_failed = proxmox_post_build(options, scenario, project_dir, test_snapshot: revert)
+      return proxmox_post_build_tests(options, scenario, project_dir, build, snapshot_failed: snapshot_failed) if proxmox_tests
     elsif options[:snapshot]
       # snapshots happen in the above post_build functions
       # VirtualBox snapshots
@@ -350,7 +355,10 @@ end
 
 # actions on the VMs after vagrant has built them
 # this includes networking and snapshots
-def proxmox_post_build(options, scenario, project_dir)
+# test_snapshot: take the "original" snapshot even without --snapshot, for rolling
+# back after the tests. Returns the VMs that could not be snapshotted (nil if no
+# snapshot was taken).
+def proxmox_post_build(options, scenario, project_dir, test_snapshot: false)
   Print.std 'Taking Proxmox post-build actions...'
 
 Print.info 'Removing provisioning NIC'
@@ -369,15 +377,17 @@ rescue Proxmox::ApiError::ConnectionError => e
   end
 end
 
-if options[:snapshot]
+snapshot_failed = nil
+if options[:snapshot] || test_snapshot
   Print.info 'Creating a snapshot of VM(s)'
   sleep(1)
-  ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
+  snapshot_failed = ProxmoxFunctions::create_snapshot(project_dir, get_vm_names(scenario), options)
 end
 
 if options[:proxmox_post_boot]
   ProxmoxFunctions::start_vms(project_dir, get_vm_names(scenario), options)
 end
+test_snapshot ? snapshot_failed : nil
 end
 
 # Make forensic image helper methods
@@ -528,7 +538,10 @@ end
 # and a full stop/start, so the VMs are tested in their final state (static IPs
 # up, reboot-dependent modules settled). Writes test_results/<project-id>/ and
 # returns the summary. Leaves the VMs running only if --proxmox-post-boot.
-def proxmox_post_build_tests(options, scenario, project_dir, build)
+# snapshot_failed (from proxmox_post_build): when not nil, a PASS rolls the VMs
+# back to the pre-test snapshot, so they carry no traces of the tests; a VM that
+# can't be rolled back (or was never snapshotted) turns the PASS into a FAIL.
+def proxmox_post_build_tests(options, scenario, project_dir, build, snapshot_failed: nil)
   vm_names = get_vm_names(scenario)
   ProxmoxFunctions::start_vms(project_dir, vm_names, options) unless options[:proxmox_post_boot]
   agent_wait = (ENV['SECGEN_AGENT_WAIT_BOOT'] || 600).to_i
@@ -543,8 +556,20 @@ def proxmox_post_build_tests(options, scenario, project_dir, build)
   summary = TestResults.write_report(project_dir, source_scenario: options[:test_source] || scenario,
                                      build: build, started_at: $beginning_time, test_runs: test_runs)
 
+  if summary[:status] == 'PASS' && snapshot_failed
+    Print.info 'Rolling back VMs to their pre-test snapshot...'
+    failed = snapshot_failed + ProxmoxFunctions::rollback_snapshots(project_dir, vm_names - snapshot_failed, options,
+                                                                  keep: options[:snapshot])
+    summary = TestResults.record_revert(project_dir, summary, failed)
+    if failed.empty? && (options[:proxmox_post_boot] || options[:test_command])
+      ProxmoxFunctions::start_vms(project_dir, vm_names, options)
+    end
+  end
+
   if summary[:status] != 'PASS'
     destroy_after_test_failure(scenario, project_dir, options)
+  elsif snapshot_failed
+    # rolled back: already stopped, or restarted above
   elsif !(options[:proxmox_post_boot] || options[:test_command])
     Print.info 'Shutting down VMs after testing'
     ProxmoxFunctions::shutdown_vms(project_dir, vm_names, options)

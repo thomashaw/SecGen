@@ -115,6 +115,8 @@ Each test writes `projects/<id>/test_results/<system>/<module>.json`, which is t
 
 A failed build is recorded under `build` rather than as module failures, and the run's `status` is then `FAIL`.
 
+On Proxmox, a build whose VMs outlive the tests (anything except `test-scenario` and `test-module` without `--keep-vms`) is snapshotted as `original` after the provisioning NIC is removed and before the test boot. After a `PASS` every VM is rolled back to that snapshot, so the VMs that are kept carry no traces of the tests, and the result is recorded as `"revert": { "status": "success", "failed_vms": [] }`. If any VM could not be snapshotted or rolled back, `revert.status` is `failed`, the run's `status` becomes `FAIL`, and the VMs are destroyed as for any other failure. The snapshot is deleted after the rollback unless `--snapshot` was given. A run that does not pass is never rolled back, so its VMs keep the evidence.
+
 ### Evidence
 
 When a module fails, a standard set of diagnostics (failed units, the module's service status, the boot journal, listening ports and processes) is collected in a single guest-agent call, together with anything the test registered with `add_evidence`, and saved under `evidence/<module>/`.
