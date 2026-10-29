@@ -12,7 +12,7 @@
 
   <system>
     <system_name>ghidrassist_testing</system_name>
-    <base platform="linux" distro="Debian 12" type="desktop"/>
+    <base distro="Kali" name="MSF"/>
 
     <utility module_path=".*/ghidrassist"/>
 
