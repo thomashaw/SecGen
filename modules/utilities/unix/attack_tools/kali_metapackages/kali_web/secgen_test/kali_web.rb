@@ -42,7 +42,7 @@ class KaliWebTest < PostProvisionTest
       {
         'nmap' => 'nmap --version', 'nikto' => 'nikto -Version', 'sqlmap' => 'sqlmap --version',
         'whatweb' => 'whatweb --version', 'wfuzz' => 'wfuzz --version', 'wpscan' => 'wpscan --version',
-        'sslscan' => 'sslscan --version', 'dumpcap (wireshark)' => 'dumpcap --version', 'php' => 'php -v',
+        'sslscan' => 'sslscan --version', 'editcap (wireshark)' => 'editcap --version', 'php' => 'php -v',
         'apache2' => '/usr/sbin/apache2 -v', 'mysql client' => 'mysql --version'
       }.each { |tool, cmd| test_command_succeeds("#{tool} runs as an unprivileged user", with_temp_home(cmd), user: 'nobody') }
     end

@@ -21,7 +21,7 @@ class KaliTop10Test < PostProvisionTest
       # run the tools as an unprivileged user, so PATH and shared-library problems show up
       test_command_succeeds('nmap runs as an unprivileged user', with_temp_home('nmap --version'), user: 'nobody')
       test_command_succeeds('sqlmap runs as an unprivileged user', with_temp_home('sqlmap --version'), user: 'nobody')
-      test_command_succeeds('dumpcap (wireshark) runs as an unprivileged user', with_temp_home('dumpcap --version'), user: 'nobody')
+      test_command_succeeds('editcap (wireshark) runs as an unprivileged user', with_temp_home('editcap --version'), user: 'nobody')
       test_local_command('john prints its usage', with_temp_home('john 2>&1'), 'John the Ripper', user: 'nobody')
       test_local_command('tnftp prints its usage', with_temp_home('tnftp -? 2>&1 | tr A-Z a-z'), 'usage', user: 'nobody')
       test_command_succeeds('showmount (nfs-common) runs', with_temp_home('/usr/sbin/showmount --version'), user: 'nobody')
