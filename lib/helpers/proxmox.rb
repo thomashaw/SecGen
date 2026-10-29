@@ -10,6 +10,7 @@ class ProxmoxFunctions
     options[:proxmoxuser] and options[:proxmoxpass] and options[:proxmoxurl]
   end
 
+  # Snapshots each VM as "original". Returns the names of VMs it failed on.
   def self.create_snapshot(project_dir, vm_names, options)
     Print.std " Connecting to Proxmox"
     # Connect to Proxmox API
@@ -17,6 +18,7 @@ class ProxmoxFunctions
     connection.login username: options[:proxmoxuser], password: options[:proxmoxpass]
     # get proxmox ids
     Print.std " Getting ID: #{vm_names}"
+    failed = []
     vm_names.each do |vm_name|
       id_path = "#{project_dir}/.vagrant/machines/#{vm_name}/proxmox/id"
       Print.std id_path
@@ -29,11 +31,41 @@ class ProxmoxFunctions
         connection.snapshot_qemu_vm(id, node)
       rescue => e
         Print.err "Error: Failed to create snapshot: #{e.message}"
+        failed << vm_name
       ensure
         file.close if file
       end
 
     end
+    failed
+  end
+
+  # Hard-stops each VM (its running state is about to be thrown away) and rolls
+  # it back to the "original" snapshot, then deletes the snapshot unless keep.
+  # Returns the names of VMs it could not roll back.
+  def self.rollback_snapshots(project_dir, vm_names, options, keep: true)
+    connection = connect(options)
+    failed = []
+    vm_ids(project_dir, vm_names).each do |vm_name, node, vm_id|
+      begin
+        connection.stop_vm(vm_id) if connection.get_vm_state(vm_id) == :running
+        Print.std " Rolling back #{vm_name} (#{node}/#{vm_id}) to snapshot original"
+        connection.rollback_qemu_snapshot(vm_id, node)
+      rescue StandardError => e
+        Print.err " Failed to roll back #{vm_name} (#{node}/#{vm_id}): #{e.message}"
+        failed << vm_name
+        next
+      end
+      next if keep
+      begin
+        Print.std " Deleting snapshot original of #{vm_name} (#{node}/#{vm_id})"
+        connection.delete_qemu_snapshot(vm_id, node)
+      rescue StandardError => e
+        # The VM is clean; a leftover snapshot only costs disk space.
+        Print.err " Failed to delete snapshot of #{vm_name} (#{node}/#{vm_id}): #{e.message}"
+      end
+    end
+    failed
   end
 
   def self.teardown_provisioning_nic(project_dir, vm_names, options)

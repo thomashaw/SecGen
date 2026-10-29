@@ -310,6 +310,16 @@ wait for the guest agent (`SECGEN_AGENT_WAIT_BOOT`, default 600s) → settle
 side) → `test_results/<project-id>/` →
 destroy the VMs via the API and remove the project.
 
+A build whose VMs outlive the tests (`run`/`build-vms`, `secgen-dev-run` without
+`--test`, or `--keep-vms`) always takes the `original` snapshot after the `net0`
+teardown, before the test boot. On PASS each VM is hard-stopped and rolled back
+to it, so the tests leave no traces (throwaway users, MSF payloads and sessions,
+logs, crashed services); the snapshot is then deleted unless `--snapshot` asked
+for it, and the VMs are started again only with `--proxmox-post-boot` (or
+`--keep-vms`). `summary.json` records this under `revert`; a VM that can't be
+rolled back turns the run into a FAIL and is destroyed like any other failure.
+A FAIL/SKIP is never rolled back: the VMs keep the evidence.
+
 - **Exit code:** 0 all PASS, 1 any FAIL (or the build failed), 2 any SKIP.
 - **Results** (gitignored, survive teardown): `test_results/<project-id>/`
   holds `summary.json` (build status/attempts, counts, per-system modules with
@@ -342,8 +352,8 @@ destroy the VMs via the API and remove the project.
    then `build-project` (no VMs).
 3. Build: `scripts/secgen-dev-run -p <name> -s scenarios/tests/<scn>.xml`
    (`--dry-run` first). It runs the tests after net0 teardown + reboot and
-   writes `test_results/<id>/`, but leaves the VM running in its final state
-   whatever the result (`-- --no-tests` to skip them). It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
+   writes `test_results/<id>/`, but leaves the VM running whatever the result
+   (on PASS, rolled back to its pre-test snapshot; on FAIL/SKIP, as the tests left it) (`-- --no-tests` to skip them). It passes `--retries 1` (`SECGEN_RETRIES`) to absorb the
    intermittent provisioning-net flake (no DHCP lease → vagrant times out
    "waiting for SSH to configure network interfaces" with no Puppet run); when
    vagrant can't say which VM failed, SecGen now destroys all and retries.
