@@ -4,12 +4,12 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
   <system>
-    <system_name>wp_4x_stretch_https</system_name>
-    <base platform="linux" distro="Debian 9" type="server"/>
+    <system_name>wp_4x_https</system_name>
+    <base platform="linux" type="server"/>
 
     <input into_datastore="IP_addresses">
-      <network_ip system="wp_4x_stretch_https"/>
-      <network_ip system="wp_4x_stretch_http"/>
+      <network_ip system="wp_4x_https"/>
+      <network_ip system="wp_4x_http"/>
     </input>
 
     <vulnerability module_path=".*wordpress_4x.*">
@@ -25,8 +25,8 @@
   </system>
 
   <system>
-    <system_name>wp_4x_stretch_http</system_name>
-    <base platform="linux" distro="Debian 9" type="server"/>
+    <system_name>wp_4x_http</system_name>
+    <base platform="linux" type="server"/>
 
     <vulnerability module_path=".*wordpress_4x.*">
       <input into="https">

@@ -1,8 +1,9 @@
 require_relative '../../../../../lib/post_provision_test'
 
 class LdapPackagesTest < PostProvisionTest
-  # Every package install.pp asks for (module has no inputs)
-  PACKAGES = %w[ldap-utils libnss-ldap libpam-ldap nslcd nscd sssd].freeze
+  # Every package install.pp asks for (module has no inputs). libnss-ldapd/libpam-ldapd
+  # replace libnss-ldap/libpam-ldap, which Debian 12 does not have.
+  PACKAGES = %w[ldap-utils libnss-ldapd libpam-ldapd nslcd nscd sssd].freeze
 
   def initialize
     self.module_name = 'ldap_packages'
@@ -26,7 +27,7 @@ class LdapPackagesTest < PostProvisionTest
       test_local_command('pam_ldap present', 'ls /lib/*/security/pam_ldap.so /usr/lib/*/security/pam_ldap.so 2>/dev/null', 'pam_ldap.so')
     end
     tier(2) do
-      test_command_succeeds('ldapsearch available', 'ldapsearch --help 2>&1 || true')
+      test_command_succeeds('ldapsearch available', "ldapsearch --help 2>&1 | grep -q 'usage: ldapsearch'")
       test_local_command('ldapsearch on PATH', 'which ldapsearch', 'ldapsearch')
       # the --help check above always exits 0 (|| true); these fail on a broken binary or missing library
       test_command_succeeds('ldapsearch runs', 'ldapsearch -VV')

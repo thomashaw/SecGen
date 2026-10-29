@@ -27,7 +27,9 @@ class AfterLoginMessageTest < PostProvisionTest
                              'bash --rcfile /etc/bash.bashrc -i -c true </dev/null 2>&1', msg)
         end
       else
-        test_local_command('bash.bashrc has heredoc block', 'grep -c "EOF" /etc/bash.bashrc', '1')
+        # The block is "cat <<'EOF'", the (empty) message, then a terminator line. A bare grep -c EOF
+        # counts the opener too (2), so anchor on the terminator line to get exactly 1.
+        test_local_command('bash.bashrc has heredoc block', 'grep -c "^EOF$" /etc/bash.bashrc', '1')
       end
     end
   end

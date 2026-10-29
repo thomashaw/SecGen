@@ -28,6 +28,7 @@ class HackerbotWebclientTest < PostProvisionTest
       %w[index.html app.js config.js].each do |f|
         test_local_command("#{f} installed, root-owned, mode 644", "stat -c '%U:%G %a' /opt/hackerbot_webclient/#{f}", 'root:root 644')
       end
+      test_local_command('serve.py installed, root-owned, mode 755', "stat -c '%U:%G %a' /opt/hackerbot_webclient/serve.py", 'root:root 755')
       expected.each do |label, line|
         test_local_command("config.js sets #{label}", 'cat /opt/hackerbot_webclient/config.js', line)
       end
@@ -35,7 +36,7 @@ class HackerbotWebclientTest < PostProvisionTest
     end
     tier(2) do
       test_command_succeeds('python3 runs', 'python3 --version')
-      test_local_command('hackerbot-webclient service is active', 'systemctl is-active hackerbot-webclient', 'active')
+      test_local_command('hackerbot-webclient service is active', 'systemctl is-active hackerbot-webclient | grep -x active', 'active')
       test_local_command('hackerbot-webclient service is enabled', 'systemctl is-enabled hackerbot-webclient', 'enabled')
       test_service_up(port: WEB_PORT)
       test_http('/', port: WEB_PORT, match: '<title>Hackerbot</title>')

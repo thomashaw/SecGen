@@ -18,7 +18,9 @@ class MetasploitFrameworkTest < PostProvisionTest
       test_command_succeeds('msfconsole present', 'test -x /usr/bin/msfconsole')
       # msfconsole loads the whole framework, so this proves the Ruby environment works; it is slow, hence the long
       # timeout. HOME is a scratch directory because the unprivileged user has no writable home.
-      cmd = 'export HOME=$(mktemp -d) TERM=dumb; timeout 180 msfconsole --version 2>&1'
+      # Run it from that home: the guest agent starts commands in /, and bootsnap then
+      # scans from there and dies on root-only dirs (opendir /usr/lib/firmware/b43).
+      cmd = 'export HOME=$(mktemp -d) TERM=dumb; cd "$HOME"; timeout 180 msfconsole --version 2>&1'
       out = run_as_user('nobody', cmd, timeout: 200)
       if out[:stdout].to_s.include?('Framework Version')
         pass_check('msfconsole --version runs as an unprivileged user')

@@ -11,7 +11,7 @@ class BashPathEnvSuidTest < PostProvisionTest
     super
     tier(1) do
       # An account is created and a SUID binary (access_my_flag) compiled into their home.
-      test_local_command('user account exists', 'ls /home | head -1', '/')
+      test_local_command('user account exists', 'ls -d /home/*/ 2>/dev/null | head -1', '/home/')
       test_local_command('access_my_flag compiled', 'find /home -name "access_my_flag" | head -1', 'access_my_flag')
     end
     tier(2) do

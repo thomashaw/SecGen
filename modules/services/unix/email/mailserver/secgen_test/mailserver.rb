@@ -43,7 +43,7 @@ class MailserverTest < PostProvisionTest
       test_banner('* OK', port: IMAP_PORT, label: 'dovecot IMAP greeting')
       # both daemons answer a real command, not just the greeting
       test_banner('250', port: SMTP_PORT, send: 'EHLO test.local', label: 'SMTP EHLO reply')
-      test_banner('IMAP4rev1', port: IMAP_PORT, send: 'a1 CAPABILITY', label: 'IMAP CAPABILITY reply')
+      test_banner('a1 OK', port: IMAP_PORT, send: 'a1 CAPABILITY', label: 'IMAP CAPABILITY reply')
       # the SMTP greeting names the configured host
       test_banner("220 #{server_ip}", port: SMTP_PORT, label: 'SMTP greeting names server_ip') if server_ip
     end

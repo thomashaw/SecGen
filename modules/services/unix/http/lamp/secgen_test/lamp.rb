@@ -10,12 +10,13 @@ class LampTest < PostProvisionTest
   def test_module
     super
     tier(1) { test_local_command('apache2 installed?', 'dpkg -l apache2 | grep -E "^ii"', 'apache2') }
-    tier(1) { test_local_command('mysql installed?', 'dpkg -l mysql-server | grep -E "^ii"', 'mysql') }
+    # Debian 12 packages the database as mariadb-server; mysql-server does not exist there
+    tier(1) { test_local_command('database server installed?', 'dpkg -l | grep -E "^ii\s+(mysql|mariadb)-server"', 'server') }
     tier(1) { test_local_command('php installed?', 'php --version', 'PHP') }
     tier(1) { test_local_command('mod_php installed', 'dpkg -l | grep -E "^ii\s+libapache2-mod-php"', 'libapache2-mod-php') }
     tier(1) { test_local_command('mod_php enabled, prefork MPM', 'apache2ctl -M 2>&1', 'php') }
-    tier(1) { test_local_command('apache2 running', 'systemctl is-active apache2', 'active') }
-    tier(1) { test_local_command('mysql running', 'systemctl is-active mysql || systemctl is-active mariadb', 'active') }
+    tier(1) { test_local_command('apache2 running', 'systemctl is-active apache2 | grep -x active', 'active') }
+    tier(1) { test_local_command('mysql running', '{ systemctl is-active mysql; systemctl is-active mariadb; } | grep -x active', 'active') }
     tier(1) { test_local_command('mysql client present', 'which mysql', 'mysql') }
     tier(2) { test_service_up(port: 80) }
     tier(2) { test_http('/', port: 80) }

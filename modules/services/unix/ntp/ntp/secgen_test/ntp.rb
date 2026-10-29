@@ -14,13 +14,15 @@ class NTPTest < PostProvisionTest
       test_local_command('ntp installed?', 'dpkg -l ntp | grep -E "^ii"', 'ntp')
       test_local_command('ntpd on PATH', 'which ntpd', 'ntpd')
       test_local_command('ntpq on PATH', 'which ntpq', 'ntpq')
-      test_local_command('ntp service enabled', 'systemctl is-enabled ntp', 'enabled')
+      # On bookworm the ntp package is transitional: ntp.service is an alias of
+      # ntpsec.service, so `is-enabled ntp` prints "alias". Check the real unit.
+      test_local_command('ntp service enabled', 'systemctl is-enabled ntpsec', 'enabled')
       test_local_command('ntp.conf present', 'cat /etc/ntp.conf', 'server')
     end
     tier(2) do
       test_command_succeeds('ntp service active', 'systemctl is-active ntp')
       # ntpd answers local queries and has at least one configured peer
-      test_local_command('ntpd runs', 'ntpd --version 2>&1; true', 'ntpd')
+      test_local_command('ntpd runs', 'command -v ntpd >/dev/null && ntpd --version 2>&1; true', 'ntpd')
       test_command_succeeds('ntpq answers', 'ntpq -pn')
       test_command_succeeds('ntp listening on UDP 123', 'ss -lun | grep -E ":123\b"')
       # Query from outside the guest; only possible where the host has a network path

@@ -14,7 +14,7 @@
     <system_name>smbclient_testing</system_name>
     <base platform="linux" distro="Debian 12" type="desktop"/>
 
-    <utility module_path=".*/utilities/unix/smb/smbclient"/>
+    <utility module_path=".*/smb/smbclient"/>
 
     <network type="private_network"/>
 

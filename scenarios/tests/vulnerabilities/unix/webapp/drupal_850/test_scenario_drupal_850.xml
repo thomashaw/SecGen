@@ -6,13 +6,13 @@
 
   <name>Test: drupal_850</name>
   <author>Thomas Shaw</author>
-  <description>Two-VM test scenario for the drupal_850 vulnerability module: a Debian 12 target and a Kali/MSF attacker on the same private network, used to exercise the module's secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
+  <description>Two-VM test scenario for the drupal_850 vulnerability module on patched PHP 7.4 (Debian 10 Buster): a Debian 10 target and a Kali/MSF attacker on the same private network, used to exercise the module's secgen_test (including the Drupalgeddon2 tier-3 exploit) via the Proxmox QEMU Guest Agent testing pipeline.</description>
 
   <type>test</type>
 
   <system>
     <system_name>drupal_850_target</system_name>
-    <base platform="linux" distro="Debian 12" type="desktop"/>
+    <base platform="linux" distro="Debian 10" type="desktop"/>
 
     <input into_datastore="IP_addresses">
       <network_ip system="drupal_850_target"/>
@@ -36,9 +36,7 @@
   <system>
     <system_name>attacker</system_name>
     <base distro="Kali" name="MSF"/>
-
     <network type="private_network"/>
-
     <input into_datastore="spoiler_admin_pass_attacker">
       <generator type="strong_password_generator"/>
     </input>

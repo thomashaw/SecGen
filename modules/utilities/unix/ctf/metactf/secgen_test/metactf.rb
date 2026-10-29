@@ -73,7 +73,7 @@ class MetactfTest < PostProvisionTest
       tier(2) do
         # the challenge binary runs as the student and prints something (a prompt) rather than failing to execute
         test_command_succeeds("#{name}: binary runs as #{user}",
-                              "cd #{Shellwords.escape(dir)} && out=$(printf '\\n' | timeout 10 ./#{Shellwords.escape(name)} 2>&1); test -n \"$out\"", user: user)
+                              "cd #{Shellwords.escape(dir)} && test -x ./#{Shellwords.escape(name)} && out=$(printf '\\n' | timeout 10 ./#{Shellwords.escape(name)} 2>&1); test -n \"$out\"", user: user)
         test_command_succeeds("#{name}: student cannot read the flag directly", "! cat #{flag_file}", user: user)
         # A challenge built with empty randomised values (e.g. build.zsh without bc) typically accepts an empty or
         # arbitrary password; a correctly built one releases the flag only for its password.
@@ -82,6 +82,8 @@ class MetactfTest < PostProvisionTest
           out = run_as_user(user, "cd #{Shellwords.escape(dir)} && printf '#{input}' | timeout 10 ./#{Shellwords.escape(name)} 2>&1")
           if out[:stdout].include?(challenge['flag']) || out[:stderr].include?(challenge['flag'])
             fail_check("#{name}: #{kind} password rejected", 'the flag was released (challenge built with empty values?)')
+          elsif [126, 127].include?(out[:exit_status])
+            fail_check("#{name}: #{kind} password rejected", "the binary did not run (exit #{out[:exit_status]})")
           else
             pass_check("#{name}: #{kind} password rejected")
           end

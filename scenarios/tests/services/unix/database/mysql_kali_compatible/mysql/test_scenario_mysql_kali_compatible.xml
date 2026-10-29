@@ -6,13 +6,13 @@
 
   <name>Test: mysql_kali_compatible</name>
   <author>Thomas Shaw</author>
-  <description>Two-VM test scenario for the mysql_kali_compatible service: a Debian 12 target and a Kali/MSF attacker on the same private network, used to exercise the module's secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
+  <description>Two-VM test scenario for the mysql_kali_compatible service: a Kali/MSF target (the module conflicts with non-Kali bases) and a Kali/MSF attacker on the same private network, used to exercise the module's secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
 
   <type>test</type>
 
   <system>
     <system_name>mysql_kali_compatible_target</system_name>
-    <base platform="linux" distro="Debian 12" type="desktop"/>
+    <base distro="Kali" name="MSF"/>
 
     <input into_datastore="IP_addresses">
       <network_ip system="mysql_kali_compatible_target"/>

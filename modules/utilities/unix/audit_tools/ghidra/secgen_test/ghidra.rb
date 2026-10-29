@@ -33,9 +33,11 @@ class GhidraTest < PostProvisionTest
     tier(2) do
       # the headless analyser starts under the installed JDK and prints its usage when given no arguments
       test_local_command('analyzeHeadless runs', 'timeout 120 /opt/ghidra/support/analyzeHeadless 2>&1', 'Headless Analyzer Usage')
-      # the same, as an unprivileged user (HOME is a scratch directory: Ghidra writes settings there)
+      # the same, as an unprivileged user. Ghidra's LaunchSupport takes Java's user.home (from the passwd entry,
+      # /nonexistent for nobody), not $HOME, and exits if it is missing; so point user.home at a scratch directory
+      # (JAVA_TOOL_OPTIONS reaches both LaunchSupport and the Ghidra JVM) where Ghidra can write its settings.
       test_local_command('analyzeHeadless runs as an unprivileged user',
-                         'export HOME=$(mktemp -d); timeout 120 /opt/ghidra/support/analyzeHeadless 2>&1', 'Headless Analyzer Usage', user: 'nobody')
+                         'export HOME=$(mktemp -d); export JAVA_TOOL_OPTIONS="-Duser.home=$HOME"; timeout 120 /opt/ghidra/support/analyzeHeadless 2>&1', 'Headless Analyzer Usage', user: 'nobody')
       test_command_succeeds('java runs as an unprivileged user', 'java -version', user: 'nobody')
       if kali
         # the debugger's gdb python packages were installed into gdb's embedded python

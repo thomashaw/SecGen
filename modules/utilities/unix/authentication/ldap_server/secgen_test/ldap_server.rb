@@ -31,7 +31,7 @@ class LdapServerTest < PostProvisionTest
       test_local_command('Apache includes conf-enabled', 'grep conf-enabled /etc/apache2/apache2.conf', 'conf-enabled')
       test_local_command('phpldapadmin Apache conf enabled', 'ls /etc/apache2/conf-enabled/', 'phpldapadmin.conf')
       test_local_command('Apache PHP module enabled', 'ls /etc/apache2/mods-enabled/', 'php')
-      test_local_command('phpldapadmin Apache 2.4 syntax', 'grep -c "Order allow,deny" /etc/apache2/conf-available/phpldapadmin.conf', '0')
+      test_local_command('phpldapadmin Apache 2.4 syntax', 'grep -c "Order allow,deny" /etc/apache2/conf-available/phpldapadmin.conf | grep -x 0', '0')
       test_local_command('phpldapadmin auto UID/GID start', 'grep auto_number /etc/phpldapadmin/config.php', "'uidNumber'=>10000,'gidNumber'=>5000")
       %w[ldapsearch ldapadd ldapmodify ldapdelete].each do |bin|
         test_local_command("#{bin} on PATH", "command -v #{bin}", bin)
@@ -48,8 +48,8 @@ class LdapServerTest < PostProvisionTest
 
     tier(2) do
       test_service_up
-      test_local_command('slapd service active', 'systemctl is-active slapd', 'active')
-      test_local_command('apache2 service active', 'systemctl is-active apache2', 'active')
+      test_local_command('slapd service active', 'systemctl is-active slapd | grep -x active', 'active')
+      test_local_command('apache2 service active', 'systemctl is-active apache2 | grep -x active', 'active')
       if base_dn
         test_local_command("base DN #{base_dn} in naming contexts",
                            "ldapsearch -x -H ldap://localhost -b '' -s base namingContexts 2>&1",
@@ -74,7 +74,7 @@ class LdapServerTest < PostProvisionTest
       end
 
       # phpLDAPadmin web interface served by Apache
-      test_http('/phpldapadmin/', port: 80, label: 'phpLDAPadmin web interface')
+      test_http('/phpldapadmin/', port: 80, match: 'phpLDAPadmin', label: 'phpLDAPadmin web interface')
     end
   end
 end

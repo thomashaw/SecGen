@@ -15,7 +15,9 @@ class JavaDecompileTest < PostProvisionTest
     end
     tier(2) do
       # Java .class files start with the magic bytes CA FE BA BE.
-      test_local_command('valid Java class magic bytes', 'find /home /root -name "*.class" | head -1 | xargs -I{} xxd -l4 "{}" 2>/dev/null', 'ca fe ba be')
+      # od (coreutils) prints the bytes the same way everywhere; xxd's grouping differs
+      # between versions (ca fe ba be vs cafe babe) and xxd isn't always installed.
+      test_local_command('valid Java class magic bytes', 'find /home /root -name "*.class" | head -1 | xargs -I{} od -An -tx1 -N4 "{}" 2>/dev/null | tr -d " \\n"', 'cafebabe')
     end
     # TODO tier 3 (exploit): deferred — challenge is a CTF reverse-engineering task, no remote exploit
   end

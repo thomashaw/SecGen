@@ -1,9 +1,10 @@
 require_relative '../../../../../lib/post_provision_test'
 
 class KaliWebTest < PostProvisionTest
-  # Every package install.pp installs (kali-tools-web itself is not installed; see the Puppet comment)
+  # Every package install.pp installs (kali-tools-web itself is not installed; see the Puppet comment).
+  # maltego is dropped for now: re-add it here with install.pp's TODO.
   PACKAGES = %w[apache-users apache2 beef-xss burpsuite cadaver commix cutycapt default-mysql-server dirb dirbuster
-                hamster-sidejack heartleech httprint httrack hydra jboss-autopwn joomscan jsql-injection maltego
+                hamster-sidejack heartleech httprint httrack hydra jboss-autopwn joomscan jsql-injection
                 medusa mitmproxy ncrack nikto nmap oscanner owasp-mantra-ff padbuster paros patator php php-mysql
                 proxychains4 proxytunnel qsslcaudit redsocks sidguesser siege skipfish slowhttptest sqldict
                 sqlitebrowser sqlmap sqlninja sqlsus ssldump sslh sslscan sslsniff sslsplit sslyze stunnel4
@@ -41,10 +42,16 @@ class KaliWebTest < PostProvisionTest
       {
         'nmap' => 'nmap --version', 'nikto' => 'nikto -Version', 'sqlmap' => 'sqlmap --version',
         'whatweb' => 'whatweb --version', 'wfuzz' => 'wfuzz --version', 'wpscan' => 'wpscan --version',
-        'sslscan' => 'sslscan --version', 'tshark' => 'tshark --version', 'php' => 'php -v',
+        'sslscan' => 'sslscan --version', 'editcap (wireshark)' => 'editcap --version', 'php' => 'php -v',
         'apache2' => '/usr/sbin/apache2 -v', 'mysql client' => 'mysql --version'
-      }.each { |tool, cmd| test_command_succeeds("#{tool} runs as an unprivileged user", cmd, user: 'nobody') }
+      }.each { |tool, cmd| test_command_succeeds("#{tool} runs as an unprivileged user", with_temp_home(cmd), user: 'nobody') }
     end
+  end
+
+  # nobody's home is /nonexistent, and john, wpscan and wfuzz write to $HOME on start,
+  # so give each run a throwaway home
+  def with_temp_home(cmd)
+    "h=$(mktemp -d); HOME=$h #{cmd}; rc=$?; rm -rf \"$h\"; exit $rc"
   end
 end
 

@@ -19,7 +19,7 @@ class GroupsTest < PostProvisionTest
       end
     end
     tier(2) do
-      test_command_succeeds('getent group works', 'getent group | wc -l')
+      test_command_succeeds('getent group works', 'getent group root')
       groups.each do |g|
         test_local_command("group #{g} resolves via getent", "getent group #{g}", "#{g}:")
       end
