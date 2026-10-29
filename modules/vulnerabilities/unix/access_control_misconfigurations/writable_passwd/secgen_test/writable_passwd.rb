@@ -49,26 +49,19 @@ class WritablePasswdTest < PostProvisionTest
                           "[ \"$(stat -c '%a %U' #{mode} | sort -u)\" = '600 root' ]", tier: 1)
   end
 
-  # An unprivileged account (created for the test, removed afterwards) can open
-  # /etc/passwd for writing. The append is empty, so nothing is changed and the
-  # system is not taken to root.
+  # An existing unprivileged account (nobody) can open /etc/passwd for writing.
+  # No account is created for the test: useradd rewrites /etc/passwd, which
+  # could change the mode we are trying to observe. The append is empty, so
+  # nothing is changed and the system is not taken to root.
   def check_writable_by_low_privilege_user
-    user = "secgen_t2_#{rand(100_000)}"
-    r = run_vagrant_ssh("useradd -m -s /bin/bash #{user}", timeout: 60)
-    skip!("could not create test user #{user}: #{r[:stderr].to_s.strip[0, 200]}") unless r[:exit_status] == 0
-
-    test_command_succeeds('unprivileged user can open /etc/passwd for writing', ": >> #{PASSWD}", user: user)
+    user = 'nobody'
+    test_command_succeeds('unprivileged user can open /etc/passwd for writing',
+                          ": >> #{PASSWD} || { ls -l #{PASSWD} >&2; id >&2; exit 1; }", user: user)
     test_command_succeeds('unprivileged user is not root', '[ "$(id -u)" -ne 0 ]', user: user)
     # The flag files stay protected: the user needs the vulnerability to reach them.
     (self.json_inputs['leaked_filenames'] || []).uniq.each do |f|
       test_command_succeeds("unprivileged user cannot read /root/#{f}",
                             "! cat #{Shellwords.escape("/root/#{f}")} >/dev/null 2>&1", user: user)
-    end
-  ensure
-    begin
-      run_vagrant_ssh("pkill -u #{user} 2>/dev/null; userdel -r #{user} 2>/dev/null; true", timeout: 60) if user
-    rescue StandardError
-      nil
     end
   end
 end
