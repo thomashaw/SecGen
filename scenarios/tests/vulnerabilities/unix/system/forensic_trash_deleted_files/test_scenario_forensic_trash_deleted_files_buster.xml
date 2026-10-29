@@ -25,12 +25,6 @@
         <input into="super_user">
           <value>false</value>
         </input>
-        <input into="leaked_filenames">
-          <value>flag.txt</value>
-        </input>
-        <input into="strings_to_leak">
-          <generator type="flag_generator"/>
-        </input>
       </generator>
     </input>
     <utility module_path="modules/utilities/unix/system/parameterised_accounts">
@@ -38,7 +32,11 @@
         <datastore>accounts</datastore>
       </input>
     </utility>
-    <vulnerability module_path="modules/vulnerabilities/unix/system/forensic_trash_deleted_files"/>
+    <vulnerability module_path="modules/vulnerabilities/unix/system/forensic_trash_deleted_files">
+      <input into="account">
+        <datastore>accounts</datastore>
+      </input>
+    </vulnerability>
     <network type="private_network"/>
     <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>
