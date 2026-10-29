@@ -56,6 +56,11 @@
     <generator type="username_generator"/>
   </default_input>
 
+  <!-- its PHP comes from packages.sury.org, which no longer serves Buster -->
+  <conflict>
+    <name>.*Buster.*</name>
+  </conflict>
+
   <requires>
     <module_path>.*/puppet_module/cron.*</module_path>
   </requires>
