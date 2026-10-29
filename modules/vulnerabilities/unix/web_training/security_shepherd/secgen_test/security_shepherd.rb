@@ -44,8 +44,14 @@ class SecurityShepherdTest < PostProvisionTest
                            "grep -cxF -- #{Shellwords.escape(flag)} #{CLASSES_DIR}/flags", '1')
       end
       if (user = self.json_inputs['unix_username']&.first)
+        # Query the live core database: the rendered /tmp/coreSchema.sql is
+        # removed at boot, so it is gone by the time the test runs. The root
+        # password is the module's fixed lab value (mariadb.pp / grant.sql);
+        # it is passed through MYSQL_PWD, not on the mysql command line.
         test_local_command('player account created for unix_username',
-                           "grep -c \"call userCreate(@class_id, '#{user}'\" /tmp/coreSchema.sql", '1')
+                           "MYSQL_PWD=CowSaysMoo mysql -u root -N -e " \
+                           "\"select count(*) from core.users where userRole='player' and userName='#{user}'\"",
+                           '1')
       end
     end
     # No tier 3: Security Shepherd is a training platform, not an exploitable service.
