@@ -19,7 +19,35 @@
       <network_ip system="attacker"/>
     </input>
 
-    <vulnerability module_path=".*/forensic_trash_deleted_files"/>
+    <input into_datastore="accounts">
+      <generator type="account">
+        <input into="username">
+          <generator type="random_sanitised_word">
+            <input into="wordlist">
+              <value>mythical_creatures</value>
+            </input>
+          </generator>
+        </input>
+        <input into="password">
+          <generator type="strong_password_generator"/>
+        </input>
+        <input into="super_user">
+          <value>false</value>
+        </input>
+      </generator>
+    </input>
+
+    <utility module_path=".*/parameterised_accounts">
+      <input into="accounts">
+        <datastore>accounts</datastore>
+      </input>
+    </utility>
+
+    <vulnerability module_path=".*/forensic_trash_deleted_files">
+      <input into="account">
+        <datastore>accounts</datastore>
+      </input>
+    </vulnerability>
 
     <network type="private_network"/>
 

@@ -20,7 +20,8 @@ class MySQLTest < PostProvisionTest
       test_local_command('ssl disabled in config', 'grep -rE "^skip-ssl" /etc/mysql/', 'skip-ssl')
     end
     tier(2) do
-      # Debian 12 installs MariaDB, whose server binary is mariadbd, not mysqld
+      # Debian 12 installs MariaDB with a mariadbd binary; Debian 10 installs
+      # MariaDB 10.3, whose binary is still mysqld
       test_local_command('mysqld process running?', 'ps -eo args | grep -E "^/usr/sbin/(mariadbd|mysqld)"', '/usr/sbin/')
       test_service_up(port: 3306)
       # the server answers a query over the local socket

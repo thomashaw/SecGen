@@ -192,9 +192,26 @@ module Proxmox
       wait_for_completion task_response: response, timeout_message: 'vagrant_proxmox.errors.shutdown_vm_timeout'
     end
 
-    def snapshot_qemu_vm(vm_id, node)
-      response = post "/nodes/#{node}/qemu/#{vm_id}/snapshot", {snapname: "original", node: node, vmid: vm_id }
-      wait_for_completion task_response: response, timeout_message: 'errors.shutdown_vm_timeout'
+    def snapshot_qemu_vm(vm_id, node, name = 'original')
+      response = post "/nodes/#{node}/qemu/#{vm_id}/snapshot", {snapname: name, node: node, vmid: vm_id }
+      status = wait_for_completion task_response: response, timeout_message: 'errors.shutdown_vm_timeout'
+      raise ApiError::ServerError, "snapshot task ended with: #{status}" unless status == 'OK'
+      status
+    end
+
+    # The VM must be stopped: a disk-only snapshot has no RAM state to resume.
+    def rollback_qemu_snapshot(vm_id, node, name = 'original')
+      response = post "/nodes/#{node}/qemu/#{vm_id}/snapshot/#{name}/rollback", {}
+      status = wait_for_completion task_response: response, timeout_message: 'errors.snapshot_rollback_timeout'
+      raise ApiError::ServerError, "snapshot rollback task ended with: #{status}" unless status == 'OK'
+      status
+    end
+
+    def delete_qemu_snapshot(vm_id, node, name = 'original')
+      response = delete "/nodes/#{node}/qemu/#{vm_id}/snapshot/#{name}"
+      status = wait_for_completion task_response: response, timeout_message: 'errors.snapshot_delete_timeout'
+      raise ApiError::ServerError, "snapshot delete task ended with: #{status}" unless status == 'OK'
+      status
     end
 
     def network_qemu_vm(vm_id, node, nic, vlan)

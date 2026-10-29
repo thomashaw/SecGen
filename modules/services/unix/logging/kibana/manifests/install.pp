@@ -22,7 +22,9 @@ class kibana::install () {
     command => 'apt-get update',
     unless  => 'dpkg -s kibana 2>/dev/null | grep -q "^Status: install ok installed"',
   }->
+  # Pinned to the elasticsearch module's version: Kibana refuses (503) an
+  # Elasticsearch older than itself, and the 7.x repo's newest is 7.17.
   package { 'kibana':
-    ensure => present,
+    ensure => '7.10.0',
   }
 }
