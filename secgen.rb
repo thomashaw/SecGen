@@ -90,6 +90,9 @@ def usage
    --proxmox-vlan [vlan number]
    --proxmox-vmid-min [number]  Lowest VMID the Proxmox provider may allocate (default: 1000)
    --proxmox-vmid-max [number]  Highest VMID the Proxmox provider may allocate (default: 999999999)
+   --proxmox-template-suffix [suffix]  Appended to every base's proxmox_template name, to clone
+              from per-node copies of the templates (e.g. --proxmox-node pmox02
+              --proxmox-template-suffix -pmox02 uses bookworm-desktop-kde-20260715-pmox02)
 
    LLM OPTIONS:
    --llm-api-key [key]: API key for the local LLM gateway, given to modules of type llm_api_key (e.g. llm_relay)
@@ -731,6 +734,7 @@ opts = GetoptLong.new(
     ['--proxmox-vlan', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-vmid-min', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-vmid-max', GetoptLong::REQUIRED_ARGUMENT],
+    ['--proxmox-template-suffix', GetoptLong::REQUIRED_ARGUMENT],
     ['--llm-api-key', GetoptLong::REQUIRED_ARGUMENT],
     ['--proxmox-post-boot', GetoptLong::NO_ARGUMENT],
     ['--esxiuser', GetoptLong::REQUIRED_ARGUMENT],
@@ -863,6 +867,9 @@ opts.each do |opt, arg|
   when '--proxmox-vmid-max'
     Print.info "Proxmox VMID max : #{arg}"
     options[:proxmoxvmidmax] = arg.to_i
+  when '--proxmox-template-suffix'
+    Print.info "Proxmox template suffix : #{arg}"
+    options[:proxmoxtemplatesuffix] = arg
   when '--llm-api-key'
     Print.info "LLM API key : ********"
     # like SECGEN_PROXMOX_PASS: the Vagrantfile reads it from the environment, so it's never written to the project

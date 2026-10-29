@@ -31,6 +31,8 @@ bundler at the main checkout's gems.
   SECGEN_RUN_OWNER=tom        # prefix owner (default: $USER)
   SECGEN_VLAN_MIN=200         # VLAN range secgen-dev-run cycles through
   SECGEN_VLAN_MAX=1000
+  # SECGEN_PROXMOX_NODE=pmox02  # build on another node, cloning its <template>-pmox02 copies
+  #                           # (unset: the options file's node, which holds the originals)
   # SECGEN_CONF=...           # alternative creds file (absolute path); if SecGen/secgen.conf
   #                           # is missing, ~/.config/secgen/secgen.conf is used
   # SECGEN_STATE=...          # counter file (default ~/.config/secgen/run_counter)
