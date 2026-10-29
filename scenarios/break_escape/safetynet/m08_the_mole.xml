@@ -155,13 +155,22 @@ These VMs are provisioned by the Break Escape game engine via SecGen integration
            before the credentials flag. Within-module order needs a build to confirm. -->
       <!-- flag1: REPOSITORY EXPOSURE (recon) - the exploit reads config outside the
            web root, exposing SAFETYNET's own repo setup and the ops-account username -->
+      <!-- One committed text file is the recon payload: a single string (concatenate),
+           in a source-tree filename GitList can browse, so the exploit can enumerate it. -->
       <input into="strings_to_pre_leak">
-        <value>SAFETYNET INTERNAL SOURCE -- ops-config committed in error
+        <encoder module_path="modules/encoders/selector/concatenate">
+          <input into="strings_to_encode">
+            <value>SAFETYNET INTERNAL SOURCE -- ops-config committed in error
 Repo: internal/mission-tooling  (GitList browser exposed, no auth required)
 Note in commit message: "temp creds for the planning sync job, will rotate"  -- never rotated
-Service account (ops):</value>
-        <datastore access_json="['manager']['username']">organisation</datastore>
-        <generator type="flag_generator"/>
+Service account (ops): </value>
+            <datastore access_json="['manager']['username']">organisation</datastore>
+            <generator type="flag_generator"/>
+          </input>
+        </encoder>
+      </input>
+      <input into="pre_leaked_filenames">
+        <value>ops-config.txt</value>
       </input>
       <!-- flag2: STASHED CREDENTIALS - the mole's password, committed and never scrubbed -->
       <input into="strings_to_leak">
