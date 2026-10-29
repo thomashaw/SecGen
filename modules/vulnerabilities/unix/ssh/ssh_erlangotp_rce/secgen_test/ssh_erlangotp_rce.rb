@@ -11,8 +11,8 @@ class SshErlangotpRceTest < PostProvisionTest
     super
     tier(1) do
       # Vulnerable Erlang/OTP pre-built package installed (version 26.2.5.10, before CVE-2025-32433 fix)
-      test_local_command('erlang/otp installed', 'test -x /usr/local/bin/erl', '/usr/local/bin/erl')
-      test_local_command('erlang-otp-ssh-rce service file present', 'test -f /etc/systemd/system/erlang-otp-ssh-rce.service', '/etc/systemd')
+      test_local_command('erlang/otp installed', 'test -x /usr/local/bin/erl && echo ok', 'ok')
+      test_local_command('erlang-otp-ssh-rce service file present', 'test -f /etc/systemd/system/erlang-otp-ssh-rce.service && echo ok', 'ok')
     end
     tier(2) do
       # Erlang SSH daemon listens on port 2222 (default from service.pp)

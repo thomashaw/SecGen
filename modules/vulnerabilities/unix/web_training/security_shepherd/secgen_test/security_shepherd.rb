@@ -15,7 +15,7 @@ class SecurityShepherdTest < PostProvisionTest
     end
     tier(2) do
       test_service_up(port: 8080)
-      test_http('/', port: 8080)
+      test_http('/login.jsp', port: 8080, match: 'Security Shepherd')
     end
     # TODO tier 3 (exploit): deferred — no automated MSF module; manual credential-based attack
   end

@@ -6,7 +6,7 @@
 
   <name>Test: llm_relay</name>
   <author>Thomas Shaw</author>
-  <description>Single-VM test scenario for the llm_relay utility module, used to exercise its secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
+  <description>Single-VM test scenario for the llm_relay utility module (lab network plus internal_network, which the relay requires), used to exercise its secgen_test via the Proxmox QEMU Guest Agent testing pipeline.</description>
 
   <type>test</type>
 
@@ -17,6 +17,8 @@
     <utility module_path=".*/llm_relay"/>
 
     <network type="private_network"/>
+    <!-- llm_relay fails without an internal network leg (the secgen_internal_network fact) -->
+    <network type="internal_network"/>
 
     <input into_datastore="spoiler_admin_pass">
       <generator type="strong_password_generator"/>

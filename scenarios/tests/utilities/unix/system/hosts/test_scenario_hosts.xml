@@ -14,7 +14,17 @@
     <system_name>hosts_testing</system_name>
     <base platform="linux" distro="Debian 12" type="desktop"/>
 
-    <utility module_path=".*/system/hosts"/>
+    <!-- hostnames[i] maps to IP_addresses[i]; without inputs SecGen sets no inputs-file fact and the module cannot run -->
+    <utility module_path=".*/system/hosts">
+      <input into="hostnames">
+        <value>web.hosts-test.lan</value>
+        <value>db.hosts-test.lan</value>
+      </input>
+      <input into="IP_addresses">
+        <value>10.20.30.41</value>
+        <value>10.20.30.42</value>
+      </input>
+    </utility>
 
     <network type="private_network"/>
 

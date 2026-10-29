@@ -15,7 +15,7 @@ class AliasRootkitTest < PostProvisionTest
 
     tier(1) do
       # The rootkit installs bash aliases that hide strings from common commands
-      test_local_command('aliases in /root/.bashrc', "grep -c 'alias ps=' /root/.bashrc", '')
+      test_local_command('aliases in /root/.bashrc', "grep -q 'alias ps=' /root/.bashrc && echo found", 'found')
       # one alias per hooked command, in root's and the skeleton (so later accounts) bashrc
       ['/root/.bashrc', '/etc/skel/.bashrc'].each do |rc|
         %w[ps ls lsof netstat cat].each do |cmd|
@@ -31,7 +31,7 @@ class AliasRootkitTest < PostProvisionTest
         end
       end
       # the non-interactive early return is stripped from the skeleton so the aliases load
-      test_local_command('skel bashrc has no non-interactive return', "grep -c '^      \\*) return;;' /etc/skel/.bashrc", '0')
+      test_local_command('skel bashrc has no non-interactive return', "grep -c '^      \\*) return;;' /etc/skel/.bashrc | grep -x 0", '0')
     end
     tier(2) do
       # Aliases survive a bash invocation (non-interactive -c; use bash directly so they expand)

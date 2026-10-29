@@ -19,7 +19,7 @@ class AutopsyTest < PostProvisionTest
       test_local_command('autopsy binary present', 'test -x /usr/bin/autopsy && echo "ok"', 'ok')
       # the web UI needs an evidence locker, so run the script with its usage/help output instead (lower-cased to
       # match whichever wording it prints) and check the Sleuth Kit back end answers
-      test_local_command('autopsy runs as an unprivileged user', 'timeout 30 autopsy -h </dev/null 2>&1 | tr A-Z a-z', 'autopsy', user: 'nobody')
+      test_local_command('autopsy runs as an unprivileged user', 'command -v autopsy >/dev/null && timeout 30 autopsy -h </dev/null 2>&1 | tr A-Z a-z', 'autopsy', user: 'nobody')
       test_command_succeeds('sleuthkit fls runs as an unprivileged user', 'fls -V', user: 'nobody')
     end
   end

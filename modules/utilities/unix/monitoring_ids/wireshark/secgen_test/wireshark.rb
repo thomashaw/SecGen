@@ -14,8 +14,8 @@ class WiresharkTest < PostProvisionTest
       test_local_command('tcpdump installed?', 'which tcpdump', 'tcpdump')
     end
     tier(2) do
-      test_command_succeeds('tshark version runs', 'tshark --version 2>&1 | head -1')
-      test_command_succeeds('tcpdump version runs', 'tcpdump --version 2>&1 | head -1')
+      test_command_succeeds('tshark version runs', 'tshark --version')
+      test_command_succeeds('tcpdump version runs', 'tcpdump --version')
     end
   end
 end

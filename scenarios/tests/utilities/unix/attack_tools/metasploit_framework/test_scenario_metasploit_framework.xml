@@ -12,7 +12,7 @@
 
   <system>
     <system_name>metasploit_framework_testing</system_name>
-    <base name="Kali Light and Puppet"/>
+    <base distro="Kali" name="MSF"/>
 
     <utility module_path=".*/metasploit_framework"/>
 

@@ -10,7 +10,7 @@ class SshLeakedKeysTest < PostProvisionTest
   def test_module
     super
     tier(1) do
-      test_local_command('user account exists', 'ls /home | head -1', '/')
+      test_local_command('user account exists', 'ls -d /home/*/ 2>/dev/null | head -1', '/home/')
       # An SSH key pair is deposited into the user's .ssh directory.
       test_local_command('private key placed', 'find /home -name "id_rsa" | head -1', 'id_rsa')
     end

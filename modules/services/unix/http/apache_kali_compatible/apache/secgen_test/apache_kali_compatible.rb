@@ -22,7 +22,7 @@ class ApacheKaliCompatibleTest < PostProvisionTest
     tier(2) do
       test_service_up(port: 80)
       test_http('/', port: 80)
-      test_local_command('apache config syntax', 'apache2ctl -t', 'Syntax OK')
+      test_local_command('apache config syntax', 'apache2ctl -t 2>&1', 'Syntax OK')
       # workers run as www-data, not root
       test_local_command('apache workers run as www-data', 'ps -o user= -C apache2', 'www-data')
     end

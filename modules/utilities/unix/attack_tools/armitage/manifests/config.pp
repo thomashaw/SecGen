@@ -11,5 +11,7 @@ class armitage::config{
     provider => shell,
     tries => 4,
     try_sleep => 5,
+    # msfdb reinit migrates Metasploit's whole schema; Puppet's default 300 s ran out on a busy host.
+    timeout => 1800,
   }
 }

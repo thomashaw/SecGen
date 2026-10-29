@@ -117,7 +117,7 @@ API (all in `lib/objects/post_provision_test.rb`):
 | Helper | Passes when |
 |---|---|
 | `test_service_up(port: self.port)` | port is listening (SKIP if there's no port input) |
-| `test_local_command(label, cmd, substr, user: nil)` | `substr` in stdout **or** stderr |
+| `test_local_command(label, cmd, substr, user: nil)` | `substr` in stdout (add `2>&1` to match stderr, but then never match the program's own name: `x: command not found` would match; use `test_command_succeeds` for "x runs") |
 | `test_command_succeeds(label, cmd, user: nil)` | exit status 0 |
 | `test_banner(match, port:, send: nil)` | what the port sends (after `send` + CRLF) contains `match` |
 | `test_http(path, match: nil, status: nil, port:, scheme: 'http')` | status matches (default 2xx/3xx) and body contains `match` |
@@ -339,8 +339,8 @@ destroy the VMs via the API and remove the project.
 1. Make a minimal test scenario in `scenarios/tests/` (one `<system>`, the module,
    a `parameterised_accounts` user if required, a `<network>`, and the **required**
    `build type="cleanup"` root-password reset). Pick a base whose Proxmox template
-   exists (`scripts/pve-check`). Debian 12 provisions reliably; Debian 9 server has a flaky
-   provisioning net. See the `review-secgen-scenario` skill for scenario rules.
+   exists (`scripts/pve-check`). Debian 12 provisions reliably. See the
+   `review-secgen-scenario` skill for scenario rules.
 2. Validate + resolve cheaply first (see CLAUDE.md "Check cheaply"): XSD validate,
    then `build-project` (no VMs).
 3. Build: `scripts/secgen-dev-run -p <name> -s scenarios/tests/<scn>.xml`

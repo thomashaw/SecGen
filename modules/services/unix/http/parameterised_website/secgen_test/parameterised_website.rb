@@ -28,7 +28,7 @@ class ParamWebsiteTest < PostProvisionTest
       end
       # the distribution default site is removed (Tidy resource)
       test_local_command('default site removed', 'test ! -e /etc/apache2/sites-enabled/000-default.conf && echo gone', 'gone')
-      test_local_command('apache2 running', 'systemctl is-active apache2', 'active')
+      test_local_command('apache2 running', 'systemctl is-active apache2 | grep -x active', 'active')
     end
     tier(2) do
       test_service_up
@@ -146,7 +146,13 @@ class ParamWebsiteTest < PostProvisionTest
           test_local_command("image#{i + 1}.png mode", "stat -c %a #{file}", mode.to_i(8).to_s(8))
         end
       end
-      tier(2) { test_html_returned_content('/index.html', %(src="image#{i + 1}.png"), true) }
+      tier(2) do
+        test_html_returned_content('/index.html', %(src="image#{i + 1}.png"), true)
+        # Apache must be able to read the image, unless images_mode makes it
+        # deliberately unreadable by others.
+        world_readable = !(present?(mode) && mode =~ /\A[0-7]+\z/) || (mode.to_i(8) & 4) != 0
+        test_http("/image#{i + 1}.png") if world_readable
+      end
     end
   end
 

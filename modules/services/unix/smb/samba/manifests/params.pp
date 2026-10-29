@@ -23,8 +23,7 @@ class samba::params {
   $service = $::operatingsystem ? {
     /(?i:Centos|RedHat|Scientific|Fedora|Amazon|Linux)/ => 'smb',
     /(?i:SLES|OpenSuSE)/                                => 'smb',
-    /(?i:Ubuntu|Mint)/                                  => 'smbd',
-    /(?i:Debian)/                                       => 'samba',
+    /(?i:Ubuntu|Mint|Debian)/                           => 'smbd',
     default                                             => 'smb',
   }
 
@@ -114,5 +113,10 @@ class samba::params {
   $puppi_helper = 'standard'
   $debug = false
   $audit_only = false
+  # SecGen: params_lookup() returns '' rather than undef when a param's
+  # default is undef (it checks value.nil?, not Puppet's :undef), so an
+  # unset noop default reaches Package/Service/File as the invalid value
+  # "" instead of a real boolean. Default to false instead.
+  $noops = false
 
 }

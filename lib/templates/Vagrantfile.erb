@@ -58,6 +58,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             Print.err "Scenario includes #{selected_module.attributes['name']} which is not available on Proxmox!"
             return nil
           else
+            # per-node copies of the templates are named <template><suffix>
+            @proxmox_base_template += @options[:proxmoxtemplatesuffix].to_s
             @base_template = @proxmox_base_template
           end
         when "esxi"

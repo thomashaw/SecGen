@@ -11,7 +11,7 @@ class AmapTest < PostProvisionTest
     super
     tier(1) { test_local_command('amap installed?', 'which amap', 'amap') }
     # amap exits non-zero without args but prints usage to stderr; test_local_command checks stdout OR stderr
-    tier(2) { test_local_command('amap responds', 'amap 2>&1 | head -3', 'amap') }
+    tier(2) { test_local_command('amap responds', 'command -v amap >/dev/null && amap 2>&1 | head -3', 'amap') }
   end
 end
 

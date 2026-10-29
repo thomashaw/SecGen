@@ -12,7 +12,7 @@ class TwoShellCallsTest < PostProvisionTest
     tier(1) do
       # The module creates a 'managers' group and a user account.
       test_local_command('managers group created', 'getent group managers', 'managers')
-      test_local_command('user account exists', 'ls /home | head -1', '/')
+      test_local_command('user account exists', 'ls -d /home/*/ 2>/dev/null | head -1', '/home/')
     end
     tier(2) do
       # Two SUID binaries are compiled and placed in the user's home.

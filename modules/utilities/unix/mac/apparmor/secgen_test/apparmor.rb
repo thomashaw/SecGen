@@ -12,9 +12,15 @@ class ApparmorTest < PostProvisionTest
     # chroot_dir is commented out of the module's metadata, so there is no input to check.
     tier(1) do
       test_local_command('apparmor installed?', 'dpkg -l apparmor | grep -E "^ii"', 'apparmor')
-      %w[apparmor-easyprof apparmor-notify apparmor-profiles apparmor-profiles-extra apparmor-utils auditd].each do |pkg|
+      %w[apparmor-notify apparmor-profiles apparmor-profiles-extra apparmor-utils auditd].each do |pkg|
         test_local_command("#{pkg} installed", "dpkg -l #{pkg} | grep -E '^ii'", pkg)
       end
+      # apparmor-easyprof is a virtual package on Debian 12 (provided by apparmor-utils),
+      # so dpkg never lists it; check that an installed package provides it
+      test_local_command('apparmor-easyprof provided',
+                         "dpkg-query -W -f='${db:Status-Abbrev} ${Package} provides: ${Provides}\\n' | grep -E '^ii .*apparmor-easyprof'",
+                         'apparmor-easyprof')
+      test_command_succeeds('aa-easyprof on the PATH', 'command -v aa-easyprof', tier: 1)
       # the default pidgin profile is removed (it breaks the pidgin module)
       test_command_succeeds('pidgin profile removed', 'test ! -e /etc/apparmor.d/usr.bin.pidgin')
       # AppArmor is switched on in the kernel command line defaults
@@ -27,6 +33,9 @@ class ApparmorTest < PostProvisionTest
       test_command_succeeds('aa-status runs', 'aa-status')
       test_local_command('apparmor enabled in the kernel', 'cat /sys/module/apparmor/parameters/enabled', 'Y')
       test_local_command('aa-enabled reports yes', 'aa-enabled', 'Yes')
+      # easyprof works: it generates a profile that the parser accepts (-Q: parse only, don't load)
+      test_command_succeeds('aa-easyprof generates a valid profile',
+                            'set -o pipefail; aa-easyprof /usr/bin/true | apparmor_parser -Q -K')
     end
   end
 end
