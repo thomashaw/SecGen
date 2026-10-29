@@ -23,6 +23,10 @@
 #                     the intermittent no-DHCP-lease provisioning flake)
 #   SECGEN_VMID_MIN   --proxmox-vmid-min passed to secgen.rb unless given (e.g. 5000 for pipeline builds)
 #   SECGEN_VMID_MAX   --proxmox-vmid-max passed to secgen.rb unless given (e.g. 5999 for pipeline builds)
+#   SECGEN_PROXMOX_NODE  build on this node instead of the options file's --proxmox-node, cloning
+#                     from its copies of the templates: passes --proxmox-node <node> and
+#                     --proxmox-template-suffix -<node> unless given (leave unset for the
+#                     node that holds the original templates)
 #   SECGEN_CONF       options file with the Proxmox creds (default SecGen/secgen.conf in the main checkout)
 #   SECGEN_STATE      counter file (default ~/.config/secgen/run_counter)
 #
@@ -105,6 +109,10 @@ EXTRA=("$@")
 [[ " ${EXTRA[*]} " == *" --retries "* ]] || EXTRA=(--retries "$RETRIES" "${EXTRA[@]}")
 [[ -z "${SECGEN_VMID_MIN:-}" || " ${EXTRA[*]} " == *" --proxmox-vmid-min "* ]] || EXTRA=(--proxmox-vmid-min "$SECGEN_VMID_MIN" "${EXTRA[@]}")
 [[ -z "${SECGEN_VMID_MAX:-}" || " ${EXTRA[*]} " == *" --proxmox-vmid-max "* ]] || EXTRA=(--proxmox-vmid-max "$SECGEN_VMID_MAX" "${EXTRA[@]}")
+if [[ -n "${SECGEN_PROXMOX_NODE:-}" && " ${EXTRA[*]} " != *" --proxmox-node "* ]]; then
+  [[ " ${EXTRA[*]} " == *" --proxmox-template-suffix "* ]] || EXTRA=(--proxmox-template-suffix "-$SECGEN_PROXMOX_NODE" "${EXTRA[@]}")
+  EXTRA=(--proxmox-node "$SECGEN_PROXMOX_NODE" "${EXTRA[@]}")
+fi
 
 if [[ -n "$MODULE" ]]; then
   CMD=(ruby secgen.rb --read-options "$SECGEN_CONF"
