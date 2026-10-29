@@ -12,7 +12,7 @@
 
   <system>
     <system_name>kali_forensic_testing</system_name>
-    <base name="Kali Light and Puppet"/>
+    <base distro="Kali" name="MSF"/>
 
     <utility module_path=".*/kali_metapackages/kali_forensic"/>
 

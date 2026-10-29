@@ -13,7 +13,7 @@
   </system>
   <system>
     <system_name>kali_light</system_name>
-    <base name="Kali Light and Puppet"/>
+    <base distro="Kali" name="MSF"/>
   </system>
   <system>
     <system_name>kali_msf</system_name>
