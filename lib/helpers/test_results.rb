@@ -223,6 +223,19 @@ module TestResults
     summary
   end
 
+  # After a PASS, records whether the VMs were rolled back to their pre-test
+  # snapshot (failed: names of VMs that weren't) and rewrites summary.json. A
+  # VM left with the tests' traces is a FAIL: surviving VMs are taken as clean.
+  def record_revert(project_dir, summary, failed)
+    summary = summary.merge(revert: { status: failed.empty? ? 'success' : 'failed', failed_vms: failed })
+    unless failed.empty?
+      summary[:status] = 'FAIL'
+      Print.err "Could not roll back to the pre-test snapshot: #{failed.join(', ')}"
+    end
+    File.write("#{results_dir(project_dir)}/summary.json", JSON.pretty_generate(summary) + "\n")
+    summary
+  end
+
   def system_names(project_dir)
     Dir.glob("#{project_dir}/puppet/*").select { |d| File.directory?(d) }.map { |d| File.basename(d) }.sort
   end
