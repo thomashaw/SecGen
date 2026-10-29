@@ -4,8 +4,10 @@ class setuid_root_nmap::init {
   $strings_to_leak = $secgen_parameters['strings_to_leak']
 
 
+  # the nmap utility module installs the package; set the bit after it
   file { '/usr/bin/nmap':
-    mode => '4755',
+    mode    => '4755',
+    require => Package['nmap'],
   }
 
   # Leak a file containing a string/flag to /root/
