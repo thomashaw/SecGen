@@ -135,7 +135,7 @@ def toy_dh
     big_a = g.pow(a, p)
     big_b = g.pow(b, p)
     s = big_b.pow(a, p)
-    next if s == 1 || big_a == big_b
+    next if s == 1 || big_a == big_b || s == big_a || s == big_b
     return { p: p, g: g, a: a, b: b, A: big_a, B: big_b, s: s }
   end
 end
