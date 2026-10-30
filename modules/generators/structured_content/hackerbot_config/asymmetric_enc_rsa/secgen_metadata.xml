@@ -7,15 +7,17 @@
   <author>Thomas Shaw</author>
   <author>Mo Hassan</author>
   <module_license>GPLv3</module_license>
-  <description>Generates a config file for a hackerbot for an asymmetric encryption lab.
-    Topics covered: Asymmetric Encryption; Public-Key Cryptography; RSA.</description>
+  <description>Generates a config file for a hackerbot for a public-key cryptography lab. Every RSA and
+    Diffie-Hellman value in the hand calculations is picked at build time, as are the messages, a weak
+    intermediate CA (P-384, tiny private key) and the bot's X25519 key.
+    Topics covered: Asymmetric Encryption; Public-Key Cryptography; RSA; Digital Signatures; Hybrid Encryption;
+    Certificate Chains of Trust; Diffie-Hellman and X25519 Key Exchange.</description>
 
   <type>hackerbot_config</type>
   <platform>linux</platform>
 
-  <read_fact>chall_3_msg</read_fact>
+  <read_fact>secret_word</read_fact>
 
-  <read_fact>keys</read_fact>
   <read_fact>flags</read_fact>
   <read_fact>root_password</read_fact>
   <read_fact>desktop_ip</read_fact>
@@ -30,11 +32,13 @@
     </generator>
   </default_input>
 
-  <default_input into="chall_3_msg">
+  <default_input into="secret_word">
     <generator type="weak_password_generator"/>
   </default_input>
 
   <default_input into="flags">
+    <generator type="flag_generator"/>
+    <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>

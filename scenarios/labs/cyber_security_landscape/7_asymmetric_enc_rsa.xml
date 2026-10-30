@@ -7,11 +7,11 @@
   <name>Asymmetric Encryption with RSA</name>
   <author>Z. Cliffe Schreuders</author>
   <description>
-    Public key cryptography (also known as asymmetric encryption) enables secure communication, digital signatures, and data encryption without the need for a shared secret key. In this lab you will delve into the world of public key cryptography, specifically focusing on the RSA (Rivest-Shamir-Adleman) cipher, one of the most widely used asymmetric encryption methods. This lab will help you understand the fundamental principles of RSA encryption, key pair generation, and encryption/decryption processes. You will also interact with Hackerbot, a chatbot designed to challenge and test your knowledge as you progress through the exercises.
+    Public-key cryptography (also known as asymmetric cryptography) lets two parties encrypt, sign and agree on keys without first sharing a secret. In this lab you will work through the RSA (Rivest-Shamir-Adleman) cipher by hand in Python, choosing the public exponent, finding the private exponent, and encrypting and decrypting messages, before using OpenSSL to generate RSA key pairs, encrypt data, sign and verify a message, and combine RSA with AES in the hybrid scheme that real systems use.
 
-    Throughout this lab, you will learn the key concepts and procedures related to RSA encryption. You will start by generating RSA key pairs and performing encryption and decryption operations using both OpenSSL and Python. You will pick prime numbers, calculate modulus and phi(N), select encryption and decryption keys, and apply these concepts to encrypt and decrypt messages. The lab includes various Hackerbot challenges that you will complete, such as creating key pairs, encrypting and decrypting messages, and solving encryption-related quizzes. These practical exercises will deepen your understanding of RSA encryption and help you gain hands-on experience in using this cryptographic technique to secure information and communication.
+    You will then build a chain of trust of your own, with a root CA, an intermediate CA and a website certificate, and examine what happens when a certificate authority gets key generation wrong: in October 2026 the private keys of a number of eMudhra intermediate CAs turned out to be tiny numbers, and you will recover such a key yourself by brute force. The lab finishes with key exchange (Diffie-Hellman by hand, then X25519 with OpenSSL) and a short look at how secure RSA is today.
 
-    This is a Hackerbot lab. Work through the lab sheet, then when prompted interact with Hackerbot.
+    This is a Hackerbot lab. Work through the lab sheet, then when prompted interact with Hackerbot. Every value in Hackerbot's challenges is randomised, so your answers will differ from other students'.
   </description>
   <lab_sheet_url>https://cliffe.github.io/HacktivityLabSheets/labs/cyber_security_landscape/7-asymmetric-enc-rsa/</lab_sheet_url>
 
