@@ -11,7 +11,7 @@
   $H = "/home/#{$main_user}"
 
   $flags = self.flags
-  REQUIRED_FLAGS = 14
+  REQUIRED_FLAGS = 13
   while $flags.length < REQUIRED_FLAGS
     $flags << "flag{#{SecureRandom.hex}}"
     Print.err "Warning: Not enough flags provided to hackerbot_config generator, some flags won't be tracked/marked!"
@@ -48,17 +48,17 @@
   $msg8 = SecureRandom.hex(4)
   $leaf_name = "shop-#{SecureRandom.hex(3)}.example"
 
-  # The weak intermediate CA: its P-384 private key is a small number (one of eMudhra's was 4)
-  $weak_k = rand_between(5, 999)
+  # The weak intermediate CA: its P-384 private key is one of the eight real eMudhra intermediate keys
+  # (October 2026). The lab sheet's worked example uses the eighth, 4.
+  $weak_k = [56, 66, 115, 155, 156, 230, 237].sample(random: SecureRandom)
   $ca = weak_ca($weak_k)
   $root_file = 'lab_trust_root.crt'
   $inter_file = 'lab_trust_inter.crt'
 
   # ---------------------------------------------------------------------------------------------
-  # Key exchange (challenges 13-14)
+  # Key exchange (challenge 13)
   # ---------------------------------------------------------------------------------------------
   $dh = toy_dh
-  $bot_x25519 = x25519_private_pem
 
   # ---------------------------------------------------------------------------------------------
   # Check scripts, run as root on the desktop. Each prints one HB: marker, and stops at the first problem.
@@ -137,23 +137,6 @@
              write_file_script("#{dir(11)}/#{$root_file}", $ca[:root_pem], $main_user) +
              write_file_script("#{dir(11)}/#{$inter_file}", $ca[:inter_pem], $main_user) +
              "echo HB:PLACED\n"
-
-  # Challenge 14: the first 'ready' leaves the bot's public key; later ones check the student's shared secret
-  $check14 = "[ -d #{$H} ] || { echo HB:NOHOME; exit 0; }\nmkdir -p #{dir(14)}; chown #{$main_user}: #{dir(14)}\ncd #{dir(14)}\n" +
-             "k=$(mktemp)\necho #{Base64.strict_encode64($bot_x25519)} | base64 -d > \"$k\"\n" + <<~SH
-    if [ ! -f bot.pub ]; then
-      openssl pkey -in "$k" -pubout -out bot.pub 2>/dev/null; chown #{$main_user}: bot.pub; rm -f "$k"
-      echo HB:PLACED; exit 0
-    fi
-    [ -f my.pub ] || { rm -f "$k"; echo HB:NO_MY_PUB; exit 0; }
-    [ -f shared.bin ] || { rm -f "$k"; echo HB:NO_SHARED_BIN; exit 0; }
-    openssl pkey -pubin -in my.pub -noout -text 2>/dev/null | grep -q X25519 || { rm -f "$k"; echo HB:BADMYPUB; exit 0; }
-    openssl pkeyutl -derive -inkey "$k" -peerkey my.pub -out "$k.s" 2>/dev/null
-    rm -f "$k"
-    cmp -s "$k.s" shared.bin || { rm -f "$k.s"; echo HB:WRONGSECRET; exit 0; }
-    rm -f "$k.s"
-    echo HB:PASS
-  SH
 
   def no_file(file, n, hint)
     "<condition>\n\t\t\t<output_matches>HB:NO_#{file.tr('.', '_').upcase}\\b</output_matches>\n\t\t\t<message>I can't find #{file} in #{dir(n)}. #{hint}</message>\n\t\t</condition>"
@@ -479,7 +462,7 @@
 	</attack>
 
 	<attack>
-		<prompt>(Optional) Hybrid encryption: in <%= dir(9) %>, encrypt report.txt (at least 1000 bytes) with AES (aes-256-cbc, -pbkdf2) into report.enc, using a random key file aes.key. Encrypt aes.key with your RSA public key into aes.key.enc, leave key.priv there so I can unwrap it, then delete aes.key.</prompt>
+		<prompt>Hybrid encryption: in <%= dir(9) %>, encrypt report.txt (at least 1000 bytes) with AES (aes-256-cbc, -pbkdf2) into report.enc, using a random key file aes.key. Encrypt aes.key with your RSA public key into aes.key.enc, leave key.priv there so I can unwrap it, then delete aes.key.</prompt>
 		<post_command><%= on_desktop($check9) %></post_command>
 		<suppress_command_output_feedback/>
 		<condition>
@@ -566,31 +549,7 @@
 	</attack>
 
 	<attack>
-		<prompt>Block a CA by its key: say 'ready' and I'll put a root CA certificate (<%= $root_file %>) and an intermediate CA certificate (<%= $inter_file %>) in <%= dir(11) %>. Then tell me the intermediate's SPKI hash: the SHA-256 hash of its public key.</prompt>
-		<post_command><%= on_desktop($place11) %></post_command>
-		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>HB:NOHOME\b</output_matches>
-			<message>I couldn't find <%= $H %> on your desktop VM.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PLACED\b</output_matches>
-			<message>The certificates are in <%= dir(11) %>.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>Something went wrong putting the files in place... say 'ready' to try again.</message>
-		</else_condition>
-		<quiz>
-			<question>What is the SHA-256 hash of the intermediate CA's public key (SPKI), in hex or base64?</question>
-			<answer><%= $ca[:spki_hex] %>(?:\s+-)?|<%= Regexp.escape($ca[:spki_b64]) %></answer>
-			<correct_answer_response> :) That is the value Chrome put on its block list for each eMudhra intermediate. <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-
-	<attack>
-		<prompt>Brute-force a CA key: the intermediate CA in <%= dir(11) %> (<%= $inter_file %>) came out of a broken key-generation process, and its private key is a small whole number. Say 'ready' (I'll put the files back if they're missing), find the number, and tell me.</prompt>
+		<prompt>Brute-force a CA key: say 'ready' and I'll put a root CA certificate (<%= $root_file %>) and an intermediate CA certificate (<%= $inter_file %>) in <%= dir(11) %>. The intermediate came out of the same broken key-generation process as eMudhra's: its private key is a small whole number. Find it and tell me.</prompt>
 		<post_command><%= on_desktop($place11) %></post_command>
 		<suppress_command_output_feedback/>
 		<condition>
@@ -608,13 +567,37 @@
 		<quiz>
 			<question>What is the intermediate CA's private key?</question>
 			<answer><%= $weak_k %></answer>
-			<correct_answer_response> :) With that number you could sign a certificate for any website, and every browser that trusts the root would accept it. <%= $flags.pop %></correct_answer_response>
+			<correct_answer_response> :) That was one of eMudhra's real keys. With it you could sign a certificate for any website, and every browser that trusts the root would accept it. <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<attack>
+		<prompt>The fix, block the key: browsers stopped trusting eMudhra's intermediates by blocking their public keys. Tell me the SPKI hash (the SHA-256 hash of the public key) of the weak intermediate in <%= dir(11) %> (<%= $inter_file %>). Say 'ready' first (I'll put the files back if they're missing).</prompt>
+		<post_command><%= on_desktop($place11) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NOHOME\b</output_matches>
+			<message>I couldn't find <%= $H %> on your desktop VM.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PLACED\b</output_matches>
+			<message>The certificates are in <%= dir(11) %>. Hash it.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Something went wrong putting the files in place... say 'ready' to try again.</message>
+		</else_condition>
+		<quiz>
+			<question>What is the SHA-256 hash of the intermediate CA's public key (SPKI), in hex or base64?</question>
+			<answer><%= $ca[:spki_hex] %>(?:\s+-)?|<%= Regexp.escape($ca[:spki_b64]) %></answer>
+			<correct_answer_response> :) That is the value Chrome put on its block list for each eMudhra intermediate. <%= $flags.pop %></correct_answer_response>
 			<trigger_next_attack>true</trigger_next_attack>
 		</quiz>
 	</attack>
 
 	<!-- ===================================================================================== -->
-	<!-- 13-14: key exchange                                                                   -->
+	<!-- 13: key exchange                                                                       -->
 	<!-- ===================================================================================== -->
 
 	<attack>
@@ -647,34 +630,4 @@
 		</quiz>
 	</attack>
 
-	<attack>
-		<prompt>(Optional) X25519: say 'ready' and I'll put my X25519 public key in <%= dir(14) %>/bot.pub. Make your own X25519 key pair there (my.key and my.pub), derive our shared secret into shared.bin, then say 'ready' again.</prompt>
-		<post_command><%= on_desktop($check14) %></post_command>
-		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>HB:NOHOME\b</output_matches>
-			<message>I couldn't find <%= $H %> on your desktop VM.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PLACED\b</output_matches>
-			<message>My public key is in <%= dir(14) %>/bot.pub. Make your key pair, derive the shared secret into shared.bin, then say 'ready'.</message>
-		</condition>
-		<%= no_file('my.pub', 14, 'Export your X25519 public key there as my.pub (openssl pkey -pubout).') %>
-		<%= no_file('shared.bin', 14, 'Derive the shared secret with openssl pkeyutl -derive and save it as shared.bin.') %>
-		<condition>
-			<output_matches>HB:BADMYPUB\b</output_matches>
-			<message>my.pub isn't an X25519 public key. Generate the key with openssl genpkey -algorithm X25519.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:WRONGSECRET\b</output_matches>
-			<message>I get a different shared secret from my private key and your my.pub. Derive it with your my.key as -inkey and my bot.pub as -peerkey, and make sure my.pub comes from my.key.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PASS\b</output_matches>
-			<message>We both got the same secret without ever sending it. Well done :) <%= $flags.pop %></message>
-		</condition>
-		<else_condition>
-			<message>Something was not quite right... say 'ready' to try again.</message>
-		</else_condition>
-	</attack>
 </hackerbot>

@@ -195,12 +195,6 @@ def weak_ca(private_scalar)
     spki_hex: spki_sha256.unpack1('H*'), spki_b64: Base64.strict_encode64(spki_sha256) }
 end
 
-# X25519 private key in PKCS#8 PEM form, from 32 random bytes (no X25519 support needed in the Ruby openssl gem).
-def x25519_private_pem
-  der = ['302e020100300506032b656e04220420'].pack('H*') + SecureRandom.random_bytes(32)
-  "-----BEGIN PRIVATE KEY-----\n#{Base64.strict_encode64(der)}\n-----END PRIVATE KEY-----\n"
-end
-
 # ---------------------------------------------------------------------------------------------
 # Bot commands. Check scripts are shipped base64-encoded (no quoting or XML escaping problems) and
 # piped into the bash the bot gets on the desktop. Each prints HB: markers that the conditions match.
