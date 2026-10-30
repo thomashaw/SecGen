@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-10-30 22:37 · 1905189</span>
+    <span class="ver">DEV page · 2026-10-30 22:43 · 1905189</span>
   </div>
 </header>
 <main>
@@ -486,9 +486,6 @@ print(A, B, pow(B, a, p), pow(A, b, p))
 <p>There is a quiz to complete: <mark class="action">answer with &quot;answer <em>your public value A</em> <em>the shared secret</em>&quot;</mark> (two numbers separated by a space).</p>
 
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
-<h3 id="x25519">Elliptic-curve key exchange and forward secrecy</h3>
-
-<p>Today&#39;s protocols mostly use <strong>elliptic-curve Diffie-Hellman</strong>, in particular <strong>X25519</strong>, which follows the same steps on an elliptic curve with much shorter keys. TLS 1.3 uses a fresh key exchange for every connection, which gives <strong>forward secrecy</strong>: even if a server&#39;s long-term private key is stolen later, recorded traffic cannot be decrypted, because the keys that protected it no longer exist.</p>
 
 <p>Key exchange leaves one problem open. Diffie-Hellman lets you agree a secret with <em>someone</em>, but on its own it does not tell you <em>who</em>: an attacker in the middle of the connection can run one exchange with you and another with your bank, and pass messages between the two, reading everything. The server has to prove who it is, which is what certificates are for.</p>
 <h2 id="chains-of-trust">Chains of trust</h2>

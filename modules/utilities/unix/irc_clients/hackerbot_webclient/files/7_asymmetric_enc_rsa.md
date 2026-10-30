@@ -451,10 +451,6 @@ There is a quiz to complete: ==action: answer with "answer *your public value A*
 
 Don't forget to ==action: save and submit any flags!==
 
-### Elliptic-curve key exchange and forward secrecy {#x25519}
-
-Today's protocols mostly use **elliptic-curve Diffie-Hellman**, in particular **X25519**, which follows the same steps on an elliptic curve with much shorter keys. TLS 1.3 uses a fresh key exchange for every connection, which gives **forward secrecy**: even if a server's long-term private key is stolen later, recorded traffic cannot be decrypted, because the keys that protected it no longer exist.
-
 Key exchange leaves one problem open. Diffie-Hellman lets you agree a secret with *someone*, but on its own it does not tell you *who*: an attacker in the middle of the connection can run one exchange with you and another with your bank, and pass messages between the two, reading everything. The server has to prove who it is, which is what certificates are for.
 
 ## Chains of trust {#chains-of-trust}
