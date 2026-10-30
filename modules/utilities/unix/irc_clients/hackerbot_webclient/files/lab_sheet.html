@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-10-30 13:30 · eec7a89</span>
+    <span class="ver">DEV page · 2026-10-30 21:41 · 508a6d6</span>
   </div>
 </header>
 <main>
@@ -73,7 +73,7 @@
 <h2 id="purpose">Purpose</h2>
 </blockquote>
 
-<p>The purpose of this lab is to understand public-key cryptography: how the RSA<sup id="fnref1"><a href="#fn1">1</a></sup> cipher works, how it is used in practice (encryption, digital signatures and hybrid encryption), how certificates build a chain of trust, what goes wrong when a key is generated badly, and how two parties can agree on a key over an open network.</p>
+<p>The purpose of this lab is to understand public-key cryptography: how the RSA<sup id="fnref1"><a href="#fn1">1</a></sup> cipher works, how it is used in practice (encryption and digital signatures), how two parties can agree on a key over an open network, how certificates build a chain of trust, and what goes wrong when a key is generated badly.</p>
 <h2 id="public-key-cryptography-in-a-nutshell">Public-key cryptography in a nutshell</h2>
 
 <p>With symmetric encryption (such as AES, in the previous lab) the same key encrypts and decrypts, so both parties must somehow share that key in secret before they can communicate. Public-key cryptography removes that requirement by giving each party a <strong>key pair</strong>: a <strong>public key</strong>, which can be given to anyone, and a <strong>private key</strong>, which never leaves its owner. The two keys are mathematically linked, but working out the private key from the public key is computationally infeasible, provided the keys were generated properly (a condition this lab returns to).</p>
@@ -85,12 +85,25 @@
 </li>
 <li><strong>Digital signatures</strong>: you sign a message with your private key, and anyone can verify the signature with your public key, which shows that the message came from you and has not been altered.
 </li>
-<li><strong>Key exchange</strong>: two parties combine their own private key with the other&#39;s public key to arrive at the same shared secret, which they then use as a symmetric key.
+<li><strong>Key exchange</strong>: two parties combine their own private key with the other&#39;s public key to arrive at the same shared secret, which can then be used to derive a symmetric key.
 </li>
 </ul>
 
 <p>The weak point is trust in the public key itself. If Alice wants to send a message to Bob and she has a public key that claims to be Bob&#39;s, nothing in the mathematics tells her whether it really belongs to Bob or to an attacker in the middle of the conversation. <strong>Public Key Infrastructure</strong> (PKI) addresses this: a <strong>Certification Authority</strong> (CA), a trusted third party, checks an identity and signs a <strong>certificate</strong> binding that identity to a public key. The section on <a href="#chains-of-trust">chains of trust</a> shows how this works in practice.</p>
 <h2 id="how-rsa-works">How RSA works</h2>
+
+<p>RSA needs only a little maths, and every term is explained here the first time it appears:</p>
+
+<ul>
+<li>A <strong>prime</strong> number can only be divided exactly by 1 and by itself: 2, 3, 5, 7, 11, 13 and so on. 15 is not prime, because 15 = 3 × 5.
+</li>
+<li>An <strong>exponent</strong> is a power: in 5³ (written <code>5**3</code> in Python) the exponent is 3, and 5³ = 5 × 5 × 5 = 125.
+</li>
+<li><strong>mod</strong> gives the remainder after a division: 17 mod 5 = 2, because 17 ÷ 5 = 3 remainder 2. The number you divide by (5 here) is called the <strong>modulus</strong>. Python writes it as <code>%</code>, so <code>17 % 5</code> is 2.
+</li>
+</ul>
+
+<p>RSA uses two exponents. The <strong>encryption exponent</strong> <em>e</em> is part of the public key, and the <strong>decryption exponent</strong> <em>d</em> is part of the private key. To encrypt, you raise the message to the power <em>e</em>; to decrypt, you raise the result to the power <em>d</em>; both times you keep only the remainder mod a large number <em>N</em>. The cleverness of RSA is in choosing <em>d</em> so that it exactly undoes <em>e</em>, which you can only do if you know the secret primes that <em>N</em> was made from. The steps are:</p>
 
 <ol>
 <li><p>Choose two large prime numbers, <em>p</em> and <em>q</em>, and keep them secret.</p>
@@ -103,20 +116,20 @@
 
 <p>φ(N) = (p − 1)(q − 1)</p>
 </li>
-<li><p>Choose the <strong>public exponent</strong> <em>e</em>, which must satisfy two conditions:</p>
+<li><p>Choose the encryption exponent <em>e</em>, which must satisfy two conditions:</p>
 </li>
 </ol>
 
 <pre><code>- 1 &lt; e &lt; φ(N)
-- e is **coprime** with φ(N), which means gcd(e, φ(N)) = 1 (their greatest common divisor is 1, so they share no factors)
+- e is **coprime** with φ(N), which means their greatest common divisor is 1, so they share no factors (written: gcd(e, φ(N)) = 1)
 </code></pre>
 
 <ol>
-<li><p>Compute the <strong>private exponent</strong> <em>d</em>, the modular inverse of <em>e</em>:</p>
+<li><p>Compute the decryption exponent <em>d</em>. In words: <em>d</em> is the number that, multiplied by <em>e</em>, leaves a remainder of 1 when divided by φ(N). This is called the <strong>modular inverse</strong> of <em>e</em>:</p>
 
 <p>(e × d) mod φ(N) = 1, which is written d = e⁻¹ mod φ(N)</p>
 
-<p>The extended Euclidean algorithm computes <em>d</em> efficiently; Python does it for you with <code>pow(e, -1, phiN)</code>.</p>
+<p>Python works it out for you with <code>pow(e, -1, phiN)</code> (using a method called the extended Euclidean algorithm).</p>
 </li>
 </ol>
 
@@ -132,9 +145,9 @@
 <p>RSA&#39;s security rests on the <strong>RSA problem</strong>: given only <em>N</em> and <em>e</em>, recovering <em>M</em> from <em>C</em> is believed to be as hard as factoring <em>N</em> back into <em>p</em> and <em>q</em>. Anyone who knows <em>p</em> and <em>q</em> can compute φ(N), and from it <em>d</em>, which is why the primes must stay secret and must be large (real keys use primes of 1024 bits or more each).</p>
 <h2 id="rsa-by-hand-with-python">RSA by hand, with Python</h2>
 
-<p>This worked example uses tiny numbers so that you can follow every step; real RSA works in the same way with numbers hundreds of digits long.</p>
+<p>Let&#39;s work through an example of the RSA algorithm using small numbers. In practice these values would be hundreds of digits long, but the steps are the same:</p>
 
-<p><mark class="action">Open the Python REPL:</mark></p>
+<p><mark class="action">Open the Python REPL<sup id="fnref2"><a href="#fn2">2</a></sup>:</mark></p>
 
 <pre><code class="bash">python3
 </code></pre>
@@ -143,8 +156,8 @@
 
 <pre><code class="python">p = 7
 q = 23
-N = p * q
-phiN = (p - 1) * (q - 1)
+N = p * q                  # the modulus
+phiN = (p - 1) * (q - 1)   # phi(N)
 print(N, phiN)
 </code></pre>
 
@@ -153,43 +166,88 @@ print(N, phiN)
 <p><mark class="action">List the values that could be used for e:</mark></p>
 
 <pre><code class="python">import math
+# every number between 2 and phiN that shares no factors with phiN
 [e for e in range(2, phiN) if math.gcd(e, phiN) == 1]
 </code></pre>
 
-<p>The list starts 5, 7, 13, 17, 19, ... Even numbers never appear, because φ(N) is always even; neither do multiples of 3 or 11, which also divide 132. This example uses e = 5, so the public key is (5, 161).</p>
+<p>The list starts 5, 7, 13, 17, 19, ... Even numbers never appear, because φ(N) is always even; neither do multiples of 3 or 11, which 132 also cleanly divides by. This example uses e = 5, so the public key is (5, 161).</p>
 
 <p><mark class="action">Compute d and check it:</mark></p>
 
 <pre><code class="python">e = 5
-d = pow(e, -1, phiN)
-print(d, (e * d) % phiN)
+d = pow(e, -1, phiN)       # the modular inverse of e
+print(d, (e * d) % phiN)   # (e x d) mod phiN should be 1
 </code></pre>
 
 <p>This gives d = 53, and (5 × 53) mod 132 = 1 as required, so the private key is (53, 161).</p>
 
 <p><mark class="action">Encrypt and decrypt a number:</mark></p>
 
-<pre><code class="python">M = 42
-C = pow(M, e, N)
-print(C, pow(C, d, N))
+<pre><code class="python">M = 67              # the message: a number smaller than N
+C = pow(M, e, N)    # encrypt with the public key: C = M^e mod N
+print(C)
+M = pow(C, d, N)    # decrypt with the private key: M = C^d mod N
+print(M)
 </code></pre>
 
-<p><code>pow(M, e, N)</code> computes M^e mod N without first computing the enormous number M^e, which is how real RSA implementations handle numbers of thousands of bits. Here the ciphertext is 126, and decrypting it gives 42 again.</p>
+<p><code>pow(M, e, N)</code> computes M^e mod N without first computing the enormous number M^e, which is how real RSA implementations handle numbers of thousands of bits. Here the ciphertext is 37, and decrypting it gives 67 again.</p>
+<h3 id="encrypting-text">Encrypting text</h3>
 
-<p>RSA works on numbers, so text has to be turned into numbers first. Python&#39;s <code>ord()</code> gives the number for a character (<code>ord(&#39;T&#39;)</code> is 84) and <code>chr()</code> does the reverse (<code>chr(84)</code> is <code>&#39;T&#39;</code>). <mark class="action">Encrypt a short message one character at a time, then decrypt it:</mark></p>
+<p>RSA works on numbers, so text has to be turned into numbers first. Python&#39;s built-in <code>ord()</code> function takes a character and returns the number that represents it in <a href="https://www.rapidtables.com/code/text/ascii-table.html">ASCII</a>, and <code>chr()</code> does the reverse. <mark class="action">Try them:</mark></p>
 
-<pre><code class="python">ct = [pow(ord(c), e, N) for c in &quot;The Hobbit&quot;]
-print(ct)
-&#39;&#39;.join(chr(pow(c, d, N)) for c in ct)
+<pre><code class="python">ord(&#39;T&#39;)
+ord(&#39;h&#39;)
+chr(84)
 </code></pre>
 
-<p>The ciphertext is <code>[7, 41, 54, 100, 151, 34, 140, 140, 119, 93]</code>, and decrypting it gives <code>&#39;The Hobbit&#39;</code> again.</p>
+<p><code>ord(&#39;T&#39;)</code> is 84, <code>ord(&#39;h&#39;)</code> is 104, and <code>chr(84)</code> turns 84 back into <code>&#39;T&#39;</code>. <mark class="action">Encrypt the first two characters of &quot;The Hobbit&quot; by hand:</mark></p>
+
+<pre><code class="python">pow(84, e, N)     # &#39;T&#39; encrypted
+pow(104, e, N)    # &#39;h&#39; encrypted
+</code></pre>
+
+<p>They encrypt to 7 and 41. <mark class="action">Decrypt 7 and turn it back into a character:</mark></p>
+
+<pre><code class="python">pow(7, d, N)          # gives 84 again
+chr(pow(7, d, N))     # gives &#39;T&#39;
+</code></pre>
+
+<p>Instead of doing this for each character one by one, a <code>for</code> loop can do every character of the message in turn. <mark class="action">Encrypt the whole message:</mark></p>
+
+<pre><code class="python">message = &quot;The Hobbit&quot;
+ciphertext = []
+for character in message:
+    number = ord(character)          # the character as a number
+    encrypted = pow(number, e, N)    # encrypt that number
+    ciphertext.append(encrypted)     # add it to the list
+
+print(ciphertext)
+</code></pre>
+
+<blockquote>
+<p>Note: In the REPL, press Enter on an empty line to finish the <code>for</code> loop before the <code>print</code> line.</p>
+</blockquote>
+
+<p>The ciphertext is <code>[7, 41, 54, 100, 151, 34, 140, 140, 119, 93]</code>. <mark class="action">Decrypt it the same way:</mark></p>
+
+<pre><code class="python">decrypted = &quot;&quot;
+for number in ciphertext:
+    character = chr(pow(number, d, N))   # decrypt, then turn back into a character
+    decrypted = decrypted + character
+
+print(decrypted)
+</code></pre>
+
+<p>This prints <code>The Hobbit</code> again. Python can also write the same decryption on one line, which you may see in other people&#39;s code:</p>
+
+<pre><code class="python">&#39;&#39;.join(chr(pow(number, d, N)) for number in ciphertext)
+</code></pre>
 
 <blockquote>
 <p>Question: Look at the two 140s in the ciphertext. Which letters are they, and what could an attacker learn from repeated numbers in a longer message?</p>
 </blockquote>
 
-<p>Encrypting one character at a time in this way (<strong>textbook RSA</strong>) is really a substitution cipher: the same input always gives the same output, so frequency analysis breaks it. Real systems never use textbook RSA. They add random <strong>padding</strong> (OAEP, Optimal Asymmetric Encryption Padding) before encrypting, so that encrypting the same message twice gives different ciphertexts, and they encrypt a whole block at a time.</p>
+<p>Encrypting one character at a time in this way (known as <strong>textbook RSA</strong>) always turns the same character into the same number. Counting how often each encrypted number appears, and matching the most common ones to the most common letters in English (e, t, a and so on), is known as <strong>frequency analysis</strong>, and it breaks this kind of encryption without ever needing the key. To make that analysis impossible, modern RSA implementations encrypt whole blocks of data at a time and add random padding, so that encrypting the same message twice gives different ciphertexts.</p>
 
 <p><mark class="action">Leave the REPL open</mark>; you will need it for the next five challenges. Hackerbot gives you different numbers from the example, so use the code above with Hackerbot&#39;s values.</p>
 <h4 id="hackerbot-attack-1">Hackerbot Attack #1</h4>
@@ -210,7 +268,7 @@ print(ct)
 <p>You can skip the bot to here, by saying <strong>goto 2</strong>.</p>
 
 <blockquote>
-<p>Hackerbot: Given p, q and e, work out the private exponent d.</p>
+<p>Hackerbot: Given p, q and e, work out the decryption exponent d.</p>
 </blockquote>
 
 <p>When you are ready for the bot to ask the question, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
@@ -261,7 +319,7 @@ print(ct)
 <p>There is a quiz to complete: <mark class="action">answer with &quot;answer <em>the word</em>&quot;</mark>.</p>
 
 <blockquote>
-<p>Hint: Put Hackerbot&#39;s numbers in a Python list, for example <code>ct = [12, 345, 67]</code>, then decrypt it with the <code>&#39;&#39;.join(...)</code> line from the worked example, using Hackerbot&#39;s d and N.</p>
+<p>Hint: Set d and N to Hackerbot&#39;s values, type Hackerbot&#39;s numbers into a list with commas between them (for example <code>ciphertext = [503, 1723, 95]</code>), then run the decryption loop from the worked example.</p>
 </blockquote>
 
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
@@ -275,13 +333,15 @@ cd ~/rsa_example
 
 <p><mark class="action">Generate a 2048-bit RSA private key, then export its public key:</mark></p>
 
-<pre><code class="bash">openssl genrsa -out bob.priv 2048
+<pre><code class="bash"># generate Bob&#39;s private key: a 2048-bit RSA key (this contains p, q, N, e and d)
+openssl genrsa -out bob.priv 2048
+# export the public half (N and e only) into a separate file Bob can give to anyone
 openssl rsa -in bob.priv -pubout -out bob.pub
 cat bob.priv
 cat bob.pub
 </code></pre>
 
-<p>The private key file starts with <code>-----BEGIN PRIVATE KEY-----</code> (older versions of OpenSSL wrote <code>BEGIN RSA PRIVATE KEY</code>) and the public key file starts with <code>-----BEGIN PUBLIC KEY-----</code>. Both are PEM files: binary data encoded as base64, between header lines.</p>
+<p>The private key file starts with <code>-----BEGIN PRIVATE KEY-----</code> and the public key file starts with <code>-----BEGIN PUBLIC KEY-----</code>. Both are PEM files: binary data encoded as base64, between header lines.</p>
 
 <p><mark class="action">Look inside the private key:</mark></p>
 
@@ -299,7 +359,7 @@ cat bob.pub
 
 <p><mark class="action">Encrypt a message with Bob&#39;s public key, then decrypt it with his private key:</mark></p>
 
-<pre><code class="bash">echo &#39;Meet me at the library at 3&#39; &gt; msg.txt
+<pre><code class="bash">echo &#39;Meet me at Tiki Cafe at 3&#39; &gt; msg.txt
 openssl pkeyutl -encrypt -pubin -inkey bob.pub -in msg.txt -out msg.enc
 openssl pkeyutl -decrypt -inkey bob.priv -in msg.enc
 </code></pre>
@@ -312,7 +372,7 @@ openssl pkeyutl -decrypt -inkey bob.priv -in msg.enc
 <p>You can skip the bot to here, by saying <strong>goto 6</strong>.</p>
 
 <blockquote>
-<p>Hackerbot: Create an RSA key pair, with the file names Hackerbot gives you, in the directory Hackerbot names.</p>
+<p>Hackerbot: Create a 2048-bit RSA key pair, with the file names Hackerbot gives you, in the directory Hackerbot names.</p>
 </blockquote>
 
 <p>When you are ready for the bot to check your work, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
@@ -337,15 +397,24 @@ openssl pkeyutl -decrypt -inkey bob.priv -in msg.enc
 
 <p>Encryption keeps a message secret; a <strong>digital signature</strong> proves who wrote it and that it has not been changed. The signer hashes the message (here with SHA-256) and transforms the hash with their private key; anyone with the public key can check that the signature matches the message. Changing a single character of the message changes its hash, so the signature no longer verifies.</p>
 
-<p><mark class="action">Sign a file with Bob&#39;s private key, and verify it with his public key:</mark></p>
+<p><mark class="action">Sign a file with Bob&#39;s private key:</mark></p>
 
 <pre><code class="bash">cd ~/rsa_example
 echo &#39;I owe Alice 10 pounds&#39; &gt; iou.txt
+# hash iou.txt with SHA-256 and sign the hash with Bob&#39;s private key; the signature goes in iou.sig
 openssl dgst -sha256 -sign bob.priv -out iou.sig iou.txt
+# show the signature as hex, and its size in bytes
+xxd -p iou.sig
+wc -c iou.sig
+</code></pre>
+
+<p>The signature is 256 bytes (2048 bits, the size of Bob&#39;s key), however long or short the message is. It is not the message, or even an encrypted copy of it: it is a value that only Bob&#39;s private key could have produced from this exact file. <mark class="action">Verify it with Bob&#39;s public key:</mark></p>
+
+<pre><code class="bash"># recompute the hash of iou.txt and check it against the signature, using Bob&#39;s public key
 openssl dgst -sha256 -verify bob.pub -signature iou.sig iou.txt
 </code></pre>
 
-<p>The last command prints <code>Verified OK</code>. <mark class="action">Now change the message and verify it again:</mark></p>
+<p>This prints <code>Verified OK</code>. <mark class="action">Now change the message and verify it again:</mark></p>
 
 <pre><code class="bash">echo &#39;I owe Alice 1000 pounds&#39; &gt; iou.txt
 openssl dgst -sha256 -verify bob.pub -signature iou.sig iou.txt
@@ -371,102 +440,71 @@ openssl dgst -sha256 -verify bob.pub -signature iou.sig iou.txt
 </blockquote>
 
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
-<h2 id="hybrid-encryption">Hybrid encryption</h2>
+<h2 id="key-exchange">Key exchange</h2>
 
-<p>RSA can only encrypt a message smaller than its modulus (less the padding, so at most 245 bytes with a 2048-bit key), and it is far slower than AES. <mark class="action">See for yourself:</mark></p>
+<p>Public-key encryption can deliver a symmetric key, but modern protocols normally use <strong>key exchange</strong> instead: both parties contribute to the key, and it is never sent at all. <strong>Diffie-Hellman</strong> (DH), published in 1976, was the first public-key scheme of any kind.</p>
 
-<pre><code class="bash">cd ~/rsa_example
-head -c 3000 /dev/urandom | base64 &gt; report.txt
-openssl pkeyutl -encrypt -pubin -inkey bob.pub -in report.txt -out report.rsa
+<ol>
+<li>Alice and Bob agree, in public, on a prime <em>p</em> and a <strong>generator</strong> <em>g</em> (a number whose powers mod <em>p</em> produce every value from 1 to <em>p</em> − 1).
+</li>
+<li>Alice picks a private value <em>a</em> and sends Bob A = g^a mod p.
+</li>
+<li>Bob picks a private value <em>b</em> and sends Alice B = g^b mod p.
+</li>
+<li>Alice computes B^a mod p and Bob computes A^b mod p. Both equal g^(ab) mod p, which is their shared secret.
+</li>
+</ol>
+
+<p>An eavesdropper sees <em>p</em>, <em>g</em>, <em>A</em> and <em>B</em>, but recovering <em>a</em> or <em>b</em> from them (the <strong>discrete logarithm problem</strong>) is infeasible for large numbers.</p>
+
+<p><mark class="action">Work through an example in Python:</mark></p>
+
+<pre><code class="python">p, g = 23, 5         # public: agreed in the open
+a, b = 6, 15         # private: Alice&#39;s and Bob&#39;s secret values
+A = pow(g, a, p)     # Alice sends A to Bob
+B = pow(g, b, p)     # Bob sends B to Alice
+print(A, B, pow(B, a, p), pow(A, b, p))
 </code></pre>
 
-<p>OpenSSL refuses with an error. Real systems (TLS, PGP, S/MIME and encrypted disks among them) therefore use <strong>hybrid encryption</strong>: the data is encrypted with a random symmetric key, and only that small key is encrypted with RSA (known as <strong>wrapping</strong> the key).</p>
-
-<p><mark class="action">Encrypt the report with a random AES key, then wrap the AES key with Bob&#39;s public key:</mark></p>
-
-<pre><code class="bash">openssl rand -hex 32 &gt; aes.key
-openssl enc -aes-256-cbc -pbkdf2 -in report.txt -out report.enc -pass file:aes.key
-openssl pkeyutl -encrypt -pubin -inkey bob.pub -in aes.key -out aes.key.enc
-rm aes.key
-</code></pre>
-
-<p>Bob would receive report.enc and aes.key.enc. <mark class="action">Decrypt them as Bob would:</mark></p>
-
-<pre><code class="bash">openssl pkeyutl -decrypt -inkey bob.priv -in aes.key.enc -out aes.key.bob
-openssl enc -d -aes-256-cbc -pbkdf2 -in report.enc -pass file:aes.key.bob -out report.bob
-cmp report.txt report.bob &amp;&amp; echo &#39;Bob has the report&#39;
-</code></pre>
-
-<blockquote>
-<p>Note: Deleting aes.key matters: anyone who can read it can decrypt the report without Bob&#39;s private key.</p>
-</blockquote>
+<p>Alice sends 8, Bob sends 19, and both arrive at the shared secret 2.</p>
 <h4 id="hackerbot-attack-9">Hackerbot Attack #9</h4>
 
 <p>You can skip the bot to here, by saying <strong>goto 9</strong>.</p>
 
 <blockquote>
-<p>Hackerbot: Encrypt a large file with AES, wrap the AES key with RSA, and leave Hackerbot what it needs to decrypt it.</p>
+<p>Hackerbot: Hackerbot gives you p, g, your private value and its own public value; work out your public value and the shared secret.</p>
 </blockquote>
 
-<p>When you are ready for the bot to check your work, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
+<p>When you are ready for the bot to ask the question, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
+
+<p>There is a quiz to complete: <mark class="action">answer with &quot;answer <em>your public value A</em> <em>the shared secret</em>&quot;</mark> (two numbers separated by a space).</p>
 
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
+<h3 id="x25519">Elliptic-curve key exchange and forward secrecy</h3>
+
+<p>Today&#39;s protocols mostly use <strong>elliptic-curve Diffie-Hellman</strong>, in particular <strong>X25519</strong>, which follows the same steps on an elliptic curve with much shorter keys. TLS 1.3 uses a fresh key exchange for every connection, which gives <strong>forward secrecy</strong>: even if a server&#39;s long-term private key is stolen later, recorded traffic cannot be decrypted, because the keys that protected it no longer exist.</p>
+
+<p>Key exchange leaves one problem open. Diffie-Hellman lets you agree a secret with <em>someone</em>, but on its own it does not tell you <em>who</em>: an attacker in the middle of the connection can run one exchange with you and another with your bank, and pass messages between the two, reading everything. The server has to prove who it is, which is what certificates are for.</p>
 <h2 id="chains-of-trust">Chains of trust</h2>
 
-<p>A <strong>certificate</strong> is a public key plus an identity (such as a website&#39;s domain name), signed by a CA. Your browser trusts a few hundred <strong>root CAs</strong>, whose self-signed certificates ship with the browser or the operating system in a <strong>root store</strong>. Roots are too valuable to use every day, so their private keys are kept offline, and a root instead signs a small number of <strong>intermediate CAs</strong>, which sign the certificates for websites (<strong>leaf</strong> certificates). When you visit a website, it sends its leaf certificate and the intermediate; your browser checks each signature up the chain until it reaches a root it already trusts.</p>
+<p>A <strong>certificate</strong> is a public key plus an identity (such as a website&#39;s domain name), signed by a CA. During the key exchange, the website signs its part of the exchange with the private key that belongs to its certificate, so your browser knows the key exchange really is with the bank and not with someone in the middle.</p>
 
-<p><mark class="action">Build a chain of your own:</mark> a root CA, an intermediate CA signed by the root, and a leaf certificate for a website, signed by the intermediate.</p>
+<p>Your browser trusts a few hundred <strong>root CAs</strong>, whose self-signed certificates ship with the browser or the operating system in a <strong>root store</strong>. Roots are too valuable to use every day, so their private keys are kept offline, and a root instead signs a small number of <strong>intermediate CAs</strong>, which sign the certificates for websites (<strong>leaf</strong> certificates):</p>
 
-<pre><code class="bash">mkdir -p ~/ca_example
-cd ~/ca_example
-
-# The root CA: a key, and a self-signed certificate
-openssl genrsa -out root.key 2048
-openssl req -x509 -new -key root.key -subj &quot;/CN=My Root CA&quot; -days 365 -out root.crt
-
-# The intermediate CA: a key, a certificate signing request, and a certificate signed by the root
-printf &#39;basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n&#39; &gt; ca.ext
-openssl genrsa -out inter.key 2048
-openssl req -new -key inter.key -subj &quot;/CN=My Intermediate CA&quot; -out inter.csr
-openssl x509 -req -in inter.csr -CA root.crt -CAkey root.key -CAcreateserial -days 365 -extfile ca.ext -out inter.crt
-
-# The leaf: a certificate for www.example.com, signed by the intermediate
-printf &#39;basicConstraints=CA:FALSE\nsubjectAltName=DNS:www.example.com\n&#39; &gt; leaf.ext
-openssl genrsa -out leaf.key 2048
-openssl req -new -key leaf.key -subj &quot;/CN=www.example.com&quot; -out leaf.csr
-openssl x509 -req -in leaf.csr -CA inter.crt -CAkey inter.key -CAcreateserial -days 365 -extfile leaf.ext -out leaf.crt
+<pre><code>Root CA              in your browser&#39;s root store (it signs itself)
+  └─ signs ─▶ Intermediate CA
+                └─ signs ─▶ www.example.com   the website&#39;s (leaf) certificate
 </code></pre>
 
-<p>The ca.ext file marks the intermediate as a CA (<code>CA:TRUE</code>); without it, nothing the intermediate signs would be trusted. <mark class="action">Check the chain:</mark></p>
-
-<pre><code class="bash">openssl verify -CAfile root.crt -untrusted inter.crt leaf.crt
-openssl x509 -in leaf.crt -noout -subject -issuer
-</code></pre>
-
-<p><code>-CAfile</code> names the certificate you trust (your root store) and <code>-untrusted</code> names the intermediate, which is checked rather than trusted. The first command prints <code>leaf.crt: OK</code>.</p>
-
-<blockquote>
-<p>Question: Run <code>openssl verify -CAfile root.crt leaf.crt</code> (without the intermediate). Why does it fail?</p>
-</blockquote>
-<h4 id="hackerbot-attack-10">Hackerbot Attack #10</h4>
-
-<p>You can skip the bot to here, by saying <strong>goto 10</strong>.</p>
-
-<blockquote>
-<p>Hackerbot: Build a root CA, an intermediate CA and a leaf certificate for the website name Hackerbot gives you, in the directory Hackerbot names.</p>
-</blockquote>
-
-<p>When you are ready for the bot to check your work, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
-
-<p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
+<p>When you visit a website, it sends its leaf certificate and the intermediate; your browser checks each signature up the chain until it reaches a root it already trusts. So whoever holds an intermediate CA&#39;s private key can issue a certificate for any website, and every browser that trusts the root will accept it.</p>
 <h2 id="when-a-ca-gets-key-generation-wrong">When a CA gets key generation wrong</h2>
 
-<p>Every certificate a CA has signed is only as trustworthy as that CA&#39;s private key. In October 2026 the security researcher Scott Helme found that the private keys of eight intermediate CAs run by eMudhra, an Indian CA trusted by every major browser, could be recovered from the CAs&#39; public certificates in under a second. The keys were P-384 <strong>elliptic-curve</strong> keys, and a private key of that kind should be a random 384-bit number, one of roughly 10^115 possibilities; every one of eMudhra&#39;s eight fitted in a single byte, and one of them was the number 4. The keys came from a key-generation ceremony in April 2025 that produced almost no randomness, and they had sat in public certificates for 17 months before anyone noticed.</p>
+<p>In October 2026 the security researcher Scott Helme found that the private keys of eight intermediate CAs run by eMudhra, an Indian CA trusted by every major browser, could be recovered from the CAs&#39; public certificates in under a second. The keys were P-384 <strong>elliptic-curve</strong> keys, and a private key of that kind should be a random 384-bit number, one of roughly 10^115 possibilities; every one of eMudhra&#39;s eight fitted in a single byte, and one of them was the number 4. The keys came from a key-generation ceremony in April 2025 that produced almost no randomness, and they had sat in public certificates for 17 months before anyone noticed.</p>
 
 <p>Anyone holding one of those keys could have signed a certificate for any website (a bank, an email provider, a government site), and every browser would have accepted it. The mathematics of elliptic-curve cryptography was sound throughout; the failure lay entirely in how the keys were generated.</p>
 <h3 id="what-a-key-of-4-looks-like">What a key of 4 looks like</h3>
 
-<p>An elliptic-curve private key is a number <em>k</em>, and the public key is the point <em>k</em> × <em>G</em>, where <em>G</em> is a fixed point on the curve (P-384 here) that everyone knows. <mark class="action">Make a key with eMudhra&#39;s private key of 4, using Python&#39;s pycryptodome library, and save both halves:</mark></p>
+<p>An elliptic-curve private key is a number <em>k</em>, and the public key is the point <em>k</em> × <em>G</em>, where <em>G</em> is a fixed point on the curve (P-384 here) that everyone knows. <mark class="action">Make a key with eMudhra&#39;s private key of 4, using Python&#39;s pycryptodome library, and save it:</mark></p>
 
 <pre><code class="bash">mkdir -p ~/emudhra_example
 cd ~/emudhra_example
@@ -474,9 +512,8 @@ python3
 </code></pre>
 
 <pre><code class="python">from Cryptodome.PublicKey import ECC
-weak = ECC.construct(curve=&#39;P-384&#39;, d=4)
+weak = ECC.construct(curve=&#39;P-384&#39;, d=4)     # a P-384 key whose private value is 4
 open(&#39;emudhra4.pem&#39;, &#39;w&#39;).write(weak.export_key(format=&#39;PEM&#39;))
-open(&#39;emudhra4_pub.pem&#39;, &#39;w&#39;).write(weak.public_key().export_key(format=&#39;PEM&#39;))
 exit()
 </code></pre>
 
@@ -512,151 +549,89 @@ pub:
 <p>The <code>priv:</code> value is the private key: 48 bytes, 47 of them zero, then <code>04</code>. This is a valid 384-bit private key in the format every CA uses, and its secret is the number 4.</p>
 <h3 id="brute-forcing-a-tiny-key">Brute-forcing a tiny key</h3>
 
-<p>Recovering <em>k</em> from the public key is the elliptic-curve equivalent of factoring, and is infeasible when <em>k</em> is a random 384-bit number. When <em>k</em> is small, you can simply try every value in turn: compute 1 × <em>G</em>, 2 × <em>G</em>, 3 × <em>G</em>, and so on, until one matches the public key. <mark class="action">Brute-force the public key you just saved:</mark></p>
+<p>Recovering <em>k</em> from the public key is the elliptic-curve equivalent of factoring, and is infeasible when <em>k</em> is a random 384-bit number. When <em>k</em> is small, you can simply try every value in turn: compute 1 × <em>G</em>, 2 × <em>G</em>, 3 × <em>G</em>, and so on, until one matches the public key.</p>
+<h4 id="hackerbot-attack-10">Hackerbot Attack #10</h4>
 
-<pre><code class="bash">python3
+<p>You can skip the bot to here, by saying <strong>goto 10</strong>.</p>
+
+<blockquote>
+<p>Hackerbot: Hackerbot leaves you a root CA certificate and an intermediate CA certificate whose private key is one of eMudhra&#39;s; brute-force it.</p>
+</blockquote>
+
+<p><mark class="action">Say &#39;ready&#39;</mark> to Hackerbot, which puts the two certificates in ~/emudhra_ca. <mark class="action">Look at the intermediate, and extract its public key:</mark></p>
+
+<pre><code class="bash">cd ~/emudhra_ca
+openssl x509 -in lab_trust_inter.crt -noout -text | head -20
+openssl x509 -in lab_trust_inter.crt -noout -pubkey &gt; inter_pub.pem
+python3
 </code></pre>
 
+<p><mark class="action">Try every private key in turn until one matches:</mark></p>
+
 <pre><code class="python">from Cryptodome.PublicKey import ECC
-pub = ECC.import_key(open(&#39;emudhra4_pub.pem&#39;).read())
+pub = ECC.import_key(open(&#39;inter_pub.pem&#39;).read())
 for k in range(1, 100000):
-    if ECC.construct(curve=&#39;P-384&#39;, d=k).pointQ == pub.pointQ:
+    guess = ECC.construct(curve=&#39;P-384&#39;, d=k)     # the key whose private value is k
+    if guess.pointQ == pub.pointQ:                # does its public key match?
         print(&#39;Found the private key:&#39;, k)
         break
 
 </code></pre>
 
 <blockquote>
-<p>Note: Press Enter on the blank line to run the loop. It finds 4 straight away.</p>
+<p>Note: Press Enter on the blank line to run the loop. It should take no more than a second or two.</p>
 </blockquote>
-<h4 id="hackerbot-attack-11">Hackerbot Attack #11</h4>
-
-<p>You can skip the bot to here, by saying <strong>goto 11</strong>.</p>
-
-<blockquote>
-<p>Hackerbot: Hackerbot leaves you a root CA certificate and an intermediate CA certificate whose private key is one of eMudhra&#39;s; brute-force it.</p>
-</blockquote>
-
-<p><mark class="action">Say &#39;ready&#39;</mark> to Hackerbot, which puts the two certificates in ~/challenge_11. <mark class="action">Look at the intermediate, extract its public key, and brute-force it with the loop above:</mark></p>
-
-<pre><code class="bash">cd ~/challenge_11
-openssl x509 -in lab_trust_inter.crt -noout -text | head -20
-openssl x509 -in lab_trust_inter.crt -noout -pubkey &gt; inter_pub.pem
-python3
-</code></pre>
-
-<p>Use <code>&#39;inter_pub.pem&#39;</code> in place of <code>&#39;emudhra4_pub.pem&#39;</code> in the brute-force code.</p>
 
 <p>There is a quiz to complete: <mark class="action">answer with &quot;answer <em>the private key</em>&quot;</mark>.</p>
 
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
+<h3 id="forging-a-certificate">Forging a certificate</h3>
 
-<p><mark class="action">See the consequence for yourself.</mark> Still in Python, save the key you recovered as a PEM file, replacing <code>k</code> with your number if you have left the loop:</p>
+<p>With the intermediate&#39;s private key you can now do what an attacker could have done with eMudhra&#39;s: issue a certificate for a website you don&#39;t own, which chains up to a trusted root.</p>
+<h4 id="hackerbot-attack-11">Hackerbot Attack #11</h4>
+
+<p>You can skip the bot to here, by saying <strong>goto 11</strong>. This is the final challenge.</p>
+
+<blockquote>
+<p>Hackerbot: Forge a certificate for the bank website Hackerbot names, signed with the intermediate key you recovered.</p>
+</blockquote>
+
+<p><mark class="action">Save the key you recovered as a PEM file.</mark> Still in Python (replace <code>k</code> with your number if you have left the loop):</p>
 
 <pre><code class="python">key = ECC.construct(curve=&#39;P-384&#39;, d=k)
 open(&#39;recovered.pem&#39;, &#39;w&#39;).write(key.export_key(format=&#39;PEM&#39;))
 exit()
 </code></pre>
 
-<p>Then sign a certificate for a bank&#39;s website with the stolen key, and check it against the CA&#39;s root:</p>
+<p><mark class="action">Make a key and a certificate request for the bank&#39;s website, then sign it with the stolen intermediate key:</mark></p>
 
-<pre><code class="bash">openssl genrsa -out fake.key 2048
-openssl req -new -key fake.key -subj &quot;/CN=www.bank.example&quot; -out fake.csr
+<pre><code class="bash">cd ~/emudhra_ca
+# type in the bank website name that Hackerbot gives you
+read -p &quot;Bank website: &quot; BANK
+# the &quot;bank&#39;s&quot; key and certificate signing request
+openssl genrsa -out fake.key 2048
+openssl req -new -key fake.key -subj &quot;/CN=$BANK&quot; -out fake.csr
+# sign it as the intermediate CA, with the private key you brute-forced
 openssl x509 -req -in fake.csr -CA lab_trust_inter.crt -CAkey recovered.pem -CAcreateserial -days 30 -out fake.crt
+# check it the way a browser would: up the chain to the trusted root
 openssl verify -CAfile lab_trust_root.crt -untrusted lab_trust_inter.crt fake.crt
 </code></pre>
 
-<p><code>fake.crt: OK</code>: any client that trusted that root would accept your certificate for the bank.</p>
-<h2 id="the-fix">The fix</h2>
+<p><code>fake.crt: OK</code>: any client that trusted that root would accept your certificate for the bank, and an attacker in the middle of a connection could use it to pose as the bank during the key exchange.</p>
 
-<p>A CA whose key has leaked cannot fix its existing certificates; the response has to stop clients from trusting the key, and the CA has to generate its keys properly in future. In eMudhra&#39;s case the browsers acted within hours of the report, and each part of the response below is something you can try.</p>
-<h3 id="block-the-key">Block the key</h3>
-
-<p>Chrome did not block eMudhra&#39;s certificates one at a time; it blocked the keys, using each intermediate&#39;s <strong>SPKI hash</strong>, the SHA-256 hash of its Subject Public Key Info (the public key, in the form a certificate stores it). Within two hours of the report Chrome had pushed the eight hashes to every browser through CRLSet, its own list of blocked certificates and keys, so every certificate containing one of those public keys was blocked at once, however many copies or reissues existed.</p>
-
-<p><mark class="action">Work out the SPKI hash of the leaf certificate you made earlier:</mark></p>
-
-<pre><code class="bash">cd ~/ca_example
-openssl x509 -in leaf.crt -noout -pubkey | openssl pkey -pubin -outform der | sha256sum
-</code></pre>
-
-<p>The first command extracts the public key from the certificate, the second converts it to the binary (DER) form that is hashed, and <code>sha256sum</code> hashes it. Chrome writes the same hash in base64, which you can get by replacing <code>sha256sum</code> with <code>openssl dgst -sha256 -binary | base64</code>.</p>
-<h4 id="hackerbot-attack-12">Hackerbot Attack #12</h4>
-
-<p>You can skip the bot to here, by saying <strong>goto 12</strong>.</p>
-
-<blockquote>
-<p>Hackerbot: Work out the SPKI hash that would block the weak intermediate CA.</p>
-</blockquote>
-
-<p>When you are ready, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot (it puts the files back in ~/challenge_11 if they are missing).</p>
-
-<p>There is a quiz to complete: <mark class="action">answer with &quot;answer <em>the SPKI hash</em>&quot;</mark> (hex or base64).</p>
+<p>When you are ready for the bot to check your certificate, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
 
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
-<h3 id="revoke-and-remove-the-root">Revoke, and remove the root</h3>
+<h2 id="the-response">The response</h2>
 
-<p>eMudhra revoked the eight intermediate certificates the day after the report, giving the reason <code>caCompromise</code>. Mozilla and Apple pushed updates, Microsoft released an out-of-band Windows update that removed the certificates, and Chrome went on to remove eMudhra&#39;s root from its root store, so that nothing the root had signed would be trusted. Within days eMudhra announced that it was leaving the public TLS certificate business.</p>
+<p>eMudhra revoked the eight intermediate certificates the day after the report, but revocation only works if clients check, and in practice many don&#39;t: checking slows connections down and tells the CA which sites you visit, and most clients carry on if the check fails (which an attacker in the middle can easily arrange). So the browsers acted directly. Chrome pushed out a blocklist of the eight compromised keys to every browser within two hours of the report, Mozilla, Apple and Microsoft followed with their own updates, and Chrome later removed eMudhra&#39;s root from its root store entirely, so that nothing it had signed would be trusted. Within days eMudhra announced that it was leaving the public TLS certificate business. See references [6] to [8] for more detail.</p>
 
 <blockquote>
 <p>Question: Revoking a certificate only helps if clients check for revocation, and many programs never do. Why did the browsers block eMudhra&#39;s keys, and later remove its root, rather than rely on revocation?</p>
 </blockquote>
-<h3 id="generate-keys-properly">Generate keys properly</h3>
 
-<p>The lasting fix is a key that nobody can guess. <mark class="action">Generate a P-384 key the normal way, and compare it with the key of 4:</mark></p>
-
-<pre><code class="bash">cd ~/emudhra_example
-openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-384 -out good.key
-openssl pkey -in good.key -noout -text | head -7
-</code></pre>
-
-<p>This time <code>priv:</code> is 48 random bytes, drawn from the operating system&#39;s cryptographically secure random number generator, and brute force would need to try around 10^115 values. CAs are meant to generate their keys inside a <strong>hardware security module</strong> (HSM), a tamper-resistant device that creates and stores keys and never releases them, during a witnessed and recorded key ceremony. eMudhra&#39;s failure shows that the result still needs checking: a single look at the private key value, or at the public key against a list of trivially small keys, would have caught it.</p>
-
-<p>A related change is under way across the whole web. In April 2025 the CA/Browser Forum (the CAs and browser makers who agree the rules for website certificates) voted to cut the maximum lifetime of a public TLS certificate from 398 days to 200 days from March 2026, 100 days from March 2027 and 47 days from March 2029, which limits how long a mis-issued certificate, or a certificate whose key has been stolen, stays useful.</p>
-<h2 id="key-exchange">Key exchange</h2>
-
-<p>Public-key encryption can deliver a symmetric key, as you did in the hybrid encryption section, but modern protocols normally use <strong>key exchange</strong> instead: both parties contribute to the key, and it is never sent at all. <strong>Diffie-Hellman</strong> (DH), published in 1976, was the first public-key scheme of any kind.</p>
-
-<ol>
-<li>Alice and Bob agree, in public, on a prime <em>p</em> and a <strong>generator</strong> <em>g</em> (a number whose powers mod <em>p</em> produce every value from 1 to <em>p</em> − 1).
-</li>
-<li>Alice picks a private value <em>a</em> and sends Bob A = g^a mod p.
-</li>
-<li>Bob picks a private value <em>b</em> and sends Alice B = g^b mod p.
-</li>
-<li>Alice computes B^a mod p and Bob computes A^b mod p. Both equal g^(ab) mod p, which is their shared secret.
-</li>
-</ol>
-
-<p>An eavesdropper sees <em>p</em>, <em>g</em>, <em>A</em> and <em>B</em>, but recovering <em>a</em> or <em>b</em> from them (the <strong>discrete logarithm problem</strong>) is infeasible for large numbers.</p>
-
-<p><mark class="action">Work through an example in Python:</mark></p>
-
-<pre><code class="python">p, g = 23, 5
-a, b = 6, 15
-A = pow(g, a, p)
-B = pow(g, b, p)
-print(A, B, pow(B, a, p), pow(A, b, p))
-</code></pre>
-
-<p>Alice sends 8, Bob sends 19, and both arrive at the shared secret 2.</p>
-<h4 id="hackerbot-attack-13">Hackerbot Attack #13</h4>
-
-<p>You can skip the bot to here, by saying <strong>goto 13</strong>. This is the final challenge.</p>
-
-<blockquote>
-<p>Hackerbot: Hackerbot gives you p, g, your private value and its own public value; work out your public value and the shared secret.</p>
-</blockquote>
-
-<p>When you are ready for the bot to ask the question, <mark class="action">say &#39;ready&#39;</mark> to Hackerbot.</p>
-
-<p>There is a quiz to complete: <mark class="action">answer with &quot;answer <em>your public value A</em> <em>the shared secret</em>&quot;</mark> (two numbers separated by a space).</p>
-
-<p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
-<h3 id="x25519">Elliptic-curve key exchange and forward secrecy</h3>
-
-<p>Today&#39;s protocols mostly use <strong>elliptic-curve Diffie-Hellman</strong>, in particular <strong>X25519</strong>, which follows the same steps on an elliptic curve with much shorter keys. TLS 1.3 uses a fresh key exchange for every connection, which gives <strong>forward secrecy</strong>: even if a server&#39;s long-term private key is stolen later, recorded traffic cannot be decrypted, because the keys that protected it no longer exist. That is why TLS 1.3 no longer supports the older approach of encrypting the session key with the server&#39;s RSA key.</p>
-<h2 id="how-secure-is-rsa-today">How secure is RSA today?</h2>
+<p>The lasting fix is a key that nobody can guess. CAs are meant to generate their keys inside a <strong>hardware security module</strong> (HSM), a tamper-resistant device that creates and stores keys and never releases them, during a witnessed and recorded key ceremony, from a cryptographically secure random number generator. eMudhra&#39;s failure shows that the result still needs checking: a single look at the private key values would have caught it. Certificate lifetimes are also being cut (to 47 days by 2029), which limits how long any mis-issued certificate stays useful.</p>
+<h2 id="how-secure-is-rsa-today">How secure is RSA today? (optional reading)</h2>
 
 <p>The best known way to factor an RSA modulus is the <strong>general number field sieve</strong>, and the public record shows how far it reaches. RSA-250 (829 bits) was factored in 2020, using about 2,700 CPU core-years. In September 2026 two older challenge numbers fell within sixteen days of each other: RSA-260 (862 bits), which took about 13.5 GPU-years, and RSA-896 (896 bits), on roughly 2,000 GPUs over ten days. Both teams used AI agents to engineer and run the computation, but neither used a new algorithm. The effort needed grows far faster than the key size, so these results do not threaten the 2048-bit keys in use today; keys of 1024 bits, however, should be regarded as within reach of a well-funded attacker.</p>
 
@@ -693,6 +668,10 @@ print(A, B, pow(B, a, p), pow(A, b, p))
 
 <li id="fn1">
 <p>RSA is named after its three creators, Ron <strong>R</strong>ivest, Adi <strong>S</strong>hamir and Leonard <strong>A</strong>dleman, who published it in 1977.&nbsp;<a href="#fnref1">&#8617;</a></p>
+</li>
+
+<li id="fn2">
+<p><strong>R</strong>ead <strong>E</strong>valuate <strong>P</strong>rint <strong>L</strong>oop, an interactive programming environment.&nbsp;<a href="#fnref2">&#8617;</a></p>
 </li>
 
 </ol>

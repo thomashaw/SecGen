@@ -183,7 +183,9 @@ class Hackerbot(object):
         return prompts
 
     def goto(self, n):
-        return self.tell('goto %d' % int(n), until=self.end_goto, timeout=30)
+        # wait for the bot to go quiet: a prompt that itself says 'ready' would match end_goto early, and the
+        # rest of the burst would then be read as the reply to the next message
+        return self.tell('goto %d' % int(n), idle=4, timeout=30)
 
     def ready(self, timeout=330):
         return self.tell('ready', until=self.end_ready, timeout=timeout)

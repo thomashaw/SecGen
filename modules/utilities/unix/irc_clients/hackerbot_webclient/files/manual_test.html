@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-10-30 13:30 · eec7a89</span>
+    <span class="ver">DEV page · 2026-10-30 21:41 · 508a6d6</span>
   </div>
 </header>
 <main>
@@ -46,7 +46,7 @@
 
 <p>A step-by-step play-through for the owner, to judge what the automated tester can&#39;t: whether each hint gets
 a stuck student moving, whether the sheet reads well, and whether the lab fits one teaching week. The tester
-(<code>rsa_lab_test.py</code>, run 2: 70 OK, 13/13 flags) has already confirmed that every command below works and that
+(<code>rsa_lab_test.py</code>) has already confirmed that every command below works and that
 every bot reply quoted here appears. Allow 60 to 90 minutes.</p>
 
 <p>On the desktop VM you have three pages, all served by the hackerbot_server:</p>
@@ -73,7 +73,7 @@ openssl version
 <ul>
 <li>Expect your random username, <code>pycryptodome 3.11.0</code> and <code>OpenSSL 3.0.x</code>.
 </li>
-<li><input type="checkbox" disabled> Hackerbot answers <code>hello</code> and <code>list</code> (13 challenges)
+<li><input type="checkbox" disabled> Hackerbot answers <code>hello</code> and <code>list</code> (11 challenges)
 </li>
 </ul>
 <h2 id="lab-sheet-purpose-to-rsa-by-hand">Lab sheet: Purpose to RSA by hand</h2>
@@ -81,8 +81,8 @@ openssl version
 <p>Read up to and including &quot;RSA by hand, with Python&quot;, and paste the worked example into <code>python3</code>.</p>
 
 <ul>
-<li>Expect: <code>161 132</code>; a list starting <code>[5, 7, 13, 17, 19,</code>; <code>53 1</code>; <code>126 42</code>;
-<code>[7, 41, 54, 100, 151, 34, 140, 140, 119, 93]</code>; <code>&#39;The Hobbit&#39;</code>.
+<li>Expect: <code>161 132</code>; a list starting <code>[5, 7, 13, 17, 19,</code>; <code>53 1</code>; <code>37</code> then <code>67</code>; <code>84</code>, <code>104</code>, <code>&#39;T&#39;</code>;
+<code>7</code>, <code>41</code>; <code>[7, 41, 54, 100, 151, 34, 140, 140, 119, 93]</code>; <code>The Hobbit</code>.
 </li>
 <li><input type="checkbox" disabled> the explanation of e and d is enough to do challenges 1-5 without help
 </li>
@@ -125,7 +125,7 @@ python3 -c &quot;print(pow($c, pow($e, -1, ($p-1)*($q-1)), $p*$q))&quot;
 </code></pre>
 
 <pre><code class="bash"># 5: decrypt the word
-read -p &quot;d: &quot; d; read -p &quot;N: &quot; n; read -p &quot;the numbers (spaces between): &quot; ct
+read -p &quot;d: &quot; d; read -p &quot;N: &quot; n; read -p &quot;the ct numbers (spaces between): &quot; ct
 python3 -c &quot;print(&#39;&#39;.join(chr(pow(int(x), $d, $n)) for x in &#39;$ct&#39;.split()))&quot;
 </code></pre>
 
@@ -134,7 +134,7 @@ python3 -c &quot;print(&#39;&#39;.join(chr(pow(int(x), $d, $n)) for x in &#39;$c
 </li>
 <li><input type="checkbox" disabled> #2 and #4: the sheet&#39;s <code>pow(e, -1, phiN)</code> is enough?
 </li>
-<li><input type="checkbox" disabled> #5: the hint about putting the numbers in a list is enough?
+<li><input type="checkbox" disabled> #5: the hint (type the numbers into a list, run the decryption loop) is enough?
 </li>
 </ul>
 <h2 id="lab-sheet-rsa-with-openssl">Lab sheet: RSA with OpenSSL</h2>
@@ -165,9 +165,21 @@ cp key.priv key.pub
 </li>
 </ul>
 
-<p>Export the public key properly and say <code>ready</code> (expect <code>Well done :)</code> and a flag):</p>
+<p>Make a 1024-bit key instead of 2048, export its public key, and say <code>ready</code>:</p>
 
-<pre><code class="bash">cd ~/challenge_6 &amp;&amp; openssl rsa -in key.priv -pubout -out key.pub
+<pre><code class="bash">cd ~/challenge_6 &amp;&amp; openssl genrsa -out key.priv 1024 &amp;&amp; openssl rsa -in key.priv -pubout -out key.pub
+</code></pre>
+
+<ul>
+<li>Expect: <code>key.priv isn&#39;t a 2048-bit key. Make a new one with openssl genrsa -out key.priv 2048, then export key.pub from it again.</code>
+</li>
+<li><input type="checkbox" disabled> hint clear?
+</li>
+</ul>
+
+<p>Make a 2048-bit key pair and say <code>ready</code> (expect <code>Well done :)</code> and a flag):</p>
+
+<pre><code class="bash">cd ~/challenge_6 &amp;&amp; openssl genrsa -out key.priv 2048 &amp;&amp; openssl rsa -in key.priv -pubout -out key.pub
 </code></pre>
 <h2 id="challenge-7-encrypt-a-message">Challenge 7: encrypt a message</h2>
 
@@ -206,7 +218,12 @@ openssl pkeyutl -encrypt -pubin -inkey ~/challenge_6/key.pub -in message.txt -ou
 </code></pre>
 <h2 id="lab-sheet-digital-signatures">Lab sheet: Digital signatures</h2>
 
-<p>Run the section&#39;s commands: <code>Verified OK</code>, then a verification failure after the edit.</p>
+<p>Run the section&#39;s commands: the signature as hex and <code>256 iou.sig</code>, <code>Verified OK</code>, then a verification failure after the edit.</p>
+
+<ul>
+<li><input type="checkbox" disabled> the comments and the <code>xxd</code> step make it clear what the signature is
+</li>
+</ul>
 <h2 id="challenge-8-sign">Challenge 8: sign</h2>
 
 <p>Say <code>goto 8</code>. Sign the text, then change message.txt, and say <code>ready</code>:</p>
@@ -241,173 +258,12 @@ echo x &gt;&gt; message.txt
 
 <pre><code class="bash">cd ~/challenge_8 &amp;&amp; openssl dgst -sha256 -sign key.priv -out message.sig message.txt
 </code></pre>
-<h2 id="lab-sheet-hybrid-encryption">Lab sheet: Hybrid encryption</h2>
+<h2 id="lab-sheet-key-exchange">Lab sheet: Key exchange</h2>
 
-<p>Run the section&#39;s commands: RSA refuses the 3 KB report, then <code>Bob has the report</code>.</p>
-<h2 id="challenge-9-hybrid-encryption">Challenge 9: hybrid encryption</h2>
+<p>Do the Diffie-Hellman worked example (<code>8 19 2 2</code>).</p>
+<h2 id="challenge-9-diffie-hellman">Challenge 9: Diffie-Hellman</h2>
 
-<p>Say <code>goto 9</code>. Encrypt without <code>-pbkdf2</code> and keep aes.key, then say <code>ready</code>:</p>
-
-<pre><code class="bash">mkdir -p ~/challenge_9 &amp;&amp; cp ~/challenge_6/key.priv ~/challenge_6/key.pub ~/challenge_9/ &amp;&amp; cd ~/challenge_9
-head -c 3000 /dev/urandom | base64 &gt; report.txt
-openssl rand -hex 32 &gt; aes.key
-openssl enc -aes-256-cbc -in report.txt -out report.enc -pass file:aes.key
-openssl pkeyutl -encrypt -pubin -inkey key.pub -in aes.key -out aes.key.enc
-</code></pre>
-
-<ul>
-<li>Expect: <code>I unwrapped the AES key, but report.enc didn&#39;t decrypt to report.txt with it. Use openssl enc -aes-256-cbc -pbkdf2 -pass file:aes.key exactly as on the lab sheet.</code>
-</li>
-<li><input type="checkbox" disabled> hint clear?
-</li>
-</ul>
-
-<p>Encrypt the report properly, still keeping aes.key, and say <code>ready</code>:</p>
-
-<pre><code class="bash">cd ~/challenge_9 &amp;&amp; openssl enc -aes-256-cbc -pbkdf2 -in report.txt -out report.enc -pass file:aes.key
-</code></pre>
-
-<ul>
-<li>Expect: <code>It all decrypts, but aes.key is still sitting next to the encrypted file. Anyone who can read the directory can read the report. Delete aes.key, then say &#39;ready&#39;.</code>
-</li>
-<li><input type="checkbox" disabled> hint clear, and does it make the point about deleting the key?
-</li>
-</ul>
-
-<p>Delete the key and say <code>ready</code> (expect <code>Unwrapped the key, decrypted the report. Well done :)</code> and a flag):</p>
-
-<pre><code class="bash">rm ~/challenge_9/aes.key
-</code></pre>
-<h2 id="lab-sheet-chains-of-trust">Lab sheet: Chains of trust</h2>
-
-<p>Run the section&#39;s commands (<code>leaf.crt: OK</code>), and try the Question&#39;s command (it fails).</p>
-<h2 id="challenge-10-chain-of-trust">Challenge 10: chain of trust</h2>
-
-<p>Say <code>goto 10</code>. Build the chain, but sign the intermediate without ca.ext, then say <code>ready</code>:</p>
-
-<pre><code class="bash">read -p &quot;Website name from Hackerbot: &quot; NAME
-mkdir -p ~/challenge_10 &amp;&amp; cd ~/challenge_10
-openssl genrsa -out root.key 2048
-openssl req -x509 -new -key root.key -subj &quot;/CN=My Root CA&quot; -days 365 -out root.crt
-printf &#39;basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n&#39; &gt; ca.ext
-openssl genrsa -out inter.key 2048
-openssl req -new -key inter.key -subj &quot;/CN=My Intermediate CA&quot; -out inter.csr
-openssl x509 -req -in inter.csr -CA root.crt -CAkey root.key -CAcreateserial -days 365 -out inter.crt
-printf &quot;basicConstraints=CA:FALSE\nsubjectAltName=DNS:$NAME\n&quot; &gt; leaf.ext
-openssl genrsa -out leaf.key 2048
-openssl req -new -key leaf.key -subj &quot;/CN=$NAME&quot; -out leaf.csr
-openssl x509 -req -in leaf.csr -CA inter.crt -CAkey inter.key -CAcreateserial -days 365 -extfile leaf.ext -out leaf.crt
-</code></pre>
-
-<ul>
-<li>Expect: <code>inter.crt isn&#39;t marked as a CA (basicConstraints CA:TRUE), so nothing it signs will be trusted. Sign it again with the ca.ext extensions file from the lab sheet.</code>
-</li>
-<li><input type="checkbox" disabled> hint clear?
-</li>
-</ul>
-
-<p>Re-sign the intermediate with ca.ext, but sign the leaf with the root; say <code>ready</code>:</p>
-
-<pre><code class="bash">cd ~/challenge_10
-openssl x509 -req -in inter.csr -CA root.crt -CAkey root.key -CAcreateserial -days 365 -extfile ca.ext -out inter.crt
-openssl x509 -req -in leaf.csr -CA root.crt -CAkey root.key -CAcreateserial -days 365 -extfile leaf.ext -out leaf.crt
-</code></pre>
-
-<ul>
-<li>Expect: <code>leaf.crt was signed straight by the root. Sign it with the intermediate (-CA inter.crt -CAkey with the intermediate&#39;s key).</code>
-</li>
-<li><input type="checkbox" disabled> hint clear?
-</li>
-</ul>
-
-<p>Sign the leaf with the intermediate and say <code>ready</code> (expect <code>Root, intermediate, leaf: the chain verifies. Well done :)</code> and a flag):</p>
-
-<pre><code class="bash">cd ~/challenge_10
-openssl x509 -req -in leaf.csr -CA inter.crt -CAkey inter.key -CAcreateserial -days 365 -extfile leaf.ext -out leaf.crt
-openssl verify -CAfile root.crt -untrusted inter.crt leaf.crt
-</code></pre>
-<h2 id="lab-sheet-when-a-ca-gets-key-generation-wrong">Lab sheet: When a CA gets key generation wrong</h2>
-
-<p>Read the section, then do &quot;What a key of 4 looks like&quot; and &quot;Brute-forcing a tiny key&quot; by pasting into
-<code>python3</code> as a student would.</p>
-
-<ul>
-<li>Expect: <code>cat emudhra4.pem</code> matches the PEM on the sheet exactly; the <code>priv:</code> dump is 47 zero bytes then
-<code>04</code>; the brute force prints <code>Found the private key: 4</code> straight away.
-</li>
-<li><input type="checkbox" disabled> the exhibit lands: is it obvious how absurd the key is?
-</li>
-</ul>
-<h2 id="challenge-11-brute-force-a-ca-key">Challenge 11: brute-force a CA key</h2>
-
-<p>Say <code>goto 11</code> and <code>ready</code>.</p>
-
-<ul>
-<li>Expect: <code>The certificates are in /home/&lt;you&gt;/challenge_11. Start counting.</code> and the question.
-</li>
-</ul>
-
-<p>Brute-force the intermediate (the sheet&#39;s loop, as a script):</p>
-
-<pre><code class="bash">cd ~/challenge_11
-openssl x509 -in lab_trust_inter.crt -noout -text | head -20
-openssl x509 -in lab_trust_inter.crt -noout -pubkey &gt; inter_pub.pem
-python3 - &lt;&lt;&#39;EOF&#39;
-from Cryptodome.PublicKey import ECC
-pub = ECC.import_key(open(&#39;inter_pub.pem&#39;).read())
-for k in range(1, 100000):
-    if ECC.construct(curve=&#39;P-384&#39;, d=k).pointQ == pub.pointQ:
-        print(&#39;Found the private key:&#39;, k)
-        open(&#39;recovered.pem&#39;, &#39;w&#39;).write(ECC.construct(curve=&#39;P-384&#39;, d=k).export_key(format=&#39;PEM&#39;))
-        break
-EOF
-</code></pre>
-
-<p>Answer with a wrong number first (expect <code>Incorrect</code>), then the right one.</p>
-
-<ul>
-<li>Expect: <code>:) That was one of eMudhra&#39;s real keys. With it you could sign a certificate for any website, and every browser that trusts the root would accept it.</code> and a flag.
-</li>
-<li><input type="checkbox" disabled> did the brute force take only a second or two?
-</li>
-</ul>
-
-<p>Forge a bank certificate with the recovered key, as the sheet does:</p>
-
-<pre><code class="bash">cd ~/challenge_11
-openssl genrsa -out fake.key 2048
-openssl req -new -key fake.key -subj &quot;/CN=www.bank.example&quot; -out fake.csr
-openssl x509 -req -in fake.csr -CA lab_trust_inter.crt -CAkey recovered.pem -CAcreateserial -days 30 -out fake.crt
-openssl verify -CAfile lab_trust_root.crt -untrusted lab_trust_inter.crt fake.crt
-</code></pre>
-
-<ul>
-<li><input type="checkbox" disabled> <code>fake.crt: OK</code>, and the point about forgery is clear?
-</li>
-</ul>
-<h2 id="challenge-12-the-fix-block-the-key">Challenge 12: the fix, block the key</h2>
-
-<p>Read &quot;The fix&quot; and &quot;Block the key&quot;. Say <code>goto 12</code> and <code>ready</code> (expect <code>Hash it.</code>). Work out both hashes:</p>
-
-<pre><code class="bash">cd ~/challenge_11
-for c in lab_trust_root.crt lab_trust_inter.crt; do
-  echo &quot;$c: $(openssl x509 -in $c -noout -pubkey | openssl pkey -pubin -outform der | sha256sum)&quot;
-done
-</code></pre>
-
-<p>Answer with the root&#39;s hash first (expect <code>Incorrect</code>), then the intermediate&#39;s.</p>
-
-<ul>
-<li>Expect: <code>:) That is the value Chrome put on its block list for each eMudhra intermediate.</code> and a flag.
-</li>
-<li><input type="checkbox" disabled> clear which certificate to hash?
-</li>
-<li><input type="checkbox" disabled> &quot;Revoke, and remove the root&quot; and &quot;Generate keys properly&quot; read well after the challenge (the good key&#39;s <code>priv:</code> is 48 random bytes)?
-</li>
-</ul>
-<h2 id="challenge-13-diffie-hellman">Challenge 13: Diffie-Hellman</h2>
-
-<p>Do the Key exchange worked example (<code>8 19 2 2</code>). Say <code>goto 13</code> and <code>ready</code>, then:</p>
+<p>Say <code>goto 9</code> and <code>ready</code>, then:</p>
 
 <pre><code class="bash">read -p &quot;p: &quot; p; read -p &quot;g: &quot; g; read -p &quot;a: &quot; a; read -p &quot;B: &quot; B
 python3 -c &quot;print(pow($g, $a, $p), pow($B, $a, $p))&quot;
@@ -416,15 +272,91 @@ python3 -c &quot;print(pow($g, $a, $p), pow($B, $a, $p))&quot;
 <p>Answer with the two numbers the wrong way round first (expect <code>Incorrect</code>), then <code>answer A secret</code>.</p>
 
 <ul>
-<li>Expect: a flag, then <code>That was the last challenge</code>.
+<li>Expect: a flag, and challenge 10&#39;s prompt.
 </li>
 <li><input type="checkbox" disabled> hint clear?
+</li>
+<li><input type="checkbox" disabled> the &quot;who are you talking to?&quot; paragraph leads into chains of trust
+</li>
+</ul>
+<h2 id="lab-sheet-chains-of-trust-and-emudhra">Lab sheet: Chains of trust and eMudhra</h2>
+
+<p>Read Chains of trust and When a CA gets key generation wrong, then do What a key of 4 looks like, pasting
+into <code>python3</code> as a student would.</p>
+
+<ul>
+<li>Expect: <code>cat emudhra4.pem</code> matches the PEM on the sheet exactly; the <code>priv:</code> dump is 47 zero bytes then <code>04</code>.
+</li>
+<li><input type="checkbox" disabled> chains of trust is clear enough without a hands-on exercise
+</li>
+<li><input type="checkbox" disabled> the exhibit lands: is it obvious how absurd the key is?
+</li>
+</ul>
+<h2 id="challenge-10-brute-force-a-ca-key">Challenge 10: brute-force a CA key</h2>
+
+<p>Say <code>goto 10</code> and <code>ready</code>.</p>
+
+<ul>
+<li>Expect: <code>The certificates are in /home/&lt;you&gt;/emudhra_ca. Start counting.</code> and the question.
+</li>
+</ul>
+
+<p>Follow the sheet (extract the public key, paste the loop into <code>python3</code>; leave Python open for challenge 11).
+Answer with a wrong number first (expect <code>Incorrect</code>), then the right one.</p>
+
+<ul>
+<li>Expect: <code>:) That was one of eMudhra&#39;s real keys. Now use it to sign a certificate of your own.</code> and a flag.
+</li>
+<li><input type="checkbox" disabled> the brute force took only a second or two
+</li>
+</ul>
+<h2 id="challenge-11-forge-a-certificate">Challenge 11: forge a certificate</h2>
+
+<p>Follow the sheet: save recovered.pem in Python, then run the forging commands, but give the wrong bank
+name at the <code>Bank website:</code> prompt. Say <code>ready</code>.</p>
+
+<ul>
+<li>Expect: <code>fake.crt isn&#39;t for &lt;bank&gt;. Make the certificate request with -subj &quot;/CN=&lt;bank&gt;&quot;.</code>
+</li>
+<li><input type="checkbox" disabled> hint clear?
+</li>
+</ul>
+
+<p>Make it self-signed instead of signed by the intermediate, then say <code>ready</code>:</p>
+
+<pre><code class="bash">cd ~/emudhra_ca
+read -p &quot;Bank website from Hackerbot: &quot; BANK
+openssl req -new -key fake.key -subj &quot;/CN=$BANK&quot; -out fake.csr
+openssl x509 -req -in fake.csr -signkey fake.key -days 30 -out fake.crt
+</code></pre>
+
+<ul>
+<li>Expect: <code>fake.crt doesn&#39;t chain up to the Lab Trust root. Sign it as the intermediate: -CA lab_trust_inter.crt with -CAkey recovered.pem (the key you brute-forced).</code>
+</li>
+<li><input type="checkbox" disabled> hint clear?
+</li>
+</ul>
+
+<p>Run the sheet&#39;s forging commands with the right name, check <code>fake.crt: OK</code>, and say <code>ready</code>.</p>
+
+<ul>
+<li>Expect: <code>Every browser that trusts the Lab Trust root would accept that as &lt;bank&gt;. That is what the eMudhra keys made possible.</code>, a flag and <code>That was the last challenge</code>.
+</li>
+<li><input type="checkbox" disabled> the point about forgery (and the man in the middle) is clear
+</li>
+</ul>
+<h2 id="lab-sheet-the-response">Lab sheet: The response</h2>
+
+<ul>
+<li><input type="checkbox" disabled> the revocation-versus-blocking paragraph and question read well
+</li>
+<li><input type="checkbox" disabled> &quot;How secure is RSA today?&quot; works as optional reading
 </li>
 </ul>
 <h2 id="the-whole-lab">The whole lab</h2>
 
 <ul>
-<li><input type="checkbox" disabled> 13 flags in total
+<li><input type="checkbox" disabled> 11 flags in total
 </li>
 <li><input type="checkbox" disabled> the flow from &quot;weak key&quot; to &quot;the fix&quot; works as a story
 </li>
