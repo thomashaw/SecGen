@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-10-30 21:41 · 508a6d6</span>
+    <span class="ver">DEV page · 2026-10-30 22:37 · 1905189</span>
   </div>
 </header>
 <main>
@@ -442,22 +442,28 @@ openssl dgst -sha256 -verify bob.pub -signature iou.sig iou.txt
 <p>Don&#39;t forget to <mark class="action">save and submit any flags!</mark></p>
 <h2 id="key-exchange">Key exchange</h2>
 
-<p>Public-key encryption can deliver a symmetric key, but modern protocols normally use <strong>key exchange</strong> instead: both parties contribute to the key, and it is never sent at all. <strong>Diffie-Hellman</strong> (DH), published in 1976, was the first public-key scheme of any kind.</p>
+<p>Public-key encryption can deliver a symmetric key: one side picks the key, encrypts it and sends it. Modern protocols usually use <strong>key exchange</strong> instead. Both parties contribute to the key, and the key itself is never sent at all. <strong>Diffie-Hellman</strong> (DH), published in 1976, was the first public-key scheme of any kind.</p>
+
+<p><strong>The idea, with paint.</strong> Alice and Bob agree publicly on a starting colour, say yellow. Each secretly picks their own colour and mixes it with the yellow. They swap their mixtures in public. Each then adds their own secret colour to the mixture they received. Both end up with the same colour: yellow + Alice&#39;s secret + Bob&#39;s secret. An eavesdropper has seen yellow and both mixtures, but unmixing paint to find the secret colours is too hard.</p>
+
+<p><strong>The real thing, with numbers.</strong> DH does the same thing with modular arithmetic: &quot;mod p&quot; means &quot;take the remainder after dividing by p&quot;, as in RSA. Raising a number to a power is the &quot;mixing&quot;, and it is easy to do but very hard to undo.</p>
 
 <ol>
-<li>Alice and Bob agree, in public, on a prime <em>p</em> and a <strong>generator</strong> <em>g</em> (a number whose powers mod <em>p</em> produce every value from 1 to <em>p</em> − 1).
+<li>Alice and Bob publicly agree on two numbers: a prime <em>p</em> and a <strong>generator</strong> <em>g</em> (a number whose powers mod <em>p</em> reach every value from 1 to <em>p</em> − 1). Example: p = 23, g = 5.
 </li>
-<li>Alice picks a private value <em>a</em> and sends Bob A = g^a mod p.
+<li>Alice picks a secret number <em>a</em> and sends Bob A = g^a mod p. Alice picks 6 and sends 5^6 mod 23 = 8.
 </li>
-<li>Bob picks a private value <em>b</em> and sends Alice B = g^b mod p.
+<li>Bob picks a secret number <em>b</em> and sends Alice B = g^b mod p. Bob picks 15 and sends 5^15 mod 23 = 19.
 </li>
-<li>Alice computes B^a mod p and Bob computes A^b mod p. Both equal g^(ab) mod p, which is their shared secret.
+<li>Each raises what they received to their own secret. Alice computes 19^6 mod 23 = 2. Bob computes 8^15 mod 23 = 2.
 </li>
 </ol>
 
-<p>An eavesdropper sees <em>p</em>, <em>g</em>, <em>A</em> and <em>B</em>, but recovering <em>a</em> or <em>b</em> from them (the <strong>discrete logarithm problem</strong>) is infeasible for large numbers.</p>
+<p>They match because both have calculated <em>g</em> raised to the power <em>a</em> × <em>b</em>: Alice did &quot;b, then a&quot; and Bob did &quot;a, then b&quot;. That number, 2, is their shared secret.</p>
 
-<p><mark class="action">Work through an example in Python:</mark></p>
+<p>An eavesdropper sees <em>p</em>, <em>g</em>, <em>A</em> and <em>B</em> (23, 5, 8 and 19). To find the secret, they would need to work out <em>a</em> from <em>A</em>, that is, find the power that turns 5 into 8 mod 23. This is called the <strong>discrete logarithm problem</strong>. With p = 23 you could just try every power, but real DH uses a <em>p</em> that is hundreds of digits long, and no known method can solve it in a reasonable time.</p>
+
+<p><mark class="action">Try it in Python:</mark></p>
 
 <pre><code class="python">p, g = 23, 5         # public: agreed in the open
 a, b = 6, 15         # private: Alice&#39;s and Bob&#39;s secret values

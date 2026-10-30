@@ -412,16 +412,22 @@ Don't forget to ==action: save and submit any flags!==
 
 ## Key exchange {#key-exchange}
 
-Public-key encryption can deliver a symmetric key, but modern protocols normally use **key exchange** instead: both parties contribute to the key, and it is never sent at all. **Diffie-Hellman** (DH), published in 1976, was the first public-key scheme of any kind.
+Public-key encryption can deliver a symmetric key: one side picks the key, encrypts it and sends it. Modern protocols usually use **key exchange** instead. Both parties contribute to the key, and the key itself is never sent at all. **Diffie-Hellman** (DH), published in 1976, was the first public-key scheme of any kind.
 
-1. Alice and Bob agree, in public, on a prime *p* and a **generator** *g* (a number whose powers mod *p* produce every value from 1 to *p* − 1).
-2. Alice picks a private value *a* and sends Bob A = g^a mod p.
-3. Bob picks a private value *b* and sends Alice B = g^b mod p.
-4. Alice computes B^a mod p and Bob computes A^b mod p. Both equal g^(ab) mod p, which is their shared secret.
+**The idea, with paint.** Alice and Bob agree publicly on a starting colour, say yellow. Each secretly picks their own colour and mixes it with the yellow. They swap their mixtures in public. Each then adds their own secret colour to the mixture they received. Both end up with the same colour: yellow + Alice's secret + Bob's secret. An eavesdropper has seen yellow and both mixtures, but unmixing paint to find the secret colours is too hard.
 
-An eavesdropper sees *p*, *g*, *A* and *B*, but recovering *a* or *b* from them (the **discrete logarithm problem**) is infeasible for large numbers.
+**The real thing, with numbers.** DH does the same thing with modular arithmetic: "mod p" means "take the remainder after dividing by p", as in RSA. Raising a number to a power is the "mixing", and it is easy to do but very hard to undo.
 
-==action: Work through an example in Python:==
+1. Alice and Bob publicly agree on two numbers: a prime *p* and a **generator** *g* (a number whose powers mod *p* reach every value from 1 to *p* − 1). Example: p = 23, g = 5.
+2. Alice picks a secret number *a* and sends Bob A = g^a mod p. Alice picks 6 and sends 5^6 mod 23 = 8.
+3. Bob picks a secret number *b* and sends Alice B = g^b mod p. Bob picks 15 and sends 5^15 mod 23 = 19.
+4. Each raises what they received to their own secret. Alice computes 19^6 mod 23 = 2. Bob computes 8^15 mod 23 = 2.
+
+They match because both have calculated *g* raised to the power *a* × *b*: Alice did "b, then a" and Bob did "a, then b". That number, 2, is their shared secret.
+
+An eavesdropper sees *p*, *g*, *A* and *B* (23, 5, 8 and 19). To find the secret, they would need to work out *a* from *A*, that is, find the power that turns 5 into 8 mod 23. This is called the **discrete logarithm problem**. With p = 23 you could just try every power, but real DH uses a *p* that is hundreds of digits long, and no known method can solve it in a reasonable time.
+
+==action: Try it in Python:==
 
 ```python
 p, g = 23, 5         # public: agreed in the open
