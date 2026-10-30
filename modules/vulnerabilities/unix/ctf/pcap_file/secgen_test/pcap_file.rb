@@ -1,4 +1,5 @@
 require_relative '../../../../../lib/post_provision_test'
+require 'json'
 
 class PcapFileTest < PostProvisionTest
   def initialize
@@ -7,18 +8,32 @@ class PcapFileTest < PostProvisionTest
     super
   end
 
+  # Where init.pp leaks the file: /home/<user>/<name> when an account is given,
+  # otherwise <storage_directory>/<name> (defaults: /var/log, capture.pcap).
+  def leaked_path
+    name = self.json_inputs['leaked_filename']&.first || 'capture.pcap'
+    acct = self.json_inputs['account']&.first
+    if acct && acct != ''
+      user = (JSON.parse(acct)['username'] rescue nil)
+      return "/home/#{user}/#{name}" if user
+    end
+    dir = self.json_inputs['storage_directory']&.first || '/var/log'
+    "#{dir.chomp('/')}/#{name}"
+  end
+
   def test_module
     super
+    path = Shellwords.escape(leaked_path)
     tier(1) do
-      # A .pcap (or arbitrarily named) file is leaked into a user home or storage directory.
-      # The leaked_filename is parameterised, so search broadly.
-      test_local_command('leaked file exists', 'find /home /root -mindepth 1 -maxdepth 3 -type f | head -1', '/')
+      test_command_succeeds("leaked file #{leaked_path} exists", "test -f #{path}")
     end
     tier(2) do
-      # libpcap files start with magic bytes d4 c3 b2 a1 (LE) or a1 b2 c3 d4 (BE).
+      # libpcap begins d4c3b2a1 (LE, what the pcap_generator/PacketFu writes) or
+      # a1b2c3d4 (BE); pcapng begins 0a0d0d0a. Emit a fixed marker on any match so
+      # the substring check is signature-agnostic.
       test_local_command('pcap magic bytes present',
-        'find /home /root -mindepth 1 -maxdepth 3 -type f | head -1 | xargs -I{} xxd -l4 "{}" 2>/dev/null',
-        'd4')
+                         "xxd -p -l4 #{path} | grep -qiE '^(d4c3b2a1|a1b2c3d4|0a0d0d0a)' && echo PCAP_MAGIC_OK",
+                         'PCAP_MAGIC_OK')
     end
     # TODO tier 3 (exploit): deferred — challenge is a CTF analysis task, no remote exploit
   end
