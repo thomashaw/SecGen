@@ -863,6 +863,110 @@ class PostProvisionTest
     end
   end
 
+  # --- SMB shares (Samba) ---------------------------------------------------
+  # Share checks a student would make: list and write a share anonymously with
+  # smbclient on the attacker VM. Don't install smbclient on the target just for
+  # the test; if the attacker base lacks it, add utilities/unix/smb/smbclient to
+  # the attacker system in the module's test scenario.
+
+  # The [share] name and comment as the samba module's smb_share.conf.erb
+  # renders them from these inputs: an `organisation` input renames the share to
+  # <first label of its domain>_public_share and its comment to
+  # "<business_name> Public SMB Share". Returns [name, comment].
+  def samba_share_name(inputs = json_inputs)
+    inputs ||= {}
+    name = Array(inputs['share_name']).first
+    comment = Array(inputs['share_comment']).first
+    org = Array(inputs['organisation']).first.to_s
+    unless org.empty?
+      parsed = JSON.parse(org)
+      name = "#{parsed['domain'].to_s.split('.').first}_public_share"
+      comment = "#{parsed['business_name']} Public SMB Share"
+    end
+    [name, comment]
+  end
+
+  # One anonymous (-N) smbclient call from the attacker against rhost. Without
+  # share: lists the shares (-L); with share: connects to //rhost/share and runs
+  # `commands` (smbclient -c). Returns {stdout:, exit_status:, cmd:}; stderr is
+  # folded into stdout, where smbclient prints its NT_STATUS errors.
+  def smbclient_from_attacker(attacker:, rhost:, share: nil, commands: nil, timeout: 60)
+    argv = share ? ['smbclient', "//#{rhost}/#{share}", '-N'] : ['smbclient', '-L', "//#{rhost}", '-N']
+    argv += ['-c', commands] if commands
+    cmd = argv.map { |a| Shellwords.escape(a) }.join(' ')
+    result = run_on_system(attacker, "#{cmd} 2>&1", timeout: timeout)
+    { stdout: result[:stdout].to_s, exit_status: result[:exit_status], cmd: cmd }
+  end
+
+  # PASS if an anonymous share listing from the attacker VM shows `share` as a
+  # Disk share (and `comment` on its line, when given). SKIP without an attacker.
+  def test_smb_share_listed(share, comment: nil, attacker: nil, rhost: nil, tier: nil, label: nil)
+    tier = default_tier(tier, 2)
+    name = label || "share #{share} listed anonymously"
+    resolved = resolve_attacker(name, attacker, rhost, tier)
+    return unless resolved
+    attacker, _attacker_ip, rhost = resolved
+
+    res = smbclient_from_attacker(attacker: attacker, rhost: rhost)
+    out = res[:stdout]
+    add_evidence('smbclient_listing', "echo #{Shellwords.escape(out[0, 2000])}")
+    line = out.lines.find { |l| l =~ /^\s+#{Regexp.escape(share)}\s+Disk\b/i }
+    if line.nil?
+      fail_check(name, "#{res[:cmd]} on #{attacker} did not list #{share}: #{out[0, 500]}", tier: tier)
+    elsif comment && !comment.empty? && !line.include?(comment)
+      fail_check(name, "#{share} listed without comment #{comment.inspect}: #{line.strip}", tier: tier)
+    else
+      pass_check(name, "#{res[:cmd]} on #{attacker} lists #{line.strip}", tier: tier)
+    end
+  end
+
+  # Upload a nonce file anonymously from the attacker VM into `share`, then look
+  # for it in `directory` (the share's path) on this system and remove it. PASS
+  # if the write landed, or with expect_writable: false, if it was refused.
+  def test_smb_anonymous_write(share, directory, expect_writable: true, attacker: nil, rhost: nil,
+                               tier: nil, label: nil)
+    tier = default_tier(tier, 2)
+    name = label || 'anonymous write to share'
+    resolved = resolve_attacker(name, attacker, rhost, tier)
+    return unless resolved
+    attacker, _attacker_ip, rhost = resolved
+
+    nonce = "secgen_smb_#{Time.now.to_i}_#{rand(100000)}"
+    run_on_system(attacker, "echo #{nonce} > /tmp/#{nonce}")
+    res = smbclient_from_attacker(attacker: attacker, rhost: rhost, share: share,
+                                  commands: "put /tmp/#{nonce} #{nonce}")
+    run_on_system(attacker, "rm -f /tmp/#{nonce}")
+    add_evidence('smbclient_put', "echo #{Shellwords.escape(res[:stdout][0, 2000])}")
+
+    landed = Shellwords.escape(File.join(directory, nonce))
+    present = run_command("test -f #{landed} && echo present")[:stdout].to_s.include?('present')
+    run_command("rm -f #{landed}")
+    if present == expect_writable
+      pass_check(name, expect_writable ? "file put anonymously from #{attacker} appeared in #{directory}" :
+                                         "anonymous put from #{attacker} was refused, as configured", tier: tier)
+    else
+      fail_check(name, "expected the put to #{expect_writable ? 'succeed' : 'be refused'}; " \
+                       "#{res[:cmd]} said: #{res[:stdout][0, 500]}", tier: tier)
+    end
+  end
+
+  # PASS if Samba's effective value for one share parameter (testparm, which
+  # ships with samba, so it runs on the target) equals `value`, case-insensitive.
+  # Asking for the parameter by name also reports defaults, which `testparm -s`
+  # omits (e.g. `guest ok = No`).
+  def test_smb_share_setting(share, parameter, value, tier: nil, label: nil)
+    tier = default_tier(tier, 2)
+    cmd = "testparm -s --section-name=#{Shellwords.escape(share)} " \
+          "--parameter-name=#{Shellwords.escape(parameter)} 2>/dev/null"
+    name = label || "[#{share}] #{parameter} = #{value}"
+    actual = run_command(cmd)[:stdout].to_s.strip
+    if actual.casecmp?(value.to_s)
+      pass_check(name, "#{cmd} gives #{actual} on #{get_system_name}", tier: tier)
+    else
+      fail_check(name, "#{cmd} gives #{actual.inspect}, expected #{value}", tier: tier)
+    end
+  end
+
   # Run a shell command as the given account (login shell, that user's
   # environment) rather than root.
   def run_as_user(user, command, timeout: 90)

@@ -129,6 +129,9 @@ API (all in `lib/objects/post_provision_test.rb`):
 | `test_msf_exploit(module, rhost:, rport:, attacker:, payload:, collect:, force:, options:, sentinel_wait:, tier: 3)` | a Metasploit exploit run from the attacker VM gets RCE on the target (see below). `sentinel_wait: <s>` polls the sentinel for up to s seconds for deferred-execution exploits (default 0 = read once) |
 | `test_http_exploit(path, method:, data:, headers:, expect:, expect_status:, sentinel:, include_headers:, collect:, tier: 3)` | a non-Metasploit web exploit run as HTTP request(s) from the attacker VM: PASSes when the response matches `expect` and/or a target-side `sentinel` proves command execution (see below) |
 | `http_from_attacker(path, attacker:, rhost:, method:, data:, headers:, include_headers:)` | raw: one `curl` request from the attacker VM → `{status, body, error, curl}` |
+| `test_smb_share_listed(share, comment:)` / `test_smb_anonymous_write(share, dir, expect_writable:)` | an anonymous `smbclient` from the attacker VM lists the share (with `comment`) / puts a file that lands in `dir` on the target (or is refused) |
+| `test_smb_share_setting(share, param, value)` | the target's `testparm` gives `value` for that share parameter (defaults included) |
+| `smbclient_from_attacker(attacker:, rhost:, share:, commands:)` / `samba_share_name` | raw: one anonymous `smbclient` from the attacker VM → `{stdout, exit_status, cmd}` / the `[share]` name and comment the samba module's `smb_share.conf.erb` renders (follows `organisation`) |
 | `run_on_system(name, cmd)` / `other_system_ip(name)` | run a command on / get the IP of **another** VM in the project (Proxmox, over its own guest agent) |
 | `system_present?(name)` / `attack_system` | a sibling VM by name exists / the sibling whose base is `<type>attack</type>` (nil if none) |
 
