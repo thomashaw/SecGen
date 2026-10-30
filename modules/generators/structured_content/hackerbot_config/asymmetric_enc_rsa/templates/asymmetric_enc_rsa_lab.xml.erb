@@ -11,7 +11,7 @@
   $H = "/home/#{$main_user}"
 
   $flags = self.flags
-  REQUIRED_FLAGS = 13
+  REQUIRED_FLAGS = 11
   while $flags.length < REQUIRED_FLAGS
     $flags << "flag{#{SecureRandom.hex}}"
     Print.err "Warning: Not enough flags provided to hackerbot_config generator, some flags won't be tracked/marked!"
@@ -39,14 +39,15 @@
   $ct5 = encrypt_rsa($word, $k5[:e], $k5[:n])
 
   # ---------------------------------------------------------------------------------------------
-  # OpenSSL and chains of trust (challenges 6-12)
+  # OpenSSL (challenges 6-8) and the weak CA (challenges 10-11)
   # ---------------------------------------------------------------------------------------------
   def dir(n)
     "#{$H}/challenge_#{n}"
   end
   $msg7 = SecureRandom.hex(4)
   $msg8 = SecureRandom.hex(4)
-  $leaf_name = "shop-#{SecureRandom.hex(3)}.example"
+  $bank_name = "www.#{%w[northgate riverside harbourside lakeside westfield kingsway].sample(random: SecureRandom)}-bank.example"
+  $ca_dir = "#{$H}/emudhra_ca"
 
   # The weak intermediate CA: its P-384 private key is one of the eight real eMudhra intermediate keys
   # (October 2026). The lab sheet's worked example uses the eighth, 4.
@@ -56,7 +57,7 @@
   $inter_file = 'lab_trust_inter.crt'
 
   # ---------------------------------------------------------------------------------------------
-  # Key exchange (challenge 13)
+  # Key exchange (challenge 9)
   # ---------------------------------------------------------------------------------------------
   $dh = toy_dh
 
@@ -87,7 +88,11 @@
     }
   SH
 
-  $check6 = enter_dir(6) + need_files('key.priv', 'key.pub') + KEYPAIR_CHECK + "echo HB:PASS\n"
+  $check6 = enter_dir(6) + need_files('key.priv', 'key.pub') + KEYPAIR_CHECK + <<~SH
+    bits=$(openssl rsa -in key.priv -passin pass: -noout -text 2>/dev/null | grep -o '[0-9]* bit' | head -1)
+    [ "$bits" = "2048 bit" ] || { echo "HB:WRONGSIZE ($bits)"; exit 0; }
+    echo HB:PASS
+  SH
 
   $check7 = enter_dir(7) + need_files('key.priv', 'key.pub') + KEYPAIR_CHECK + need_files('message.enc') + RSA_DECRYPT + <<~SH
     t=$(mktemp); rsa_decrypt message.enc "$t"
@@ -107,36 +112,23 @@
     echo HB:PASS
   SH
 
-  $check9 = enter_dir(9) + need_files('key.priv', 'report.txt', 'report.enc', 'aes.key.enc') + RSA_DECRYPT + <<~SH
-    [ "$(stat -c %s report.txt)" -ge 1000 ] || { echo HB:SMALL; exit 0; }
-    t=$(mktemp); rsa_decrypt aes.key.enc "$t"
-    r=HB:BADKEY
-    for f in "$t.pkcs1" "$t.oaep"; do
-      [ -s "$f" ] || continue
-      if openssl enc -d -aes-256-cbc -pbkdf2 -in report.enc -pass file:"$f" 2>/dev/null | cmp -s - report.txt; then r=HB:PASS
-      elif [ "$r" = HB:BADKEY ] && ! LC_ALL=C grep -q '[^[:print:][:space:]]' "$f"; then r=HB:BADAES; fi
-    done
-    rm -f "$t" "$t.pkcs1" "$t.oaep"
-    [ $r = HB:PASS ] || { echo $r; exit 0; }
-    [ -e aes.key ] && { echo HB:KEYLEFT; exit 0; }
+  # Challenges 10 and 11 use these files; placing them again is harmless (same content)
+  PLACE_CA = "[ -d #{$H} ] || { echo HB:NOHOME; exit 0; }\nmkdir -p #{$ca_dir}; chown #{$main_user}: #{$ca_dir}\n" +
+             write_file_script("#{$ca_dir}/#{$root_file}", $ca[:root_pem], $main_user) +
+             write_file_script("#{$ca_dir}/#{$inter_file}", $ca[:inter_pem], $main_user)
+  $place10 = PLACE_CA + "echo HB:PLACED\n"
+
+  # Challenge 11: fake.crt must name the bank and chain to the bot's own copies of the root and intermediate
+  # (so swapping the files in ~/emudhra_ca doesn't help)
+  $check11 = "[ -d #{$ca_dir} ] || { echo HB:NODIR; exit 0; }\ncd #{$ca_dir}\n" + <<~SH
+    [ -f fake.crt ] || { echo HB:NO_FAKE_CRT; exit 0; }
+    t=$(mktemp -d); trap 'rm -rf "$t"' EXIT
+    echo #{Base64.strict_encode64($ca[:root_pem])} | base64 -d > "$t/root.crt"
+    echo #{Base64.strict_encode64($ca[:inter_pem])} | base64 -d > "$t/inter.crt"
+    openssl x509 -in fake.crt -noout -text 2>/dev/null | grep -qF '#{$bank_name}' || { echo HB:WRONGNAME; exit 0; }
+    openssl verify -CAfile "$t/root.crt" -untrusted "$t/inter.crt" fake.crt >/dev/null 2>&1 || { echo HB:NOTCHAINED; exit 0; }
     echo HB:PASS
   SH
-
-  $check10 = enter_dir(10) + need_files('root.crt', 'inter.crt', 'leaf.crt') + <<~SH
-    openssl verify -CAfile root.crt root.crt >/dev/null 2>&1 || { echo HB:ROOTNOTSELF; exit 0; }
-    openssl x509 -in inter.crt -noout -text 2>/dev/null | grep -q 'CA:TRUE' || { echo HB:INTERNOTCA; exit 0; }
-    openssl verify -CAfile root.crt inter.crt >/dev/null 2>&1 || { echo HB:INTERNOTSIGNED; exit 0; }
-    openssl x509 -in leaf.crt -noout -text 2>/dev/null | grep -qF '#{$leaf_name}' || { echo HB:WRONGNAME; exit 0; }
-    openssl verify -CAfile root.crt leaf.crt >/dev/null 2>&1 && { echo HB:DIRECT; exit 0; }
-    openssl verify -CAfile root.crt -untrusted inter.crt leaf.crt >/dev/null 2>&1 || { echo HB:BADCHAIN; exit 0; }
-    echo HB:PASS
-  SH
-
-  # Challenges 11 and 12 share these files; placing them again is harmless (same content)
-  $place11 = "[ -d #{$H} ] || { echo HB:NOHOME; exit 0; }\nmkdir -p #{dir(11)}; chown #{$main_user}: #{dir(11)}\n" +
-             write_file_script("#{dir(11)}/#{$root_file}", $ca[:root_pem], $main_user) +
-             write_file_script("#{dir(11)}/#{$inter_file}", $ca[:inter_pem], $main_user) +
-             "echo HB:PLACED\n"
 
   def no_file(file, n, hint)
     "<condition>\n\t\t\t<output_matches>HB:NO_#{file.tr('.', '_').upcase}\\b</output_matches>\n\t\t\t<message>I can't find #{file} in #{dir(n)}. #{hint}</message>\n\t\t</condition>"
@@ -211,7 +203,7 @@
 		<post_command></post_command>
 		<suppress_command_output_feedback/>
 
-		<prompt>Choosing e: p = <%= $k1[:p] %>, q = <%= $k1[:q] %>. Which of these could be the public exponent e: <%= $e1[:candidates].join(', ') %>? Answer with every valid value, smallest first, separated by spaces.</prompt>
+		<prompt>Choosing e: p = <%= $k1[:p] %>, q = <%= $k1[:q] %>. Which of these could be the encryption exponent e: <%= $e1[:candidates].join(', ') %>? Answer with every valid value, smallest first, separated by spaces.</prompt>
 
 		<condition>
 			<output_matches>OK</output_matches>
@@ -241,7 +233,7 @@
 		<post_command></post_command>
 		<suppress_command_output_feedback/>
 
-		<prompt>Finding d: p = <%= $k2[:p] %>, q = <%= $k2[:q] %>, e = <%= $k2[:e] %>. Work out the private exponent d.</prompt>
+		<prompt>Finding d: p = <%= $k2[:p] %>, q = <%= $k2[:q] %>, e = <%= $k2[:e] %>. Work out the decryption exponent d.</prompt>
 
 		<condition>
 			<output_matches>OK</output_matches>
@@ -331,7 +323,7 @@
 		<post_command></post_command>
 		<suppress_command_output_feedback/>
 
-		<prompt>A secret word: each number is one character, encrypted with textbook RSA. Decrypt it with the private key d = <%= $k5[:d] %>, N = <%= $k5[:n] %>: <%= $ct5 %></prompt>
+		<prompt>A secret word: each number is one character, encrypted with textbook RSA. Decrypt it with the private key: d = <%= $k5[:d] %>, N = <%= $k5[:n] %>, ct = <%= $ct5 %></prompt>
 
 		<condition>
 			<output_matches>OK</output_matches>
@@ -356,11 +348,11 @@
 	</attack>
 
 	<!-- ===================================================================================== -->
-	<!-- 6-9: RSA with OpenSSL (checked on the desktop)                                         -->
+	<!-- 6-8: RSA with OpenSSL (checked on the desktop)                                         -->
 	<!-- ===================================================================================== -->
 
 	<attack>
-		<prompt>Key pair: create an RSA key pair in <%= dir(6) %>, with the private key in key.priv and the public key in key.pub.</prompt>
+		<prompt>Key pair: create a 2048-bit RSA key pair in <%= dir(6) %>, with the private key in key.priv and the public key in key.pub.</prompt>
 		<post_command><%= on_desktop($check6) %></post_command>
 		<suppress_command_output_feedback/>
 		<condition>
@@ -380,6 +372,10 @@
 		<condition>
 			<output_matches>HB:MISMATCH\b</output_matches>
 			<message>key.pub isn't the public half of key.priv. Export it again from key.priv.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:WRONGSIZE\b</output_matches>
+			<message>key.priv isn't a 2048-bit key. Make a new one with openssl genrsa -out key.priv 2048, then export key.pub from it again.</message>
 		</condition>
 		<condition>
 			<output_matches>HB:PASS\b</output_matches>
@@ -461,143 +457,8 @@
 		</else_condition>
 	</attack>
 
-	<attack>
-		<prompt>Hybrid encryption: in <%= dir(9) %>, encrypt report.txt (at least 1000 bytes) with AES (aes-256-cbc, -pbkdf2) into report.enc, using a random key file aes.key. Encrypt aes.key with your RSA public key into aes.key.enc, leave key.priv there so I can unwrap it, then delete aes.key.</prompt>
-		<post_command><%= on_desktop($check9) %></post_command>
-		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>HB:NODIR\b</output_matches>
-			<message>I can't find <%= dir(9) %>. Create it first (mkdir), then work inside it.</message>
-		</condition>
-		<%= no_file('key.priv', 9, 'Put an RSA private key there (copy one from an earlier challenge, or make a new one).') %>
-		<%= no_file('report.txt', 9, 'Keep the original report.txt so I can compare it with what I decrypt.') %>
-		<%= no_file('report.enc', 9, 'Encrypt report.txt with openssl enc -aes-256-cbc -pbkdf2 and the key in aes.key.') %>
-		<%= no_file('aes.key.enc', 9, 'Encrypt aes.key with your RSA public key (openssl pkeyutl -encrypt).') %>
-		<condition>
-			<output_matches>HB:SMALL\b</output_matches>
-			<message>report.txt needs to be at least 1000 bytes: too big for RSA to encrypt directly, which is the point.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:BADKEY\b</output_matches>
-			<message>I couldn't decrypt aes.key.enc with key.priv. Encrypt aes.key with the public half of the key.priv in this directory.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:BADAES\b</output_matches>
-			<message>I unwrapped the AES key, but report.enc didn't decrypt to report.txt with it. Use openssl enc -aes-256-cbc -pbkdf2 -pass file:aes.key exactly as on the lab sheet.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:KEYLEFT\b</output_matches>
-			<message>It all decrypts, but aes.key is still sitting next to the encrypted file. Anyone who can read the directory can read the report. Delete aes.key, then say 'ready'.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PASS\b</output_matches>
-			<message>Unwrapped the key, decrypted the report. Well done :) <%= $flags.pop %></message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<else_condition>
-			<message>Something was not quite right... say 'ready' to try again.</message>
-		</else_condition>
-	</attack>
-
 	<!-- ===================================================================================== -->
-	<!-- 10-12: chains of trust                                                                -->
-	<!-- ===================================================================================== -->
-
-	<attack>
-		<prompt>Chain of trust: in <%= dir(10) %>, make root.crt (a self-signed root CA), inter.crt (an intermediate CA signed by the root) and leaf.crt (a certificate for <%= $leaf_name %>, signed by the intermediate).</prompt>
-		<post_command><%= on_desktop($check10) %></post_command>
-		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>HB:NODIR\b</output_matches>
-			<message>I can't find <%= dir(10) %>. Create it first (mkdir), then work inside it.</message>
-		</condition>
-		<%= no_file('root.crt', 10, 'Make the self-signed root certificate with openssl req -x509.') %>
-		<%= no_file('inter.crt', 10, 'Sign the intermediate CA certificate with the root key (openssl x509 -req -CA root.crt).') %>
-		<%= no_file('leaf.crt', 10, 'Sign the leaf certificate with the intermediate key (openssl x509 -req -CA inter.crt).') %>
-		<condition>
-			<output_matches>HB:ROOTNOTSELF\b</output_matches>
-			<message>root.crt isn't a self-signed CA certificate. Make it with openssl req -x509.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:INTERNOTCA\b</output_matches>
-			<message>inter.crt isn't marked as a CA (basicConstraints CA:TRUE), so nothing it signs will be trusted. Sign it again with the ca.ext extensions file from the lab sheet.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:INTERNOTSIGNED\b</output_matches>
-			<message>inter.crt wasn't signed by root.crt's key.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:WRONGNAME\b</output_matches>
-			<message>leaf.crt isn't for <%= $leaf_name %>. Use that name as the certificate's CN (and in its subjectAltName).</message>
-		</condition>
-		<condition>
-			<output_matches>HB:DIRECT\b</output_matches>
-			<message>leaf.crt was signed straight by the root. Sign it with the intermediate (-CA inter.crt -CAkey with the intermediate's key).</message>
-		</condition>
-		<condition>
-			<output_matches>HB:BADCHAIN\b</output_matches>
-			<message>openssl verify doesn't accept the chain root.crt, inter.crt, leaf.crt. Run the verify command from the lab sheet to see why.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PASS\b</output_matches>
-			<message>Root, intermediate, leaf: the chain verifies. Well done :) <%= $flags.pop %></message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<else_condition>
-			<message>Something was not quite right... say 'ready' to try again.</message>
-		</else_condition>
-	</attack>
-
-	<attack>
-		<prompt>Brute-force a CA key: say 'ready' and I'll put a root CA certificate (<%= $root_file %>) and an intermediate CA certificate (<%= $inter_file %>) in <%= dir(11) %>. The intermediate came out of the same broken key-generation process as eMudhra's: its private key is a small whole number. Find it and tell me.</prompt>
-		<post_command><%= on_desktop($place11) %></post_command>
-		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>HB:NOHOME\b</output_matches>
-			<message>I couldn't find <%= $H %> on your desktop VM.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PLACED\b</output_matches>
-			<message>The certificates are in <%= dir(11) %>. Start counting.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>Something went wrong putting the files in place... say 'ready' to try again.</message>
-		</else_condition>
-		<quiz>
-			<question>What is the intermediate CA's private key?</question>
-			<answer><%= $weak_k %></answer>
-			<correct_answer_response> :) That was one of eMudhra's real keys. With it you could sign a certificate for any website, and every browser that trusts the root would accept it. <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-
-	<attack>
-		<prompt>The fix, block the key: browsers stopped trusting eMudhra's intermediates by blocking their public keys. Tell me the SPKI hash (the SHA-256 hash of the public key) of the weak intermediate in <%= dir(11) %> (<%= $inter_file %>). Say 'ready' first (I'll put the files back if they're missing).</prompt>
-		<post_command><%= on_desktop($place11) %></post_command>
-		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>HB:NOHOME\b</output_matches>
-			<message>I couldn't find <%= $H %> on your desktop VM.</message>
-		</condition>
-		<condition>
-			<output_matches>HB:PLACED\b</output_matches>
-			<message>The certificates are in <%= dir(11) %>. Hash it.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>Something went wrong putting the files in place... say 'ready' to try again.</message>
-		</else_condition>
-		<quiz>
-			<question>What is the SHA-256 hash of the intermediate CA's public key (SPKI), in hex or base64?</question>
-			<answer><%= $ca[:spki_hex] %>(?:\s+-)?|<%= Regexp.escape($ca[:spki_b64]) %></answer>
-			<correct_answer_response> :) That is the value Chrome put on its block list for each eMudhra intermediate. <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-
-	<!-- ===================================================================================== -->
-	<!-- 13: key exchange                                                                       -->
+	<!-- 9: key exchange                                                                        -->
 	<!-- ===================================================================================== -->
 
 	<attack>
@@ -630,4 +491,61 @@
 		</quiz>
 	</attack>
 
+	<!-- ===================================================================================== -->
+	<!-- 10-11: the weak CA                                                                    -->
+	<!-- ===================================================================================== -->
+
+	<attack>
+		<prompt>Brute-force a CA key: say 'ready' and I'll put a root CA certificate (<%= $root_file %>) and an intermediate CA certificate (<%= $inter_file %>) in <%= $ca_dir %>. The intermediate came out of the same broken key-generation process as eMudhra's: its private key is a small whole number. Find it and tell me.</prompt>
+		<post_command><%= on_desktop($place10) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NOHOME\b</output_matches>
+			<message>I couldn't find <%= $H %> on your desktop VM.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PLACED\b</output_matches>
+			<message>The certificates are in <%= $ca_dir %>. Start counting.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Something went wrong putting the files in place... say 'ready' to try again.</message>
+		</else_condition>
+		<quiz>
+			<question>What is the intermediate CA's private key?</question>
+			<answer><%= $weak_k %></answer>
+			<correct_answer_response> :) That was one of eMudhra's real keys. Now use it to sign a certificate of your own. <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<attack>
+		<prompt>Forge a certificate: with the intermediate key you recovered, sign a certificate for <%= $bank_name %> and save it as fake.crt in <%= $ca_dir %>. It should verify against <%= $root_file %>, as a browser would check it.</prompt>
+		<post_command><%= on_desktop($check11) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NODIR\b</output_matches>
+			<message>I can't find <%= $ca_dir %>. Go back to challenge 10 (goto 10, then ready) to get the certificates.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:NO_FAKE_CRT\b</output_matches>
+			<message>I can't find fake.crt in <%= $ca_dir %>. Sign your request with openssl x509 -req -CA <%= $inter_file %> -CAkey recovered.pem and save it as fake.crt.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:WRONGNAME\b</output_matches>
+			<message>fake.crt isn't for <%= $bank_name %>. Make the certificate request with -subj "/CN=<%= $bank_name %>".</message>
+		</condition>
+		<condition>
+			<output_matches>HB:NOTCHAINED\b</output_matches>
+			<message>fake.crt doesn't chain up to the Lab Trust root. Sign it as the intermediate: -CA <%= $inter_file %> with -CAkey recovered.pem (the key you brute-forced).</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PASS\b</output_matches>
+			<message>Every browser that trusts the Lab Trust root would accept that as <%= $bank_name %>. That is what the eMudhra keys made possible. :) <%= $flags.pop %></message>
+			<trigger_next_attack>true</trigger_next_attack>
+		</condition>
+		<else_condition>
+			<message>Something was not quite right... say 'ready' to try again.</message>
+		</else_condition>
+	</attack>
 </hackerbot>

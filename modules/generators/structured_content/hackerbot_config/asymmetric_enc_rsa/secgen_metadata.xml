@@ -8,10 +8,11 @@
   <author>Mo Hassan</author>
   <module_license>GPLv3</module_license>
   <description>Generates a config file for a hackerbot for a public-key cryptography lab. Every RSA and
-    Diffie-Hellman value in the hand calculations is picked at build time, as are the messages, a weak
-    intermediate CA (a P-384 key using one of eMudhra's real private keys).
-    Topics covered: Asymmetric Encryption; Public-Key Cryptography; RSA; Digital Signatures; Hybrid Encryption;
-    Certificate Chains of Trust; Diffie-Hellman Key Exchange.</description>
+    Diffie-Hellman value in the hand calculations is picked at build time, as are the messages, the bank name
+    and a weak intermediate CA (a P-384 key using one of eMudhra's real private keys) that students
+    brute-force and use to forge a certificate.
+    Topics covered: Asymmetric Encryption; Public-Key Cryptography; RSA; Digital Signatures;
+    Diffie-Hellman Key Exchange; Certificate Chains of Trust.</description>
 
   <type>hackerbot_config</type>
   <platform>linux</platform>
@@ -37,8 +38,6 @@
   </default_input>
 
   <default_input into="flags">
-    <generator type="flag_generator"/>
-    <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
     <generator type="flag_generator"/>
