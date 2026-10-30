@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-10-30 22:43 · 1905189</span>
+    <span class="ver">DEV page · 2026-10-30 23:41 · 1905189</span>
   </div>
 </header>
 <main>
@@ -500,6 +500,43 @@ print(A, B, pow(B, a, p), pow(A, b, p))
 </code></pre>
 
 <p>When you visit a website, it sends its leaf certificate and the intermediate; your browser checks each signature up the chain until it reaches a root it already trusts. So whoever holds an intermediate CA&#39;s private key can issue a certificate for any website, and every browser that trusts the root will accept it.</p>
+<h3 id="build-a-chain-of-your-own">Build a chain of your own</h3>
+
+<p><mark class="action">Make a root CA, an intermediate CA signed by the root, and a certificate for a website signed by the intermediate:</mark></p>
+
+<pre><code class="bash">mkdir -p ~/ca_example
+cd ~/ca_example
+
+# The root CA: a key, and a self-signed certificate
+openssl genrsa -out root.key 2048
+openssl req -x509 -new -key root.key -subj &quot;/CN=My Root CA&quot; -days 365 -out root.crt
+
+# The intermediate CA: a key, a certificate signing request, and a certificate signed by the root
+# (ca.ext marks the intermediate as a CA, so the certificates it signs are trusted)
+printf &#39;basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n&#39; &gt; ca.ext
+openssl genrsa -out inter.key 2048
+openssl req -new -key inter.key -subj &quot;/CN=My Intermediate CA&quot; -out inter.csr
+openssl x509 -req -in inter.csr -CA root.crt -CAkey root.key -CAcreateserial -days 365 -extfile ca.ext -out inter.crt
+
+# The leaf: a certificate for www.example.com, signed by the intermediate
+printf &#39;basicConstraints=CA:FALSE\nsubjectAltName=DNS:www.example.com\n&#39; &gt; leaf.ext
+openssl genrsa -out leaf.key 2048
+openssl req -new -key leaf.key -subj &quot;/CN=www.example.com&quot; -out leaf.csr
+openssl x509 -req -in leaf.csr -CA inter.crt -CAkey inter.key -CAcreateserial -days 365 -extfile leaf.ext -out leaf.crt
+</code></pre>
+
+<p>In each <code>openssl x509 -req</code> line, <code>-CA</code> names the certificate of the CA doing the signing and <code>-CAkey</code> names that CA&#39;s private key. <mark class="action">Check the chain:</mark></p>
+
+<pre><code class="bash"># trust root.crt (your &quot;root store&quot;), and check inter.crt on the way up
+openssl verify -CAfile root.crt -untrusted inter.crt leaf.crt
+openssl x509 -in leaf.crt -noout -subject -issuer
+</code></pre>
+
+<p><code>-CAfile</code> names the certificate you trust and <code>-untrusted</code> names the intermediate, which is checked rather than trusted. The first command prints <code>leaf.crt: OK</code>.</p>
+
+<blockquote>
+<p>Question: Run <code>openssl verify -CAfile root.crt leaf.crt</code> (without the intermediate). Why does it fail?</p>
+</blockquote>
 <h2 id="when-a-ca-gets-key-generation-wrong">When a CA gets key generation wrong</h2>
 
 <p>In October 2026 the security researcher Scott Helme found that the private keys of eight intermediate CAs run by eMudhra, an Indian CA trusted by every major browser, could be recovered from the CAs&#39; public certificates in under a second. The keys were P-384 <strong>elliptic-curve</strong> keys, and a private key of that kind should be a random 384-bit number, one of roughly 10^115 possibilities; every one of eMudhra&#39;s eight fitted in a single byte, and one of them was the number 4. The keys came from a key-generation ceremony in April 2025 that produced almost no randomness, and they had sat in public certificates for 17 months before anyone noticed.</p>
