@@ -1,115 +1,216 @@
 <%
   require 'json'
   require 'securerandom'
-  require 'digest/sha1'
-  require 'fileutils'
   require 'erb'
-	require 'openssl'
 
   if self.accounts.empty?
     abort('Sorry, you need to provide an account')
   end
-	$first_account = JSON.parse(self.accounts.first)
+  $first_account = JSON.parse(self.accounts.first)
+  $main_user = $first_account['username'].to_s
+  $H = "/home/#{$main_user}"
 
-	$main_user = $first_account['username'].to_s
-
-	$root_password = self.root_password
-	$desktop_ip = self.desktop_ip
-	$hackerbot_server_ip = self.hackerbot_server_ip
-	$flags = self.flags
-
-	$chall_1_path = "/home/#{$main_user}/challenge_1"
-
-	$chall_2_path = "/home/#{$main_user}/challenge_2"
-	$chall_2_msg = SecureRandom.hex(4)
-
-	$chall_3_message = self.chall_3_msg
-	$chall_3_ciphertext = encrypt_rsa($chall_3_message, 5, 161)
-
-	$chall_4_message = SecureRandom.hex(2)
-	$chall_4_ciphertext = encrypt_rsa($chall_4_message, 5, 161)
-
-	$chall_5_message = rand(1..9)
-	$chall_5_ciphertext = encrypt_rsa_byte($chall_5_message, 3, 15)
-
-	$chall_6_message = rand(1..9)
-	$chall_6_ciphertext = encrypt_rsa_byte($chall_6_message, 3, 15)
-
-	$chall_7_message = rand(1..9)
-	$chall_7_ciphertext = encrypt_rsa_byte($chall_7_message, 11, 7*17)
-
-	$chall_8_message = rand(1..9)
-	$chall_8_ciphertext = encrypt_rsa_byte($chall_8_message, 11, 7*17)
-
-	$chall_9_message = rand(1..9)
-	$chall_9_ciphertext = encrypt_rsa_byte($chall_9_message, 17, 47*59)
-
-	$chall_10_message = rand(1..9)
-	$chall_10_ciphertext = encrypt_rsa_byte($chall_10_message, 17, 47*59)
-
-	REQUIRED_FLAGS = 12
-
+  $flags = self.flags
+  REQUIRED_FLAGS = 11
   while $flags.length < REQUIRED_FLAGS
     $flags << "flag{#{SecureRandom.hex}}"
     Print.err "Warning: Not enough flags provided to hackerbot_config generator, some flags won't be tracked/marked!"
   end
 
+  # ---------------------------------------------------------------------------------------------
+  # RSA by hand (challenges 1-5): every key and message is picked at build time
+  # ---------------------------------------------------------------------------------------------
+  $k1 = toy_rsa_key
+  $e1 = e_candidates($k1)
+
+  $k2 = toy_rsa_key
+
+  $k3 = toy_rsa_key
+  $m3 = toy_message($k3)
+  $c3 = $m3.pow($k3[:e], $k3[:n])
+
+  $k4 = toy_rsa_key
+  $m4 = toy_message($k4)
+  $c4 = $m4.pow($k4[:e], $k4[:n])
+
+  $word = self.secret_word.strip
+  $word = %w[falcon harbour lantern meadow quartz saddle thistle walnut].sample unless $word =~ /\A[A-Za-z]{3,12}\z/
+  $k5 = toy_rsa_key
+  $ct5 = encrypt_rsa($word, $k5[:e], $k5[:n])
+
+  # ---------------------------------------------------------------------------------------------
+  # OpenSSL (challenges 6-8) and the weak CA (challenges 10-11)
+  # ---------------------------------------------------------------------------------------------
+  def dir(n)
+    "#{$H}/challenge_#{n}"
+  end
+  $msg7 = SecureRandom.hex(4)
+  $msg8 = SecureRandom.hex(4)
+  $bank_name = "www.#{%w[northgate riverside harbourside lakeside westfield kingsway].sample(random: SecureRandom)}-bank.example"
+  $ca_dir = "#{$H}/emudhra_ca"
+
+  # The weak intermediate CA: its P-384 private key is one of the eight real eMudhra intermediate keys
+  # (October 2026). The lab sheet's worked example uses the eighth, 4.
+  $weak_k = [56, 66, 115, 155, 156, 230, 237].sample(random: SecureRandom)
+  $ca = weak_ca($weak_k)
+  $root_file = 'lab_trust_root.crt'
+  $inter_file = 'lab_trust_inter.crt'
+
+  # ---------------------------------------------------------------------------------------------
+  # Key exchange (challenge 9)
+  # ---------------------------------------------------------------------------------------------
+  $dh = toy_dh
+
+  # ---------------------------------------------------------------------------------------------
+  # Check scripts, run as root on the desktop. Each prints one HB: marker, and stops at the first problem.
+  # ---------------------------------------------------------------------------------------------
+  def enter_dir(n)
+    "D=#{dir(n)}\n[ -d \"$D\" ] || { echo HB:NODIR; exit 0; }\ncd \"$D\"\n"
+  end
+
+  def need_files(*files)
+    files.map { |f| "[ -f #{f} ] || { echo HB:NO_#{f.tr('.', '_').upcase}; exit 0; }\n" }.join
+  end
+
+  # key.priv must be an unencrypted RSA private key, key.pub its public half: either PEM form of the public key
+  # (BEGIN PUBLIC KEY or BEGIN RSA PUBLIC KEY) is fine, so the two are compared by modulus
+  KEYPAIR_CHECK = <<~SH
+    grep -q 'OPENSSH PRIVATE KEY' key.priv 2>/dev/null && { echo HB:SSHKEY; exit 0; }
+    grep -q '^ssh-rsa ' key.pub 2>/dev/null && { echo HB:SSHKEY; exit 0; }
+    openssl rsa -in key.priv -passin pass: -check -noout >/dev/null 2>&1 || { echo HB:BADPRIV; exit 0; }
+    pubmod=$(openssl rsa -pubin -in key.pub -noout -modulus 2>/dev/null || openssl rsa -RSAPublicKey_in -in key.pub -noout -modulus 2>/dev/null)
+    [ -n "$pubmod" ] || { echo HB:BADPUB; exit 0; }
+    [ "$(openssl rsa -in key.priv -passin pass: -noout -modulus 2>/dev/null)" = "$pubmod" ] || { echo HB:MISMATCH; exit 0; }
+  SH
+
+  # RSA-decrypts $1 with key.priv into $2.pkcs1, $2.oaep and $2.oaep256 (the student may have used any of these paddings).
+  # Don't trust pkeyutl's exit status: with implicit rejection a wrong key or padding "succeeds" with random bytes.
+  RSA_DECRYPT = <<~SH
+    rsa_decrypt() {
+      openssl pkeyutl -decrypt -inkey key.priv -passin pass: -in "$1" -out "$2.pkcs1" 2>/dev/null
+      openssl pkeyutl -decrypt -inkey key.priv -passin pass: -pkeyopt rsa_padding_mode:oaep -in "$1" -out "$2.oaep" 2>/dev/null
+      openssl pkeyutl -decrypt -inkey key.priv -passin pass: -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -in "$1" -out "$2.oaep256" 2>/dev/null
+    }
+    # true if $1 is non-empty and only base64 characters: text that was base64-encoded instead of saved raw
+    is_base64() { [ -s "$1" ] && ! LC_ALL=C grep -q '[^A-Za-z0-9+/=[:space:]]' "$1"; }
+  SH
+
+  $check6 = enter_dir(6) + need_files('key.priv', 'key.pub') + KEYPAIR_CHECK + <<~SH
+    bits=$(openssl rsa -in key.priv -passin pass: -noout -text 2>/dev/null | grep -o '[0-9]* bit' | head -1)
+    [ "$bits" = "2048 bit" ] || { echo "HB:WRONGSIZE ($bits)"; exit 0; }
+    echo HB:PASS
+  SH
+
+  $check7 = enter_dir(7) + need_files('key.priv', 'key.pub') + KEYPAIR_CHECK + need_files('message.enc') + RSA_DECRYPT + <<~SH
+    t=$(mktemp); rsa_decrypt message.enc "$t"
+    r=HB:BADDECRYPT
+    for f in "$t.pkcs1" "$t.oaep" "$t.oaep256"; do
+      [ -s "$f" ] || continue
+      if [ "$(tr -d '\\r' < "$f")" = "#{$msg7}" ]; then r=HB:PASS
+      elif [ "$r" = HB:BADDECRYPT ] && ! LC_ALL=C grep -q '[^[:print:][:space:]]' "$f"; then r=HB:WRONGMSG; fi
+    done
+    rm -f "$t" "$t.pkcs1" "$t.oaep" "$t.oaep256"
+    [ "$r" = HB:BADDECRYPT ] && is_base64 message.enc && r=HB:BASE64
+    echo $r
+  SH
+
+  $check8 = enter_dir(8) + need_files('key.pub', 'message.txt', 'message.sig') + RSA_DECRYPT + <<~SH
+    [ "$(tr -d '\\r' < message.txt)" = "#{$msg8}" ] || { echo HB:WRONGTEXT; exit 0; }
+    grep -q '^ssh-rsa ' key.pub && { echo HB:SSHKEY; exit 0; }
+    pub=$(mktemp); trap 'rm -f "$pub"' EXIT
+    openssl rsa -pubin -in key.pub -pubout -out "$pub" 2>/dev/null || openssl rsa -RSAPublicKey_in -in key.pub -pubout -out "$pub" 2>/dev/null || { echo HB:BADPUB; exit 0; }
+    v() { openssl dgst -sha256 -verify "$pub" "$@" -signature message.sig message.txt 2>/dev/null | grep -q 'Verified OK'; }
+    v || v -sigopt rsa_padding_mode:pss || {
+      is_base64 message.sig && { echo HB:BASE64SIG; exit 0; }
+      openssl pkeyutl -verify -pubin -inkey "$pub" -sigfile message.sig -in message.txt 2>/dev/null | grep -q 'Verified Successfully' && { echo HB:RAWSIG; exit 0; }
+      echo HB:BADSIG; exit 0
+    }
+    echo HB:PASS
+  SH
+
+  # Challenges 10 and 11 use these files; placing them again is harmless (same content)
+  PLACE_CA = "[ -d #{$H} ] || { echo HB:NOHOME; exit 0; }\nmkdir -p #{$ca_dir}; chown #{$main_user}: #{$ca_dir}\n" +
+             write_file_script("#{$ca_dir}/#{$root_file}", $ca[:root_pem], $main_user) +
+             write_file_script("#{$ca_dir}/#{$inter_file}", $ca[:inter_pem], $main_user)
+  $place10 = PLACE_CA + "echo HB:PLACED\n"
+
+  # Challenge 11: fake.crt must name the bank and chain to the bot's own copies of the root and intermediate
+  # (so swapping the files in ~/emudhra_ca doesn't help)
+  $check11 = "[ -d #{$ca_dir} ] || { echo HB:NODIR; exit 0; }\ncd #{$ca_dir}\n" + <<~SH
+    [ -f fake.crt ] || { echo HB:NO_FAKE_CRT; exit 0; }
+    t=$(mktemp -d); trap 'rm -rf "$t"' EXIT
+    echo #{Base64.strict_encode64($ca[:root_pem])} | base64 -d > "$t/root.crt"
+    echo #{Base64.strict_encode64($ca[:inter_pem])} | base64 -d > "$t/inter.crt"
+    # PEM or DER are both fine
+    cert=fake.crt
+    if ! openssl x509 -in fake.crt -noout 2>/dev/null; then
+      openssl x509 -inform DER -in fake.crt -out "$t/fake.pem" 2>/dev/null && cert="$t/fake.pem" || { echo HB:NOTCERT; exit 0; }
+    fi
+    # DNS names are case-insensitive
+    openssl x509 -in "$cert" -noout -text 2>/dev/null | grep -qiF '#{$bank_name}' || { echo HB:WRONGNAME; exit 0; }
+    openssl verify -CAfile "$t/root.crt" -untrusted "$t/inter.crt" "$cert" >/dev/null 2>&1 || { echo HB:NOTCHAINED; exit 0; }
+    echo HB:PASS
+  SH
+
+  # Quiz answers people actually type: an optional "x =" label and a trailing full stop
+  def num_answer(*vals, label: nil)
+    pre = label ? "(?:#{label}\\s*=\\s*)?" : ''
+    "#{pre}(?:#{vals.uniq.join('|')})\\.?"
+  end
+
+  def no_file(file, n, hint)
+    "<condition>\n\t\t\t<output_matches>HB:NO_#{file.tr('.', '_').upcase}\\b</output_matches>\n\t\t\t<message>I can't find #{file} in #{dir(n)}. #{hint}</message>\n\t\t</condition>"
+  end
+
   def get_binding
     binding
   end
-
 -%>
 <?xml version="1.0"?>
 
 <hackerbot
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="http://www.github/cliffe/SecGen/hackerbot">
-<!--<hackerbot xmlns="http://www.github/cliffe/SecGen/hackerbotz"-->
 
 	<name>Hackerbot</name>
 
 	<AIML_chatbot_rules>config/AIML</AIML_chatbot_rules>
 
 	<!--Method for gaining shell access, can be overwritten per-attack-->
-	<!--<get_shell>bash</get_shell>-->
 	<get_shell>ssh -i /opt/hackerbot/keys/id_rsa -oStrictHostKeyChecking=no root@{{chat_ip_address}} /bin/bash</get_shell>
-<!--	<get_shell>false</get_shell>-->
 
 	<messages>
-    <show_attack_numbers />
+		<show_attack_numbers />
 
-		<greeting>Your system is about to be hacked. I'll do what I can hold them off, but you are going to have to work with me to protect yourself. I'll cough up some flags if you work with me.</greeting>
+		<greeting>Public-key cryptography today. Work through the lab sheet and I'll check your work as you go. I'll cough up some flags if you get it right.</greeting>
 
 		<!--Must provide alternatives for each message-->
-		<say_ready>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and I'll move things along.</say_ready>
+		<say_ready>Let me know when you are 'ready', if you want to move on to another challenge, say 'next', or 'previous' and I'll move things along.</say_ready>
 		<say_ready>When you are ready, simply say 'ready'.</say_ready>
 		<say_ready>'Ready'?</say_ready>
-		<say_ready>Better hurry, the attack is imminent... Let me know when you're 'ready'.</say_ready>
 		<next>Ok, I'll do what I can to move things along...</next>
-		<next>Moving things along to the next attack...</next>
-		<next>Ok, next attack...</next>
+		<next>Moving things along to the next challenge...</next>
+		<next>Ok, next challenge...</next>
 		<previous>Ok, I'll do what I can to back things up...</previous>
-		<previous>Ok, previous attack...</previous>
+		<previous>Ok, previous challenge...</previous>
 		<previous>Ok, backing up.</previous>
 		<goto>Ok, skipping it along.</goto>
-		<goto>Let me see what I can do to goto that attack.</goto>
-		<last_attack>That was the last attack for now. You can rest easy, until next time... (End.)</last_attack>
-		<last_attack>That was the last attack. Game over?</last_attack>
+		<goto>Let me see what I can do to goto that challenge.</goto>
+		<last_attack>That was the last challenge. Well done.</last_attack>
+		<last_attack>That was the last challenge. Game over?</last_attack>
 		<first_attack>You are back to the beginning!</first_attack>
 		<first_attack>This is where it all began.</first_attack>
-		<getting_shell>Ok. Gaining shell access, and running post command...</getting_shell>
-		<getting_shell>Hacking in progress...</getting_shell>
-		<getting_shell>Attack underway...</getting_shell>
+		<getting_shell>Ok. Taking a look...</getting_shell>
+		<getting_shell>Checking...</getting_shell>
 		<getting_shell>Here we go...</getting_shell>
-		<got_shell>We are in to your system.</got_shell>
-		<got_shell>You are pwned.</got_shell>
-		<got_shell>We have shell.</got_shell>
-		<repeat>Let me know when you are 'ready', if you want to move on to another attack, say 'next', or 'previous' and I'll move things along.</repeat>
+		<got_shell>I'm on your system.</got_shell>
+		<got_shell>Connected.</got_shell>
+		<repeat>Let me know when you are 'ready', if you want to move on to another challenge, say 'next', or 'previous' and I'll move things along.</repeat>
 		<repeat>Say 'ready', 'next', or 'previous'.</repeat>
 
 		<!--Single responses:-->
 		<help>I am waiting for you to say 'ready', 'next', 'previous', 'list', 'goto *X*', or 'answer *X*'</help>
-		<say_answer>Say "The answer is X".</say_answer>
+		<say_answer>Say "answer X".</say_answer>
 		<no_quiz>There is no question to answer</no_quiz>
 		<correct_answer>Correct</correct_answer>
 		<incorrect_answer>Incorrect</incorrect_answer>
@@ -117,364 +218,394 @@
 		<non_answer>Wouldn't you like to know.</non_answer>
 
 		<!--can be overwritten per-attack-->
-		<shell_fail_message>Oh no. Failed to get shell... You need to let us in.</shell_fail_message>
+		<shell_fail_message>Oh no. I couldn't get on to your desktop VM to check your work. Is it running?</shell_fail_message>
 	</messages>
 
-	<tutorial_info>
-		<title>Public-key Cryptography - Asymmetric Key Encryption with RSA</title>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'intro.md.erb').result(self.get_binding) %></tutorial>
-		<footer>
-<%= File.read self.templates_path + 'resources.md.erb' %>
-|
-<%= File.read self.templates_path + 'license.md.erb' %>
-
-Randomised instance generated by [SecGen](http://github.com/cliffe/SecGen) (<%= Time.new.to_s %>)
-		</footer>
-
-		<provide_tutorial>true</provide_tutorial>
-
-	</tutorial_info>
+	<!-- ===================================================================================== -->
+	<!-- 1-5: RSA by hand (answer in chat)                                                     -->
+	<!-- ===================================================================================== -->
 
 	<attack>
-		<prompt>Create a public and private RSA key pair within the <%= $chall_1_path %> directory using the file names key.pub and key.priv for the public and private key respectively.</prompt>
-		<post_command>grep "BEGIN .*PRIVATE KEY" <%=$chall_1_path %>/key.priv > /dev/null; priv=$?; grep "BEGIN .*PUBLIC KEY" <%=$chall_1_path %>/key.pub > /dev/null; pub=$?; echo $priv$pub</post_command>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
 		<suppress_command_output_feedback/>
+
+		<prompt>Choosing e: p = <%= $k1[:p] %>, q = <%= $k1[:q] %>. Which of these could be the encryption exponent e: <%= $e1[:candidates].join(', ') %>? Answer with every valid value, smallest first, separated by spaces.</prompt>
+
 		<condition>
-			<output_matches>22</output_matches>
-			<message>You have not created a public and private RSA key in the specified directory using the file names provided.</message>
+			<output_matches>OK</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
 		</condition>
 		<condition>
-			<output_matches>02</output_matches>
-			<message>You created your private key file, but not the public key file.</message>
-		</condition>
-		<condition>
-			<output_matches>10</output_matches>
-			<message>Something was not quite right with your private key file</message>
-		</condition>
-		<condition>
-			<output_matches>01</output_matches>
-			<message>Something was not quite right with your public key file</message>
-		</condition>
-		<condition>
-			<output_matches>00</output_matches>
-			<message>Well done :) <%= $flags.pop %></message>
-			<trigger_next_attack>true</trigger_next_attack>
+			<output_matches>ok</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
 		</condition>
 		<else_condition>
-			<message>Something was not quite right...</message>
+			<message>Over to you.</message>
+			<trigger_quiz />
 		</else_condition>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'rsa_openssl_example.md.erb').result(self.get_binding) %></tutorial>
+		<quiz>
+			<question>Which values could be e? (valid values only, smallest first, separated by spaces)</question>
+			<answer>\[?<%= $e1[:valid].join('[ ,]+') %>\]?\.?</answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
 	</attack>
 
 	<attack>
-		<prompt>Create another public and private RSA key pair within the <%= $chall_2_path %> directory using the file names key.pub and key.priv for the public and private key respectively. Encrypt a message file containing "<%= $chall_2_msg %>" using the public key and store the encrypted message within <%= $chall_2_path %>/message.enc</prompt>
-		<post_command>grep "BEGIN .*PRIVATE KEY" <%=$chall_2_path %>/key.priv > /dev/null; priv=$?; grep "BEGIN .*PUBLIC KEY" <%=$chall_2_path %>/key.pub > /dev/null; pub=$?; ls <%= $chall_2_path %>/message.enc 2> /dev/null; mfile=$?; msg_decrypt=`openssl pkeyutl -in <%= $chall_2_path %>/message.enc -decrypt -inkey <%= $chall_2_path %>/key.priv 2>/dev/null`; echo $priv$pub$mfile$msg_decrypt</post_command>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
 		<suppress_command_output_feedback/>
-		<condition>
-			<output_matches>000<%= $chall_2_msg %></output_matches>
-			<message>Well done :) <%= $flags.pop %></message>
-			<trigger_next_attack>true</trigger_next_attack>
-		</condition>
-		<condition>
-			<output_matches>222</output_matches>
-			<message>You have not created a public and private RSA key in the specified directory using the file names provided, or encrypted a message with RSA. Double check that you're working within the specified directory.</message>
-		</condition>
-		<condition>
-			<output_matches>022</output_matches>
-			<message>You created your private key file, but not the public key file.</message>
-		</condition>
-		<condition>
-			<output_matches>002</output_matches>
-			<message>You created your public and private key file, but the encrypted message cannot be found at the specified location.</message>
-		</condition>
-		<condition>
-			<output_matches>000</output_matches>
-			<message>Something was not quite right. There was an error decrypting your encrypted message file with the private key.</message>
-		</condition>
-		<else_condition>
-			<message>Something was not quite right...</message>
-		</else_condition>
-	</attack>
 
-
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Using the given values in the example above (p = 7, q = 23, N = 161, phiN = 132, e = 5, d = 53), decrypt the following ciphertext: "<%= $chall_3_ciphertext %>"</prompt>
+		<prompt>Finding d: p = <%= $k2[:p] %>, q = <%= $k2[:q] %>, e = <%= $k2[:e] %>. Work out the decryption exponent d.</prompt>
 
 		<condition>
 			<output_matches>OK</output_matches>
-			<message>OK...</message>
+			<message>Over to you.</message>
 			<trigger_quiz/>
 		</condition>
 		<condition>
 			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
+			<message>Over to you.</message>
 			<trigger_quiz/>
 		</condition>
 		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What was the encrypted message?</question>
-			<answer><%= $chall_3_message %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-		<tutorial><%= ERB.new(File.read self.templates_path + 'rsa_python3_example.md.erb').result(self.get_binding) %></tutorial>
-	</attack>
-
-
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Using the given values in the example above (p = 7, q = 23, N = 161, phiN = 132, e = 5, d = 53), encrypt the following message: "<%= $chall_4_message %>"</prompt>
-
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the encrypted ciphertext?</question>
-			<answer><%= $chall_4_ciphertext %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Perform encryption using the RSA algorithm with the following values: p = 3, q = 5, e = 3, message = <%=$chall_5_message%> (the integer, not the ASCII character).</prompt>
-
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the ciphertext?</question>
-			<answer><%=$chall_5_ciphertext %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Perform decryption using the RSA algorithm with the following values: p = 3, q = 5, e = 3, ciphertext = <%= $chall_6_ciphertext %> (raw value)</prompt>
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the message?</question>
-			<answer><%= $chall_6_message %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Perform encryption using the RSA algorithm with the following values: p = 7, q = 17, e = 11, message = <%= $chall_7_message %> (the integer, not the ASCII character).</prompt>
-
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the ciphertext?</question>
-			<answer><%=$chall_7_ciphertext %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Perform decryption using the RSA algorithm with the following values: p = 7, q = 17, e = 11, ciphertext = <%= $chall_8_ciphertext %> (raw value)</prompt>
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the message?</question>
-			<answer><%= $chall_8_message %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Perform encryption using the RSA algorithm with the following values: p = 47, q = 59, e = 17, message = <%= $chall_9_message %> (the integer, not the ASCII character).</prompt>
-
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the ciphertext?</question>
-			<answer><%=$chall_9_ciphertext %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Perform decryption using the RSA algorithm with the following values: p = 47, q = 59, d = 157, ciphertext = "<%= $chall_10_ciphertext%>"</prompt>
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What is the message?</question>
-			<answer><%= $chall_10_message %></answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-
-
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Given these values, what would be the suitable values for e?: p = 7, q = 11</prompt>
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
-			<trigger_quiz />
-		</else_condition>
-		<quiz>
-			<question>What are the suitable values for e? (include spaces in your response and ensure the values are in ascending order, e.g. "The answer is 1 2 3")</question>
-			<answer>^13 17 19 23 29 31 37 41 43 47 53 59$</answer>
-			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
-			<trigger_next_attack>true</trigger_next_attack>
-		</quiz>
-	</attack>
-	<attack>
-		<pre_shell>echo 'OK'</pre_shell>
-		<get_shell>false</get_shell>
-		<post_command></post_command>
-
-		<prompt>Given these values, what is d?: p = 7, q = 11, e = 13</prompt>
-		<condition>
-			<output_matches>OK</output_matches>
-			<message>OK...</message>
-			<trigger_quiz/>
-		</condition>
-		<condition>
-			<output_matches>ok</output_matches>
-			<message>ok... your turn.</message>
-			<trigger_quiz/>
-		</condition>
-		<else_condition>
-			<message>else..</message>
+			<message>Over to you.</message>
 			<trigger_quiz />
 		</else_condition>
 		<quiz>
 			<question>What is d?</question>
-			<answer>37</answer>
+			<answer><%= num_answer($k2[:d], mod_inverse($k2[:e], ($k2[:p] - 1).lcm($k2[:q] - 1)), label: 'd') %></answer>
 			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
 		</quiz>
+	</attack>
+
+	<attack>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
+		<suppress_command_output_feedback/>
+
+		<prompt>Encrypting: encrypt the message m = <%= $m3 %> with the public key e = <%= $k3[:e] %>, N = <%= $k3[:n] %>.</prompt>
+
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<condition>
+			<output_matches>ok</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Over to you.</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What is the ciphertext c?</question>
+			<answer><%= num_answer($c3, label: 'c') %></answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<attack>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
+		<suppress_command_output_feedback/>
+
+		<prompt>Decrypting: decrypt the ciphertext c = <%= $c4 %>. You know p = <%= $k4[:p] %>, q = <%= $k4[:q] %>, e = <%= $k4[:e] %>, so work out d first.</prompt>
+
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<condition>
+			<output_matches>ok</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Over to you.</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What is the message m?</question>
+			<answer><%= num_answer($m4, label: 'm') %></answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<attack>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
+		<suppress_command_output_feedback/>
+
+		<prompt>A secret word: each number is one character, encrypted with textbook RSA. Decrypt it with the private key: d = <%= $k5[:d] %>, N = <%= $k5[:n] %>, ct = <%= $ct5 %></prompt>
+
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<condition>
+			<output_matches>ok</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Over to you.</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What is the word?</question>
+			<answer>['"]?<%= Regexp.escape($word) %>['"]?\.?</answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<!-- ===================================================================================== -->
+	<!-- 6-8: RSA with OpenSSL (checked on the desktop)                                         -->
+	<!-- ===================================================================================== -->
+
+	<attack>
+		<prompt>Key pair: create a 2048-bit RSA key pair in <%= dir(6) %>, with the private key in key.priv and the public key in key.pub.</prompt>
+		<post_command><%= on_desktop($check6) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NODIR\b</output_matches>
+			<message>I can't find <%= dir(6) %>. Create it first (mkdir), then make your keys inside it.</message>
+		</condition>
+		<%= no_file('key.priv', 6, 'Save your private key with that exact name.') %>
+		<%= no_file('key.pub', 6, 'Export the public key from your private key with openssl rsa -pubout.') %>
+		<condition>
+			<output_matches>HB:SSHKEY\b</output_matches>
+			<message>That looks like an SSH key made with ssh-keygen (OpenSSH format). This challenge needs OpenSSL's PEM files: openssl genrsa -out key.priv 2048, then openssl rsa -in key.priv -pubout -out key.pub.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADPRIV\b</output_matches>
+			<message>key.priv isn't an RSA private key I can read. If you protected it with a passphrase, make one without a passphrase for this challenge.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADPUB\b</output_matches>
+			<message>key.pub isn't an RSA public key. Did you save the private key under that name by mistake?</message>
+		</condition>
+		<condition>
+			<output_matches>HB:MISMATCH\b</output_matches>
+			<message>key.pub isn't the public half of key.priv. Export it again from key.priv.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:WRONGSIZE\b</output_matches>
+			<message>key.priv isn't a 2048-bit key. Make a new one with openssl genrsa -out key.priv 2048, then export key.pub from it again.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PASS\b</output_matches>
+			<message>Well done :) <%= $flags.pop %></message>
+			<trigger_next_attack>true</trigger_next_attack>
+		</condition>
+		<else_condition>
+			<message>Something was not quite right... say 'ready' to try again.</message>
+		</else_condition>
+	</attack>
+
+	<attack>
+		<prompt>Encrypt a message: in <%= dir(7) %>, create a new RSA key pair (key.priv and key.pub), then encrypt the text <%= $msg7 %> with the public key and save the result as message.enc.</prompt>
+		<post_command><%= on_desktop($check7) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NODIR\b</output_matches>
+			<message>I can't find <%= dir(7) %>. Create it first (mkdir), then work inside it.</message>
+		</condition>
+		<%= no_file('key.priv', 7, 'Generate a new private key with that exact name.') %>
+		<%= no_file('key.pub', 7, 'Export the public key from your private key with openssl rsa -pubout.') %>
+		<condition>
+			<output_matches>HB:SSHKEY\b</output_matches>
+			<message>That looks like an SSH key made with ssh-keygen (OpenSSH format). This challenge needs OpenSSL's PEM files: openssl genrsa -out key.priv 2048, then openssl rsa -in key.priv -pubout -out key.pub.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADPRIV\b</output_matches>
+			<message>key.priv isn't an RSA private key I can read (without a passphrase).</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADPUB\b</output_matches>
+			<message>key.pub isn't an RSA public key.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:MISMATCH\b</output_matches>
+			<message>key.pub isn't the public half of key.priv. Export it again from key.priv.</message>
+		</condition>
+		<%= no_file('message.enc', 7, 'Encrypt the text with openssl pkeyutl -encrypt and write the output to message.enc.') %>
+		<condition>
+			<output_matches>HB:BASE64\b</output_matches>
+			<message>message.enc is base64 text, not the encrypted bytes. Save the output of openssl pkeyutl -encrypt straight to the file (-out message.enc).</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADDECRYPT\b</output_matches>
+			<message>I couldn't decrypt message.enc with key.priv. Did you encrypt it with this directory's key.pub (and -pubin)?</message>
+		</condition>
+		<condition>
+			<output_matches>HB:WRONGMSG\b</output_matches>
+			<message>message.enc decrypts, but not to <%= $msg7 %>. Put exactly that text (no quotes) in a file and encrypt the file.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PASS\b</output_matches>
+			<message>Well done :) <%= $flags.pop %></message>
+			<trigger_next_attack>true</trigger_next_attack>
+		</condition>
+		<else_condition>
+			<message>Something was not quite right... say 'ready' to try again.</message>
+		</else_condition>
+	</attack>
+
+	<attack>
+		<prompt>Sign a message: in <%= dir(8) %>, put the text <%= $msg8 %> in message.txt, sign it with your RSA private key using SHA-256, save the signature as message.sig, and put your public key there as key.pub.</prompt>
+		<post_command><%= on_desktop($check8) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NODIR\b</output_matches>
+			<message>I can't find <%= dir(8) %>. Create it first (mkdir), then work inside it.</message>
+		</condition>
+		<%= no_file('key.pub', 8, 'I need your public key to check the signature: copy or export it there as key.pub.') %>
+		<%= no_file('message.txt', 8, "Put the text #{$msg8} in it.") %>
+		<%= no_file('message.sig', 8, 'Sign message.txt with openssl dgst -sha256 -sign and save the signature as message.sig.') %>
+		<condition>
+			<output_matches>HB:WRONGTEXT\b</output_matches>
+			<message>message.txt should contain exactly <%= $msg8 %> (no quotes).</message>
+		</condition>
+		<condition>
+			<output_matches>HB:SSHKEY\b</output_matches>
+			<message>That looks like an SSH key made with ssh-keygen (OpenSSH format). This challenge needs OpenSSL's PEM files: openssl genrsa -out key.priv 2048, then openssl rsa -in key.priv -pubout -out key.pub.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADPUB\b</output_matches>
+			<message>key.pub isn't an RSA public key I can read. Export it from your private key with openssl rsa -in key.priv -pubout -out key.pub.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BASE64SIG\b</output_matches>
+			<message>message.sig is base64 text, not the signature bytes. Save the output of the signing command straight to the file (-out message.sig).</message>
+		</condition>
+		<condition>
+			<output_matches>HB:RAWSIG\b</output_matches>
+			<message>That signature is over message.txt itself, not its SHA-256 hash. Sign with openssl dgst -sha256 -sign, which hashes the file first.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:BADSIG\b</output_matches>
+			<message>The signature doesn't verify against key.pub. Did you sign message.txt after its final edit, with the private half of key.pub, using -sha256?</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PASS\b</output_matches>
+			<message>Signature verified. Well done :) <%= $flags.pop %></message>
+			<trigger_next_attack>true</trigger_next_attack>
+		</condition>
+		<else_condition>
+			<message>Something was not quite right... say 'ready' to try again.</message>
+		</else_condition>
+	</attack>
+
+	<!-- ===================================================================================== -->
+	<!-- 9: key exchange                                                                        -->
+	<!-- ===================================================================================== -->
+
+	<attack>
+		<pre_shell>echo 'OK'</pre_shell>
+		<get_shell>false</get_shell>
+		<post_command></post_command>
+		<suppress_command_output_feedback/>
+
+		<prompt>Diffie-Hellman: we agree on p = <%= $dh[:p] %> and g = <%= $dh[:g] %>. Your private value is a = <%= $dh[:a] %>. My public value is B = <%= $dh[:B] %>. Work out your public value A and our shared secret.</prompt>
+
+		<condition>
+			<output_matches>OK</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<condition>
+			<output_matches>ok</output_matches>
+			<message>Over to you.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Over to you.</message>
+			<trigger_quiz />
+		</else_condition>
+		<quiz>
+			<question>What are A and the shared secret? (both numbers, A first, separated by a space)</question>
+			<answer>(?:A\s*=\s*)?<%= $dh[:A] %>[ ,]+(?:(?:s|secret|shared secret)\s*=\s*)?<%= $dh[:s] %>\.?</answer>
+			<correct_answer_response> :) <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<!-- ===================================================================================== -->
+	<!-- 10-11: the weak CA                                                                    -->
+	<!-- ===================================================================================== -->
+
+	<attack>
+		<prompt>Brute-force a CA key: say 'ready' and I'll put a root CA certificate (<%= $root_file %>) and an intermediate CA certificate (<%= $inter_file %>) in <%= $ca_dir %>. The intermediate came out of the same broken key-generation process as eMudhra's: its private key is a small whole number. Find it and tell me.</prompt>
+		<post_command><%= on_desktop($place10) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NOHOME\b</output_matches>
+			<message>I couldn't find <%= $H %> on your desktop VM.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PLACED\b</output_matches>
+			<message>The certificates are in <%= $ca_dir %>. Start counting.</message>
+			<trigger_quiz/>
+		</condition>
+		<else_condition>
+			<message>Something went wrong putting the files in place... say 'ready' to try again.</message>
+		</else_condition>
+		<quiz>
+			<question>What is the intermediate CA's private key?</question>
+			<answer><%= num_answer($weak_k, '0x0*' + $weak_k.to_s(16), label: 'k') %></answer>
+			<correct_answer_response> :) That was one of eMudhra's real keys. Now use it to sign a certificate of your own. <%= $flags.pop %></correct_answer_response>
+			<trigger_next_attack>true</trigger_next_attack>
+		</quiz>
+	</attack>
+
+	<attack>
+		<prompt>Forge a certificate: with the intermediate key you recovered, sign a certificate for <%= $bank_name %> and save it as fake.crt in <%= $ca_dir %>. It should verify against <%= $root_file %>, as a browser would check it.</prompt>
+		<post_command><%= on_desktop($check11) %></post_command>
+		<suppress_command_output_feedback/>
+		<condition>
+			<output_matches>HB:NODIR\b</output_matches>
+			<message>I can't find <%= $ca_dir %>. Go back to challenge 10 (goto 10, then ready) to get the certificates.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:NO_FAKE_CRT\b</output_matches>
+			<message>I can't find fake.crt in <%= $ca_dir %>. Sign your request with openssl x509 -req -CA <%= $inter_file %> -CAkey recovered.pem and save it as fake.crt.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:NOTCERT\b</output_matches>
+			<message>fake.crt isn't a certificate I can read. Is it empty? Check that your openssl x509 -req command worked, and save its output as fake.crt.</message>
+		</condition>
+		<condition>
+			<output_matches>HB:WRONGNAME\b</output_matches>
+			<message>fake.crt isn't for <%= $bank_name %>. Make the certificate request with -subj "/CN=<%= $bank_name %>".</message>
+		</condition>
+		<condition>
+			<output_matches>HB:NOTCHAINED\b</output_matches>
+			<message>fake.crt doesn't chain up to the Lab Trust root. Sign it as the intermediate: -CA <%= $inter_file %> with -CAkey recovered.pem (the key you brute-forced).</message>
+		</condition>
+		<condition>
+			<output_matches>HB:PASS\b</output_matches>
+			<message>Every browser that trusts the Lab Trust root would accept that as <%= $bank_name %>. That is what the eMudhra keys made possible. :) <%= $flags.pop %></message>
+			<trigger_next_attack>true</trigger_next_attack>
+		</condition>
+		<else_condition>
+			<message>Something was not quite right... say 'ready' to try again.</message>
+		</else_condition>
 	</attack>
 </hackerbot>
