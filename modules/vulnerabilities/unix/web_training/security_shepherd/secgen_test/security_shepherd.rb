@@ -15,6 +15,11 @@ class SecurityShepherdTest < PostProvisionTest
     tier(1) do
       test_local_command('tomcat9 installed', 'dpkg -l tomcat9 | grep -E "^ii"', 'tomcat9')
       test_local_command('shepherd ROOT deployed', 'test -d /var/lib/tomcat9/webapps/ROOT/admin && echo ok', 'ok')
+      # Its MariaDB settings are a conf.d drop-in; the mysql module's my.cnf
+      # (with skip-ssl) must survive alongside it.
+      test_local_command('shepherd MariaDB drop-in installed',
+                         'grep -c "^bind-address=\*" /etc/mysql/conf.d/security_shepherd.cnf', '1')
+      test_local_command('mysql module my.cnf kept (skip-ssl)', 'grep -c "^skip-ssl" /etc/mysql/my.cnf', '1')
     end
 
     # The module ships its own server.xml: Tomcat listens on 80 and 443 (the

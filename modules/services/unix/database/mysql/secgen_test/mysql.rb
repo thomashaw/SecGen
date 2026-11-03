@@ -24,8 +24,18 @@ class MySQLTest < PostProvisionTest
       # MariaDB 10.3, whose binary is still mysqld
       test_local_command('mysqld process running?', 'ps -eo args | grep -E "^/usr/sbin/(mariadbd|mysqld)"', '/usr/sbin/')
       test_service_up(port: 3306)
-      # the server answers a query over the local socket
-      test_local_command('server answers a query', 'mysql -N -e "select 1"', '1')
+      if module_on_system?('security_shepherd')
+        # Security Shepherd gives root a password (grant.sql), so a passwordless
+        # root query is refused by design. mysqladmin ping exits 0 whenever the
+        # server answers, even when it refuses the login (it then prints the
+        # access-denied error instead of "mysqld is alive"), and 1 when nothing
+        # answers. Shepherd's own test runs a real query with its credentials.
+        test_local_command('server answers (mysqladmin ping)',
+                           'mysqladmin ping >/dev/null 2>&1; echo "ping_rc=$?"', 'ping_rc=0')
+      else
+        # the server answers a query over the local socket
+        test_local_command('server answers a query', 'mysql -N -e "select 1"', '1')
+      end
     end
   end
 end

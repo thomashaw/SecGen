@@ -55,10 +55,13 @@ class security_shepherd::install {
     ensure => file,
     source => 'puppet:///modules/security_shepherd/database.properties',
   }
-  -> file { '/etc/mysql/my.cnf':
+  # A drop-in, not a replacement for /etc/mysql/my.cnf: that file belongs to the
+  # mysql module (which this module requires), and replacing it dropped the
+  # module's settings, skip-ssl included. Its my.cnf includes conf.d last.
+  -> file { '/etc/mysql/conf.d/security_shepherd.cnf':
     ensure  => file,
-    source  => 'puppet:///modules/security_shepherd/my.cnf',
-    replace => true,
+    source  => 'puppet:///modules/security_shepherd/security_shepherd.cnf',
+    require => Package['mariadb-server'],
   }
   # server.xml binds 80 and 443, and tomcat9 runs as the unprivileged 'tomcat'
   # user. Grant the bind capability explicitly so the connectors start whatever

@@ -373,6 +373,15 @@ class PostProvisionTest
     File.directory?("#{get_project_path}/.vagrant/machines/#{name}")
   end
 
+  # Is another module (by its directory name in the project, e.g.
+  # 'security_shepherd') installed on this same system? For a test whose
+  # assumption another module legitimately changes: check something that still
+  # holds, and leave the changed part to that module's own test. Don't SKIP for
+  # it: any SKIP makes the whole module SKIP.
+  def module_on_system?(name)
+    File.directory?(File.join(get_system_path, 'modules', name))
+  end
+
   def other_proxmox_id_path(name)
     "#{get_project_path}/.vagrant/machines/#{name}/proxmox/id"
   end
