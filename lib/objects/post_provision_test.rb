@@ -288,6 +288,37 @@ class PostProvisionTest
     end
   end
 
+  # Pass iff the file at `path` exists and its contents contain `match_string`.
+  # Guards existence first, so a missing file fails clearly rather than matching
+  # empty output. Returns the recorded check.
+  def test_file_contains(path, match_string, user: nil, label: nil, tier: nil)
+    escaped = Shellwords.escape(path)
+    test_local_command(label || "#{path} contains #{match_string.inspect}",
+                       "test -f #{escaped} && cat #{escaped}", match_string, user: user, tier: tier)
+  end
+
+  # Assert that leaked strings appear in their files. `strings` and `paths` each
+  # accept a single value or an array:
+  #   test_leaked_strings('flag{…}', '/root/flag.txt')
+  #   test_leaked_strings(%w[a b], ['/root/f1', '/root/f2'])
+  # Strings pair with paths by index; any strings beyond the last path are
+  # expected in the first path (matching leak_files, which appends overflow
+  # strings to the first file). Returns true iff every string was found; skips
+  # (and returns false) when either list is empty.
+  def test_leaked_strings(strings, paths, user: nil, tier: nil, label: nil)
+    strings = Array(strings).map(&:to_s).reject(&:empty?)
+    paths   = Array(paths).map(&:to_s).reject(&:empty?)
+    if strings.empty? || paths.empty?
+      skip_check(label || 'leaked strings', 'no strings or paths supplied', tier: tier)
+      return false
+    end
+    strings.each_with_index.map do |string, i|
+      path = paths[i] || paths.first
+      name = "#{label ? "#{label}: " : ''}leaked string #{string.inspect} present in #{path}"
+      test_file_contains(path, string, user: user, label: name, tier: tier)[:status] == 'PASS'
+    end.all?
+  end
+
   ##################
   # Misc Functions #
   ##################

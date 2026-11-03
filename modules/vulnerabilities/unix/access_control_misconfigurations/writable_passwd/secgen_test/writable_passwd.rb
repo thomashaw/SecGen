@@ -33,17 +33,8 @@ class WritablePasswdTest < PostProvisionTest
     filenames = self.json_inputs['leaked_filenames'] || []
     return skip_check('leaked strings', 'no strings_to_leak or leaked_filenames supplied') if strings.empty? || filenames.empty?
 
-    strings.each_with_index do |string, i|
-      path = "/root/#{filenames[i] || filenames.first}"
-      out = run_vagrant_ssh("cat #{Shellwords.escape(path)}")
-      name = "leaked string #{i + 1} present in #{path}"
-      if out[:stdout].include?(string)
-        pass_check(name, nil, tier: 1)
-      else
-        fail_check(name, "#{path} does not contain the expected string", tier: 1,
-                   evidence: "$ cat #{path}\n--- stdout\n#{out[:stdout]}\n--- stderr\n#{out[:stderr]}")
-      end
-    end
+    # each strings_to_leak[i] must be in /root/leaked_filenames[i] (base class)
+    test_leaked_strings(strings, filenames.map { |f| "/root/#{f}" }, tier: 1)
     mode = filenames.uniq.map { |f| Shellwords.escape("/root/#{f}") }.join(' ')
     test_command_succeeds('leaked files are all 0600 root',
                           "[ \"$(stat -c '%a %U' #{mode} | sort -u)\" = '600 root' ]", tier: 1)
