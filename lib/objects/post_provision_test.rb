@@ -319,6 +319,19 @@ class PostProvisionTest
     end.all?
   end
 
+  # Assert a file is writable, by root and/or by an unprivileged user. At least
+  # one of by_root / by_low_privilege must be set; both runs both. The low-priv
+  # check runs as `user` (an existing unprivileged account, default nobody).
+  # The write is an empty append (`: >> file`), which needs write permission but
+  # changes nothing, so the system is not taken to root.
+  def test_file_writable(path, by_root: false, by_low_privilege: false, user: 'nobody', tier: nil)
+    raise ArgumentError, 'test_file_writable needs by_root and/or by_low_privilege' unless by_root || by_low_privilege
+    escaped = Shellwords.escape(path)
+    probe = ": >> #{escaped} || { ls -l #{escaped} >&2; id >&2; exit 1; }"
+    test_command_succeeds("#{path} is writable by root", probe, tier: tier) if by_root
+    test_command_succeeds("#{path} is writable by #{user} (unprivileged)", probe, user: user, tier: tier) if by_low_privilege
+  end
+
   ##################
   # Misc Functions #
   ##################

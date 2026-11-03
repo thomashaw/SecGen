@@ -45,14 +45,11 @@ class WritablePasswdTest < PostProvisionTest
   # could change the mode we are trying to observe. The append is empty, so
   # nothing is changed and the system is not taken to root.
   def check_writable_by_low_privilege_user
-    user = 'nobody'
-    test_command_succeeds('unprivileged user can open /etc/passwd for writing',
-                          ": >> #{PASSWD} || { ls -l #{PASSWD} >&2; id >&2; exit 1; }", user: user)
-    test_command_succeeds('unprivileged user is not root', '[ "$(id -u)" -ne 0 ]', user: user)
+    test_file_writable(PASSWD, by_low_privilege: true)
     # The flag files stay protected: the user needs the vulnerability to reach them.
     (self.json_inputs['leaked_filenames'] || []).uniq.each do |f|
       test_command_succeeds("unprivileged user cannot read /root/#{f}",
-                            "! cat #{Shellwords.escape("/root/#{f}")} >/dev/null 2>&1", user: user)
+                            "! cat #{Shellwords.escape("/root/#{f}")} >/dev/null 2>&1", user: 'nobody')
     end
   end
 end
