@@ -347,6 +347,29 @@ A FAIL/SKIP is never rolled back: the VMs keep the evidence.
   providers' in-build runner does the same now (so on VirtualBox a system
   whose network test SKIPs, e.g. DHCP, is destroyed).
 
+### A build that never finishes
+
+`vagrant up` can hang indefinitely: blocked in `poll()` on an ESTABLISHED SSH
+connection to a guest that has gone (rebooted onto its VLAN, torn down or
+destroyed) without the connection closing. SecGen runs vagrant under a PTY in
+its own session, and its 30-minute command timeout kills only the process it
+spawned, so the Ruby `vagrant` child can outlive `secgen.rb`, the build and
+even the project directory. Signs:
+
+- the build log has stopped growing while `secgen-dev-run` is still running;
+- `ss -tnp | grep ruby` shows connections to `172.33.x.x:22` for a guest that
+  `scripts/pve-check --list` no longer lists, or that refuses a fresh
+  `nc -z <ip> 22`;
+- `readlink /proc/<vagrant pid>/cwd` ends in `(deleted)`.
+
+Kill the `vagrant up` process group (`kill -- -<pgid>`, from
+`ps -o pgid= -p <pid>`) and the build's own group, then destroy the project's
+VMs with `scripts/secgen-dev-destroy projects/<id>`. Look the PIDs up first:
+`pkill -f` with a pattern from your own command line kills your shell. A
+pipeline that drives many builds should watch each build for output and
+connection traffic rather than relying on a fixed timer; a rebuild after an
+error can legitimately take a long time.
+
 ### Step by step (to iterate on one VM)
 
 1. Make a minimal test scenario in `scenarios/tests/` (one `<system>`, the module,
