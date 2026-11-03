@@ -37,6 +37,9 @@
     <system_name>attacker</system_name>
     <base distro="Kali" name="MSF"/>
 
+    <!-- The tier 2 checks list and write the share with smbclient from here -->
+    <utility module_path=".*/smb/smbclient"/>
+
     <network type="private_network"/>
 
     <input into_datastore="spoiler_admin_pass_attacker">
