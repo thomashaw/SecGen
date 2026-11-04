@@ -64,7 +64,7 @@ sudo vi /etc/snort/snort.conf
 
 > Note: Editing using vi involves pressing "i" to insert/edit text, then *Esc*, ":wq" to write changes and quit.
 
-\==action: Check for the following lines:==
+\==action: Check for the following lines==, and add any that are missing to the end of the file:
 
 ```
 output alert_fast

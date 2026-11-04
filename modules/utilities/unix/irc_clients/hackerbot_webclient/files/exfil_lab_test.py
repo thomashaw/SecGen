@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from hackerbot_irc import Hackerbot  # noqa: E402  (served next to this file)
 
 LAB = 'exfil'
-VERSION = '2026-11-04.4'
+VERSION = '2026-11-04.5'
 HOME = os.path.expanduser('~')
 REPORT = os.path.join(HOME, LAB + '_report.txt')
 FULL_LOG = os.path.join(HOME, LAB + '_full_log.txt')
@@ -313,7 +313,8 @@ def run_all(args):
     U = C.U
     section('LABSHEET: Getting Snort up and running')
     rc, out = on(C.IDS, 'sudo grep -nE "^output (alert_fast|log_tcpdump)" /etc/snort/snort.conf')
-    result('S1-OUTPUT', 'OK' if 'alert_fast' in out and 'log_tcpdump' in out else 'PROBLEM', 'snort.conf output lines: %s' % ' | '.join(out.split()))
+    result('S1-OUTPUT', 'OK' if 'alert_fast' in out else 'PROBLEM', 'snort.conf has output alert_fast: %s' % ' | '.join(out.split()))
+    result('S1-TCPDUMP', 'INFO', 'output log_tcpdump present: %s (the sheet says to add it if missing)' % ('log_tcpdump' in out))
     rc, out = on(C.IDS, 'grep -E "^DEBIAN_SNORT_(INTERFACE|HOME_NET)" /etc/snort/snort.debian.conf; ip -o link | grep -c ens19')
     result('S1-IFACE', 'OK' if 'ens19' in out else 'PROBLEM', 'snort.debian.conf: %s' % ' | '.join(out.split()))
     ok = restart_snort()

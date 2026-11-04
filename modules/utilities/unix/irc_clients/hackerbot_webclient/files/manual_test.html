@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-11-04 18:09 · 411de2d</span>
+    <span class="ver">DEV page · 2026-11-04 18:58 · 411de2d</span>
   </div>
 </header>
 <main>
@@ -94,7 +94,9 @@ restart_snort
 </code></pre>
 
 <ul>
-<li>Expect: <code>output alert_fast</code> and <code>output log_tcpdump: tcpdump.log</code>; <code>ens19</code> and <code>&quot;any&quot;</code>; <code>SNORT UP</code>.
+<li>Expect: <code>output alert_fast</code> (twice: Debian&#39;s <code>snort.alert.fast</code> line and the bare one), but <strong>no</strong> <code>output log_tcpdump</code> line: it is commented out on this build, so the sheet now says to add missing lines. <code>ens19</code> and <code>&quot;any&quot;</code>; <code>SNORT UP</code>.
+</li>
+<li><input type="checkbox" disabled> is &quot;add any that are missing&quot; enough, or should the snort module add <code>output log_tcpdump</code> (labs 4 and 6 both assume it)?
 </li>
 <li><input type="checkbox" disabled> the &quot;Getting started&quot; section no longer mentions promiscuous mode, and reads fine without it
 </li>
