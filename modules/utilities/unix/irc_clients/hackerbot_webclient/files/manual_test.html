@@ -38,7 +38,7 @@
 <body>
 <header>
   <div class="row">
-    <span class="ver">DEV page · 2026-11-04 18:58 · 411de2d</span>
+    <span class="ver">DEV page · 2026-11-04 21:18 · 411de2d</span>
   </div>
 </header>
 <main>
@@ -46,7 +46,7 @@
 
 <p>A step-by-step play-through for the owner, to judge what the automated tester can&#39;t: whether each hint gets a
 stuck student moving, whether the sheet reads well, and whether the lab fits a teaching week. The tester
-(<code>exfil_lab_test.py</code>) has already run every step below on this build and seen each quoted reply. Allow 60 to
+(<code>exfil_lab_test.py</code>) has run every step below on an identical build and seen each quoted reply. Allow 60 to
 90 minutes; each attack that breaks in takes a minute or two.</p>
 
 <p>On the desktop VM you have three pages, served by the hackerbot_server:</p>
@@ -160,11 +160,14 @@ setrules &quot;$R1&quot;
 
 <p>Say <code>ready</code>. Expect: <code>Well done!</code> and a flag, then attack 2&#39;s prompt.</p>
 
-<p>If the first attack after boot says <code>the connection was too slow to get the data out this time</code>, say <code>ready</code>
-again: that is the slow-shell case the bot now reports instead of blaming the rule.</p>
+<p>The first attack after the VMs boot is usually slow: the shell opens but the data doesn&#39;t come back. On both
+test builds this happened on the very first <code>ready</code> (mistake 1 above), where you should see
+<code>I got a shell, but the data hasn&#39;t come back yet</code> followed by the verdict on your rule. With a correct rule
+it says <code>the connection was too slow to get the data out this time</code> and to say <code>ready</code> again. The automated
+tester has not been run on this set, so you get that first attack.</p>
 
 <ul>
-<li><input type="checkbox" disabled> seen the slow-shell message at any point? (note which attack)
+<li><input type="checkbox" disabled> the slow-shell messages make sense to a student (and seen anywhere other than the first attack? note which)
 </li>
 </ul>
 <h2 id="attack-2-regular-expression-rule-and-the-quiz">Attack 2: regular expression rule, and the quiz</h2>
