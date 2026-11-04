@@ -10,7 +10,7 @@
     # Introduction
     In this lab you will use Snort, an intrusion detection system (IDS), to spot sensitive data being exfiltrated over the network, which is one part of data loss prevention (DLP). Data breaches and insider threats remain a serious risk to organisations, and watching for sensitive data as it leaves the network is one way to catch them.
 
-    Hackerbot will break into a web server and steal a client list containing credit card details and national insurance numbers. You will write Snort rules that detect the theft: first by matching the data directly, then with regular expressions that match the format of the records without containing any of them, and finally with hash-based matching, so that the rules themselves hold no sensitive data. Along the way you will track down a copy of the data left at rest on a server.
+    Hackerbot will break into a web server and steal a client list containing credit card details and national insurance numbers. You will write Snort rules that detect the theft: first by matching the data directly, then with regular expressions that match the format of the records without containing any of them, and finally with hash-based matching, so that the rules themselves hold no sensitive data. Along the way you will track down a copy of the data left at rest on a server. Finally, you will respond to an incident: capture and investigate a fresh theft to work out what was taken, where it went and how the attacker got in, then contain the breach with a packet filter without taking the website offline.
 
     This is a Hackerbot lab. Work through the lab sheet, then when prompted interact with Hackerbot.
   </description>
