@@ -19,7 +19,8 @@ class SecurityOfAiTest < PostProvisionTest
   def test_module
     super
     commit = json_inputs['commit']&.first
-    repo_url = json_inputs['repo_url']&.first
+    # git records the fetched URL in FETCH_HEAD without a trailing .git
+    repo_url = json_inputs['repo_url']&.first.to_s.sub(/\.git\z/, '')
     tier(1) do
       test_local_command('clone at commit', "git -C /opt/#{REPO} rev-parse HEAD", commit)
       test_local_command('clone from repo_url', "cat /opt/#{REPO}/.git/FETCH_HEAD", repo_url)
