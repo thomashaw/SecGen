@@ -43,4 +43,42 @@ class hackerbot_webclient::config {
     mode    => '0644',
     require => File['/opt/hackerbot_webclient'],
   }
+
+  # DEV ONLY (exfiltration detection lab manual test, branch exfil-lab-dev): serves the walkthrough, a copy of
+  # the lab sheet and the automated tester at http://hackerbot:8080/. Never merge these resources or their files.
+  file { '/opt/hackerbot_webclient/manual_test.html':
+    ensure  => file,
+    source  => 'puppet:///modules/hackerbot_webclient/manual_test.html',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/opt/hackerbot_webclient'],
+  }
+
+  file { '/opt/hackerbot_webclient/lab_sheet.html':
+    ensure  => file,
+    source  => 'puppet:///modules/hackerbot_webclient/lab_sheet.html',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/opt/hackerbot_webclient'],
+  }
+
+  file { '/opt/hackerbot_webclient/exfil_lab_test.py':
+    ensure  => file,
+    source  => 'puppet:///modules/hackerbot_webclient/exfil_lab_test.py',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/opt/hackerbot_webclient'],
+  }
+
+  file { '/opt/hackerbot_webclient/hackerbot_irc.py':
+    ensure  => file,
+    source  => 'puppet:///modules/hackerbot_webclient/hackerbot_irc.py',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    require => File['/opt/hackerbot_webclient'],
+  }
 }
