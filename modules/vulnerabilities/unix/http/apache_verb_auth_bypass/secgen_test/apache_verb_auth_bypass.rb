@@ -91,8 +91,39 @@ class ApacheVerbAuthBypassTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: auxiliary/scanner/http/verb_auth_bypass
+    # Tier 3: prove the bypass with the stock MSF auxiliary scanner from the
+    # attacker VM. This is an auxiliary/scanner module proving an info leak (not
+    # a session exploit), so it is driven with run_msf_module and asserted here
+    # rather than via the deferred test_msf_exploit stub / expect_privilege path.
+    #
+    # The scanner (auxiliary/scanner/http/verb_auth_bypass) first does a baseline
+    # GET of TARGETURI and only continues if that GET is challenged with a
+    # WWW-Authenticate header; it then retries the path with each of
+    # ['HEAD','TRACE','TRACK','Wmap','get','trace'] and reports a bypass for any
+    # verb whose status differs from the GET's and is <= 302. TARGETURI MUST be
+    # the protected directory — against the docroot it would see no challenge and
+    # report nothing (this is what the earlier empty-options generation got
+    # wrong). Of those verbs only uppercase TRACE returns 200 here: HEAD folds
+    # into GET under <Limit>, and TRACK/Wmap/lowercase verbs draw a 4xx/5xx.
+    tier(3) do
+      aux = run_msf_module('auxiliary/scanner/http/verb_auth_bypass',
+                           options: { 'TARGETURI' => PROTECTED_PATH, 'RPORT' => PORT },
+                           label: 'apache_verb_auth_bypass')
+      next unless aux
+
+      out = aux[:msf_output].to_s
+      # print_good -> "[+] ... Possible authentication bypass with verb TRACE [200]"
+      if out =~ /authentication bypass with verb/i
+        verb = out[/authentication bypass with verb (\S+)/i, 1]
+        pass_check('verb_auth_bypass confirms the bypass',
+                   "auxiliary/scanner/http/verb_auth_bypass on #{aux[:attacker]} reported an authentication bypass (verb #{verb}) against #{aux[:rhost]}#{PROTECTED_PATH}",
+                   tier: 3)
+      else
+        fail_check('verb_auth_bypass confirms the bypass',
+                   'No "authentication bypass with verb" finding in the scanner output; see the msf_output evidence.',
+                   tier: 3)
+      end
+    end
   end
 
   private
