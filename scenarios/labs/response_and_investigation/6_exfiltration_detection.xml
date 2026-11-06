@@ -77,9 +77,6 @@
       <network_ip system="hackerbot_server"/>
     </input>
 
-    <input into_datastore="organisation">
-      <generator type="realistic_organisation"/>
-    </input>
 
     <!--generate two accounts, YOU and someone else-->
     <input into_datastore="accounts">
@@ -294,17 +291,15 @@
       </input>
     </utility>
 
-    <vulnerability module_path=".*/distcc_exec"/>
+    <!-- Shellshock over Apache CGI (CVE-2014-6271): a remote shell as www-data. Replaces distcc so the
+         break-in is detected by the IDS's updated community rule (OS-OTHER Bash CGI environment variable
+         injection) and so students don't meet distcc in yet another lab. Pulls in a vulnerable bash and an
+         Apache CGI endpoint (/cgi-bin/test.cgi) on port 80; that Apache is the web server for this lab. -->
+    <vulnerability module_path=".*/shellshock_apache_cgi"/>
 
     <service module_path=".*/vsftpd"/>
 
     <service type="pop3"/>
-
-    <service module_path="services/unix/http/parameterised_website">
-      <input into="organisation">
-        <datastore>organisation</datastore>
-      </input>
-    </service>
 
     <utility module_path=".*/mirror_traffic_to_ids_iptables">
       <input into="ids_IP_address">
