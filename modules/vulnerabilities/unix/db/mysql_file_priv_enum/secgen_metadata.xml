@@ -53,8 +53,11 @@
   <!--optional details-->
   <reference>https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_file</reference>
   <reference>https://www.rapid7.com/db/modules/auxiliary/scanner/mysql/mysql_file_enum</reference>
-  <software_name>mysql</software_name>
-  <software_license>GPL v2</software_license>
+  <!-- No <software_name> here: this module installs no software of its own, it
+       misconfigures the MySQL provided by the required service module. Declaring
+       software_name "mysql" would make this module self-satisfy its own
+       <requires> below, so the real mysql service module would never be added
+       (the dependency resolver matches software_name as an unanchored regexp). -->
 
   <!--optional hints-->
   <msf_module>auxiliary/scanner/mysql/mysql_file_enum</msf_module>
