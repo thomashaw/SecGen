@@ -58,30 +58,8 @@ class Spring4shellRceTest < PostProvisionTest
                          "grep -i 'Apache Tomcat Version' #{CATALINA}/RELEASE-NOTES", '8.5.77')
     end
 
-    # The module's default target is Java (ARCH_JAVA), for which the helper's
-    # default cmd/unix/generic payload is "not a compatible payload". Select the
-    # Linux target (index 1: ARCH_X86/X64, Platform linux) and use linux/x64/exec,
-    # a no-session command payload whose CMD runs our sentinel directly on the
-    # target — the model test_msf_exploit relies on to prove RCE.
-    #
-    # The Linux target drops a native ELF and register_files_for_cleanup's it, so
-    # MSF's driver refuses to run a no-session payload (it has no session to delete
-    # the file with): "linux/x64/exec cannot cleanup files created during exploit".
-    # AllowNoCleanup bypasses that pre-flight check so the exec payload runs our
-    # sentinel; the stray ELF in /tmp is fine on a throwaway teaching VM.
-    #
-    # TARGETURI defaults to /app/example/HelloWorld.action, but our ROOT.war binds
-    # request params at the web root (/), as tier 2 proves. With the default path
-    # the check's DefaultAssertionStatus probe hits a 404 instead of the 400 a
-    # vulnerable binding returns, so AutoCheck reports not-vulnerable and the
-    # exploit never runs. Point TARGETURI at / so both the check and the class
-    # loader manipulation drive the live data-binding sink.
-    test_msf_exploit('exploit/multi/http/spring_framework_rce_spring4shell',
-                     rport: 8080,
-                     payload: 'linux/x64/exec',
-                     options: { 'TARGET' => 1, 'AllowNoCleanup' => true, 'TARGETURI' => '/' },
-                     expect_privilege: 'user_rwx',
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/http/spring_framework_rce_spring4shell
   end
 end
 
