@@ -47,11 +47,8 @@ class RedisUnauthRceTest < PostProvisionTest
       test_banner('+PONG', send: 'PING', label: 'unauthenticated PING accepted')
     end
 
-    test_msf_exploit('exploit/linux/redis/redis_replication_cmd_exec',
-                     rport: self.port,
-                     payload: 'linux/x64/exec',
-                     expect_privilege: 'user_rwx',
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/linux/redis/redis_replication_cmd_exec
   end
 end
 
