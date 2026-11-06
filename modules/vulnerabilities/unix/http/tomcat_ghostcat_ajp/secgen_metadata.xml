@@ -15,7 +15,7 @@
     to make Tomcat read any file under the web application, including files under
     WEB-INF that are never served over HTTP.
 
-    Version-vs-CVE note: the service module installs Tomcat 9.0.98, which ships
+    Version-vs-CVE note: the service module installs Tomcat 9.0.123, which ships
     the 9.0.31 fix (AJP bound to localhost, secretRequired=true, request
     attributes blocked by default). This module deliberately restores the
     pre-9.0.31 behaviour on the connector - address="0.0.0.0",
