@@ -26,10 +26,34 @@ class apache_bash_cgi::init {
     notify  => Exec['apache-bash-cgi-reload'],
   }
 
-  # Restart apache so it reads the new ScriptAlias. refreshonly + the notify above
-  # means this only fires when the conf file is (re)written.
+  # Debian's apache2.service sets PrivateTmp=true, giving the CGI (and any shell a
+  # Shellshock exploit spawns through it) a private /tmp that nothing else on the box
+  # can see. That breaks lab flows where another process stages a file in /tmp for the
+  # www-data shell to read, or reads a marker the shell drops there. Turn it off so the
+  # exploited shell shares the real /tmp. (This box is deliberately vulnerable, so the
+  # lost hardening does not matter here.)
+  file { '/etc/systemd/system/apache2.service.d':
+    ensure => directory,
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0755',
+  }
+
+  file { '/etc/systemd/system/apache2.service.d/no-privatetmp.conf':
+    ensure  => file,
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => "[Service]\nPrivateTmp=false\n",
+    require => File['/etc/systemd/system/apache2.service.d'],
+    notify  => Exec['apache-bash-cgi-reload'],
+  }
+
+  # Restart apache so it reads the new ScriptAlias and the PrivateTmp override.
+  # refreshonly + the notifies above means this only fires when a config file is
+  # (re)written. daemon-reload is needed for the systemd drop-in to take effect.
   exec { 'apache-bash-cgi-reload':
-    command     => 'systemctl restart apache2',
+    command     => 'systemctl daemon-reload && systemctl restart apache2',
     path        => ['/usr/bin', '/bin', '/usr/sbin', '/sbin'],
     refreshonly => true,
   }
