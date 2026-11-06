@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Deliberately insecure: the default RemoteAddrValve (localhost only) has
-     been removed so the Manager app is reachable from the network. -->
+<!-- Deliberately insecure: the default localhost-only remote-address
+     restriction has been removed so the Manager app is reachable from the
+     network. -->
 <Context antiResourceLocking="false" privileged="true">
   <CookieProcessor className="org.apache.tomcat.util.http.Rfc6265CookieProcessor"
                    sameSiteCookies="strict" />
