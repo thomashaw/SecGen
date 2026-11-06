@@ -51,10 +51,18 @@ class RedisUnauthRceTest < PostProvisionTest
     # [ARCH_X86, ARCH_X64], so the cmd/unix/generic default is "not a compatible
     # payload". A native Linux exec payload still honours the CMD option the
     # sentinel relies on; the x64 variant matches the 64-bit base.
+    #
+    # The command runs as the redis daemon, whose Debian systemd unit sets
+    # PrivateTmp=yes and a read-only root (ProtectSystem / ReadOnlyDirectories),
+    # so a sentinel in /tmp is written into redis's private namespace (invisible
+    # to the root guest-agent read) and /dev/shm is read-only. redis's own data
+    # directory /var/lib/redis is the writable, shared location both the daemon
+    # and the verifying read see, so the sentinel lands there.
     test_msf_exploit('exploit/linux/redis/redis_replication_cmd_exec',
                      rport: self.port,
                      payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
+                     sentinel_dir: '/var/lib/redis',
                      tier: 3)
   end
 end
