@@ -253,7 +253,19 @@ class ProjectFilesCreator
     base_path = base&.module_path
     { 'name' => system.name,
       'base' => base_path,
-      'base_types' => base_path ? base_type_tags(base_path) : [] }
+      'base_types' => base_path ? base_type_tags(base_path) : [],
+      'proxmox_vm_config' => proxmox_vm_config(system) }
+  end
+
+  # VM settings requested by the system's modules (<proxmox_cpu>, <proxmox_cores>,
+  # <proxmox_memory>), keyed by Proxmox config option. Applied in post-build.
+  def proxmox_vm_config(system)
+    system.module_selections.each_with_object({}) do |mod, config|
+      %w[cpu cores memory].each do |option|
+        value = mod.attributes["proxmox_#{option}"]&.first
+        config[option] = value.strip if value
+      end
+    end
   end
 
   # The <type> values declared in a base module's secgen_metadata.xml.
