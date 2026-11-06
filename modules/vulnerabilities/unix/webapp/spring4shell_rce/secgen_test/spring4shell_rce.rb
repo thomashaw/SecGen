@@ -58,8 +58,10 @@ class Spring4shellRceTest < PostProvisionTest
                          "grep -i 'Apache Tomcat Version' #{CATALINA}/RELEASE-NOTES", '8.5.77')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/http/spring_framework_rce_spring4shell
+    test_msf_exploit('exploit/multi/http/spring_framework_rce_spring4shell',
+                     rport: 8080,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
