@@ -49,6 +49,7 @@ class RedisUnauthRceTest < PostProvisionTest
 
     test_msf_exploit('exploit/linux/redis/redis_replication_cmd_exec',
                      rport: self.port,
+                     payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
