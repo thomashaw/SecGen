@@ -257,11 +257,11 @@ class ProjectFilesCreator
       'proxmox_vm_config' => proxmox_vm_config(system) }
   end
 
-  # VM settings requested by the system's modules (<proxmox_cpu>, <proxmox_cores>,
-  # <proxmox_memory>), keyed by Proxmox config option. Applied in post-build.
+  # VM settings requested by the system's modules (<proxmox_cpu>, <proxmox_cores>),
+  # keyed by Proxmox config option. Applied in post-build.
   def proxmox_vm_config(system)
     system.module_selections.each_with_object({}) do |mod, config|
-      %w[cpu cores memory].each do |option|
+      %w[cpu cores].each do |option|
         value = mod.attributes["proxmox_#{option}"]&.first
         config[option] = value.strip if value
       end
@@ -392,7 +392,12 @@ class ProjectFilesCreator
         memory = '8192'
       end
     end
-    memory
+    [memory.to_i, memory_required(system)].max.to_s
+  end
+
+  # The largest <memory_required> (MB) among the system's modules; 0 if none declare it.
+  def memory_required(system)
+    system.module_selections.map { |mod| mod.attributes['memory_required']&.first.to_i }.max.to_i
   end
 
   def desktop_base?(system)
