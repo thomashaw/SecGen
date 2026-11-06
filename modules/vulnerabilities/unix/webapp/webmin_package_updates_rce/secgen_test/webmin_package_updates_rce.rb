@@ -99,8 +99,10 @@ class WebminPackageUpdatesRceTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/http/webmin_package_updates_rce
+    test_msf_exploit('exploit/linux/http/webmin_package_updates_rce',
+                     rport: self.port,
+                     expect_privilege: 'root_rwx',
+                     tier: 3)
   end
 end
 
