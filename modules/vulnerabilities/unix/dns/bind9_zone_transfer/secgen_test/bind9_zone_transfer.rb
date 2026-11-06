@@ -101,25 +101,43 @@ class Bind9ZoneTransferTest < PostProvisionTest
     end
 
     # Tier 3: prove the misconfiguration with the stock MSF auxiliary module.
-    # run_msf_module runs it from the attacker VM (RHOSTS set automatically) and
-    # returns :msf_output. The assertion below is a generic success heuristic (an
-    # MSF "[+]" finding line). TODO t3-worker: tighten it to a module-specific
-    # token from the msf_output_enum_dns evidence, and add any options the module
-    # needs (credentials, RPORT) from the module's json_inputs.
+    # auxiliary/gather/enum_dns has no RHOSTS (the DNS Client mixin deregisters
+    # RHOST); the harness' automatic "set RHOSTS" is just an ignored warning.
+    # What the module needs: DOMAIN (required) and NS, the nameserver IP to query
+    # (space-separated list) — set it to the target so the AXFR hits our bind9 and
+    # not the attacker's default resolver. On an unrestricted transfer the module
+    # prints "[+] <domain> Zone Transfer:" and dumps every record, so we assert
+    # that success line *and* at least one planted secret from the zone (the TXT
+    # flag if present, else an internal host record) actually appears in the dump.
     tier(3) do
+      unless allow_transfer == 'any'
+        skip_check('bind9_zone_transfer proves the misconfiguration',
+                   "allow-transfer is #{allow_transfer.inspect}, not 'any'; AXFR is restricted, nothing to prove",
+                   tier: 3)
+        next
+      end
+
+      target_ns = system_ip
       aux = run_msf_module('auxiliary/gather/enum_dns',
-                           options: {},
+                           options: { 'DOMAIN' => domain, 'NS' => target_ns },
                            label: 'bind9_zone_transfer')
       next unless aux
 
       out = aux[:msf_output].to_s
-      if out.include?('[+]')
+      zone_line = "#{domain} Zone Transfer:"
+      leaked_fqdns = leaked_hosts.map { |h| h == '@' ? domain : "#{h}.#{domain}" }
+      leaked = (flag_values + leaked_fqdns).select { |secret| out.include?(secret) }
+
+      if out.include?(zone_line) && !leaked.empty?
         pass_check('bind9_zone_transfer proves the misconfiguration',
-                   "auxiliary/gather/enum_dns on #{aux[:attacker]} reported a finding against #{aux[:rhost]}",
+                   "auxiliary/gather/enum_dns on #{aux[:attacker]} completed an unrestricted AXFR of " \
+                   "#{domain} against #{aux[:rhost]}, leaking #{leaked.length} zone record(s) including #{leaked.first}",
                    tier: 3)
       else
         fail_check('bind9_zone_transfer proves the misconfiguration',
-                   'No MSF "[+]" success line in the auxiliary output; see msf_output evidence.',
+                   "No unrestricted AXFR proof: zone-transfer line " \
+                   "#{out.include?(zone_line) ? 'present' : 'absent'}, leaked secrets #{leaked.inspect}. " \
+                   'See msf_output_enum_dns evidence.',
                    tier: 3)
       end
     end
