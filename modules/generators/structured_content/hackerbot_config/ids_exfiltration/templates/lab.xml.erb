@@ -107,7 +107,7 @@
     c << ['HB_KEYWORD_MISSING', ":( Your rule with the message \"#{alert_msg}\" doesn't use #{keyword_desc}."]
     c << ['HB_RULE_LITERAL', ":( Your rule contains some of the sensitive data itself. Match the format of the records (what a card number or NI number looks like), not their actual values."] if no_literals
     c << ['HB_SNORT_DOWN', ":( Snort isn't running on the IDS server. Start it with: sudo service snort start. If it won't stay up, a rule probably has a syntax error: check with sudo snort -T -c /etc/snort/snort.conf"]
-    c << ['HB_SEND_FAIL', ":( Couldn't read the file on the web server."]
+    c << ['HB_SEND_FAIL', ":( I got in but couldn't read the file back that time (the first exploit after a reboot can be slow). Say 'ready' to try again."]
     c << ['HB_NO_TRANSFER', ":( I got into the web server, but the connection was too slow to get the data out this time, so there was nothing for Snort to see. Say 'ready' to try again."]
     c
   end
