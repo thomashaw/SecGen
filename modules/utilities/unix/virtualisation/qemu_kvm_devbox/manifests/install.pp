@@ -13,7 +13,8 @@ class qemu_kvm_devbox::install {
 
   # The "latest" directory is rebuilt upstream, so the image is verified against its own checksum list.
   $image_url = 'https://cloud.debian.org/images/cloud/bookworm/latest'
-  $image     = 'debian-12-genericcloud-amd64.qcow2'
+  # The generic image has the full kernel; the genericcloud kernel omits many hardware drivers.
+  $image     = 'debian-12-generic-amd64.qcow2'
   exec { 'download debian cloud image':
     command  => "wget -q ${image_url}/${image} ${image_url}/SHA512SUMS && sha512sum --ignore-missing -c SHA512SUMS && rm SHA512SUMS",
     cwd      => '/var/lib/devbox/images',
@@ -21,6 +22,14 @@ class qemu_kvm_devbox::install {
     creates  => "/var/lib/devbox/images/${image}",
     timeout  => 1800,
     require  => [File['/var/lib/devbox/images'], Package['wget']],
+  }
+
+  # Runs after any base rule that sets a blanket group, and survives the udev events
+  # KVM raises whenever a guest starts or stops.
+  file { '/etc/udev/rules.d/99-devbox-kvm.rules':
+    ensure  => file,
+    content => "KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0660\"\n",
+    mode    => '0644',
   }
 
   file { '/usr/local/bin/devbox-check':

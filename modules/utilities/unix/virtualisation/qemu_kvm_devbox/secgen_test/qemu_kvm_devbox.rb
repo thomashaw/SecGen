@@ -12,7 +12,7 @@ class QemuKvmDevboxTest < PostProvisionTest
     super
     tier(1) do
       test_local_command('Tools installed', 'command -v qemu-system-x86_64 qemu-img virsh virt-install ruby git gcc cloud-localds', 'virt-install')
-      test_command_succeeds('Cloud image present and valid', 'qemu-img check /var/lib/devbox/images/debian-12-genericcloud-amd64.qcow2')
+      test_command_succeeds('Cloud image present and valid', 'qemu-img check /var/lib/devbox/images/debian-12-generic-amd64.qcow2')
     end
 
     accounts = (self.json_inputs['accounts'] || []).map { |account| JSON.parse(account)['username'] }
