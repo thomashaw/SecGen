@@ -44,17 +44,22 @@ class apache_bash_cgi::init {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => "[Service]\nPrivateTmp=false\n",
+    # Restart=on-failure + a generous start timeout so a slow forking start at boot
+    # is retried rather than left dead (apachectl start can be slow on first boot).
+    content => "[Service]\nPrivateTmp=false\nTimeoutStartSec=300\nRestart=on-failure\nRestartSec=5\n",
     require => File['/etc/systemd/system/apache2.service.d'],
     notify  => Exec['apache-bash-cgi-reload'],
   }
 
-  # Restart apache so it reads the new ScriptAlias and the PrivateTmp override.
-  # refreshonly + the notifies above means this only fires when a config file is
-  # (re)written. daemon-reload is needed for the systemd drop-in to take effect.
+  # Reload systemd (for the drop-in) then restart apache so it reads the new ScriptAlias
+  # and unit settings. provider => shell so the two commands run in sequence in a real
+  # shell; the default posix provider would not parse the ';'/'&&' and could run a bare
+  # daemon-reload that races apache's own start and times it out. refreshonly + the
+  # notifies above means this only fires when a config file is (re)written.
   exec { 'apache-bash-cgi-reload':
-    command     => 'systemctl daemon-reload && systemctl restart apache2',
+    command     => 'systemctl daemon-reload; systemctl restart apache2',
     path        => ['/usr/bin', '/bin', '/usr/sbin', '/sbin'],
+    provider    => shell,
     refreshonly => true,
   }
 }
