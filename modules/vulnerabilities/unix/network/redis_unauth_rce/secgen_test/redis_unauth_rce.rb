@@ -47,8 +47,13 @@ class RedisUnauthRceTest < PostProvisionTest
       test_banner('+PONG', send: 'PING', label: 'unauthenticated PING accepted')
     end
 
+    # This module is a CmdStager exploit with Platform => 'linux', Arch =>
+    # [ARCH_X86, ARCH_X64], so the cmd/unix/generic default is "not a compatible
+    # payload". A native Linux exec payload still honours the CMD option the
+    # sentinel relies on; the x64 variant matches the 64-bit base.
     test_msf_exploit('exploit/linux/redis/redis_replication_cmd_exec',
                      rport: self.port,
+                     payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
