@@ -100,8 +100,29 @@ class Bind9ZoneTransferTest < PostProvisionTest
       tier(2) { test_local_command("#{fqdn} #{type} resolves", "dig +short @127.0.0.1 #{fqdn.shellescape} #{type}", expected) }
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: auxiliary/gather/enum_dns
+    # Tier 3: prove the misconfiguration with the stock MSF auxiliary module.
+    # run_msf_module runs it from the attacker VM (RHOSTS set automatically) and
+    # returns :msf_output. The assertion below is a generic success heuristic (an
+    # MSF "[+]" finding line). TODO t3-worker: tighten it to a module-specific
+    # token from the msf_output_enum_dns evidence, and add any options the module
+    # needs (credentials, RPORT) from the module's json_inputs.
+    tier(3) do
+      aux = run_msf_module('auxiliary/gather/enum_dns',
+                           options: {},
+                           label: 'bind9_zone_transfer')
+      next unless aux
+
+      out = aux[:msf_output].to_s
+      if out.include?('[+]')
+        pass_check('bind9_zone_transfer proves the misconfiguration',
+                   "auxiliary/gather/enum_dns on #{aux[:attacker]} reported a finding against #{aux[:rhost]}",
+                   tier: 3)
+      else
+        fail_check('bind9_zone_transfer proves the misconfiguration',
+                   'No MSF "[+]" success line in the auxiliary output; see msf_output evidence.',
+                   tier: 3)
+      end
+    end
   end
 end
 
