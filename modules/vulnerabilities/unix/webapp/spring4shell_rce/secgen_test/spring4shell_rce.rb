@@ -58,8 +58,15 @@ class Spring4shellRceTest < PostProvisionTest
                          "grep -i 'Apache Tomcat Version' #{CATALINA}/RELEASE-NOTES", '8.5.77')
     end
 
+    # The module's default target is Java (ARCH_JAVA), for which the helper's
+    # default cmd/unix/generic payload is "not a compatible payload". Select the
+    # Linux target (index 1: ARCH_X86/X64, Platform linux) and use linux/x64/exec,
+    # a no-session command payload whose CMD runs our sentinel directly on the
+    # target — the model test_msf_exploit relies on to prove RCE.
     test_msf_exploit('exploit/multi/http/spring_framework_rce_spring4shell',
                      rport: 8080,
+                     payload: 'linux/x64/exec',
+                     options: { 'TARGET' => 1 },
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
