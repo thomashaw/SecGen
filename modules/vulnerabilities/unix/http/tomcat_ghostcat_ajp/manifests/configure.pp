@@ -9,19 +9,24 @@ class tomcat_ghostcat_ajp::configure {
   $catalina_base = '/opt/tomcat'
   $webinf_dir    = "${catalina_base}/webapps/ROOT/WEB-INF"
 
+  # The Tomcat service module (services/unix/http/tomcat) is a separate SecGen
+  # module, so its Puppet runs in its own catalogue - this module cannot
+  # reference Tomcat::Install or Service['tomcat'] directly. SecGen's <requires>
+  # ordering guarantees Tomcat is already installed and running by the time this
+  # runs, so we edit the installed files and restart the service ourselves.
+
   # Replace server.xml with one whose AJP connector is bound to 0.0.0.0:8009,
   # requires no secret and allows arbitrary request attributes. This is the
   # pre-9.0.31 Ghostcat behaviour, restored on the installed (patched) release.
   # Augeas is avoided on purpose: installing ruby-augeas and using the augeas
   # provider in the same Puppet run is unreliable, so ship the whole file.
   file { "${catalina_base}/conf/server.xml":
-    ensure  => file,
-    owner   => 'tomcat',
-    group   => 'tomcat',
-    mode    => '0640',
-    source  => 'puppet:///modules/tomcat_ghostcat_ajp/server.xml',
-    require => Tomcat::Install[$catalina_base],
-    notify  => Service['tomcat'],
+    ensure => file,
+    owner  => 'tomcat',
+    group  => 'tomcat',
+    mode   => '0640',
+    source => 'puppet:///modules/tomcat_ghostcat_ajp/server.xml',
+    notify => Exec['restart tomcat for ghostcat ajp'],
   }
 
   # Plant the flag under WEB-INF: unreachable over HTTP, readable through the
@@ -35,7 +40,14 @@ class tomcat_ghostcat_ajp::configure {
     group             => 'tomcat',
     mode              => '0640',
     leaked_from       => 'tomcat_ghostcat_ajp',
-    require           => Tomcat::Install[$catalina_base],
-    notify            => Service['tomcat'],
+    notify            => Exec['restart tomcat for ghostcat ajp'],
+  }
+
+  # Restart Tomcat so the exposed AJP connector binds and the planted file is in
+  # place. refreshonly: only fires when server.xml or the leaked file change.
+  exec { 'restart tomcat for ghostcat ajp':
+    command     => '/bin/systemctl restart tomcat',
+    refreshonly => true,
+    path        => ['/bin', '/usr/bin', '/sbin', '/usr/sbin'],
   }
 }
