@@ -44,8 +44,29 @@ class TomcatManagerDefaultCredsTest < PostProvisionTest
                          '200')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: auxiliary/scanner/http/tomcat_mgr_login
+    # Tier 3: prove the misconfiguration with the stock MSF auxiliary module.
+    # run_msf_module runs it from the attacker VM (RHOSTS set automatically) and
+    # returns :msf_output. The assertion below is a generic success heuristic (an
+    # MSF "[+]" finding line). TODO t3-worker: tighten it to a module-specific
+    # token from the msf_output_tomcat_mgr_login evidence, and add any options the module
+    # needs (credentials, RPORT) from the module's json_inputs.
+    tier(3) do
+      aux = run_msf_module('auxiliary/scanner/http/tomcat_mgr_login',
+                           options: {},
+                           label: 'tomcat_manager_default_creds')
+      next unless aux
+
+      out = aux[:msf_output].to_s
+      if out.include?('[+]')
+        pass_check('tomcat_manager_default_creds proves the misconfiguration',
+                   "auxiliary/scanner/http/tomcat_mgr_login on #{aux[:attacker]} reported a finding against #{aux[:rhost]}",
+                   tier: 3)
+      else
+        fail_check('tomcat_manager_default_creds proves the misconfiguration',
+                   'No MSF "[+]" success line in the auxiliary output; see msf_output evidence.',
+                   tier: 3)
+      end
+    end
   end
 end
 
