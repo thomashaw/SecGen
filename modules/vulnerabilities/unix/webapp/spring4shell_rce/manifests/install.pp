@@ -24,14 +24,12 @@ class spring4shell_rce::install {
     require => Group['tomcat'],
   }
 
-  ensure_packages(['curl'])
-
-  # archive.apache.org keeps old releases; the live mirror (dlcdn) does not.
-  exec { 'download tomcat':
-    command => "curl --retry 3 -fsSL -o ${tarball} https://archive.apache.org/dist/tomcat/tomcat-8/v${tomcat_version}/bin/apache-tomcat-${tomcat_version}.tar.gz",
-    creates => $tarball,
-    timeout => 600,
-    require => Package['curl'],
+  # Tomcat 8.5.77 is bundled rather than downloaded: archive.apache.org (the only
+  # host that still serves this old release) is not reliably reachable from the
+  # build network, and bundling makes the build reproducible and offline-safe.
+  file { $tarball:
+    ensure => file,
+    source => "puppet:///modules/spring4shell_rce/apache-tomcat-${tomcat_version}.tar.gz",
   }
 
   # Unpack, then strip the shipped sample webapps so only the vulnerable app is
@@ -39,7 +37,7 @@ class spring4shell_rce::install {
   exec { 'extract tomcat':
     command => "mkdir -p ${catalina_home} && tar -xzf ${tarball} -C ${catalina_home} --strip-components=1 && rm -rf ${catalina_home}/webapps/*",
     creates => "${catalina_home}/bin/catalina.sh",
-    require => Exec['download tomcat'],
+    require => File[$tarball],
   }
 
   file { "${catalina_home}/webapps/ROOT.war":
