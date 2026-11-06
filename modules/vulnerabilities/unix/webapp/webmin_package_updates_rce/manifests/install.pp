@@ -61,14 +61,17 @@ class webmin_package_updates_rce::install {
 
   # Make sure miniserv is enabled at boot and running with the new config, so it
   # is serving after the provisioning NIC is torn down and the VM reboots onto
-  # its isolated test VLAN.
+  # its isolated test VLAN. On Debian bookworm the Webmin .deb installs a native
+  # systemd unit (webmin.service) and no /etc/init.d/webmin script, so both
+  # enable and restart go through systemctl.
   exec { 'enable-webmin':
     command => 'systemctl enable webmin',
     onlyif  => 'test -x /usr/bin/systemctl',
   } ->
 
   exec { 'restart-webmin':
-    command => '/etc/init.d/webmin restart',
+    command => 'systemctl restart webmin',
+    onlyif  => 'test -x /usr/bin/systemctl',
   }
 
   # Post-exploitation objective: a flag readable only by root, placed in /root
