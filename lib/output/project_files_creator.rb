@@ -387,11 +387,6 @@ class ProjectFilesCreator
       memory = '1024'
     end
 
-    system.module_selections.each do |mod|
-      if mod.module_path_name.include? "elasticsearch"
-        memory = '8192'
-      end
-    end
     [memory.to_i, memory_required(system)].max.to_s
   end
 
