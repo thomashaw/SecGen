@@ -52,6 +52,15 @@ class RedisUnauthRceTest < PostProvisionTest
     # payload". A native Linux exec payload still honours the CMD option the
     # sentinel relies on; the x64 variant matches the 64-bit base.
     #
+    # CUSTOM => false: by default (CUSTOM true) the module compiles its loadable
+    # redis module from source on the attacker and ships that .so to the target
+    # to MODULE LOAD. Compiled on Kali-rolling (glibc 2.38+) and loaded on the
+    # Debian 12 target (glibc 2.36), it pulls in versioned symbols the target
+    # cannot resolve, so the load fails, the trigger runs nothing and no sentinel
+    # appears. Forcing CUSTOM false uses the precompiled exp.so that ships with
+    # Metasploit (needs only GLIBC_2.2.5, so it loads on Debian 12); its
+    # shell.exec then stages the syscall-only exec payload via a plain popen.
+    #
     # The command runs as the redis daemon, whose Debian systemd unit sets
     # PrivateTmp=yes and a read-only root (ProtectSystem / ReadOnlyDirectories),
     # so a sentinel in /tmp is written into redis's private namespace (invisible
@@ -63,6 +72,7 @@ class RedisUnauthRceTest < PostProvisionTest
                      payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      sentinel_dir: '/var/lib/redis',
+                     options: { 'CUSTOM' => false },
                      tier: 3)
   end
 end
