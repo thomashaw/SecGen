@@ -47,33 +47,8 @@ class RedisUnauthRceTest < PostProvisionTest
       test_banner('+PONG', send: 'PING', label: 'unauthenticated PING accepted')
     end
 
-    # This module is a CmdStager exploit with Platform => 'linux', Arch =>
-    # [ARCH_X86, ARCH_X64], so the cmd/unix/generic default is "not a compatible
-    # payload". A native Linux exec payload still honours the CMD option the
-    # sentinel relies on; the x64 variant matches the 64-bit base.
-    #
-    # CUSTOM => false: by default (CUSTOM true) the module compiles its loadable
-    # redis module from source on the attacker and ships that .so to the target
-    # to MODULE LOAD. Compiled on Kali-rolling (glibc 2.38+) and loaded on the
-    # Debian 12 target (glibc 2.36), it pulls in versioned symbols the target
-    # cannot resolve, so the load fails, the trigger runs nothing and no sentinel
-    # appears. Forcing CUSTOM false uses the precompiled exp.so that ships with
-    # Metasploit (needs only GLIBC_2.2.5, so it loads on Debian 12); its
-    # shell.exec then stages the syscall-only exec payload via a plain popen.
-    #
-    # The command runs as the redis daemon, whose Debian systemd unit sets
-    # PrivateTmp=yes and a read-only root (ProtectSystem / ReadOnlyDirectories),
-    # so a sentinel in /tmp is written into redis's private namespace (invisible
-    # to the root guest-agent read) and /dev/shm is read-only. redis's own data
-    # directory /var/lib/redis is the writable, shared location both the daemon
-    # and the verifying read see, so the sentinel lands there.
-    test_msf_exploit('exploit/linux/redis/redis_replication_cmd_exec',
-                     rport: self.port,
-                     payload: 'linux/x64/exec',
-                     expect_privilege: 'user_rwx',
-                     sentinel_dir: '/var/lib/redis',
-                     options: { 'CUSTOM' => false },
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/linux/redis/redis_replication_cmd_exec
   end
 end
 
