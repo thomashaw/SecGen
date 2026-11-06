@@ -63,10 +63,16 @@ class Spring4shellRceTest < PostProvisionTest
     # Linux target (index 1: ARCH_X86/X64, Platform linux) and use linux/x64/exec,
     # a no-session command payload whose CMD runs our sentinel directly on the
     # target — the model test_msf_exploit relies on to prove RCE.
+    #
+    # The Linux target drops a native ELF and register_files_for_cleanup's it, so
+    # MSF's driver refuses to run a no-session payload (it has no session to delete
+    # the file with): "linux/x64/exec cannot cleanup files created during exploit".
+    # AllowNoCleanup bypasses that pre-flight check so the exec payload runs our
+    # sentinel; the stray ELF in /tmp is fine on a throwaway teaching VM.
     test_msf_exploit('exploit/multi/http/spring_framework_rce_spring4shell',
                      rport: 8080,
                      payload: 'linux/x64/exec',
-                     options: { 'TARGET' => 1 },
+                     options: { 'TARGET' => 1, 'AllowNoCleanup' => true },
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
