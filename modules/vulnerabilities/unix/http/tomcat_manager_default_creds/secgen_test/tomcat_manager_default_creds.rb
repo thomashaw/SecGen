@@ -26,9 +26,11 @@ class TomcatManagerDefaultCredsTest < PostProvisionTest
       test_local_command('manager app present', 'test -d /opt/tomcat/webapps/manager && echo ok', 'ok')
       test_file_contains(users_xml, 'manager-gui', label: 'manager-gui role configured')
       test_file_contains(users_xml, "username=\"#{username}\"", label: 'weak manager user configured')
-      # the stock localhost-only RemoteAddrValve must be gone for remote reach
+      # The stock localhost-only RemoteAddrValve must be gone for remote reach.
+      # Match the actual <Valve className="...RemoteAddrValve"> element, not any
+      # mention of the name in a comment, so the check reflects the real config.
       test_local_command('RemoteAddrValve removed from manager context',
-                         "grep -q RemoteAddrValve #{manager_ctx} && echo present || echo absent", 'absent')
+                         "grep -Eq 'className=\"[^\"]*RemoteAddrValve\"' #{manager_ctx} && echo present || echo absent", 'absent')
     end
 
     tier(2) do
