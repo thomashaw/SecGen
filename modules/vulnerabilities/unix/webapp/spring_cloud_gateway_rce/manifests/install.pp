@@ -44,12 +44,17 @@ class spring_cloud_gateway_rce::install {
   }
 
   # Resolve dependencies from Maven Central and repackage the Spring Boot fat jar.
+  # The dependency download is the one step that needs the internet during
+  # provisioning; the build host's network drops out intermittently, so retry a
+  # few times before giving up rather than failing the whole build on a blip.
   exec { 'build-scg':
     command     => 'mvn -q -B -DskipTests package',
     cwd         => $app_dir,
     creates     => "${app_dir}/target/scg-gateway.jar",
     environment => ['HOME=/root'],
     timeout     => 1800,
+    tries       => 3,
+    try_sleep   => 60,
     logoutput   => true,
     require     => [File["${app_dir}/pom.xml"],
                     File["${app_dir}/src/main/java/com/example/scg/DemoApplication.java"],
