@@ -69,10 +69,17 @@ class Spring4shellRceTest < PostProvisionTest
     # the file with): "linux/x64/exec cannot cleanup files created during exploit".
     # AllowNoCleanup bypasses that pre-flight check so the exec payload runs our
     # sentinel; the stray ELF in /tmp is fine on a throwaway teaching VM.
+    #
+    # TARGETURI defaults to /app/example/HelloWorld.action, but our ROOT.war binds
+    # request params at the web root (/), as tier 2 proves. With the default path
+    # the check's DefaultAssertionStatus probe hits a 404 instead of the 400 a
+    # vulnerable binding returns, so AutoCheck reports not-vulnerable and the
+    # exploit never runs. Point TARGETURI at / so both the check and the class
+    # loader manipulation drive the live data-binding sink.
     test_msf_exploit('exploit/multi/http/spring_framework_rce_spring4shell',
                      rport: 8080,
                      payload: 'linux/x64/exec',
-                     options: { 'TARGET' => 1, 'AllowNoCleanup' => true },
+                     options: { 'TARGET' => 1, 'AllowNoCleanup' => true, 'TARGETURI' => '/' },
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
