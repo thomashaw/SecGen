@@ -104,10 +104,18 @@ class WebminPackageUpdatesRceTest < PostProvisionTest
     # (admin/123456) will not match the datastore-generated admin, so pass the
     # webmin_username/webmin_password credentials through. SSL and RPORT 10000
     # defaults already match the HTTPS miniserv on self.port.
+    #
+    # The default target (Unix In-Memory, ARCH_CMD) injects our cmd/unix/generic
+    # sentinel command via package-updates/update.cgi. That CGI runs the injected
+    # command as part of the package-update job, which finishes after the HTTP
+    # request returns (and tears down the SSL socket, hence the harmless
+    # getpeername ENOTCONN) — so the sentinel appears a little after "Exploit
+    # completed". sentinel_wait polls the target until the command has run.
     test_msf_exploit('exploit/linux/http/webmin_package_updates_rce',
                      rport: self.port,
                      options: { 'USERNAME' => username, 'PASSWORD' => password },
                      expect_privilege: 'root_rwx',
+                     sentinel_wait: 60,
                      tier: 3)
   end
 end
