@@ -99,8 +99,14 @@ class WebminPackageUpdatesRceTest < PostProvisionTest
       end
     end
 
+    # The exploit is authenticated: do_login POSTs USERNAME/PASSWORD to
+    # /session_login.cgi and bails on anything but a 302. The module defaults
+    # (admin/123456) will not match the datastore-generated admin, so pass the
+    # webmin_username/webmin_password credentials through. SSL and RPORT 10000
+    # defaults already match the HTTPS miniserv on self.port.
     test_msf_exploit('exploit/linux/http/webmin_package_updates_rce',
                      rport: self.port,
+                     options: { 'USERNAME' => username, 'PASSWORD' => password },
                      expect_privilege: 'root_rwx',
                      tier: 3)
   end
