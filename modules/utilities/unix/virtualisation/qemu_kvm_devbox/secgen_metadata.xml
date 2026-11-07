@@ -20,7 +20,7 @@
 
   <proxmox_cpu>host</proxmox_cpu>
   <proxmox_cores>4</proxmox_cores>
-  <memory_required>12288</memory_required>
+  <memory_required>8192</memory_required>
 
   <read_fact>accounts</read_fact>
 
