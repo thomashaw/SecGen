@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+
+  <name>Apache HTTP Verb-Based Authentication Bypass</name>
+  <author>Tom Shaw</author>
+  <module_license>Apache v2</module_license>
+  <description>A Basic-Auth-protected Apache directory is guarded with
+    &lt;Limit GET POST&gt; instead of &lt;LimitExcept GET POST&gt;. Because a
+    &lt;Limit&gt; block only applies to the methods it names (GET, POST and the
+    HEAD that Apache folds into GET), any other HTTP verb reaches the resource
+    without being challenged for credentials. A TRACE request, for example,
+    returns 200 where a GET returns 401. The stock Metasploit module
+    auxiliary/scanner/http/verb_auth_bypass detects the bypass by comparing a
+    GET against a set of alternative verbs. The subtle, very common fix is to
+    use &lt;LimitExcept&gt;, which authenticates every method except the ones
+    listed.</description>
+
+  <type>remote</type>
+  <type>web</type>
+  <type>misc</type>
+  <!-- unauthenticated read access to an otherwise access-controlled resource -->
+  <privilege>info_leak</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>low</difficulty>
+
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+  <read_fact>unix_username</read_fact>
+  <read_fact>used_password</read_fact>
+
+  <!-- the secret placed in the protected directory -->
+  <default_input into="strings_to_leak">
+    <generator type="message_generator" />
+  </default_input>
+
+  <!-- the filename the secret is written to inside the protected directory -->
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator" />
+  </default_input>
+
+  <!-- Basic Auth username -->
+  <default_input into="unix_username">
+    <value>webadmin</value>
+  </default_input>
+
+  <!-- Basic Auth password -->
+  <default_input into="used_password">
+    <generator type="password_generator" />
+  </default_input>
+
+  <cvss_base_score>5.3</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/Au:N/C:P/I:N/A:N</cvss_vector>
+  <reference>https://httpd.apache.org/docs/2.4/mod/core.html#limit</reference>
+  <reference>https://httpd.apache.org/docs/2.4/mod/core.html#limitexcept</reference>
+  <reference>https://github.com/rapid7/metasploit-framework/blob/master/modules/auxiliary/scanner/http/verb_auth_bypass.rb</reference>
+  <!-- No <software_name>apache</software_name>: that would make this module its
+       own apache provider (self-satisfying the require below and conflicting
+       with the real apache module), so the apache module's puppetlabs/apache
+       code would not be on the modulepath for class{apache} to resolve. -->
+
+  <msf_module>auxiliary/scanner/http/verb_auth_bypass</msf_module>
+  <hint>Basic Auth that only lists GET and POST in a &lt;Limit&gt; block leaves other verbs unauthenticated.</hint>
+
+  <requires>
+    <software_name>apache</software_name>
+  </requires>
+
+  <CyBOK KA="WAM" topic="Server-Side Vulnerabilities and Mitigations">
+    <keyword>server-side misconfiguration and vulnerable components</keyword>
+    <keyword>Vulnerable defaults</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+</vulnerability>
