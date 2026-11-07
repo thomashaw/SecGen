@@ -45,10 +45,19 @@ class spring_cloud_gateway_rce::install {
 
   # Resolve dependencies from Maven Central and repackage the Spring Boot fat jar.
   # The dependency download is the one step that needs the internet during
-  # provisioning; the build host's network drops out intermittently, so retry a
-  # few times before giving up rather than failing the whole build on a blip.
+  # provisioning; the build host's network drops out intermittently. Two layers
+  # of resilience: the wagon HTTP retry/timeout flags keep a single invocation
+  # going across a brief blip, and -U forces failed resolutions to be retried
+  # (otherwise Maven caches the failure and the Puppet-level retries below would
+  # not re-attempt the download). The exec itself retries a few times on top.
+  $mvn_flags = join([
+    '-q', '-B', '-U', '-DskipTests',
+    '-Dmaven.wagon.http.retryHandler.count=3',
+    '-Dmaven.wagon.http.retryHandler.requestSentEnabled=true',
+    '-Dmaven.wagon.httpconnectionManager.ttlSeconds=120',
+  ], ' ')
   exec { 'build-scg':
-    command     => 'mvn -q -B -DskipTests package',
+    command     => "mvn ${mvn_flags} package",
     cwd         => $app_dir,
     creates     => "${app_dir}/target/scg-gateway.jar",
     environment => ['HOME=/root'],
