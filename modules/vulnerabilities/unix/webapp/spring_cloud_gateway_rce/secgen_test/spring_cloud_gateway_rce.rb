@@ -13,11 +13,11 @@ class SpringCloudGatewayRceTest < PostProvisionTest
   def test_module
     super
     username = self.json_inputs['unix_username']&.first
-    jar = '/opt/scg/target/scg-gateway.jar'
+    jar = '/opt/scg/scg-gateway.jar'
 
     tier(1) do
       test_local_command('java available', 'java -version 2>&1', 'openjdk')
-      test_local_command('gateway fat jar built', "test -f #{jar} && echo present", 'present')
+      test_local_command('gateway fat jar deployed', "test -f #{jar} && echo present", 'present')
       # Confirms the bundled Spring Cloud Gateway is the vulnerable 3.1.0 (fix in 3.1.1).
       test_local_command('spring-cloud-gateway 3.1.0 bundled',
                          "jar tf #{jar} | grep gateway-server",
