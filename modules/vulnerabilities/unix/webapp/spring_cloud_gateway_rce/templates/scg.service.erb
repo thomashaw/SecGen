@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=<%= @user %>
 WorkingDirectory=/opt/scg
-ExecStart=/usr/bin/java -jar /opt/scg/target/scg-gateway.jar
+ExecStart=/usr/bin/java -jar /opt/scg/scg-gateway.jar
 Restart=always
 RestartSec=5
 

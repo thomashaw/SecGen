@@ -1,6 +1,12 @@
 # Class: spring_cloud_gateway_rce::install
-# Builds the vulnerable Spring Cloud Gateway 3.1.0 application from the bundled
-# Maven project and runs it as a dedicated non-root user.
+# Deploys the vulnerable Spring Cloud Gateway 3.1.0 application (a pre-built
+# Spring Boot fat jar) and runs it as a dedicated non-root user.
+#
+# The jar is bundled rather than compiled on the target: SecGen build VMs sit on
+# an isolated provisioning network that cannot reliably reach Maven Central, so
+# resolving Spring's dependencies during puppet apply failed with "Network is
+# unreachable". files/build/ holds the pom.xml and source the jar was built
+# from (see files/build/README.md).
 class spring_cloud_gateway_rce::install {
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
 
@@ -10,9 +16,11 @@ class spring_cloud_gateway_rce::install {
   $user_home = "/home/${user}"
   $app_dir = '/opt/scg'
 
-  # maven pulls in default-jdk-headless on bookworm; keep it explicit so the
-  # project compiles and the fat jar runs on the same JDK.
-  ensure_packages(['maven', 'default-jdk-headless'])
+  # default-jdk-headless is OpenJDK 17 on bookworm. A JRE alone would run the
+  # jar, but the JDK also ships the `jar` tool the secgen_test uses to confirm
+  # the bundled gateway is the vulnerable 3.1.0. The jar is built for Java 11
+  # and runs on 17.
+  ensure_packages(['default-jdk-headless'])
 
   user { $user:
     ensure     => present,
@@ -20,60 +28,15 @@ class spring_cloud_gateway_rce::install {
     managehome => true,
   }
 
-  # Maven project layout for the demo gateway app.
-  file { [$app_dir,
-          "${app_dir}/src",
-          "${app_dir}/src/main",
-          "${app_dir}/src/main/java",
-          "${app_dir}/src/main/java/com",
-          "${app_dir}/src/main/java/com/example",
-          "${app_dir}/src/main/java/com/example/scg"]:
+  file { $app_dir:
     ensure => directory,
   }
 
-  file { "${app_dir}/pom.xml":
+  file { "${app_dir}/scg-gateway.jar":
     ensure  => file,
-    source  => "puppet:///modules/${modulename}/pom.xml",
-    require => File[$app_dir],
-  }
-
-  file { "${app_dir}/src/main/java/com/example/scg/DemoApplication.java":
-    ensure  => file,
-    source  => "puppet:///modules/${modulename}/src/main/java/com/example/scg/DemoApplication.java",
-    require => File["${app_dir}/src/main/java/com/example/scg"],
-  }
-
-  # Resolve dependencies from Maven Central and repackage the Spring Boot fat jar.
-  # The dependency download is the one step that needs the internet during
-  # provisioning; the build host's network drops out intermittently. Two layers
-  # of resilience: the wagon HTTP retry/timeout flags keep a single invocation
-  # going across a brief blip, and -U forces failed resolutions to be retried
-  # (otherwise Maven caches the failure and the Puppet-level retries below would
-  # not re-attempt the download). The exec itself retries a few times on top.
-  $mvn_flags = join([
-    '-q', '-B', '-U', '-DskipTests',
-    '-Dmaven.wagon.http.retryHandler.count=3',
-    '-Dmaven.wagon.http.retryHandler.requestSentEnabled=true',
-    '-Dmaven.wagon.httpconnectionManager.ttlSeconds=120',
-  ], ' ')
-  exec { 'build-scg':
-    command     => "mvn ${mvn_flags} package",
-    cwd         => $app_dir,
-    creates     => "${app_dir}/target/scg-gateway.jar",
-    environment => ['HOME=/root'],
-    timeout     => 1800,
-    tries       => 3,
-    try_sleep   => 60,
-    logoutput   => true,
-    require     => [File["${app_dir}/pom.xml"],
-                    File["${app_dir}/src/main/java/com/example/scg/DemoApplication.java"],
-                    Package['maven'],
-                    Package['default-jdk-headless']],
-  }
-
-  # Hand the built app to the service user so the process can read it.
-  -> exec { 'chown-scg':
-    command => "chown -R ${user} ${app_dir}",
-    require => User[$user],
+    source  => "puppet:///modules/${modulename}/scg-gateway.jar",
+    owner   => $user,
+    mode    => '0644',
+    require => [File[$app_dir], User[$user]],
   }
 }
