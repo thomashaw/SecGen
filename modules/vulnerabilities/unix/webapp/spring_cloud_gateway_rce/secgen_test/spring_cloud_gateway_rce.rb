@@ -55,8 +55,10 @@ class SpringCloudGatewayRceTest < PostProvisionTest
       test_http('/actuator/gateway/routes', match: nil)
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/http/spring_cloud_gateway_rce
+    test_msf_exploit('exploit/multi/http/spring_cloud_gateway_rce',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
