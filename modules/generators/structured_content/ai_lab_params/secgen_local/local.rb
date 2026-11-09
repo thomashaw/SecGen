@@ -27,9 +27,9 @@ class AiLabParams < StringEncoder
     {
       'label_map' => derangement,
       'query_budget' => budget,
-      'tight_budget' => SecureRandom.random_number(1200..1600),
-      'agreement_threshold' => 0.90,
-      'tight_threshold' => 0.85,
+      'tight_budget' => SecureRandom.random_number(350..500),
+      'agreement_threshold' => 0.94,
+      'tight_threshold' => 0.87,
       'check_sample' => 1000,
       'pool_size' => 12_000,
       'gradient_endpoint' => false
