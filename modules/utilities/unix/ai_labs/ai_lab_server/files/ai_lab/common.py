@@ -39,6 +39,14 @@ def normalise(images):
     return images.reshape(-1, 28, 28, 1)
 
 
+def apply_transform(image, angle, shift_x, shift_y):
+    """Rotate then shift one 28x28 image of 0-1 floats; used by the challenge search and the evaluator."""
+    from scipy import ndimage
+    turned = ndimage.rotate(image, float(angle), reshape=False, order=1)
+    moved = ndimage.shift(turned, (float(shift_y), float(shift_x)), order=1)
+    return np.clip(moved, 0.0, 1.0)
+
+
 def queries_used():
     try:
         with open(COUNTER_FILE) as handle:

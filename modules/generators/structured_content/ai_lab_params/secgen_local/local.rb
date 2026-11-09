@@ -65,6 +65,18 @@ class AiLabParams < StringEncoder
     }
   end
 
+  def evasion
+    {
+      'fgsm_epsilon' => (SecureRandom.random_number(15..25) / 100.0).round(2),
+      'pgd_epsilon' => (SecureRandom.random_number(25..30) / 100.0).round(2),
+      'max_angle' => 30,
+      'max_shift' => 4,
+      'query_budget' => 1_000_000,
+      'gradient_endpoint' => true,
+      'api' => true
+    }
+  end
+
   def encode_all
     params = { 'lab' => lab, 'seed' => SecureRandom.random_number(1..2_000_000_000) }
     params.merge!(send(lab))

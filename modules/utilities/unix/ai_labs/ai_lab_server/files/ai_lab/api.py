@@ -78,6 +78,34 @@ def predict():
     })
 
 
+@app.route("/challenge/<name>", methods=["GET"])
+def challenge(name):
+    challenges = public.get("challenges", {})
+    if name not in challenges:
+        return jsonify({"error": "no such challenge", "available": sorted(challenges)}), 404
+    return jsonify(challenges[name])
+
+
+@app.route("/gradient", methods=["POST"])
+def gradient():
+    """The gradient of the loss for one image and a chosen label: how each pixel affects the model's error."""
+    if not public.get("gradient_endpoint"):
+        return jsonify({"error": "not available"}), 404
+    try:
+        body = request.get_json(force=True, silent=False)
+        images = parse_images({"image": body["image"]})
+        label = int(body["label"])
+        if not 0 <= label <= 9:
+            raise ValueError("label must be from 0 to 9")
+    except Exception as error:  # noqa: BLE001 - any bad input is the client's error
+        return jsonify({"error": str(error)}), 400
+    tensor = tf.convert_to_tensor(common.normalise(images))
+    with tf.GradientTape() as tape:
+        tape.watch(tensor)
+        loss = tf.keras.losses.sparse_categorical_crossentropy([label], model(tensor, training=False))
+    return jsonify({"gradient": tape.gradient(loss, tensor).numpy()[0, ..., 0].tolist()})
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "healthy"})
