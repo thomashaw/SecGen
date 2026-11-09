@@ -44,7 +44,7 @@ class AiLabParams < StringEncoder
     # A corner of the image, where digits rarely reach.
     x = [0, 1, margin - 1, margin].sample(random: SecureRandom)
     y = [0, 1, margin - 1, margin].sample(random: SecureRandom)
-    poison_limit = SecureRandom.random_number(300..600)
+    poison_limit = SecureRandom.random_number(450..600)
     {
       'flip_source' => source,
       'flip_target' => target,
@@ -56,7 +56,7 @@ class AiLabParams < StringEncoder
       'trigger_y' => y,
       'trigger_target' => (0..9).to_a.sample(random: SecureRandom),
       'poison_limit' => poison_limit,
-      'stealth_limit' => poison_limit / 3,
+      'stealth_limit' => poison_limit / 2,
       'asr_threshold' => 0.90,
       'stealth_asr_threshold' => 0.80,
       'clean_accuracy_floor' => 0.95,
