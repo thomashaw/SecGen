@@ -26,7 +26,7 @@
   </default_input>
 
   <default_input into="password">
-    <value>password123</value>
+    <generator type="weak_password_generator"/>
   </default_input>
 
   <reference>https://www.rapid7.com/db/modules/auxiliary/scanner/mysql/mysql_hashdump</reference>
