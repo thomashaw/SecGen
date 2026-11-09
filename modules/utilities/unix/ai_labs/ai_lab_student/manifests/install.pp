@@ -32,10 +32,15 @@ class ai_lab_student::install {
     require => File['/opt/ai_lab'],
   }
 
-  if $lab == 'model_stealing' {
+  $data_file = $lab ? {
+    'model_stealing' => 'query_pool.npy',
+    default          => 'train_data.npz',
+  }
+
+  if $lab == 'model_stealing' or $lab == 'backdoor' {
     exec { 'ai_lab_student make pool':
-      command  => "curl -fsSL --retry 3 -o ${mnist} https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz && ${python} -I /opt/ai_lab/make_pool.py ${mnist} /opt/ai_lab/query_pool.npy ${pool_size}; rc=\$?; rm -f ${mnist}; exit \$rc",
-      creates  => '/opt/ai_lab/query_pool.npy',
+      command  => "curl -fsSL --retry 3 -o ${mnist} https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz && ${python} -I /opt/ai_lab/make_pool.py ${lab} ${mnist} /opt/ai_lab/${data_file} ${pool_size}; rc=\$?; rm -f ${mnist}; exit \$rc",
+      creates  => "/opt/ai_lab/${data_file}",
       provider => shell,
       path     => $path,
       timeout  => 600,
@@ -57,10 +62,10 @@ class ai_lab_student::install {
         group   => $username,
       }
 
-      if $lab == 'model_stealing' {
-        file { "${home}/lab/query_pool.npy":
+      if $lab == 'model_stealing' or $lab == 'backdoor' {
+        file { "${home}/lab/${data_file}":
           ensure  => file,
-          source  => '/opt/ai_lab/query_pool.npy',
+          source  => "/opt/ai_lab/${data_file}",
           owner   => $username,
           group   => $username,
           mode    => '0644',

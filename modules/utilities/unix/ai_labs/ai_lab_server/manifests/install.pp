@@ -49,10 +49,10 @@ class ai_lab_server::install {
     require => File['/opt/ai_lab/private'],
   }
 
-  # What the API may know, without anything that gives the lab away.
+  # Slow: trains on the CPU at build time, so every build's answers differ.
   exec { 'ai_lab_server train target':
     command   => "${python} -I /opt/ai_lab/code/train.py",
-    creates   => '/opt/ai_lab/model/target.keras',
+    creates   => '/opt/ai_lab/model/public.json',
     path      => ['/usr/bin', '/bin'],
     timeout   => 0,
     logoutput => true,

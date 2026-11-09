@@ -47,21 +47,35 @@ def train_model_stealing(params):
     }
 
 
-TRAINERS = {"model_stealing": train_model_stealing}
+def train_backdoor(params):
+    """No target to attack here: keeps the clean data the evaluator compares
+    a student's submission against, and the hidden test set."""
+    (x_train, y_train), (x_test, y_test) = common.load_mnist()
+    size = params["train_size"]
+    np.save(common.TRAIN_IMAGES, x_train[:size])
+    np.save(common.TRAIN_LABELS, y_train[:size])
+    np.save(common.HIDDEN_IMAGES, x_test)
+    np.save(common.HIDDEN_LABELS, y_test)
+    return None, {"train_size": size}
+
+
+TRAINERS = {"model_stealing": train_model_stealing, "backdoor": train_backdoor}
 
 
 def main():
     params = common.load_params()
     model, public = TRAINERS[params["lab"]](params)
-    tmp = common.MODEL_FILE + ".partial.keras"
-    model.save(tmp)
+    if model is not None:
+        tmp = common.MODEL_FILE + ".partial.keras"
+        model.save(tmp)
+        shutil.chown(tmp, group="ai_lab")
+        os.chmod(tmp, 0o640)
+        os.replace(tmp, common.MODEL_FILE)
+    # Written last: Puppet treats this file as "training finished".
     with open(common.PUBLIC_PARAMS_FILE, "w") as handle:
         json.dump(public, handle)
     shutil.chown(common.PUBLIC_PARAMS_FILE, group="ai_lab")
     os.chmod(common.PUBLIC_PARAMS_FILE, 0o640)
-    shutil.chown(tmp, group="ai_lab")
-    os.chmod(tmp, 0o640)
-    os.replace(tmp, common.MODEL_FILE)
 
 
 if __name__ == "__main__":

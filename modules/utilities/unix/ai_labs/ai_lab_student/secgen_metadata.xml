@@ -6,7 +6,7 @@
   <name>AI lab student workspace</name>
   <author>Thomas Shaw</author>
   <module_license>GPLv3</module_license>
-  <description>Puts an AI security lab's notebook and data in each account's ~/lab, adds a JupyterLab launcher, and installs the script Hackerbot uses to run a student's model as that student. Based on material from the CyBOK-funded Security-of-AI project (Anglia Ruskin University). Contains public sector information licensed under the Open Government Licence v3.0.</description>
+  <description>Puts an AI security lab's notebook and data (pool_size images, or the same number of labelled examples) in each account's ~/lab, adds a JupyterLab launcher, and installs the script Hackerbot uses to run a student's model as that student. Based on material from the CyBOK-funded Security-of-AI project (Anglia Ruskin University). Contains public sector information licensed under the Open Government Licence v3.0.</description>
 
   <type>ai_lab_student</type>
   <platform>linux</platform>

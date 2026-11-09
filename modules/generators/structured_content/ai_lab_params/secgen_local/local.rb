@@ -32,7 +32,36 @@ class AiLabParams < StringEncoder
       'tight_threshold' => 0.87,
       'check_sample' => 1000,
       'pool_size' => 12_000,
-      'gradient_endpoint' => false
+      'gradient_endpoint' => false,
+      'api' => true
+    }
+  end
+
+  def backdoor
+    source, target = (0..9).to_a.sample(2, random: SecureRandom)
+    size = SecureRandom.random_number(3..5)
+    margin = 27 - size
+    # A corner of the image, where digits rarely reach.
+    x = [0, 1, margin - 1, margin].sample(random: SecureRandom)
+    y = [0, 1, margin - 1, margin].sample(random: SecureRandom)
+    poison_limit = SecureRandom.random_number(300..600)
+    {
+      'flip_source' => source,
+      'flip_target' => target,
+      'flip_limit' => SecureRandom.random_number(1500..1700),
+      'flip_threshold' => 0.85,
+      'other_accuracy_floor' => 0.95,
+      'trigger_size' => size,
+      'trigger_x' => x,
+      'trigger_y' => y,
+      'trigger_target' => (0..9).to_a.sample(random: SecureRandom),
+      'poison_limit' => poison_limit,
+      'stealth_limit' => poison_limit / 3,
+      'asr_threshold' => 0.90,
+      'stealth_asr_threshold' => 0.80,
+      'clean_accuracy_floor' => 0.95,
+      'train_size' => 20_000,
+      'api' => false
     }
   end
 

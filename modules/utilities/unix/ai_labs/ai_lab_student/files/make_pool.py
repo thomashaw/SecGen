@@ -1,8 +1,12 @@
-"""Writes the first N MNIST training images, without their labels."""
+"""Writes a lab's dataset: unlabelled images, or a labelled training subset."""
 import sys
 
 import numpy as np
 
-source, destination, size = sys.argv[1], sys.argv[2], int(sys.argv[3])
+lab, source, destination, size = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
 with np.load(source, allow_pickle=False) as data:
-    np.save(destination, data["x_train"][:size], allow_pickle=False)
+    images, labels = data["x_train"][:size], data["y_train"][:size]
+if lab == "model_stealing":
+    np.save(destination, images, allow_pickle=False)
+else:
+    np.savez(destination, x=images, y=labels)
