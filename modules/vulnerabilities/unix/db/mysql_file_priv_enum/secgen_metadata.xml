@@ -29,7 +29,7 @@
 
   <!-- Deliberately weak, overridden from a datastore in a scenario. -->
   <default_input into="password">
-    <value>letmein</value>
+    <generator type="weak_password_generator"/>
   </default_input>
 
   <!-- The database the FILE-privileged account can create a staging table in
