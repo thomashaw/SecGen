@@ -11,6 +11,7 @@ pillow==11.1.0
 opencv-python-headless==4.11.0.86
 flask==3.1.0
 flask-cors==5.0.1
+gunicorn==23.0.0
 requests==2.32.3
 tqdm==4.67.1
 h5py==3.13.0

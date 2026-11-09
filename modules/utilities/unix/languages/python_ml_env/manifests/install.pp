@@ -1,5 +1,7 @@
 # Python venv with the ML stack and JupyterLab, activated in interactive bash shells, plus the Keras MNIST archive.
 class python_ml_env::install {
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $download_mnist = str2bool($secgen_parameters['download_mnist'][0])
   $venv = '/opt/python_ml_env'
   Exec { path => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'] }
 
@@ -40,18 +42,20 @@ class python_ml_env::install {
     require => Exec['python_ml_env pip install'],
   }
 
-  # keras.datasets.mnist.load_data() downloads this on first use; notebook_repo copies it into each account's
-  # ~/.keras/datasets so it works without internet access.
-  file { "${venv}/datasets":
-    ensure  => directory,
-    require => Exec['python_ml_env create venv'],
-  }
+  if $download_mnist {
+    # keras.datasets.mnist.load_data() downloads this on first use; notebook_repo copies it into each account's
+    # ~/.keras/datasets so it works without internet access.
+    file { "${venv}/datasets":
+      ensure  => directory,
+      require => Exec['python_ml_env create venv'],
+    }
 
-  exec { 'python_ml_env download mnist':
-    command => "curl -fsSL --retry 3 -o ${venv}/datasets/mnist.npz.partial https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz && mv ${venv}/datasets/mnist.npz.partial ${venv}/datasets/mnist.npz",
-    creates => "${venv}/datasets/mnist.npz",
-    provider => shell,
-    timeout => 600,
-    require => [File["${venv}/datasets"], Package['curl']],
+    exec { 'python_ml_env download mnist':
+      command => "curl -fsSL --retry 3 -o ${venv}/datasets/mnist.npz.partial https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz && mv ${venv}/datasets/mnist.npz.partial ${venv}/datasets/mnist.npz",
+      creates => "${venv}/datasets/mnist.npz",
+      provider => shell,
+      timeout => 600,
+      require => [File["${venv}/datasets"], Package['curl']],
+    }
   }
 }
