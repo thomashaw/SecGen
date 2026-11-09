@@ -102,7 +102,7 @@ def gradient():
     tensor = tf.convert_to_tensor(common.normalise(images))
     with tf.GradientTape() as tape:
         tape.watch(tensor)
-        loss = tf.keras.losses.sparse_categorical_crossentropy([label], model(tensor, training=False))
+        loss = tf.keras.losses.sparse_categorical_crossentropy(tf.constant([label]), model(tensor, training=False))
     return jsonify({"gradient": tape.gradient(loss, tensor).numpy()[0, ..., 0].tolist()})
 
 
