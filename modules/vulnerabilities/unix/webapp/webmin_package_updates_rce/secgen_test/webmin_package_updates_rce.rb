@@ -99,8 +99,16 @@ class WebminPackageUpdatesRceTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/http/webmin_package_updates_rce
+    # Authenticated RCE over HTTPS on 10000: pass the datastore webmin creds and
+    # SSL so the module can log in before triggering the package-updates injection.
+tier(3) do
+      test_msf_exploit('exploit/linux/http/webmin_package_updates_rce',
+                       rport: self.port,
+                       options: { 'USERNAME' => username, 'PASSWORD' => password, 'SSL' => true },
+                       sentinel_wait: 25,
+                       expect_privilege: 'root_rwx',
+                       tier: 3)
+    end
   end
 end
 
