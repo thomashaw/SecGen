@@ -1,30 +1,43 @@
-# Serves a Basic-Auth-protected directory whose access control is written with
-# <Limit GET POST> rather than <LimitExcept GET POST>. A <Limit> block only
-# covers the verbs it names (and the HEAD that Apache folds into GET), so any
-# other method reaches the resource unauthenticated. apache is declared here
-# (each SecGen module is its own Puppet catalog, so the required apache service
-# module's resources are not visible from this run).
+# Serves a Basic-Auth-protected admin page (admin.php) whose access control is
+# written with <Limit GET POST> rather than <LimitExcept GET POST>. A <Limit>
+# block only covers the verbs it names (and the HEAD that Apache folds into
+# GET), so any other method reaches the resource unauthenticated. Because PHP
+# runs the page whatever the request method is, an arbitrary verb returns the
+# full page without credentials, and - since PHP reads the query string whatever
+# the method - the page's password-reset action can be driven the same way.
+#
+# apache is declared here (each SecGen module is its own Puppet catalog, so the
+# required apache service module's resources are not visible from this run);
+# php + libapache2-mod-php are installed here too, so no php service module
+# (and no mysql) is pulled in.
 class apache_verb_auth_bypass::config {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $strings_to_leak   = $secgen_parameters['strings_to_leak']
-  $leaked_filenames  = $secgen_parameters['leaked_filenames']
   $username          = $secgen_parameters['unix_username'][0]
   $password          = $secgen_parameters['used_password'][0]
+  $reset_user        = $secgen_parameters['reset_target_username'][0]
 
-  $docroot       = '/var/www/html'
-  $protected_dir = "${docroot}/private"
-  $htpasswd      = '/etc/apache2/.htpasswd'
-  $auth_realm    = 'Restricted'
-  $secret_file   = "${protected_dir}/${leaked_filenames[0]}"
+  $docroot     = '/var/www/html'
+  $htpasswd    = '/etc/apache2/.htpasswd'
+  $auth_realm  = 'Admin Area'
+  $admin_page  = "${docroot}/admin.php"
+  $reset_tool  = '/usr/local/bin/panel_reset'
+  $flag        = $strings_to_leak[0]
 
   Exec { path => ['/bin', '/usr/bin', '/sbin', '/usr/sbin'] }
 
-  # trace_enable => 'On' (the module default, set explicitly) is what makes the
-  # bypass observable: TRACE is not in <Limit GET POST>, so it reaches the
-  # resource with a 200 where GET is challenged with a 401.
+  # mod_php needs the prefork MPM; TraceEnable Off so the only verbs that slip
+  # past <Limit GET POST> are ones that actually execute the page (an arbitrary
+  # method), rather than a TRACE that merely echoes the request.
   class { '::apache':
     default_vhost => false,
-    trace_enable  => 'On',
+    mpm_module    => 'prefork',
+    trace_enable  => 'Off',
+  }
+
+  package { ['php', 'libapache2-mod-php']:
+    ensure  => installed,
+    require => Package['httpd'],
   }
 
   # priority 05 keeps this vhost ahead of any default vhost a co-selected apache
@@ -33,24 +46,6 @@ class apache_verb_auth_bypass::config {
     priority => '05',
     port     => 80,
     docroot  => $docroot,
-  }
-
-  file { $protected_dir:
-    ensure  => directory,
-    owner   => 'www-data',
-    group   => 'www-data',
-    mode    => '0755',
-    require => Package['httpd'],
-  }
-
-  # The secret only meant to be reachable with valid Basic Auth credentials.
-  file { $secret_file:
-    ensure  => file,
-    content => $strings_to_leak[0],
-    owner   => 'www-data',
-    group   => 'www-data',
-    mode    => '0644',
-    require => File[$protected_dir],
   }
 
   # htpasswd lives in apache2-utils (an apache2 recommends, not a hard dep).
@@ -75,10 +70,54 @@ class apache_verb_auth_bypass::config {
     require => Exec['verb_auth_bypass-htpasswd'],
   }
 
-  # The misconfigured access control. <Limit GET POST> authenticates only those
-  # verbs; everything else (TRACE, arbitrary methods) is served unchallenged.
+  # A public landing page, so the site is not entirely behind auth - only
+  # admin.php is protected.
+  file { "${docroot}/index.html":
+    ensure  => file,
+    content => template('apache_verb_auth_bypass/index.html.erb'),
+    owner   => 'www-data',
+    group   => 'www-data',
+    mode    => '0644',
+    require => Package['httpd'],
+  }
+
+  # The admin page: shows the first flag, and exposes a query-string-driven
+  # password-reset action scoped to a single account.
+  file { $admin_page:
+    ensure  => file,
+    content => template('apache_verb_auth_bypass/admin.php.erb'),
+    owner   => 'www-data',
+    group   => 'www-data',
+    mode    => '0644',
+    require => [Package['httpd'], Package['php']],
+  }
+
+  # Over-privileged helper the admin panel calls through sudo: it resets exactly
+  # one account's password (baked in at build time, never taken from the
+  # request), so the attacker cannot steer it at root or any other user.
+  file { $reset_tool:
+    ensure  => file,
+    content => template('apache_verb_auth_bypass/panel_reset.erb'),
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0755',
+  }
+
+  # www-data may run the reset helper as root without a password. Restricted to
+  # the exact command, and the helper itself is fixed to one account.
+  file { '/etc/sudoers.d/panel_reset':
+    ensure  => file,
+    content => "www-data ALL=(root) NOPASSWD: ${reset_tool}\n",
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0440',
+    require => File[$reset_tool],
+  }
+
+  # The misconfigured access control: <Limit GET POST> round admin.php
+  # authenticates only those verbs; every other method is served unchallenged.
   apache::custom_config { 'verb_auth_bypass':
     content => template('apache_verb_auth_bypass/verb_auth_bypass.conf.erb'),
-    require => [File[$protected_dir], File[$htpasswd], File[$secret_file]],
+    require => [File[$admin_page], File[$htpasswd]],
   }
 }
