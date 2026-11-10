@@ -44,8 +44,48 @@ class TomcatManagerDefaultCredsTest < PostProvisionTest
                          '200')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: auxiliary/scanner/http/tomcat_mgr_login
+    # Tier 3: the stock MSF auxiliary login scanner proves the weak Manager
+    # credential is remotely usable. It is an auxiliary module (no RCE / shell),
+    # so run_msf_module drives it and we assert on its output rather than using
+    # test_msf_exploit. RHOSTS is set by the helper; we scope the scan to the
+    # single configured user/password (threaded from json_inputs, same values as
+    # tier 2) with STOP_ON_SUCCESS and no blank-password guesses, so a success
+    # line can only mean the module's own credential authenticated.
+    tier(3) do
+      aux = run_msf_module('auxiliary/scanner/http/tomcat_mgr_login',
+                           options: {
+                             'RPORT'           => TOMCAT_PORT,
+                             'USERNAME'        => username,
+                             'PASSWORD'        => password,
+                             'STOP_ON_SUCCESS' => true,
+                             'BLANK_PASSWORDS' => false,
+                           },
+                           label: 'tomcat manager weak-cred login')
+      next unless aux
+
+      msf_output = aux[:msf_output]
+      # tomcat_mgr_login prints: [+] <host> - Login Successful: <user>:<pass>
+      if msf_output =~ /Login Successful:\s*#{Regexp.escape(username)}:/
+        pass_check('tomcat manager weak-cred login',
+                   "tomcat_mgr_login on #{aux[:attacker]} authenticated to " \
+                   "http://#{aux[:rhost]}:#{TOMCAT_PORT}/manager as #{username}.",
+                   tier: 3)
+      elsif msf_output.include?('Login Successful')
+        # Authenticated, but not as the configured user — still proves the
+        # Manager accepts a weak credential, but flag the mismatch for review.
+        pass_check('tomcat manager weak-cred login',
+                   "tomcat_mgr_login on #{aux[:attacker]} reported a successful " \
+                   "login against http://#{aux[:rhost]}:#{TOMCAT_PORT}/manager, " \
+                   "though not clearly as #{username}. See msf_output evidence.",
+                   tier: 3)
+      else
+        fail_check('tomcat manager weak-cred login',
+                   "tomcat_mgr_login did not report 'Login Successful' for " \
+                   "#{username} against http://#{aux[:rhost]}:#{TOMCAT_PORT}/manager. " \
+                   "See msf_output_tomcat_mgr_login evidence for the scanner output.",
+                   tier: 3)
+      end
+    end
   end
 end
 
