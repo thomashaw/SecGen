@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Redis Unauthenticated Replication Module Load RCE</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A Redis instance exposed on the network with no authentication and no bind
+  restriction. An attacker abuses the master-replica replication protocol to make the
+  target replicate a rogue master and load a malicious shared library module, giving
+  unauthenticated remote code execution as the redis service account. The root cause is a
+  configuration weakness (no requirepass, protected mode off, module loading enabled), not
+  a code defect, so there is no CVE.</description>
+
+  <type>redis</type>
+  <privilege>user_rwx</privilege>
+  <access>remote</access>
+  <platform>unix</platform>
+  <difficulty>low</difficulty>
+
+  <read_fact>port</read_fact>
+
+  <default_input into="port">
+    <value>6379</value>
+  </default_input>
+
+  <!--optional vulnerability details-->
+  <cvss_base_score>9.8</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+  <reference>https://www.rapid7.com/db/modules/exploit/linux/redis/redis_replication_cmd_exec</reference>
+  <reference>https://github.com/vulhub/vulhub/tree/master/redis/4-unauthenticated-rce</reference>
+  <software_name>redis</software_name>
+  <software_license>BSD-3-Clause</software_license>
+
+  <!--optional hints-->
+  <msf_module>exploit/linux/redis/redis_replication_cmd_exec</msf_module>
+  <hint>A database with no password, listening to the world.</hint>
+  <solution>Redis accepts commands with no authentication; its replication protocol can be
+  abused to load an attacker-supplied module and run commands.</solution>
+
+  <!--Cannot co-exist with another redis installation-->
+  <conflict>
+    <software_name>redis</software_name>
+  </conflict>
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+
+</vulnerability>
