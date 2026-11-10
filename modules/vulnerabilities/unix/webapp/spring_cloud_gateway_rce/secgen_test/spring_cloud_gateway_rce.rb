@@ -55,10 +55,12 @@ class SpringCloudGatewayRceTest < PostProvisionTest
       test_http('/actuator/gateway/routes', match: nil)
     end
 
-    test_msf_exploit('exploit/linux/http/spring_cloud_gateway_rce',
-                     rport: self.port,
-                     expect_privilege: 'user_rwx',
-                     tier: 3)
+    tier(3) do 
+      test_msf_exploit('exploit/linux/http/spring_cloud_gateway_rce',
+                       rport: self.port,
+                       expect_privilege: 'user_rwx',
+                       tier: 3)
+    end
   end
 end
 
