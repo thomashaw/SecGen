@@ -13,6 +13,14 @@
 
   <software_license>GPLv3</software_license>
 
+  <!-- true: replace the Debugger tool's default layout (Debian's Ghidra 11.1.2 only) with the one in
+       files/debugger_layout, which the dynamic debugging lab sheet is written against -->
+  <read_fact>debugger_layout</read_fact>
+
+  <default_input into="debugger_layout">
+    <value>false</value>
+  </default_input>
+
   <conflict>
     <name>.*Debian.*Wheezy.*</name>
   </conflict>

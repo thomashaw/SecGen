@@ -3,6 +3,9 @@ class ghidra::install{
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
   ensure_packages('zip')
 
+  $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
+  $debugger_layout = $secgen_parameters['debugger_layout'][0] == 'true'
+
   if $operatingsystem == 'Kali' {
     # Kali: download the current upstream release at build time (Kali's own ghidra package, 12.1.3+ds, crashes in
     # JavaHelp with "view is invalid"). Ghidra 12.x needs a JDK 21+; pin JDK 21, as kali-rolling defaults to newer.
@@ -105,6 +108,28 @@ class ghidra::install{
       mode   => '0644',
       owner => 'root',
       group => 'root',
+    }
+
+    # The lab's Debugger layout: Ghidra copies defaultTools/Debugger.tool from Debugger.jar into each user's
+    # tool chest on first launch, so replacing it there gives every account the layout, and Tools > Import
+    # Default Tools restores it. files/debugger_layout/make_layout.py generates the tool from the stock one.
+    if $debugger_layout {
+      $debugger_jar = '/opt/ghidra/Ghidra/Debug/Debugger/lib/Debugger.jar'
+      $layout_dir = '/opt/ghidra-debugger-layout'
+      file { [$layout_dir, "${layout_dir}/defaultTools"]:
+        ensure => directory,
+        mode   => '0755',
+      } ->
+      file { "${layout_dir}/defaultTools/Debugger.tool":
+        source => 'puppet:///modules/ghidra/debugger_layout/Debugger.tool',
+        mode   => '0644',
+      } ->
+      exec { 'ghidra debugger lab layout':
+        command => "zip -q ${debugger_jar} defaultTools/Debugger.tool",
+        cwd     => $layout_dir,
+        unless  => "python3 -c \"import sys, zipfile; sys.exit(zipfile.ZipFile('${debugger_jar}').read('defaultTools/Debugger.tool') != open('${layout_dir}/defaultTools/Debugger.tool', 'rb').read())\"",
+        require => [File['/opt/ghidra'], Package['zip']],
+      }
     }
   }
 
