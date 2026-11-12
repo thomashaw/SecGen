@@ -30,66 +30,58 @@
             <STATE NAME="showSectionsTable" TYPE="boolean" VALUE="false" />
         </PLUGIN_STATE>
         <ROOT_NODE X_POS="0" Y_POS="0" WIDTH="1470" HEIGHT="828" EX_STATE="6" FOCUSED_OWNER="CodeBrowserPlugin" FOCUSED_NAME="Listing" FOCUSED_TITLE="Listing: ">
-            <SPLIT_NODE WIDTH="1470" HEIGHT="700" DIVIDER_LOCATION="620" ORIENTATION="VERTICAL">
-                <SPLIT_NODE WIDTH="1470" HEIGHT="434" DIVIDER_LOCATION="205" ORIENTATION="HORIZONTAL">
-                    <SPLIT_NODE WIDTH="301" HEIGHT="434" DIVIDER_LOCATION="450" ORIENTATION="VERTICAL">
-                        <COMPONENT_NODE TOP_INFO="0">
-                            <COMPONENT_INFO NAME="Registers" OWNER="DebuggerRegistersPlugin" TITLE="Registers" ACTIVE="true" GROUP="Debugger.Core" INSTANCE_ID="3592304145116733725" />
-                        </COMPONENT_NODE>
-                        <COMPONENT_NODE TOP_INFO="0">
-                            <COMPONENT_INFO NAME="Breakpoints" OWNER="DebuggerBreakpointsPlugin" TITLE="Breakpoints" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304145116733722" />
-                            <COMPONENT_INFO NAME="Stack" OWNER="DebuggerStackPlugin" TITLE="Stack" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304144451936540" />
-                            <COMPONENT_INFO NAME="Debug Console" OWNER="DebuggerConsolePlugin" TITLE="Debug Console" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304144451936542" />
-                            <COMPONENT_INFO NAME="Connections" OWNER="TraceRmiConnectionManagerPlugin" TITLE="Connections" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987724" />
-                            <COMPONENT_INFO NAME="Model" OWNER="DebuggerModelPlugin" TITLE="Model" ACTIVE="false" GROUP="Debugger.Core" INSTANCE_ID="3592304145116733721" />
-                            <COMPONENT_INFO NAME="Program Tree" OWNER="ProgramTreePlugin" TITLE="Program Trees" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987730" />
-                            <COMPONENT_INFO NAME="Bytes" OWNER="ByteViewerPlugin" TITLE="Bytes: No Program" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987733" />
-                            <COMPONENT_INFO NAME="Data Window" OWNER="DataWindowPlugin" TITLE="Defined Data" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733716" />
-                            <COMPONENT_INFO NAME="Defined Strings" OWNER="ViewStringsPlugin" TITLE="Defined Strings" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733724" />
-                            <COMPONENT_INFO NAME="Equates Table" OWNER="EquateTablePlugin" TITLE="Equates Table" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987736" />
-                            <COMPONENT_INFO NAME="External Programs" OWNER="ReferencesPlugin" TITLE="External Programs" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987739" />
-                            <COMPONENT_INFO NAME="Functions Window" OWNER="FunctionWindowPlugin" TITLE="Functions" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987742" />
-                            <COMPONENT_INFO NAME="Relocation Table" OWNER="RelocationTablePlugin" TITLE="Relocation Table" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733723" />
-                            <COMPONENT_INFO NAME="Modules" OWNER="DebuggerModulesPlugin" TITLE="Modules" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733703" />
-                            <COMPONENT_INFO NAME="Script Manager" OWNER="GhidraScriptMgrPlugin" TITLE="Script Manager" ACTIVE="false" GROUP="Script Group" INSTANCE_ID="3592304123427987727" />
-                            <COMPONENT_INFO NAME="Listing" OWNER="DebuggerListingPlugin" TITLE="[Dynamic]" ACTIVE="false" GROUP="Core" INSTANCE_ID="3562758574866164514" />
-                            <COMPONENT_INFO NAME="Data Type Preview" OWNER="DataTypePreviewPlugin" TITLE="Data Type Preview" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304144451936539" />
-                            <COMPONENT_INFO NAME="Virtual Disassembler - Current Instruction" OWNER="DisassembledViewPlugin" TITLE="Disassembled View" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987735" />
-                            <COMPONENT_INFO NAME="Bookmarks" OWNER="BookmarkPlugin" TITLE="Bookmarks" ACTIVE="false" GROUP="Core.Bookmarks" INSTANCE_ID="3592304123427987729" />
-                            <COMPONENT_INFO NAME="Function Call Trees" OWNER="CallTreePlugin" TITLE="Function Call Trees" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987726" />
-                            <COMPONENT_INFO NAME="Regions" OWNER="DebuggerRegionsPlugin" TITLE="Regions" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733719" />
-                            <COMPONENT_INFO NAME="Console" OWNER="ConsolePlugin" TITLE="Console" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987732" />
-                            <COMPONENT_INFO NAME="Watches" OWNER="DebuggerWatchesPlugin" TITLE="Watches" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987723" />
-                            <COMPONENT_INFO NAME="Symbol Tree" OWNER="SymbolTreePlugin" TITLE="Symbol Tree" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987725" />
-                            <COMPONENT_INFO NAME="DataTypes Provider" OWNER="DataTypeManagerPlugin" TITLE="Data Type Manager" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733699" />
-                            <COMPONENT_INFO NAME="Time" OWNER="DebuggerTimePlugin" TITLE="Time" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733713" />
-                            <COMPONENT_INFO NAME="Pcode Stepper" OWNER="DebuggerPcodeStepperPlugin" TITLE="Pcode Stepper" ACTIVE="false" GROUP="Default" INSTANCE_ID="3562427531381347481" />
-                            <COMPONENT_INFO NAME="Static Mappings" OWNER="DebuggerStaticMappingPlugin" TITLE="Static Mappings" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733720" />
-                            <COMPONENT_INFO NAME="Instruction Info" OWNER="ShowInstructionInfoPlugin" TITLE="Instruction Info" ACTIVE="false" GROUP="Default" INSTANCE_ID="3565288898725030387" />
-                            <COMPONENT_INFO NAME="Threads" OWNER="DebuggerThreadsPlugin" TITLE="Threads" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733701" />
-                            <COMPONENT_INFO NAME="Diff Location Details" OWNER="ProgramDiffPlugin" TITLE="Diff Details" ACTIVE="false" GROUP="Default" INSTANCE_ID="3446095744544693813" />
-                            <COMPONENT_INFO NAME="Diff Apply Settings" OWNER="ProgramDiffPlugin" TITLE="Diff Apply Settings" ACTIVE="false" GROUP="Default" INSTANCE_ID="3446095765262458400" />
-                        </COMPONENT_NODE>
-                    </SPLIT_NODE>
-                    <SPLIT_NODE WIDTH="1169" HEIGHT="434" DIVIDER_LOCATION="330" ORIENTATION="HORIZONTAL">
+            <SPLIT_NODE WIDTH="1470" HEIGHT="700" DIVIDER_LOCATION="660" ORIENTATION="VERTICAL">
+                <SPLIT_NODE WIDTH="1470" HEIGHT="462" DIVIDER_LOCATION="240" ORIENTATION="HORIZONTAL">
+                    <COMPONENT_NODE TOP_INFO="0">
+                        <COMPONENT_INFO NAME="Registers" OWNER="DebuggerRegistersPlugin" TITLE="Registers" ACTIVE="true" GROUP="Debugger.Core" INSTANCE_ID="3592304145116733725" />
+                        <COMPONENT_INFO NAME="Breakpoints" OWNER="DebuggerBreakpointsPlugin" TITLE="Breakpoints" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304145116733722" />
+                        <COMPONENT_INFO NAME="Debug Console" OWNER="DebuggerConsolePlugin" TITLE="Debug Console" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304144451936542" />
+                        <COMPONENT_INFO NAME="Connections" OWNER="TraceRmiConnectionManagerPlugin" TITLE="Connections" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987724" />
+                        <COMPONENT_INFO NAME="Model" OWNER="DebuggerModelPlugin" TITLE="Model" ACTIVE="false" GROUP="Debugger.Core" INSTANCE_ID="3592304145116733721" />
+                        <COMPONENT_INFO NAME="Program Tree" OWNER="ProgramTreePlugin" TITLE="Program Trees" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987730" />
+                        <COMPONENT_INFO NAME="Bytes" OWNER="ByteViewerPlugin" TITLE="Bytes: No Program" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987733" />
+                        <COMPONENT_INFO NAME="Data Window" OWNER="DataWindowPlugin" TITLE="Defined Data" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733716" />
+                        <COMPONENT_INFO NAME="Defined Strings" OWNER="ViewStringsPlugin" TITLE="Defined Strings" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733724" />
+                        <COMPONENT_INFO NAME="Equates Table" OWNER="EquateTablePlugin" TITLE="Equates Table" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987736" />
+                        <COMPONENT_INFO NAME="External Programs" OWNER="ReferencesPlugin" TITLE="External Programs" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987739" />
+                        <COMPONENT_INFO NAME="Functions Window" OWNER="FunctionWindowPlugin" TITLE="Functions" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987742" />
+                        <COMPONENT_INFO NAME="Relocation Table" OWNER="RelocationTablePlugin" TITLE="Relocation Table" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733723" />
+                        <COMPONENT_INFO NAME="Modules" OWNER="DebuggerModulesPlugin" TITLE="Modules" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733703" />
+                        <COMPONENT_INFO NAME="Script Manager" OWNER="GhidraScriptMgrPlugin" TITLE="Script Manager" ACTIVE="false" GROUP="Script Group" INSTANCE_ID="3592304123427987727" />
+                        <COMPONENT_INFO NAME="Listing" OWNER="DebuggerListingPlugin" TITLE="[Dynamic]" ACTIVE="false" GROUP="Core" INSTANCE_ID="3562758574866164514" />
+                        <COMPONENT_INFO NAME="Data Type Preview" OWNER="DataTypePreviewPlugin" TITLE="Data Type Preview" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304144451936539" />
+                        <COMPONENT_INFO NAME="Virtual Disassembler - Current Instruction" OWNER="DisassembledViewPlugin" TITLE="Disassembled View" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987735" />
+                        <COMPONENT_INFO NAME="Bookmarks" OWNER="BookmarkPlugin" TITLE="Bookmarks" ACTIVE="false" GROUP="Core.Bookmarks" INSTANCE_ID="3592304123427987729" />
+                        <COMPONENT_INFO NAME="Function Call Trees" OWNER="CallTreePlugin" TITLE="Function Call Trees" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987726" />
+                        <COMPONENT_INFO NAME="Regions" OWNER="DebuggerRegionsPlugin" TITLE="Regions" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733719" />
+                        <COMPONENT_INFO NAME="Console" OWNER="ConsolePlugin" TITLE="Console" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987732" />
+                        <COMPONENT_INFO NAME="Watches" OWNER="DebuggerWatchesPlugin" TITLE="Watches" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987723" />
+                        <COMPONENT_INFO NAME="Symbol Tree" OWNER="SymbolTreePlugin" TITLE="Symbol Tree" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987725" />
+                        <COMPONENT_INFO NAME="DataTypes Provider" OWNER="DataTypeManagerPlugin" TITLE="Data Type Manager" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733699" />
+                        <COMPONENT_INFO NAME="Time" OWNER="DebuggerTimePlugin" TITLE="Time" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733713" />
+                        <COMPONENT_INFO NAME="Pcode Stepper" OWNER="DebuggerPcodeStepperPlugin" TITLE="Pcode Stepper" ACTIVE="false" GROUP="Default" INSTANCE_ID="3562427531381347481" />
+                        <COMPONENT_INFO NAME="Static Mappings" OWNER="DebuggerStaticMappingPlugin" TITLE="Static Mappings" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733720" />
+                        <COMPONENT_INFO NAME="Instruction Info" OWNER="ShowInstructionInfoPlugin" TITLE="Instruction Info" ACTIVE="false" GROUP="Default" INSTANCE_ID="3565288898725030387" />
+                        <COMPONENT_INFO NAME="Threads" OWNER="DebuggerThreadsPlugin" TITLE="Threads" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733701" />
+                        <COMPONENT_INFO NAME="Diff Location Details" OWNER="ProgramDiffPlugin" TITLE="Diff Details" ACTIVE="false" GROUP="Default" INSTANCE_ID="3446095744544693813" />
+                        <COMPONENT_INFO NAME="Diff Apply Settings" OWNER="ProgramDiffPlugin" TITLE="Diff Apply Settings" ACTIVE="false" GROUP="Default" INSTANCE_ID="3446095765262458400" />
+                    </COMPONENT_NODE>
+                    <SPLIT_NODE WIDTH="1118" HEIGHT="462" DIVIDER_LOCATION="480" ORIENTATION="HORIZONTAL">
                         <COMPONENT_NODE TOP_INFO="0">
                             <COMPONENT_INFO NAME="Listing" OWNER="DebuggerListingPlugin" TITLE="Dynamic" ACTIVE="true" GROUP="Core" INSTANCE_ID="3592304123427987740" />
                         </COMPONENT_NODE>
-                        <SPLIT_NODE WIDTH="779" HEIGHT="434" DIVIDER_LOCATION="510" ORIENTATION="HORIZONTAL">
-                            <COMPONENT_NODE TOP_INFO="0">
-                                <COMPONENT_INFO NAME="Listing" OWNER="CodeBrowserPlugin" TITLE="Listing: " ACTIVE="true" GROUP="Core" INSTANCE_ID="3592304123427987738" />
-                            </COMPONENT_NODE>
-                            <COMPONENT_NODE TOP_INFO="0">
-                                <COMPONENT_INFO NAME="Decompiler" OWNER="DecompilePlugin" TITLE="Decompile" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304123427987731" />
-                            </COMPONENT_NODE>
-                        </SPLIT_NODE>
+                        <COMPONENT_NODE TOP_INFO="0">
+                            <COMPONENT_INFO NAME="Listing" OWNER="CodeBrowserPlugin" TITLE="Listing: " ACTIVE="true" GROUP="Core" INSTANCE_ID="3592304123427987738" />
+                            <COMPONENT_INFO NAME="Decompiler" OWNER="DecompilePlugin" TITLE="Decompile" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304123427987731" />
+                        </COMPONENT_NODE>
                     </SPLIT_NODE>
                 </SPLIT_NODE>
-                <SPLIT_NODE WIDTH="1470" HEIGHT="266" DIVIDER_LOCATION="560" ORIENTATION="HORIZONTAL">
+                <SPLIT_NODE WIDTH="1470" HEIGHT="238" DIVIDER_LOCATION="560" ORIENTATION="HORIZONTAL">
                     <COMPONENT_NODE TOP_INFO="0">
                         <COMPONENT_INFO NAME="Terminal" OWNER="TerminalPlugin" TITLE="Terminal" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592298490728135873" />
                     </COMPONENT_NODE>
                     <COMPONENT_NODE TOP_INFO="0">
+                        <COMPONENT_INFO NAME="Stack" OWNER="DebuggerStackPlugin" TITLE="Stack" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304144451936540" />
                         <COMPONENT_INFO NAME="Memory" OWNER="DebuggerMemoryBytesPlugin" TITLE="Memory" ACTIVE="true" GROUP="disconnected" INSTANCE_ID="3592304123427987713" />
                     </COMPONENT_NODE>
                 </SPLIT_NODE>

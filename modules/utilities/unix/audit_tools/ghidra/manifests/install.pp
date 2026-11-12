@@ -5,6 +5,7 @@ class ghidra::install{
 
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $debugger_layout = $secgen_parameters['debugger_layout'][0] == 'true'
+  $font_size = $secgen_parameters['font_size'][0]
 
   if $operatingsystem == 'Kali' {
     # Kali: download the current upstream release at build time (Kali's own ghidra package, 12.1.3+ds, crashes in
@@ -129,6 +130,23 @@ class ghidra::install{
         cwd     => $layout_dir,
         unless  => "python3 -c \"import sys, zipfile; sys.exit(zipfile.ZipFile('${debugger_jar}').read('defaultTools/Debugger.tool') != open('${layout_dir}/defaultTools/Debugger.tool', 'rb').read())\"",
         require => [File['/opt/ghidra'], Package['zip']],
+      }
+    }
+
+    # Font size: font.size.override sets the interface fonts and font.monospaced the listings and decompiler,
+    # so together they match Ghidra's own Ctrl+- / Ctrl+= adjustment, but for every user and every session.
+    if $font_size and $font_size != '' {
+      file_line { 'ghidra interface font size':
+        path    => '/opt/ghidra/support/launch.properties',
+        match   => '^VMARGS=-Dfont.size.override=',
+        line    => "VMARGS=-Dfont.size.override=${font_size}",
+        require => File['/opt/ghidra'],
+      }
+      file_line { 'ghidra code font size':
+        path    => '/opt/ghidra/Ghidra/Framework/Gui/data/gui.theme.properties',
+        match   => '^font.monospaced = ',
+        line    => "font.monospaced = monospaced-plain-${font_size}",
+        require => File['/opt/ghidra'],
       }
     }
   }

@@ -6,19 +6,18 @@ Usage: make_layout.py STOCK_Debugger.tool OUT.tool
 STOCK_Debugger.tool is defaultTools/Debugger.tool from Ghidra/Debug/Debugger/lib/Debugger.jar
 in the release under files/release (unzip -p ... defaultTools/Debugger.tool).
 
-Layout (DIVIDER_LOCATION is the first child's share of the split, x1000):
+Layout (DIVIDER_LOCATION is the first child's share of the split, x1000;
+tabs listed in order, the first one showing):
 
-  +------------+--------------+--------------+--------------+
-  | Registers  | Dynamic      | Listing      | Decompiler   |
-  +------------+ Listing      | (static)     |              |
-  | Breakpoints|              |              |              |
-  | (Stack,    |              |              |              |
-  | Debug Con.)|              |              |              |
-  +------------+--------------+-+------------+--------------+
-  | Terminal                    | Memory                    |
-  +-----------------------------+---------------------------+
+  +----------------+------------------------+-----------------------+
+  | Registers      | Dynamic Listing        | Listing (static)      |
+  | [Breakpoints,  |                        | [Decompile]           |
+  |  Debug Console]|                        |                       |
+  +----------------+------------------+-----+-----------------------+
+  | Terminal                          | Stack [Memory]              |
+  +-----------------------------------+-----------------------------+
 
-Every other pane is kept, closed, as a tab behind Breakpoints, so the
+Every other pane is kept, closed, as a tab behind Debug Console, so the
 Window menu can reopen it.  Floating windows are left as they are.
 """
 import sys
@@ -124,20 +123,18 @@ def main(src, dst):
     for ci in rest:
         ci.set('ACTIVE', 'false')
 
-    top_h = int(CONTENT_H * 0.62)
-    left_w = int(SCREEN_W * 0.205)
-    centre_w = SCREEN_W - left_w
+    # Proportions taken from a layout arranged by hand in Ghidra on the lab VM
+    top_h = int(CONTENT_H * 0.66)
+    left_w = int(SCREEN_W * 0.24)
+    right_w = SCREEN_W - left_w
 
-    left = split('VERTICAL', 450, left_w, top_h,
-                 stack([picked['registers']]),
-                 stack([picked['breakpoints'], picked['stack'], picked['console']] + rest, top=0))
-    code = split('HORIZONTAL', 510, centre_w * 2 // 3, top_h,
-                 stack([picked['listing']]), stack([picked['decompiler']]))
-    centre = split('HORIZONTAL', 330, centre_w, top_h, stack([picked['dynamic']]), code)
-    top_row = split('HORIZONTAL', 205, SCREEN_W, top_h, left, centre)
+    left = stack([picked['registers'], picked['breakpoints'], picked['console']] + rest, top=0)
+    code = stack([picked['listing'], picked['decompiler']], top=0)
+    centre = split('HORIZONTAL', 480, right_w, top_h, stack([picked['dynamic']]), code)
+    top_row = split('HORIZONTAL', 240, SCREEN_W, top_h, left, centre)
     bottom_row = split('HORIZONTAL', 560, SCREEN_W, CONTENT_H - top_h,
-                       stack([picked['terminal']]), stack([picked['memory']]))
-    new_main = split('VERTICAL', 620, SCREEN_W, CONTENT_H, top_row, bottom_row)
+                       stack([picked['terminal']]), stack([picked['stack'], picked['memory']], top=0))
+    new_main = split('VERTICAL', 660, SCREEN_W, CONTENT_H, top_row, bottom_row)
 
     for c in list(rn):
         rn.remove(c)
@@ -156,7 +153,7 @@ def main(src, dst):
     indent(root_cfg)
     tree.write(dst, encoding='UTF-8', xml_declaration=True)
     shown = sorted(n for n in picked if n != 'terminal')
-    print(f'wrote {dst}: shown {shown}; terminal placed; {len(rest)} panes closed behind Breakpoints')
+    print(f'wrote {dst}: shown {shown}; terminal placed; {len(rest)} panes closed behind Debug Console')
 
 
 if __name__ == '__main__':
