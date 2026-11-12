@@ -63,7 +63,9 @@
       <input into="accounts">
         <value>{"username":"kali","password":"kali","super_user":"true","strings_to_leak":[],"leaked_filenames":[]}</value>
       </input>
-      <input into="autostart"><value>false</value></input>
+      <input into="autostart">
+          <value>false</value>
+      </input>
     </utility>
 
     <utility module_path=".*/kali_top10"/>
@@ -75,7 +77,9 @@
       <generator type="strong_password_generator"/>
     </input>
     <build type="cleanup">
-      <input into="root_password"><datastore>spoiler_admin_pass</datastore></input>
+      <input into="root_password">
+          <datastore>spoiler_admin_pass</datastore>
+      </input>
     </build>
   </system>
 
@@ -92,10 +96,18 @@
          shell, but outside the Tomcat web root, so a GET will not reach it.
          hidden_file writes <storage_directory>/<challenge_name>/. -->
     <vulnerability module_path=".*/hidden_file">
-      <input into="storage_directory"><value>/opt</value></input>
-      <input into="challenge_name"><value>catalina</value></input>
-      <input into="leaked_filenames"><value>flag.txt</value></input>
-      <input into="strings_to_leak"><generator type="flag_generator"/></input>
+      <input into="storage_directory">
+          <value>/opt</value>
+      </input>
+      <input into="challenge_name">
+          <value>catalina</value>
+      </input>
+      <input into="leaked_filenames">
+          <value>flag.txt</value>
+      </input>
+      <input into="strings_to_leak">
+          <generator type="flag_generator"/>
+      </input>
     </vulnerability>
 
     <network type="private_network"/>
