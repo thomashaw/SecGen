@@ -83,8 +83,12 @@
     <!-- foothold + flag: unauthenticated config write in the CMS admin plugin
          leads to code execution as www-data; flag lands in /var/www -->
     <vulnerability module_path=".*/gravcms_exec">
-      <input into="leaked_filenames"><value>flag.txt</value></input>
-      <input into="strings_to_leak"><generator type="flag_generator"/></input>
+      <input into="leaked_filenames">
+          <value>flag.txt</value>
+      </input>
+      <input into="strings_to_leak">
+          <generator type="flag_generator"/>
+      </input>
     </vulnerability>
 
     <network type="private_network"/>
