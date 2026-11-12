@@ -85,8 +85,12 @@
          console; flag lands in /var/www (the web account's home), readable once
          you have a shell as www-data -->
     <vulnerability module_path=".*/roxy_wi">
-      <input into="leaked_filenames"><value>flag.txt</value></input>
-      <input into="strings_to_leak"><generator type="flag_generator"/></input>
+      <input into="leaked_filenames">
+          <value>flag.txt</value>
+      </input>
+      <input into="strings_to_leak">
+          <generator type="flag_generator"/>
+      </input>
     </vulnerability>
 
     <network type="private_network"/>
