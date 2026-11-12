@@ -12,12 +12,12 @@ tabs listed in order, the first one showing):
   +----------------+------------------------+-----------------------+
   | Registers      | Dynamic Listing        | Listing (static)      |
   | [Breakpoints,  |                        | [Decompile]           |
-  |  Debug Console]|                        |                       |
+  |  Symbol Tree]  |                        |                       |
   +----------------+------------------+-----+-----------------------+
   | Terminal                          | Stack [Memory]              |
   +-----------------------------------+-----------------------------+
 
-Every other pane is kept, closed, as a tab behind Debug Console, so the
+Every other pane, including the Debug Console, is kept, closed, as a tab behind Symbol Tree, so the
 Window menu can reopen it.  Floating windows are left as they are.
 """
 import sys
@@ -31,7 +31,7 @@ VISIBLE = {
     'registers':   ('DebuggerRegistersPlugin', 'Registers', None),
     'breakpoints': ('DebuggerBreakpointsPlugin', 'Breakpoints', None),
     'stack':       ('DebuggerStackPlugin', 'Stack', None),
-    'console':     ('DebuggerConsolePlugin', 'Debug Console', None),
+    'symbols':     ('SymbolTreePlugin', 'Symbol Tree', None),
     'dynamic':     ('DebuggerListingPlugin', 'Listing', 'Dynamic'),
     'listing':     ('CodeBrowserPlugin', 'Listing', None),
     'decompiler':  ('DecompilePlugin', 'Decompiler', None),
@@ -128,7 +128,7 @@ def main(src, dst):
     left_w = int(SCREEN_W * 0.24)
     right_w = SCREEN_W - left_w
 
-    left = stack([picked['registers'], picked['breakpoints'], picked['console']] + rest, top=0)
+    left = stack([picked['registers'], picked['breakpoints'], picked['symbols']] + rest, top=0)
     code = stack([picked['listing'], picked['decompiler']], top=0)
     centre = split('HORIZONTAL', 480, right_w, top_h, stack([picked['dynamic']]), code)
     top_row = split('HORIZONTAL', 240, SCREEN_W, top_h, left, centre)
@@ -153,7 +153,7 @@ def main(src, dst):
     indent(root_cfg)
     tree.write(dst, encoding='UTF-8', xml_declaration=True)
     shown = sorted(n for n in picked if n != 'terminal')
-    print(f'wrote {dst}: shown {shown}; terminal placed; {len(rest)} panes closed behind Debug Console')
+    print(f'wrote {dst}: shown {shown}; terminal placed; {len(rest)} panes closed behind Symbol Tree')
 
 
 if __name__ == '__main__':

@@ -35,8 +35,9 @@
                     <COMPONENT_NODE TOP_INFO="0">
                         <COMPONENT_INFO NAME="Registers" OWNER="DebuggerRegistersPlugin" TITLE="Registers" ACTIVE="true" GROUP="Debugger.Core" INSTANCE_ID="3592304145116733725" />
                         <COMPONENT_INFO NAME="Breakpoints" OWNER="DebuggerBreakpointsPlugin" TITLE="Breakpoints" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304145116733722" />
-                        <COMPONENT_INFO NAME="Debug Console" OWNER="DebuggerConsolePlugin" TITLE="Debug Console" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304144451936542" />
+                        <COMPONENT_INFO NAME="Symbol Tree" OWNER="SymbolTreePlugin" TITLE="Symbol Tree" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304123427987725" />
                         <COMPONENT_INFO NAME="Connections" OWNER="TraceRmiConnectionManagerPlugin" TITLE="Connections" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987724" />
+                        <COMPONENT_INFO NAME="Debug Console" OWNER="DebuggerConsolePlugin" TITLE="Debug Console" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304144451936542" />
                         <COMPONENT_INFO NAME="Model" OWNER="DebuggerModelPlugin" TITLE="Model" ACTIVE="false" GROUP="Debugger.Core" INSTANCE_ID="3592304145116733721" />
                         <COMPONENT_INFO NAME="Program Tree" OWNER="ProgramTreePlugin" TITLE="Program Trees" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987730" />
                         <COMPONENT_INFO NAME="Bytes" OWNER="ByteViewerPlugin" TITLE="Bytes: No Program" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987733" />
@@ -56,7 +57,6 @@
                         <COMPONENT_INFO NAME="Regions" OWNER="DebuggerRegionsPlugin" TITLE="Regions" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733719" />
                         <COMPONENT_INFO NAME="Console" OWNER="ConsolePlugin" TITLE="Console" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987732" />
                         <COMPONENT_INFO NAME="Watches" OWNER="DebuggerWatchesPlugin" TITLE="Watches" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987723" />
-                        <COMPONENT_INFO NAME="Symbol Tree" OWNER="SymbolTreePlugin" TITLE="Symbol Tree" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304123427987725" />
                         <COMPONENT_INFO NAME="DataTypes Provider" OWNER="DataTypeManagerPlugin" TITLE="Data Type Manager" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733699" />
                         <COMPONENT_INFO NAME="Time" OWNER="DebuggerTimePlugin" TITLE="Time" ACTIVE="false" GROUP="Default" INSTANCE_ID="3592304145116733713" />
                         <COMPONENT_INFO NAME="Pcode Stepper" OWNER="DebuggerPcodeStepperPlugin" TITLE="Pcode Stepper" ACTIVE="false" GROUP="Default" INSTANCE_ID="3562427531381347481" />
