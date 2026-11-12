@@ -10,8 +10,8 @@ Layout (DIVIDER_LOCATION is the first child's share of the split, x1000;
 tabs listed in order, the first one showing):
 
   +----------------+------------------------+-----------------------+
-  | Registers      | Dynamic Listing        | Listing (static)      |
-  | [Breakpoints,  |                        | [Decompile]           |
+  | Registers      | Listing (static)       | Decompile             |
+  | [Breakpoints,  | [Dynamic Listing]      |                       |
   |  Symbol Tree]  |                        |                       |
   +----------------+------------------+-----+-----------------------+
   | Terminal                          | Stack [Memory]              |
@@ -129,8 +129,8 @@ def main(src, dst):
     right_w = SCREEN_W - left_w
 
     left = stack([picked['registers'], picked['breakpoints'], picked['symbols']] + rest, top=0)
-    code = stack([picked['listing'], picked['decompiler']], top=0)
-    centre = split('HORIZONTAL', 480, right_w, top_h, stack([picked['dynamic']]), code)
+    code = stack([picked['listing'], picked['dynamic']], top=0)
+    centre = split('HORIZONTAL', 480, right_w, top_h, code, stack([picked['decompiler']]))
     top_row = split('HORIZONTAL', 240, SCREEN_W, top_h, left, centre)
     bottom_row = split('HORIZONTAL', 560, SCREEN_W, CONTENT_H - top_h,
                        stack([picked['terminal']]), stack([picked['stack'], picked['memory']], top=0))

@@ -68,10 +68,10 @@
                     </COMPONENT_NODE>
                     <SPLIT_NODE WIDTH="1118" HEIGHT="462" DIVIDER_LOCATION="480" ORIENTATION="HORIZONTAL">
                         <COMPONENT_NODE TOP_INFO="0">
+                            <COMPONENT_INFO NAME="Listing" OWNER="CodeBrowserPlugin" TITLE="Listing: " ACTIVE="true" GROUP="Core" INSTANCE_ID="3592304123427987738" />
                             <COMPONENT_INFO NAME="Listing" OWNER="DebuggerListingPlugin" TITLE="Dynamic" ACTIVE="true" GROUP="Core" INSTANCE_ID="3592304123427987740" />
                         </COMPONENT_NODE>
                         <COMPONENT_NODE TOP_INFO="0">
-                            <COMPONENT_INFO NAME="Listing" OWNER="CodeBrowserPlugin" TITLE="Listing: " ACTIVE="true" GROUP="Core" INSTANCE_ID="3592304123427987738" />
                             <COMPONENT_INFO NAME="Decompiler" OWNER="DecompilePlugin" TITLE="Decompile" ACTIVE="true" GROUP="Default" INSTANCE_ID="3592304123427987731" />
                         </COMPONENT_NODE>
                     </SPLIT_NODE>
