@@ -84,8 +84,12 @@
     <!-- foothold + flag: unauthenticated YARN ResourceManager job submission
          runs commands as the hadoop user; flag lands in /home/hadoop -->
     <vulnerability module_path=".*/hadoop_yarn_rce">
-      <input into="leaked_filenames"><value>flag.txt</value></input>
-      <input into="strings_to_leak"><generator type="flag_generator"/></input>
+      <input into="leaked_filenames">
+          <value>flag.txt</value>
+      </input>
+      <input into="strings_to_leak">
+          <generator type="flag_generator"/>
+      </input>
     </vulnerability>
 
     <network type="private_network"/>
