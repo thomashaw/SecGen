@@ -7,9 +7,8 @@
   <name>Spring Forward</name>
   <author>Tom Shaw</author>
   <description>
-    A Java web application is deployed on an application server, and both are
-    pinned at versions that predate the fix for a well-known data-binding flaw.
-    The app happily copies values from your request onto its internal objects,
+    A Java web application is deployed on an application server with a well-known data-binding 
+    flaw. The app happily copies values from your request onto its internal objects,
     and some of those objects reach parts of the server they should never
     touch. Walk that path to plant a web shell and run commands as the
     application server account. The single flag sits where that account can
