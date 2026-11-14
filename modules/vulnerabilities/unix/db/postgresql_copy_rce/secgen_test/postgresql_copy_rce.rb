@@ -54,7 +54,7 @@ class PostgresqlCopyRceTest < PostProvisionTest
     # service listens on 5432 (hardcoded like the mysql vuln tests use 3306). The
     # superuser credential is generated (weak), so it never matches the module's
     # default postgres/postgres — pass USERNAME/PASSWORD so MSF can authenticate.
-    test_msf_exploit('exploit/linux/postgres/postgres_copy_from_program_cmd_exec',
+    test_msf_exploit('exploit/multi/postgres/postgres_copy_from_program_cmd_exec',
                      rport: port,
                      options: { 'USERNAME' => user, 'PASSWORD' => pass, 'DATABASE' => 'template1' },
                      expect_privilege: 'user_rwx',
