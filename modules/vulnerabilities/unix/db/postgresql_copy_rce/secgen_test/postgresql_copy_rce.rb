@@ -50,8 +50,13 @@ class PostgresqlCopyRceTest < PostProvisionTest
       end
     end
 
+    # This module has no port input, so self.port is -1; the required postgresql
+    # service listens on 5432 (hardcoded like the mysql vuln tests use 3306). The
+    # superuser credential is generated (weak), so it never matches the module's
+    # default postgres/postgres — pass USERNAME/PASSWORD so MSF can authenticate.
     test_msf_exploit('exploit/linux/postgres/postgres_copy_from_program_cmd_exec',
-                     rport: self.port,
+                     rport: port,
+                     options: { 'USERNAME' => user, 'PASSWORD' => pass, 'DATABASE' => 'template1' },
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
