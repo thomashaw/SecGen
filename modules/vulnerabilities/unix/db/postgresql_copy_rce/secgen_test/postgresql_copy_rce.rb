@@ -50,8 +50,10 @@ class PostgresqlCopyRceTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/linux/postgres/postgres_copy_from_program_cmd_exec
+    test_msf_exploit('exploit/linux/postgres/postgres_copy_from_program_cmd_exec',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
