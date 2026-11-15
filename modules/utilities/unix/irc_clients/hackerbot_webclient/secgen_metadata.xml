@@ -16,7 +16,9 @@
     Messages show their time by default. Client commands (never sent to the bot): /clear blanks
     the chat window (for clean screenshots) without deleting the history; /flags lists the flags
     the bot has sent to this browser (only ones it received itself, not ones merged in from the
-    server log); /timestamps shows or hides message times; /help lists these commands.
+    server log), grouped by the attack that gave each one, with the attacks still to do (the
+    bot sends hashes of its chat flags for this when the page connects); /timestamps shows or
+    hides message times; /help lists these commands.
   </description>
 
   <type>hackerbot_webclient</type>

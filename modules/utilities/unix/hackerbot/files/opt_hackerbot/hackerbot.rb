@@ -6,6 +6,61 @@ require 'open3'
 require 'programr'
 require 'getoptlong'
 require 'thwait'
+require 'digest'
+
+# Flags the bot itself sends in chat for an attack: in condition messages,
+# quiz responses and shell failure messages. Flags it plants on the student's
+# VM or in network traffic (post_command, pre_shell) are left out, since the
+# web client only sees flags that arrive in chat.
+FLAG_RE = /flag\{[^}]*\}/
+FLAGMAP_KEYS = %w[message correct_answer_response shell_fail_message]
+
+def chat_flags(node, key = nil, found = [])
+  case node
+  when Hash
+    node.each { |k, v| chat_flags(v, k, found) }
+  when Array
+    node.each { |v| chat_flags(v, key, found) }
+  when String
+    found.concat(node.scan(FLAG_RE)) if FLAGMAP_KEYS.include?(key)
+  end
+  found.uniq
+end
+
+# One line per attack that awards a chat flag, for the web client to match
+# against the flags it has received:
+#   FLAGMAP <attack>/<total> <hash>,<hash> <prompt, shortened>
+# Each hash is the first 16 hex chars of SHA-256 of the whole flag{...}
+# string. That lets a client confirm a flag it already has, but does not
+# reveal flags the student has not earned (they are long random strings).
+# The web client's flag-to-attack map: for each attack, short SHA-256 hashes
+# of the flags it gives out in chat (never the flags themselves).
+#   FLAGMAP <attack count> <first attack in this line> <attack>;<attack>;...
+# where each <attack> is a comma-separated list of hashes (empty if the attack
+# gives no flag in chat). Packed into as few lines as fit: Cinch sends at most
+# 10 lines at once and then one every 2 seconds, and anything else the bot
+# says waits behind them.
+FLAGMAP_HASH_LEN = 12
+FLAGMAP_LINE_LEN = 380
+
+def flagmap_lines(attacks)
+  entries = attacks.map do |attack|
+    chat_flags(attack).map { |f| Digest::SHA256.hexdigest(f)[0, FLAGMAP_HASH_LEN] }.join(',')
+  end
+  chunks = []
+  start = 0
+  current = []
+  entries.each_with_index do |entry, index|
+    if current.any? && current.join(';').length + entry.length + 1 > FLAGMAP_LINE_LEN
+      chunks << [start, current]
+      start = index
+      current = []
+    end
+    current << entry
+  end
+  chunks << [start, current]
+  chunks.map { |first, list| "FLAGMAP #{attacks.length} #{first + 1} #{list.join(';')}" }
+end
 
 def update_bot_state(bot_name, bots, current_attack)
   bots[bot_name]['current_attack'] = current_attack
@@ -285,11 +340,16 @@ def read_bots (irc_server_ip_address)
           }
         end
 
+        # Machine-readable flag-to-attack map for the web client's /flags
+        on :message, 'flagmap' do |m|
+          flagmap_lines(bots[bot_name]['attacks']).each { |line| m.reply line }
+        end
+
         # fallback to AIML ALICE chatbot responses
         on :message do |m|
 
           # Only process messages not related to controlling attacks
-          if m.message !~ /hello|help|next|previous|list|^(goto|attack) [0-9]|(the answer is|answer)/
+          if m.message !~ /hello|help|next|previous|list|^flagmap$|^(goto|attack) [0-9]|(the answer is|answer)/
             reaction = ''
             begin
               reaction = bots[bot_name]['chat_ai'].get_reaction(m.message.gsub /([^a-z0-9\- ]+)/i, '')

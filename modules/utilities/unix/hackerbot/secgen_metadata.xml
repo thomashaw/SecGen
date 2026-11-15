@@ -8,6 +8,8 @@
   <module_license>GPLv3</module_license>
   <description>Chatbot(s) that attacks and challenges the victim to defend themselves for flags.
     Connects to an IRC server (localhost by default), and reads config files for attack and chat behaviour.
+    Replies to "flagmap" with short SHA-256 hashes of the flags each attack gives out in chat (used
+    by the web client's /flags command to show which attacks are still to do).
     Developed as part of the SecGen project.</description>
 
   <type>chatbot</type>

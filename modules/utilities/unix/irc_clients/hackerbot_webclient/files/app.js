@@ -10,7 +10,7 @@
   // Commands handled here in the browser; never sent to the bot.
   var LOCAL_COMMANDS = {
     '/clear': 'blank the chat window (scroll up to see earlier messages)',
-    '/flags': 'list the flags Hackerbot has sent to this browser',
+    '/flags': 'list the flags Hackerbot has sent to this browser, by attack, and the attacks still to do',
     '/timestamps': 'show or hide message times',
     '/help': 'list these commands'
   };
@@ -29,6 +29,52 @@
     [/<3/g, '❤️']
   ];
 
+  // SHA-256 as hex. crypto.subtle only exists in secure contexts (https or
+  // localhost), and this page is plain http on a lab IP, so do it here.
+  function sha256Hex(str) {
+    var K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+      0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+      0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+      0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+      0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+      0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+      0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+      0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2];
+    var H = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+    var bytes = unescape(encodeURIComponent(str));  // UTF-8, one char per byte
+    var n = bytes.length;
+    var words = [];
+    for (var i = 0; i < n; i++) {
+      words[i >> 2] |= bytes.charCodeAt(i) << (24 - (i % 4) * 8);
+    }
+    words[n >> 2] |= 0x80 << (24 - (n % 4) * 8);
+    var total = (((n + 8) >> 6) + 1) * 16;
+    for (i = words.length; i < total; i++) {
+      words[i] = words[i] || 0;
+    }
+    words[total - 1] = n * 8;
+    function rotr(x, r) { return (x >>> r) | (x << (32 - r)); }
+    var w = new Array(64);
+    for (var blk = 0; blk < total; blk += 16) {
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (var t = 0; t < 64; t++) {
+        if (t < 16) {
+          w[t] = words[blk + t] | 0;
+        } else {
+          var s0 = rotr(w[t - 15], 7) ^ rotr(w[t - 15], 18) ^ (w[t - 15] >>> 3);
+          var s1 = rotr(w[t - 2], 17) ^ rotr(w[t - 2], 19) ^ (w[t - 2] >>> 10);
+          w[t] = (w[t - 16] + s0 + w[t - 7] + s1) | 0;
+        }
+        var t1 = (h + (rotr(e, 6) ^ rotr(e, 11) ^ rotr(e, 25)) + ((e & f) ^ (~e & g)) + K[t] + w[t]) | 0;
+        var t2 = ((rotr(a, 2) ^ rotr(a, 13) ^ rotr(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) | 0;
+        h = g; g = f; f = e; e = (d + t1) | 0; d = c; c = b; b = a; a = (t1 + t2) | 0;
+      }
+      H[0] = (H[0] + a) | 0; H[1] = (H[1] + b) | 0; H[2] = (H[2] + c) | 0; H[3] = (H[3] + d) | 0;
+      H[4] = (H[4] + e) | 0; H[5] = (H[5] + f) | 0; H[6] = (H[6] + g) | 0; H[7] = (H[7] + h) | 0;
+    }
+    return H.map(function (x) { return ('0000000' + (x >>> 0).toString(16)).slice(-8); }).join('');
+  }
+
   function applyEmoticons(text) {
     return EMOTICONS.reduce(function (s, pair) {
       return s.replace(pair[0], pair[1]);
@@ -44,6 +90,36 @@
 
   var registered = false;
   var sock;
+
+  // Which attack each of the bot's chat flags belongs to, from the bot's
+  // reply to 'flagmap' (asked for on connect; those lines are never shown or
+  // saved). It holds short hashes of the flags, not the flags:
+  //   FLAGMAP <attack count> <first attack in line> <hashes>;<hashes>;...
+  var FLAGMAP_HASH_LEN = 12;
+  var flagMap = null;     // [{ attack: n, hashes: [...] }] for attacks with chat flags
+  var flagMapParts = [];
+
+  function handleFlagMapLine(text) {
+    var m = text.match(/^FLAGMAP (\d+) (\d+) ?([0-9a-f,;]*)$/);
+    if (!m) {
+      return;
+    }
+    var total = +m[1];
+    m[3].split(';').forEach(function (entry, i) {
+      flagMapParts[+m[2] - 1 + i] = entry ? entry.split(',') : [];
+    });
+    for (var i = 0; i < total; i++) {
+      if (!flagMapParts[i]) {
+        return;  // more lines to come
+      }
+    }
+    flagMap = [];
+    flagMapParts.slice(0, total).forEach(function (hashes, i) {
+      if (hashes.length) {
+        flagMap.push({ attack: i + 1, hashes: hashes });
+      }
+    });
+  }
 
   function todayStr() {
     var d = new Date();
@@ -407,19 +483,81 @@
         });
       });
     });
+    if (flagMap && flagMap.length) {
+      listFlagsByAttack(found);
+      return;
+    }
     if (!found.length) {
       status('No flags from ' + TARGET + ' in this browser\'s history yet.');
       return;
     }
     status('Flags from ' + TARGET + ' in this browser (click one to copy):');
     found.forEach(function (f) {
-      var p = document.createElement('p');
-      p.className = 'status flaglist';
-      p.appendChild(document.createTextNode('  ' + f.date + '  '));
-      appendFlaggedText(p, f.flag);
-      logEl.appendChild(p);
+      flagLine('  ' + f.date + '  ', f.flag);
     });
+  }
+
+  function flagLine(prefix, flag, rest) {
+    var p = document.createElement('p');
+    p.className = 'status flaglist';
+    p.appendChild(document.createTextNode(prefix));
+    if (flag) {
+      appendFlaggedText(p, flag);
+    }
+    if (rest) {
+      var span = document.createElement('span');
+      span.className = rest.cls || '';
+      span.textContent = rest.text;
+      p.appendChild(span);
+    }
+    logEl.appendChild(p);
     logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // One line per attack that awards a flag in chat: the flag if this browser
+  // has it, otherwise 'not found yet'. Flags that match no attack (planted
+  // elsewhere, or from an earlier build of the lab) are listed after.
+  function listFlagsByAttack(found) {
+    var byHash = {};
+    found.forEach(function (f) {
+      byHash[sha256Hex(f.flag).slice(0, FLAGMAP_HASH_LEN)] = f;
+    });
+    var matched = {};
+    var got = 0;
+    var lines = flagMap.map(function (a) {
+      var flags = [];
+      a.hashes.forEach(function (h) {
+        if (byHash[h]) {
+          flags.push(byHash[h].flag);
+          matched[byHash[h].flag] = true;
+        }
+      });
+      if (flags.length) {
+        got++;
+      }
+      return { a: a, flags: flags };
+    });
+    status(TARGET + ' flags: ' + got + ' of ' + flagMap.length + ' attacks done (click a flag to copy):');
+    lines.forEach(function (l) {
+      var label = '  attack ' + l.a.attack + ':  ';
+      if (l.flags.length) {
+        l.flags.forEach(function (flag, i) {
+          flagLine(i === 0 ? label : '      ', flag);
+        });
+      } else {
+        flagLine(label, null, { cls: 'todo', text: 'not found yet' });
+      }
+    });
+    if (got < flagMap.length) {
+      status('Type "goto N" to return to attack N, or "list" to see every attack.');
+    }
+    var other = found.filter(function (f) { return !matched[f.flag]; });
+    if (other.length) {
+      status('Other flags from ' + TARGET + ' in this browser (not from a current attack):');
+      other.forEach(function (f) {
+        flagLine('  ' + f.date + '  ', f.flag);
+      });
+    }
   }
 
   // Returns true if text was a client command (starts with '/'), which is
@@ -493,6 +631,8 @@
       if (!registered && msg.command === '001') {
         registered = true;
         status('Connected. Starting conversation with ' + TARGET + '...');
+        flagMapParts = [];
+        send('PRIVMSG ' + TARGET + ' :flagmap');
         send('PRIVMSG ' + TARGET + ' :hello');
         return;
       }
@@ -503,7 +643,11 @@
         var toSelf = msg.params[0].toLowerCase() === NICK.toLowerCase();
         var fromBot = from.toLowerCase() === TARGET.toLowerCase();
         if (toSelf && fromBot) {
-          newRecord('bot', from, text);
+          if (text.indexOf('FLAGMAP ') === 0) {
+            handleFlagMapLine(text);
+          } else {
+            newRecord('bot', from, text);
+          }
         }
       }
     };
