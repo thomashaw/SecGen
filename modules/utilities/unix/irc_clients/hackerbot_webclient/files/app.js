@@ -5,10 +5,13 @@
   // Served by serve.py next to this file: the copy of the history kept on
   // the hackerbot server. Relative, so it follows whatever host served us.
   var HISTORY_API = 'api/history';
-  var COMMANDS = ['ready', 'next', 'previous', 'list', 'goto 1', 'answer yes', '/clear'];
+  var TIMESTAMPS_KEY = 'hackerbot_webclient_timestamps';
+  var COMMANDS = ['ready', 'next', 'previous', 'list', 'goto 1', 'answer yes', '/clear', '/flags'];
   // Commands handled here in the browser; never sent to the bot.
   var LOCAL_COMMANDS = {
     '/clear': 'blank the chat window (scroll up to see earlier messages)',
+    '/flags': 'list the flags Hackerbot has sent to this browser',
+    '/timestamps': 'show or hide message times',
     '/help': 'list these commands'
   };
   var FLAG_RE = /(flag\{[^}]*\})/g;
@@ -79,6 +82,7 @@
       if (!rec.id) {
         rec.id = newId();
         rec.ts = 0;
+        rec.local = true;
         migrated = true;
       }
       rec.date = d;
@@ -273,6 +277,25 @@
     logEl.scrollTop = logEl.scrollHeight;
   });
 
+  // Times are always rendered and hidden with a class on the log, so
+  // /timestamps toggles them without re-rendering. On by default.
+  function timestampsOn() {
+    try {
+      return localStorage.getItem(TIMESTAMPS_KEY) !== 'off';
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function applyTimestamps(on) {
+    logEl.classList.toggle('hide-ts', !on);
+  }
+
+  function fmtTime(ts) {
+    var d = new Date(ts);
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+
   function renderRecordDom(rec) {
     if (rec.dir === 'clear') {
       renderClearDom();
@@ -280,6 +303,12 @@
     }
     var p = document.createElement('p');
     p.className = rec.dir;
+    if (rec.ts) {
+      var t = document.createElement('span');
+      t.className = 'ts';
+      t.textContent = '[' + fmtTime(rec.ts) + '] ';
+      p.appendChild(t);
+    }
     p.appendChild(document.createTextNode('<' + rec.from + '> '));
     appendFlaggedText(p, rec.text);
     logEl.appendChild(p);
@@ -296,8 +325,10 @@
 
   // New live message: persist to today's history, then render if the
   // today entry is the one currently being viewed.
+  // local: this browser saw the message itself. serve.py drops the field,
+  // so records copied in from the server log never have it.
   function newRecord(dir, from, text) {
-    var rec = { id: newId(), ts: Date.now(), date: TODAY, dir: dir, from: from, text: text };
+    var rec = { id: newId(), ts: Date.now(), date: TODAY, dir: dir, from: from, text: text, local: true };
     knownIds[rec.id] = true;
     chatlog[TODAY].push(rec);
     saveHistory();
@@ -357,6 +388,40 @@
     sock.send(raw);
   }
 
+  // Flags come only from bot messages this browser received over IRC
+  // (rec.local), never from records merged in from the server log: anyone
+  // on the lab network can post to that log, so it could hold fake flags.
+  function listFlags() {
+    var seen = {};
+    var found = [];
+    Object.keys(chatlog).sort().forEach(function (d) {
+      chatlog[d].forEach(function (rec) {
+        if (!rec.local || rec.dir !== 'bot') {
+          return;
+        }
+        (rec.text.match(FLAG_RE) || []).forEach(function (flag) {
+          if (!seen[flag]) {
+            seen[flag] = true;
+            found.push({ date: d, flag: flag });
+          }
+        });
+      });
+    });
+    if (!found.length) {
+      status('No flags from ' + TARGET + ' in this browser\'s history yet.');
+      return;
+    }
+    status('Flags from ' + TARGET + ' in this browser (click one to copy):');
+    found.forEach(function (f) {
+      var p = document.createElement('p');
+      p.className = 'status flaglist';
+      p.appendChild(document.createTextNode('  ' + f.date + '  '));
+      appendFlaggedText(p, f.flag);
+      logEl.appendChild(p);
+    });
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
   // Returns true if text was a client command (starts with '/'), which is
   // handled here and never sent to the bot.
   function localCommand(text) {
@@ -366,6 +431,15 @@
     var cmd = text.trim().split(/\s+/)[0].toLowerCase();
     if (cmd === '/clear') {
       newRecord('clear', NICK, '');
+    } else if (cmd === '/flags') {
+      listFlags();
+    } else if (cmd === '/timestamps') {
+      var on = !timestampsOn();
+      try {
+        localStorage.setItem(TIMESTAMPS_KEY, on ? 'on' : 'off');
+      } catch (e) {}
+      applyTimestamps(on);
+      status('Timestamps ' + (on ? 'on' : 'off') + '.');
     } else if (cmd === '/help') {
       status('Commands for this window (not sent to ' + TARGET + '):');
       Object.keys(LOCAL_COMMANDS).forEach(function (c) {
@@ -472,6 +546,7 @@
     cmdPopup.hidden = true;
   });
 
+  applyTimestamps(timestampsOn());
   renderSidebar();
   selectDate(TODAY);
   // Merge the server's history before connecting, so the re-render it may
