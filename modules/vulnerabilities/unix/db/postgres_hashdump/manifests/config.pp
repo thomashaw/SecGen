@@ -11,6 +11,13 @@
 #    remote-access line is inserted into the service module's file with sed rather
 #    than a drop-in. It goes near the top so it matches before the service's loopback
 #    'all' lines (which use scram-sha-256 and would reject an md5-stored password).
+#  - SecGen provisions each module as a separate puppet run (one vm.provision "puppet"
+#    block per module), and places a module's `requires` dependencies before it, so by
+#    the time this runs the postgresql service module has already installed the server,
+#    created its role/database and started the cluster. The service's resources are in a
+#    different catalog, so this module must not reference them (Class['postgresql::install'],
+#    Exec['create postgresql role and database'], ...): ordering is handled by SecGen, and
+#    this module orders only its own resources.
 class postgres_hashdump::config {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
 
@@ -30,12 +37,11 @@ class postgres_hashdump::config {
     group   => 'postgres',
     mode    => '0644',
     content => "listen_addresses = '*'\n",
-    require => Class['postgresql::install'],
     notify  => Exec['secgen_pg_restart_remote'],
   }
 
-  # The SQL holds the password, so it is removed as soon as psql has run it. Runs
-  # after the service has created its own role and database.
+  # The SQL holds the password, so it is removed as soon as psql has run it. The
+  # service module's earlier puppet run has already created its role and database.
   file { $setup_sql:
     ensure    => file,
     owner     => 'postgres',
@@ -43,7 +49,6 @@ class postgres_hashdump::config {
     mode      => '0600',
     content   => template('postgres_hashdump/superuser.sql.erb'),
     show_diff => false,
-    require   => Exec['create postgresql role and database'],
   }
 
   exec { 'secgen_pg_create_superuser':
