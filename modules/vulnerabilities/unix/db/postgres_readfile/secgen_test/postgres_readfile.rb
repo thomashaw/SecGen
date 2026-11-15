@@ -30,9 +30,10 @@ class PostgresReadfileTest < PostProvisionTest
     tier(1) do
       test_local_command('postgresql server installed', 'dpkg -l postgresql-15 | grep -E "^ii"', 'postgresql-15')
       test_local_command('psql client installed', 'which psql', 'psql')
-      # The misconfiguration exposes the cluster on all interfaces.
-      test_local_command('listen_addresses override present',
-                         "grep -E \"^listen_addresses\\s*=\\s*'\\*'\" #{CONF_DIR}/conf.d/secgen_readfile.conf",
+      # The cluster is exposed on every interface (the service module binds '*'
+      # from the shared listen_addresses input), which makes the role reachable.
+      test_local_command('cluster exposed on all interfaces',
+                         "grep -E \"^listen_addresses\\s*=\\s*'\\*'\" #{CONF_DIR}/conf.d/secgen.conf",
                          'listen_addresses')
       # The remote pg_hba rule was appended for the role.
       if database && username && method
