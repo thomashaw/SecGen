@@ -7,9 +7,13 @@ class hackerbot_webclient::service {
   # SecGen doesn't have a reliable fact for "the private-network interface"
   # (interface names vary by distro/hypervisor, and the default ipaddress
   # fact tends to resolve to the NAT adapter, not the private network one).
+  #
+  # StateDirectory gives the DynamicUser a writable /var/lib/hackerbot_webclient
+  # (ProtectSystem=strict makes everything else read-only), where serve.py
+  # keeps the chat history log, history.jsonl. It persists across restarts.
   file { '/etc/systemd/system/hackerbot-webclient.service':
     ensure  => file,
-    content => "[Unit]\nDescription=Hackerbot web client\nAfter=network.target\n\n[Service]\nWorkingDirectory=/opt/hackerbot_webclient\nExecStart=/usr/bin/python3 /opt/hackerbot_webclient/serve.py 0.0.0.0 8080\nRestart=always\nRestartSec=3\nStartLimitIntervalSec=0\nDynamicUser=yes\nProtectSystem=strict\nProtectHome=true\nNoNewPrivileges=true\nPrivateTmp=true\n\n[Install]\nWantedBy=multi-user.target\n",
+    content => "[Unit]\nDescription=Hackerbot web client\nAfter=network.target\n\n[Service]\nWorkingDirectory=/opt/hackerbot_webclient\nExecStart=/usr/bin/python3 /opt/hackerbot_webclient/serve.py 0.0.0.0 8080\nRestart=always\nRestartSec=3\nStartLimitIntervalSec=0\nDynamicUser=yes\nStateDirectory=hackerbot_webclient\nStateDirectoryMode=0700\nProtectSystem=strict\nProtectHome=true\nNoNewPrivileges=true\nPrivateTmp=true\n\n[Install]\nWantedBy=multi-user.target\n",
     owner   => 'root',
     group   => 'root',
     mode    => '0644',

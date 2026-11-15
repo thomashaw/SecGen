@@ -12,6 +12,9 @@
   #log .me { color: #7ec4ff; }
   #log .bot { color: #9dff9d; }
   #log .status { color: #888; font-style: italic; }
+  /* /clear: one window tall, so the window is blank until you scroll up. The
+     label sits at its top edge, out of view unless you scroll. */
+  #log .clearspacer { box-sizing: border-box; border-top: 1px dashed #444; color: #555; font-size: 0.75em; text-align: center; padding-top: 0.2em; }
 
   #sidebar { width: 190px; flex: none; border-left: 1px solid #3a3a3a; background: #232323; overflow-y: auto; }
   .histitem { padding: 0.6em 0.8em; cursor: pointer; border-bottom: 1px solid #2c2c2c; font-size: 0.9em; }

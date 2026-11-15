@@ -33,6 +33,7 @@ class HackerbotWebclientTest < PostProvisionTest
         test_local_command("config.js sets #{label}", 'cat /opt/hackerbot_webclient/config.js', line)
       end
       test_local_command('hackerbot-webclient unit present', 'test -f /etc/systemd/system/hackerbot-webclient.service && echo ok', 'ok')
+      test_local_command('unit gives serve.py a state directory for the history log', 'grep -x StateDirectory=hackerbot_webclient /etc/systemd/system/hackerbot-webclient.service', 'StateDirectory=hackerbot_webclient')
     end
     tier(2) do
       test_command_succeeds('python3 runs', 'python3 --version')
@@ -41,6 +42,9 @@ class HackerbotWebclientTest < PostProvisionTest
       test_service_up(port: WEB_PORT)
       test_http('/', port: WEB_PORT, match: '<title>Hackerbot</title>')
       test_http('/app.js', port: WEB_PORT, status: 200)
+      # server-side copy of the chat history: a JSON list, kept in the state directory
+      test_http('/api/history', port: WEB_PORT, status: 200, match: '[', label: 'history API returns a JSON list')
+      test_local_command('history state directory exists', 'test -d /var/lib/hackerbot_webclient && echo ok', 'ok')
       # the served config.js carries the per-lab values
       expected.each do |label, line|
         test_http('/config.js', port: WEB_PORT, match: line, label: "served config.js sets #{label}")

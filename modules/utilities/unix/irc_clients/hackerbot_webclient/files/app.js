@@ -2,7 +2,15 @@
   // NICK, TARGET, WS_URL come from config.js, loaded before this file.
 
   var HISTORY_KEY = 'hackerbot_webclient_history';
-  var COMMANDS = ['ready', 'next', 'previous', 'list', 'goto 1', 'answer yes'];
+  // Served by serve.py next to this file: the copy of the history kept on
+  // the hackerbot server. Relative, so it follows whatever host served us.
+  var HISTORY_API = 'api/history';
+  var COMMANDS = ['ready', 'next', 'previous', 'list', 'goto 1', 'answer yes', '/clear'];
+  // Commands handled here in the browser; never sent to the bot.
+  var LOCAL_COMMANDS = {
+    '/clear': 'blank the chat window (scroll up to see earlier messages)',
+    '/help': 'list these commands'
+  };
   var FLAG_RE = /(flag\{[^}]*\})/g;
   var FLAG_TEST_RE = /^flag\{[^}]*\}$/;
 
@@ -52,10 +60,31 @@
     }
   }
 
+  function newId() {
+    return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+  }
+
   var chatlog = loadHistory();
   if (!chatlog[TODAY]) {
     chatlog[TODAY] = [];
   }
+
+  // Every record carries an id (to merge with the server copy without
+  // duplicates), its date and a timestamp. Records saved by older versions
+  // of this client have none; give them ids now, and ts 0 so they sort first.
+  var knownIds = {};
+  var migrated = false;
+  Object.keys(chatlog).forEach(function (d) {
+    chatlog[d].forEach(function (rec) {
+      if (!rec.id) {
+        rec.id = newId();
+        rec.ts = 0;
+        migrated = true;
+      }
+      rec.date = d;
+      knownIds[rec.id] = true;
+    });
+  });
 
   var activeDate = TODAY;
 
@@ -65,6 +94,84 @@
     } catch (e) {
       // localStorage unavailable/full: history just won't persist across reloads.
     }
+  }
+
+  if (migrated) {
+    saveHistory();
+  }
+
+  // Send records to the server's log. Failures are ignored: syncHistory()
+  // re-sends anything the server is missing the next time the page loads.
+  function pushRecords(recs) {
+    if (!recs.length || !window.fetch) {
+      return;
+    }
+    fetch(HISTORY_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(recs)
+    }).catch(function () {});
+  }
+
+  // Two-way merge with the server's copy: records only the server has
+  // (another browser, or cleared local storage) are added here, and records
+  // only this browser has are sent to the server.
+  function syncHistory() {
+    if (!window.fetch) {
+      return Promise.resolve();
+    }
+    return fetch(HISTORY_API, { cache: 'no-store' }).then(function (r) {
+      if (!r.ok) {
+        throw new Error('history API unavailable');
+      }
+      return r.json();
+    }).then(function (serverRecs) {
+      if (!Array.isArray(serverRecs)) {
+        return;
+      }
+      var serverIds = {};
+      var changedDates = {};
+      serverRecs.forEach(function (rec) {
+        if (!rec || !rec.id || !rec.date) {
+          return;
+        }
+        serverIds[rec.id] = true;
+        if (knownIds[rec.id]) {
+          return;
+        }
+        knownIds[rec.id] = true;
+        if (!chatlog[rec.date]) {
+          chatlog[rec.date] = [];
+        }
+        chatlog[rec.date].push(rec);
+        changedDates[rec.date] = true;
+      });
+
+      var missing = [];
+      Object.keys(chatlog).forEach(function (d) {
+        chatlog[d].forEach(function (rec) {
+          if (!serverIds[rec.id]) {
+            missing.push(rec);
+          }
+        });
+      });
+      pushRecords(missing);
+
+      var dates = Object.keys(changedDates);
+      if (!dates.length) {
+        return;
+      }
+      dates.forEach(function (d) {
+        chatlog[d].sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+      });
+      saveHistory();
+      renderSidebar();
+      if (changedDates[activeDate]) {
+        renderLog(activeDate);
+      }
+    }).catch(function () {
+      // Older serve.py or server unreachable: keep the browser-only history.
+    });
   }
 
   function renderSidebar() {
@@ -146,7 +253,31 @@
     });
   }
 
+  // /clear: a blank block one window tall. Scrolled to the bottom, the
+  // window shows nothing but the blank; earlier messages are still above it.
+  function sizeSpacer(el) {
+    el.style.height = logEl.clientHeight + 'px';
+  }
+
+  function renderClearDom() {
+    var div = document.createElement('div');
+    div.className = 'clearspacer';
+    div.textContent = 'chat cleared';
+    sizeSpacer(div);
+    logEl.appendChild(div);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  window.addEventListener('resize', function () {
+    Array.prototype.forEach.call(logEl.querySelectorAll('.clearspacer'), sizeSpacer);
+    logEl.scrollTop = logEl.scrollHeight;
+  });
+
   function renderRecordDom(rec) {
+    if (rec.dir === 'clear') {
+      renderClearDom();
+      return;
+    }
     var p = document.createElement('p');
     p.className = rec.dir;
     p.appendChild(document.createTextNode('<' + rec.from + '> '));
@@ -166,20 +297,26 @@
   // New live message: persist to today's history, then render if the
   // today entry is the one currently being viewed.
   function newRecord(dir, from, text) {
-    var rec = { dir: dir, from: from, text: text };
+    var rec = { id: newId(), ts: Date.now(), date: TODAY, dir: dir, from: from, text: text };
+    knownIds[rec.id] = true;
     chatlog[TODAY].push(rec);
     saveHistory();
+    pushRecords([rec]);
     renderSidebar();
     if (activeDate === TODAY) {
       renderRecordDom(rec);
     }
   }
 
+  function renderLog(d) {
+    logEl.textContent = '';
+    (chatlog[d] || []).forEach(renderRecordDom);
+  }
+
   function selectDate(d) {
     activeDate = d;
     renderSidebar();
-    logEl.textContent = '';
-    (chatlog[d] || []).forEach(renderRecordDom);
+    renderLog(d);
 
     var isToday = d === TODAY;
     msgInput.disabled = !isToday;
@@ -220,8 +357,34 @@
     sock.send(raw);
   }
 
+  // Returns true if text was a client command (starts with '/'), which is
+  // handled here and never sent to the bot.
+  function localCommand(text) {
+    if (text.charAt(0) !== '/') {
+      return false;
+    }
+    var cmd = text.trim().split(/\s+/)[0].toLowerCase();
+    if (cmd === '/clear') {
+      newRecord('clear', NICK, '');
+    } else if (cmd === '/help') {
+      status('Commands for this window (not sent to ' + TARGET + '):');
+      Object.keys(LOCAL_COMMANDS).forEach(function (c) {
+        status('  ' + c + ' : ' + LOCAL_COMMANDS[c]);
+      });
+    } else {
+      status('Unknown command ' + cmd + '. Type /help for the commands this window understands.');
+    }
+    return true;
+  }
+
   function doSend(text) {
-    if (!text || !registered || activeDate !== TODAY) {
+    if (!text || activeDate !== TODAY) {
+      return;
+    }
+    if (localCommand(text)) {
+      return;
+    }
+    if (!registered) {
       return;
     }
     send('PRIVMSG ' + TARGET + ' :' + text);
@@ -311,5 +474,15 @@
 
   renderSidebar();
   selectDate(TODAY);
-  connect();
+  // Merge the server's history before connecting, so the re-render it may
+  // cause doesn't wipe the connection status lines; don't wait over 3s.
+  var started = false;
+  function start() {
+    if (!started) {
+      started = true;
+      connect();
+    }
+  }
+  syncHistory().then(start, start);
+  setTimeout(start, 3000);
 })();
