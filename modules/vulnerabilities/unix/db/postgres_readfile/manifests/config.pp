@@ -6,6 +6,11 @@
 # dedicated login role can authenticate from the network, grants that role the
 # predefined pg_read_server_files role (which lets COPY ... FROM read any file
 # the database process can reach) and plants a server-readable flag file.
+# Each SecGen module is applied as its own separate puppet run, so this catalog
+# cannot reference the service module's classes (Class['postgresql::install'] and
+# friends live in a different apply). The required postgresql service module runs
+# first — by the time this class is applied the cluster is installed, configured
+# (pg_hba.conf, conf.d/) and running — so ordering here is purely internal.
 class postgres_readfile::config {
   $secgen_parameters = secgen_functions::get_parameters($::base64_inputs_file)
   $username          = $secgen_parameters['username'][0]
@@ -37,7 +42,6 @@ class postgres_readfile::config {
     group   => 'postgres',
     mode    => '0644',
     content => "listen_addresses = '*'\n",
-    require => Class['postgresql::install'],
   }
 
   # 2. Allow the remote role to authenticate from any address. The service
@@ -47,7 +51,6 @@ class postgres_readfile::config {
     command  => "/usr/bin/printf '# secgen postgres_readfile\\nhost %s %s 0.0.0.0/0 %s\\nhost %s %s ::/0 %s\\n' '${database_name}' '${username}' '${auth_method}' '${database_name}' '${username}' '${auth_method}' >> '${pg_hba}'",
     provider => shell,
     unless   => "/bin/grep -q '# secgen postgres_readfile' '${pg_hba}'",
-    require  => Class['postgresql::config'],
   }
 
   # 3. Restart so listen_addresses and pg_hba take effect, then wait for the
@@ -56,7 +59,6 @@ class postgres_readfile::config {
     command     => '/usr/bin/systemctl restart postgresql@15-main',
     refreshonly => true,
     subscribe   => [File["${conf_dir}/conf.d/secgen_readfile.conf"], Exec['secgen-readfile-pg-hba']],
-    require     => Class['postgresql::service'],
   }
 
   exec { 'secgen-readfile-wait':
