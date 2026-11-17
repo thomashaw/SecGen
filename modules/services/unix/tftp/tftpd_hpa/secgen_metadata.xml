@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>TFTP server (tftpd-hpa)</name>
+  <author>SecGen Pipeline</author>
+  <module_license>MIT</module_license>
+  <description>A standard, non-vulnerable tftpd-hpa TFTP server from the Debian repositories. It always runs with --secure (clients are confined to the TFTP directory) and, by default, listens on loopback only and refuses uploads. Vulnerability modules require it and add files to the directory or change these settings through the scenario; they do not rewrite /etc/default/tftpd-hpa.</description>
+
+  <type>tftp</type>
+  <platform>linux</platform>
+
+  <read_fact>address</read_fact>
+  <read_fact>directory</read_fact>
+  <read_fact>allow_create</read_fact>
+
+  <!-- host:port for tftpd-hpa's address option. Scenarios set '0.0.0.0:69' to expose the service. -->
+  <default_input into="address">
+    <value>127.0.0.1:69</value>
+  </default_input>
+
+  <!-- The directory clients are confined to (secure mode). Vulnerability modules add files here. -->
+  <default_input into="directory">
+    <value>/srv/tftp</value>
+  </default_input>
+
+  <!-- 'true' adds the create option so clients can upload new files; anything else leaves uploads refused -->
+  <default_input into="allow_create">
+    <value>false</value>
+  </default_input>
+
+  <!--optional details-->
+  <reference>https://manpages.debian.org/bookworm/tftpd-hpa/in.tftpd.8.en.html</reference>
+  <reference>https://www.rfc-editor.org/rfc/rfc1350</reference>
+  <!-- Hyphenated on purpose: vulnerability modules <require> this name, and the resolver
+       matches software_name as an unanchored regexp, so it must not match any
+       vulnerability module's own name or path (which use underscores). -->
+  <software_name>tftpd-hpa</software_name>
+  <software_license>BSD</software_license>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</service>
