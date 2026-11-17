@@ -58,8 +58,12 @@ class ErlangCookieRceTest < PostProvisionTest
       test_local_command('weak distribution cookie accepted', probe, 'COOKIE_OK')
     end
 
+    # rport is the pinned distribution listener (self.port is -1 here: the module
+    # has no 'port' input, only erlang_dist_port). COOKIE is a required module
+    # option - the guessable distribution cookie proven accepted at tier 2.
     test_msf_exploit('exploit/multi/misc/erlang_cookie_rce',
-                     rport: self.port,
+                     rport: dist_port,
+                     options: { 'COOKIE' => cookie },
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
