@@ -514,41 +514,55 @@
     logEl.scrollTop = logEl.scrollHeight;
   }
 
-  // One line per attack that awards a flag in chat: the flag if this browser
-  // has it, otherwise 'not found yet'. Flags that match no attack (planted
-  // elsewhere, or from an earlier build of the lab) are listed after.
+  // One line per flag the bot gives out in chat: the flag if this browser has
+  // it, otherwise 'not found yet'. An attack that can award several flags
+  // (e.g. more for a better answer) gets one line per flag: 7a, 7b, 7c.
+  // Flags that match no attack (planted elsewhere, or from an earlier build
+  // of the lab) are listed after.
   function listFlagsByAttack(found) {
     var byHash = {};
     found.forEach(function (f) {
       byHash[sha256Hex(f.flag).slice(0, FLAGMAP_HASH_LEN)] = f;
     });
     var matched = {};
-    var got = 0;
-    var lines = flagMap.map(function (a) {
-      var flags = [];
-      a.hashes.forEach(function (h) {
-        if (byHash[h]) {
-          flags.push(byHash[h].flag);
-          matched[byHash[h].flag] = true;
+    var flagsGot = 0;
+    var flagsTotal = 0;
+    var attacksDone = 0;
+    var partial = [];
+    var rows = [];
+    flagMap.forEach(function (a) {
+      var got = 0;
+      a.hashes.forEach(function (h, i) {
+        var f = byHash[h];
+        var label = 'attack ' + a.attack + (a.hashes.length > 1 ? String.fromCharCode(97 + i) : '');
+        rows.push({ label: label, flag: f ? f.flag : null });
+        if (f) {
+          matched[f.flag] = true;
+          got++;
         }
       });
-      if (flags.length) {
-        got++;
+      flagsGot += got;
+      flagsTotal += a.hashes.length;
+      if (got === a.hashes.length) {
+        attacksDone++;
+      } else if (got) {
+        partial.push(a);
       }
-      return { a: a, flags: flags };
     });
-    status(TARGET + ' flags: ' + got + ' of ' + flagMap.length + ' attacks done (click a flag to copy):');
-    lines.forEach(function (l) {
-      var label = '  attack ' + l.a.attack + ':  ';
-      if (l.flags.length) {
-        l.flags.forEach(function (flag, i) {
-          flagLine(i === 0 ? label : '      ', flag);
-        });
+    status(TARGET + ' flags: ' + flagsGot + ' of ' + flagsTotal + ' found, ' + attacksDone + ' of ' +
+      flagMap.length + ' attacks complete (click a flag to copy):');
+    rows.forEach(function (r) {
+      var label = '  ' + r.label + ':  ';
+      if (r.flag) {
+        flagLine(label, r.flag);
       } else {
         flagLine(label, null, { cls: 'todo', text: 'not found yet' });
       }
     });
-    if (got < flagMap.length) {
+    partial.forEach(function (a) {
+      status('Attack ' + a.attack + ' has ' + (a.hashes.length) + ' flags: a better answer earns the rest.');
+    });
+    if (attacksDone < flagMap.length) {
       status('Type "goto N" to return to attack N, or "list" to see every attack.');
     }
     var other = found.filter(function (f) { return !matched[f.flag]; });
