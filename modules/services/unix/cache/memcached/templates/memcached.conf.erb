@@ -1,0 +1,8 @@
+# Managed by SecGen. Run by /usr/share/memcached/scripts/systemd-memcached-wrapper.
+-m <%= @memory_mb %>
+-p <%= @port %>
+-u memcache
+-l <%= @listen %>
+# UDP disabled, as Debian ships it
+-U 0
+logfile /var/log/memcached.log

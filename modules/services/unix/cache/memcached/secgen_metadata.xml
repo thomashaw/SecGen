@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Memcached</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A standard, non-vulnerable installation of memcached from the Debian repositories. It listens on loopback by default, with UDP disabled. Other modules layer specific weaknesses on top of it: they seed data after memcached starts and never rewrite its configuration.</description>
+
+  <type>cache</type>
+  <platform>linux</platform>
+
+  <read_fact>listen</read_fact>
+  <read_fact>port</read_fact>
+  <read_fact>memory_mb</read_fact>
+
+  <!-- Address memcached binds to: 127.0.0.1 (loopback only) or 0.0.0.0 (every interface) -->
+  <default_input into="listen">
+    <value>127.0.0.1</value>
+  </default_input>
+
+  <default_input into="port">
+    <value>11211</value>
+  </default_input>
+
+  <!-- Cache size in megabytes (memcached -m) -->
+  <default_input into="memory_mb">
+    <value>64</value>
+  </default_input>
+
+  <!--optional details-->
+  <reference>https://memcached.org/</reference>
+  <reference>https://github.com/memcached/memcached/wiki</reference>
+  <software_name>memcached</software_name>
+  <software_license>BSD-3-Clause</software_license>
+
+  <!-- Debian 12 packaging (memcached 1.6.18, /etc/memcached.conf wrapper) -->
+  <conflict>
+    <module_path>.*bases/(?!debian_bookworm).*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</service>
