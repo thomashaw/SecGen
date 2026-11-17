@@ -1,0 +1,16 @@
+[Unit]
+Description=Java application service with the JDWP debug agent exposed
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=<%= @user %>
+Group=<%= @user %>
+WorkingDirectory=<%= @app_dir %>
+ExecStart=/usr/bin/java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:<%= @port %> -cp <%= @app_dir %> JdwpService
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
