@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: sudo_root_tee stacked with sudo_root_awk</name>
+  <author>Thomas Shaw</author>
+  <description>Checks that sudo_root_tee and sudo_root_awk keep both sudoers rules on one VM. awk is listed first: Puppet runs per module in order, and awk's sudo class purges /etc/sudoers.d, so tee (purge => false) must run after it.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>sudo_root_stack_target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <vulnerability module_path=".*/sudo_root_awk"/>
+    <vulnerability module_path=".*/sudo_root_tee"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+</scenario>
