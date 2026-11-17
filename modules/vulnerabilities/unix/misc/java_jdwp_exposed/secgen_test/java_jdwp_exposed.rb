@@ -48,8 +48,14 @@ class JavaJdwpExposedTest < PostProvisionTest
       test_banner('JDWP-Handshake', send: 'JDWP-Handshake')
     end
 
+    # java_jdwp_debugger drops and runs a native ELF payload (no CMD option,
+    # Arch x86/x64), so the helper's default cmd/unix/generic is incompatible
+    # and the sentinel command never runs. linux/x64/exec is a no-session
+    # native payload whose CMD (set by the helper to the sentinel) executes on
+    # the x86_64 target.
     test_msf_exploit('exploit/multi/misc/java_jdwp_debugger',
                      rport: self.port,
+                     payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
