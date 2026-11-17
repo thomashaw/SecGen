@@ -58,11 +58,18 @@ class JavaJdwpExposedTest < PostProvisionTest
     # Java Runtime.exec() and returns without waiting, so the payload process
     # writes the sentinel a moment after the exploit reports success. Poll for
     # it rather than read once immediately.
+    #
+    # The module includes FileDropper and registers the dropped ELF for
+    # cleanup, but a no-session command payload has no session to delete it,
+    # so exploit_driver aborts at validation ("cannot cleanup files created
+    # during exploit") before the payload ever runs. AllowNoCleanup lets the
+    # exploit proceed (the dropped file in /tmp is harmless on a throwaway VM).
     test_msf_exploit('exploit/multi/misc/java_jdwp_debugger',
                      rport: self.port,
                      payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      sentinel_wait: 60,
+                     options: { 'AllowNoCleanup' => true },
                      tier: 3)
   end
 end
