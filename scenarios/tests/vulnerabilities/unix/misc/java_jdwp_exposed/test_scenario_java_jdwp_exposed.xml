@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: Java JDWP debug agent exposed</name>
+  <author>Thomas Haw</author>
+  <description>Single-VM scenario used to exercise the java_jdwp_exposed module's
+  secgen_test through tiers 1 and 2 via the Proxmox QEMU Guest Agent pipeline: a
+  Debian 12 Bookworm target running a small Java service under systemd with the
+  JDWP debug agent bound to all interfaces on port 8000. Tier 3 (MSF
+  exploit/multi/misc/java_jdwp_debugger) is wired in later by the driver, which
+  adds a Kali/MSF attacker on the same private network.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>jdwp_target</system_name>
+    <base name="Debian 12 Bookworm Desktop KDE"/>
+
+    <vulnerability module_path=".*/java_jdwp_exposed"/>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+
+</scenario>
