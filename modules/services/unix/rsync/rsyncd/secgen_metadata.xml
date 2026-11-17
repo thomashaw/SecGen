@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>rsync daemon</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A standard, non-vulnerable rsync daemon from the Debian repositories. /etc/rsyncd.conf holds global settings only and includes /etc/rsyncd.d, so with no further configuration the daemon serves no modules. Vulnerability modules add one module definition file to /etc/rsyncd.d.</description>
+
+  <type>rsync</type>
+  <platform>linux</platform>
+
+  <read_fact>address</read_fact>
+
+  <!-- Address the daemon binds to. Scenarios that need the attacker to reach it set 0.0.0.0 -->
+  <default_input into="address">
+    <value>127.0.0.1</value>
+  </default_input>
+
+  <!--optional details-->
+  <reference>https://rsync.samba.org/</reference>
+  <reference>https://manpages.debian.org/bookworm/rsync/rsyncd.conf.5.en.html</reference>
+  <!-- Deliberately not just "rsync": the resolver matches software_name as an
+       unanchored regexp, so a plain "rsync" would also match any module whose
+       software_name merely contains it. -->
+  <software_name>rsync_daemon_service</software_name>
+  <software_license>GPLv3</software_license>
+
+  <!-- rsync.service and the &include directory handling are as shipped in Debian 12 (rsync 3.2.7) -->
+  <conflict>
+    <module_path>.*bases/(?!debian_bookworm).*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</service>

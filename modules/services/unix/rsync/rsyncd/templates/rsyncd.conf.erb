@@ -1,0 +1,7 @@
+# Managed by SecGen. Global settings only: module definitions live in /etc/rsyncd.d/*.conf
+pid file = /run/rsyncd.pid
+log file = /var/log/rsyncd.log
+port = 873
+address = <%= @address %>
+
+&include /etc/rsyncd.d
