@@ -53,10 +53,16 @@ class JavaJdwpExposedTest < PostProvisionTest
     # and the sentinel command never runs. linux/x64/exec is a no-session
     # native payload whose CMD (set by the helper to the sentinel) executes on
     # the x86_64 target.
+    #
+    # The module drops the ELF, chmod +x's it, then launches it through
+    # Java Runtime.exec() and returns without waiting, so the payload process
+    # writes the sentinel a moment after the exploit reports success. Poll for
+    # it rather than read once immediately.
     test_msf_exploit('exploit/multi/misc/java_jdwp_debugger',
                      rport: self.port,
                      payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
+                     sentinel_wait: 60,
                      tier: 3)
   end
 end
