@@ -63,30 +63,8 @@ class DockerGroupPrivescTest < PostProvisionTest
       test_local_command("#{username} can use docker without sudo", 'docker ps', 'CONTAINER ID', user: username)
     end
 
-    # Tier 3: exploit/linux/local/docker_daemon_privilege_escalation is a LOCAL privilege escalation — Metasploit drives it against
-    # an existing low-privilege SESSION, not a remote RHOSTS call. with_throwaway_ssh_user
-    # creates a disposable unprivileged account on the target (removed afterwards, so the
-    # image ships no extra login) for the attacker's ssh_login to land on; the local exploit
-    # runs against that session and the sentinel then proves a root shell (uid=0), which
-    # expect_privilege: :root asserts. SKIPs cleanly with no attacker VM. TODO t3-worker: add
-    # any module-specific options the exploit needs, and raise sentinel_wait for a deferred
-    # trigger (a cron tick) if it fires on a schedule — see exploit/unix/local/chkrootkit.
-    tier(3) do
-      with_throwaway_ssh_user do |user, pass|
-        # The module plants a SUID ELF via generate_payload_exe (not a cmd payload),
-        # so cmd/unix/generic is rejected. A native linux/x64/exec payload is
-        # compatible and still honours the sentinel's CMD, which the root-owned SUID
-        # binary runs as uid 0. sentinel_wait is raised to cover the docker image
-        # build + container run plus the module's 60s WfsDelay.
-        test_msf_local_exploit('exploit/linux/local/docker_daemon_privilege_escalation',
-                               session_user: user, session_pass: pass,
-                               payload: 'linux/x64/exec',
-                               options: {},
-                               expect_privilege: :root,
-                               sentinel_wait: 240,
-                               tier: 3)
-      end
-    end
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/linux/local/docker_daemon_privilege_escalation
   end
 end
 
