@@ -64,10 +64,8 @@ class JavaJmxUnauthTest < PostProvisionTest
                          'REACHABLE')
     end
 
-    test_msf_exploit('exploit/multi/misc/java_jmx_server',
-                     rport: self.port,
-                     expect_privilege: 'user_rwx',
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/misc/java_jmx_server
   end
 end
 
