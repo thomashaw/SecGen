@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Docker Group Privilege Escalation</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A local user account that belongs to the docker group. Membership of the docker group is equivalent to root: a member can start a container that mounts the host filesystem (or runs a setuid payload built into an image) and so read or write any file as root. The flag is leaked to /root/ in the host filesystem, readable only after escalating to root.</description>
+
+  <type>access_controls</type>
+  <privilege>root_rwx</privilege>
+  <access>local</access>
+  <platform>linux</platform>
+  <difficulty>low</difficulty>
+
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+  <read_fact>accounts</read_fact>
+
+  <default_input into="strings_to_leak">
+    <generator type="flag_generator"/>
+  </default_input>
+
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <default_input into="accounts">
+    <generator type="account">
+      <input into="username">
+        <generator module_path=".*username.*"/>
+      </input>
+      <input into="password">
+        <generator type=".*weak_password.*"/>
+      </input>
+      <input into="super_user">
+        <value>false</value>
+      </input>
+    </generator>
+  </default_input>
+
+  <software_name>docker</software_name>
+
+  <msf_module>exploit/linux/local/docker_daemon_privilege_escalation</msf_module>
+
+  <hint>Which groups does your user belong to?</hint>
+  <solution>The account is a member of the docker group, which is equivalent to root. Start a container that mounts the host filesystem, or use the Metasploit docker_daemon_privilege_escalation local exploit, to obtain a root shell and read /root/.</solution>
+
+  <requires>
+    <module_path>utilities/unix/container/docker</module_path>
+  </requires>
+
+  <requires>
+    <module_path>utilities/unix/system/parameterised_accounts</module_path>
+  </requires>
+
+  <CyBOK KA="AAA" topic="Authorisation">
+    <keyword>access control</keyword>
+    <keyword>Elevated privileges</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Primitives for Isolation and Mediation">
+    <keyword>Access controls and operating systems</keyword>
+    <keyword>Linux security model</keyword>
+    <keyword>Container-based sandboxes: chroot, Docker</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Role of Operating Systems">
+    <keyword>isolation</keyword>
+    <keyword>CONTAINERS</keyword>
+  </CyBOK>
+
+</vulnerability>
