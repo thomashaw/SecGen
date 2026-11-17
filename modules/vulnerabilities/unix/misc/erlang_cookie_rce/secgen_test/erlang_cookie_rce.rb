@@ -58,8 +58,10 @@ class ErlangCookieRceTest < PostProvisionTest
       test_local_command('weak distribution cookie accepted', probe, 'COOKIE_OK')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/misc/erlang_cookie_rce
+    test_msf_exploit('exploit/multi/misc/erlang_cookie_rce',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
