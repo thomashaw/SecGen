@@ -48,8 +48,10 @@ class JavaJdwpExposedTest < PostProvisionTest
       test_banner('JDWP-Handshake', send: 'JDWP-Handshake')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/misc/java_jdwp_debugger
+    test_msf_exploit('exploit/multi/misc/java_jdwp_debugger',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
