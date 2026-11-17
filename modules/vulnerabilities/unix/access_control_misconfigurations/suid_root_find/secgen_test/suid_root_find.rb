@@ -34,15 +34,15 @@ class SuidRootFindTest < PostProvisionTest
         test_local_command("control: unprivileged user cannot read #{f}",
                            "cat #{Shellwords.escape("/root/#{f}")} 2>&1", 'Permission denied', user: user)
       end
-      # the misconfiguration: find -exec keeps the effective uid of root with sh -p
+      # the misconfiguration: find -exec runs the command with the effective uid of root
       test_local_command('unprivileged user runs a command as root via find',
-                         "find /etc/hostname -exec id -u \; -quit", '0', user: user)
+                         "find /etc/hostname -exec id -u \\; -quit", '0', user: user)
       strings.each_with_index do |s, i|
         next if s.strip.empty?
         fname = leaked[i] || leaked.first
         next unless fname
         test_local_command("unprivileged user reads leaked #{fname} via find",
-                           "find /etc/hostname -exec cat #{Shellwords.escape("/root/#{fname}")} \; -quit",
+                           "find /etc/hostname -exec cat #{Shellwords.escape("/root/#{fname}")} \\; -quit",
                            s.strip.lines.first.to_s.strip, user: user)
       end
     end
