@@ -73,10 +73,17 @@ class DockerGroupPrivescTest < PostProvisionTest
     # trigger (a cron tick) if it fires on a schedule — see exploit/unix/local/chkrootkit.
     tier(3) do
       with_throwaway_ssh_user do |user, pass|
+        # The module plants a SUID ELF via generate_payload_exe (not a cmd payload),
+        # so cmd/unix/generic is rejected. A native linux/x64/exec payload is
+        # compatible and still honours the sentinel's CMD, which the root-owned SUID
+        # binary runs as uid 0. sentinel_wait is raised to cover the docker image
+        # build + container run plus the module's 60s WfsDelay.
         test_msf_local_exploit('exploit/linux/local/docker_daemon_privilege_escalation',
                                session_user: user, session_pass: pass,
+                               payload: 'linux/x64/exec',
                                options: {},
                                expect_privilege: :root,
+                               sentinel_wait: 240,
                                tier: 3)
       end
     end
