@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Net-SNMP agent (snmpd)</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A standard, non-vulnerable Net-SNMP agent from the Debian repositories. It answers one read-only community from localhost, limited to the system subtree, and includes /etc/snmp/snmpd.conf.d so other modules can add their own configuration fragments.</description>
+
+  <type>snmp</type>
+  <platform>linux</platform>
+
+  <read_fact>agent_address</read_fact>
+  <read_fact>ro_community</read_fact>
+  <read_fact>sys_location</read_fact>
+  <read_fact>sys_contact</read_fact>
+
+  <!-- snmpd agentAddress value; scenarios that expose SNMP set udp:161 -->
+  <default_input into="agent_address">
+    <value>udp:127.0.0.1:161</value>
+  </default_input>
+
+  <default_input into="ro_community">
+    <generator type="strong_password_generator"/>
+  </default_input>
+
+  <default_input into="sys_location">
+    <value>Server room</value>
+  </default_input>
+
+  <default_input into="sys_contact">
+    <value>admin@localhost</value>
+  </default_input>
+
+  <!--optional details-->
+  <reference>http://www.net-snmp.org/docs/man/snmpd.conf.html</reference>
+  <reference>https://wiki.debian.org/SNMP</reference>
+  <software_name>snmpd</software_name>
+  <software_license>BSD</software_license>
+
+  <!-- Debian 12 packaging (Net-SNMP 5.9, Debian-snmp user) -->
+  <conflict>
+    <module_path>.*bases/(?!debian_bookworm).*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</service>
