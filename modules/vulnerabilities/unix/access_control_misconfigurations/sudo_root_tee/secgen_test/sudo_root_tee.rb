@@ -32,11 +32,13 @@ class SudoRootTeeTest < PostProvisionTest
     tier(2) do
       # what a student sees first: sudo -l shows the tee rule
       test_local_command('unprivileged user can list the tee sudo rule', 'sudo -n -l', '/usr/bin/tee *', user: 'nobody')
-      # the misconfiguration: tee run through sudo writes as root. Writes a probe file, shows its
-      # owner, then removes it as root so nothing is left behind.
+      # the misconfiguration: tee run through sudo writes as root. The unprivileged user writes a
+      # probe file; ownership is then checked as root (nobody cannot stat inside /root, which is
+      # 0700) and the probe removed so nothing is left behind.
       probe = '/root/.secgen_tee_probe'
-      cmd = "echo probe | sudo -n /usr/bin/tee #{probe} >/dev/null; stat -c '%U' #{probe}"
-      test_local_command('unprivileged user writes a root-owned file via tee sudo', cmd, 'root', user: 'nobody')
+      write = run_as_user('nobody', "echo probe | sudo -n /usr/bin/tee #{probe} >/dev/null")
+      self.outputs.push write[:stderr] unless write[:stderr].to_s.empty?
+      test_local_command('tee run via sudo by an unprivileged user wrote a root-owned file', "stat -c '%U' #{probe}", 'root')
       run_vagrant_ssh("rm -f #{probe}")
       # the flag itself stays unreadable to an unprivileged user
       leaked.each do |f|
