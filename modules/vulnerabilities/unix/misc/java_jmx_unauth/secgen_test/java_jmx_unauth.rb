@@ -51,10 +51,17 @@ class JavaJmxUnauthTest < PostProvisionTest
     end
 
     tier(2) do
-      # JMX RMI registry listening, and bound on all interfaces (0.0.0.0) so a
-      # client on the lab VLAN can reach it.
+      # JMX RMI registry listening, and reachable off-box (not loopback-only) so
+      # a client on the lab VLAN can reach it. The JDK binds the registry on the
+      # wildcard, which ss renders as *:PORT (dual-stack), 0.0.0.0:PORT or
+      # [::]:PORT depending on the stack — never the literal 0.0.0.0 as a plain
+      # substring in every case — so assert "a non-loopback address listens on
+      # the port" rather than one exact wildcard spelling.
       test_service_up
-      test_local_command('JMX port bound on all interfaces', 'ss -ltn', "0.0.0.0:#{self.port}")
+      test_local_command('JMX port reachable off-box (not loopback-only)',
+                         "ss -ltnH 2>/dev/null | awk '{print $4}' | grep -E ':#{self.port}$' | " \
+                         "grep -vE '^(127\\.|\\[::1\\])' | grep -q . && echo REACHABLE",
+                         'REACHABLE')
     end
 
     # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
