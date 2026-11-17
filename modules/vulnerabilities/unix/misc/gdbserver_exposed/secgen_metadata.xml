@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Exposed gdbserver (multi mode)</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A gdbserver debugging stub left listening on the network in multi mode (gdbserver --multi).
+    Anyone who can reach the port can drive the remote debugger to run arbitrary code as the user the
+    stub runs as. Here it runs as an unprivileged service account, so the code execution gained is that
+    account's, not root's. The flag is leaked into the service account's home directory.</description>
+
+  <type>debug_service</type>
+  <type>remote_code_execution</type>
+  <privilege>user_rwx</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>low</difficulty>
+
+  <read_fact>port</read_fact>
+  <read_fact>username</read_fact>
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+
+  <default_input into="port">
+    <value>2345</value>
+  </default_input>
+
+  <default_input into="username">
+    <generator type="username_generator"/>
+  </default_input>
+
+  <default_input into="strings_to_leak">
+    <generator type="message_generator"/>
+  </default_input>
+
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator"/>
+  </default_input>
+
+  <!--optional vulnerability details-->
+  <cvss_base_score>9.8</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/Au:N/C:C/I:C/A:C</cvss_vector>
+  <software_name>gdbserver</software_name>
+  <software_license>GPL</software_license>
+
+  <!--optional hints-->
+  <msf_module>exploit/multi/gdb/gdb_server_exec</msf_module>
+  <hint>A debugging stub is listening on the network</hint>
+  <solution>Connect to the exposed gdbserver in multi mode and use the remote debugging protocol to
+    execute code as the service account.</solution>
+
+  <!--Cannot co-exist with another gdbserver on the same default port-->
+  <conflict>
+    <software_name>gdbserver</software_name>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+  </CyBOK>
+
+</vulnerability>
