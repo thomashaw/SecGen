@@ -49,8 +49,10 @@ class GdbserverExposedTest < PostProvisionTest
                          "ss -ltn | grep ':#{self.port} '", '0.0.0.0')
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/multi/gdb/gdb_server_exec
+    test_msf_exploit('exploit/multi/gdb/gdb_server_exec',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
