@@ -49,8 +49,14 @@ class GdbserverExposedTest < PostProvisionTest
                          "ss -ltn | grep ':#{self.port} '", '0.0.0.0')
     end
 
+    # gdb_server_exec writes a native payload straight into the debuggee's memory
+    # and detects the architecture from gdb, so it rejects the helper's default
+    # cmd/unix/generic ("not a compatible payload"). The amd64 base debugs an
+    # x86_64 process, so a native linux/x64/exec payload matches; its CMD option
+    # still runs the sentinel command, keeping the proof-of-RCE model intact.
     test_msf_exploit('exploit/multi/gdb/gdb_server_exec',
                      rport: self.port,
+                     payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
                      tier: 3)
   end
