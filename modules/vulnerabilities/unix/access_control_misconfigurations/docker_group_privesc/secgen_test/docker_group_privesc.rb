@@ -82,13 +82,22 @@ class DockerGroupPrivescTest < PostProvisionTest
         # account has before the session opens (login reads /etc/group, so a
         # fresh ssh_login picks it up); userdel -r removes it again on teardown.
         run_vagrant_ssh("usermod -aG docker #{Shellwords.escape(user)}")
-        # No module options are required (WritableDir defaults to /tmp, the
-        # foothold is unprivileged so ForceExploit is unneeded). sentinel_wait is
-        # kept generous to cover the module's WfsDelay (60s) plus docker
-        # build/run latency before the setuid payload fires.
+        # This module includes Msf::Exploit::EXE and drops a native ELF
+        # (generate_payload_exe), which the host docker container chowns to
+        # root:root and makes setuid before the foothold runs it. The helper's
+        # default cmd/unix/generic payload is ARCH_CMD and incompatible with the
+        # module's native arch, so MSF rejects it and nothing is planted — hence
+        # the absent sentinel. Pin a native linux payload (linux/x64/exec runs
+        # the sentinel CMD the helper sets). The setuid-root ELF gives euid=0 but
+        # keeps the foothold's real uid, so `id` would still read uid!=0 and fail
+        # expect_privilege: :root (→ uid0); PrependSetuid prepends setuid(0),
+        # which succeeds because euid is 0, promoting the shell to a true root
+        # uid. sentinel_wait stays generous for the module's WfsDelay (60s) plus
+        # docker build/run latency before the setuid payload fires.
         test_msf_local_exploit('exploit/linux/local/docker_daemon_privilege_escalation',
                                session_user: user, session_pass: pass,
-                               options: {},
+                               payload: 'linux/x64/exec',
+                               options: { 'PrependSetuid' => true },
                                expect_privilege: :root,
                                sentinel_wait: 180,
                                tier: 3)
