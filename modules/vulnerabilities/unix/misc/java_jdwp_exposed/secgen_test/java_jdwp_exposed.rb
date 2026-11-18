@@ -60,9 +60,17 @@ class JavaJdwpExposedTest < PostProvisionTest
       test_banner('JDWP-Handshake', send: 'JDWP-Handshake')
     end
 
+    # The JDWP module builds a native ELF from the payload (Msf::Exploit::EXE /
+    # generate_payload_exe), so the helper's default cmd/unix/generic command
+    # payload is incompatible: use a native x64 payload whose CMD still carries
+    # the sentinel command. exec_payload drops, chmods and runs the ELF through
+    # asynchronous Runtime.exec calls then disconnects, so the sentinel can
+    # appear just after the exploit returns; sentinel_wait covers that race.
     test_msf_exploit('exploit/multi/misc/java_jdwp_debugger',
                      rport: self.port,
+                     payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
+                     sentinel_wait: 60,
                      tier: 3)
   end
 end
