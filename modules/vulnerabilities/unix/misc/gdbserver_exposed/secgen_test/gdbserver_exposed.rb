@@ -37,9 +37,12 @@ class GdbserverExposedTest < PostProvisionTest
       # the debug stub is listening on the configured port
       test_service_up(port: self.port)
       if username
-        # gdbserver is actually running as the unprivileged service account
+        # gdbserver is actually running as the unprivileged service account.
+        # Compare UIDs rather than names: `ps -o user=` truncates names longer
+        # than 8 chars (e.g. "clever_e+"), but usernames can be up to 20 chars.
         test_local_command('gdbserver running as service account',
-                           "ps -o user= -C gdbserver | head -1 | tr -d ' '", username)
+                           "test \"$(ps -o uid= -C gdbserver | head -1 | tr -d ' ')\" = \"$(id -u #{username})\" && echo ok",
+                           'ok')
       end
       # listening on all interfaces, not just loopback
       test_local_command('listening on all interfaces',
