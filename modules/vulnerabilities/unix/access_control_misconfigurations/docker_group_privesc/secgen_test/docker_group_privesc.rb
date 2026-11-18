@@ -73,10 +73,24 @@ class DockerGroupPrivescTest < PostProvisionTest
     # trigger (a cron tick) if it fires on a schedule — see exploit/unix/local/chkrootkit.
     tier(3) do
       with_throwaway_ssh_user do |user, pass|
+        # The vulnerability *is* docker-group membership: the leaked account is in
+        # the docker group (tiers 1-2), and the daemon socket is root:docker 0660,
+        # so only a docker-group member can reach it. with_throwaway_ssh_user
+        # creates a bare foothold with no supplementary groups, so the exploit's
+        # `docker ps` AutoCheck would fail and nothing would write the sentinel.
+        # Grant the disposable foothold the same docker-group access the real
+        # account has before the session opens (login reads /etc/group, so a
+        # fresh ssh_login picks it up); userdel -r removes it again on teardown.
+        run_vagrant_ssh("usermod -aG docker #{Shellwords.escape(user)}")
+        # No module options are required (WritableDir defaults to /tmp, the
+        # foothold is unprivileged so ForceExploit is unneeded). sentinel_wait is
+        # kept generous to cover the module's WfsDelay (60s) plus docker
+        # build/run latency before the setuid payload fires.
         test_msf_local_exploit('exploit/linux/local/docker_daemon_privilege_escalation',
                                session_user: user, session_pass: pass,
                                options: {},
                                expect_privilege: :root,
+                               sentinel_wait: 180,
                                tier: 3)
       end
     end
