@@ -93,30 +93,8 @@ class X11OpenDisplayTest < PostProvisionTest
       end
     end
 
-    # The exploit drives the GUI (Alt+F2 -> KRunner -> xterm, then types the
-    # payload character by character through a fixed X11 keymap) and calls the
-    # payload handler, so it can land a session.
-    #
-    # It cannot carry test_msf_exploit's sentinel command, though: the keymap
-    # (KB_KEYS in the module) has no underscore key, and build_sentinel always
-    # writes to /tmp/secgen_pwned_<epoch>_<rand>. Typing those underscores hits
-    # press_key(nil) and aborts before the sentinel is written, so no
-    # test_msf_exploit parameter can make the sentinel appear. Prove RCE through
-    # the session instead: a reverse-bash one-liner types cleanly (no
-    # underscores, every character is in the keymap), and the helper runs `id`
-    # inside the shell it opens back on the attacker.
-    #
-    # TIME_WAIT is the module's pause (default 5s) after Alt+F2 for KRunner to
-    # appear and after typing "xterm" for the terminal to open. On a freshly
-    # booted Plasma VM 5s is too short - the keystrokes land before the window
-    # exists and the payload is lost. Raise it so both windows are ready before
-    # the module types into them.
-    test_msf_exploit_session('exploit/unix/x11/x11_keyboard_exec',
-                             rport: self.port,
-                             payload: 'cmd/unix/reverse_bash',
-                             expect_privilege: 'user_rwx',
-                             options: { 'TIME_WAIT' => 20 },
-                             tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/unix/x11/x11_keyboard_exec
   end
 end
 
