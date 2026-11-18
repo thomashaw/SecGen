@@ -72,24 +72,28 @@ class JupyterNoTokenTest < PostProvisionTest
 
     # Tier 3: prove the misconfiguration with the stock MSF auxiliary module.
     # run_msf_module runs it from the attacker VM (RHOSTS set automatically) and
-    # returns :msf_output. The assertion below is a generic success heuristic (an
-    # MSF "[+]" finding line). TODO t3-worker: tighten it to a module-specific
-    # token from the msf_output_jupyter_login evidence, and add any options the module
-    # needs (credentials, RPORT) from the module's json_inputs.
+    # returns :msf_output. jupyter_login checks the Jupyter API first, then hits
+    # /tree: when no credentials are needed it reports "No password is required."
+    # via print_good. That line is the module-specific proof of the no-auth
+    # misconfiguration, so we assert on it rather than any "[+]" finding. RPORT
+    # comes from the module's configured port (the module defaults to 8888).
     tier(3) do
+      msf_options = {}
+      msf_options['RPORT'] = port if port
+
       aux = run_msf_module('auxiliary/scanner/http/jupyter_login',
-                           options: {},
+                           options: msf_options,
                            label: 'jupyter_no_token')
       next unless aux
 
       out = aux[:msf_output].to_s
-      if out.include?('[+]')
-        pass_check('jupyter_no_token proves the misconfiguration',
-                   "auxiliary/scanner/http/jupyter_login on #{aux[:attacker]} reported a finding against #{aux[:rhost]}",
+      if out =~ /No password is required/i
+        pass_check('jupyter_no_token proves the no-auth misconfiguration',
+                   "auxiliary/scanner/http/jupyter_login on #{aux[:attacker]} confirmed \"No password is required\" against #{aux[:rhost]}",
                    tier: 3)
       else
-        fail_check('jupyter_no_token proves the misconfiguration',
-                   'No MSF "[+]" success line in the auxiliary output; see msf_output evidence.',
+        fail_check('jupyter_no_token proves the no-auth misconfiguration',
+                   'jupyter_login did not report "No password is required"; see msf_output evidence.',
                    tier: 3)
       end
     end
