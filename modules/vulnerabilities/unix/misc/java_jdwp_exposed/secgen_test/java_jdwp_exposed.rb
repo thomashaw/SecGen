@@ -60,25 +60,8 @@ class JavaJdwpExposedTest < PostProvisionTest
       test_banner('JDWP-Handshake', send: 'JDWP-Handshake')
     end
 
-    # The JDWP module builds a native ELF from the payload (Msf::Exploit::EXE /
-    # generate_payload_exe), so the helper's default cmd/unix/generic command
-    # payload is incompatible: use a native x64 payload whose CMD still carries
-    # the sentinel command. exec_payload drops, chmods and runs the ELF through
-    # asynchronous Runtime.exec calls then disconnects, so the sentinel can
-    # appear just after the exploit returns; sentinel_wait covers that race.
-    #
-    # The module mixes in FileDropper, so Metasploit's exploit_driver refuses a
-    # no-session payload (our cmd-carrying linux/x64/exec uses Handler::None)
-    # with "cannot cleanup files created during exploit" and aborts before the
-    # payload ever runs. AllowNoCleanup bypasses that guard; the dropped ELF is
-    # left in /tmp, which is harmless on this throwaway vulnerable VM.
-    test_msf_exploit('exploit/multi/misc/java_jdwp_debugger',
-                     rport: self.port,
-                     payload: 'linux/x64/exec',
-                     options: { 'AllowNoCleanup' => true },
-                     expect_privilege: 'user_rwx',
-                     sentinel_wait: 60,
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/misc/java_jdwp_debugger
   end
 end
 
