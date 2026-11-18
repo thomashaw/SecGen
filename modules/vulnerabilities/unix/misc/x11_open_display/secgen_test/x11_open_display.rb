@@ -93,8 +93,10 @@ class X11OpenDisplayTest < PostProvisionTest
       end
     end
 
-    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
-    # msf_module: exploit/unix/x11/x11_keyboard_exec
+    test_msf_exploit('exploit/unix/x11/x11_keyboard_exec',
+                     rport: self.port,
+                     expect_privilege: 'user_rwx',
+                     tier: 3)
   end
 end
 
