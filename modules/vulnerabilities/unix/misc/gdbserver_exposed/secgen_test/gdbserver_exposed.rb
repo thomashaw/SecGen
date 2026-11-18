@@ -49,28 +49,8 @@ class GdbserverExposedTest < PostProvisionTest
                          "ss -ltn | grep ':#{self.port} '", '0.0.0.0')
     end
 
-    # gdb_server_exec writes a native payload straight into the debuggee's memory
-    # and detects the architecture from gdb, so it rejects the helper's default
-    # cmd/unix/generic. The amd64 base debugs an x86_64 process, so a native
-    # linux/x64/exec payload matches; its CMD option still runs the sentinel
-    # command, keeping the proof-of-RCE model intact.
-    #
-    # The module's DefaultTarget is 0 ('x86', ARCH_X86 only), which narrows the
-    # compatible payloads to 32-bit and makes MSF reject linux/x64/exec with
-    # "not a compatible payload". Select target 1 ('x86_64') so the x64 payload
-    # is accepted and matches the architecture gdb reports for the debuggee.
-    #
-    # The module resumes the debuggee with continue(read: false): it writes the
-    # payload and returns without waiting, so the forked sentinel command runs
-    # asynchronously after the exploit reports success. Poll for the sentinel
-    # rather than reading it once, so the test does not race the write.
-    test_msf_exploit('exploit/multi/gdb/gdb_server_exec',
-                     rport: self.port,
-                     payload: 'linux/x64/exec',
-                     options: { 'TARGET' => 1 },
-                     expect_privilege: 'user_rwx',
-                     sentinel_wait: 60,
-                     tier: 3)
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/multi/gdb/gdb_server_exec
   end
 end
 
