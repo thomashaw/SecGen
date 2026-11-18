@@ -19,6 +19,18 @@ class jupyter_no_token::config {
     require => Class['jupyter_no_token::install'],
   }
 
+  # A plausible working notebook so the server looks like one a data team uses,
+  # rather than a directory holding only the flag. It never auto-runs; it just
+  # makes the box realistic and the Jupyter UI obviously identifiable.
+  file { "${home}/analysis.ipynb":
+    ensure  => file,
+    owner   => $user,
+    group   => $user,
+    mode    => '0644',
+    content => template('jupyter_no_token/analysis.ipynb.erb'),
+    require => Class['jupyter_no_token::install'],
+  }
+
   # The flag sits in the notebook directory itself, so browsing the unauthenticated
   # server exposes it.
   ::secgen_functions::leak_files { 'jupyter_no_token_flag':
