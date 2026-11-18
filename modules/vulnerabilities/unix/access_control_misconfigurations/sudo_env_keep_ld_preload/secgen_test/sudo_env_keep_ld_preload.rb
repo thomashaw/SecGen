@@ -32,8 +32,8 @@ class SudoEnvKeepLdPreloadTest < PostProvisionTest
     end
 
     tier(2) do
-      # what a student sees: sudo -l lists LD_PRELOAD as a kept variable and the allowed command
-      test_local_command('unprivileged user sees LD_PRELOAD kept by sudo', 'sudo -n -l', 'env_keep+="LD_PRELOAD"', user: 'nobody')
+      # what a student sees (sudo prints the list value unquoted): sudo -l lists LD_PRELOAD as a kept variable and the allowed command
+      test_local_command('unprivileged user sees LD_PRELOAD kept by sudo', 'sudo -n -l', 'env_keep+=LD_PRELOAD', user: 'nobody')
       test_local_command('unprivileged user sees the allowed root command', 'sudo -n -l', '/usr/local/bin/system_status', user: 'nobody')
       test_command_succeeds('unprivileged user runs the status script as root',
                             'sudo -n /usr/local/bin/system_status', user: 'nobody')
