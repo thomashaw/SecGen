@@ -97,9 +97,16 @@ class X11OpenDisplayTest < PostProvisionTest
     # payload), with TIME_WAIT pauses, and runs a no-session command payload.
     # The typed command finishes executing in xterm after the module returns, so
     # poll for the sentinel rather than reading it immediately.
+    #
+    # TIME_WAIT is the module's pause (default 5s) after Alt+F2 for KRunner to
+    # appear and after typing "xterm" for the terminal to open. On a freshly
+    # booted Plasma VM 5s is too short - the keystrokes land before the window
+    # exists and the payload is lost, so the sentinel never appears. Raise it so
+    # both windows are ready before the module types into them.
     test_msf_exploit('exploit/unix/x11/x11_keyboard_exec',
                      rport: self.port,
                      expect_privilege: 'user_rwx',
+                     options: { 'TIME_WAIT' => 20 },
                      sentinel_wait: 60,
                      tier: 3)
   end
