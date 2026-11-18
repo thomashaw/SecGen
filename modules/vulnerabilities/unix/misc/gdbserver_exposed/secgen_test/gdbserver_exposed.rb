@@ -54,10 +54,16 @@ class GdbserverExposedTest < PostProvisionTest
     # cmd/unix/generic ("not a compatible payload"). The amd64 base debugs an
     # x86_64 process, so a native linux/x64/exec payload matches; its CMD option
     # still runs the sentinel command, keeping the proof-of-RCE model intact.
+    #
+    # The module resumes the debuggee with continue(read: false): it writes the
+    # payload and returns without waiting, so the forked sentinel command runs
+    # asynchronously after the exploit reports success. Poll for the sentinel
+    # rather than reading it once, so the test does not race the write.
     test_msf_exploit('exploit/multi/gdb/gdb_server_exec',
                      rport: self.port,
                      payload: 'linux/x64/exec',
                      expect_privilege: 'user_rwx',
+                     sentinel_wait: 60,
                      tier: 3)
   end
 end
