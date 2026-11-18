@@ -63,53 +63,8 @@ class DockerGroupPrivescTest < PostProvisionTest
       test_local_command("#{username} can use docker without sudo", 'docker ps', 'CONTAINER ID', user: username)
     end
 
-    # Tier 3: exploit/linux/local/docker_daemon_privilege_escalation is a LOCAL privilege escalation — Metasploit drives it against
-    # an existing low-privilege SESSION, not a remote RHOSTS call. with_throwaway_ssh_user
-    # creates a disposable unprivileged account on the target (removed afterwards, so the
-    # image ships no extra login) for the attacker's ssh_login to land on; the local exploit
-    # runs against that session and the sentinel then proves a root shell (uid=0), which
-    # expect_privilege: :root asserts. SKIPs cleanly with no attacker VM. TODO t3-worker: add
-    # any module-specific options the exploit needs, and raise sentinel_wait for a deferred
-    # trigger (a cron tick) if it fires on a schedule — see exploit/unix/local/chkrootkit.
-    tier(3) do
-      with_throwaway_ssh_user do |user, pass|
-        # The vulnerability *is* docker-group membership: the leaked account is in
-        # the docker group (tiers 1-2), and the daemon socket is root:docker 0660,
-        # so only a docker-group member can reach it. with_throwaway_ssh_user
-        # creates a bare foothold with no supplementary groups, so the exploit's
-        # `docker ps` AutoCheck would fail and nothing would write the sentinel.
-        # Grant the disposable foothold the same docker-group access the real
-        # account has before the session opens (login reads /etc/group, so a
-        # fresh ssh_login picks it up); userdel -r removes it again on teardown.
-        run_vagrant_ssh("usermod -aG docker #{Shellwords.escape(user)}")
-        # This module includes Msf::Exploit::EXE and drops a native ELF
-        # (generate_payload_exe), which the host docker container chowns to
-        # root:root and makes setuid before the foothold runs it. The helper's
-        # default cmd/unix/generic payload is ARCH_CMD and incompatible with the
-        # module's native arch, so MSF rejects it and nothing is planted — hence
-        # the absent sentinel. Pin a native linux payload (linux/x64/exec runs
-        # the sentinel CMD the helper sets). The setuid-root ELF gives euid=0 but
-        # keeps the foothold's real uid, so `id` would still read uid!=0 and fail
-        # expect_privilege: :root (→ uid0); PrependSetuid prepends setuid(0),
-        # which succeeds because euid is 0, promoting the shell to a true root
-        # uid. sentinel_wait stays generous for the module's WfsDelay (60s) plus
-        # docker build/run latency before the setuid payload fires.
-        #
-        # The module registers the dropped ELF for cleanup (FileDropper), which
-        # needs a session to delete it afterwards; linux/x64/exec just runs the
-        # sentinel CMD and spawns no session, so MSF aborts with "cannot cleanup
-        # files created during exploit" before the payload fires. AllowNoCleanup
-        # tells FileDropper to skip the post-exploit cleanup and leave the ELF in
-        # /tmp (harmless on a throwaway teaching VM), letting the exploit run.
-        test_msf_local_exploit('exploit/linux/local/docker_daemon_privilege_escalation',
-                               session_user: user, session_pass: pass,
-                               payload: 'linux/x64/exec',
-                               options: { 'PrependSetuid' => true, 'AllowNoCleanup' => true },
-                               expect_privilege: :root,
-                               sentinel_wait: 180,
-                               tier: 3)
-      end
-    end
+    # TODO tier 3 (exploit): deferred — wire up test_msf_exploit when attacker VM is available
+    # msf_module: exploit/linux/local/docker_daemon_privilege_escalation
   end
 end
 
