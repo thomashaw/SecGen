@@ -93,9 +93,14 @@ class X11OpenDisplayTest < PostProvisionTest
       end
     end
 
+    # The exploit drives the GUI (Alt+F2 -> KRunner -> xterm, then types the
+    # payload), with TIME_WAIT pauses, and runs a no-session command payload.
+    # The typed command finishes executing in xterm after the module returns, so
+    # poll for the sentinel rather than reading it immediately.
     test_msf_exploit('exploit/unix/x11/x11_keyboard_exec',
                      rport: self.port,
                      expect_privilege: 'user_rwx',
+                     sentinel_wait: 60,
                      tier: 3)
   end
 end
