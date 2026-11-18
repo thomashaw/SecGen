@@ -94,10 +94,17 @@ class DockerGroupPrivescTest < PostProvisionTest
         # which succeeds because euid is 0, promoting the shell to a true root
         # uid. sentinel_wait stays generous for the module's WfsDelay (60s) plus
         # docker build/run latency before the setuid payload fires.
+        #
+        # The module registers the dropped ELF for cleanup (FileDropper), which
+        # needs a session to delete it afterwards; linux/x64/exec just runs the
+        # sentinel CMD and spawns no session, so MSF aborts with "cannot cleanup
+        # files created during exploit" before the payload fires. AllowNoCleanup
+        # tells FileDropper to skip the post-exploit cleanup and leave the ELF in
+        # /tmp (harmless on a throwaway teaching VM), letting the exploit run.
         test_msf_local_exploit('exploit/linux/local/docker_daemon_privilege_escalation',
                                session_user: user, session_pass: pass,
                                payload: 'linux/x64/exec',
-                               options: { 'PrependSetuid' => true },
+                               options: { 'PrependSetuid' => true, 'AllowNoCleanup' => true },
                                expect_privilege: :root,
                                sentinel_wait: 180,
                                tier: 3)
