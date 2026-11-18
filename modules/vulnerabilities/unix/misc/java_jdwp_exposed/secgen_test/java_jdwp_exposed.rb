@@ -25,6 +25,18 @@ class JavaJdwpExposedTest < PostProvisionTest
       # The bundled Java service compiled at provision time.
       test_local_command('JdwpService compiled', "test -f #{APP_DIR}/JdwpService.class && echo present", 'present')
 
+      # The systemd unit is up.
+      test_local_command('jdwp_service unit active', 'systemctl is-active jdwp_service', 'active')
+
+      # The JVM is actually running as the unprivileged service account with the
+      # JDWP agent (and the configured port) on its command line. ps -u limits to
+      # the service account's processes, so a match proves both the owner and the
+      # agent. This is the acceptance criterion for tier 1.
+      if user && self.port
+        test_local_command("jdwp agent on #{user}'s java command line",
+                           "ps -u #{user} -o args= | grep -F agentlib:jdwp", "address=*:#{self.port}")
+      end
+
       # The unprivileged service account exists.
       test_local_command("service account #{user} exists", "id #{user}", "(#{user})") if user
 
