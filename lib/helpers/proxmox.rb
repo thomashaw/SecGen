@@ -81,8 +81,6 @@ class ProxmoxFunctions
         file = File.open(id_path, 'r')
         node, vm_id = file.read.split('/')
 
-        strip_build_proxy(connection, node, vm_id, vm_name)
-
         Print.std " Stopping #{node}/#{vm_id} for NIC teardown"
         connection.stop_vm(vm_id)
 
@@ -96,21 +94,6 @@ class ProxmoxFunctions
         file.close if file
       end
     end
-  end
-
-  STRIP_BUILD_PROXY_SCRIPT = File.expand_path('../templates/strip_build_proxy.sh', __dir__)
-
-  # Removes the template's provisioning proxy settings from a running guest,
-  # since the proxy is unreachable once net0 is gone. A guest without sh or a
-  # working agent (e.g. Windows) is logged and left as it is.
-  def self.strip_build_proxy(connection, node, vm_id, vm_name)
-    Print.std " Removing provisioning proxy settings from #{vm_name} (#{node}/#{vm_id})"
-    result = connection.exec_qemu_guest(vm_id, node, ['sh', '-s'], timeout: 60,
-                                        input_data: File.read(STRIP_BUILD_PROXY_SCRIPT))
-    result[:stdout].each_line { |line| Print.std "  #{line.chomp}" }
-    Print.err " Proxy cleanup on #{vm_name} exited #{result[:exitcode]}: #{result[:stderr]}" unless result[:exitcode].to_i.zero?
-  rescue StandardError => e
-    Print.err " Could not remove proxy settings from #{vm_name}: #{e.message}"
   end
 
   # Applies the settings modules asked for (test_context.json's proxmox_vm_config).
