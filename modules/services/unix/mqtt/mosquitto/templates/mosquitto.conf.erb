@@ -1,0 +1,17 @@
+# Managed by SecGen. Vulnerability modules add fragments to conf.d.
+pid_file /run/mosquitto/mosquitto.pid
+
+persistence true
+persistence_location /var/lib/mosquitto/
+
+log_dest file /var/log/mosquitto/mosquitto.log
+
+# Must come before any listener: each listener has its own auth settings, so a
+# fragment can add a listener that differs from the one below
+per_listener_settings true
+
+listener <%= @port %> <%= @listen_address %>
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+
+include_dir /etc/mosquitto/conf.d
