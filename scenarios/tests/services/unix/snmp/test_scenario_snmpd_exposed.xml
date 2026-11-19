@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<scenario xmlns="http://www.github/cliffe/SecGen/scenario"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.github/cliffe/SecGen/scenario">
+
+  <name>Test: snmpd (exposed)</name>
+  <author>SecGen Pipeline</author>
+  <description>Test scenario for the snmpd module with agent_address udp:161.</description>
+
+  <type>test</type>
+
+  <system>
+    <system_name>snmpd_target</system_name>
+    <base platform="linux" distro="Debian 12" type="desktop"/>
+
+    <service module_path=".*/snmpd">
+      <input into="agent_address"><value>udp:161</value></input>
+    </service>
+
+    <network type="private_network"/>
+
+    <input into_datastore="spoiler_admin_pass">
+      <generator type="strong_password_generator"/>
+    </input>
+    <build type="cleanup">
+      <input into="root_password">
+        <datastore>spoiler_admin_pass</datastore>
+      </input>
+    </build>
+  </system>
+</scenario>
