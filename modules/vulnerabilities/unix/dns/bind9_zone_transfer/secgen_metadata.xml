@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+  <name>Bind9 Unrestricted Zone Transfer (AXFR)</name>
+  <author>Tom Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Configures the bind9 authoritative DNS server with an unrestricted zone transfer policy (allow-transfer { any; }). Any client can request a full AXFR and pull the entire zone, leaking every internal hostname, internal IP address and TXT record — including a flag planted in a TXT record. A classic reconnaissance lesson: a single dig or Metasploit auxiliary/gather/enum_dns query hands an attacker the whole internal map.</description>
+
+  <type>dns</type>
+  <privilege>info_leak</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>low</difficulty>
+
+  <!-- These inputs are read by the bind9 service module (included from this
+       module's Puppet). The Vagrantfile gives each Puppet provision block its
+       own base64_inputs_file, so bind9::config reads the values declared here. -->
+  <read_fact>domain</read_fact>
+  <read_fact>ns_hostname</read_fact>
+  <read_fact>serial</read_fact>
+  <read_fact>dns_records</read_fact>
+  <read_fact>allow_transfer</read_fact>
+
+  <default_input into="domain">
+    <value>secgen.local</value>
+  </default_input>
+
+  <default_input into="ns_hostname">
+    <value>ns1.secgen.local</value>
+  </default_input>
+
+  <default_input into="serial">
+    <value>20240101</value>
+  </default_input>
+
+  <!-- The misconfiguration: the zone is transferable to anyone. -->
+  <default_input into="allow_transfer">
+    <value>any</value>
+  </default_input>
+
+  <!-- Interesting internal records the AXFR leaks, ending in a TXT flag. -->
+  <default_input into="dns_records">
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>gateway</value>
+      </input>
+      <input into="type">
+        <value>a</value>
+      </input>
+      <input into="value">
+        <value>10.100.0.1</value>
+      </input>
+    </generator>
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>fileserver</value>
+      </input>
+      <input into="type">
+        <value>a</value>
+      </input>
+      <input into="value">
+        <value>10.100.0.10</value>
+      </input>
+    </generator>
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>intranet</value>
+      </input>
+      <input into="type">
+        <value>a</value>
+      </input>
+      <input into="value">
+        <value>10.100.0.20</value>
+      </input>
+    </generator>
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>mail</value>
+      </input>
+      <input into="type">
+        <value>a</value>
+      </input>
+      <input into="value">
+        <value>10.100.0.25</value>
+      </input>
+    </generator>
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>webmail</value>
+      </input>
+      <input into="type">
+        <value>cname</value>
+      </input>
+      <input into="value">
+        <value>mail.secgen.local</value>
+      </input>
+    </generator>
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>adminnote</value>
+      </input>
+      <input into="type">
+        <value>txt</value>
+      </input>
+      <input into="value">
+        <value>internal admin console - do not expose externally</value>
+      </input>
+    </generator>
+    <generator module_path=".*/dns_record">
+      <input into="hostname">
+        <value>secret</value>
+      </input>
+      <input into="type">
+        <value>txt</value>
+      </input>
+      <input into="value">
+        <generator module_path=".*/flag_8char_hex"/>
+      </input>
+    </generator>
+  </default_input>
+
+  <!--optional vulnerability details-->
+  <reference>https://www.rapid7.com/db/modules/auxiliary/gather/enum_dns</reference>
+  <reference>https://nmap.org/nsedoc/scripts/dns-zone-transfer.html</reference>
+  <software_name>bind9</software_name>
+  <software_license>MPL-2.0</software_license>
+
+  <!--optional hints-->
+  <msf_module>auxiliary/gather/enum_dns</msf_module>
+  <hint>The DNS server will hand over its whole zone to anyone who asks.</hint>
+  <solution>Request a full zone transfer (AXFR); the zone lists the internal hosts and a flag in a TXT record.</solution>
+
+  <requires>
+    <module_path>modules/services/unix/dns/bind9</module_path>
+  </requires>
+
+  <CyBOK KA="NS" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - NETWORK MAPPING - FINGERPRINTING</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+
+</vulnerability>
