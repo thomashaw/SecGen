@@ -1,0 +1,25 @@
+# Managed by SecGen (jupyter_no_token). Runs the notebook server with no token
+# and no password, bound to all interfaces. Both the Notebook 6 (NotebookApp)
+# and the jupyter-server / Notebook 7 (ServerApp) config classes are set so the
+# same file works whichever version the Debian base ships; config for a class
+# that is not loaded is simply ignored.
+
+# Jupyter Notebook 6.x
+c.NotebookApp.ip = '0.0.0.0'
+c.NotebookApp.port = <%= @port %>
+c.NotebookApp.open_browser = False
+c.NotebookApp.token = ''
+c.NotebookApp.password = ''
+c.NotebookApp.allow_remote_access = True
+c.NotebookApp.disable_check_xsrf = True
+c.NotebookApp.notebook_dir = '<%= @home %>'
+
+# jupyter-server / Notebook 7.x
+c.ServerApp.ip = '0.0.0.0'
+c.ServerApp.port = <%= @port %>
+c.ServerApp.open_browser = False
+c.ServerApp.token = ''
+c.ServerApp.password = ''
+c.ServerApp.allow_remote_access = True
+c.ServerApp.disable_check_xsrf = True
+c.ServerApp.root_dir = '<%= @home %>'
