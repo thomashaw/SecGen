@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>etcd key-value store</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A standard, non-vulnerable single-node etcd server and etcdctl client from the Debian repositories. By default it listens on the loopback interface only. Other modules build on it to seed keys and change how it is exposed.</description>
+
+  <type>kv_store</type>
+  <platform>linux</platform>
+
+  <read_fact>port</read_fact>
+  <read_fact>listen_address</read_fact>
+
+  <default_input into="port">
+    <value>2379</value>
+  </default_input>
+
+  <!-- Address for the client URL: 127.0.0.1 (loopback only) or 0.0.0.0 (all interfaces) -->
+  <default_input into="listen_address">
+    <value>127.0.0.1</value>
+  </default_input>
+
+  <!--optional details-->
+  <reference>https://etcd.io/</reference>
+  <reference>https://etcd.io/docs/v3.4/op-guide/configuration/</reference>
+  <!-- Deliberately not "etcd": the resolver matches software_name as an
+       unanchored regexp, so a plain "etcd" would also match any module whose
+       name or path contains it. -->
+  <software_name>etcd_kv_server</software_name>
+  <software_license>Apache v2</software_license>
+
+  <!-- Debian 12 packages etcd 3.4 with /etc/default/etcd -->
+  <conflict>
+    <module_path>.*bases/(?!debian_bookworm).*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</service>
