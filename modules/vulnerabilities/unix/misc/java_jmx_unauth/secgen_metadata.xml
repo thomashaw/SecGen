@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+
+  <name>Java Unauthenticated Remote JMX Code Execution</name>
+  <author>SecGen pipeline</author>
+  <module_license>MIT</module_license>
+  <description>A small long-running Java process is run as an unprivileged service
+    user with the JMX management agent exposed remotely and misconfigured:
+    com.sun.management.jmxremote.authenticate=false and ssl=false, bound on the
+    configured port (default 1099) with java.rmi.server.hostname set to the VM's
+    address so the RMI stub is reachable. With authentication disabled a remote
+    client can register a javax.management.loading.MLet MBean, load a ClassLoader
+    from an attacker-served HTTP URL and invoke it, running arbitrary Java in the
+    JVM as the service user. OpenJDK 17 (Debian 12) still ships the deprecated
+    MLet class the attack relies on. The Metasploit module
+    exploit/multi/misc/java_jmx_server automates the MLet load; because it serves
+    the payload over HTTP, the target JVM must be able to reach the attacker's
+    SRVHOST.</description>
+
+  <type>misconfiguration</type>
+  <privilege>user_rwx</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>medium</difficulty>
+
+  <read_fact>port</read_fact>
+  <read_fact>unix_username</read_fact>
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+
+  <default_input into="port">
+    <value>1099</value>
+  </default_input>
+  <default_input into="unix_username">
+    <value>jmx</value>
+  </default_input>
+  <default_input into="strings_to_leak">
+    <generator type="message_generator" />
+  </default_input>
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator" />
+  </default_input>
+
+  <reference>https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html</reference>
+  <reference>https://www.optiv.com/blog/exploiting-jmx-rmi</reference>
+  <reference>https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/multi/misc/java_jmx_server.rb</reference>
+  <software_name>JMX</software_name>
+  <software_license>GPL v2 with Classpath exception</software_license>
+
+  <msf_module>exploit/multi/misc/java_jmx_server</msf_module>
+  <hint>A Java service listens on an RMI port; its JMX management agent accepts connections without authentication.</hint>
+
+  <requires>
+    <module_path>utilities/unix/languages/java</module_path>
+  </requires>
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="SS" topic="Categories of Vulnerabilities">
+    <keyword>CVEs and CWEs</keyword>
+  </CyBOK>
+  <CyBOK KA="MAT" topic="Attacks and exploitation">
+    <keyword>EXPLOITATION</keyword>
+    <keyword>EXPLOITATION FRAMEWORKS</keyword>
+  </CyBOK>
+  <CyBOK KA="SOIM" topic="PENETRATION TESTING">
+    <keyword>PENETRATION TESTING - SOFTWARE TOOLS</keyword>
+    <keyword>PENETRATION TESTING - ACTIVE PENETRATION</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="Network Protocols and Vulnerability">
+    <keyword>Application-Layer protocols vulnerabilities and specific threats</keyword>
+  </CyBOK>
+
+</vulnerability>
