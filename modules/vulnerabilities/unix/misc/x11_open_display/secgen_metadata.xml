@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<vulnerability xmlns="http://www.github/cliffe/SecGen/vulnerability"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://www.github/cliffe/SecGen/vulnerability">
+
+  <name>X11 Open Display</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>Exposes the desktop X server to the network with access control disabled, the classic
+          "open X11" misconfiguration (CVE-1999-0526). SDDM is reconfigured through a drop-in so the X
+          server listens on TCP (port 6000) and starts with -ac, which turns off access control. Any
+          remote client can then connect without authentication, read the screen, inject keystrokes and
+          type commands into the logged-in desktop session. The target autologs in to a Plasma session as
+          a non-privileged desktop user, and a flag is left in that user's home. An attacker drives the
+          session over the network (for example Metasploit's x11_keyboard_exec opens an xterm via KRunner
+          and runs a command as the logged-in user).</description>
+
+  <type>access_control_misconfiguration</type>
+  <privilege>user_rwx</privilege>
+  <access>remote</access>
+  <platform>linux</platform>
+  <difficulty>medium</difficulty>
+
+  <read_fact>desktop_user</read_fact>
+  <read_fact>desktop_password</read_fact>
+  <read_fact>strings_to_leak</read_fact>
+  <read_fact>leaked_filenames</read_fact>
+
+  <default_input into="desktop_user">
+    <generator type="random_sanitised_word">
+      <input into="wordlist">
+        <value>mythical_creatures</value>
+      </input>
+    </generator>
+  </default_input>
+
+  <default_input into="desktop_password">
+    <generator type="strong_password_generator"/>
+  </default_input>
+
+  <default_input into="strings_to_leak">
+    <generator type="message_generator" />
+  </default_input>
+
+  <default_input into="leaked_filenames">
+    <generator type="filename_generator" />
+  </default_input>
+
+  <cve>CVE-1999-0526</cve>
+  <cvss_base_score>7.5</cvss_base_score>
+  <cvss_vector>AV:N/AC:L/Au:N/C:P/I:P/A:P</cvss_vector>
+  <reference>https://github.com/rapid7/metasploit-framework/blob/master/modules/exploits/unix/x11/x11_keyboard_exec.rb</reference>
+  <software_name>sddm</software_name>
+
+  <msf_module>exploit/unix/x11/x11_keyboard_exec</msf_module>
+
+  <hint>The host answers on an unusual TCP port with no authentication; the service lets you see and drive the desktop.</hint>
+  <solution>Connect to TCP 6000 with an X11 client. With access control disabled you can screenshot the display, log keystrokes, and inject keystrokes to run commands in the logged-in session (e.g. Metasploit auxiliary/scanner/x11/open_x11 then exploit/unix/x11/x11_keyboard_exec).</solution>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+  <CyBOK KA="AAA" topic="Access Control">
+    <keyword>access control</keyword>
+    <keyword>Vulnerabilities and attacks on access control misconfigurations</keyword>
+  </CyBOK>
+  <CyBOK KA="NS" topic="Network Protocols">
+    <keyword>APPLICATION LAYER</keyword>
+    <keyword>AUTHENTICATION</keyword>
+  </CyBOK>
+  <CyBOK KA="OSV" topic="Operating Systems">
+    <keyword>SANDBOX</keyword>
+  </CyBOK>
+
+</vulnerability>
