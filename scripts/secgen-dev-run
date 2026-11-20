@@ -29,6 +29,10 @@
 #                     node that holds the original templates)
 #   SECGEN_CONF       options file with the Proxmox creds (default SecGen/secgen.conf in the main checkout)
 #   SECGEN_STATE      counter file (default ~/.config/secgen/run_counter)
+#   SECGEN_ALLOW_DETACHED  1 skips the build-source guard (allow a detached-HEAD or
+#                     unclaimed pool-slot build, e.g. a deliberate SHA/tag build)
+#   SECGEN_WT_POOL    path to SecGenPipeline/bin/wt-pool; when set, the guard also
+#                     refuses a pool-slot build whose slot is not leased (claimed)
 #
 # State file, one "key value" per line:
 #   vlan <last_vlan>      shared by all names, so builds never clash
@@ -61,7 +65,7 @@ while [[ $# -gt 0 ]]; do
     -p) NAME="$2"; shift 2 ;;
     --test) TEST=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
-    -h|--help) sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,38p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --) shift; break ;;
     *) break ;;
   esac
@@ -135,6 +139,55 @@ else
        --proxmox-post-boot --no-destroy-on-failure
        "${EXTRA[@]}" r)
 fi
+
+# --- Build-source guard -------------------------------------------------------
+# Make sure a build comes from the branch/slot you think it does. The trap this
+# catches: a SecGen RAM worktree-pool slot that was reset or reclaimed under you,
+# so secgen.rb silently resolves a *different* scenario than intended (e.g. the
+# baseline lab instead of your work-in-progress). Prints what is about to be
+# built, and refuses a pool-slot build that is detached or unclaimed. Runs on
+# --dry-run too, so a dry-run doubles as a pre-flight check. Override a deliberate
+# detached / unclaimed build with SECGEN_ALLOW_DETACHED=1.
+guard_build_source() {
+  local dir branch head_short head_subj slot line wtp
+  dir="$SECGEN_DIR"
+  branch=$(git -C "$dir" symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+  head_short=$(git -C "$dir" rev-parse --short HEAD 2>/dev/null || echo '?')
+  head_subj=$(git -C "$dir" log -1 --format='%s' 2>/dev/null || echo '?')
+  echo "SecGen source: branch=${branch:-DETACHED} @ ${head_short} \"${head_subj}\""
+
+  # Extra checks only for a RAM worktree-pool slot; the main checkout is exempt.
+  case "$dir" in
+    */.claude/worktrees/ram/pool-*) slot="${dir##*/}" ;;
+    *) return 0 ;;
+  esac
+  [[ "${SECGEN_ALLOW_DETACHED:-0}" == 1 ]] && return 0
+
+  if [[ -z "$branch" ]]; then
+    echo "REFUSING: $slot is on a DETACHED HEAD (${head_short} \"${head_subj}\")." >&2
+    echo "  A pool slot goes detached when it is reset or reclaimed, so this would build" >&2
+    echo "  the wrong code. Re-claim it for your branch, then rebuild:" >&2
+    echo "    SecGenPipeline/bin/wt-pool claim --branch <branch>" >&2
+    echo "  Deliberate detached build (a specific SHA/tag): SECGEN_ALLOW_DETACHED=1" >&2
+    exit 3
+  fi
+
+  # Claimed-slot check: only when SECGEN_WT_POOL names a wt-pool binary, so SecGen
+  # keeps no hard dependency on the (private) pipeline repo that owns the pool.
+  wtp="${SECGEN_WT_POOL:-}"
+  if [[ -n "$wtp" && -x "$wtp" ]]; then
+    line=$("$wtp" status 2>/dev/null | awk -v s="$slot" '$1==s{print; f=1} END{exit f?0:1}') || line=""
+    if [[ -n "$line" && "$line" != *LEASED* ]]; then
+      echo "REFUSING: pool reports $slot as not leased (unclaimed):" >&2
+      echo "    $line" >&2
+      echo "  An unclaimed slot can be reset under a running build. Claim it first:" >&2
+      echo "    $wtp claim --branch $branch" >&2
+      echo "  Override: SECGEN_ALLOW_DETACHED=1" >&2
+      exit 3
+    fi
+  fi
+}
+guard_build_source
 
 echo "SecGen run: prefix=$PREFIX vlan=$VLAN dir=$SECGEN_DIR${BUNDLE_PATH:+ gems=$BUNDLE_PATH}"
 echo "${CMD[*]}"
