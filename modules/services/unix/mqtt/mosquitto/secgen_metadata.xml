@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<service xmlns="http://www.github/cliffe/SecGen/service"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://www.github/cliffe/SecGen/service">
+  <name>Mosquitto MQTT broker</name>
+  <author>Thomas Shaw</author>
+  <module_license>MIT</module_license>
+  <description>A standard, non-vulnerable installation of the Eclipse Mosquitto MQTT broker from the Debian repositories. It has one listener that refuses anonymous clients and accepts one user from a password file. Debian's conf.d directory is included, so vulnerability modules can layer a configuration fragment (or a second listener, since per_listener_settings is on) on top of it.</description>
+
+  <type>mqtt</type>
+  <platform>linux</platform>
+
+  <read_fact>port</read_fact>
+  <read_fact>listen_address</read_fact>
+  <read_fact>username</read_fact>
+  <read_fact>password</read_fact>
+
+  <default_input into="port">
+    <value>1883</value>
+  </default_input>
+
+  <!-- Address the base listener binds to: 127.0.0.1, 0.0.0.0 or a specific interface address -->
+  <default_input into="listen_address">
+    <value>127.0.0.1</value>
+  </default_input>
+
+  <default_input into="username">
+    <value>mqttuser</value>
+  </default_input>
+
+  <default_input into="password">
+    <generator type="strong_password_generator"/>
+  </default_input>
+
+  <!--optional details-->
+  <reference>https://mosquitto.org/</reference>
+  <reference>https://mosquitto.org/man/mosquitto-conf-5.html</reference>
+  <reference>https://mosquitto.org/man/mosquitto_passwd-1.html</reference>
+  <!-- The resolver matches <software_name> as an unanchored regexp, so this is
+       deliberately a name no vulnerability module path contains (see the comment
+       in postgres_readfile's metadata). Vulnerability modules require it with
+       <software_name>mqtt_broker_base</software_name>. -->
+  <software_name>mqtt_broker_base</software_name>
+  <software_license>EPL-2.0 / EDL-1.0</software_license>
+
+  <!-- Debian 12 paths and Mosquitto 2.0 configuration syntax -->
+  <conflict>
+    <module_path>.*bases/(?!debian_bookworm).*</module_path>
+  </conflict>
+
+  <requires>
+    <type>update</type>
+  </requires>
+
+</service>
