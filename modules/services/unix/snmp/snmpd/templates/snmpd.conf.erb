@@ -1,0 +1,15 @@
+# Managed by SecGen. Add further configuration as files in /etc/snmp/snmpd.conf.d
+agentAddress <%= @agent_address %>
+
+sysLocation <%= @sys_location %>
+sysContact <%= @sys_contact %>
+sysServices 72
+
+# Only the system subtree is visible; a fragment must widen this on purpose
+view systemonly included .1.3.6.1.2.1.1
+view systemonly included .1.3.6.1.2.1.25.1
+
+rocommunity <%= @ro_community %> localhost -V systemonly
+rocommunity6 <%= @ro_community %> localhost -V systemonly
+
+includeDir /etc/snmp/snmpd.conf.d
