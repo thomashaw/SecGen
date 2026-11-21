@@ -1,0 +1,23 @@
+#!/bin/sh
+# Launch the demo JVM with an unauthenticated, no-TLS remote JMX agent.
+# java.rmi.server.hostname must be a reachable address or the RMI stub handed to
+# a client points nowhere, so resolve the VM's current primary IP at each start
+# (it differs between the provisioning NIC and the isolated lab VLAN).
+PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin
+export PATH
+
+IP=$(hostname -I | awk '{print $1}')
+if [ -z "$IP" ]; then
+    IP=127.0.0.1
+fi
+
+exec java \
+    -Dcom.sun.management.jmxremote \
+    -Dcom.sun.management.jmxremote.port=<%= @port %> \
+    -Dcom.sun.management.jmxremote.rmi.port=<%= @port %> \
+    -Dcom.sun.management.jmxremote.authenticate=false \
+    -Dcom.sun.management.jmxremote.ssl=false \
+    -Dcom.sun.management.jmxremote.local.only=false \
+    -Djava.rmi.server.hostname="$IP" \
+    -cp <%= @classes_dir %> \
+    com.secgen.JmxApp

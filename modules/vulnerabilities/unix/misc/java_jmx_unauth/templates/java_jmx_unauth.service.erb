@@ -1,0 +1,17 @@
+[Unit]
+Description=SecGen unauthenticated remote JMX demo (java_jmx_unauth)
+# Wait for an address to be configured: the launcher bakes the current primary
+# IP into java.rmi.server.hostname, so starting before DHCP completes would pin
+# the RMI stub to 127.0.0.1 and make it unreachable from the lab VLAN.
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=<%= @user %>
+ExecStart=<%= @launcher %>
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
