@@ -21,10 +21,13 @@ class iptables_rules::config {
     require => [File['/etc/iptables'], Package['iptables-persistent']],
   }
 
-  # netfilter-persistent restores rules.v4 at boot; make sure it is enabled
+  # netfilter-persistent restores rules.v4 at boot; make sure it is enabled.
+  # provider => systemd: on Kali, Puppet picks the init provider, which cannot
+  # enable a service, and Kali's update-rc.d leaves it disabled at install.
   service { 'netfilter-persistent':
-    enable  => true,
-    require => Package['iptables-persistent'],
+    enable   => true,
+    provider => systemd,
+    require  => Package['iptables-persistent'],
   }
 
   if $ip_forwarding == 'true' {
