@@ -1,0 +1,8 @@
+#!/bin/sh
+# Exits 0 when INetSim's own DNS service cannot run here, so inetsim-dns.service
+# (dnsmasq) should answer DNS instead. From Net::DNS 1.4x on (Kali; Debian 13),
+# Net::DNS::Nameserver refuses to start in a forked process ("Attempt to start
+# Net::DNS::Nameserver in a subprocess"), and INetSim forks every service.
+# Debian 12's Net::DNS 1.36 has no such check, so INetSim answers DNS itself.
+f=$(perl -MNet::DNS::Nameserver -e 'print $INC{"Net/DNS/Nameserver.pm"}' 2>/dev/null) || exit 0
+grep -q 'in a subprocess' "$f"

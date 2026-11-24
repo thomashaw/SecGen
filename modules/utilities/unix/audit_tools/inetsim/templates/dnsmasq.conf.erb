@@ -1,0 +1,14 @@
+# Managed by SecGen (inetsim module). Used by inetsim-dns.service only where
+# INetSim's own DNS service cannot run: answers every name with dns_default_ip,
+# as INetSim's DNS would, and logs each query.
+port=53
+no-resolv
+no-hosts
+# every name is local: A queries get dns_default_ip, others an empty answer
+local=/#/
+address=/#/<%= @dns_default_ip %>
+log-queries
+# /var/log/inetsim is only writable by the inetsim user
+user=inetsim
+group=inetsim
+log-facility=/var/log/inetsim/dns.log
