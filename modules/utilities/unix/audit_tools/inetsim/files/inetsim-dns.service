@@ -1,0 +1,12 @@
+# DNS for INetSim's fake internet, where INetSim cannot answer DNS itself (see
+# /usr/local/sbin/inetsim-dns-needs-dnsmasq). inetsim.service pulls this unit in
+# (drop-in inetsim.service.d/dns.conf) and PartOf= stops and restarts it with
+# INetSim. Where INetSim's own DNS works, the condition fails and it is skipped.
+[Unit]
+Description=DNS for INetSim (dnsmasq, every name resolves to dns_default_ip)
+PartOf=inetsim.service
+After=network.target
+
+[Service]
+ExecCondition=/usr/local/sbin/inetsim-dns-needs-dnsmasq
+ExecStart=/usr/sbin/dnsmasq --keep-in-foreground --conf-file=/etc/inetsim/dnsmasq.conf
