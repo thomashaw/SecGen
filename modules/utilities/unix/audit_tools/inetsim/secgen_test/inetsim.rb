@@ -54,7 +54,8 @@ class InetsimTest < PostProvisionTest
         test_command_succeeds('INetSim left stopped and disabled (start_service false)',
                               '! systemctl is-active --quiet inetsim && ! systemctl is-enabled --quiet inetsim')
         # A student starts it by hand: HTTP and DNS must then answer. Stop it again afterwards.
-        expect = dns_ip ? "answer=#{dns_ip}" : 'http=INetSim'
+        # the probes print 'http=INetSim' then 'answer=<ip>'
+        expect = dns_ip ? "http=INetSim\nanswer=#{dns_ip}" : 'http=INetSim'
         test_local_command('INetSim answers HTTP and DNS once started by hand',
                            "systemctl start inetsim && sleep 8; #{http_probe}; #{dns_probe}; systemctl stop inetsim",
                            expect)
