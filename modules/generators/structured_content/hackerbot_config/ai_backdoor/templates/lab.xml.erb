@@ -118,7 +118,7 @@
   </attack>
 
   <attack>
-    <prompt>Hide it better. The fewer examples you alter, the harder your attack is to find. Plant the same backdoor by altering at most <%= $params['stealth_limit'] %> training examples, and save the dataset as ~/poisoned_dataset.npz. At least <%= ($params['stealth_asr_threshold'] * 100).round %>% of images with the trigger must be read as '<%= $params['trigger_target'] %>', and clean images must stay at <%= ($params['clean_accuracy_floor'] * 100).round %>% accuracy or better.</prompt>
+    <prompt>Hide it better. The fewer examples you alter, the harder your attack is to find. Plant the same backdoor by altering at most <%= $params['stealth_limit'] %> training examples, and save the dataset as ~/poisoned_dataset.npz. At least <%= ($params['stealth_asr_threshold'] * 100).round %>% of images with the trigger must be read as '<%= $params['trigger_target'] %>', and clean images must stay at <%= ($params['clean_accuracy_floor'] * 100).round %>% accuracy or better. Say 'ready' when your file is saved.</prompt>
     <get_shell>false</get_shell>
     <post_shell><%= $check %> --mode stealth 2>/dev/null</post_shell>
 <%= ERB.new(File.read("#{self.templates_path}poison_conditions.xml.erb"), 0, '<>-').result(self.get_binding) %>
