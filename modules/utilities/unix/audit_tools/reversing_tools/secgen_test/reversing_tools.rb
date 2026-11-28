@@ -16,7 +16,7 @@ class ReversingToolsTest < PostProvisionTest
 
     tier(1) do
       test_local_command('gdb installed?', 'which gdb', 'gdb')
-      %w[gdb git ltrace strace valgrind pax-utils binwalk vbindiff ssdeep gcc-multilib yara nmap netcat-openbsd tcpdump].each do |pkg|
+      %w[gdb git ltrace strace valgrind pax-utils vbindiff ssdeep gcc-multilib yara nmap netcat-openbsd tcpdump].each do |pkg|
         test_local_command("#{pkg} package installed?", "dpkg -l #{pkg} | grep '^ii'", pkg)
       end
       test_local_command('upx installed?', 'test -x /usr/local/bin/upx && echo "ok"', 'ok')
@@ -40,7 +40,8 @@ class ReversingToolsTest < PostProvisionTest
       test_local_command('ltrace runs', 'command -v ltrace >/dev/null && ltrace --version 2>&1', 'ltrace')
       test_local_command('valgrind runs', 'command -v valgrind >/dev/null && valgrind --version 2>&1', 'valgrind')
       test_local_command('scanelf (pax-utils) runs', 'command -v scanelf >/dev/null && scanelf -V 2>&1', 'scanelf')
-      test_local_command('binwalk runs', 'command -v binwalk >/dev/null && binwalk --help 2>&1', 'inwalk')
+      # binwalk is commented out in install.pp for now
+      # test_local_command('binwalk runs', 'command -v binwalk >/dev/null && binwalk --help 2>&1', 'inwalk')
       test_local_command('vbindiff runs', 'command -v vbindiff >/dev/null && vbindiff --help 2>&1; true', 'vbindiff')
       test_local_command('ssdeep runs', 'ssdeep -V 2>&1', '.')
       test_local_command('yara runs', 'yara --version 2>&1', '.')
