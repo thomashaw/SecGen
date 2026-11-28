@@ -9,7 +9,9 @@ class GemExec
   # @param [Object] gem_name -- such as 'vagrant', 'puppet', 'librarian-puppet'
   # @param [Object] working_dir -- the location for output
   # @param [Object] argument -- the command to send 'init', 'install'
-  def self.exe(gem_name, working_dir, arguments)
+  # @param [Integer, nil] timeout -- give up after this many seconds with no output from the
+  #   command (an idle limit, not a cap on the total run time); nil (the default) waits for ever
+  def self.exe(gem_name, working_dir, arguments, timeout: nil)
     Print.std "Loading #{gem_name} (#{arguments.strip}) in #{working_dir}"
 
     version = '>= 0'
@@ -50,8 +52,7 @@ class GemExec
     output_hash = {:output => '', :status => 0, :exception => nil}
     Dir.chdir(working_dir) do
       begin
-        # Times out after 30 minutes, (TODO: make this configurable)
-        output_hash[:output] = ProcessHelper.process("#{gem_path} #{arguments}", {:pty => true, :timeout => (60 * 30),
+        output_hash[:output] = ProcessHelper.process("#{gem_path} #{arguments}", {:pty => true, :timeout => timeout,
                                                                                   include_output_in_exception: true})
       rescue Exception => ex
         output_hash[:status] = 1

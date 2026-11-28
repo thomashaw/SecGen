@@ -45,6 +45,9 @@ def usage
    --no-destroy-on-failure: Keep VMs that fail to build or don't PASS post-provision tests
               (except when retrying a build). For investigating; by default they are destroyed.
    --retries [number]: Retry building vms that fail to build this many attempts.
+   --vagrant-timeout [minutes]: Give up on a vagrant up that prints nothing for this many minutes,
+              destroy its VMs and retry (counts against --retries). Off by default: a build
+              is never cut short.
    --no-parallel: Build one VM at a time.
    --keep-vms: test-scenario/test-module: keep the VMs and project after testing, even on PASS.
    --keep-dir: destroy-project: delete the VMs but keep the project directory.
@@ -216,7 +219,8 @@ def build_vms(scenario, project_dir, options)
 
   while retry_count >= 0 and !successful_creation
     options[:build_attempts] += 1
-    vagrant_output = GemExec.exe('vagrant', project_dir, "#{command} #{system}")
+    vagrant_timeout = options[:vagrant_timeout] ? options[:vagrant_timeout] * 60 : nil
+    vagrant_output = GemExec.exe('vagrant', project_dir, "#{command} #{system}", timeout: vagrant_timeout)
     if vagrant_output[:status] == 0 and !proxmox_tests and !post_provision_tests(project_dir, options)
       # Built, but a test didn't PASS (FAIL, or SKIP: couldn't be verified). Not a build flake, so retrying won't help.
       tests_failed = true
@@ -748,6 +752,7 @@ opts = GetoptLong.new(
     ['--no-destroy-on-failure', GetoptLong::NO_ARGUMENT],
     ['--no-parallel', GetoptLong::NO_ARGUMENT],
     ['--retries', GetoptLong::REQUIRED_ARGUMENT],
+    ['--vagrant-timeout', GetoptLong::REQUIRED_ARGUMENT],
     ['--keep-vms', GetoptLong::NO_ARGUMENT],
     ['--keep-dir', GetoptLong::NO_ARGUMENT],
     ['--test-base', GetoptLong::REQUIRED_ARGUMENT],
@@ -959,6 +964,13 @@ opts.each do |opt, arg|
   when '--retries'
     Print.info "Number of retries to build vms : #{arg}"
     options[:retries] = arg
+  when '--vagrant-timeout'
+    unless arg =~ /\A[1-9][0-9]*\z/
+      Print.err "--vagrant-timeout takes a whole number of minutes, not #{arg}"
+      exit 1
+    end
+    Print.info "Giving up on vagrant up after #{arg} minutes without output"
+    options[:vagrant_timeout] = arg.to_i
   when '--keep-vms'
     options[:keepvms] = true
   when '--keep-dir'
