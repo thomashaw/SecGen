@@ -1,7 +1,10 @@
 class reversing_tools::install {
 
   Exec { path => ['/bin', '/usr/bin', '/usr/local/bin', '/sbin', '/usr/sbin'] }
-  ensure_packages(['gdb', 'git', 'ltrace', 'strace', 'valgrind', 'pax-utils', 'binwalk', 'vbindiff', 'ssdeep', 'gcc-multilib','yara'])
+  ensure_packages(['gdb', 'git', 'ltrace', 'strace', 'valgrind', 'pax-utils', 'vbindiff', 'ssdeep', 'gcc-multilib','yara'])
+  # binwalk's recommends (python3-pyqtgraph, which brings Qt, scipy and a compiler toolchain, plus sleuthkit
+  # and the extractors) add ~170 packages and 25+ minutes with no Puppet output to a Debian 12 build
+  ensure_packages(['binwalk'], { install_options => ['--no-install-recommends'] })
 
   # UPX: upx-ucl is not in the Debian 12 repos, so install the static UPX 4.2.4 release binary
   file { '/usr/local/bin/upx':
